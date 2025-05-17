@@ -1,0 +1,114 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+loom {
+    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+}
+version = version+"-fabric"
+dependencies {
+    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":visor-core", configuration: "transformProductionFabric")) { transitive false }
+    common(project(path: ":visor-core", configuration: "namedElements")) { transitive false }
+
+
+
+    String lwjglVersion = "${libs.versions.lwjgl.get()}"
+    String fabricApiVersion = "${libs.versions.fabric.api.get()}+${libs.versions.minecraftVersion.get()}";
+
+    modImplementation(libs.fabric.loader)
+    modApi "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion"
+
+
+    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
+
+
+
+    shadowCommon(libs.atumvr.api) { transitive = false }
+    shadowCommon(libs.atumvr.core) { transitive = false }
+
+    shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")
+    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
+    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
+
+
+    include(implementation(libs.lwjgl.openxr.get()))
+    include(implementation("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux"))
+    include(implementation("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows"))
+
+
+    // needed for resource loading
+    include(modImplementation(fabricApi.module("fabric-resource-loader-v0",  fabricApiVersion)))
+    // commands also needs base
+    include(modImplementation(fabricApi.module("fabric-api-base",  fabricApiVersion)))
+    include(modImplementation(fabricApi.module("fabric-command-api-v2",  fabricApiVersion)))
+
+
+
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+
+shadowJar {
+    exclude "architectury.common.json"
+    exclude "org.joml"
+    exclude "org.lwjgl"
+    exclude "org.slf4j"
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    configurations = [
+            project.configurations.shadowCommon
+    ]
+    archiveClassifier.set("dev-shadow")
+
+    relocate("org.yaml","me.phoenixra.libs.org.yaml")
+    relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
+    relocate("org.checkerframework","me.phoenixra.libs.org.checkerframework")
+    relocate("org.antlr","me.phoenixra.libs.org.antlr")
+
+    relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
+    relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
+
+    relocate("org.reflections","me.phoenixra.libs.org.reflections")
+}
+
+remapJar {
+    injectAccessWidener = true
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    def commonSources = project(":visor-core").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+

@@ -1,19 +1,101 @@
+
+
 plugins {
     id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    alias(libs.plugins.axion.release)
+    alias(libs.plugins.architectury)
+    alias(libs.plugins.loom)             apply false
+    alias(libs.plugins.loom.quiltflower) apply false
+}
+scmVersion {
+    tag {
+        prefix = ""
+    }
+
+
+    //versionIncrementer "incrementMajor"
+    //versionIncrementer "incrementMinor"
+    versionIncrementer "incrementPatch"
+
+
 }
 
-group = 'me.phoenixra'
-version = '1.0-SNAPSHOT'
+group = project_group
+version = scmVersion.version
+archivesBaseName = project_name
 
-repositories {
-    mavenCentral()
+architectury {
+    minecraft = rootProject.minecraft_version
 }
 
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+subprojects {
+
+    apply plugin: "java"
+    apply plugin: "java-library"
+
+    apply plugin: libs.plugins.architectury.get().pluginId
+    apply plugin: libs.plugins.loom.asProvider().get().pluginId
+    apply plugin: libs.plugins.loom.quiltflower.get().pluginId
+
+
+
+    group = rootProject.group
+    version = rootProject.version
+    archivesBaseName = project_name
+    loom {
+        silentMojangMappingsLicense()
+    }
+
+    java {
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release.set(17)
+    }
+
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${libs.versions.minecraftVersion.get()}"
+        mappings loom.officialMojangMappings()
+
+
+        compileOnly(libs.lwjgl.openxr)
+
+        compileOnly(libs.bundles.annotations)
+        annotationProcessor(libs.bundles.annotations)
+
+    }
+
+
 }
 
-test {
-    useJUnitPlatform()
+allprojects {
+
+    repositories {
+        mavenCentral()
+
+        maven { url 'https://jitpack.io' }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'https://redempt.dev' }
+
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Modrinth"
+                    url = "https://api.modrinth.com/maven"
+                }
+            }
+            filter {
+                includeGroup "maven.modrinth"
+            }
+        }
+    }
+    compileJava {
+        dependsOn(clean)
+    }
 }

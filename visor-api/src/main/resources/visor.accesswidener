@@ -1,0 +1,4 @@
+accessWidener	v1	named
+
+accessible method net/minecraft/world/entity/LivingEntity spawnItemParticles (Lnet/minecraft/world/item/ItemStack;I)V
+

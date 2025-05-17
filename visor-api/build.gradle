@@ -1,0 +1,9 @@
+loom{
+    accessWidenerPath = file("src/main/resources/visor.accesswidener")
+}
+dependencies {
+
+
+    api(libs.atumvr.api)
+    api(libs.atumvr.core)
+}

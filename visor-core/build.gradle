@@ -1,0 +1,25 @@
+architectury {
+
+    common(rootProject.enabled_platforms.split(","))
+}
+
+loom{
+    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+}
+
+dependencies {
+    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+
+
+    modApi(libs.architectury.lib)
+
+
+    api(libs.atumvr.api)
+    api(libs.atumvr.core)
+
+    //Other mods
+    modCompileOnly(libs.mods.sodium)
+
+
+}
+

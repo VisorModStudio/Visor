@@ -1,0 +1,125 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+loom {
+    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+
+    forge {
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+
+        mixinConfig "visor.mixins.json"
+        mixinConfig "visor.mixins.optifine.json"
+        mixinConfig "visor.mixins.sodium.json"
+        mixinConfig "visor.mixins.forge.json"
+    }
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    bundle {
+        // bundle command, to copy jar contents with the shadow plugin
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+}
+
+version = version+"-forge"
+
+dependencies {
+    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":visor-core", configuration: "transformProductionForge")) { transitive = false }
+    common(project(path: ":visor-core", configuration: "namedElements")) { transitive false }
+
+
+
+    String lwjglVersion = "${libs.versions.lwjgl.get()}"
+    String forgeVersion = "${libs.versions.minecraftVersion.get()}-${libs.versions.forgeVersion.get()}"
+
+    forge "net.minecraftforge:forge:$forgeVersion"
+
+
+    shadowCommon(libs.atumvr.api) { transitive = false }
+    shadowCommon(libs.atumvr.core) { transitive = false }
+
+
+    shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")
+    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
+    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
+
+
+    forgeRuntimeLibrary(libs.lwjgl.openxr)
+    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux")
+    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows")
+
+    // shadow the natives
+    bundle(libs.lwjgl.openxr) { transitive = false }
+    bundle("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux") { transitive = false }
+    bundle("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows") { transitive = false }
+
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    exclude "org.joml"
+    exclude "org.lwjgl"
+    exclude "org.slf4j"
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    configurations = [
+            project.configurations.shadowCommon,
+            project.configurations.bundle
+    ]
+    archiveClassifier.set("dev-shadow")
+
+    relocate("org.yaml","me.phoenixra.libs.org.yaml")
+    relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
+    relocate("org.checkerframework","me.phoenixra.libs.org.checkerframework")
+    relocate("org.antlr","me.phoenixra.libs.org.antlr")
+
+    relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
+    relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
+
+    relocate("org.reflections","me.phoenixra.libs.org.reflections")
+
+
+
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    def commonSources = project(":visor-core").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
