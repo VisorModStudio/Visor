@@ -12,6 +12,6 @@ can be changed significantly couple of times before releasing stable version
 
 - - - - - - -
 
-For more information visit: [WIKI](https://github.com/Phoenix-Ra/AtumVR/wiki)
+For more information visit: [WIKI](https://github.com/Phoenix-Ra/Visor/wiki)
 
 Join our community: [Discord](https://discord.gg/wJX8sTDEdx)
