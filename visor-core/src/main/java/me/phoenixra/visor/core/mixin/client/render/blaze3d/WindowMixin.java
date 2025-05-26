@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import me.phoenixra.visor.core.client.ClientContext;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(Window.class)
 public abstract class WindowMixin implements WindowModified {

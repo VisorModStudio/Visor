@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.common;
 
 import com.mojang.datafixers.DataFixer;
-import me.phoenixra.visor.core.server.VisorServer;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.Services;
 import net.minecraft.server.WorldStem;
@@ -27,17 +27,17 @@ public abstract class MinecraftServerMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     public void visor$initServer(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory,
                                 CallbackInfo callbackInfo){
-        new VisorServer();
+        new VisorServerImpl();
     }
     @Inject(at = @At("TAIL"), method = "stopServer")
     public void visor$stopServer(CallbackInfo callbackInfo){
-        VisorServer.INSTANCE.onServerStop();
+        VisorServerImpl.INSTANCE.onServerStop();
     }
 
     @Inject(at = @At("HEAD"), method = "tickServer")
     public void visor$tickVR(BooleanSupplier booleanSupplier,
                             CallbackInfo callbackInfo){
-        VisorServer.INSTANCE.tickVR();
+        VisorServerImpl.INSTANCE.tickVR();
     }
 
 

@@ -2,9 +2,10 @@ package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.ClientPlayer;
+
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.IVRClientPose;
+import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -21,16 +22,15 @@ import org.jetbrains.annotations.Nullable;
 
 import me.phoenixra.visor.core.client.ClientContext;
 
-import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRClientPlayer implements ClientPlayer {
 
-    private final VRClientPose roomPose;
+    private final PoseDataImpl roomPose;
 
-    private final VRClientPose preTickPose;
-    private final VRClientPose postTickPose;
-    private final VRClientPose renderPose;
+    private final PoseDataImpl preTickPose;
+    private final PoseDataImpl postTickPose;
+    private final PoseDataImpl renderPose;
 
     @Getter
     private Vec3 origin = new Vec3(0.0D, 0.0D, 0.0D);
@@ -43,11 +43,11 @@ public class VRClientPlayer implements ClientPlayer {
     private ControllerHand activeHand = ControllerHand.MAIN;
 
     public VRClientPlayer() {
-        this.roomPose = new VRClientPose(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomPose = new PoseDataImpl(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new VRClientPose(PoseType.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new VRClientPose(PoseType.POST_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new VRClientPose(PoseType.RENDER, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.preTickPose = new PoseDataImpl(PoseType.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.postTickPose = new PoseDataImpl(PoseType.POST_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new PoseDataImpl(PoseType.RENDER, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
 
@@ -85,7 +85,7 @@ public class VRClientPlayer implements ClientPlayer {
 
     public void postTick() {
 
-        Vec3 hmdPosWorldScaleOld = VRPoseHelper
+        Vec3 hmdPosWorldScaleOld = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -93,7 +93,7 @@ public class VRClientPlayer implements ClientPlayer {
                         preTickPose.getRotationYaw()
                 ).getPosition();
 
-        Vec3 hmdPosWorldScaleNow = VRPoseHelper
+        Vec3 hmdPosWorldScaleNow = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -104,7 +104,7 @@ public class VRClientPlayer implements ClientPlayer {
         Vec3 hmdWorldScaleDiff = hmdPosWorldScaleNow.subtract(hmdPosWorldScaleOld);
         this.origin = this.origin.subtract(hmdWorldScaleDiff);
 
-        Vec3 headPivot = VRPoseHelper.getHeadPivot(
+        Vec3 headPivot = PoseDataHelper.getHeadPivot(
                 origin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
@@ -195,7 +195,7 @@ public class VRClientPlayer implements ClientPlayer {
         if (player == null) {
             return;
         }
-        VRClientPose data = getPose(stage);
+        PoseDataImpl data = getPose(stage);
 
         if (player.isPassenger()) {
             //Server-side movement
@@ -222,7 +222,7 @@ public class VRClientPlayer implements ClientPlayer {
                 || player.isSwimming()
                 && player.zza > 0.0F) {
 
-            PoseElement rotationElement = getRotationElement(data.getPoseStage());
+            PoseElement rotationElement = getRotationElement(data.getType());
             player.setYRot(rotationElement.getYaw());
             player.setYHeadRot(player.getYRot());
             player.setXRot(-rotationElement.getPitch());
@@ -331,7 +331,7 @@ public class VRClientPlayer implements ClientPlayer {
 
     @Override
     public @NotNull PoseElement getRotationElement(@NotNull PoseType stage){
-        IVRClientPose playerPose = getPose(stage);
+        PoseData playerPose = getPose(stage);
         return switch (VRClientSettings.getRotationMode()) {
             case CONTROLLER_RIGHT -> playerPose.getController(
                     ControllerHand.MAIN
@@ -344,7 +344,7 @@ public class VRClientPlayer implements ClientPlayer {
     }
 
     @Override
-    public @NotNull VRClientPose getPose(@NotNull PoseType stage) {
+    public @NotNull PoseDataImpl getPose(@NotNull PoseType stage) {
         return switch (stage){
             case PRE_TICK -> preTickPose;
             case POST_TICK -> postTickPose;

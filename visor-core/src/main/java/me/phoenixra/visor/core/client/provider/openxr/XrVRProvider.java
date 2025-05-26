@@ -8,7 +8,7 @@ import me.phoenixra.atumvr.core.OpenXRState;
 import me.phoenixra.atumvr.core.enums.XRSessionStateChange;
 import me.phoenixra.atumvr.core.input.OpenXRInputHandler;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.provider.openxr.render.XrRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ public class XrVRProvider extends OpenXRProvider {
     public XrVRProvider(@NotNull String appName, @NotNull VRLogger logger) {
         super(appName, logger);
 
-        ClientContext.rawPlayerPose = new XrRawPlayerPose(this);
+        ClientContext.rawPoseHandler = new XrRawPoseHandler(this);
     }
 
     @Override
@@ -28,13 +28,13 @@ public class XrVRProvider extends OpenXRProvider {
 
         ClientContext.settingsHandler.loadOptions();
 
-        VisorClient.LOGGER.info("OpenXR initialized");
+        VisorClientImpl.LOGGER.info("OpenXR initialized");
     }
 
     @Override
     public void preRender(@NotNull IRenderContext context) {
         super.preRender(context);
-        ClientContext.rawPlayerPose.updatePose();
+        ClientContext.rawPoseHandler.updatePose();
     }
 
     @Override

@@ -8,7 +8,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.render.VisorRenderer;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
@@ -24,7 +24,7 @@ import org.lwjgl.opengl.GL43;
 import java.util.Comparator;
 import java.util.Optional;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VREffectsHelper {
 
@@ -175,7 +175,7 @@ public class VREffectsHelper {
         if (eye != VRDisplay.EYE_LEFT && eye != VRDisplay.EYE_RIGHT) {
             return null;
         }
-        VisorRenderer renderer = ClientContext.renderer;
+        VisorRendererBase renderer = ClientContext.renderer;
         return (eye == VRDisplay.EYE_LEFT)
                 ? renderer.getHiddenAreaVertices(EyeType.LEFT)
                 : renderer.getHiddenAreaVertices(EyeType.RIGHT);

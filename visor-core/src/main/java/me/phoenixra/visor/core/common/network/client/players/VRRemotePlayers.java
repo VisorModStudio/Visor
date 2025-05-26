@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 
 import java.util.*;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRRemotePlayers {
     private final Map<UUID, VRRemotePlayerData> vrPlayers = new HashMap<>();

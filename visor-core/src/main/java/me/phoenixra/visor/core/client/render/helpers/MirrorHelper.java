@@ -18,7 +18,7 @@ import org.lwjgl.opengl.GL30C;
 
 import static com.mojang.blaze3d.platform.GlStateManager._glBindFramebuffer;
 import static com.mojang.blaze3d.platform.GlStateManager._glBlitFrameBuffer;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class MirrorHelper {
 

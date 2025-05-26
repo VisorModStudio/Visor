@@ -4,13 +4,13 @@ package me.phoenixra.visor.core.mixin.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.data.VRClientPose;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import me.phoenixra.visor.core.client.render.VRGameCamera;
@@ -46,7 +46,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import me.phoenixra.visor.core.client.ClientContext;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin
@@ -147,7 +147,7 @@ public abstract class GameRendererMixin
 
             PoseStack poseStack = new PoseStack();
             //render VR main menu
-            ClientContext.gameViewHandler.renderView(
+            ClientContext.decoratorManager.render(
                     poseStack,
                     partialTicks
             );
@@ -295,7 +295,7 @@ public abstract class GameRendererMixin
         if (VisorState.getStateMode().isNotActive()) {
             return original;
         }
-        VRClientPose renderPose = ClientContext.player
+        PoseDataImpl renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
 
         ControllerHand activeHand = ClientContext.player.getActiveHand();
@@ -574,7 +574,7 @@ public abstract class GameRendererMixin
 
         if(!nearSolidBlock.isEmpty()){
             var solid = nearSolidBlock.get();
-            boolean renderOverlay = !IModLoader.get()
+            boolean renderOverlay = !ModLoader.get()
                     .renderBlockOverlay(
                             this.minecraft.player,
                             new PoseStack(),
@@ -592,12 +592,12 @@ public abstract class GameRendererMixin
 
 
         this.visor$inwater = this.minecraft.player.isEyeInFluid(FluidTags.WATER)
-                && !IModLoader.get().renderWaterOverlay(
+                && !ModLoader.get().renderWaterOverlay(
                 this.minecraft.player, new PoseStack()
         );
         this.visor$onfire = VRRenderState.getCurrentVRDisplay() != VRDisplay.THIRD_PERSON
                 && this.minecraft.player.isOnFire()
-                && !IModLoader.get().renderFireOverlay(
+                && !ModLoader.get().renderFireOverlay(
                 this.minecraft.player, new PoseStack()
         );
     }

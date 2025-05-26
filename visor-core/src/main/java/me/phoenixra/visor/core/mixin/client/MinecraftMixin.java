@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import me.phoenixra.visor.core.client.VisorState;
 
-import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
+import static me.phoenixra.visor.core.client.VisorClientImpl.LOGGER;
 
 import me.phoenixra.visor.core.client.ClientContext;
 

@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * <br><br>
  * Class have to:<br>
  * 1) Be a child of {@link VisorTask} <br>
- * 2) Contain constructor with parameter:
+ * 2) Contain constructor with only parameter:
  * {@link VisorAddon}
  * <br><br>
  * To make it detectable by Visor, you need to implement

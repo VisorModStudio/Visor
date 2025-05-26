@@ -11,7 +11,7 @@ import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
 import me.phoenixra.atumconfig.api.placeholders.types.StaticPlaceholder;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.settings.lang.LangHandler;
 import me.phoenixra.visor.core.client.settings.option.VROptionField;
 import me.phoenixra.visor.core.client.settings.option.VROptionRecord;
@@ -181,7 +181,7 @@ public class VRClientSettingsHandler {
         try {
             settings.save();
         } catch (Exception exception) {
-            VisorClient.LOGGER.info(
+            VisorClientImpl.LOGGER.info(
                     "------Failed to save settings data!------"
             );
             LoggerUtils.printError(exception);
@@ -213,12 +213,12 @@ public class VRClientSettingsHandler {
                     config.set(optionKey, value);
 
                 } catch (Exception e) {
-                    VisorClient.LOGGER.warn("Failed to save VR option: " + optionKey);
+                    VisorClientImpl.LOGGER.warn("Failed to save VR option: " + optionKey);
                     LoggerUtils.printError(e);
                 }
             }
         } catch (Exception ex) {
-            VisorClient.LOGGER.warn("Failed to save VR options: ");
+            VisorClientImpl.LOGGER.warn("Failed to save VR options: ");
             LoggerUtils.printError(ex);
         }
     }
@@ -246,12 +246,12 @@ public class VRClientSettingsHandler {
                     field.set(null, result);
 
                 } catch (Exception exception) {
-                    VisorClient.LOGGER.info("Failed to load VR option: " + entry.getKey());
+                    VisorClientImpl.LOGGER.info("Failed to load VR option: " + entry.getKey());
                     LoggerUtils.printError(exception);
                 }
             }
         } catch (Exception ex) {
-            VisorClient.LOGGER.info("Failed to load VR options!");
+            VisorClientImpl.LOGGER.info("Failed to load VR options!");
             LoggerUtils.printError(ex);
         }
     }
@@ -279,7 +279,7 @@ public class VRClientSettingsHandler {
             field.set(null, result);
 
         } catch (Exception ex) {
-            VisorClient.LOGGER.info("Failed to load default VR option: " + option);
+            VisorClientImpl.LOGGER.info("Failed to load default VR option: " + option);
             LoggerUtils.printError(ex);
         }
     }
@@ -305,7 +305,7 @@ public class VRClientSettingsHandler {
                             (currentIndex + 1) % enumConstants.length
                             ];
                 } else {
-                    VisorClient.LOGGER.info("Failed to set VR option "
+                    VisorClientImpl.LOGGER.info("Failed to set VR option "
                             + optionRecord.key() + " with type "
                             + fieldType.getSimpleName()
                     );

@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.common.listeners;
 
 import me.phoenixra.visor.core.common.network.server.ServerNetworking;
-import me.phoenixra.visor.core.server.VisorServer;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
@@ -32,7 +32,7 @@ public class ServerListenerMixins {
         public void visor$onPlayerLeave(Component component, CallbackInfo ci) {
             // remove player from vr player list, when they leave
 
-            VisorServer.INSTANCE.getPlayersWithVR()
+            VisorServerImpl.INSTANCE.getPlayersWithVR()
                     .remove(this.player.getUUID());
         }
     }

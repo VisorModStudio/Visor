@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -12,10 +12,10 @@ import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomSneak extends VisorTaskBase {
+public class TaskRoomSneak extends VisorTask {
     private static final String ID = "room_sneak";
 
     @Getter
@@ -38,7 +38,7 @@ public class TaskRoomSneak extends VisorTaskBase {
         }
 
         final double playerHeight = VRClientSettings.getPlayerHeight();
-        final double latestPivotY = ClientContext.rawPlayerPose.getHmdData()
+        final double latestPivotY = ClientContext.rawPoseHandler.getHmdData()
                 .getPivotHistory().latest().y;
         final double sneakThreshold = VRClientSettings.getSneakThreshold();
 

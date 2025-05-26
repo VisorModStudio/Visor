@@ -11,24 +11,12 @@ import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.server.ServerConfig;
 import me.phoenixra.visor.core.server.VRServerPlayerImpl;
-import me.phoenixra.visor.core.server.VisorServer;
-import me.phoenixra.visor.core.server.mcmodified.PlayerModified;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ExperienceOrb;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.Logger;
 
 import java.util.function.Consumer;
-
-import static net.minecraft.server.network.ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
 
 public class ServerPacketHandler {
 
@@ -39,7 +27,7 @@ public class ServerPacketHandler {
                                     Consumer<VisorPayloadToClient> packetConsumer){
         if (payloadToServer instanceof UnknownPayloadToServer) return;
 
-        VRServerPlayerImpl vrPlayer = VisorServer.INSTANCE.getVrPlayer(player);
+        VRServerPlayerImpl vrPlayer = VisorServerImpl.INSTANCE.getVrPlayer(player);
 
         if (vrPlayer == null) {
             if(payloadToServer.payloadId() != VisorPayloadID.HANDSHAKE) {
@@ -49,7 +37,7 @@ public class ServerPacketHandler {
             }
         }
 
-        VisorServer.INSTANCE.updateVrPlayer(player);
+        VisorServerImpl.INSTANCE.updateVrPlayer(player);
 
         switch (payloadToServer.payloadId()) {
             case HANDSHAKE -> {
@@ -106,7 +94,7 @@ public class ServerPacketHandler {
                                         boolean vrActive,
                                         int maxVersion,
                                         int minVersion){
-        Logger logger = VisorServer.INSTANCE.getLogger();
+        Logger logger = VisorServerImpl.INSTANCE.getLogger();
 
         if (VRServerSettings.isServerDebug()) {
             logger.info(
@@ -148,7 +136,7 @@ public class ServerPacketHandler {
         vrPlayer.setVr(vrActive);
 
         if (VRServerSettings.isServerDebug()) {
-            VisorServer.LOGGER.info(
+            VisorServerImpl.LOGGER.info(
                     "VR: player '{}' joined with {}",
                     vrPlayer.getMcPlayer().getName().getString(),
                     version
@@ -157,7 +145,7 @@ public class ServerPacketHandler {
 
 
 
-        VisorServer.INSTANCE.putVrPlayer(vrPlayer);
+        VisorServerImpl.INSTANCE.putVrPlayer(vrPlayer);
 
         packetConsumer.accept(
                 new HandshakePayloadToClient(

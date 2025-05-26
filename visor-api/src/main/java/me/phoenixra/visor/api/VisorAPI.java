@@ -19,11 +19,11 @@ public interface VisorAPI {
      * <br>
      * @return visor client or null if on dedicated server
      */
-    static IVisorClient client(){
+    static VisorClient client(){
         return Instance.client;
     }
 
-    static IVisorState clientState(){
+    static VisorClientState clientState(){
         return Instance.clientState;
     }
 
@@ -41,7 +41,7 @@ public interface VisorAPI {
      * only access it from here.
      * @return server core or null
      */
-    static IVisorServer server(){
+    static VisorServer server(){
         return Instance.server;
     }
 
@@ -62,10 +62,10 @@ public interface VisorAPI {
     @ApiStatus.Internal
     final class Instance {
 
-        private static IVisorClient client;
-        private static IVisorState clientState;
+        private static VisorClient client;
+        private static VisorClientState clientState;
 
-        private static IVisorServer server;
+        private static VisorServer server;
 
         private static IAddonManager addonManager;
 
@@ -74,16 +74,16 @@ public interface VisorAPI {
         }
 
         @ApiStatus.Internal
-        public static void setClient(final IVisorClient api) {
+        public static void setClient(final VisorClient api) {
             Instance.client = api;
         }
         @ApiStatus.Internal
-        public static void setClientState(final IVisorState api) {
+        public static void setClientState(final VisorClientState api) {
             Instance.clientState = api;
         }
 
         @ApiStatus.Internal
-        public static void setServer(final IVisorServer api) {
+        public static void setServer(final VisorServer api) {
             Instance.server = api;
         }
 

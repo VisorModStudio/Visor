@@ -1,7 +1,7 @@
 package me.phoenixra.visor.loader.fabric;
 
 
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.common.network.VisorNetwork;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
@@ -32,7 +32,7 @@ public class VisorMod implements ModInitializer {
                 (server, player, handler, buffer, responseSender) -> {
                     VisorPayloadToServer packet = VisorPayloadToServer.readPacket(buffer);
                     server.execute(() -> ServerPacketHandler.handlePacket(packet, player,
-                            p -> responseSender.sendPacket(IModLoader.get().createPacketToClient(p))));
+                            p -> responseSender.sendPacket(ModLoader.get().createPacketToClient(p))));
                 });
 
 

@@ -77,7 +77,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             return;
         }
 
-        ClientContext.gameViewHandler.renderView(
+        ClientContext.decoratorManager.render(
                 poseStack, partialTicks
         );
 

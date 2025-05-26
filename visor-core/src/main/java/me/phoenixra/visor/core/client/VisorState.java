@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.IVisorState;
+import me.phoenixra.visor.api.VisorClientState;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
@@ -18,9 +18,9 @@ import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import org.lwjgl.glfw.GLFW;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class VisorState implements IVisorState {
+public class VisorState implements VisorClientState {
 
 
 
@@ -85,13 +85,13 @@ public class VisorState implements IVisorState {
             return;
         }
 
-        VisorClient.LOGGER.info("Starting Visor client...");
+        VisorClientImpl.LOGGER.info("Starting Visor client...");
 
         VisorAPI.Instance.setClientState(new VisorState());
 
-        VisorAPI.Instance.setClient(new VisorClient());
+        VisorAPI.Instance.setClient(new VisorClientImpl());
 
-        VisorClient.LOGGER.info(
+        VisorClientImpl.LOGGER.info(
                 "Current VR Play Mode: {}",
                 VRClientSettings.getVrPlayMode()
         );
@@ -100,14 +100,14 @@ public class VisorState implements IVisorState {
 
     private static void initVR(){
         try {
-            VisorClient.LOGGER.info("Initializing VR session...");
+            VisorClientImpl.LOGGER.info("Initializing VR session...");
 
             ClientContext.visor.initializeVR();
             VRRenderState.startVanillaPhase();
 
             stateMode = VRStateMode.INITIALIZED;
 
-            VisorClient.LOGGER.info("VR session INIT SUCCESS");
+            VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
         } catch (Throwable e) {
             destroyVRWithError(e);

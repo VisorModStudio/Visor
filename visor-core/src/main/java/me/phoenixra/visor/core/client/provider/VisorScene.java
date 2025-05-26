@@ -1,7 +1,6 @@
 package me.phoenixra.visor.core.client.provider;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
@@ -13,7 +12,7 @@ import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.MinecraftModified;
 import me.phoenixra.visor.core.client.render.VRShaders;
-import me.phoenixra.visor.core.client.render.VisorRenderer;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -22,9 +21,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-import static me.phoenixra.visor.core.client.VisorClient.*;
+import static me.phoenixra.visor.core.client.VisorClientImpl.*;
 
 
 public class VisorScene implements VRScene {
@@ -62,7 +59,7 @@ public class VisorScene implements VRScene {
         float partialTicks = ((MinecraftModified) mc).visor$getPartialTicks();
 
 
-        for (VRDisplay display : VisorRenderer.getVRWorldDisplays()) {
+        for (VRDisplay display : VisorRendererBase.getVRWorldDisplays()) {
 
             renderVRDisplay(
                     display, partialTicks,

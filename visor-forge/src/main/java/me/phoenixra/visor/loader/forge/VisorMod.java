@@ -1,6 +1,6 @@
 package me.phoenixra.visor.loader.forge;
 
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.network.VisorNetwork;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
@@ -47,7 +47,7 @@ public class VisorMod {
         context.enqueueWork(
                 () -> ServerPacketHandler.handlePacket(packet, context.getSender(),
                         p -> context.getNetworkManager().send(
-                                IModLoader.get().createPacketToClient(p)
+                                ModLoader.get().createPacketToClient(p)
                         )
                 )
         );

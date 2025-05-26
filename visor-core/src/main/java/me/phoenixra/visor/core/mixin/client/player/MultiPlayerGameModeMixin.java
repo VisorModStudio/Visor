@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.mixin.client.player;
 
-import me.phoenixra.visor.api.client.data.IVRClientPose;
+import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
@@ -8,10 +8,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
-import net.minecraft.client.multiplayer.prediction.PredictiveAction;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @Mixin(MultiPlayerGameMode.class)
@@ -124,7 +121,7 @@ public abstract class MultiPlayerGameModeMixin {
 
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
-            IVRClientPose preTickPose = ClientContext
+            PoseData preTickPose = ClientContext
                     .player.getPose(PoseType.PRE_TICK);
             lookDirection = preTickPose.getController(controllerHand).getDirection();
 

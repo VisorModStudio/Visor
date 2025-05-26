@@ -1,8 +1,8 @@
 package me.phoenixra.visor.core.common.utils;
 
-import me.phoenixra.visor.api.IModLoader;
-import me.phoenixra.visor.core.client.VisorClient;
-import me.phoenixra.visor.core.server.VisorServer;
+import me.phoenixra.visor.api.ModLoader;
+import me.phoenixra.visor.core.client.VisorClientImpl;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +13,10 @@ import java.lang.management.MemoryManagerMXBean;
 
 public class LoggerUtils {
     public static Logger getLogger(){
-        if(IModLoader.get().isDedicatedServer()){
-            return VisorServer.LOGGER;
+        if(ModLoader.get().isDedicatedServer()){
+            return VisorServerImpl.LOGGER;
         }else{
-            return VisorClient.LOGGER;
+            return VisorClientImpl.LOGGER;
         }
     }
     public static void printError(Logger logger, Throwable throwable){

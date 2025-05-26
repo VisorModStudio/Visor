@@ -3,7 +3,6 @@ package me.phoenixra.visor.api.client.input.button;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.profileset.ProfileSetHolder;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.KeyMapping;
 

@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.tasks.types.game.movement;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -11,11 +11,11 @@ import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.LOGGER;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomJump extends VisorTaskBase {
+public class TaskRoomJump extends VisorTask {
     private static final String ID = "room_jump";
 
     @Getter
@@ -28,7 +28,7 @@ public class TaskRoomJump extends VisorTaskBase {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        final var hmdData = ClientContext.rawPlayerPose.getHmdData();
+        final var hmdData = ClientContext.rawPoseHandler.getHmdData();
         final var pivotHistory = hmdData.getPivotHistory();
 
         final double netMovementY = pivotHistory.netMovement(0.25D).y;

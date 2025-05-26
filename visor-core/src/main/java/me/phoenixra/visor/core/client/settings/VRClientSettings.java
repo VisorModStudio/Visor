@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.settings;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.settings.lang.LangHandler;
 import me.phoenixra.visor.core.client.settings.option.VROptionField;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
@@ -14,10 +14,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.joml.Quaternionf;
 
-import java.awt.*;
-
 import me.phoenixra.visor.core.client.ClientContext;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRClientSettings {
 
@@ -28,7 +26,7 @@ public class VRClientSettings {
 
     public static void setVrPlayMode(VRPlayMode vrPlayMode) {
         VRClientSettings.vrPlayMode = vrPlayMode;
-        VisorClient.LOGGER.info(
+        VisorClientImpl.LOGGER.info(
                 "Changed VR Play Mode to: {}",
                 VRClientSettings.getVrPlayMode()
         );
@@ -197,7 +195,7 @@ public class VRClientSettings {
     public static void calibrateHeight() {
 
         VRClientSettings.setPlayerHeight(
-                (float) ClientContext.rawPlayerPose.getHmdData()
+                (float) ClientContext.rawPoseHandler.getHmdData()
                         .getPivotHistory().averagePosition(0.5D).y
         );
         int i = (int) (Math.round(100.0D

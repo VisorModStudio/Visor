@@ -1,12 +1,12 @@
 package me.phoenixra.visor.core.common.network.server;
 
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.vrstate.VRStatePayloadToClient;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import me.phoenixra.visor.core.server.VRServerPlayerImpl;
-import me.phoenixra.visor.core.server.VisorServer;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import me.phoenixra.visor.core.mixin.common.accessors.ChunkMapAccessor;
 import me.phoenixra.visor.core.mixin.common.accessors.TrackedEntityAccessor;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class ServerNetworking {
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -41,7 +41,7 @@ public class ServerNetworking {
     }
 
     public static Packet<?> createVRPacket(VisorPayloadToClient payload) {
-        return IModLoader.get()
+        return ModLoader.get()
                 .createPacketToClient(payload);
     }
 
@@ -85,7 +85,7 @@ public class ServerNetworking {
 
 
     public static void sendVRStateToOthers(ServerPlayer serverPlayer) {
-        Map<UUID, VRServerPlayer> playersWithVR = VisorServer.INSTANCE.getPlayersWithVR();
+        Map<UUID, VRServerPlayer> playersWithVR = VisorServerImpl.INSTANCE.getPlayersWithVR();
         VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(serverPlayer.getUUID());
         if (vrServerPlayer == null) {
             return;
@@ -113,9 +113,9 @@ public class ServerNetworking {
     public static void sendPacketToTrackedPlayers(VRServerPlayer packetOwner,
                                                   boolean sendToOwner,
                                                   VisorPayloadToClient payload) {
-        Packet<?> packet = IModLoader.get().createPacketToClient(payload);
+        Packet<?> packet = ModLoader.get().createPacketToClient(payload);
 
-        var vrPlayers = VisorServer.INSTANCE.getPlayersWithVR();
+        var vrPlayers = VisorServerImpl.INSTANCE.getPlayersWithVR();
         for (var players : getTrackedPlayers(packetOwner.getMcPlayer())) {
             boolean hasVisor = vrPlayers.containsKey(players.getPlayer().getUUID());
             boolean isPacketOwner = players.getPlayer() == packetOwner.getMcPlayer();

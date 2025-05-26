@@ -1,9 +1,9 @@
 package me.phoenixra.visor.core.mixin;
 
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
 
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -50,8 +50,8 @@ public class MixinConfig implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!IModLoader.get().isModLoaded(VisorAPI.MOD_ID)) {
-            VisorClient.LOGGER.info("Visor failed to load, canceled applying mixin '{}'", mixinClassName);
+        if (!ModLoader.get().isModLoaded(VisorAPI.MOD_ID)) {
+            VisorClientImpl.LOGGER.info("Visor failed to load, canceled applying mixin '{}'", mixinClassName);
             return false;
         }
 
@@ -64,7 +64,7 @@ public class MixinConfig implements IMixinConfigPlugin {
             }
             String mod = mixinClassName.split("\\.")[3];
             if (appliedModFixes.add(mod)) {
-                VisorClient.LOGGER.info("Visor: applying '{}' compatibility patch", mod);
+                VisorClientImpl.LOGGER.info("Visor: applying '{}' compatibility patch", mod);
             }
         }
 

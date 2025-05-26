@@ -3,7 +3,7 @@ package me.phoenixra.visor.loader.fabric;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
-public class FabricModLoader implements IModLoader {
+public class FabricModLoader implements ModLoader {
     private final File configFolder = net.fabricmc.loader.api.FabricLoader.getInstance()
             .getConfigDir().toFile();
     @Override

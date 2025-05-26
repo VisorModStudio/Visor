@@ -5,11 +5,11 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.VRClientPose;
-import me.phoenixra.visor.core.client.data.VRPoseHelper;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.data.PoseDataHelper;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,12 +19,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVisorTask
-public class TaskRoomMovement extends VisorTaskBase {
+public class TaskRoomMovement extends VisorTask {
     private static final String ID = "room_movement";
     @Getter
     private static TaskRoomMovement instance;
@@ -36,12 +35,12 @@ public class TaskRoomMovement extends VisorTaskBase {
 
     @Override
     protected void onRun(@Nullable LocalPlayer player) {
-        VRClientPose preTickPose = ClientContext.player
+        PoseDataImpl preTickPose = ClientContext.player
                 .getPose(PoseType.PRE_TICK);
         Vec3 roomOrigin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 
-        Vec3 headPivot = VRPoseHelper.getHeadPivot(
+        Vec3 headPivot = PoseDataHelper.getHeadPivot(
                 roomOrigin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,

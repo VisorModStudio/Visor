@@ -6,12 +6,12 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.VRClientPose;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -19,10 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomSwim extends VisorTaskBase {
+public class TaskRoomSwim extends VisorTask {
     private static final String ID = "room_swim";
 
     @Getter
@@ -46,7 +46,7 @@ public class TaskRoomSwim extends VisorTaskBase {
     @Override
     protected void onRun(LocalPlayer player) {
 
-        VRClientPose preTickPose = ClientContext.player
+        PoseDataImpl preTickPose = ClientContext.player
                 .getPose(PoseType.PRE_TICK);
         final PoseElement mainHand = preTickPose.getController(ControllerHand.MAIN);
         final PoseElement offhand = preTickPose.getController(ControllerHand.OFFHAND);

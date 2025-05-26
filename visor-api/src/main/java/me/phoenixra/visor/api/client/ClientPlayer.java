@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.client;
 
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.IVRClientPose;
+import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import net.minecraft.world.entity.player.Player;
@@ -22,7 +22,7 @@ public interface ClientPlayer {
 
 
     @NotNull
-    IVRClientPose getPose(@NotNull PoseType stage);
+    PoseData getPose(@NotNull PoseType stage);
 
     /**
      * Get ControllerHand type which is currently used

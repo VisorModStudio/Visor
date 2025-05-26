@@ -3,12 +3,12 @@ package me.phoenixra.visor.core.client.render.target.impl;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.render.target.RenderTargetHolder;
 import me.phoenixra.visor.core.client.render.target.VRRenderTarget;
 import net.minecraft.client.Minecraft;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @Getter
 public class RenderTargetGUI implements RenderTargetHolder {
@@ -27,7 +27,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
                 ()-> -1, true, false
         );
         GLUtils.checkGLError("GUI target setup");
-        VisorClient.LOGGER.info(target.toString());
+        VisorClientImpl.LOGGER.info(target.toString());
 
 
         savedWidth = width;

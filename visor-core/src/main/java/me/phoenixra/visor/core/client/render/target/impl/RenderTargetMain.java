@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
 import me.phoenixra.visor.core.client.render.target.RenderTargetHolder;
 import me.phoenixra.visor.core.client.render.target.VRRenderTarget;
@@ -28,7 +28,7 @@ public class RenderTargetMain implements RenderTargetHolder {
                 true
         );
         GLUtils.checkGLError("Main VR target setup");
-        VisorClient.LOGGER.info(this.target.toString());
+        VisorClientImpl.LOGGER.info(this.target.toString());
 
         this.mirrorTarget = new VRRenderTarget(
                 "Mirror",
@@ -38,7 +38,7 @@ public class RenderTargetMain implements RenderTargetHolder {
                 false, false
         );
         GLUtils.checkGLError("Mirror VR target setup");
-        VisorClient.LOGGER.info(this.mirrorTarget.toString());
+        VisorClientImpl.LOGGER.info(this.mirrorTarget.toString());
 
 
 

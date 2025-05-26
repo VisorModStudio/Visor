@@ -6,7 +6,6 @@ import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.client.VisorClient;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,6 +134,7 @@ public class VisorTaskRegistry implements VisorElementRegistry<VisorTask> {
         if (removed != null) {
             List<VisorTask> list = tasksByType.get(removed.getType());
             list.remove(removed);
+            Collections.sort(list);
         }
         return removed;
     }

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.core.client.data.VRClientPose;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.core.Vec3i;
@@ -20,7 +20,7 @@ public class RenderHelper {
     public static void applyDisplayPose(VRDisplay pass, PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        VRClientPose renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
         final Matrix4f rotationMatrix;
 
         boolean mirrorMode = pass == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
@@ -28,7 +28,7 @@ public class RenderHelper {
             // average rotation over history
             rotationMatrix = new Matrix4f()
                     .rotation(
-                            ClientContext.rawPlayerPose
+                            ClientContext.rawPoseHandler
                                     .getHmdData()
                                     .getRotationHistory()
                                     .averageRotation(mirrorSmooth)
@@ -50,7 +50,7 @@ public class RenderHelper {
         if (!pass.isEye()) {
             return;
         }
-        VRClientPose renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
         Vec3 eyePos = renderPose.getElementForDisplay(pass).getPosition();
         Vec3 hmdOrigin = renderPose.getHmd().getPosition();
         Vec3 offset = eyePos.subtract(hmdOrigin);
@@ -59,7 +59,7 @@ public class RenderHelper {
     }
 
     public static void applyControllerPose(ControllerHand hand, PoseStack poseStack) {
-        VRClientPose renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
 
         // move origin to controller pos relative to camera
         Vec3 controllerPos = getControllerPosition(hand);
@@ -81,12 +81,12 @@ public class RenderHelper {
     }
 
 
-    public static Vec3 getCameraPosition(VRDisplay pass, VRClientPose vrPose) {
+    public static Vec3 getCameraPosition(VRDisplay pass, PoseDataImpl vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         boolean mirrorMode = pass == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
         if (mirrorMode) {
-            Vec3 avg = ClientContext.rawPlayerPose
+            Vec3 avg = ClientContext.rawPoseHandler
                     .getHmdData()
                     .getPositionHistory()
                     .averagePosition(mirrorSmooth);

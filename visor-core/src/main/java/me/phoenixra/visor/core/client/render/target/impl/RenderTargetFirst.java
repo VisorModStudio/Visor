@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.render.target.impl;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import me.phoenixra.visor.core.client.VisorClient;
+import me.phoenixra.visor.core.client.VisorClientImpl;
 
 import me.phoenixra.visor.core.client.render.target.RenderTargetHolder;
 import me.phoenixra.visor.core.client.render.target.VRRenderTarget;
@@ -27,7 +27,7 @@ public class RenderTargetFirst implements RenderTargetHolder {
         );
 
         GLUtils.checkGLError("First Person target setup");
-        VisorClient.LOGGER.info(this.target.toString());
+        VisorClientImpl.LOGGER.info(this.target.toString());
 
     }
 

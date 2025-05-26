@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import org.jetbrains.annotations.NotNull;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRRenderState {
 

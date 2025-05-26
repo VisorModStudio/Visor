@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.render.target;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
 import net.minecraft.client.Minecraft;
 
@@ -34,7 +34,7 @@ public class VRRenderTarget extends RenderTarget {
         ((RenderTargetModified) this).visor$isLinearFilter(linearFilter);
         this.resize(width, height, Minecraft.ON_OSX);
         if (useStencil) {
-            if(!IModLoader.get().enableRenderTargetStencil(this)){
+            if(!ModLoader.get().enableRenderTargetStencil(this)){
                 ((RenderTargetModified) this).visor$setUseStencil(true);
             }
         }

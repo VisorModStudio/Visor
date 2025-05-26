@@ -1,11 +1,11 @@
 package me.phoenixra.visor.core.client;
 
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
-import me.phoenixra.visor.core.client.data.raw.RawPlayerPose;
-import me.phoenixra.visor.core.client.gui.VRGuiManager;
-import me.phoenixra.visor.core.client.render.VisorRenderer;
-import me.phoenixra.visor.core.client.render.gameview.VRGameViewHandler;
-import me.phoenixra.visor.core.client.render.gameview.hand.VRHandRenderer;
+import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
+import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
+import me.phoenixra.visor.core.client.render.decoration.DecoratorManagerImpl;
+import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
 import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
@@ -17,27 +17,27 @@ import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 public class ClientContext {
 
 
-    public static VisorClient visor;
+    public static VisorClientImpl visor;
 
     public static AddonCoreClient coreAddon;
 
-    public static ClientProperties properties;
+    public static ClientPropertiesImpl properties;
 
     public static VRClientSettingsHandler settingsHandler;
 
     public static VRClientPlayer player;
 
-    public static VisorRenderer renderer;
+    public static VisorRendererBase renderer;
 
 
-    public static VRGuiManager guiManager;
+    public static GuiManagerImpl guiManager;
 
 
 
-    public static RawPlayerPose rawPlayerPose;
+    public static RawPoseHandler rawPoseHandler;
 
-    public static VRGameViewHandler gameViewHandler;
-    public static VRHandRenderer handRenderer;
+    public static DecoratorManagerImpl decoratorManager;
+    public static VRHandRendererImpl handRenderer;
 
 
 

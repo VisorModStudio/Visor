@@ -5,13 +5,13 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
-import me.phoenixra.visor.core.client.data.VRClientPose;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -22,10 +22,10 @@ import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomVehicle extends VisorTaskBase {
+public class TaskRoomVehicle extends VisorTask {
     private static final String ID = "room_vehicle";
 
     @Getter
@@ -150,7 +150,7 @@ public class TaskRoomVehicle extends VisorTaskBase {
      */
     public void onStartRiding(Entity vehicle) {
         VRClientPlayer vrClientPlayer = ClientContext.player;
-        VRClientPose preTickPose = vrClientPlayer
+        PoseDataImpl preTickPose = vrClientPlayer
                 .getPose(PoseType.PRE_TICK);
 
         final Vec3 headPivot = vrClientPlayer

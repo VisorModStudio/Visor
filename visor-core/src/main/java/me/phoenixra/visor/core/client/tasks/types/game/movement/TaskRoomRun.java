@@ -4,22 +4,22 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
-import me.phoenixra.visor.api.client.tasks.VisorTaskBase;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.VRClientPose;
+import me.phoenixra.visor.core.client.data.PoseDataImpl;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVisorTask
-public class TaskRoomRun extends VisorTaskBase {
+public class TaskRoomRun extends VisorTask {
     private static final String ID = "room_run";
     @Getter
     private static TaskRoomRun instance;
@@ -45,9 +45,9 @@ public class TaskRoomRun extends VisorTaskBase {
     @Override
     protected void onRun(LocalPlayer player) {
 
-        final double rightHandSpeed = ClientContext.rawPlayerPose.getControllerRightData()
+        final double rightHandSpeed = ClientContext.rawPoseHandler.getControllerRightData()
                 .getPositionHistory().averageSpeed(0.33D);
-        final double leftHandSpeed = ClientContext.rawPlayerPose.getControllerLeftData()
+        final double leftHandSpeed = ClientContext.rawPoseHandler.getControllerLeftData()
                 .getPositionHistory().averageSpeed(0.33D);
 
         if (this.speed > 0) {
@@ -67,7 +67,7 @@ public class TaskRoomRun extends VisorTaskBase {
             return;
         }
 
-        VRClientPose preTickPose = ClientContext.player
+        PoseDataImpl preTickPose = ClientContext.player
                 .getPose(PoseType.PRE_TICK);
 
         final Vec3 mainHandDir = preTickPose

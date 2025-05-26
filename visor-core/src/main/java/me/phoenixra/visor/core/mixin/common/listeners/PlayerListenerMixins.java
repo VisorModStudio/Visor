@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.mixin.common.listeners;
 
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.common.network.server.ServerNetworking;
-import me.phoenixra.visor.core.server.VisorServer;
+import me.phoenixra.visor.core.server.VisorServerImpl;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
@@ -25,7 +25,7 @@ public class PlayerListenerMixins {
         @Redirect(method = "respawn", at = @At(value = "INVOKE",
                 target = "Lnet/minecraft/server/level/ServerPlayer;initInventoryMenu()V"))
         private void visor$onPlayerRespawn(ServerPlayer serverPlayer) {
-            VisorServer.INSTANCE.updateVrPlayer(serverPlayer);
+            VisorServerImpl.INSTANCE.updateVrPlayer(serverPlayer);
             serverPlayer.initInventoryMenu();
         }
     }

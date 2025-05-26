@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.common.network.client;
 
-import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import me.phoenixra.visor.core.client.ClientContext;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class ClientNetworking {
     public static boolean SERVER_HAS_VISOR = false;
@@ -34,7 +34,7 @@ public class ClientNetworking {
     }
 
     public static Packet<?> createVRPacket(VisorPayloadToServer payload) {
-        return IModLoader.get()
+        return ModLoader.get()
                 .createPacketToServer(payload);
     }
 
