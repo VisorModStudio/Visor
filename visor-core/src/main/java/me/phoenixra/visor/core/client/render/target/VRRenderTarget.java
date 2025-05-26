@@ -1,0 +1,64 @@
+package me.phoenixra.visor.core.client.render.target;
+
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import lombok.Getter;
+import me.phoenixra.visor.api.IModLoader;
+import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
+import net.minecraft.client.Minecraft;
+
+import java.util.function.Supplier;
+
+public class VRRenderTarget extends RenderTarget {
+
+    private final String name;
+
+
+    @Getter
+    private final Supplier<Integer> textureSupplier;
+
+
+
+    public VRRenderTarget(String name, int width, int height,
+                          boolean usedepth,
+                          Supplier<Integer> textureSupplier,
+                          boolean linearFilter,
+                          boolean useStencil) {
+        super(usedepth);
+        RenderSystem.assertOnGameThreadOrInit();
+
+        this.textureSupplier = textureSupplier;
+        this.name = name;
+
+        ((RenderTargetModified) this).visor$setTextid(textureSupplier.get());
+        ((RenderTargetModified) this).visor$isLinearFilter(linearFilter);
+        this.resize(width, height, Minecraft.ON_OSX);
+        if (useStencil) {
+            if(!IModLoader.get().enableRenderTargetStencil(this)){
+                ((RenderTargetModified) this).visor$setUseStencil(true);
+            }
+        }
+        this.setClearColor(0, 0, 0, 0);
+
+    }
+
+
+    @Override
+    public String toString() {
+        // Use “<unnamed>” if name is null or blank
+        String displayName = (name != null && !name.isBlank()) ? name : "<unnamed>";
+
+        return String.format(
+                "Name:   %s%n" +
+                        "Size:   %d x %d%n" +
+                        "FB ID:  %d%n" +
+                        "Tex ID: %d",
+                displayName,
+                viewWidth, viewHeight,
+                frameBufferId,
+                colorTextureId
+        );
+    }
+
+
+}

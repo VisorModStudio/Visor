@@ -1,0 +1,20 @@
+displayName: Chat
+GLOBAL:
+  overlayScale: '0.5'
+  update_options: TICK
+type: chat
+MODEL_VIEW:
+  rotation:
+    aim: false
+    offset:
+      x: -pi/2 * %main_hand%
+      y: pi/2 * %main_hand%
+      z: pi * %left_handed%
+    type: OFFHAND
+  tick: true
+  position:
+    offset:
+      x: -0.15 * %main_hand%
+      y: '0.06'
+      z: -0.13 * %main_hand% + (0.06 * %right_handed%)
+    type: OFFHAND

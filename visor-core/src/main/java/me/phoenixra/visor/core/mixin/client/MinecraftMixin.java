@@ -1,0 +1,441 @@
+package me.phoenixra.visor.core.mixin.client;
+
+import com.mojang.blaze3d.pipeline.MainTarget;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import me.phoenixra.atumvr.api.utils.GLUtils;
+
+import me.phoenixra.visor.api.client.render.context.PreRenderContext;
+import me.phoenixra.visor.api.client.render.context.RenderContext;
+import me.phoenixra.visor.api.input.VRHandAction;
+import me.phoenixra.visor.core.client.mcmodified.MinecraftModified;
+import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
+import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
+import me.phoenixra.visor.core.client.render.VRRenderState;
+import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
+import net.minecraft.client.*;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Overlay;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.util.profiling.ProfileResults;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import javax.annotation.Nullable;
+import me.phoenixra.visor.core.client.VisorState;
+
+import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
+import static me.phoenixra.visor.core.client.VisorClient.MC;
+import me.phoenixra.visor.core.client.ClientContext;
+
+@Mixin(Minecraft.class)
+public abstract class MinecraftMixin implements MinecraftModified {
+
+
+    @Final
+    @Shadow
+    public Gui gui;
+
+
+    @Shadow
+    public Screen screen;
+
+    @Shadow
+    private ProfilerFiller profiler;
+
+
+    @Final
+    @Shadow
+    public static boolean ON_OSX;
+
+    @Shadow
+    private boolean pause;
+
+    @Shadow
+    private float pausePartialTick;
+
+    @Final
+    @Shadow
+    private Timer timer;
+
+    @Final
+    @Shadow
+    public GameRenderer gameRenderer;
+
+    @Shadow
+    public ClientLevel level;
+
+    @Shadow
+    public RenderTarget mainRenderTarget;
+
+    @Shadow
+    public LocalPlayer player;
+
+
+    @Shadow
+    public abstract void tick();
+
+
+
+
+     /* *************************** *\
+   //--------VR INITIALIZATION--------\\
+     \* *************************** */
+
+    /**
+     * Instantiates RenderStageManager with
+     * a vanilla main render target.
+     * <br>
+     * We need it early created
+     * and separately from Visor initialization
+     *
+     * @param overlay s
+     * @return s
+     */
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"), method = "<init>", index = 0)
+    public Overlay visor$initRenderStageManager(Overlay overlay) {
+        VRRenderState.initVanillaTarget((MainTarget) this.mainRenderTarget);
+
+        return overlay;
+    }
+
+    @Inject(method = "onGameLoadFinished", at = @At("TAIL"))
+    public void visor$onGameLoadFinish(CallbackInfo ci){
+        VisorState.setMinecraftLoaded(true);
+
+    }
+
+
+
+     /* ***************** *\
+   //--------TICKING--------\\
+     \* ***************** */
+
+    /**
+     * Pre Ticks Visor right before mc tick() is called
+     * @param ci s
+     */
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V"), method = "runTick")
+    public void visor$preTick(CallbackInfo ci) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.visor.preTickVR();
+        }
+    }
+
+    /**
+     * Ticks Visor (before mc tick methods called)
+     * @param info s
+     */
+    @Inject(at = @At("HEAD"), method = "tick()V")
+    public void visor$tick(CallbackInfo info) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.visor.tickVR();
+        }
+    }
+
+    /**
+     * Post Ticks Visor right after mc tick() is called
+     * @param ci s
+     */
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V", shift = Shift.AFTER), method = "runTick")
+    public void visor$postTick(CallbackInfo ci) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.visor.postTickVR();
+        }
+    }
+
+
+
+     /* ******************* *\
+   //--------RENDERING--------\\
+     \* ******************* */
+
+    /**
+     * Calls pre render task at the beginning of a frame
+     * @param tick s
+     * @param callback s
+     */
+     @Inject(at = @At("HEAD"), method = "runTick(Z)V")
+     public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
+         VisorState.updateState();
+         if (VisorState.getStateMode().isActive()) {
+             ++VisorState.FRAME_COUNT;
+
+             ClientContext.visor
+                     .preRenderVR(new PreRenderContext(
+                             profiler, tick,
+                             visor$getPartialTicks()
+                     ));
+
+         }
+     }
+
+    /**
+     * Modifies vanilla GameRenderer.render() call
+     * to update renderer state and start VRGui phase instead
+     * @param renderLevel s
+     * @return s
+     */
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"), method = "runTick")
+    public boolean visor$startVRGuiPhase(boolean renderLevel) {
+        if (VisorState.getStateMode().isActive()) {
+
+            ClientContext.renderer.onGameRenderStart(renderLevel);
+
+            if (VRRenderState.getCurrentPhase().isVRGui()) {
+                return false; //disable level rendering
+            } else {
+                return renderLevel; //fallback on exception
+            }
+        }
+        return renderLevel;
+    }
+
+    /**
+     * Calls VR rendering after mc rendered
+     *
+     * @param renderLevel s
+     * @param ci s
+     * @param nanoTime s
+     */
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.visor
+                    .renderVR(new RenderContext(
+                            profiler,
+                            renderLevel,
+                            nanoTime,
+                            visor$getPartialTicks()
+                            )
+                    );
+        }
+    }
+
+
+
+    /**
+     * Ensures the render phase
+     * and main render target are correct on resize
+     *
+     * @param ci
+     */
+    @Inject(at = @At("HEAD"), method = "resizeDisplay")
+    void visor$ensurePhaseOnResize(CallbackInfo ci) {
+        if (VisorState.getStateMode().isInitialized()) {
+            if (VisorState.getStateMode().isActive()) {
+                VRRenderState.startVRGuiPhase();
+            } else {
+                VRRenderState.startVanillaPhase();
+            }
+        }
+    }
+
+    /**
+     * Disables Thread.sleep(16)
+     * call in vanilla when waiting for world to finish loading.
+     * <p>
+     * FPS has to be handled only by VR related features
+     *
+     * @param constant s
+     * @return s
+     */
+    @ModifyConstant(constant = @Constant(longValue = 16), method = "doWorldLoad", expect = 0)
+    private long visor$noFPSLimitOnWorldLoad(long constant) {
+        if (VisorState.getStateMode().isActive()) {
+            return 0L;
+        }
+        return constant;
+    }
+
+
+
+
+      /* *************** *\
+    //--------INPUT--------\\
+      \* *************** */
+
+    /**
+     * Overrides an action performed when
+     * pressed "keyTogglePerspective" button
+     * <br>
+     * So, instead this button changes mirror display type
+     *
+     * @param instance   s
+     * @param cameraType s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;setCameraType(Lnet/minecraft/client/CameraType;)V"), method = "handleKeybinds")
+    public void visor$toggleMirrorButton(Options instance, CameraType cameraType) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.settingsHandler.updateGuiOptionValue(
+                    VRGuiOption.MIRROR_DISPLAY
+            );
+        } else {
+            instance.setCameraType(cameraType);
+        }
+    }
+
+    /**
+     * Disables last method that can be called when
+     * pressed "keyTogglePerspective" button
+     *
+     * @param instance s
+     * @param entity   s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;checkEntityPostEffect(Lnet/minecraft/world/entity/Entity;)V"), method = "handleKeybinds")
+    public void visor$noTogglePerspectiveAction(GameRenderer instance, Entity entity) {
+        if (VisorState.getStateMode().isNotActive()) {
+            instance.checkEntityPostEffect(entity);
+        }
+    }
+
+
+    /**
+     * Uses VR method for hand swinging on item drop
+     * instead of vanilla
+     *
+     * @param instance        s
+     * @param interactionHand s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "handleKeybinds()V")
+    public void visor$swingDrop(LocalPlayer instance, InteractionHand interactionHand) {
+        if (VisorState.getStateMode().isActive()) {
+            ((LocalPlayerModified) player).visor$swingArm(
+                    interactionHand, VRHandAction.ATTACK
+            );
+        } else {
+            instance.swing(interactionHand);
+        }
+    }
+
+
+     /* ************************************* *\
+   //--------IF OFFHAND SUPPORT DISABLED--------\\
+     \* ************************************* */
+
+
+    /**
+     * Replaces vanilla swing with VR swing
+     * (USE)
+     * @param instance s
+     * @param interactionHand s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "startUseItem")
+    public void visor$swingUse(LocalPlayer instance, InteractionHand interactionHand) {
+        if (VisorState.getStateMode().isNotActive()) {
+            instance.swing(interactionHand);
+            return;
+        }
+        ((LocalPlayerModified) instance).visor$swingArm(
+                interactionHand, VRHandAction.USE
+        );
+    }
+
+
+     /* ****************** *\
+   //--------VR MOUSE--------\\
+     \* ****************** */
+
+    /**
+     * Makes mouse always grabbed,
+     * since it should not be disabled in VR mode
+     *
+     * @param instance s
+     * @return s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z"), method = "handleKeybinds")
+    public boolean visor$mouseAlwaysGrabbed(MouseHandler instance) {
+        return VisorState.getStateMode().isActive() || instance.isMouseGrabbed();
+    }
+
+
+     /* ******************* *\
+   //--------MC SCREEN--------\\
+     \* ******************* */
+
+
+
+
+
+     /* **************** *\
+   //--------EVENTS--------\\
+     \* **************** */
+
+    /**
+     * Resets room origin when world changed
+     *
+     * @param pLevelClient s
+     * @param info s
+     */
+    @Inject(at = @At("HEAD"), method = "setLevel(Lnet/minecraft/client/multiplayer/ClientLevel;)V")
+    public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
+        if (VisorState.getStateMode().isActive()) {
+            ClientContext.player.setOrigin(
+                    0.0D, 0.0D, 0.0D, true
+            );
+        }
+    }
+
+    /**
+     * Destroy VR when mc is destroyed
+     *
+     * @param info s
+     */
+    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;delayedCrash:Ljava/util/function/Supplier;", shift = Shift.BEFORE), method = "destroy()V")
+    public void visor$onDestroy(CallbackInfo info) {
+        try {
+            LOGGER.info("DESTROY");
+            //VisorState.destroyVR();
+        } catch (Exception ignored) {
+        }
+    }
+
+
+     /* ************** *\
+   //--------MISC--------\\
+     \* ************** */
+
+    /**
+     * Disables vanilla hit result calculation on tick.
+     *
+     * @param instance s
+     * @param f        s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "tick")
+    public void visor$noVanillaHitResult(GameRenderer instance, float f) {
+        if (VisorState.getStateMode().isNotActive()) {
+            instance.pick(f);
+        }
+    }
+
+
+     /* ************************ *\
+   //--------PUBLIC METHODS--------\\
+     \* ************************ */
+
+
+
+    @Override
+    public float visor$getPartialTicks() {
+        return pause ? pausePartialTick : this.timer.partialTick;
+    }
+}

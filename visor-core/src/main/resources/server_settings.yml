@@ -1,0 +1,17 @@
+serverDebug: false
+vrOnly: false
+
+crawlingEnabled: true
+
+betterVrSwinging: true
+swingBlockRepairDelay: 400
+
+offhandCanHit: true
+
+pvpVRvsVanilla: true
+pvpVRvsVR: true
+notifyPvpBlocked: false
+
+creeperSwellDistance: 1.75
+
+supportedMovement: BOTH

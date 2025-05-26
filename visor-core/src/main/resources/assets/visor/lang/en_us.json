@@ -1,0 +1,19 @@
+{
+
+  "_comment10": "*--------VR OPTION BUTTONS--------*",
+  "visor.button.playMode": "VR: %s",
+  "visor.button.playMode.ENABLED": "Enabled",
+  "visor.button.playMode.DISABLED": "Disabled",
+  "visor.button.playMode.WORLD_ONLY": "World Only",
+
+  "_comment11": "*--------VR OPTION TOOLTIPS--------*",
+  "visor.option.VR_PLAY_MODE.tooltip": "Choose VR Play Mode. \n\n1) Enabled - VR will be active while headset is on \n2) Disabled - VR won't be initialized \n3) World Only - VR will be initialized but inactive in main menu and active while in game",
+
+  "_comment999": "*--------MESSAGES--------*",
+  "visor.messages.server_mod": "visor server mod detected: %s",
+  "visor.messages.calibrate_height": "Please calibrate your height in the pause menu.",
+  "visor.messages.height_set": "User height set to %d%%",
+  "visor.messages.vr_auto_switch": "Put on your headset to play VR",
+  "visor.messages.incompatible_settings": "Incompatible Settings",
+  "visor.messages.network.unsupported": "Unsupported Server Network version! Client: %s  Server: %s"
+}

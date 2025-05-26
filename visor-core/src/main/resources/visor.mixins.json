@@ -1,0 +1,39 @@
+{
+  "required": true,
+  "package": "me.phoenixra.visor.core.mixin",
+  "plugin": "me.phoenixra.visor.core.mixin.MixinConfig",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "client.MinecraftMixin",
+    "client.accessors.RenderStateShardAccessor",
+    "client.accessors.RenderSystemAccessor",
+    "client.audio.LibraryMixin",
+    "client.gui.GuiMixin",
+    "client.gui.ScreenMixin",
+    "client.gui.TutorialToastMixin",
+    "client.gui.WinScreenMixin",
+    "client.gui.screens.TitleScreenMixin",
+    "client.player.LocalPlayerMixin",
+    "client.render.GameRendererMixin",
+    "client.render.LevelRendererMixin",
+    "client.render.VRLightsMixins$ClientLevelMixin",
+    "client.render.VRLightsMixins$LevelLightEngineMixin",
+    "client.render.blaze3d.GlStateManagerMixin",
+    "client.render.blaze3d.RenderSystemMixin",
+    "client.render.blaze3d.RenderTargetMixin",
+    "client.render.blaze3d.WindowMixin",
+    "client.render.entity.EntityRenderDispatcherMixin"
+  ],
+  "server": [
+  ],
+  "minVersion": "0.8.4",
+  "mixins": [
+    "client.input.KeybindingsMixin",
+    "client.player.PlayerMixin",
+    "common.MinecraftServerMixin",
+    "common.accessors.ChunkMapAccessor",
+    "common.accessors.TrackedEntityAccessor",
+    "common.listeners.PlayerListenerMixins$PlayerListMixin",
+    "common.listeners.ServerListenerMixins$ServerListenerMixin"
+  ]
+}
