@@ -154,18 +154,18 @@ public class VRClientSettings {
 
 
 
+    @Getter
+    protected static final float sprintThreshold = 0.9f;
+    @Getter
+    protected static final float jumpThreshold = 0.05f;
+    @Getter
+    protected static final float sneakThreshold = 0.4f;
+    @Getter
+    protected static final float crawlThreshold = 0.82f;
 
     protected static final boolean walkUpEnabled = true;
 
     //
-
-    /**
-     * This isn't actually used, it's only a dummy field to set the value in vanilla Options.
-     */
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.MONO_FOV)
-    @Deprecated
-    protected static float monoFOV;
 
 
     @Getter

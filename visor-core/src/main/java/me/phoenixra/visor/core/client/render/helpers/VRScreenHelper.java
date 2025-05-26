@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.client.render.helpers;
 
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ public class VRScreenHelper {
             return true;
         }
         Vec3 pos = ClientContext.player
-                .getPose(VRPoseStage.RENDER)
+                .getPose(PoseType.RENDER)
                 .getElementForDisplay(VRRenderState.getCurrentVRDisplay())
                 .getPosition();
 

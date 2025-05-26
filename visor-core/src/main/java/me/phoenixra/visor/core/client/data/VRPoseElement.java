@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
+import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -11,7 +11,7 @@ import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
 @Getter
-public class VRPoseElement implements IVRPoseElement {
+public class VRPoseElement implements PoseElement {
 
     private Vec3 position;
 

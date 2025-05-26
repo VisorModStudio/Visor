@@ -4,7 +4,7 @@ package me.phoenixra.visor.api.client.gui;
  * This class handles GUIs rendering
  * and behaviour.
  */
-public interface IVRGuiManager {
+public interface GuiManager {
 
 
     /**

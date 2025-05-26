@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 //Core Addon for dedicated server
-public class VRAddonServerCore implements VisorAddon {
+public class AddonCoreServer implements VisorAddon {
     @Override
     public void onAddonLoad() {
 

@@ -63,7 +63,7 @@ public class RawHmdPose implements IRawHmdPose {
         return rightEyePose;
     }
 
-    public Vec3 getCenterEyePosition() {
+    public Vec3 getHeadsetPosition() {
         return VRMathUtils.convertToMcVector(
                 this.devicePose.getTranslation(new Vector3f())
         );

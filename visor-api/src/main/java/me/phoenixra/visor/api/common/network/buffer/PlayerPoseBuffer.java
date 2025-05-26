@@ -2,9 +2,9 @@ package me.phoenixra.visor.api.common.network.buffer;
 
 
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.IClientPlayer;
+import me.phoenixra.visor.api.client.ClientPlayer;
 import me.phoenixra.visor.api.client.data.IVRClientPose;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
@@ -35,7 +35,7 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
         );
     }
 
-    public static PlayerPoseBuffer create(IClientPlayer clientPlayer,
+    public static PlayerPoseBuffer create(ClientPlayer clientPlayer,
                                           boolean leftHanded) {
         return new PlayerPoseBuffer(
                 getHmdPose(clientPlayer),
@@ -45,9 +45,9 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
         );
     }
 
-    private static DevicePoseBuffer getHmdPose(IClientPlayer clientPlayer) {
+    private static DevicePoseBuffer getHmdPose(ClientPlayer clientPlayer) {
         IVRClientPose postTickPose = clientPlayer
-                .getPose(VRPoseStage.POST_TICK);
+                .getPose(PoseType.POST_TICK);
         Vec3 position = postTickPose
                 .getHmd().getPosition()
                 .subtract(Minecraft.getInstance().player.position());
@@ -57,11 +57,11 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
         return new DevicePoseBuffer(position, orientation);
     }
 
-    private static DevicePoseBuffer getControllerPose(IClientPlayer clientPlayer,
+    private static DevicePoseBuffer getControllerPose(ClientPlayer clientPlayer,
                                                       ControllerHand controller
     ) {
         IVRClientPose postTickPose = clientPlayer
-            .getPose(VRPoseStage.POST_TICK);
+            .getPose(PoseType.POST_TICK);
         Vec3 position = postTickPose
                 .getController(controller).getPosition()
                 .subtract(Minecraft.getInstance().player.position());

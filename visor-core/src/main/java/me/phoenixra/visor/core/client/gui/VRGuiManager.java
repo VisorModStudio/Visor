@@ -2,15 +2,15 @@ package me.phoenixra.visor.core.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.IVRGuiManager;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
 
 import java.util.List;
 
 
-public class VRGuiManager implements IVRGuiManager {
+public class VRGuiManager implements GuiManager {
     @Getter
     private final int guiWidth = 1280;
     @Getter
@@ -81,7 +81,7 @@ public class VRGuiManager implements IVRGuiManager {
         }
     }
 
-    public List<VRElementRegistry<?>> getElementRegistries(){
+    public List<VisorElementRegistry<?>> getElementRegistries(){
         return List.of(
 
         );

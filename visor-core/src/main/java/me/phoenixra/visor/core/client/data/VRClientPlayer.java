@@ -1,30 +1,30 @@
 package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.IClientPlayer;
+import me.phoenixra.visor.api.client.ClientPlayer;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.IVRClientPose;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
-import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import me.phoenixra.visor.core.client.ClientContext;
+
+import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
 import static me.phoenixra.visor.core.client.VisorClient.MC;
 
-public class VRClientPlayer implements IClientPlayer {
+public class VRClientPlayer implements ClientPlayer {
 
     private final VRClientPose roomPose;
 
@@ -43,11 +43,11 @@ public class VRClientPlayer implements IClientPlayer {
     private ControllerHand activeHand = ControllerHand.MAIN;
 
     public VRClientPlayer() {
-        this.roomPose = new VRClientPose(VRPoseStage.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomPose = new VRClientPose(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new VRClientPose(VRPoseStage.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new VRClientPose(VRPoseStage.POST_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new VRClientPose(VRPoseStage.RENDER, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.preTickPose = new VRClientPose(PoseType.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.postTickPose = new VRClientPose(PoseType.POST_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new VRClientPose(PoseType.RENDER, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
 
@@ -59,7 +59,6 @@ public class VRClientPlayer implements IClientPlayer {
                 this.worldScale,
                 rotationYaw
         );
-
 
         //WORLD SCALE
         float preWorldScale = VRRenderState.isInMainMenu()
@@ -73,94 +72,13 @@ public class VRClientPlayer implements IClientPlayer {
 
     public void tickPlayer(LocalPlayer player) {
 
+        var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
 
-        //@TODO MOVE TO TRACKERS
-        VRClientPose preTickPose = ClientContext.player
-                .getPose(VRPoseStage.PRE_TICK);
-        Vec3 roomOrigin = ClientContext.player.getOrigin();
-        float worldScale = ClientContext.player.getWorldScale();
-
-        Vec3 headPivot = VRPoseHelper.getHeadPivot(
-                roomOrigin,
-                VRClientSettings.getWalkMultiplier(),
-                worldScale,
-                preTickPose.getRotationYaw()
-        );
-
-        float playerHalfWidth = player.getBbWidth() / 2.0F;
-        float playerHeight = player.getBbHeight();
-        double playerPosY = player.getY();
-
-        // Create a collision bounding box at the destination position.
-        AABB collisionBox = new AABB(
-                headPivot.x - playerHalfWidth,
-                playerPosY,
-                headPivot.z - playerHalfWidth,
-                headPivot.x + playerHalfWidth,
-                playerPosY + playerHeight,
-                headPivot.z + playerHalfWidth
-        );
-
-
-        // If there is no collision at the destination,
-        // update the player's position
-        if (MC.level.noCollision(player, collisionBox)) {
-            double posY = player.getY();
-            player.setPosRaw(headPivot.x, posY, headPivot.z);
-            player.setBoundingBox(collisionBox);
-            player.fallDistance = 0.0F;
-            return;
-        }
-
-        boolean canAutoClimb = (VRClientSettings.isWalkUpEnabled()
-                && ((LocalPlayerModified) player).visor$getJumpFactor() == 1.0F);
-
-        if (canAutoClimb && player.fallDistance == 0.0F) {
-            Vec3 torso = new Vec3(headPivot.x, playerPosY, headPivot.z);
-            // Reduce the collision box width for climbing checks.
-            float climbShrink = player.getDimensions(player.getPose()).width * 0.45F;
-            double shrunkClimbHalfWidth = playerHalfWidth - climbShrink;
-
-            AABB collisionBoxClimb = new AABB(
-                    torso.x - shrunkClimbHalfWidth,
-                    collisionBox.minY,
-                    torso.z - shrunkClimbHalfWidth,
-                    torso.x + shrunkClimbHalfWidth,
-                    collisionBox.maxY,
-                    torso.z + shrunkClimbHalfWidth
-            );
-
-            // If the adjusted box is still collision-free, do not perform a climb.
-            if (MC.level.noCollision(player, collisionBoxClimb)) {
-                return;
-            }
-
-
-            // Attempt to move upward in small increments until a collision-free space is found.
-            for (int i = 0; i <= 16; ++i) {
-                collisionBox = collisionBox.move(0.0D, 0.1D, 0.0D);
-                if (!MC.level.noCollision(player, collisionBox)) {
-                    continue;
-                }
-
-                // Update player's position and bounding box.
-                player.setPosRaw(headPivot.x, collisionBox.minY, headPivot.z);
-                player.setBoundingBox(collisionBox);
-
-                Vec3 newRoomOrigin = roomOrigin.add(0.0, 0.1F * (i + 1), 0.0);
-                ClientContext.player.setOrigin(
-                        newRoomOrigin.x,
-                        newRoomOrigin.y,
-                        newRoomOrigin.z,
-                        false
-                );
-
-                player.fallDistance = 0.0F;
-                ((LocalPlayerModified) MC.player).visor$stepSound(
-                        BlockPos.containing(player.position()),
-                        player.position()
-                );
-                break;
+        for (VisorTask task : tasks) {
+            if (task.isActive(player)) {
+                task.run(player);
+            } else {
+                task.clear(player);
             }
         }
     }
@@ -207,7 +125,7 @@ public class VRClientPlayer implements IClientPlayer {
                 currentRotation
         );
 
-        this.updatePlayerLook(MC.player, VRPoseStage.POST_TICK);
+        this.updatePlayerLook(MC.player, PoseType.POST_TICK);
 
         ClientNetworking.sendVRPlayerPose();
     }
@@ -273,7 +191,7 @@ public class VRClientPlayer implements IClientPlayer {
 
 
 
-    public void updatePlayerLook(LocalPlayer player, VRPoseStage stage) {
+    public void updatePlayerLook(LocalPlayer player, PoseType stage) {
         if (player == null) {
             return;
         }
@@ -304,7 +222,7 @@ public class VRClientPlayer implements IClientPlayer {
                 || player.isSwimming()
                 && player.zza > 0.0F) {
 
-            IVRPoseElement rotationElement = getRotationElement(data.getPoseStage());
+            PoseElement rotationElement = getRotationElement(data.getPoseStage());
             player.setYRot(rotationElement.getYaw());
             player.setYHeadRot(player.getYRot());
             player.setXRot(-rotationElement.getPitch());
@@ -412,7 +330,7 @@ public class VRClientPlayer implements IClientPlayer {
     }
 
     @Override
-    public @NotNull IVRPoseElement getRotationElement(@NotNull VRPoseStage stage){
+    public @NotNull PoseElement getRotationElement(@NotNull PoseType stage){
         IVRClientPose playerPose = getPose(stage);
         return switch (VRClientSettings.getRotationMode()) {
             case CONTROLLER_RIGHT -> playerPose.getController(
@@ -426,7 +344,7 @@ public class VRClientPlayer implements IClientPlayer {
     }
 
     @Override
-    public @NotNull VRClientPose getPose(@NotNull VRPoseStage stage) {
+    public @NotNull VRClientPose getPose(@NotNull PoseType stage) {
         return switch (stage){
             case PRE_TICK -> preTickPose;
             case POST_TICK -> postTickPose;

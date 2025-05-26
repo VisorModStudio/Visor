@@ -54,13 +54,13 @@ public class VRPoseHelper {
 
     private static Vec3[] computeCenterPositions(RawHmdPose hmdData,
                                                  float walkMul) {
-        Vec3 centerEyePosition = hmdData.getCenterEyePosition();
-        Vec3 centerPosition = new Vec3(
-                centerEyePosition.x * walkMul,
-                centerEyePosition.y,
-                centerEyePosition.z * walkMul
+        Vec3 headsetPosition = hmdData.getHeadsetPosition();
+        Vec3 headsetPosFinal = new Vec3(
+                headsetPosition.x * walkMul,
+                headsetPosition.y,
+                headsetPosition.z * walkMul
         );
-        return new Vec3[]{ centerEyePosition, centerPosition };
+        return new Vec3[]{ headsetPosition, headsetPosFinal };
     }
 
 }

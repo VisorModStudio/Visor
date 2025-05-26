@@ -1,8 +1,8 @@
 package me.phoenixra.visor.core.client.render;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -59,8 +59,8 @@ public class VRGameCamera extends Camera {
         this.entity = entity;
 
         VRDisplay display = VRRenderState.getCurrentVRDisplay();
-        IVRPoseElement eye = ClientContext.player
-                .getPose(VRPoseStage.RENDER)
+        PoseElement eye = ClientContext.player
+                .getPose(PoseType.RENDER)
                 .getElementForDisplay(display);
 
         // Position
@@ -68,7 +68,7 @@ public class VRGameCamera extends Camera {
                 && VRClientSettings.getMirrorSmooth() > 0f) {
             Vec3 smoothPos = RenderHelper.getCameraPosition(
                     display,
-                    ClientContext.player.getPose(VRPoseStage.RENDER)
+                    ClientContext.player.getPose(PoseType.RENDER)
             );
             this.setPosition(smoothPos);
         } else {

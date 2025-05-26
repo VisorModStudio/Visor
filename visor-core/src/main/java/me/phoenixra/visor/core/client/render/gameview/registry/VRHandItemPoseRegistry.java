@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.gameview.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.gameview.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.VisorClient;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.util.*;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VRHandItemPoseRegistry implements VRElementRegistry<VRHandItemPose> {
+public class VRHandItemPoseRegistry implements VisorElementRegistry<VRHandItemPose> {
     @Getter
     private final HashMap<String, VRHandItemPose> posesMap = new HashMap<>();
 

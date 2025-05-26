@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.render.entity;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 
 import me.phoenixra.visor.core.client.mcmodified.render.LevelRendererModified;
@@ -46,11 +46,11 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             return;
         }
         Vec3 cameraPos = ClientContext.player
-                .getPose(VRPoseStage.RENDER)
+                .getPose(PoseType.RENDER)
                 .getHmd().getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
             cameraPos = ClientContext.player
-                    .getPose(VRPoseStage.RENDER)
+                    .getPose(PoseType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }

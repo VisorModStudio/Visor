@@ -2,8 +2,8 @@ package me.phoenixra.visor.api.client;
 
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.IVRClientPose;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.data.PoseType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nullable;
  * of this class becomes available
  *
  */
-public interface IClientPlayer {
+public interface ClientPlayer {
 
 
 
     @NotNull
-    IVRClientPose getPose(@NotNull VRPoseStage stage);
+    IVRClientPose getPose(@NotNull PoseType stage);
 
     /**
      * Get ControllerHand type which is currently used
@@ -47,7 +47,7 @@ public interface IClientPlayer {
      * Get component that affects client rotation
      * @return component
      */
-    @NotNull IVRPoseElement getRotationElement(@NotNull VRPoseStage stage);
+    @NotNull PoseElement getRotationElement(@NotNull PoseType stage);
 
     @Nullable
     Player getMcPlayer();

@@ -4,7 +4,7 @@ package me.phoenixra.visor.core.client.render.gameview.hand;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.gameview.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.gameview.hand.VRHandItemPoseBase;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -45,7 +45,7 @@ public class VRItemPoseDefault extends VRHandItemPoseBase {
                              float partialTick
     ) {
         VRClientPose renderPose = ClientContext.player
-                .getPose(VRPoseStage.RENDER);
+                .getPose(PoseType.RENDER);
 
         InteractionHand interactionHand = hand == ControllerHand.MAIN ?
                 InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;

@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 //Core Addon for client
-public class VRAddonClientCore implements VisorAddon {
-    public VRAddonClientCore(){
+public class AddonCoreClient implements VisorAddon {
+    public AddonCoreClient(){
         ClientContext.coreAddon = this;
     }
     @Override
@@ -24,7 +24,7 @@ public class VRAddonClientCore implements VisorAddon {
 
     @Override
     public @Nullable String getAddonPackagePath() {
-        return "me.phoenixra.visor.core";
+        return "me.phoenixra.visor.core.client";
     }
 
     @Override

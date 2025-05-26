@@ -11,49 +11,49 @@ public interface IVRClientPose {
      * @return HMD component
      */
     @NotNull
-    IVRPoseElement getHmd();
+    PoseElement getHmd();
 
     /**
      *
      * @return left eye component
      */
     @NotNull
-    IVRPoseElement getEyeLeft();
+    PoseElement getEyeLeft();
 
     /**
      *
      * @return right eye component
      */
     @NotNull
-    IVRPoseElement getEyeRight();
+    PoseElement getEyeRight();
 
     /**
      *
      * @return right controller component
      */
     @NotNull
-    IVRPoseElement getControllerRight();
+    PoseElement getControllerRight();
 
     /**
      *
      * @return left controller component
      */
     @NotNull
-    IVRPoseElement getControllerLeft();
+    PoseElement getControllerLeft();
 
     /**
      *
      * @return right hand component
      */
     @NotNull
-    IVRPoseElement getHandRight();
+    PoseElement getHandRight();
 
     /**
      *
      * @return left hand component
      */
     @NotNull
-    IVRPoseElement getHandLeft();
+    PoseElement getHandLeft();
 
 
     /**
@@ -97,7 +97,7 @@ public interface IVRClientPose {
      * @param position the position vector in the coordinate system of the specified origin stage
      * @return the converted position vector
      */
-    @NotNull Vec3 convertPosition(@NotNull VRPoseStage originStage,
+    @NotNull Vec3 convertPosition(@NotNull PoseType originStage,
                                   @NotNull Vec3 position);
 
     /**
@@ -109,14 +109,14 @@ public interface IVRClientPose {
      * @param rotationMatrix the rotation matrix to convert
      * @return the converted rotation matrix
      */
-    @NotNull Matrix4f convertRotation(@NotNull VRPoseStage originStage,
+    @NotNull Matrix4f convertRotation(@NotNull PoseType originStage,
                                       @NotNull Matrix4f rotationMatrix);
     /**
      *
      * @return controller component
      */
     @NotNull
-    default IVRPoseElement getController(@NotNull ControllerHand controller) {
+    default PoseElement getController(@NotNull ControllerHand controller) {
         return controller == ControllerHand.MAIN
                 ? getControllerRight() : getControllerLeft();
     }
@@ -126,7 +126,7 @@ public interface IVRClientPose {
      * @return controller component
      */
     @NotNull
-    default IVRPoseElement getHand(@NotNull ControllerHand hand) {
+    default PoseElement getHand(@NotNull ControllerHand hand) {
         return hand == ControllerHand.OFFHAND
                 ? this.getHandLeft() : getHandRight();
     }

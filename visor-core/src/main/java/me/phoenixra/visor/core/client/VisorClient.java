@@ -8,11 +8,11 @@ import me.phoenixra.atumvr.api.VRProvider;
 import me.phoenixra.atumvr.api.VRState;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.IVisorClient;
-import me.phoenixra.visor.api.client.IClientPlayer;
+import me.phoenixra.visor.api.client.ClientPlayer;
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.api.common.MCVRLogger;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
 import me.phoenixra.visor.core.client.gui.VRGuiManager;
 import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
@@ -21,8 +21,9 @@ import me.phoenixra.visor.core.client.render.gameview.VRGameViewHandler;
 import me.phoenixra.visor.core.client.render.gameview.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
+import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManager;
-import me.phoenixra.visor.core.common.addon.VRAddonClientCore;
+import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
@@ -49,6 +50,9 @@ public class VisorClient implements IVisorClient {
 
     @Getter
     private final ConfigManager configManager;
+
+    @Getter
+    private final VisorTaskRegistry taskRegistry;
 
 
 
@@ -81,9 +85,11 @@ public class VisorClient implements IVisorClient {
         ClientContext.player = new VRClientPlayer();
 
         //-------Addons-------
+        taskRegistry = new VisorTaskRegistry();
 
         //Addon Registries
-        var registries = new ArrayList<VRElementRegistry<?>>();
+        var registries = new ArrayList<VisorElementRegistry<?>>();
+        registries.add(taskRegistry);
         registries.addAll(ClientContext.gameViewHandler.getElementRegistries());
         registries.addAll(ClientContext.guiManager.getElementRegistries());
 
@@ -91,7 +97,7 @@ public class VisorClient implements IVisorClient {
         var addonManager = new AddonManager(LOGGER);
 
         addonManager.initialize(
-                new VRAddonClientCore(),
+                new AddonCoreClient(),
                 registries
         );
 
@@ -188,7 +194,7 @@ public class VisorClient implements IVisorClient {
 
 
     @Override
-    public @NotNull IClientPlayer getClientPlayer() {
+    public @NotNull ClientPlayer getClientPlayer() {
         return ClientContext.player;
     }
 

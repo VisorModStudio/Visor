@@ -2,49 +2,36 @@ package me.phoenixra.visor.core.mixin.client;
 
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import me.phoenixra.atumvr.api.utils.GLUtils;
 
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
-import me.phoenixra.visor.api.input.VRHandAction;
+import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.mcmodified.MinecraftModified;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
-import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import net.minecraft.client.*;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.RenderBuffers;
-import net.minecraft.util.profiling.ProfileResults;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.HitResult;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import javax.annotation.Nullable;
 import me.phoenixra.visor.core.client.VisorState;
 
 import static me.phoenixra.visor.core.client.VisorClient.LOGGER;
-import static me.phoenixra.visor.core.client.VisorClient.MC;
+
 import me.phoenixra.visor.core.client.ClientContext;
 
 @Mixin(Minecraft.class)
@@ -320,7 +307,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     public void visor$swingDrop(LocalPlayer instance, InteractionHand interactionHand) {
         if (VisorState.getStateMode().isActive()) {
             ((LocalPlayerModified) player).visor$swingArm(
-                    interactionHand, VRHandAction.ATTACK
+                    interactionHand, HandAction.ATTACK
             );
         } else {
             instance.swing(interactionHand);
@@ -346,7 +333,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
             return;
         }
         ((LocalPlayerModified) instance).visor$swingArm(
-                interactionHand, VRHandAction.USE
+                interactionHand, HandAction.USE
         );
     }
 

@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-public interface VRElementRegistry<T extends VRElement> {
+public interface VisorElementRegistry<T extends VisorElement> {
 
     @ApiStatus.Internal
     void registerAddonPath(@NotNull VisorAddon addon);
@@ -57,7 +57,7 @@ public interface VRElementRegistry<T extends VRElement> {
     /**
      * Get addon components from addon instance
      *
-     * @param addon the vr addon
+     * @param addon the visor addon
      * @return list of components attached to an addon
      */
     @NotNull

@@ -5,8 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.IModLoader;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.VisorState;
@@ -296,7 +296,7 @@ public abstract class GameRendererMixin
             return original;
         }
         VRClientPose renderPose = ClientContext.player
-                .getPose(VRPoseStage.RENDER);
+                .getPose(PoseType.RENDER);
 
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
@@ -320,7 +320,7 @@ public abstract class GameRendererMixin
         }
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
-        return ClientContext.player.getPose(VRPoseStage.RENDER)
+        return ClientContext.player.getPose(PoseType.RENDER)
                 .getController(activeHand).getDirection();
     }
 
@@ -424,8 +424,8 @@ public abstract class GameRendererMixin
     @Unique
     public void visor$setupVRCameraEntity() {
         if (this.visor$cameraEntityCached) {
-            IVRPoseElement eye = ClientContext.player
-                    .getPose(VRPoseStage.RENDER)
+            PoseElement eye = ClientContext.player
+                    .getPose(PoseType.RENDER)
                     .getElementForDisplay(VRRenderState.getCurrentVRDisplay());
             Vec3 eyePos = eye.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
@@ -564,7 +564,7 @@ public abstract class GameRendererMixin
         }
         Vec3 cameraPos = RenderHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
-                ClientContext.player.getPose(VRPoseStage.RENDER)
+                ClientContext.player.getPose(PoseType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = VREffectsHelper
                 .findNearestSolidBlock(
@@ -603,7 +603,7 @@ public abstract class GameRendererMixin
     }
 
     @Unique
-    public Vec3 visor$aimedPointAtDistance(IVRPoseElement poseElement,
+    public Vec3 visor$aimedPointAtDistance(PoseElement poseElement,
                                            double distance) {
         Vec3 dir = poseElement.getDirection();
         return poseElement
@@ -615,7 +615,7 @@ public abstract class GameRendererMixin
     }
 
     @Unique
-    public HitResult visor$pickBlock(IVRPoseElement poseElement,
+    public HitResult visor$pickBlock(PoseElement poseElement,
                                      double blockReachDistance,
                                      boolean fluid
     ) {

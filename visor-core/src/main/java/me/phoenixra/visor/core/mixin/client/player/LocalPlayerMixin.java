@@ -1,21 +1,26 @@
 package me.phoenixra.visor.core.mixin.client.player;
 
 import com.mojang.authlib.GameProfile;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
-import me.phoenixra.visor.api.input.VRHandAction;
+import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.tasks.types.game.movement.TaskRoomSwim;
+import me.phoenixra.visor.core.client.tasks.types.game.movement.TaskRoomVehicle;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +38,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(LocalPlayer.class)
@@ -40,12 +46,16 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Unique
     private Vec3 visor$moveMulIn = Vec3.ZERO;
+    @Unique
+    private boolean visor$initFromServer;
     @Final
     @Shadow
     protected Minecraft minecraft;
     @Shadow
     private boolean startedUsingItem;
-
+    @Shadow
+    @Final
+    public ClientPacketListener connection;
     @Shadow
     private InteractionHand usingItemHand;
 
@@ -53,11 +63,38 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         super(clientLevel, gameProfile);
     }
 
+    @Shadow
+    protected abstract void updateAutoJump(float f, float g);
 
     @Shadow
     public abstract void swing(InteractionHand interactionHand);
-    @Shadow
-    protected abstract void updateAutoJump(float f, float g);
+
+
+    /* ****************** *\
+  //--------VEHICLE--------\\
+    \* ****************** */
+    @Inject(at = @At("TAIL"), method = "startRiding")
+    public void visor$onStartRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+        if (VisorState.getStateMode().isNotActive()
+                || !visor$isLocalPlayer(this)) {
+            return;
+        }
+        TaskRoomVehicle.getInstance()
+                .onStartRiding(
+                        entity
+                );
+    }
+
+    @Inject(at = @At("TAIL"), method = "removeVehicle")
+    public void visor$onStopRiding(CallbackInfo ci) {
+        if (VisorState.getStateMode().isNotActive()
+                || !visor$isLocalPlayer(this)) {
+            return;
+        }
+        TaskRoomVehicle.getInstance()
+                .onStopRiding();
+    }
+
 
      /* ****************** *\
    //--------MOVEMENT--------\\
@@ -75,8 +112,11 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     }
 
     /**
-     * Makes movement affected by VR rotation element
+     * Updates client origin position on move
      *
+     * @param pType s
+     * @param pPos  s
+     * @param info  s
      */
     @Inject(at = @At("HEAD"), method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", cancellable = true)
     public void visor$onMove(MoverType pType, Vec3 pPos, CallbackInfo info) {
@@ -97,7 +137,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
 
         boolean moveAllowed = (canMove
-
+                || TaskRoomSwim.getInstance().isActive((LocalPlayer) (Object) this)
         );
         boolean moved = (this.isFallFlying()
                 || this.zza != 0.0F
@@ -185,7 +225,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.recenterOrigin(
+       ClientContext.player.recenterOrigin(
                 (LocalPlayer) (Object) this,
                 false
         );
@@ -223,7 +263,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
 
         var rotationElement = ClientContext.player
-                .getRotationElement(VRPoseStage.PRE_TICK);
+                .getRotationElement(PoseType.PRE_TICK);
 
         //SWIMMING OR FLYING
         if (!this.isPassenger()
@@ -265,7 +305,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Override
     public void setPos(double posX, double posY, double posZ) {
-
+        this.visor$initFromServer = true;
         if (VisorState.getStateMode().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             super.setPos(posX, posY, posZ);
@@ -280,7 +320,15 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
         boolean shouldReset = (posX + posY + posZ) == 0;
         if (this.isPassenger()) {
-            //@TODO VEHICLE
+            Vec3 premountPos = TaskRoomVehicle.getInstance().premountPosRoom;
+            premountPos = premountPos
+                    .yRot(
+                            ClientContext.player
+                                    .getPose(PoseType.PRE_TICK)
+                                    .getRotationYaw()
+                    );
+            posX = posX - premountPos.x;
+            posZ = posZ - premountPos.z;
             ClientContext.player.setOrigin(
                     posX, posY, posZ,
                     shouldReset
@@ -305,7 +353,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.getStateMode().isActive()
                 ? ClientContext.player
-                .getPose(VRPoseStage.PRE_TICK).getBodyYaw()
+                .getPose(PoseType.PRE_TICK).getBodyYaw()
                 : original;
     }
 
@@ -313,7 +361,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.getStateMode().isActive()
                 ? ClientContext.player
-                .getPose(VRPoseStage.PRE_TICK).getBodyYaw()
+                .getPose(PoseType.PRE_TICK).getBodyYaw()
                 : original;
     }
 
@@ -332,7 +380,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         }
         ClientContext.player.updatePlayerLook(
                 (LocalPlayer) (Object) this,
-                VRPoseStage.PRE_TICK
+                PoseType.PRE_TICK
         );
     }
 
@@ -352,6 +400,22 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
   //--------MISC--------\\
     \* ************** */
 
+    /**
+     * Haptic feedback on death
+     * @param pCause s
+     */
+    @Override
+    public void die(DamageSource pCause) {
+        super.die(pCause);
+        if (VisorState.getStateMode().isNotActive()
+                || !visor$isLocalPlayer(this)) {
+            return;
+        }
+        //@TODO
+       /* CLIENT_CONTEXT.vrApp.getInputManager()
+                .triggerHapticPulseBoth(2000);*/
+    }
+
 
 
 
@@ -360,13 +424,12 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     \* ************************ */
     @Override
     @Unique
-    public void visor$swingArm(InteractionHand interactionhand, VRHandAction interact) {
-        //@TODO SWING
-       /* ((ItemInHandRendererModified) this.minecraft
+    public void visor$swingArm(InteractionHand interactionhand, HandAction interact) {
+        ((ItemInHandRendererModified) this.minecraft
                 .getEntityRenderDispatcher()
                 .getItemInHandRenderer()
         ).visor$setSwingType(interact);
-        this.swing(interactionhand);*/
+        this.swing(interactionhand);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.client.render.gameview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,7 @@ public interface IVRGameViewHandler {
     String VIEW_INGAME_SCREEN = "ingame_screen";
     String VIEW_END_TITLE = "end_title";
 
-    @NotNull VRElementRegistry<VRGameView> getRegistry();
+    @NotNull VisorElementRegistry<VRGameView> getRegistry();
 
 
     @NotNull VRGameView getCurrentView();

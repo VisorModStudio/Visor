@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.gameview.hand.VRHandItemPose;
 import me.phoenixra.visor.api.client.render.gameview.hand.IVRHandRenderer;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -86,7 +86,9 @@ public class VRHandRenderer implements IVRHandRenderer {
         RenderSystem.restoreProjectionMatrix();
     }
 
-    public void renderSimpleHands(@NotNull PoseStack poseStack, float partialTicks, boolean renderMain,
+    public void renderSimpleHands(@NotNull PoseStack poseStack,
+                                  float partialTicks,
+                                  boolean renderMain,
                                   boolean renderOffhand
     ) {
 
@@ -150,7 +152,7 @@ public class VRHandRenderer implements IVRHandRenderer {
             float light = (float) MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
                             ClientContext.player
-                                    .getPose(VRPoseStage.RENDER)
+                                    .getPose(PoseType.RENDER)
                                     .getHmd().getPosition()
                     )
             );

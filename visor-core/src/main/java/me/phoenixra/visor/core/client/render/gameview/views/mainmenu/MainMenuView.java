@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.render.gameview.views.mainmenu;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.gameview.VRGameViewBase;
 import me.phoenixra.visor.api.client.render.gameview.IVRGameViewHandler;
 import me.phoenixra.visor.api.client.render.gameview.annotations.RegisterVRGameView;
@@ -63,7 +63,7 @@ public class MainMenuView extends VRGameViewBase {
     private static void renderPanorama(PoseStack poseStack){
 
         VRClientPose renderPose = ClientContext.player
-                .getPose(VRPoseStage.RENDER);
+                .getPose(PoseType.RENDER);
         poseStack.pushPose();
         Vec3 eye = RenderHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),

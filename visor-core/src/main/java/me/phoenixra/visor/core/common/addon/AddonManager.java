@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.common.addon;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.IAddonManager;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.exceptions.VRInitException;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ import java.util.*;
 public class AddonManager implements IAddonManager {
     private final Logger logger;
 
-    private List<VRElementRegistry<?>> elementRegistries;
+    private List<VisorElementRegistry<?>> elementRegistries;
 
     private final Map<String, VisorAddon> addonsMap;
 
@@ -31,7 +31,7 @@ public class AddonManager implements IAddonManager {
     }
 
     public void initialize(VisorAddon coreAddon,
-                           List<VRElementRegistry<?>> elementRegistries){
+                           List<VisorElementRegistry<?>> elementRegistries){
         this.elementRegistries = elementRegistries;
 
         addonsMap.put(coreAddon.getAddonId(), coreAddon);
@@ -77,11 +77,11 @@ public class AddonManager implements IAddonManager {
                 }
             }
             addon.onAddonLoad();
-            logger.info("-----SUCCESS LOADING VR Addon with ID: {}", addon.getAddonId());
+            logger.info("-----SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
         } catch (Throwable throwable) {
             addonsMap.remove(addon.getAddonId());
             LoggerUtils.printError(logger, throwable);
-            logger.info("-----FAILED LOADING VR Addon with ID: {}", addon.getAddonId());
+            logger.info("-----FAILED LOADING Visor Addon with ID: {}", addon.getAddonId());
             if(addon.getAddonId().equals("core")){
                 throw new VRInitException(
                         Component.literal("Core addon init failed"),

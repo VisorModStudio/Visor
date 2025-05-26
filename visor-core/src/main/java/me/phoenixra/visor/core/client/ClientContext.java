@@ -7,7 +7,7 @@ import me.phoenixra.visor.core.client.render.VisorRenderer;
 import me.phoenixra.visor.core.client.render.gameview.VRGameViewHandler;
 import me.phoenixra.visor.core.client.render.gameview.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
-import me.phoenixra.visor.core.common.addon.VRAddonClientCore;
+import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
 /**
  * Main purpose of this class is to hold instances of
@@ -19,7 +19,7 @@ public class ClientContext {
 
     public static VisorClient visor;
 
-    public static VRAddonClientCore coreAddon;
+    public static AddonCoreClient coreAddon;
 
     public static ClientProperties properties;
 

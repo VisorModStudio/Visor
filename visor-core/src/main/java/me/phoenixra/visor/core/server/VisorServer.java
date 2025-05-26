@@ -10,7 +10,7 @@ import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import me.phoenixra.visor.core.common.addon.AddonManager;
 
-import me.phoenixra.visor.core.common.addon.VRAddonServerCore;
+import me.phoenixra.visor.core.common.addon.AddonCoreServer;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +54,7 @@ public class VisorServer implements IVisorServer {
 
             var addonManager = new AddonManager(LOGGER);
             addonManager.initialize(
-                    new VRAddonServerCore(),
+                    new AddonCoreServer(),
                     List.of()
             );
         }

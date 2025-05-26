@@ -147,26 +147,7 @@ public enum VRGuiOption {
         }
     },
     ROOM_MOVEMENT_MULTIPLIER(1f, 10f, 0.1f),
-    ROTATION_MODE,
-    MONO_FOV(30,110,1){
-        @Override
-        public Float getSliderValue(float value) {
-            return (float) Minecraft.getInstance().options.fov().get();
-        }
-
-        @Override
-        public Object setValue(Object old) {
-            Minecraft.getInstance().options.fov().set((int) old);
-            return 0f;
-        }
-        @Override
-        public String getDisplayString(String prefix, Object value) {
-            return prefix + String.format(
-                    "%.0f" +"\u00b0",
-                    (float) Minecraft.getInstance().options.fov().get()
-            );
-        }
-    };
+    ROTATION_MODE;
 
 
 

@@ -1,9 +1,9 @@
 package me.phoenixra.visor.api.client.render.gameview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.common.addon.VRElement;
+import me.phoenixra.visor.api.common.addon.VisorElement;
 
-public interface VRGameView extends VRElement {
+public interface VRGameView extends VisorElement {
 
     void onEnter();
     void onExit();

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.render.gameview.VRGameView;
 import me.phoenixra.visor.api.client.render.gameview.IVRGameViewHandler;
-import me.phoenixra.visor.api.common.addon.VRElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.render.gameview.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.render.gameview.registry.VRGameViewRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -74,7 +74,7 @@ public class VRGameViewHandler implements IVRGameViewHandler {
     }
 
 
-    public List<VRElementRegistry<?>> getElementRegistries(){
+    public List<VisorElementRegistry<?>> getElementRegistries(){
         return List.of(
                 registry,
                 ClientContext.handRenderer.getHandItemPosesRegistry()

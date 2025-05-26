@@ -3,8 +3,8 @@ package me.phoenixra.visor.core.client.data;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.data.IVRClientPose;
-import me.phoenixra.visor.api.client.data.IVRPoseElement;
-import me.phoenixra.visor.api.client.data.VRPoseStage;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.data.raw.RawControllerPose;
@@ -23,7 +23,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 @Getter
 public class VRClientPose implements IVRClientPose {
 
-    private final VRPoseStage poseStage;
+    private final PoseType poseStage;
 
     protected final VRPoseElement hmd;
     protected final VRPoseElement eyeLeft;
@@ -46,7 +46,7 @@ public class VRClientPose implements IVRClientPose {
     private float bodyYaw;
     private Vec3 headPivot;
 
-    public VRClientPose(VRPoseStage poseStage,
+    public VRClientPose(PoseType poseStage,
                         Vec3 origin,
                         float walkMul,
                         float worldScale,
@@ -88,11 +88,11 @@ public class VRClientPose implements IVRClientPose {
         this.worldScale = worldScale;
         this.rotationYaw = rotationY;
         RawHmdPose hmdData = ClientContext.rawPlayerPose.getHmdData();
-        Vec3 centerEyePosition = hmdData.getCenterEyePosition();
-        Vec3 centerPosition = new Vec3(
-                centerEyePosition.x * (double) walkMul,
-                centerEyePosition.y,
-                centerEyePosition.z * (double) walkMul
+        Vec3 headsetPos = hmdData.getHeadsetPosition();
+        Vec3 headsetPosFinal = new Vec3(
+                headsetPos.x * (double) walkMul,
+                headsetPos.y,
+                headsetPos.z * (double) walkMul
         );
 
         this.hmd.update(
@@ -100,14 +100,14 @@ public class VRClientPose implements IVRClientPose {
                 this.rotationYaw,
                 this.worldScale,
                 hmdData.getRotation(),
-                centerPosition, hmdData.getVector()
+                headsetPosFinal, hmdData.getVector()
         );
         this.eyeLeft.update(
                 this.origin,
                 this.rotationYaw,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.LEFT),
-                hmdData.getEyePosition(EyeType.LEFT).subtract(centerEyePosition).add(centerPosition),
+                hmdData.getEyePosition(EyeType.LEFT).subtract(headsetPos).add(headsetPosFinal),
                 hmdData.getVector()
         );
         this.eyeRight.update(
@@ -115,7 +115,7 @@ public class VRClientPose implements IVRClientPose {
                 this.rotationYaw,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.RIGHT),
-                hmdData.getEyePosition(EyeType.RIGHT).subtract(centerEyePosition).add(centerPosition),
+                hmdData.getEyePosition(EyeType.RIGHT).subtract(headsetPos).add(headsetPosFinal),
                 hmdData.getVector()
         );
 
@@ -124,7 +124,7 @@ public class VRClientPose implements IVRClientPose {
                 this.rotationYaw,
                 this.worldScale,
                 dataLeft.getAimRotation(),
-                dataLeft.getAimOrigin().subtract(centerEyePosition).add(centerPosition),
+                dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
                 dataLeft.getAimVector()
         );
         this.controllerRight.update(
@@ -132,24 +132,24 @@ public class VRClientPose implements IVRClientPose {
                 this.rotationYaw,
                 this.worldScale,
                 dataRight.getAimRotation(),
-                dataRight.getAimOrigin().subtract(centerEyePosition).add(centerPosition),
+                dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
                 dataRight.getAimVector()
         );
         this.handLeft.update(
                 this.origin,
                 this.rotationYaw,
                 this.worldScale,
-                dataLeft.getHandRotation(),
-                dataLeft.getAimOrigin().subtract(centerEyePosition).add(centerPosition),
-                dataLeft.getHandVector()
+                dataLeft.getGripRotation(),
+                dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataLeft.getGripVector()
         );
         this.handRight.update(
                 this.origin,
                 this.rotationYaw,
                 this.worldScale,
-                dataRight.getHandRotation(),
-                dataRight.getAimOrigin().subtract(centerEyePosition).add(centerPosition),
-                dataRight.getHandVector()
+                dataRight.getGripRotation(),
+                dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataRight.getGripVector()
         );
 
 
@@ -167,7 +167,7 @@ public class VRClientPose implements IVRClientPose {
                 this.rotationYaw,
                 this.worldScale,
                 camRot,
-                camPos.subtract(centerEyePosition).add(centerPosition),
+                camPos.subtract(headsetPos).add(headsetPosFinal),
                 camDir
         );
         this.bodyYaw = calcBodyYaw();
@@ -215,7 +215,7 @@ public class VRClientPose implements IVRClientPose {
 
 
 
-    public IVRPoseElement getElementForDisplay(VRDisplay display) {
+    public PoseElement getElementForDisplay(VRDisplay display) {
         if(display == null){
             return hmd;
         }
@@ -229,7 +229,7 @@ public class VRClientPose implements IVRClientPose {
     }
 
     @Override
-    public @NotNull Vec3 convertPosition(@NotNull VRPoseStage originStage,
+    public @NotNull Vec3 convertPosition(@NotNull PoseType originStage,
                                          @NotNull Vec3 position){
         if(originStage == poseStage) {
             return new Vec3(
@@ -238,7 +238,7 @@ public class VRClientPose implements IVRClientPose {
                     position.z
             );
         }
-        if (originStage == VRPoseStage.ROOM) {
+        if (originStage == PoseType.ROOM) {
             return position.scale(worldScale)
                     .yRot(rotationYaw)
                     .add(origin);
@@ -252,7 +252,7 @@ public class VRClientPose implements IVRClientPose {
                 .scale(1.0 / originPose.worldScale)
                 .yRot(-originPose.rotationYaw);
 
-        if(poseStage == VRPoseStage.ROOM){
+        if(poseStage == PoseType.ROOM){
             return roomPose;
         }
 
@@ -263,7 +263,7 @@ public class VRClientPose implements IVRClientPose {
 
 
     @Override
-    public @NotNull Matrix4f convertRotation(@NotNull VRPoseStage originStage,
+    public @NotNull Matrix4f convertRotation(@NotNull PoseType originStage,
                                               @NotNull Matrix4f rotationMatrix) {
         if (originStage == this.poseStage) {
             return rotationMatrix;
@@ -271,14 +271,14 @@ public class VRClientPose implements IVRClientPose {
 
 
 
-        if (originStage == VRPoseStage.ROOM) {
+        if (originStage == PoseType.ROOM) {
             return new Matrix4f().rotationY(rotationYaw).mul(rotationMatrix);
         }
 
 
         VRClientPose originPose = ClientContext.player.getPose(originStage);
 
-        if (this.poseStage == VRPoseStage.ROOM) {
+        if (this.poseStage == PoseType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationYaw).mul(rotationMatrix);
         }
 

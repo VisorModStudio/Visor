@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
-public interface IVRPoseElement {
+public interface PoseElement {
 
     /**
      *
@@ -44,7 +44,7 @@ public interface IVRPoseElement {
     Vec3 getCustomVector(@NotNull Vector3f vec);
 
     /**
-     * Reverse {@link IVRPoseElement#getCustomVector(Vec3)}
+     * Reverse {@link PoseElement#getCustomVector(Vec3)}
      * @param customVec vec
      * @return original vector
      */

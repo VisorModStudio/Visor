@@ -47,7 +47,7 @@ public interface VisorAPI {
 
 
     /**
-     * Get VR Addons manager.
+     * Get Visor Addon manager.
      * <br>
      * You can use it to create your own addons to extend
      * Visor features

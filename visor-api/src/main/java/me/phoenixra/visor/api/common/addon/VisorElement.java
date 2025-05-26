@@ -2,7 +2,7 @@ package me.phoenixra.visor.api.common.addon;
 
 import org.jetbrains.annotations.NotNull;
 
-public interface VRElement {
+public interface VisorElement {
 
     /**
      * If component is enabled
