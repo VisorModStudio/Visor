@@ -1,16 +1,13 @@
 package me.phoenixra.atumvr.core.input.action.profileset.types;
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.misc.pose.VRPoseRecord;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.types.HapticPulseAction;
-import me.phoenixra.atumvr.core.input.action.types.multi.BoolMultiAction;
+import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
-import me.phoenixra.atumvr.core.input.action.types.multi.PoseMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.Vec2MultiAction;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
@@ -26,20 +23,20 @@ public class ViveSet extends OpenXRProfileSet {
 
 
     // System & Menu Buttons
-    private BoolMultiAction systemButton;
-    private BoolMultiAction menuButton;
+    private BoolButtonMultiAction systemButton;
+    private BoolButtonMultiAction menuButton;
 
     // Grip
-    private BoolMultiAction gripButton;
+    private BoolButtonMultiAction gripButton;
 
     // Trigger
     private FloatMultiAction triggerValue;
-    private BoolMultiAction triggerButton;
+    private BoolButtonMultiAction triggerButton;
 
     // Trackpad
     private Vec2MultiAction trackpad;
-    private BoolMultiAction trackpadTouch;
-    private BoolMultiAction trackpadButton;
+    private BoolButtonMultiAction trackpadTouch;
+    private BoolButtonMultiAction trackpadButton;
 
     public ViveSet(OpenXRProvider provider) {
         super(provider, "vive", "Vive Controller", 0);
@@ -50,7 +47,7 @@ public class ViveSet extends OpenXRProfileSet {
 
 
         // -------- SYSTEM & MENU BUTTONS --------
-        systemButton = new BoolMultiAction(
+        systemButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "system_button",
@@ -63,7 +60,7 @@ public class ViveSet extends OpenXRProfileSet {
                 )
         );
 
-        menuButton = new BoolMultiAction(
+        menuButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "menu_button",
@@ -77,7 +74,7 @@ public class ViveSet extends OpenXRProfileSet {
         );
 
         // -------- GRIP --------
-        gripButton = new BoolMultiAction(
+        gripButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "grip_button",
@@ -106,7 +103,7 @@ public class ViveSet extends OpenXRProfileSet {
                 )
         );
 
-        triggerButton = new BoolMultiAction(
+        triggerButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trigger_button",
@@ -133,7 +130,7 @@ public class ViveSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadTouch = new BoolMultiAction(
+        trackpadTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trackpad_touch",
@@ -146,7 +143,7 @@ public class ViveSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadButton = new BoolMultiAction(
+        trackpadButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trackpad_button",

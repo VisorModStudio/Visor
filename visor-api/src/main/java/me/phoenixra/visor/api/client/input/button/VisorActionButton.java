@@ -2,9 +2,14 @@ package me.phoenixra.visor.api.client.input.button;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
+import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.KeyMapping;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class VisorActionButton implements VisorAction{
@@ -27,13 +32,18 @@ public class VisorActionButton implements VisorAction{
     protected int releaseDelayed = 0;
     protected int pressDelayed = 0;
 
+    private final Map<XRInteractionProfile, String> bindings;
+
 
     public VisorActionButton(VisorAddon owner,
-                             KeyMapping keyMapping
+                             KeyMapping keyMapping,
+                             Map<XRInteractionProfile, String> bindings
     ) {
         this.owner = owner;
         this.keyMapping = keyMapping;
         this.id = keyMapping.getName();
+
+        this.bindings = bindings;
     }
 
 
@@ -44,6 +54,11 @@ public class VisorActionButton implements VisorAction{
 
     @Override
     public void updateState(OpenXRProfileSet currentProfile) {
+        VRActionDataButton dataButton = currentProfile.getButton(
+                bindings.get(currentProfile.getType())
+        );
+
+
 
     }
 

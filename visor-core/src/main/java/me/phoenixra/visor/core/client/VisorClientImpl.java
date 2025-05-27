@@ -126,9 +126,6 @@ public class VisorClientImpl implements VisorClient {
 
         ++VisorState.TICK_COUNT;
 
-        ProfilerFiller profiler = MC.getProfiler();
-
-
 
 
         VRRemotePlayers.getInstance().tick();

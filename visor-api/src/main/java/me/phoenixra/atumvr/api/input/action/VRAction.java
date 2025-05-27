@@ -5,7 +5,7 @@ public interface VRAction  {
     VRActionSet getActionSet();
 
 
-    String getName();
+    String getId();
 
     String getLocalizedName();
 

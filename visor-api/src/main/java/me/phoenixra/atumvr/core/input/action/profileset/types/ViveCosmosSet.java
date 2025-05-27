@@ -7,10 +7,10 @@ import me.phoenixra.atumvr.core.input.action.OpenXRAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.types.multi.BoolMultiAction;
+import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.Vec2MultiAction;
-import me.phoenixra.atumvr.core.input.action.types.single.BoolAction;
+import me.phoenixra.atumvr.core.input.action.types.single.BoolButtonAction;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -28,21 +28,21 @@ public class ViveCosmosSet extends OpenXRProfileSet {
     private OpenXRSingleAction<Boolean> systemButton;
 
     // Primary/Secondary Buttons
-    private BoolMultiAction primaryButton;  //A & X
-    private BoolMultiAction secondaryButton;  // B & Y
+    private BoolButtonMultiAction primaryButton;  //A & X
+    private BoolButtonMultiAction secondaryButton;  // B & Y
 
     // Shoulder & Grip
-    private BoolMultiAction shoulderButton;
-    private BoolMultiAction gripButton;
+    private BoolButtonMultiAction shoulderButton;
+    private BoolButtonMultiAction gripButton;
 
     // Trigger
     private FloatMultiAction triggerValue;
-    private BoolMultiAction triggerButton;
+    private BoolButtonMultiAction triggerButton;
 
     // Thumb stick
     private Vec2MultiAction thumbStick;
-    private BoolMultiAction thumbStickButton;
-    private BoolMultiAction thumbStickTouch;
+    private BoolButtonMultiAction thumbStickButton;
+    private BoolButtonMultiAction thumbStickTouch;
 
     public ViveCosmosSet(OpenXRProvider provider) {
         super(provider, "vive_cosmos", "Vive Cosmos Controller", 0);
@@ -53,18 +53,18 @@ public class ViveCosmosSet extends OpenXRProfileSet {
 
 
         // -------- SINGLE-HAND BUTTONS --------
-        menuButton = new BoolAction(
+        menuButton = new BoolButtonAction(
                 provider, this,
                 "menu_button", "Menu Button"
         ).putDefaultBindings(PROFILE, LEFT_HAND_PATH+"/input/menu/click");
 
-        systemButton = new BoolAction(
+        systemButton = new BoolButtonAction(
                 provider, this,
                 "system_button", "System Button"
         ).putDefaultBindings(PROFILE, RIGHT_HAND_PATH+"/input/system/click");
 
         // -------- PRIMARY & SECONDARY --------
-        primaryButton = new BoolMultiAction(
+        primaryButton = new BoolButtonMultiAction(
                 provider, this,
                 "primary_button", "Primary Button",
                 List.of(
@@ -75,7 +75,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
                 )
         );
 
-        secondaryButton = new BoolMultiAction(
+        secondaryButton = new BoolButtonMultiAction(
                 provider, this,
                 "secondary_button", "Secondary Button",
                 List.of(
@@ -87,7 +87,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
         );
 
         // -------- SHOULDER & GRIP --------
-        shoulderButton = new BoolMultiAction(
+        shoulderButton = new BoolButtonMultiAction(
                 provider, this,
                 "shoulder_button", "Shoulder Button",
                 List.of(
@@ -98,7 +98,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
                 )
         );
 
-        gripButton = new BoolMultiAction(
+        gripButton = new BoolButtonMultiAction(
                 provider, this,
                 "squeeze_button", "Squeeze Button",
                 List.of(
@@ -123,7 +123,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
                 )
         );
 
-        triggerButton = new BoolMultiAction(
+        triggerButton = new BoolButtonMultiAction(
                 provider, this,
                 "trigger_button", "Trigger Button",
                 List.of(
@@ -146,7 +146,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
                 )
         );
 
-        thumbStickButton = new BoolMultiAction(
+        thumbStickButton = new BoolButtonMultiAction(
                 provider, this,
                 "thumbstick_button", "Thumbstick Button",
                 List.of(
@@ -157,7 +157,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
                 )
         );
 
-        thumbStickTouch = new BoolMultiAction(
+        thumbStickTouch = new BoolButtonMultiAction(
                 provider, this,
                 "thumbstick_touch", "Thumbstick Touch",
                 List.of(

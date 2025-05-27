@@ -1,14 +1,11 @@
 package me.phoenixra.atumvr.core.input.action;
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.exceptions.VRException;
-import me.phoenixra.atumvr.api.input.action.VRActionSet;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4fc;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
@@ -39,9 +36,9 @@ public abstract class OpenXRSingleAction<T> extends OpenXRAction {
 
     public OpenXRSingleAction(OpenXRProvider provider,
                               OpenXRActionSet actionSet,
-                              String name, String localizedName,
+                              String id, String localizedName,
                               XRInputActionType actionType) {
-        super(provider, actionSet, name, localizedName, actionType);
+        super(provider, actionSet, id, localizedName, actionType);
     }
 
     protected abstract void onInit(OpenXRActionSet actionSet,
@@ -54,7 +51,7 @@ public abstract class OpenXRSingleAction<T> extends OpenXRAction {
             XrActionCreateInfo actionCreateInfo = XrActionCreateInfo.calloc(stack).set(
                     XR10.XR_TYPE_ACTION_CREATE_INFO,
                     NULL,
-                    memUTF8(this.name),
+                    memUTF8(this.id),
                     actionType.getId(),
                     0,
                     null,

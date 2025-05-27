@@ -1,16 +1,13 @@
 package me.phoenixra.atumvr.core.input.action.profileset.types;
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.misc.pose.VRPoseRecord;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.types.HapticPulseAction;
-import me.phoenixra.atumvr.core.input.action.types.multi.BoolMultiAction;
+import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
-import me.phoenixra.atumvr.core.input.action.types.multi.PoseMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.Vec2MultiAction;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
@@ -26,16 +23,16 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
 
     // System Buttons
-    private BoolMultiAction systemButton;
-    private BoolMultiAction systemButtonTouch;
+    private BoolButtonMultiAction systemButton;
+    private BoolButtonMultiAction systemButtonTouch;
 
     // Button A
-    private BoolMultiAction primaryButton;
-    private BoolMultiAction primaryButtonTouch;
+    private BoolButtonMultiAction primaryButton;
+    private BoolButtonMultiAction primaryButtonTouch;
 
     // Button B
-    private BoolMultiAction secondaryButton;
-    private BoolMultiAction secondaryButtonTouch;
+    private BoolButtonMultiAction secondaryButton;
+    private BoolButtonMultiAction secondaryButtonTouch;
 
     // Grip
     private FloatMultiAction gripValue;
@@ -43,17 +40,17 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
     // Trigger button
     private FloatMultiAction triggerValue;
-    private BoolMultiAction triggerButton;
-    private BoolMultiAction triggerButtonTouch;
+    private BoolButtonMultiAction triggerButton;
+    private BoolButtonMultiAction triggerButtonTouch;
 
     // Thumb Stick
     private Vec2MultiAction thumbStick;
-    private BoolMultiAction thumbStickButton;
-    private BoolMultiAction thumbStickButtonTouch;
+    private BoolButtonMultiAction thumbStickButton;
+    private BoolButtonMultiAction thumbStickButtonTouch;
 
     // Trackpad
     private Vec2MultiAction trackpad;
-    private BoolMultiAction trackpadTouch;
+    private BoolButtonMultiAction trackpadTouch;
     private OpenXRMultiAction<Float> trackpadForce;
 
     public ValveIndexSet(OpenXRProvider provider) {
@@ -65,7 +62,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
 
         // -------- SYSTEM BUTTONS --------
-        systemButton = new BoolMultiAction(
+        systemButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "system_button", "System button",
@@ -82,7 +79,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        systemButtonTouch = new BoolMultiAction(
+        systemButtonTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "system_button_touch", "System button touch",
@@ -101,7 +98,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
         // -------- BUTTON PRIMARY --------
 
-        primaryButton = new BoolMultiAction(
+        primaryButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "primary_button", "Primary Button",
@@ -118,7 +115,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        primaryButtonTouch = new BoolMultiAction(
+        primaryButtonTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "primary_button_touch", "Primary Button Touch",
@@ -137,7 +134,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
         // -------- BUTTON SECONDARY --------
 
-        secondaryButton = new BoolMultiAction(
+        secondaryButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "secondary_button", "Secondary Button",
@@ -154,7 +151,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        secondaryButtonTouch = new BoolMultiAction(
+        secondaryButtonTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "secondary_button_touch", "Secondary Button Touch",
@@ -232,7 +229,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        triggerButton = new BoolMultiAction(
+        triggerButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trigger_button", "Trigger Button",
@@ -249,7 +246,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        triggerButtonTouch = new BoolMultiAction(
+        triggerButtonTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trigger_button_touch", "Trigger Button Touch",
@@ -287,7 +284,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        thumbStickButton = new BoolMultiAction(
+        thumbStickButton = new BoolButtonMultiAction(
                 provider,
                 this,
                 "thumbstick_button", "ThumbStick Button",
@@ -304,7 +301,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        thumbStickButtonTouch = new BoolMultiAction(
+        thumbStickButtonTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "thumbstick_button_touch", "ThumbStick Button Touch",
@@ -340,7 +337,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadTouch = new BoolMultiAction(
+        trackpadTouch = new BoolButtonMultiAction(
                 provider,
                 this,
                 "trackpad_touch", "Trackpad Touch",

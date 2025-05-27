@@ -53,7 +53,7 @@ public class HapticPulseAction extends OpenXRAction {
                     .type(XR_TYPE_ACTION_CREATE_INFO)
                     .next(0)
                     .actionType(actionType.getId())
-                    .actionName(stack.UTF8(name))
+                    .actionName(stack.UTF8(id))
                     .localizedActionName(stack.UTF8(localizedName))
                     .countSubactionPaths(2)
                     .subactionPaths(paths);

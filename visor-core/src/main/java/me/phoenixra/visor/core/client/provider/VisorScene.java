@@ -48,7 +48,6 @@ public class VisorScene implements VRScene {
     public void render(@NotNull IRenderContext context) {
 
         Minecraft mc = Minecraft.getInstance();
-        ProfilerFiller profiler = mc.getProfiler();
 
         RenderSystem.depthMask(true);
 

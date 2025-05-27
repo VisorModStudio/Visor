@@ -24,10 +24,10 @@ public class PoseMultiAction extends OpenXRMultiAction<VRPoseRecord> {
 
     public PoseMultiAction(OpenXRProvider provider,
                            OpenXRActionSet actionSet,
-                           String name,
+                           String id,
                            String localizedName,
                            List<SubAction<VRPoseRecord>> subActions) {
-        super(provider, actionSet, name, localizedName, XRInputActionType.POSE, subActions);
+        super(provider, actionSet, id, localizedName, XRInputActionType.POSE, subActions);
     }
 
     @Override

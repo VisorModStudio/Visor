@@ -24,9 +24,9 @@ public class PoseAction extends OpenXRSingleAction<VRPoseRecord> {
 
     public PoseAction(OpenXRProvider provider,
                       OpenXRActionSet actionSet,
-                      String name,
+                      String id,
                       String localizedName) {
-        super(provider, actionSet, name, localizedName, XRInputActionType.POSE);
+        super(provider, actionSet, id, localizedName, XRInputActionType.POSE);
         currentState = VRPoseRecord.EMPTY;
 
     }

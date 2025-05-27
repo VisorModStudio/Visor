@@ -24,7 +24,7 @@ public abstract class OpenXRAction implements VRAction {
     protected final OpenXRActionSet actionSet;
 
     @Getter
-    protected final String name;
+    protected final String id;
     @Getter
     protected final String localizedName;
 
@@ -32,12 +32,12 @@ public abstract class OpenXRAction implements VRAction {
 
     public OpenXRAction(OpenXRProvider provider,
                         OpenXRActionSet actionSet,
-                        String name,
+                        String id,
                         String localizedName,
                         XRInputActionType actionType) {
         this.provider = provider;
         this.actionSet = actionSet;
-        this.name = name;
+        this.id = id;
         this.localizedName = localizedName;
         this.actionType = actionType;
     }

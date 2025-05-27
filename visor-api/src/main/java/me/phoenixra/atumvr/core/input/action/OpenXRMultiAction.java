@@ -30,15 +30,15 @@ public abstract class OpenXRMultiAction<T> extends OpenXRAction {
 
 
     @Getter
-    protected final List<SubAction<T>> subActions;
+    protected final List<? extends SubAction<T>> subActions;
 
 
     public OpenXRMultiAction(OpenXRProvider provider,
                              OpenXRActionSet actionSet,
-                             String name, String localizedName,
+                             String id, String localizedName,
                              XRInputActionType actionType,
-                             List<SubAction<T>> subActions) {
-        super(provider, actionSet, name, localizedName, actionType);
+                             List<? extends SubAction<T>> subActions) {
+        super(provider, actionSet, id, localizedName, actionType);
         this.subActions = Collections.unmodifiableList(subActions);
     }
 
@@ -60,7 +60,7 @@ public abstract class OpenXRMultiAction<T> extends OpenXRAction {
             XrActionCreateInfo actionCreateInfo = XrActionCreateInfo.calloc(stack).set(
                     XR10.XR_TYPE_ACTION_CREATE_INFO,
                     NULL,
-                    memUTF8(this.name),
+                    memUTF8(this.id),
                     actionType.getId(),
                     subActions.size(),
                     subactionPaths,
@@ -90,6 +90,9 @@ public abstract class OpenXRMultiAction<T> extends OpenXRAction {
     public static class SubAction<T>{
         protected Map<XRInteractionProfile, String> defaultBindings = new LinkedHashMap<>();
 
+        @Getter
+        private final String id;
+
         protected String pathName;
         @Setter
         protected long pathHandle;
@@ -99,7 +102,8 @@ public abstract class OpenXRMultiAction<T> extends OpenXRAction {
         protected boolean changed = false;
         protected boolean active = false;
 
-        public SubAction(String path, T initialState){
+        public SubAction(String id, String path, T initialState){
+            this.id = id;
             this.pathName = path;
             this.currentState = initialState;
         }

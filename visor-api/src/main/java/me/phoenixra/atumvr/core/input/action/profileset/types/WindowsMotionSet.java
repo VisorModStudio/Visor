@@ -6,7 +6,7 @@ import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.types.multi.BoolMultiAction;
+import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.Vec2MultiAction;
 import org.jetbrains.annotations.NotNull;
@@ -23,22 +23,22 @@ public class WindowsMotionSet extends OpenXRProfileSet {
 
 
     // Menu button
-    private BoolMultiAction menuButton;
+    private BoolButtonMultiAction menuButton;
 
     // Grip
-    private BoolMultiAction gripButton;
+    private BoolButtonMultiAction gripButton;
 
     // Trigger
     private FloatMultiAction triggerValue;
 
     // Thumb stick
     private Vec2MultiAction thumbStick;
-    private BoolMultiAction thumbStickButton;
+    private BoolButtonMultiAction thumbStickButton;
 
     // Trackpad
     private Vec2MultiAction trackpad;
-    private BoolMultiAction trackpadTouch;
-    private BoolMultiAction trackpadButton;
+    private BoolButtonMultiAction trackpadTouch;
+    private BoolButtonMultiAction trackpadButton;
 
     public WindowsMotionSet(OpenXRProvider provider) {
         super(provider, "windows_motion", "Windows Motion Controller", 0);
@@ -49,7 +49,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
 
 
         // -------- MENU BUTTON --------
-        menuButton = new BoolMultiAction(
+        menuButton = new BoolButtonMultiAction(
                 provider, this,
                 "menu_button", "Menu Button",
                 List.of(
@@ -61,7 +61,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
         );
 
         // -------- GRIP --------
-        gripButton = new BoolMultiAction(
+        gripButton = new BoolButtonMultiAction(
                 provider, this,
                 "grip_button", "Grip Button",
                 List.of(
@@ -98,7 +98,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
                 )
         );
 
-        thumbStickButton = new BoolMultiAction(
+        thumbStickButton = new BoolButtonMultiAction(
                 provider, this,
                 "thumbstick_button", "Thumbstick Button",
                 List.of(
@@ -121,7 +121,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadTouch = new BoolMultiAction(
+        trackpadTouch = new BoolButtonMultiAction(
                 provider, this,
                 "trackpad_touch", "Trackpad Touch",
                 List.of(
@@ -132,7 +132,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadButton = new BoolMultiAction(
+        trackpadButton = new BoolButtonMultiAction(
                 provider, this,
                 "trackpad_button", "Trackpad Button",
                 List.of(
