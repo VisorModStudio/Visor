@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorServer;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
-import me.phoenixra.visor.core.common.addon.AddonManager;
+import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 
 import me.phoenixra.visor.core.common.addon.AddonCoreServer;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
@@ -52,7 +52,7 @@ public class VisorServerImpl implements VisorServer {
         //init addons manager if on dedicated server
         if (ModLoader.get().isDedicatedServer()) {
 
-            var addonManager = new AddonManager(LOGGER);
+            var addonManager = new AddonManagerImpl(LOGGER);
             addonManager.initialize(
                     new AddonCoreServer(),
                     List.of()

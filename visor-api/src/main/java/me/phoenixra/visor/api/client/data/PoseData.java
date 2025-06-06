@@ -75,7 +75,7 @@ public interface PoseData {
      *
      * @return player rotation
      */
-    float getRotationYaw();
+    float getRotationY();
 
     /**
      *

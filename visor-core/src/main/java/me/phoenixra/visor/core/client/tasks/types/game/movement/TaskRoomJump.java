@@ -42,7 +42,6 @@ public class TaskRoomJump extends VisorTask {
         final double deltaY = latestY - playerHeight;
 
         if (deltaY > VRClientSettings.getJumpThreshold()) {
-            LOGGER.info("JUMP");
             player.jumpFromGround();
         }
     }

@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.settings.lang.LangHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 
 import java.util.Arrays;
@@ -135,7 +134,7 @@ public enum VRGuiOption {
         }
         @Override
         public void onChanged() {
-            ClientContext.player.setRotationYaw(0);
+            ClientContext.player.setRotationY(0);
         }
 
         @Override

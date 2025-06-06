@@ -43,10 +43,16 @@ public class SharedActionSet extends OpenXRActionSet {
                 provider, this,
                 "hand_aim", "Hand Aim",
                 List.of(
-                        new OpenXRMultiAction.SubAction<>(LEFT_HAND_PATH,  VRPoseRecord.EMPTY)
-                                .putDefaultBindings(supportedProfiles, "input/aim/pose"),
-                        new OpenXRMultiAction.SubAction<>(RIGHT_HAND_PATH, VRPoseRecord.EMPTY)
-                                .putDefaultBindings(supportedProfiles, "input/aim/pose")
+                        new OpenXRMultiAction.SubAction<>(
+                                "hand.aim.left",
+                                LEFT_HAND_PATH,
+                                VRPoseRecord.EMPTY
+                        ).putDefaultBindings(supportedProfiles, "input/aim/pose"),
+                        new OpenXRMultiAction.SubAction<>(
+                                "hand.aim.right",
+                                RIGHT_HAND_PATH,
+                                VRPoseRecord.EMPTY
+                        ).putDefaultBindings(supportedProfiles, "input/aim/pose")
                 )
         );
 
@@ -54,10 +60,16 @@ public class SharedActionSet extends OpenXRActionSet {
                 provider, this,
                 "hand_grip", "Hand Grip",
                 List.of(
-                        new OpenXRMultiAction.SubAction<>(LEFT_HAND_PATH,  VRPoseRecord.EMPTY)
-                                .putDefaultBindings(supportedProfiles, "input/grip/pose"),
-                        new OpenXRMultiAction.SubAction<>(RIGHT_HAND_PATH, VRPoseRecord.EMPTY)
-                                .putDefaultBindings(supportedProfiles, "input/grip/pose")
+                        new OpenXRMultiAction.SubAction<>(
+                                "hand.aim.left",
+                                LEFT_HAND_PATH,
+                                VRPoseRecord.EMPTY
+                        ).putDefaultBindings(supportedProfiles, "input/grip/pose"),
+                        new OpenXRMultiAction.SubAction<>(
+                                "hand.aim.right",
+                                RIGHT_HAND_PATH,
+                                VRPoseRecord.EMPTY
+                        ).putDefaultBindings(supportedProfiles, "input/grip/pose")
                 )
         );
 

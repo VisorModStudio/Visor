@@ -68,10 +68,10 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     /* ****************** *\
   //--------RENDERING--------\\
     \* ****************** */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/MultiBufferSource$BufferSource;endBatch()V", ordinal = 0, shift = Shift.AFTER), method = "renderLevel")
-    public void visor$renderVR(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera,
-                               GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f,
-                               CallbackInfo ci
+    @Inject(at = @At("RETURN"), method = "renderLevel")
+    public void visor$renderVRDecorations(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera,
+                                          GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f,
+                                          CallbackInfo ci
     ) {
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             return;
@@ -105,7 +105,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             ((GameRendererModified) minecraft.gameRenderer)
                     .visor$cacheCameraEntity((LivingEntity) visor$capturedEntity);
             ((GameRendererModified) minecraft.gameRenderer)
-                    .visor$setupVRCameraEntity();
+                    .visor$setupCameraEntity();
         }
         this.visor$renderedEntity = null;
     }
@@ -159,7 +159,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public void visor$onResourceManagerReload(ResourceManager resourceManager, CallbackInfo ci) {
         if (VisorState.getStateMode().isInitialized()) {
             ClientContext.renderer.prepareReinit(
-                    "Resource Reload"
+                    "Resources Reload"
             );
         }
     }

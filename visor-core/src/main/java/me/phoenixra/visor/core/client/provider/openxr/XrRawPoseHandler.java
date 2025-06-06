@@ -53,7 +53,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
                 );
         hmdData.getRotationHistory()
                 .add(new Quaternionf().setFromNormalized(hmdRotation)
-                        .rotateY(ClientContext.player.getRotationYaw()));
+                        .rotateY(ClientContext.player.getRotationY()));
 
 
         //LEFT CONTROLLER

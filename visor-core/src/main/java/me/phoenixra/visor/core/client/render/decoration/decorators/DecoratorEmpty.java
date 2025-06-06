@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +13,6 @@ import org.jetbrains.annotations.NotNull;
 @RegisterVRDecorator
 public class DecoratorEmpty extends VRDecorator {
     public static final String ID = "empty";
-
-    @Getter
-    private final int priority = Integer.MIN_VALUE; //fallback decorator
-
 
     public DecoratorEmpty(@NotNull VisorAddon owner) {
         super(owner, ID);
@@ -46,4 +43,8 @@ public class DecoratorEmpty extends VRDecorator {
         return true;
     }
 
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.FALLBACK;
+    }
 }

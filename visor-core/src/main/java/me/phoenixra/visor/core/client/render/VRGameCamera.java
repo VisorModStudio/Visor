@@ -64,16 +64,10 @@ public class VRGameCamera extends Camera {
                 .getElementForDisplay(display);
 
         // Position
-        if (display == VRDisplay.FIRST_PERSON
-                && VRClientSettings.getMirrorSmooth() > 0f) {
-            Vec3 smoothPos = RenderHelper.getCameraPosition(
-                    display,
-                    ClientContext.player.getPose(PoseType.RENDER)
-            );
-            this.setPosition(smoothPos);
-        } else {
-            this.setPosition(eye.getPosition());
-        }
+        this.setPosition(RenderHelper.getCameraPosition(
+                display,
+                ClientContext.player.getPose(PoseType.RENDER)
+        ));
 
         // Orientation
         this.xRot = -eye.getPitch();

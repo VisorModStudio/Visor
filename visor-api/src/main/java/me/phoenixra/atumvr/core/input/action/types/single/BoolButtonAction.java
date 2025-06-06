@@ -3,11 +3,16 @@ package me.phoenixra.atumvr.core.input.action.types.single;
 import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
+import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openxr.XR10;
 import org.lwjgl.openxr.XrActionStateBoolean;
 import org.lwjgl.system.MemoryStack;
+
+import java.util.List;
 
 public class BoolButtonAction extends OpenXRSingleAction<Boolean> implements VRActionDataButton {
 
@@ -63,5 +68,15 @@ public class BoolButtonAction extends OpenXRSingleAction<Boolean> implements VRA
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public BoolButtonAction putDefaultBindings(@NotNull List<XRInteractionProfile> profiles, @Nullable String source) {
+        return (BoolButtonAction) super.putDefaultBindings(profiles, source);
+    }
+
+    @Override
+    public BoolButtonAction putDefaultBindings(@NotNull XRInteractionProfile profile, @Nullable String source) {
+        return (BoolButtonAction) super.putDefaultBindings(profile, source);
     }
 }

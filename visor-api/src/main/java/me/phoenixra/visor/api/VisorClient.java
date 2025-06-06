@@ -54,13 +54,11 @@ public interface VisorClient {
     VisorRenderer getVrRenderer();
 
     /**
-     * Get Self View renderer.
-     * <br>
-     * Can be used to render effects attached
-     * to VR component like HMD
-     * @return Self View renderer instance
+     * Get VR Decorator manager.
+     *
+     * @return VR Decorator manager instance
      */
-    @NotNull VRDecoratorManager getGameViewHandler();
+    @NotNull VRDecoratorManager getDecoratorManager();
 
     /**
      * Get Hands renderer.

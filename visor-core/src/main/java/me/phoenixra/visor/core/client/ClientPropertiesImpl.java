@@ -21,8 +21,10 @@ public class ClientPropertiesImpl implements ClientProperties {
 
 
     public void preTick(){
+
         moveModifiersAllowed = true;
-        inputMovementAllowed = true;
+
+        inputMovementAllowed = MC.screen == null;
 
     }
 

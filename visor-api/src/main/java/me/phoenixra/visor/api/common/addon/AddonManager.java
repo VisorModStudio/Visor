@@ -4,10 +4,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
-public interface IAddonManager {
+public interface AddonManager {
 
     /**
      * Get addon with specified id

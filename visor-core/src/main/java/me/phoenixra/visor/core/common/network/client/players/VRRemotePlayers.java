@@ -44,6 +44,78 @@ public class VRRemotePlayers {
         }
     }
 
+    public VRRemotePlayerData getPlayer(UUID uuid) {
+
+        VRRemotePlayerData playerData1 = this.vrPlayers.get(uuid);
+
+        if (playerData1 != null
+                && this.vrPlayersLastTick.containsKey(uuid)) {
+            VRRemotePlayerData playerDataPrev = this.vrPlayersLastTick.get(uuid);
+
+            //average between current and previous
+            float frameTime = Minecraft.getInstance().getFrameTime();
+            return new VRRemotePlayerData(
+                    //offhand rotation
+                    playerData1.offhandRotation(),
+                    //offhand direction
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.offhandDirection(),
+                            VRMathUtils.convertToMcVector(
+                                    playerData1.offhandRotation()
+                                            .transform(VRMathUtils.forwardVector, new Vector3f())
+                            ),
+                            frameTime
+                    ),
+                    //offhand position
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.offhandPosition(),
+                            playerData1.offhandPosition(),
+                            frameTime
+                    ),
+                    //mainHand rotation
+                    playerData1.mainHandRotation(),
+                    //mainHand direction
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.mainHandDirection(),
+                            VRMathUtils.convertToMcVector(
+                                    playerData1.mainHandRotation()
+                                            .transform(VRMathUtils.forwardVector, new Vector3f())
+                            ),
+                            frameTime
+                    ),
+                    //mainHand position
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.mainHandPosition(),
+                            playerData1.mainHandPosition(),
+                            frameTime
+                    ),
+                    //HMD rotation
+                    playerData1.hmdRotation(),
+                    //HMD direction
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.hmdDirection(),
+                            VRMathUtils.convertToMcVector(
+                                    playerData1.hmdRotation()
+                                            .transform(VRMathUtils.forwardVector, new Vector3f())
+                            ),
+                            frameTime
+                    ),
+                    //HMD position
+                    VRMathUtils.lerpVector(
+                            playerDataPrev.hmdPosition(),
+                            playerData1.hmdPosition(),
+                            frameTime
+                    ),
+                    playerData1.worldScale(),
+                    playerData1.heightScale(),
+                    playerData1.headsetModel(),
+                    playerData1.leftHanded()
+            );
+        } else {
+            return playerData1;
+        }
+    }
+
     public void applyPlayer(UUID uuid,
                             PlayerPoseBuffer poseBuffer,
                             float worldScale,
@@ -99,6 +171,7 @@ public class VRRemotePlayers {
         this.vrPlayersReceived.put(uuid, playerData);
     }
 
+
     public void applyPlayer(UUID uuid,
                             PlayerPoseBuffer poseBuffer,
                             float worldScale,
@@ -111,6 +184,10 @@ public class VRRemotePlayers {
         this.vrPlayers.remove(player);
         this.vrPlayersLastTick.remove(player);
         this.vrPlayersReceived.remove(player);
+    }
+
+    public boolean isTracked(UUID uuid) {
+        return this.vrPlayers.containsKey(uuid);
     }
 
     public static void clear() {

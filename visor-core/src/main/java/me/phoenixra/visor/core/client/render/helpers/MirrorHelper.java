@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.common.utils.ClientUtils;
+import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import org.joml.Matrix4f;
@@ -32,52 +32,6 @@ public class MirrorHelper {
             case FIRST_PERSON -> drawFirstPersonMirror();
             case THIRD_PERSON -> drawThirdPersonMirror();
         }
-    }
-
-    public static void blitCropped(RenderTarget source,
-                                   int left, int top,
-                                   int right, int bottom,
-                                   float xCropFactor, float yCropFactor,
-                                   boolean keepAspect) {
-        if (keepAspect) {
-            float drawAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
-            float bufferAspect = (float) source.viewWidth / (float) source.viewHeight;
-            if (drawAspect > bufferAspect) {
-
-                float heightAspect = (bufferAspect / drawAspect) * (0.5F - yCropFactor);
-
-                yCropFactor = 0.5F - heightAspect;
-            } else {
-
-                float widthAspect = (drawAspect / bufferAspect) * (0.5F - xCropFactor);
-
-                xCropFactor = 0.5F - widthAspect;
-            }
-        }
-
-        int xMin = (int) (xCropFactor * source.width);
-        int yMin = (int) (yCropFactor * source.height);
-        int xMax = source.width - xMin;
-        int yMax = source.height - yMin;
-
-        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId);
-        _glBlitFrameBuffer(
-                xMin, yMin, xMax, yMax,
-                left, top, right, bottom,
-                GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
-        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
-    }
-
-
-    public static void blit(RenderTarget source,
-                            int left, int top,
-                            int right, int bottom) {
-        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId);
-        _glBlitFrameBuffer(
-                0, 0, source.width, source.height,
-                left, top, right, bottom,
-                GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
-        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
     }
 
 
@@ -243,6 +197,55 @@ public class MirrorHelper {
             RenderSystem.applyModelViewMatrix();
         }
     }
+
+
+    public static void blit(RenderTarget source,
+                            int left, int top,
+                            int right, int bottom) {
+        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId);
+        _glBlitFrameBuffer(
+                0, 0, source.width, source.height,
+                left, top, right, bottom,
+                GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
+        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+    }
+
+    public static void blitCropped(RenderTarget source,
+                                   int left, int top,
+                                   int right, int bottom,
+                                   float xCropFactor, float yCropFactor,
+                                   boolean keepAspect) {
+        if (keepAspect) {
+            float drawAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
+            float bufferAspect = (float) source.viewWidth / (float) source.viewHeight;
+            if (drawAspect > bufferAspect) {
+
+                float heightAspect = (bufferAspect / drawAspect) * (0.5F - yCropFactor);
+
+                yCropFactor = 0.5F - heightAspect;
+            } else {
+
+                float widthAspect = (drawAspect / bufferAspect) * (0.5F - xCropFactor);
+
+                xCropFactor = 0.5F - widthAspect;
+            }
+        }
+
+        int xMin = (int) (xCropFactor * source.width);
+        int yMin = (int) (yCropFactor * source.height);
+        int xMax = source.width - xMin;
+        int yMax = source.height - yMin;
+
+        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId);
+        _glBlitFrameBuffer(
+                xMin, yMin, xMax, yMax,
+                left, top, right, bottom,
+                GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
+        _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+    }
+
+
+
 
 
 

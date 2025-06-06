@@ -32,7 +32,7 @@ public abstract class WindowMixin implements WindowModified {
     void visor$vrWidth(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.getStateMode().isActive()) {
             cir.setReturnValue(
-                    MC.getMainRenderTarget()
+                    MC.mainRenderTarget
                             .viewWidth
             );
         }
@@ -41,7 +41,7 @@ public abstract class WindowMixin implements WindowModified {
     void visor$vrHeight(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.getStateMode().isActive()) {
             cir.setReturnValue(
-                    MC.getMainRenderTarget()
+                    MC.mainRenderTarget
                     .viewHeight
             );
         }

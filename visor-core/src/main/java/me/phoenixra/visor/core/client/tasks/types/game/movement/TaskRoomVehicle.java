@@ -122,8 +122,8 @@ public class TaskRoomVehicle extends VisorTask {
         rotateTo = Math.min(smoothed, Math.max(rotateTo, -smoothed));
 
         // Apply the rotation adjustment
-        vrClientPlayer.setRotationYaw(
-                vrClientPlayer.getRotationYaw() + rotateTo
+        vrClientPlayer.setRotationY(
+                vrClientPlayer.getRotationY() + rotateTo
         );
         // Update vehicle rotation and keep it within 0-360 degrees.
         this.vehicleRotation = (this.vehicleRotation - rotateTo) % 360.0F;
@@ -162,7 +162,7 @@ public class TaskRoomVehicle extends VisorTask {
 
         final float hmdYaw = preTickPose.getHmd().getYaw();
         final float vehicleYRotation = vehicle.getYRot() % 360.0F;
-        this.vehicleRotation = vrClientPlayer.getRotationYaw();
+        this.vehicleRotation = vrClientPlayer.getRotationY();
         this.rotationCooldown = 2;
 
         // For Minecarts, no additional rotation adjustment is needed.
@@ -172,8 +172,8 @@ public class TaskRoomVehicle extends VisorTask {
 
         // Adjust rotation offset for other vehicles based on the difference between vehicle rotation and HMD yaw.
         final float rotationDelta = rotationDelta(vehicleYRotation, hmdYaw);
-        vrClientPlayer.setRotationYaw(
-                preTickPose.getRotationYaw() + rotationDelta
+        vrClientPlayer.setRotationY(
+                preTickPose.getRotationY() + rotationDelta
         );
     }
 

@@ -109,8 +109,7 @@ public class PoseElementImpl implements PoseElement {
                                 vec.x,
                                 vec.y,
                                 vec.z
-                        ),
-                        new Vector3f()
+                        )
                 );
         return VRMathUtils.convertToMcVector(transform);
     }
@@ -124,8 +123,7 @@ public class PoseElementImpl implements PoseElement {
                                 (float) customVec.x,
                                 (float) customVec.y,
                                 (float) customVec.z
-                        ),
-                        new Vector3f()
+                        )
                 );
     }
 

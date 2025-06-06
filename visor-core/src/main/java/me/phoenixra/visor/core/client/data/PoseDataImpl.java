@@ -40,7 +40,7 @@ public class PoseDataImpl implements PoseData {
     private final List<PoseElementImpl> elements;
 
     private Vec3 origin;
-    private float rotationYaw;
+    private float rotationY;
     private float worldScale;
 
     private float bodyYaw;
@@ -50,7 +50,7 @@ public class PoseDataImpl implements PoseData {
                         Vec3 origin,
                         float walkMul,
                         float worldScale,
-                        float rotationYaw) {
+                        float rotationY) {
         this.type = type;
 
         this.hmd = new PoseElementImpl();
@@ -73,7 +73,7 @@ public class PoseDataImpl implements PoseData {
                 thirdPersonCamera
         );
 
-        update(origin, walkMul, worldScale, rotationYaw);
+        update(origin, walkMul, worldScale, rotationY);
 
     }
 
@@ -86,7 +86,7 @@ public class PoseDataImpl implements PoseData {
         RawController dataRight = ClientContext.rawPoseHandler.getControllerRightData();
         this.origin = origin;
         this.worldScale = worldScale;
-        this.rotationYaw = rotationY;
+        this.rotationY = rotationY;
         RawHmd hmdData = ClientContext.rawPoseHandler.getHmdData();
         Vec3 headsetPos = hmdData.getHeadsetPosition();
         Vec3 headsetPosFinal = new Vec3(
@@ -97,14 +97,14 @@ public class PoseDataImpl implements PoseData {
 
         this.hmd.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 hmdData.getRotation(),
                 headsetPosFinal, hmdData.getVector()
         );
         this.eyeLeft.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.LEFT),
                 hmdData.getEyePosition(EyeType.LEFT).subtract(headsetPos).add(headsetPosFinal),
@@ -112,7 +112,7 @@ public class PoseDataImpl implements PoseData {
         );
         this.eyeRight.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.RIGHT),
                 hmdData.getEyePosition(EyeType.RIGHT).subtract(headsetPos).add(headsetPosFinal),
@@ -121,7 +121,7 @@ public class PoseDataImpl implements PoseData {
 
         this.controllerLeft.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 dataLeft.getAimRotation(),
                 dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
@@ -129,7 +129,7 @@ public class PoseDataImpl implements PoseData {
         );
         this.controllerRight.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 dataRight.getAimRotation(),
                 dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
@@ -137,7 +137,7 @@ public class PoseDataImpl implements PoseData {
         );
         this.handLeft.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 dataLeft.getGripRotation(),
                 dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
@@ -145,7 +145,7 @@ public class PoseDataImpl implements PoseData {
         );
         this.handRight.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 dataRight.getGripRotation(),
                 dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
@@ -164,7 +164,7 @@ public class PoseDataImpl implements PoseData {
         );
         this.thirdPersonCamera.update(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 camRot,
                 camPos.subtract(headsetPos).add(headsetPosFinal),
@@ -240,7 +240,7 @@ public class PoseDataImpl implements PoseData {
         }
         if (originStage == PoseType.ROOM) {
             return position.scale(worldScale)
-                    .yRot(rotationYaw)
+                    .yRot(rotationY)
                     .add(origin);
         }
 
@@ -250,14 +250,14 @@ public class PoseDataImpl implements PoseData {
         Vec3 roomPose = position
                 .subtract(originPose.origin)
                 .scale(1.0 / originPose.worldScale)
-                .yRot(-originPose.rotationYaw);
+                .yRot(-originPose.rotationY);
 
         if(type == PoseType.ROOM){
             return roomPose;
         }
 
         return roomPose.scale(worldScale)
-                .yRot(rotationYaw)
+                .yRot(rotationY)
                 .add(origin);
     }
 
@@ -272,17 +272,17 @@ public class PoseDataImpl implements PoseData {
 
 
         if (originStage == PoseType.ROOM) {
-            return new Matrix4f().rotationY(rotationYaw).mul(rotationMatrix);
+            return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
         PoseDataImpl originPose = ClientContext.player.getPose(originStage);
 
         if (this.type == PoseType.ROOM) {
-            return new Matrix4f().rotationY(-originPose.rotationYaw).mul(rotationMatrix);
+            return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);
         }
 
-        return new Matrix4f().rotationY(this.rotationYaw - originPose.rotationYaw)
+        return new Matrix4f().rotationY(this.rotationY - originPose.rotationY)
                 .mul(rotationMatrix);
 
     }
@@ -308,7 +308,7 @@ public class PoseDataImpl implements PoseData {
                         "  Third Person Camera: %s",
                 type,
                 origin,
-                Math.toDegrees(rotationYaw),
+                Math.toDegrees(rotationY),
                 worldScale,
                 Math.toDegrees(bodyYaw),
                 headPivot,

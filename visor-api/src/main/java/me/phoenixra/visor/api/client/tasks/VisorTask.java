@@ -2,6 +2,8 @@ package me.phoenixra.visor.api.client.tasks;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElement;
 import net.minecraft.client.player.LocalPlayer;
@@ -12,7 +14,7 @@ import java.util.Objects;
 
 
 @Getter
-public abstract class VisorTask implements VisorElement, Comparable<VisorTask>  {
+public abstract class VisorTask implements VisorElement, PrioritySupporter {
     @NotNull
     private final VisorAddon owner;
     @Setter
@@ -43,10 +45,6 @@ public abstract class VisorTask implements VisorElement, Comparable<VisorTask>  
         cleared = true;
     }
 
-    @Override
-    public int compareTo(@NotNull VisorTask o) {
-        return getPriority() - o.getPriority();
-    }
 
 
     /**
@@ -58,21 +56,10 @@ public abstract class VisorTask implements VisorElement, Comparable<VisorTask>  
     }
 
 
-    /**
-     * Get priority level of the task.
-     * <p>
-     * The priority determines the order in which
-     * the task is processed.
-     * A higher priority value means the task
-     * will be called earlier.
-     * </p>
-     *
-     * @return priority
-     */
-    public int getPriority(){
-        return 100;
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.NORMAL;
     }
-
 
     @NotNull
     public TaskType getType(){

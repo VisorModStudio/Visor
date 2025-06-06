@@ -17,14 +17,14 @@ import me.phoenixra.visor.core.client.ClientContext;
 public class RenderHelper {
 
 
-    public static void applyDisplayPose(VRDisplay pass, PoseStack poseStack) {
+    public static void applyDisplayOrientation(VRDisplay vrDisplay, PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
         final Matrix4f rotationMatrix;
 
-        boolean mirrorMode = pass == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
-        if (mirrorMode) {
+        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
+        if (smooth) {
             // average rotation over history
             rotationMatrix = new Matrix4f()
                     .rotation(
@@ -36,7 +36,7 @@ public class RenderHelper {
         } else {
             // direct VR eye/head rotation
             rotationMatrix = renderPose
-                    .getElementForDisplay(pass)
+                    .getElementForDisplay(vrDisplay)
                     .getRotationMatrix()
                     .transpose(new Matrix4f());
         }
@@ -46,17 +46,19 @@ public class RenderHelper {
         poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
     }
 
-    public static void applyDisplayTranslation(VRDisplay pass, PoseStack poseStack) {
-        if (!pass.isEye()) {
+    public static void applyDisplayTranslation(VRDisplay vrDisplay, PoseStack poseStack) {
+        if (!vrDisplay.isEye()) {
             return;
         }
         PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
-        Vec3 eyePos = renderPose.getElementForDisplay(pass).getPosition();
+        Vec3 eyePos = renderPose.getElementForDisplay(vrDisplay).getPosition();
         Vec3 hmdOrigin = renderPose.getHmd().getPosition();
         Vec3 offset = eyePos.subtract(hmdOrigin);
 
         poseStack.translate(-offset.x, -offset.y, -offset.z);
     }
+
+
 
     public static void applyControllerPose(ControllerHand hand, PoseStack poseStack) {
         PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
@@ -81,11 +83,11 @@ public class RenderHelper {
     }
 
 
-    public static Vec3 getCameraPosition(VRDisplay pass, PoseDataImpl vrPose) {
+    public static Vec3 getCameraPosition(VRDisplay vrDisplay, PoseDataImpl vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        boolean mirrorMode = pass == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
-        if (mirrorMode) {
+        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
+        if (smooth) {
             Vec3 avg = ClientContext.rawPoseHandler
                     .getHmdData()
                     .getPositionHistory()
@@ -93,11 +95,11 @@ public class RenderHelper {
             // scale, rotate by yaw, then offset by origin
             return avg
                     .scale(vrPose.getWorldScale())
-                    .yRot(vrPose.getRotationYaw())
+                    .yRot(vrPose.getRotationY())
                     .add(vrPose.getOrigin());
         }
 
-        return vrPose.getElementForDisplay(pass).getPosition();
+        return vrPose.getElementForDisplay(vrDisplay).getPosition();
     }
 
 

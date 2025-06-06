@@ -6,7 +6,6 @@ import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRAction;
-import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatButtonMultiAction;
@@ -61,8 +60,8 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
     private FloatButtonMultiAction triggerValue;
 
     // Thumb stick
-    private Vec2MultiAction thumbstick;
-    private BoolButtonMultiAction thumbstickButton;
+    private Vec2MultiAction thumbStick;
+    private BoolButtonMultiAction thumbStickButton;
 
 
 
@@ -168,7 +167,7 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
         );
 
         // -------- THUMB STICK --------
-        thumbstick = new Vec2MultiAction(
+        thumbStick = new Vec2MultiAction(
                 provider, this,
                 "vec2.thumbstick", "Thumbstick",
                 List.of(
@@ -185,7 +184,7 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
                 )
         );
 
-        thumbstickButton = new BoolButtonMultiAction(
+        thumbStickButton = new BoolButtonMultiAction(
                 provider, this,
                 "button.thumbstick", "Thumbstick Button",
                 List.of(
@@ -208,14 +207,14 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
         listButton.addAll(secondaryButton.getSubActionsAsButton());
         listButton.addAll(gripValue.getSubActionsAsButton());
         listButton.addAll(triggerValue.getSubActionsAsButton());
-        listButton.addAll(thumbstickButton.getSubActionsAsButton());
+        listButton.addAll(thumbStickButton.getSubActionsAsButton());
 
         buttonMap = new HashMap<>();
         for(var entry : listButton){
             buttonMap.put(entry.getId(), entry);
         }
 
-        List<VRActionDataVec2> listVec2 = new ArrayList<>(thumbstick.getSubActionsAsVec2());
+        List<VRActionDataVec2> listVec2 = new ArrayList<>(thumbStick.getSubActionsAsVec2());
 
         vec2Map = new HashMap<>();
         for(var entry : listVec2){
@@ -227,13 +226,8 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
                 primaryButton, secondaryButton,
                 gripValue,
                 triggerValue,
-                thumbstick, thumbstickButton
+                thumbStick, thumbStickButton
         );
-    }
-
-    @Override
-    public @NotNull XRInteractionProfile getType() {
-        return PROFILE;
     }
 
 
@@ -259,5 +253,9 @@ public class HpMixedRealitySet extends OpenXRProfileSet {
     }
 
 
+    @Override
+    public @NotNull XRInteractionProfile getType() {
+        return PROFILE;
+    }
 
 }

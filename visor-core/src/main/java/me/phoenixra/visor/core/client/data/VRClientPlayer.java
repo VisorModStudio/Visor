@@ -12,6 +12,7 @@ import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -37,10 +38,14 @@ public class VRClientPlayer implements ClientPlayer {
     @Getter
     private float worldScale = 1.0f;
     @Getter
-    private float rotationYaw = 0f;
+    private float rotationY = 0f;
+
 
     @Getter
     private ControllerHand activeHand = ControllerHand.MAIN;
+
+    @Getter
+    private Input inputMovement = new Input();
 
     public VRClientPlayer() {
         this.roomPose = new PoseDataImpl(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
@@ -57,7 +62,7 @@ public class VRClientPlayer implements ClientPlayer {
                 this.origin,
                 VRClientSettings.getWalkMultiplier(),
                 this.worldScale,
-                rotationYaw
+                rotationY
         );
 
         //WORLD SCALE
@@ -90,7 +95,7 @@ public class VRClientPlayer implements ClientPlayer {
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
                         preTickPose.getWorldScale(),
-                        preTickPose.getRotationYaw()
+                        preTickPose.getRotationY()
                 ).getPosition();
 
         Vec3 hmdPosWorldScaleNow = PoseDataHelper
@@ -98,7 +103,7 @@ public class VRClientPlayer implements ClientPlayer {
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
                         worldScale,
-                        preTickPose.getRotationYaw()
+                        preTickPose.getRotationY()
                 ).getPosition();
 
         Vec3 hmdWorldScaleDiff = hmdPosWorldScaleNow.subtract(hmdPosWorldScaleOld);
@@ -108,11 +113,11 @@ public class VRClientPlayer implements ClientPlayer {
                 origin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
-                preTickPose.getRotationYaw()
+                preTickPose.getRotationY()
         );
 
-        float currentRotation = this.rotationYaw;
-        float preTickRotation = this.preTickPose.getRotationYaw();
+        float currentRotation = this.rotationY;
+        float preTickRotation = this.preTickPose.getRotationY();
         this.rotateOriginAround(
                 headPivot,
                  preTickRotation - currentRotation
@@ -140,8 +145,8 @@ public class VRClientPlayer implements ClientPlayer {
         );
 
         //Interpolated Rotation
-        float rotationPre = this.preTickPose.getRotationYaw();
-        float rotationPost = this.postTickPose.getRotationYaw();
+        float rotationPre = this.preTickPose.getRotationY();
+        float rotationPost = this.postTickPose.getRotationY();
         float rotationDelta = Math.abs(rotationPost - rotationPre);
 
         if (rotationDelta > Math.PI) {
@@ -307,8 +312,8 @@ public class VRClientPlayer implements ClientPlayer {
 
 
 
-    public void setRotationYaw(float rotationYaw) {
-        this.rotationYaw = rotationYaw % ((float) Math.PI * 2);
+    public void setRotationY(float rotationY) {
+        this.rotationY = rotationY % ((float) Math.PI * 2);
     }
 
 
@@ -333,7 +338,7 @@ public class VRClientPlayer implements ClientPlayer {
     public @NotNull PoseElement getRotationElement(@NotNull PoseType stage){
         PoseData playerPose = getPose(stage);
         return switch (VRClientSettings.getRotationMode()) {
-            case CONTROLLER_RIGHT -> playerPose.getController(
+            case CONTROLLER_MAIN -> playerPose.getController(
                     ControllerHand.MAIN
             );
             case HMD ->  playerPose.getHmd();
@@ -365,7 +370,7 @@ public class VRClientPlayer implements ClientPlayer {
                 render pose: %s"""
         ).formatted(
                 this.origin,
-                this.rotationYaw,
+                this.rotationY,
                 this.worldScale,
                 this.roomPose,
                 this.preTickPose,

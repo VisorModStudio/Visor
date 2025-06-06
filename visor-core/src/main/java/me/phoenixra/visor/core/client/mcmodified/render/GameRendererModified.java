@@ -7,7 +7,7 @@ public interface GameRendererModified {
 
 
 
-    void visor$setupVRCameraEntity();
+    void visor$setupCameraEntity();
 
     void visor$cacheCameraEntity(LivingEntity e);
 

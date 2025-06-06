@@ -253,7 +253,11 @@ public abstract class VisorRendererBase implements VisorRenderer {
                 "\nRender target width: " + eyeRenderWidth + ", height: " + eyeRenderHeight + " [Render scale: " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "%, " + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP]" +
                 "\nMain window width: " + windowModif.visor$getScreenWidth() + ", height: " + windowModif.visor$getScreenHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
                 "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)");
+
+        minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
+
         this.reinitTargets = false;
+
 
     }
 

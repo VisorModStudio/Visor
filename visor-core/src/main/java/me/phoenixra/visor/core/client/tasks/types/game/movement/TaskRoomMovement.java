@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
@@ -44,7 +45,7 @@ public class TaskRoomMovement extends VisorTask {
                 roomOrigin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
-                preTickPose.getRotationYaw()
+                preTickPose.getRotationY()
         );
 
         float playerHalfWidth = player.getBbWidth() / 2.0F;
@@ -149,7 +150,7 @@ public class TaskRoomMovement extends VisorTask {
     }
 
     @Override
-    public int getPriority() {
-        return 99999;
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.HIGH;
     }
 }

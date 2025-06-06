@@ -2,11 +2,10 @@ package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
@@ -20,8 +19,6 @@ import me.phoenixra.visor.core.client.ClientContext;
 public class DecoratorMainMenu extends VRDecorator {
     public static final String ID = "main_menu";
 
-    @Getter
-    private final int priority = 100;
 
 
     public DecoratorMainMenu(@NotNull VisorAddon owner) {
@@ -46,7 +43,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
-        RenderHelper.applyDisplayPose(VRRenderState.getCurrentVRDisplay(), poseStack);
+        RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
 
         renderPanorama(poseStack);
 
@@ -84,7 +81,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
         poseStack.mulPose(
                 Axis.YN.rotation(
-                        -renderPose.getRotationYaw()
+                        -renderPose.getRotationY()
                 )
         );
 
@@ -95,5 +92,10 @@ public class DecoratorMainMenu extends VRDecorator {
     @Override
     public boolean isDisplayable() {
         return VRRenderState.isInMainMenu();
+    }
+
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.LOW;
     }
 }

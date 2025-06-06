@@ -56,4 +56,9 @@ public class XrVRProvider extends OpenXRProvider {
     public void onStateChanged(XRSessionStateChange state) {
 
     }
+
+    @Override
+    public @NotNull XrInputHandler getInputHandler() {
+        return (XrInputHandler) super.getInputHandler();
+    }
 }

@@ -6,9 +6,11 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
+import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.helpers.VRScreenHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -21,9 +23,6 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 @RegisterVRDecorator
 public class DecoratorGameMenu extends VRDecorator {
     public static final String ID = "game_menu";
-
-    @Getter
-    private final int priority = 120;
 
 
 
@@ -50,7 +49,7 @@ public class DecoratorGameMenu extends VRDecorator {
     public void render(PoseStack poseStack, float partialTicks) {
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
         if (insideBlock) {
-            renderInsideBlockView();
+            VREffectsHelper.renderInsideBlockOverlay();
         }
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
@@ -58,18 +57,10 @@ public class DecoratorGameMenu extends VRDecorator {
         ClientContext.guiManager.renderGUI(poseStack, partialTicks, !VRScreenHelper.shouldOccludeGui());
 
         if (ClientContext.properties.isVrHandsAllowed()) {
-            boolean simpleHands = false;
-            if (simpleHands) {
-                ClientContext.handRenderer.renderSimpleHands(
-                        poseStack, partialTicks,
-                        true, true
-                );
-            } else {
-                ClientContext.handRenderer.renderWorldHands(
-                        poseStack, partialTicks,
-                        true, true
-                );
-            }
+            ClientContext.handRenderer.renderSimpleHands(
+                    poseStack, partialTicks,
+                    true, true
+            );
         }
 
     }
@@ -106,5 +97,10 @@ public class DecoratorGameMenu extends VRDecorator {
     @Override
     public boolean isDisplayable() {
         return MC.level != null && MC.screen != null;
+    }
+
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.LOW;
     }
 }

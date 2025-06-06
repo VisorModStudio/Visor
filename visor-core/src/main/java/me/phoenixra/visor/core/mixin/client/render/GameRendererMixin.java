@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.mixin.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.data.PoseElement;
@@ -19,6 +20,7 @@ import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -76,6 +78,9 @@ public abstract class GameRendererMixin
 
 
     @Shadow
+    private int itemActivationTicks;
+
+    @Shadow
     public abstract Matrix4f getProjectionMatrix(double fov);
 
     @Shadow
@@ -97,6 +102,10 @@ public abstract class GameRendererMixin
 
 
     @Shadow public abstract void render(float f, long l, boolean bl);
+
+    @Shadow
+    public abstract void renderItemActivationAnimation(int i, int j, float par1);
+
 
     @Unique
     public Matrix4f visor$thirdPassProjectionMatrix = new Matrix4f();
@@ -273,7 +282,7 @@ public abstract class GameRendererMixin
         }
 
         this.visor$cacheCameraEntity((LivingEntity) this.minecraft.getCameraEntity());
-        this.visor$setupVRCameraEntity();
+        this.visor$setupCameraEntity();
         this.visor$setupOverlayStatus(pPartialTicks);
     }
 
@@ -398,6 +407,50 @@ public abstract class GameRendererMixin
     /* ************** *\
   //--------MISC--------\\
     \* ************** */
+
+    //ITEM ACTIVATION ANIMATION
+    @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"))
+    private void visor$noScaleItem(PoseStack poseStack, float x, float y, float z, int width, int height,
+                                   float partialTicks
+    ) {
+        if (VRRenderState.getCurrentPhase().isVanilla()) {
+            poseStack.scale(x, y, z);
+            return;
+        }
+        VRDisplay currentDisplay = VRRenderState.getCurrentVRDisplay();
+        // need to do stuff twice, because redirects have no access to locals
+        int i = 40 - this.itemActivationTicks;
+        float g = ((float) i + partialTicks) / 40.0f;
+        float h = g * g;
+        float l = g * h;
+        float m = 10.25f * l * h - 24.95f * h * h + 25.5f * l - 13.8f * h + 4.0f * g;
+        float n = m * (float) Math.PI;
+        float sinN = Mth.sin(n) * 0.5F;
+        poseStack.translate(0, 0, sinN - 1.0);
+        if (currentDisplay == VRDisplay.THIRD_PERSON) {
+            float fov = VRClientSettings.getThirdPersonFov();
+            sinN *= (float) (fov / 70.0);
+        }
+        RenderHelper.applyDisplayOrientation(currentDisplay, poseStack);
+        RenderHelper.applyDisplayTranslation(currentDisplay, poseStack);
+        poseStack.scale(sinN, sinN, sinN);
+        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
+    }
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
+    private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
+        if(VRRenderState.getCurrentPhase().isVanilla()) {
+            renderItemActivationAnimation(i, j, f);
+        }
+    }
+    @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
+    private void visor$noItemTranslate(PoseStack poseStack, float x, float y, float z) {
+        if(VRRenderState.getCurrentPhase().isVanilla()) {
+            poseStack.translate(x, y, z);
+        }
+    }
+    //--
+
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;pauseGame(Z)V"), method = "render")
     public void visor$pauseOnlyOnTickDisplay(Minecraft instance, boolean bl) {
         if (VisorState.getStateMode().isNotActive() || VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
@@ -417,12 +470,13 @@ public abstract class GameRendererMixin
 
 
 
+
     /* ************************ *\
   //--------PUBLIC METHODS--------\\
     \* ************************ */
     @Override
     @Unique
-    public void visor$setupVRCameraEntity() {
+    public void visor$setupCameraEntity() {
         if (this.visor$cameraEntityCached) {
             PoseElement eye = ClientContext.player
                     .getPose(PoseType.RENDER)
@@ -572,9 +626,9 @@ public abstract class GameRendererMixin
                         this.visor$nearClipPlane
                 );
 
-        if(!nearSolidBlock.isEmpty()){
+        if(nearSolidBlock.isPresent()){
             var solid = nearSolidBlock.get();
-            boolean renderOverlay = !ModLoader.get()
+            boolean renderOverlay = ModLoader.get()
                     .renderBlockOverlay(
                             this.minecraft.player,
                             new PoseStack(),

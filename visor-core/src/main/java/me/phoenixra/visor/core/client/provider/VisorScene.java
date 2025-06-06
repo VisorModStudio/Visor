@@ -16,9 +16,8 @@ import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.common.utils.ClientUtils;
+import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.*;
@@ -53,6 +52,7 @@ public class VisorScene implements VRScene {
 
         // pop pose pushed in onGameRenderStart method
         RenderSystem.getModelViewStack().popPose();
+
         RenderSystem.applyModelViewMatrix();
 
         float partialTicks = ((MinecraftModified) mc).visor$getPartialTicks();

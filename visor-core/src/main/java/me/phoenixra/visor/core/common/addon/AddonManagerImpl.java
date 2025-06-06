@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.common.addon;
 
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.IAddonManager;
+import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.exceptions.VRInitException;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 
-public class AddonManager implements IAddonManager {
+public class AddonManagerImpl implements AddonManager {
     private final Logger logger;
 
     private List<VisorElementRegistry<?>> elementRegistries;
@@ -22,7 +22,7 @@ public class AddonManager implements IAddonManager {
 
 
     private boolean initialized;
-    public AddonManager(Logger logger) {
+    public AddonManagerImpl(Logger logger) {
         VisorAPI.Instance.setAddonManager(this);
         this.logger = logger;
         this.addonsMap = new HashMap<>();

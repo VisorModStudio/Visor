@@ -2,12 +2,12 @@ package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.helpers.VRScreenHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -21,8 +21,6 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class DecoratorGame extends VRDecorator {
     public static final String ID = "game";
 
-    @Getter
-    private final int priority = 110;
 
 
     public DecoratorGame(@NotNull VisorAddon owner) {
@@ -46,9 +44,10 @@ public class DecoratorGame extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
+        //RenderSystem.viewport(0, 0, MC.mainRenderTarget.viewWidth, MC.mainRenderTarget.viewHeight);
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
         if (insideBlock) {
-            renderInsideBlockView();
+            VREffectsHelper.renderInsideBlockOverlay();
         }
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
@@ -73,37 +72,16 @@ public class DecoratorGame extends VRDecorator {
     }
 
 
-    private void renderInsideBlockView() {
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
 
-        // orthographic matrix, (-1, -1) to (1, 1), near = 0.0, far 2.0
-        Matrix4f mat = new Matrix4f();
-        mat.m00(1.0F);
-        mat.m11(1.0F);
-        mat.m22(-1.0F);
-        mat.m33(1.0F);
-        mat.m32(-1.0F);
-
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableBlend();
-        RenderSystem.disableCull();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, 1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, -1.5F, 1.5F, 0.0F).endVertex();
-        tesselator.end();
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-    }
 
 
     @Override
     public boolean isDisplayable() {
-        return MC.level != null;
+        return MC.level != null && MC.screen == null;
+    }
+
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.LOW;
     }
 }

@@ -325,7 +325,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                     .yRot(
                             ClientContext.player
                                     .getPose(PoseType.PRE_TICK)
-                                    .getRotationYaw()
+                                    .getRotationY()
                     );
             posX = posX - premountPos.x;
             posZ = posZ - premountPos.z;
@@ -411,9 +411,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        //@TODO
-       /* CLIENT_CONTEXT.vrApp.getInputManager()
-                .triggerHapticPulseBoth(2000);*/
+        ClientContext.inputHandler
+                .triggerHapticPulseBoth(2f);
     }
 
 

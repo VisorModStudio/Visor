@@ -6,6 +6,5 @@ import lombok.Getter;
 public class DecoratorEndTitle {
     public static final String ID = "end_title";
 
-    @Getter
-    private final int priority = 130;
+
 }

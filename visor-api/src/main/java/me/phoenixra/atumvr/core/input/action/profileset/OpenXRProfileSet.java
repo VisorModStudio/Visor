@@ -6,6 +6,7 @@ import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
+import me.phoenixra.atumvr.core.input.action.types.multi.FloatButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +23,7 @@ public abstract class OpenXRProfileSet extends OpenXRActionSet {
     public abstract XRInteractionProfile getType();
 
     @NotNull
-    public abstract FloatMultiAction getTriggerValue();
+    public abstract FloatButtonMultiAction getTriggerValue();
 
 
     public abstract Collection<String> getButtonIds();

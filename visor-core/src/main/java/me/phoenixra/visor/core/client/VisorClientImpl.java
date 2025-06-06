@@ -11,10 +11,12 @@ import me.phoenixra.visor.api.VisorClient;
 import me.phoenixra.visor.api.client.ClientPlayer;
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
+import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
+import me.phoenixra.visor.core.client.input.InputHandlerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecoratorManagerImpl;
@@ -22,14 +24,13 @@ import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
 import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
-import me.phoenixra.visor.core.common.addon.AddonManager;
+import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.core.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.OptionsScreen;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -78,6 +79,7 @@ public class VisorClientImpl implements VisorClient {
 
         //-------Main client classes-------
         ClientContext.properties = new ClientPropertiesImpl();
+        ClientContext.inputHandler = new InputHandlerImpl();
         ClientContext.decoratorManager = new DecoratorManagerImpl();
         ClientContext.guiManager = new GuiManagerImpl();
         ClientContext.player = new VRClientPlayer();
@@ -88,11 +90,12 @@ public class VisorClientImpl implements VisorClient {
         //Addon Registries
         var registries = new ArrayList<VisorElementRegistry<?>>();
         registries.add(taskRegistry);
+        registries.addAll(ClientContext.inputHandler.getElementRegistries());
         registries.addAll(ClientContext.decoratorManager.getElementRegistries());
         registries.addAll(ClientContext.guiManager.getElementRegistries());
 
         //Addon init
-        var addonManager = new AddonManager(LOGGER);
+        var addonManager = new AddonManagerImpl(LOGGER);
 
         addonManager.initialize(
                 new AddonCoreClient(),
@@ -117,8 +120,18 @@ public class VisorClientImpl implements VisorClient {
     }
 
     public void preTickVR(){
-
         ClientContext.properties.preTick();
+        ClientContext.inputHandler.preTick();
+
+        var tasks = ClientContext.visor.getTaskRegistry().getPreTick();
+        for (VisorTask task : tasks) {
+            if (task.isActive(null)) {
+                task.run(null);
+            } else {
+                task.clear(null);
+            }
+        }
+
         ClientContext.player.preTick();
     }
 
@@ -143,17 +156,7 @@ public class VisorClientImpl implements VisorClient {
 
     public void preRenderVR(PreRenderContext context){
         vrProvider.preRender(context);
-        if (MC.gameRenderer != null
-                && MC.gameRenderer.getMainCamera() != null
-                && MC.level != null
-                && MC.cameraEntity != null) {
-            MC.gameRenderer.getMainCamera().setup(
-                    MC.level,
-                    MC.cameraEntity,
-                    false, false,
-                    context.partialTick()
-            );
-        }
+        ClientContext.inputHandler.update();
 
         if(!(MC.screen instanceof OptionsScreen)
                 && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()){
@@ -164,8 +167,19 @@ public class VisorClientImpl implements VisorClient {
 
         ClientContext.properties.preRender();
 
+        var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
+        for (VisorTask task : tasks) {
+            if (task.isActive(null)) {
+                task.run(null);
+            } else {
+                task.clear(null);
+            }
+        }
+
         ClientContext.player
                 .preRender(context.partialTick());
+
+
     }
 
 
@@ -205,7 +219,7 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull DecoratorManagerImpl getGameViewHandler() {
+    public @NotNull DecoratorManagerImpl getDecoratorManager() {
         return ClientContext.decoratorManager;
     }
 

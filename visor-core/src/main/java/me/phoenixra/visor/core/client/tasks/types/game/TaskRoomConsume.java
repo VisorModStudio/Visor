@@ -32,7 +32,7 @@ public class TaskRoomConsume extends VisorTask {
 
     private static final int DURATION = 2100;
     private static final float MOUTH_DISTANCE = 0.25F;
-    private static final int HAPTIC_PULSE_STRENGTH = 700;
+    private static final float HAPTIC_PULSE_DURATION = 0.7f; //in seconds
     private static final int HAPTIC_DELAY_EAT_DRINK = 2;
     private static final int HAPTIC_DELAY_TOOT_HORN = 1;
 
@@ -92,7 +92,7 @@ public class TaskRoomConsume extends VisorTask {
             if (consuming.getOrDefault(hand, false)) {
                 long ticksLeft = player.getUseItemRemainingTicks();
                 if (ticksLeft > 0L && ticksLeft % 5L <= hapticDelay) {
-                  //  ClientContext.inputManager.triggerHapticPulse(hand, HAPTIC_PULSE_STRENGTH);
+                    ClientContext.inputHandler.triggerHapticPulse(hand, HAPTIC_PULSE_DURATION);
                 }
             }
 

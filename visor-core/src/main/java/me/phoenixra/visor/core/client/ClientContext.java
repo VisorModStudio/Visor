@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client;
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
 import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
+import me.phoenixra.visor.core.client.input.InputHandlerImpl;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecoratorManagerImpl;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
@@ -29,6 +30,8 @@ public class ClientContext {
 
     public static VisorRendererBase renderer;
 
+
+    public static InputHandlerImpl inputHandler;
 
     public static GuiManagerImpl guiManager;
 

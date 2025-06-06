@@ -168,7 +168,7 @@ public class VRClientSettings {
 
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.ROTATION_MODE)
-    protected static RotationMode rotationMode = RotationMode.CONTROLLER_LEFT;
+    protected static RotationMode rotationMode = RotationMode.CONTROLLER_OFFHAND;
 
     public static boolean isWalkUpEnabled() {
         return walkUpEnabled

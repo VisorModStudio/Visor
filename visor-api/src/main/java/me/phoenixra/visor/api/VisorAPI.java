@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api;
 
 
-import me.phoenixra.visor.api.common.addon.IAddonManager;
+import me.phoenixra.visor.api.common.addon.AddonManager;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +54,7 @@ public interface VisorAPI {
      * @return addons manager
      */
     @NotNull
-    static IAddonManager addonManager(){
+    static AddonManager addonManager(){
         return Instance.addonManager;
     }
 
@@ -67,7 +67,7 @@ public interface VisorAPI {
 
         private static VisorServer server;
 
-        private static IAddonManager addonManager;
+        private static AddonManager addonManager;
 
         private Instance() {
             throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
@@ -88,7 +88,7 @@ public interface VisorAPI {
         }
 
         @ApiStatus.Internal
-        public static void setAddonManager(final IAddonManager api) {
+        public static void setAddonManager(final AddonManager api) {
 
             Instance.addonManager = api;
         }

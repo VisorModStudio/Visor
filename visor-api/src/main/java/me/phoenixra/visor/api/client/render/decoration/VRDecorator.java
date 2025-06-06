@@ -4,11 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElement;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class VRDecorator implements VisorElement, Comparable<VRDecorator>  {
+public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     @Getter
     private final VisorAddon owner;
     @Getter
@@ -37,10 +39,8 @@ public abstract class VRDecorator implements VisorElement, Comparable<VRDecorato
     public abstract boolean isDisplayable();
 
 
-    public abstract int getPriority();
-
     @Override
-    public int compareTo(@NotNull VRDecorator o) {
-        return getPriority() - o.getPriority();
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.NORMAL;
     }
 }

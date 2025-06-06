@@ -120,7 +120,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
         poseStack.setIdentity();
         RenderSystem.enableDepthTest();
         RenderSystem.defaultBlendFunc();
-        RenderHelper.applyDisplayPose(VRRenderState.getCurrentVRDisplay(), poseStack);
+        RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
         RenderHelper.applyControllerPose(hand, poseStack);
 
 
@@ -195,11 +195,10 @@ public class VRHandRendererImpl implements VRHandRenderer {
                 .visor$resetProjectionMatrix(partialTick);
         PoseStack poseStack = new PoseStack();
         poseStack.last().pose().identity();
-        RenderHelper.applyDisplayPose(VRRenderState.getCurrentVRDisplay(), poseStack);
+        RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
 
         poseStack.pushPose();
         RenderHelper.applyControllerPose(hand, poseStack);
-
 
 
 

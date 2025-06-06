@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.phoenixra.visor.core.common.utils.ClientUtils;
+import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
