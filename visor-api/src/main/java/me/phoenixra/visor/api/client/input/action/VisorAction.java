@@ -15,6 +15,8 @@ public interface VisorAction {
     void updateState(OpenXRProfileSet currentProfile,
                      boolean leftHanded);
 
+    void clear();
+
     boolean isActive();
 
     boolean isChanged();

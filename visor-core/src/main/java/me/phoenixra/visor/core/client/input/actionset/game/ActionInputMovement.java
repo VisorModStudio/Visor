@@ -106,10 +106,13 @@ public class ActionInputMovement extends VisorActionVec2 {
         }
 
         //JUMP
+        //LEGACY makes no sense, since game actionSet is active only when no screen
         boolean canJump = MC.screen == null;
+
         input.jumping = MC.options.keyJump.isDown() && canJump;
 
         //SHIFT
+        //LEGACY makes no sense, since game actionSet is active only when no screen
         boolean canShift = MC.screen == null;
         input.shiftKeyDown = canShift && (
                 TaskRoomSneak.getInstance().getSneakTimer() > 0
@@ -121,7 +124,40 @@ public class ActionInputMovement extends VisorActionVec2 {
     @Override
     protected void onStateChanged(Vector2f newState) {
 
+    }
 
+    @Override
+    protected void onClear() {
+        Input input = ClientContext.player.getInputMovement();
+
+        input.leftImpulse = 0.0F;
+        input.forwardImpulse = 0.0F;
+        input.up = false;
+        input.down = false;
+        input.left = false;
+        input.right = false;
+        input.jumping = false;
+        input.shiftKeyDown = false;
+
+        if (movedLastTick) {
+            ClientUtils.updateKeyMappingState(
+                    MC.options.keyUp, false
+            );
+            ClientUtils.updateKeyMappingState(
+                    MC.options.keyDown, false
+            );
+            ClientUtils.updateKeyMappingState(
+                    MC.options.keyLeft, false
+            );
+            ClientUtils.updateKeyMappingState(
+                    MC.options.keyRight, false
+            );
+            movedLastTick = false;
+        }
+        if (autoSprintActive) {
+            MC.player.setSprinting(false);
+            autoSprintActive = false;
+        }
 
     }
 

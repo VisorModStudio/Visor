@@ -28,13 +28,15 @@ public class ActionJump extends VisorActionButton {
         InputHelper.releaseKey(GLFW.GLFW_KEY_SPACE);
     }
 
+
+
     @Override
     protected Map<XRInteractionProfile, BindingPath> loadDefaults() {
         return Map.of(
                 XRInteractionProfile.VALVE_INDEX,
                 new BindingPath(
-                        ValveIndexSet.BUTTON_PRIMARY_RIGHT,
-                        ValveIndexSet.BUTTON_PRIMARY_LEFT
+                        ValveIndexSet.BUTTON_A_RIGHT,
+                        ValveIndexSet.BUTTON_A_LEFT
                 )
         );
     }

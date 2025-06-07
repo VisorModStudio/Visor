@@ -28,13 +28,18 @@ public class InputHandlerImpl implements InputHandler {
     }
 
     public void preTick(){
-        activeSet = null;
+        VisorActionSet newActiveSet = null;
         for(var entry : actionSetRegistry.getSortedActionSet()){
             if(entry.canActivate()){
-                activeSet = entry;
+                newActiveSet = entry;
                 break;
             }
         }
+        if(activeSet != null && activeSet != newActiveSet){
+            activeSet.clear();
+        }
+
+        activeSet = newActiveSet;
 
         if(activeSet != null) {
             activeSet.preTick();

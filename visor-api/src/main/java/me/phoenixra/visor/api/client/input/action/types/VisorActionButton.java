@@ -57,6 +57,10 @@ public abstract class VisorActionButton implements VisorAction {
 
     protected abstract void onRelease();
 
+    protected void onClear(){
+
+    }
+
     @Override
     public void preTick() {
         if(pressDelayed){
@@ -118,6 +122,23 @@ public abstract class VisorActionButton implements VisorAction {
 
     }
 
+    @Override
+    public void clear(){
+        if(pressed){
+            pressed = false;
+            releaseDelayed = false;
+            changed = true;
+            onRelease();
+        }
+
+        pressed = false;
+        active = false;
+        releaseDelayed = false;
+        pressDelayed = false;
+        changed = false;
+
+        onClear();
+    }
 
     @Override
     public @Nullable BindingPath getBinding(XRInteractionProfile profile) {

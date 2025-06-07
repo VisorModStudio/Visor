@@ -31,19 +31,23 @@ public class ValveIndexSet extends OpenXRProfileSet {
     public static final String BUTTON_SYSTEM_TOUCH_RIGHT = "button.system.touch.right";
 
 
-    public static final String BUTTON_PRIMARY_LEFT = "button.primary.left";
-    public static final String BUTTON_PRIMARY_RIGHT = "button.primary.right";
-    public static final String BUTTON_PRIMARY_TOUCH_LEFT = "button.primary.touch.left";
-    public static final String BUTTON_PRIMARY_TOUCH_RIGHT = "button.primary.touch.right";
+    public static final String BUTTON_A_LEFT = "button.a.left";
+    public static final String BUTTON_A_RIGHT = "button.a.right";
+    public static final String BUTTON_A_TOUCH_LEFT = "button.a.touch.left";
+    public static final String BUTTON_A_TOUCH_RIGHT = "button.a.touch.right";
 
 
-    public static final String BUTTON_SECONDARY_LEFT = "button.secondary.left";
-    public static final String BUTTON_SECONDARY_RIGHT = "button.secondary.right";
-    public static final String BUTTON_SECONDARY_TOUCH_LEFT = "button.secondary.touch.left";
-    public static final String BUTTON_SECONDARY_TOUCH_RIGHT = "button.secondary.touch.right";
+    public static final String BUTTON_B_LEFT = "button.b.left";
+    public static final String BUTTON_B_RIGHT = "button.b.right";
+    public static final String BUTTON_B_TOUCH_LEFT = "button.b.touch.left";
+    public static final String BUTTON_B_TOUCH_RIGHT = "button.b.touch.right";
+
 
     public static final String BUTTON_GRIP_LEFT = "button.grip.left";
     public static final String BUTTON_GRIP_RIGHT = "button.grip.right";
+    public static final String BUTTON_GRIP_FORCE_LEFT = "button.grip.force.left";
+    public static final String BUTTON_GRIP_FORCE_RIGHT = "button.grip.force.right";
+
 
 
     public static final String BUTTON_TRIGGER_LEFT = "button.trigger.left";
@@ -61,14 +65,9 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
     public static final String BUTTON_TRACKPAD_TOUCH_LEFT = "button.trackpad.touch.left";
     public static final String BUTTON_TRACKPAD_TOUCH_RIGHT = "button.trackpad.touch.right";
+    public static final String BUTTON_TRACKPAD_FORCE_LEFT = "button.trackpad.force.left";
+    public static final String BUTTON_TRACKPAD_FORCE_RIGHT = "button.trackpad.force.right";
 
-
-    //----------FORCE----------
-    public static final String FORCE_GRIP_LEFT = "grip.force.left";
-    public static final String FORCE_GRIP_RIGHT = "grip.force.right";
-
-    public static final String FORCE_TRACKPAD_LEFT = "grip.force.left";
-    public static final String FORCE_TRACKPAD_RIGHT = "grip.force.right";
 
     //----------VEC2----------
     public static final String VEC2_THUMBSTICK_LEFT = "vec2.thumbstick.left";
@@ -82,16 +81,16 @@ public class ValveIndexSet extends OpenXRProfileSet {
     private BoolButtonMultiAction systemButtonTouch;
 
     // Button A
-    private BoolButtonMultiAction primaryButton;
-    private BoolButtonMultiAction primaryButtonTouch;
+    private BoolButtonMultiAction buttonA;
+    private BoolButtonMultiAction buttonTouchA;
 
     // Button B
-    private BoolButtonMultiAction secondaryButton;
-    private BoolButtonMultiAction secondaryButtonTouch;
+    private BoolButtonMultiAction buttonB;
+    private BoolButtonMultiAction buttonTouchB;
 
     // Grip
     private FloatButtonMultiAction gripValue;
-    private OpenXRMultiAction<Float> gripForce;
+    private FloatButtonMultiAction gripForce;
 
     // Trigger button
     private FloatButtonMultiAction triggerValue;
@@ -106,7 +105,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
     // Trackpad
     private Vec2MultiAction trackpad;
     private BoolButtonMultiAction trackpadTouch;
-    private OpenXRMultiAction<Float> trackpadForce;
+    private FloatButtonMultiAction trackpadForce;
 
 
     private Map<String, VRActionDataButton> buttonMap;
@@ -161,38 +160,38 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
         // -------- BUTTON PRIMARY --------
 
-        primaryButton = new BoolButtonMultiAction(
+        buttonA = new BoolButtonMultiAction(
                 provider,
                 this,
                 "button.primary", "Primary Button",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_LEFT,
+                                BUTTON_A_LEFT,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/click"),
 
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_RIGHT,
+                                BUTTON_A_RIGHT,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/click")
                 )
         );
 
-        primaryButtonTouch = new BoolButtonMultiAction(
+        buttonTouchA = new BoolButtonMultiAction(
                 provider,
                 this,
-                "button.primary.touch", "Primary Button Touch",
+                "button.a.touch", "'A' Button Touch",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_TOUCH_LEFT,
+                                BUTTON_A_TOUCH_LEFT,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/touch"),
 
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_TOUCH_RIGHT,
+                                BUTTON_A_TOUCH_RIGHT,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/touch")
@@ -201,38 +200,38 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
         // -------- BUTTON SECONDARY --------
 
-        secondaryButton = new BoolButtonMultiAction(
+        buttonB = new BoolButtonMultiAction(
                 provider,
                 this,
-                "button.secondary", "Secondary Button",
+                "button.b", "'B' Button",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_LEFT,
+                                BUTTON_B_LEFT,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/click"),
 
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_RIGHT,
+                                BUTTON_B_RIGHT,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/click")
                 )
         );
 
-        secondaryButtonTouch = new BoolButtonMultiAction(
+        buttonTouchB = new BoolButtonMultiAction(
                 provider,
                 this,
-                "button.secondary.touch", "Secondary Button Touch",
+                "button.b.touch", "B Button Touch",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_TOUCH_LEFT,
+                                BUTTON_B_TOUCH_LEFT,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/touch"),
 
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_TOUCH_RIGHT,
+                                BUTTON_B_TOUCH_RIGHT,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/touch")
@@ -262,20 +261,22 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        gripForce = new FloatMultiAction(
+        gripForce = new FloatButtonMultiAction(
                 provider,
                 this,
-                "force.grip",
-                "Grip Force",
+                "button.grip.force",
+                "Grip Force button",
+                0.9f,
+                0.85f,
                 List.of(
-                        new OpenXRMultiAction.SubAction<>(
-                                FORCE_GRIP_LEFT,
+                        new FloatButtonMultiAction.SubActionFloatButton(
+                                BUTTON_GRIP_FORCE_LEFT,
                                 LEFT_HAND_PATH,
                                 0f
                         ).putDefaultBindings(PROFILE, "input/squeeze/force"),
 
-                        new OpenXRMultiAction.SubAction<>(
-                                FORCE_GRIP_RIGHT,
+                        new FloatButtonMultiAction.SubActionFloatButton(
+                                BUTTON_GRIP_FORCE_RIGHT,
                                 RIGHT_HAND_PATH,
                                 0f
                         ).putDefaultBindings(PROFILE, "input/squeeze/force")
@@ -445,20 +446,22 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 )
         );
 
-        trackpadForce = new FloatMultiAction(
+        trackpadForce = new FloatButtonMultiAction(
                 provider,
                 this,
-                "force.trackpad",
-                "Trackpad Force",
+                "button.trackpad.force",
+                "Trackpad Force button",
+                0.9f,
+                0.85f,
                 List.of(
-                        new OpenXRMultiAction.SubAction<>(
-                                FORCE_TRACKPAD_LEFT,
+                        new FloatButtonMultiAction.SubActionFloatButton(
+                                BUTTON_TRACKPAD_FORCE_LEFT,
                                 LEFT_HAND_PATH,
                                 0f
                         ).putDefaultBindings(PROFILE, "input/trackpad/force"),
 
-                        new OpenXRMultiAction.SubAction<>(
-                                FORCE_TRACKPAD_RIGHT,
+                        new FloatButtonMultiAction.SubActionFloatButton(
+                                BUTTON_TRACKPAD_FORCE_RIGHT,
                                 RIGHT_HAND_PATH,
                                 0f
                         ).putDefaultBindings(PROFILE, "input/trackpad/force")
@@ -469,17 +472,19 @@ public class ValveIndexSet extends OpenXRProfileSet {
         List<VRActionDataButton> listButton = new ArrayList<>();
         listButton.addAll(systemButton.getSubActionsAsButton());
         listButton.addAll(systemButtonTouch.getSubActionsAsButton());
-        listButton.addAll(primaryButton.getSubActionsAsButton());
-        listButton.addAll(primaryButtonTouch.getSubActionsAsButton());
-        listButton.addAll(secondaryButton.getSubActionsAsButton());
-        listButton.addAll(secondaryButtonTouch.getSubActionsAsButton());
+        listButton.addAll(buttonA.getSubActionsAsButton());
+        listButton.addAll(buttonTouchA.getSubActionsAsButton());
+        listButton.addAll(buttonB.getSubActionsAsButton());
+        listButton.addAll(buttonTouchB.getSubActionsAsButton());
         listButton.addAll(gripValue.getSubActionsAsButton());
+        listButton.addAll(gripForce.getSubActionsAsButton());
         listButton.addAll(triggerValue.getSubActionsAsButton());
         listButton.addAll(triggerButton.getSubActionsAsButton());
         listButton.addAll(triggerButtonTouch.getSubActionsAsButton());
         listButton.addAll(thumbStickButton.getSubActionsAsButton());
         listButton.addAll(thumbStickButtonTouch.getSubActionsAsButton());
         listButton.addAll(trackpadTouch.getSubActionsAsButton());
+        listButton.addAll(trackpadForce.getSubActionsAsButton());
 
         buttonMap = new HashMap<>();
         for(var entry : listButton){
@@ -498,8 +503,8 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
         return List.of(
                 systemButton, systemButtonTouch,
-                primaryButton, primaryButtonTouch,
-                secondaryButton, secondaryButtonTouch,
+                buttonA, buttonTouchA,
+                buttonB, buttonTouchB,
                 gripValue, gripForce,
                 triggerValue, triggerButton, triggerButtonTouch,
                 thumbStick, thumbStickButton, thumbStickButtonTouch,

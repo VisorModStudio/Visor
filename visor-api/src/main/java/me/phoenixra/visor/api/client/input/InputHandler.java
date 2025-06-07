@@ -28,6 +28,14 @@ public interface InputHandler {
         triggerHapticPulse(ControllerHand.OFFHAND, durationSeconds);
     }
 
+    default void triggerHapticPulseClick(ControllerHand hand){
+        triggerHapticPulse(
+                hand,
+                20f,
+                0.2f,
+                (long) (0.05f * 1_000_000_000)
+        );
+    }
     default void triggerHapticPulse(ControllerHand hand,
                                     float durationSeconds){
         triggerHapticPulse(

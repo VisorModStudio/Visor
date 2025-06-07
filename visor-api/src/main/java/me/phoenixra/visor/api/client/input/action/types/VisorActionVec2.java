@@ -52,6 +52,10 @@ public abstract class VisorActionVec2 implements VisorAction {
 
     protected abstract void onStateChanged(Vector2f newState);
 
+    protected void onClear(){
+
+    }
+
     @Override
     public void preTick() {
         if(changed) {
@@ -86,6 +90,17 @@ public abstract class VisorActionVec2 implements VisorAction {
         state = vec2Data.getCurrentState();
 
 
+    }
+    @Override
+    public void clear(){
+        changed = true;
+        state.set(0,0);
+        onStateChanged(state);
+
+        active = false;
+        changed = false;
+
+        onClear();
     }
 
 

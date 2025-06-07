@@ -47,6 +47,11 @@ public abstract class VisorActionSet implements VisorElement, PrioritySupporter 
     }
 
 
+    public void clear(){
+        getActions().forEach(
+                VisorAction::clear
+        );
+    }
 
     public VisorAction getAction(String id){
         return actionsMap.get(id);

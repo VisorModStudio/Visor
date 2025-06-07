@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.mixin.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.mcmodified.render.LevelRendererModified;
@@ -10,6 +11,7 @@ import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
@@ -169,7 +171,35 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
   //--------MISC--------\\
     \* ************** */
 
+    @Inject(at = @At("HEAD"), method = "levelEvent")
+    public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
+        if(!VisorState.getStateMode().isNotActive()) return;
 
+        if (this.minecraft.player != null
+                && this.minecraft.player.isAlive()
+                && this.minecraft.player.blockPosition().distSqr(blockPos) < 25.0D) {
+            switch (i) {
+                case 1019,      // ZOMBIE_ATTACK_WOODEN_DOOR
+                     1020,   // ZOMBIE_ATTACK_IRON_DOOR
+                     1021    // ZOMBIE_BREAK_WOODEN_DOOR
+                        -> {
+                    ClientContext.inputHandler
+                            .triggerHapticPulse(ControllerHand.MAIN, 0.75f);
+                    ClientContext.inputHandler
+                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.75f);
+                }
+                case 1030 ->    // ANVIL_USE
+                        ClientContext.inputHandler
+                                .triggerHapticPulse(ControllerHand.MAIN, 0.5f);
+                case 1031 -> {  // ANVIL_LAND
+                    ClientContext.inputHandler
+                            .triggerHapticPulse(ControllerHand.MAIN, 1.25f);
+                    ClientContext.inputHandler
+                            .triggerHapticPulse(ControllerHand.OFFHAND, 1.25f);
+                }
+            }
+        }
+    }
 
     /* ************************ *\
   //--------PUBLIC METHODS--------\\
