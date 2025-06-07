@@ -31,6 +31,7 @@ public class ActionInputMovement extends VisorActionVec2 {
     public void preTick() {
         super.preTick();
         Vector2f newState = getState();
+
         Input input = ClientContext.player.getInputMovement();
 
         input.leftImpulse = 0.0F;

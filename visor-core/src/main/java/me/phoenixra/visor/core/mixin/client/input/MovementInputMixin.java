@@ -18,23 +18,20 @@ public class MovementInputMixin extends Input {
     /* ****************** *\
   //--------MOVEMENT--------\\
     \* ****************** */
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/KeyboardInput;shiftKeyDown:Z", shift = At.Shift.AFTER))
     public void visor$tick(boolean isSneaking,
                            float sneakSpeed,
                            CallbackInfo ci) {
         if (!VisorState.getStateMode().isActive()) {
             return;
         }
-        ci.cancel();
-
 
         var vrInput = ClientContext.player.getInputMovement();
         this.leftImpulse = vrInput.leftImpulse;
         this.forwardImpulse = vrInput.forwardImpulse;
 
-        if (isSneaking) {
-            this.leftImpulse = (float) ((double) this.leftImpulse * sneakSpeed);
-            this.forwardImpulse = (float) ((double) this.forwardImpulse * sneakSpeed);
-        }
+        this.shiftKeyDown = vrInput.shiftKeyDown;
+        this.jumping = vrInput.jumping;
+
     }
 }

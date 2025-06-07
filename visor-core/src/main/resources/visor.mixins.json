@@ -15,6 +15,7 @@
     "client.gui.screens.TitleScreenMixin",
     "client.input.KeybindingsMixin",
     "client.input.MouseHandlerMixin",
+    "client.input.MovementInputMixin",
     "client.player.LocalPlayerMixin",
     "client.player.MultiPlayerGameModeMixin",
     "client.player.PlayerMixin",
