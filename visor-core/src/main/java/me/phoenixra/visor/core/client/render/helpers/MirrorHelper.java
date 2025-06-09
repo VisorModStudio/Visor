@@ -38,8 +38,8 @@ public class MirrorHelper {
     private static void drawGuiMirror(){
         RenderTarget source = ClientContext.renderer.guiTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
         blit(
                 source,
                 0,0,
@@ -55,8 +55,8 @@ public class MirrorHelper {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
         }
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
         blit(
                 source,
                 0,0,
@@ -76,8 +76,8 @@ public class MirrorHelper {
         float xCrop = VRClientSettings.getMirrorCrop();
         float yCrop = VRClientSettings.getMirrorCrop();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
 
         blitCropped(
                 source,
@@ -93,8 +93,8 @@ public class MirrorHelper {
     private static void drawFirstPersonMirror(){
         RenderTarget source = ClientContext.renderer.firstPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
         blit(
                 source,
                 0,0,
@@ -104,8 +104,8 @@ public class MirrorHelper {
     private static void drawThirdPersonMirror(){
         RenderTarget source = ClientContext.renderer.thirdPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
         blit(
                 source,
                 0,0,
@@ -118,8 +118,8 @@ public class MirrorHelper {
         RenderTarget rightEye = ClientContext.renderer
                 .getTextureRightEye().getRenderTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getScreenWidth() / 2;
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getScreenHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth() / 2;
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
 
         blit(
                 leftEye,
@@ -151,8 +151,8 @@ public class MirrorHelper {
 
         // 1) get the VR mirror dimensions
         var window  = (WindowModified)(Object)MC.getWindow();
-        int vrWidth = window.visor$getScreenWidth();
-        int vrHeight= window.visor$getScreenHeight();
+        int vrWidth = window.visor$getActualWidth();
+        int vrHeight= window.visor$getActualHeight();
 
         // 2) viewport + projection
         RenderSystem.viewport(0, 0, vrWidth, vrHeight);

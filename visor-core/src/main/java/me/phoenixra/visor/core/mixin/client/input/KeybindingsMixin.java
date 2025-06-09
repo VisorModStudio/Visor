@@ -4,12 +4,9 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.KeyboardHandler;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.Component;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
@@ -24,7 +21,7 @@ public class KeybindingsMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Screenshot;grab(Ljava/io/File;Lcom/mojang/blaze3d/pipeline/RenderTarget;Ljava/util/function/Consumer;)V"), method = "keyPress")
     public void visor$screenshot(File file, RenderTarget renderTarget, Consumer<Component> consumer) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             Screenshot.grab(file, renderTarget, consumer);
             return;
         }

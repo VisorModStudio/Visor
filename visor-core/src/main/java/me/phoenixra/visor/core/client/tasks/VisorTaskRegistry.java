@@ -6,7 +6,7 @@ import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
@@ -20,9 +20,20 @@ import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 public class VisorTaskRegistry implements VisorElementRegistry<VisorTask> {
 
-    private final Map<String, VisorTask> tasksMap = new LinkedHashMap<>();
+    private static final String REGISTRY_NAME = "Visor Tasks";
 
-    private final EnumMap<TaskType, List<VisorTask>> tasksByType = new EnumMap<>(TaskType.class);
+    private static final String ELEMENT_NAME = "VisorTask";
+    private static final String ANNOTATION_NAME = "@RegisterVisorTask";
+
+
+    private final Map<String, VisorTask> elementsMap = new LinkedHashMap<>();
+
+    private final EnumMap<TaskType, List<VisorTask>> elementsByType = new EnumMap<>(TaskType.class);
+
+    @Getter
+    private final Collection<VisorTask> allElements =
+            Collections.unmodifiableCollection(elementsMap.values());
+
 
     /** Exposed unmodifiable views onto the per-type lists. */
     @Getter private final List<VisorTask> preTick;
@@ -32,13 +43,13 @@ public class VisorTaskRegistry implements VisorElementRegistry<VisorTask> {
     public VisorTaskRegistry() {
 
         for (TaskType type : TaskType.values()) {
-            tasksByType.put(type, new ArrayList<>());
+            elementsByType.put(type, new ArrayList<>());
         }
 
         // Wrap in unmodifiable views for exposure
-        preTick = Collections.unmodifiableList(tasksByType.get(TaskType.VR_PRE_TICK));
-        playerTick = Collections.unmodifiableList(tasksByType.get(TaskType.VR_PLAYER_TICK));
-        preRender = Collections.unmodifiableList(tasksByType.get(TaskType.VR_PRE_RENDER));
+        preTick = Collections.unmodifiableList(elementsByType.get(TaskType.VR_PRE_TICK));
+        playerTick = Collections.unmodifiableList(elementsByType.get(TaskType.VR_PLAYER_TICK));
+        preRender = Collections.unmodifiableList(elementsByType.get(TaskType.VR_PRE_RENDER));
     }
 
 
@@ -50,104 +61,87 @@ public class VisorTaskRegistry implements VisorElementRegistry<VisorTask> {
         );
 
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(RegisterVisorTask.class);
-        LOGGER.info("Found {} VisorTask to register in addon {}",
-                annotated.size(), addon.getAddonId());
+
+        LOGGER.info("Found {} {} to register in addon: '{}'",
+                annotated.size(), ELEMENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VisorTask.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
-                        "{} is annotated with @RegisterVisorTask but does not implement VisorTask",
-                        clazz.getName()
+                        "{} is annotated with {} but does not implement {}",
+                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
                 );
                 continue;
             }
             try {
 
                 @SuppressWarnings("unchecked")
-                Class<? extends VisorTask> taskClass = (Class<? extends VisorTask>) clazz;
-                Constructor<? extends VisorTask> ctor =
-                        taskClass.getConstructor(VisorAddon.class);
-                VisorTask task = ctor.newInstance(addon);
+                Constructor<? extends VisorTask> constructor =
+                        ((Class<? extends VisorTask>) clazz)
+                                .getConstructor(VisorAddon.class);
+                var element = constructor.newInstance(addon);
 
-                registerAddonComponent(task);
+                registerElement(element);
 
-            } catch (Throwable e) {
-                LOGGER.error("Failed to register VisorTask from class: {}", clazz.getName());
+            } catch (Exception e) {
+                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
-                // skip this one, but don’t kill the entire scan
+                // continue registering other elements
             }
         }
     }
 
 
     @Override
-    public void registerAddonComponent(@NotNull VisorTask task) {
-        // replace in map
-        VisorTask previous = tasksMap.put(task.getId(), task);
+    public void registerElement(@NotNull VisorTask element) {
 
-        // if replacing, remove old from its list
+        VisorTask previous = elementsMap.put(element.getId(), element);
+
         if (previous != null) {
             LOGGER.info(
-                    "Overriding existing VisorTask: '{}' from addon '{}'",
+                    "Overriding existing {}: '{}' from addon '{}'",
+                    ELEMENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
-            List<VisorTask> oldList = tasksByType.get(previous.getType());
+            List<VisorTask> oldList = elementsByType.get(previous.getType());
             oldList.remove(previous);
             Collections.sort(oldList);
         }
 
-        // add new into its list and keep sorted
-        List<VisorTask> newList = tasksByType.get(task.getType());
-        newList.add(task);
+
+        List<VisorTask> newList = elementsByType.get(element.getType());
+        newList.add(element);
         Collections.sort(newList);
 
         if(previous == null){
-            LOGGER.info("Registered VisorTask: '{}'", task.getId());
+            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
     }
 
-
     @Override
-    public @Nullable VisorTask getAddonComponent(@NotNull String id) {
-        return tasksMap.get(id);
-    }
-
-
-    @Override
-    public @NotNull List<VisorTask> getAddonComponents(@NotNull VisorAddon addon) {
-        return tasksMap.values().stream()
-                .filter(t -> t.getOwner().getAddonId().equals(addon.getAddonId()))
-                .toList();
-    }
-
-
-    @Override
-    public @NotNull Collection<VisorTask> getAllComponents() {
-        return Collections.unmodifiableCollection(tasksMap.values());
-    }
-
-
-    @Override
-    public @Nullable VisorTask unregisterAddonComponent(@NotNull String id) {
-        VisorTask removed = tasksMap.remove(id);
+    public @Nullable VisorTask unregisterElement(@NotNull String id) {
+        VisorTask removed = elementsMap.remove(id);
         if (removed != null) {
-            List<VisorTask> list = tasksByType.get(removed.getType());
+            List<VisorTask> list = elementsByType.get(removed.getType());
             list.remove(removed);
             Collections.sort(list);
+            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
         }
         return removed;
     }
 
+    @Override
+    public @Nullable VisorTask getElement(@NotNull String id) {
+        return elementsMap.get(id);
+    }
+
+
+
+
 
     @Override
-    public void unregisterAddon(@NotNull VisorAddon addon) {
-        // collect IDs first to avoid concurrent-modification
-        List<String> toRemove = tasksMap.values().stream()
-                .filter(t -> t.getOwner().getAddonId().equals(addon.getAddonId()))
-                .map(VisorTask::getId)
-                .toList();
-
-        toRemove.forEach(this::unregisterAddonComponent);
+    public @NotNull String getRegistryName() {
+        return REGISTRY_NAME;
     }
 }

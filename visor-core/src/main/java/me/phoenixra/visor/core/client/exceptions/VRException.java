@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.exceptions;
 
 import lombok.Getter;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 

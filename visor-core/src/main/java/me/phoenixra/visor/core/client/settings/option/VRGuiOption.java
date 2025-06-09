@@ -40,7 +40,7 @@ public enum VRGuiOption {
         }
         @Override
         public void onChanged() {
-            if (VisorState.getStateMode().isActive()) {
+            if (VisorState.getState().isActive()) {
                 ClientContext.renderer.prepareResize("");
             }
         }
@@ -50,7 +50,7 @@ public enum VRGuiOption {
     MIRROR_DISPLAY(){
         @Override
         public void onChanged() {
-            if (VisorState.getStateMode().isActive()
+            if (VisorState.getState().isActive()
                     && !ShadersHelper.isShaderActive()) {
                 ClientContext.renderer.prepareReinit(
                         "Mirror Setting Changed"

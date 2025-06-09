@@ -1,14 +1,18 @@
 package me.phoenixra.visor.core.client.data.raw;
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-@Getter
+
 public abstract class RawPoseHandler {
 
+    @Getter
     protected RawHmd hmdData;
+
     protected RawController controllerLeftData;
     protected RawController controllerRightData;
 
@@ -45,12 +49,10 @@ public abstract class RawPoseHandler {
 
 
     public RawController getControllerData(ControllerHand controller) {
-        if (controller == ControllerHand.OFFHAND) return controllerLeftData;
+        if (controller.getType(VRClientSettings.isLeftHanded()) == ControllerType.LEFT){
+            return controllerLeftData;
+        }
         return controllerRightData;
 
-    }
-    public RawController getControllerData(int type) {
-        if (type == 0) return controllerRightData;
-        return controllerLeftData;
     }
 }

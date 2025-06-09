@@ -1,6 +1,9 @@
 package me.phoenixra.visor.core.client.render.helpers;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
@@ -13,8 +16,17 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL43C;
 
 public class RenderHelper {
+
+    private static int polyBlendSrcA;
+    private static int polyBlendDstA;
+    private static int polyBlendSrcRGB;
+    private static int polyBlendDstRGB;
+    private static boolean polyBlend;
+    private static boolean polyCull;
 
 
     public static void applyDisplayOrientation(VRDisplay vrDisplay, PoseStack poseStack) {
@@ -83,7 +95,7 @@ public class RenderHelper {
     }
 
 
-    public static Vec3 getCameraPosition(VRDisplay vrDisplay, PoseDataImpl vrPose) {
+    public static Vec3 getCameraPosition(VRDisplay vrDisplay, PoseData vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
@@ -114,7 +126,34 @@ public class RenderHelper {
     }
 
 
+    public static void setupPolyRendering(boolean enable) {
 
+        if (enable) {
+            polyBlendSrcA = GlStateManager.BLEND.srcAlpha;
+            polyBlendDstA = GlStateManager.BLEND.dstAlpha;
+            polyBlendSrcRGB = GlStateManager.BLEND.srcRgb;
+            polyBlendDstRGB = GlStateManager.BLEND.dstRgb;
+            polyBlend = GL43C.glIsEnabled(GL11.GL_BLEND);
+            polyCull = true;
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.disableCull();
+
+        } else {
+            RenderSystem.blendFuncSeparate(polyBlendSrcRGB, polyBlendDstRGB, polyBlendSrcA,
+                    polyBlendDstA);
+
+            if (!polyBlend) {
+                RenderSystem.disableBlend();
+            }
+
+            if (polyCull) {
+                RenderSystem.enableCull();
+            }
+
+
+        }
+    }
 
 
     public static void renderBox(BufferBuilder buffer,

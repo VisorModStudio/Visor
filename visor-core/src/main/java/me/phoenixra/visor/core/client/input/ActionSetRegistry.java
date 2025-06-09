@@ -3,11 +3,9 @@ package me.phoenixra.visor.core.client.input;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
@@ -20,17 +18,22 @@ import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 public class ActionSetRegistry implements VisorElementRegistry<VisorActionSet> {
+    private static final String REGISTRY_NAME = "Visor Action Sets";
 
-    private final Map<String, VisorActionSet> actionSetMap = new LinkedHashMap<>();
+    private static final String ELEMENT_NAME = "VisorActionSet";
+    private static final String ANNOTATION_NAME = "@RegisterActionSet";
 
-    private final List<VisorActionSet> sortedActionSet = new ArrayList<>();
+    private final Map<String, VisorActionSet> elementsMap = new LinkedHashMap<>();
 
-    private final Collection<VisorActionSet> allActionSets =
-            Collections.unmodifiableCollection(actionSetMap.values());
+    private final List<VisorActionSet> sortedElements = new ArrayList<>();
+
+    @Getter
+    private final Collection<VisorActionSet> allElements =
+            Collections.unmodifiableCollection(elementsMap.values());
 
 
-    public List<VisorActionSet> getSortedActionSet() {
-        return Collections.unmodifiableList(sortedActionSet);
+    public List<VisorActionSet> getSortedElements() {
+        return Collections.unmodifiableList(sortedElements);
     }
 
 
@@ -43,91 +46,77 @@ public class ActionSetRegistry implements VisorElementRegistry<VisorActionSet> {
         Set<Class<?>> annotated =
                 reflections.getTypesAnnotatedWith(RegisterActionSet.class);
 
-        LOGGER.info("Found {} VisorActionSet to register in addon {}",
-                annotated.size(), addon.getAddonId());
+        LOGGER.info("Found {} {} to register in addon: '{}'",
+                annotated.size(), ELEMENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VisorActionSet.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
-                        "{} is annotated with @RegisterActionSet but does not implement VisorActionSet",
-                        clazz.getName()
+                        "{} is annotated with {} but does not implement {}",
+                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
                 );
                 continue;
             }
             try {
                 @SuppressWarnings("unchecked")
-                Constructor<? extends VisorActionSet> ctor =
+                Constructor<? extends VisorActionSet> constructor =
                         ((Class<? extends VisorActionSet>) clazz)
                                 .getConstructor(VisorAddon.class);
 
-                VisorActionSet actionSet = ctor.newInstance(addon);
+                var element = constructor.newInstance(addon);
 
-                registerAddonComponent(actionSet);
+                registerElement(element);
 
-            } catch (ReflectiveOperationException e) {
-                LOGGER.error("Failed to register VRDecorator from class: {}", clazz.getName());
+            } catch (Exception e) {
+                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
-                // continue registering other views
+                // continue registering other elements
             }
         }
     }
 
     @Override
-    public void registerAddonComponent(@NotNull VisorActionSet decorator) {
-        var previous = actionSetMap.put(decorator.getId(), decorator);
+    public void registerElement(@NotNull VisorActionSet element) {
+        var previous = elementsMap.put(element.getId(), element);
 
-
-        if (previous == null) {
-            LOGGER.info("Registered VRDecorator: '{}'", decorator.getId());
-
-        }else{
+        if (previous != null) {
             LOGGER.info(
-                    "Overriding existing VRDecorator: '{}' from addon '{}'",
+                    "Overriding existing {}: '{}' from addon '{}'",
+                    ELEMENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
-            sortedActionSet.remove(previous);
+            sortedElements.remove(previous);
+
+        }else{
+            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
-        sortedActionSet.add(decorator);
-        Collections.sort(sortedActionSet);
+        sortedElements.add(element);
+        Collections.sort(sortedElements);
     }
 
     @Override
-    public @Nullable VisorActionSet unregisterAddonComponent(@NotNull String id) {
-        var removed = actionSetMap.remove(id);;
+    public @Nullable VisorActionSet unregisterElement(@NotNull String id) {
+        var removed = elementsMap.remove(id);;
         if(removed != null) {
-            sortedActionSet.remove(removed);
-            Collections.sort(sortedActionSet);
+            sortedElements.remove(removed);
+            Collections.sort(sortedElements);
+            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
         }
         return removed;
 
     }
 
     @Override
-    public @Nullable VisorActionSet getAddonComponent(@NotNull String id) {
-        return actionSetMap.get(id);
-    }
-
-    @Override
-    public @NotNull Collection<VisorActionSet> getAddonComponents(@NotNull VisorAddon addon) {
-        return actionSetMap.values().stream()
-                .filter(v -> v.getOwner().equals(addon))
-                .toList();
+    public @Nullable VisorActionSet getElement(@NotNull String id) {
+        return elementsMap.get(id);
     }
 
 
 
-    @Override
-    public void unregisterAddon(@NotNull VisorAddon addon) {
-        List<String> toRemove = actionSetMap.values().stream()
-                .filter(v -> v.getOwner().equals(addon))
-                .map(VisorActionSet::getId)
-                .toList();
-        toRemove.forEach(actionSetMap::remove);
-    }
 
     @Override
-    public @NotNull Collection<VisorActionSet> getAllComponents() {
-        return allActionSets;
+    public @NotNull String getRegistryName() {
+        return REGISTRY_NAME;
     }
 }

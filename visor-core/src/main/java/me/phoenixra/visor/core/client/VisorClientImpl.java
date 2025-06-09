@@ -8,7 +8,9 @@ import me.phoenixra.atumvr.api.VRProvider;
 import me.phoenixra.atumvr.api.VRState;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorClient;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.ClientPlayer;
+import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -16,7 +18,7 @@ import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
-import me.phoenixra.visor.core.client.input.InputHandlerImpl;
+import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecoratorManagerImpl;
@@ -28,7 +30,7 @@ import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import org.apache.logging.log4j.LogManager;
@@ -47,23 +49,26 @@ public class VisorClientImpl implements VisorClient {
     public static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
 
 
-    private final VRProvider vrProvider;
+    private VRProvider vrProvider;
 
-    private final ConfigManager configManager;
+    private ConfigManager configManager;
 
-    private final VisorTaskRegistry taskRegistry;
+    private VisorTaskRegistry taskRegistry;
 
-
+    private ClientFeaturesToggle featuresToggle;
 
     public VisorClientImpl() {
         MC = Minecraft.getInstance();
 
-        ClientContext.visor = this;
+    }
 
+    protected void prepare(){
         vrProvider = new XrVRProvider(
                 VisorAPI.MOD_NAME,
                 new MCVRLogger(LOGGER)
         );
+
+        featuresToggle = new ClientFeaturesToggle();
 
         //-------Configuration-------
         configManager = new AtumConfigManager(
@@ -78,8 +83,7 @@ public class VisorClientImpl implements VisorClient {
         VRClientSettingsHandler.init();
 
         //-------Main client classes-------
-        ClientContext.properties = new ClientPropertiesImpl();
-        ClientContext.inputHandler = new InputHandlerImpl();
+        ClientContext.inputManager = new InputManagerImpl();
         ClientContext.decoratorManager = new DecoratorManagerImpl();
         ClientContext.guiManager = new GuiManagerImpl();
         ClientContext.player = new VRClientPlayer();
@@ -90,7 +94,7 @@ public class VisorClientImpl implements VisorClient {
         //Addon Registries
         var registries = new ArrayList<VisorElementRegistry<?>>();
         registries.add(taskRegistry);
-        registries.addAll(ClientContext.inputHandler.getElementRegistries());
+        registries.addAll(ClientContext.inputManager.getElementRegistries());
         registries.addAll(ClientContext.decoratorManager.getElementRegistries());
         registries.addAll(ClientContext.guiManager.getElementRegistries());
 
@@ -101,7 +105,6 @@ public class VisorClientImpl implements VisorClient {
                 new AddonCoreClient(),
                 registries
         );
-
     }
 
 
@@ -120,8 +123,8 @@ public class VisorClientImpl implements VisorClient {
     }
 
     public void preTickVR(){
-        ClientContext.properties.preTick();
-        ClientContext.inputHandler.preTick();
+        featuresToggle.preTick();
+        ClientContext.inputManager.preTick();
 
         var tasks = ClientContext.visor.getTaskRegistry().getPreTick();
         for (VisorTask task : tasks) {
@@ -156,7 +159,7 @@ public class VisorClientImpl implements VisorClient {
 
     public void preRenderVR(PreRenderContext context){
         vrProvider.preRender(context);
-        ClientContext.inputHandler.update();
+        ClientContext.inputManager.update();
 
         if(!(MC.screen instanceof OptionsScreen)
                 && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()){
@@ -165,7 +168,7 @@ public class VisorClientImpl implements VisorClient {
             );
         }
 
-        ClientContext.properties.preRender();
+        featuresToggle.preRender();
 
         var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
         for (VisorTask task : tasks) {
@@ -203,12 +206,12 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull ClientPlayer getClientPlayer() {
+    public @NotNull ClientPlayer getPlayer() {
         return ClientContext.player;
     }
 
     @Override
-    public @NotNull VisorRendererBase getVrRenderer() {
+    public @NotNull VisorRendererBase getRenderer() {
         return ClientContext.renderer;
     }
 
@@ -217,6 +220,10 @@ public class VisorClientImpl implements VisorClient {
         return LOGGER;
     }
 
+    @Override
+    public InputManager getInputManager() {
+        return ClientContext.inputManager;
+    }
 
     @Override
     public @NotNull DecoratorManagerImpl getDecoratorManager() {
@@ -234,8 +241,8 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public @NotNull ClientPropertiesImpl getProperties() {
-        return ClientContext.properties;
+    public boolean isFeatureEnabled(@NotNull ClientFeature feature) {
+        return featuresToggle.isAllowed(feature);
     }
 
     protected void destroy(){

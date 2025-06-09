@@ -5,7 +5,8 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.exceptions.VRInitException;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.common.eventbus.VREventBusImpl;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,8 @@ public class AddonManagerImpl implements AddonManager {
     private boolean initialized;
     public AddonManagerImpl(Logger logger) {
         VisorAPI.Instance.setAddonManager(this);
+        VisorAPI.Instance.setEventBus(new VREventBusImpl());
+
         this.logger = logger;
         this.addonsMap = new HashMap<>();
 

@@ -6,7 +6,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.*;
 import java.util.function.LongSupplier;
 
-//@TODO test
 public class Vec3History {
     private final Deque<Entry> history;
     private final int capacity;

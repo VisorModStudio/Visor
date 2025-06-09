@@ -117,9 +117,6 @@ public class VRMenuPanorama {
 
         // --- Block rendering for floor ---
         Vector2f area = ClientUtils.getPlayAreaSize();
-        if (area == null) {
-            area = new Vector2f(2, 2);
-        }
 
         for (int i = 0; i < 2; i++) {
             float width = area.x + i * 2;

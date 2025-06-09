@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
@@ -15,13 +16,13 @@ import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
 import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.provider.VisorScene;
-import me.phoenixra.visor.core.client.render.target.impl.RenderTargetFirst;
-import me.phoenixra.visor.core.client.render.target.impl.RenderTargetGUI;
-import me.phoenixra.visor.core.client.render.target.impl.RenderTargetMain;
-import me.phoenixra.visor.core.client.render.target.impl.RenderTargetThird;
+import me.phoenixra.visor.core.client.render.target.types.RenderTargetFirst;
+import me.phoenixra.visor.core.client.render.target.types.RenderTargetGUI;
+import me.phoenixra.visor.core.client.render.target.types.RenderTargetMain;
+import me.phoenixra.visor.core.client.render.target.types.RenderTargetThird;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -240,7 +241,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
         }
 
         var windowModif = (WindowModified) (Object) minecraft.getWindow();
-        long windowPixels = (long) windowModif.visor$getScreenWidth() * windowModif.visor$getScreenHeight();
+        long windowPixels = (long) windowModif.visor$getActualWidth() * windowModif.visor$getActualHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
         if (list.contains(VRDisplay.FIRST_PERSON)) {
@@ -251,7 +252,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
         VisorClientImpl.LOGGER.info("[Visor] render targets created:" +
                 "\nEye target width: " + eyeWidth + ", height: " + eyeHeight + " [" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP]" +
                 "\nRender target width: " + eyeRenderWidth + ", height: " + eyeRenderHeight + " [Render scale: " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "%, " + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP]" +
-                "\nMain window width: " + windowModif.visor$getScreenWidth() + ", height: " + windowModif.visor$getScreenHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
+                "\nMain window width: " + windowModif.visor$getActualWidth() + ", height: " + windowModif.visor$getActualHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
                 "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)");
 
         minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
@@ -339,10 +340,10 @@ public abstract class VisorRendererBase implements VisorRenderer {
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
-                windowModif.visor$getScreenWidth()
+                windowModif.visor$getActualWidth()
         );
         mirrorHeight = Math.max(1,
-                windowModif.visor$getScreenHeight()
+                windowModif.visor$getActualHeight()
         );
 
 
@@ -361,8 +362,8 @@ public abstract class VisorRendererBase implements VisorRenderer {
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
 
-        if (windowModif.visor$getScreenWidth() > 0
-                && windowModif.visor$getScreenHeight() > 0) {
+        if (windowModif.visor$getActualWidth() > 0
+                && windowModif.visor$getActualHeight() > 0) {
             MirrorMode mirrorMode = VRClientSettings.getDisplayMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
                 list.add(VRDisplay.FIRST_PERSON);
@@ -392,6 +393,11 @@ public abstract class VisorRendererBase implements VisorRenderer {
     }
 
 
+    @Override
+    public void updateOverlayTarget(@NotNull VROverlayScreen overlayScreen) {
+        if(guiTarget == null) return;
+        guiTarget.updateOverlayTarget(overlayScreen);
+    }
 
     @Override
     public long getWindowHandle() {

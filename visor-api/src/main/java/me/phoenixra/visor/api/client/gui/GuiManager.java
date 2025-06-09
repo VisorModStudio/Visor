@@ -1,11 +1,18 @@
 package me.phoenixra.visor.api.client.gui;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This class handles GUIs rendering
  * and behaviour.
  */
 public interface GuiManager {
 
+
+    @NotNull
+    OverlayManager getOverlayManager();
+    @NotNull
+    VRCursorHandler getCursorHandler();
 
     /**
      * Get width that is used by all GUIs

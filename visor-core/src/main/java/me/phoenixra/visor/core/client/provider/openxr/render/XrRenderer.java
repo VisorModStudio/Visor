@@ -9,7 +9,7 @@ import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
 import me.phoenixra.visor.core.client.provider.VisorScene;
 import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.PointerBuffer;

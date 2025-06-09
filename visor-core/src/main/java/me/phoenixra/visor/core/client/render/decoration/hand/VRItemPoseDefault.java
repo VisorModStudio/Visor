@@ -334,10 +334,7 @@ public class VRItemPoseDefault extends VRHandItemPoseBase {
                 || item instanceof PickaxeItem
                 || item instanceof ShovelItem;
     }
-    @Override
-    public int getPriority() {
-        return 0;
-    }
+
     @Override
     public @NotNull String getId() {
         return ID;

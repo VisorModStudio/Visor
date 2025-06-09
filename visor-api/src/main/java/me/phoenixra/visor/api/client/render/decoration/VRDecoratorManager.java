@@ -1,16 +1,16 @@
 package me.phoenixra.visor.api.client.render.decoration;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 public interface VRDecoratorManager {
 
 
     @NotNull VisorElementRegistry<VRDecorator> getRegistry();
+    @NotNull VisorElementRegistry<VRGameEffect> getEffectsRegistry();
 
 
     @NotNull VRDecorator getCurrentDecorator();

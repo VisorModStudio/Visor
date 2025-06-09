@@ -4,6 +4,7 @@ import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.core.client.input.actionset.actions.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -22,6 +23,12 @@ public class MenuActionSet extends VisorActionSet {
     @Override
     protected List<VisorAction> loadActions() {
         return List.of(
+                new ActionMenu(this),
+
+                new ActionLeftMouse(this),
+                new ActionRightMouse(this),
+                new ActionMiddleMouse(this),
+                new ActionScrollMouse(this)
 
         );
     }

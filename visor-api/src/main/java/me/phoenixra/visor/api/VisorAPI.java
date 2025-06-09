@@ -2,6 +2,7 @@ package me.phoenixra.visor.api;
 
 
 import me.phoenixra.visor.api.common.addon.AddonManager;
+import me.phoenixra.visor.api.common.eventbus.VREventBus;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,6 +59,9 @@ public interface VisorAPI {
         return Instance.addonManager;
     }
 
+    static VREventBus getEventBus(){
+        return Instance.eventBus;
+    }
 
     @ApiStatus.Internal
     final class Instance {
@@ -68,6 +72,7 @@ public interface VisorAPI {
         private static VisorServer server;
 
         private static AddonManager addonManager;
+        private static VREventBus eventBus;
 
         private Instance() {
             throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
@@ -89,8 +94,11 @@ public interface VisorAPI {
 
         @ApiStatus.Internal
         public static void setAddonManager(final AddonManager api) {
-
             Instance.addonManager = api;
+        }
+        @ApiStatus.Internal
+        public static void setEventBus(final VREventBus api) {
+            Instance.eventBus = api;
         }
     }
 }

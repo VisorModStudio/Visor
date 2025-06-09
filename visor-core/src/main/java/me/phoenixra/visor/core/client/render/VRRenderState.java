@@ -64,7 +64,7 @@ public class VRRenderState {
     }
 
     public static RenderTarget getTargetForDisplay(VRDisplay display){
-        if(VisorState.getStateMode().isNotInitialized()
+        if(VisorState.getState().isNotInitialized()
                 || display == null){
             return vanillaTarget;
         }

@@ -305,7 +305,7 @@ public abstract class OpenXRRenderer implements VRRenderer {
     }
 
 
-    //@TODO Written By AI, has to be tested!!
+
     protected void setupHiddenArea(){
         try(MemoryStack stack = MemoryStack.stackPush()) {
             XrSession xrSession = getVrProvider().getState().getVrSession().getHandle();

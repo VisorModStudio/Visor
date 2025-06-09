@@ -32,7 +32,7 @@ public class ClientPacketHandler {
                             )
                     );
                 }
-                if (VisorState.getStateMode().isActive()
+                if (VisorState.getState().isActive()
                         && VRClientSettings.getPlayerHeight() == -1.0F) {
                     mc.gui.getChat().addMessage(
                             Component.translatable("visor.messages.calibrate_height")

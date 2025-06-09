@@ -1,9 +1,13 @@
 package me.phoenixra.visor.api.common.utils;
 
+import me.phoenixra.atumconfig.api.ConfigManager;
+import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
+import me.phoenixra.atumconfig.core.AtumConfigManager;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import redempt.crunch.Crunch;
 
 public class VRMathUtils {
     public static final Vector3fc forwardVector = new Vector3f(0.0F, 0.0F, -1.0F);
@@ -17,6 +21,22 @@ public class VRMathUtils {
 
 
 
+    public static double getEvaluated(ConfigManager configManager, String formula){
+        var placeholderHandler = configManager.getPlaceholderHandler();
+        if(placeholderHandler.isEmpty()){
+            throw new RuntimeException("Tried to evaluate expression with configManager that lacks placeholderHandler");
+        }
+
+        var env = ((AtumConfigManager)configManager).getEvaluationEnvironment();
+        return Crunch.compileExpression(
+                placeholderHandler
+                        .orElse(PlaceholderHandler.EMPTY)
+                        .translatePlaceholders(
+                                formula
+                        ),
+               env
+        ).evaluate();
+    }
     public static Vec3 lerpVector(Vec3 start, Vec3 end, double stepScale) {
         double d0 = start.x + (end.x - start.x) * stepScale;
         double d1 = start.y + (end.y - start.y) * stepScale;

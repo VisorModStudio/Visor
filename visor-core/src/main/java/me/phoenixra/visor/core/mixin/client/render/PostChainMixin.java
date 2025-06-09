@@ -45,7 +45,7 @@ public class PostChainMixin {
                               ResourceLocation name,
                               CallbackInfo ci) throws IOException {
 
-        if (VisorState.getStateMode().isNotInitialized()
+        if (VisorState.getState().isNotInitialized()
                 || this.screenTarget != VRRenderState.getVanillaTarget()){
             return;
         }
@@ -77,7 +77,7 @@ public class PostChainMixin {
 
     @Inject(method = "getTempTarget", at = @At("RETURN"), cancellable = true)
     private void visor$onGetTempTarget(String attributeName, CallbackInfoReturnable<RenderTarget> cir) {
-        if (VisorState.getStateMode().isNotInitialized()
+        if (VisorState.getState().isNotInitialized()
                 || visor$vrChains.isEmpty()) return;
         visor$vrTempTargets.clear();
         visor$vrChains.forEach((d, pc) -> {

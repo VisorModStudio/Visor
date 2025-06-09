@@ -1,6 +1,8 @@
 package me.phoenixra.visor.api.client.input.action.types;
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
+import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
@@ -56,6 +58,12 @@ public abstract class VisorActionVec2 implements VisorAction {
 
     }
 
+    protected VRActionDataVec2 getVec2Data(@NotNull BindingPath bindingPath,
+                                           @NotNull OpenXRProfileSet currentProfile,
+                                           boolean leftHanded){
+        return bindingPath.getVec2(currentProfile, leftHanded);
+    }
+
     @Override
     public void preTick() {
         if(changed) {
@@ -74,8 +82,10 @@ public abstract class VisorActionVec2 implements VisorAction {
             return;
         }
 
-        var vec2Data = bindingPath.getVec2(
-                currentProfile, leftHanded
+        var vec2Data = getVec2Data(
+                bindingPath,
+                currentProfile,
+                leftHanded
         );
 
         active = vec2Data.isActive();

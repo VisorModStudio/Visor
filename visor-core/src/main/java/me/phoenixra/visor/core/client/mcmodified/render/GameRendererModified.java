@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.client.mcmodified.render;
 
+import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
@@ -33,4 +34,6 @@ public interface GameRendererModified {
     void visor$resetProjectionMatrix(float partialTicks);
 
     Vec3 visor$getCrossVec();
+
+    VRCameraEntityCache visor$getCameraEntityCache();
 }

@@ -24,7 +24,7 @@ public class VRLightsMixins {
          */
         @Inject(at = @At("HEAD"), method = "pollLightUpdates", cancellable = true)
         public void visor$noUpdateIfNotTickDisplay(CallbackInfo info){
-            if(VisorState.getStateMode().isNotActive()) return;
+            if(VisorState.getState().isNotActive()) return;
             if (VRRenderState.getCurrentVRDisplay() != VRDisplay.worldUpdater()) {
                 info.cancel();
             }
@@ -45,7 +45,7 @@ public class VRLightsMixins {
          */
         @Inject(at = @At("HEAD"), method = "runLightUpdates", cancellable = true)
         public void visor$noUpdateIfNotTickDisplay(CallbackInfoReturnable<Integer> callbackInfo){
-            if(VisorState.getStateMode().isNotActive()) return;
+            if(VisorState.getState().isNotActive()) return;
             if(!visor$redirect) return;
             if (VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
                 visor$redirect = false;

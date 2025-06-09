@@ -12,8 +12,6 @@ import me.phoenixra.visor.core.client.mcmodified.entity.EntityRenderDispatcherVR
 import me.phoenixra.visor.core.client.mcmodified.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.player.VRPlayerRendererArms;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -84,7 +82,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
     public void visor$overrideArm(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, float f, float g,
                                  HumanoidArm humanoidArm, CallbackInfo ci
     ) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             return;
         }
         visor$renderVrArm(
@@ -101,7 +99,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
                                      InteractionHand interactionHand, float h, ItemStack itemStack, float i,
                                      PoseStack poseStack, MultiBufferSource multiBufferSource, int j, CallbackInfo ci
     ) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             return;
         }
         this.visor$renderVrArmWithItem(

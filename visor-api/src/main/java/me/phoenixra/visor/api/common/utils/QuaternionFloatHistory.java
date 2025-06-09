@@ -5,7 +5,6 @@ import org.joml.Quaternionf;
 
 import java.util.*;
 
-//@TODO test
 public class QuaternionFloatHistory {
     private final Deque<Entry> history;
     private final int capacity;

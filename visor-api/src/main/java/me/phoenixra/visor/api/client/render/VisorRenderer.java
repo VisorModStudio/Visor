@@ -1,6 +1,8 @@
 package me.phoenixra.visor.api.client.render;
 
 import me.phoenixra.atumvr.api.rendering.VRRenderer;
+import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public interface VisorRenderer extends VRRenderer {
@@ -12,5 +14,8 @@ public interface VisorRenderer extends VRRenderer {
     void prepareReinit(@NotNull String cause);
     void prepareResize(@NotNull String cause);
 
+
+    @ApiStatus.Internal
+    void updateOverlayTarget(@NotNull VROverlayScreen overlayScreen);
 
 }

@@ -18,6 +18,7 @@ import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.*;
@@ -57,6 +58,13 @@ public class VisorScene implements VRScene {
 
         float partialTicks = ((MinecraftModified) mc).visor$getPartialTicks();
 
+        GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+        ClientContext.overlayManager.renderOverlayTextures(
+                MC.getProfiler(),
+                guiGraphics,
+                partialTicks
+        );
+        GLUtils.checkGLError("post overlays");
 
         for (VRDisplay display : VisorRendererBase.getVRWorldDisplays()) {
 

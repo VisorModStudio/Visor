@@ -1,12 +1,12 @@
 package me.phoenixra.visor.core.client.render.decoration.registry;
 
 import lombok.Getter;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.client.VisorClientImpl;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
@@ -14,97 +14,109 @@ import org.reflections.Reflections;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
+import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 public class VRHandItemPoseRegistry implements VisorElementRegistry<VRHandItemPose> {
-    @Getter
-    private final HashMap<String, VRHandItemPose> posesMap = new HashMap<>();
+    private static final String REGISTRY_NAME = "VR Hand Item Poses";
+
+    private static final String ELEMENT_NAME = "VRHandItemPose";
+    private static final String ANNOTATION_NAME = "@RegisterVRItemPose";
 
     @Getter
-    private List<VRHandItemPose> posesSorted = new ArrayList<>();
+    private final HashMap<String, VRHandItemPose> elementsMap = new HashMap<>();
+
+    private final List<VRHandItemPose> sortedElements = new ArrayList<>();
+
+    @Getter
+    private final Collection<VRHandItemPose> allElements =
+            Collections.unmodifiableCollection(elementsMap.values());
+
+
+    public List<VRHandItemPose> getSortedElements() {
+        return Collections.unmodifiableList(sortedElements);
+    }
+
+
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
-        try {
-            Reflections reflections = new Reflections(
-                    addon.getAddonPackagePath(),
-                    TypesAnnotated
-            );
-            Set<Class<?>> posesFound = reflections.get(
-                    SubTypes.of(
-                            TypesAnnotated.with(RegisterVRItemPose.class)
-                    ).asClass()
-            );
 
-            VisorClientImpl.LOGGER.info("Found " + posesFound.size() + " hand item poses to register");
-            List<VRHandItemPose> posesList = new ArrayList<>();
-            for (Class<?> clazz : posesFound) {
-                Constructor<?> constructor = clazz.getConstructor(
-                        VisorAddon.class
+        Reflections reflections = new Reflections(
+                addon.getAddonPackagePath(),
+                SubTypes, TypesAnnotated
+        );
+        Set<Class<?>> annotated =
+                reflections.getTypesAnnotatedWith(RegisterVRItemPose.class);
+
+        LOGGER.info("Found {} {} to register in addon: '{}'",
+                annotated.size(), ELEMENT_NAME, addon.getAddonId());
+
+        for (Class<?> clazz : annotated) {
+            if (!VRHandItemPose.class.isAssignableFrom(clazz)) {
+                LOGGER.warn(
+                        "{} is annotated with {} but does not implement {}",
+                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
                 );
-                if (!VRHandItemPose.class.isAssignableFrom(clazz)) continue;
-                try {
-                    VisorClientImpl.LOGGER.info("Loading " + clazz.getName() + " hand item pose...");
-                    VRHandItemPose effect = (VRHandItemPose) constructor.newInstance(
-                            addon
-                    );
-                    posesList.add(effect);
-
-                } catch (InstantiationException | IllegalAccessException e) {
-                    LoggerUtils.printError(e);
-                    throw new RuntimeException(e);
-                }
+                continue;
             }
-            registerAddonComponent(posesList);
+            try {
+                @SuppressWarnings("unchecked")
+                Constructor<? extends VRHandItemPose> constructor =
+                        ((Class<? extends VRHandItemPose>) clazz)
+                                .getConstructor(VisorAddon.class);
 
-        } catch (Exception e) {
-            LoggerUtils.printError(e);
-            throw new RuntimeException(e);
+                var element = constructor.newInstance(addon);
+
+                registerElement(element);
+
+            } catch (Exception e) {
+                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
+                LoggerUtils.printError(e);
+                // continue registering other elements
+            }
         }
     }
 
     @Override
-    public void registerAddonComponent(@NotNull VRHandItemPose pose) {
-        posesMap.put(pose.getId(),pose);
+    public void registerElement(@NotNull VRHandItemPose element) {
+        var previous = elementsMap.put(element.getId(), element);
 
-        posesSorted.removeIf(
-                it -> it.getId().equals(pose.getId())
-        );
-        posesSorted.add(pose);
-
-        posesSorted = new ArrayList<>(
-                posesSorted.stream().sorted().toList()
-        );
-    }
-
-    @Override
-    public VRHandItemPose unregisterAddonComponent(@NotNull String id) {
-        VRHandItemPose handItemPose = posesMap.remove(id);
-        if(handItemPose != null){
-            posesSorted.removeIf(
-                    it -> it.getId().equals(id)
+        if (previous != null) {
+            LOGGER.info(
+                    "Overriding existing {}: '{}' from addon '{}'",
+                    ELEMENT_NAME,
+                    previous.getId(),
+                    previous.getOwner().getAddonId()
             );
-            posesSorted = new ArrayList<>(
-                    posesSorted.stream().sorted().toList()
-            );
+            sortedElements.remove(previous);
+
+        }else{
+            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
-        return handItemPose;
+        sortedElements.add(element);
+        Collections.sort(sortedElements);
     }
 
     @Override
-    public @Nullable VRHandItemPose getAddonComponent(@NotNull String id) {
-        return posesMap.get(id);
+    public VRHandItemPose unregisterElement(@NotNull String id) {
+        var removed = elementsMap.remove(id);
+        if(removed != null) {
+            sortedElements.remove(removed);
+            Collections.sort(sortedElements);
+            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
+        }
+        return removed;
     }
 
     @Override
-    public @NotNull List<VRHandItemPose> getAddonComponents(@NotNull VisorAddon addon) {
-        return posesMap.values().stream()
-                .filter(it->it.getOwner().getAddonId().equals(addon.getAddonId()))
-                .toList();
+    public @Nullable VRHandItemPose getElement(@NotNull String id) {
+        return elementsMap.get(id);
     }
 
+
     @Override
-    public @NotNull Collection<VRHandItemPose> getAllComponents() {
-        return posesMap.values();
+    public @NotNull String getRegistryName() {
+        return REGISTRY_NAME;
     }
 }

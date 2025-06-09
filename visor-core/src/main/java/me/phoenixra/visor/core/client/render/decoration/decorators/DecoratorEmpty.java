@@ -45,6 +45,6 @@ public class DecoratorEmpty extends VRDecorator {
 
     @Override
     public @NotNull ElementPriority getPriority() {
-        return ElementPriority.FALLBACK;
+        return ElementPriority.LOWEST;
     }
 }

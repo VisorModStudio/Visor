@@ -27,7 +27,19 @@ import java.util.List;
 public class ClientUtils {
     public static Vector2f getPlayAreaSize() {
 
-        return null;    //@TODO
+        return new Vector2f(2, 2);
+    }
+
+    public static int getCombinedLightWithMin(BlockAndTintGetter lightReader, BlockPos pos, int minLight) {
+        int i = LevelRenderer.getLightColor(lightReader, pos);
+        int j = i >> 4 & 15;
+
+        if (j < minLight) {
+            i = i & -256;
+            i = i | minLight << 4;
+        }
+
+        return i;
     }
 
     public static void updateKeyMappingState(KeyMapping keyMapping,

@@ -2,13 +2,14 @@ package me.phoenixra.visor.api.client.render.decoration.hand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorElement;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 //@TODO move to player rendering cause it affects to remotePlayer as well
-public interface VRHandItemPose extends VisorElement {
+public interface VRHandItemPose extends VisorElement, PrioritySupporter {
 
     /**
      * Apply pose for an item.
@@ -28,5 +29,4 @@ public interface VRHandItemPose extends VisorElement {
     );
 
 
-     int getPriority();
 }

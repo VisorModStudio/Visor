@@ -4,6 +4,7 @@
  */
 package me.phoenixra.visor.core.client.settings;
 
+import lombok.Getter;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
@@ -16,7 +17,7 @@ import me.phoenixra.visor.core.client.settings.lang.LangHandler;
 import me.phoenixra.visor.core.client.settings.option.VROptionField;
 import me.phoenixra.visor.core.client.settings.option.VROptionRecord;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.joml.Quaternionf;
 
 import java.awt.*;
@@ -38,6 +39,8 @@ public class VRClientSettingsHandler {
     private Config defaultSettings;
     private final ConfigFile settings;
 
+    @Getter
+    private final OverlaysCatalogListener overlayCatalog;
 
     private boolean wasInit;
 
@@ -61,6 +64,15 @@ public class VRClientSettingsHandler {
 
         //to sync config with fields
         saveOptions();
+
+        overlayCatalog = new OverlaysCatalogListener();
+        overlayCatalog.catalog = configManager.createCatalog(
+                ConfigType.YAML,
+                "overlays",
+                Path.of("overlays"),
+                true,
+                overlayCatalog
+        );
 
         PlaceholderHandler placeholderHandler = configManager.getPlaceholderHandler().get();
 

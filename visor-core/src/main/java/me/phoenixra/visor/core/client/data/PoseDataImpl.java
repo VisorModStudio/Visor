@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.data.raw.RawController;
 import me.phoenixra.visor.core.client.data.raw.RawHmd;
@@ -29,11 +30,11 @@ public class PoseDataImpl implements PoseData {
     protected final PoseElementImpl eyeLeft;
     protected final PoseElementImpl eyeRight;
 
-    protected final PoseElementImpl controllerLeft;
-    protected final PoseElementImpl controllerRight;
+    protected final PoseElementImpl controllerMain;
+    protected final PoseElementImpl controllerOffhand;
 
-    protected final PoseElementImpl handLeft;
-    protected final PoseElementImpl handRight;
+    protected final PoseElementImpl handMain;
+    protected final PoseElementImpl handOffhand;
 
     protected final PoseElementImpl thirdPersonCamera;
 
@@ -57,10 +58,10 @@ public class PoseDataImpl implements PoseData {
         this.eyeLeft = new PoseElementImpl();
         this.eyeRight = new PoseElementImpl();
 
-        this.controllerLeft = new PoseElementImpl();
-        this.controllerRight = new PoseElementImpl();
-        this.handLeft = new PoseElementImpl();
-        this.handRight = new PoseElementImpl();
+        this.controllerOffhand = new PoseElementImpl();
+        this.controllerMain = new PoseElementImpl();
+        this.handOffhand = new PoseElementImpl();
+        this.handMain = new PoseElementImpl();
 
         this.thirdPersonCamera = new PoseElementImpl();
 
@@ -68,8 +69,8 @@ public class PoseDataImpl implements PoseData {
         elements = List.of(
                 hmd,
                 eyeLeft, eyeRight,
-                controllerLeft, controllerRight,
-                handLeft, handRight,
+                controllerOffhand, controllerMain,
+                handOffhand, handMain,
                 thirdPersonCamera
         );
 
@@ -82,8 +83,8 @@ public class PoseDataImpl implements PoseData {
                           float worldScale,
                           float rotationY){
 
-        RawController dataLeft = ClientContext.rawPoseHandler.getControllerLeftData();
-        RawController dataRight = ClientContext.rawPoseHandler.getControllerRightData();
+        RawController dataMain = ClientContext.rawPoseHandler.getControllerData(ControllerHand.MAIN);
+        RawController dataOffhand = ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND);
         this.origin = origin;
         this.worldScale = worldScale;
         this.rotationY = rotationY;
@@ -119,37 +120,37 @@ public class PoseDataImpl implements PoseData {
                 hmdData.getVector()
         );
 
-        this.controllerLeft.update(
+        this.controllerOffhand.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataLeft.getAimRotation(),
-                dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
-                dataLeft.getAimVector()
+                dataOffhand.getAimRotation(),
+                dataOffhand.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataOffhand.getAimVector()
         );
-        this.controllerRight.update(
+        this.controllerMain.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataRight.getAimRotation(),
-                dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
-                dataRight.getAimVector()
+                dataMain.getAimRotation(),
+                dataMain.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataMain.getAimVector()
         );
-        this.handLeft.update(
+        this.handOffhand.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataLeft.getGripRotation(),
-                dataLeft.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
-                dataLeft.getGripVector()
+                dataOffhand.getGripRotation(),
+                dataOffhand.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataOffhand.getGripVector()
         );
-        this.handRight.update(
+        this.handMain.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataRight.getGripRotation(),
-                dataRight.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
-                dataRight.getGripVector()
+                dataMain.getGripRotation(),
+                dataMain.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataMain.getGripVector()
         );
 
 
@@ -175,8 +176,8 @@ public class PoseDataImpl implements PoseData {
     }
 
     private float calcBodyYaw() {
-        Vec3 bodyPos = this.controllerLeft.getPosition()
-                .subtract(this.controllerRight.getPosition())
+        Vec3 bodyPos = this.controllerOffhand.getPosition()
+                .subtract(this.controllerMain.getPosition())
                 .normalize()
                 .yRot((-(float) Math.PI / 2F));
         Vec3 hmdDirection = this.hmd.getDirection();
@@ -215,7 +216,8 @@ public class PoseDataImpl implements PoseData {
 
 
 
-    public PoseElement getElementForDisplay(VRDisplay display) {
+    @Override
+    public @NotNull PoseElement getElementForDisplay(@NotNull VRDisplay display) {
         if(display == null){
             return hmd;
         }
@@ -315,10 +317,10 @@ public class PoseDataImpl implements PoseData {
                 hmd,
                 eyeLeft,
                 eyeRight,
-                controllerLeft,
-                controllerRight,
-                handLeft,
-                handRight,
+                controllerOffhand,
+                controllerMain,
+                handOffhand,
+                handMain,
                 thirdPersonCamera
         );
     }

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.input.HandAction;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import me.phoenixra.visor.core.client.mcmodified.MinecraftModified;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -123,7 +125,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V"), method = "runTick")
     public void visor$preTick(CallbackInfo ci) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.visor.preTickVR();
         }
     }
@@ -134,7 +136,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At("HEAD"), method = "tick()V")
     public void visor$tick(CallbackInfo info) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.visor.tickVR();
         }
     }
@@ -145,7 +147,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V", shift = Shift.AFTER), method = "runTick")
     public void visor$postTick(CallbackInfo ci) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.visor.postTickVR();
         }
     }
@@ -164,7 +166,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      @Inject(at = @At("HEAD"), method = "runTick(Z)V")
      public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
          VisorState.updateState();
-         if (VisorState.getStateMode().isActive()) {
+         if (VisorState.getState().isActive()) {
              ++VisorState.FRAME_COUNT;
 
              ClientContext.visor
@@ -184,7 +186,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"), method = "runTick")
     public boolean visor$startVRGuiPhase(boolean renderLevel) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
 
             ClientContext.renderer.onGameRenderStart(renderLevel);
 
@@ -206,7 +208,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.visor
                     .renderVR(new RenderContext(
                             profiler,
@@ -228,8 +230,8 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At("HEAD"), method = "resizeDisplay")
     void visor$ensurePhaseOnResize(CallbackInfo ci) {
-        if (VisorState.getStateMode().isInitialized()) {
-            if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isInitialized()) {
+            if (VisorState.getState().isActive()) {
                 VRRenderState.startVRGuiPhase();
             } else {
                 VRRenderState.startVanillaPhase();
@@ -248,14 +250,57 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @ModifyConstant(constant = @Constant(longValue = 16), method = "doWorldLoad", expect = 0)
     private long visor$noFPSLimitOnWorldLoad(long constant) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             return 0L;
         }
         return constant;
     }
 
 
+     /* ******************* *\
+   //--------VR OVERLAYS--------\\
+     \* ******************* */
 
+    /**
+     * Handles screen changes
+     *
+     * @param pGuiScreen s
+     * @param info s
+     */
+    @Inject(at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", shift = Shift.BEFORE, ordinal = 0), method = "setScreen(Lnet/minecraft/client/gui/screens/Screen;)V")
+    public void visor$onOpenScreen(Screen pGuiScreen, CallbackInfo info) {
+        if(VisorState.getState().isNotActive()) return;
+
+        ClientContext.overlayManager
+                .getOverlay(VROverlayGameScreen.ID, VROverlayGameScreen.class)
+                .onScreenChanged(this.screen, pGuiScreen, true);
+    }
+
+    /**
+     * Handles overlay changes
+     *
+     * @param overlay s
+     * @param ci s
+     */
+    @Inject(at = @At("TAIL"), method = "setOverlay")
+    public void visor$onOverlaySet(Overlay overlay, CallbackInfo ci) {
+        if(VisorState.getState().isNotActive()) return;
+
+        ClientContext.overlayManager
+                .getOverlay(VROverlayGameScreen.ID, VROverlayGameScreen.class)
+                .onScreenChanged(this.screen, this.screen, true);
+    }
+    /**
+     * Ticks VR overlays right after mc ticked screen
+     * @param ci s
+     */
+    @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;tick(Z)V"))
+    private void visor$tickVrOverlays(CallbackInfo ci) {
+        if(VisorState.getState().isNotActive()) return;
+
+        if (ClientContext.overlayManager == null) return;
+        ClientContext.overlayManager.tick();
+    }
 
       /* *************** *\
     //--------INPUT--------\\
@@ -272,7 +317,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;setCameraType(Lnet/minecraft/client/CameraType;)V"), method = "handleKeybinds")
     public void visor$toggleMirrorButton(Options instance, CameraType cameraType) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.settingsHandler.updateGuiOptionValue(
                     VRGuiOption.MIRROR_DISPLAY
             );
@@ -290,7 +335,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;checkEntityPostEffect(Lnet/minecraft/world/entity/Entity;)V"), method = "handleKeybinds")
     public void visor$noTogglePerspectiveAction(GameRenderer instance, Entity entity) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             instance.checkEntityPostEffect(entity);
         }
     }
@@ -305,7 +350,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "handleKeybinds()V")
     public void visor$swingDrop(LocalPlayer instance, InteractionHand interactionHand) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ((LocalPlayerModified) player).visor$swingArm(
                     interactionHand, HandAction.ATTACK
             );
@@ -328,7 +373,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "startUseItem")
     public void visor$swingUse(LocalPlayer instance, InteractionHand interactionHand) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             instance.swing(interactionHand);
             return;
         }
@@ -351,7 +396,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z"), method = "handleKeybinds")
     public boolean visor$mouseAlwaysGrabbed(MouseHandler instance) {
-        return VisorState.getStateMode().isActive() || instance.isMouseGrabbed();
+        return VisorState.getState().isActive() || instance.isMouseGrabbed();
     }
 
 
@@ -375,7 +420,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Inject(at = @At("HEAD"), method = "setLevel(Lnet/minecraft/client/multiplayer/ClientLevel;)V")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.player.setOrigin(
                     0.0D, 0.0D, 0.0D, true
             );
@@ -409,7 +454,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "tick")
     public void visor$noVanillaHitResult(GameRenderer instance, float f) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             instance.pick(f);
         }
     }

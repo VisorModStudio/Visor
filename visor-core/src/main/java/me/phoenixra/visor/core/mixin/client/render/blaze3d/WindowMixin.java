@@ -30,7 +30,7 @@ public abstract class WindowMixin implements WindowModified {
     \* ********************************** */
     @Inject(method = "getWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrWidth(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     MC.mainRenderTarget
                             .viewWidth
@@ -39,7 +39,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrHeight(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     MC.mainRenderTarget
                     .viewHeight
@@ -48,7 +48,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getScreenWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrScreenWidth(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
@@ -58,7 +58,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getScreenHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrScreenHeight(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
@@ -68,7 +68,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getGuiScaledWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrGuiScaledWidth(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
@@ -78,7 +78,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getGuiScaledHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrGuiScaledHeight(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
@@ -88,7 +88,7 @@ public abstract class WindowMixin implements WindowModified {
     }
     @Inject(method = "getGuiScale", at = @At("HEAD"), cancellable = true)
     void visor$vrScaleFactor(CallbackInfoReturnable<Double> cir) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             cir.setReturnValue(
                     (double) ClientContext
                             .guiManager
@@ -103,7 +103,7 @@ public abstract class WindowMixin implements WindowModified {
     \* ************** */
     @Inject(method = "onResize", at = @At("HEAD"))
     private void visor$onResize(long l, int i, int j, CallbackInfo ci) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             ClientContext.renderer.prepareResize(
                     "Main Window Resized"
             );
@@ -117,7 +117,7 @@ public abstract class WindowMixin implements WindowModified {
      */
     @ModifyVariable(method = "updateVsync", ordinal = 0, at = @At("HEAD"), argsOnly = true)
     boolean visor$noVsync(boolean v) {
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             return false;
         }
         return v;
@@ -129,13 +129,13 @@ public abstract class WindowMixin implements WindowModified {
     \* ************************ */
     @Override
     @Unique
-    public int visor$getScreenHeight() {
+    public int visor$getActualHeight() {
         return height;
     }
 
     @Override
     @Unique
-    public int visor$getScreenWidth() {
+    public int visor$getActualWidth() {
         return width;
     }
 }

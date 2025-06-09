@@ -13,7 +13,6 @@ public class ShaderHelper {
     }
 
 
-
     public static void renderFullscreenQuad(@NotNull ShaderInstance shader,
                                             @NotNull RenderTarget source
     ) {

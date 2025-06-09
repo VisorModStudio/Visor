@@ -2,10 +2,14 @@ package me.phoenixra.visor.core.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
+import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.client.gui.OverlayManager;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -27,6 +31,10 @@ public class GuiManagerImpl implements GuiManager {
     private int scaledGuiWidth;
     @Getter
     private int scaledGuiHeight;
+    public GuiManagerImpl(){
+        ClientContext.overlayManager = new OverlayManagerImpl();
+        ClientContext.cursorHandler = new VRCursorHandlerImpl();
+    }
 
 
 
@@ -34,7 +42,13 @@ public class GuiManagerImpl implements GuiManager {
                           float partialTicks,
                           boolean depthAlways) {
 
+        ClientContext.cursorHandler.process();
 
+        ClientContext.overlayManager.renderOverlays(
+                partialTicks,
+                depthAlways,
+                poseStack
+        );
     }
     public int calculateScale(int scaleIn,
                               boolean forceUnicode,
@@ -83,8 +97,18 @@ public class GuiManagerImpl implements GuiManager {
 
     public List<VisorElementRegistry<?>> getElementRegistries(){
         return List.of(
-
+                ClientContext.overlayManager.getOverlaysRegistry(),
+                ClientContext.overlayManager.getOverlayTypesRegistry()
         );
     }
 
+    @Override
+    public @NotNull OverlayManager getOverlayManager() {
+        return ClientContext.overlayManager;
+    }
+
+    @Override
+    public @NotNull VRCursorHandler getCursorHandler() {
+        return ClientContext.cursorHandler;
+    }
 }

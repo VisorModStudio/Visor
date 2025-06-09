@@ -2,8 +2,10 @@ package me.phoenixra.visor.core.client;
 
 import me.phoenixra.visor.core.client.data.VRClientPlayer;
 import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
+import me.phoenixra.visor.core.client.gui.VRCursorHandlerImpl;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
-import me.phoenixra.visor.core.client.input.InputHandlerImpl;
+import me.phoenixra.visor.core.client.gui.OverlayManagerImpl;
+import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecoratorManagerImpl;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
@@ -22,8 +24,6 @@ public class ClientContext {
 
     public static AddonCoreClient coreAddon;
 
-    public static ClientPropertiesImpl properties;
-
     public static VRClientSettingsHandler settingsHandler;
 
     public static VRClientPlayer player;
@@ -31,9 +31,11 @@ public class ClientContext {
     public static VisorRendererBase renderer;
 
 
-    public static InputHandlerImpl inputHandler;
+    public static InputManagerImpl inputManager;
 
     public static GuiManagerImpl guiManager;
+    public static VRCursorHandlerImpl cursorHandler;
+    public static OverlayManagerImpl overlayManager;
 
 
 

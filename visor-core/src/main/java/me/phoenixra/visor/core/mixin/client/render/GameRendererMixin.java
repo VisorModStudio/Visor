@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.ModLoader;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
@@ -20,7 +21,6 @@ import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -174,7 +174,7 @@ public abstract class GameRendererMixin
     public void visor$shouldDrawBlockOutline(CallbackInfoReturnable<Boolean> cir) {
         if (VRRenderState.getCurrentPhase().isVRWorld()) {
             cir.setReturnValue(
-                    ClientContext.properties.isAimEffectsAllowed()
+                    ClientContext.visor.isFeatureEnabled(ClientFeature.AIM_EFFECTS)
             );
         }
     }
@@ -198,7 +198,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "getProjectionMatrix(D)Lorg/joml/Matrix4f;", cancellable = true)
     public void visor$projection(double d, CallbackInfoReturnable<Matrix4f> info) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             return;
         }
         PoseStack posestack = new PoseStack();
@@ -256,7 +256,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V")
     public void visor$matrix(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
-        if(VisorState.getStateMode().isNotActive()) return;
+        if(VisorState.getState().isNotActive()) return;
         this.resetProjectionMatrix(
                 this.getProjectionMatrix(
                         minecraft.options.fov().get()
@@ -301,7 +301,7 @@ public abstract class GameRendererMixin
     \* ********************* */
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 0)
     public Vec3 visor$pickPos(Vec3 original) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             return original;
         }
         PoseDataImpl renderPose = ClientContext.player
@@ -324,7 +324,7 @@ public abstract class GameRendererMixin
 
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 1)
     public Vec3 visor$pickDirection(Vec3 original) {
-        if (VisorState.getStateMode().isNotActive()) {
+        if (VisorState.getState().isNotActive()) {
             return original;
         }
         ControllerHand activeHand = ClientContext.player.getActiveHand();
@@ -345,7 +345,7 @@ public abstract class GameRendererMixin
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = "render")
     public boolean visor$noPauseGameIfWindowNotFocused(Minecraft instance) {
-        return VisorState.getStateMode().isActive() || instance.isWindowActive();
+        return VisorState.getState().isActive() || instance.isWindowActive();
     }
 
 
@@ -359,7 +359,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$noScreenshotInMenu(Path path, CallbackInfo ci) {
-        if (VisorState.getStateMode().isActive() && VRRenderState.isInMainMenu()) {
+        if (VisorState.getState().isActive() && VRRenderState.isInMainMenu()) {
             ci.cancel();
         }
     }
@@ -453,14 +453,14 @@ public abstract class GameRendererMixin
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;pauseGame(Z)V"), method = "render")
     public void visor$pauseOnlyOnTickDisplay(Minecraft instance, boolean bl) {
-        if (VisorState.getStateMode().isNotActive() || VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
+        if (VisorState.getState().isNotActive() || VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
             instance.pauseGame(bl);
         }
     }
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;getMillis()J"), method = "render")
     public long visor$useActiveTimeOnlyOnTickDisplay() {
-        if (VisorState.getStateMode().isNotActive() || VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
+        if (VisorState.getState().isNotActive() || VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
             return Util.getMillis();
         } else {
             return this.lastActiveTime;
@@ -599,11 +599,14 @@ public abstract class GameRendererMixin
         return visor$crossVec;
     }
 
-
+    @Override
+    public VRCameraEntityCache visor$getCameraEntityCache() {
+        return visor$cameraEntityCache;
+    }
 
     /* ************************* *\
-  //--------UTILITY METHODS--------\\
-    \* ************************* */
+      //--------UTILITY METHODS--------\\
+        \* ************************* */
     @Unique
     private void visor$setupOverlayStatus(float partialTicks) {
         //@TODO add post process for these effects

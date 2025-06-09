@@ -59,7 +59,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Inject(method = "setupRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;needsFullRenderChunkUpdate:Z", ordinal = 1, shift = At.Shift.AFTER))
     private void visor$alwaysUpdateCull(CallbackInfo ci) {
         //@TODO Disable for sodium
-        if (VisorState.getStateMode().isActive()) {
+        if (VisorState.getState().isActive()) {
             // fixes chunks cull frustum between displays
             this.needsFullRenderChunkUpdate = true;
             this.needsFrustumUpdate.set(true);
@@ -159,7 +159,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     \* **************** */
     @Inject(at = @At("TAIL"), method = "onResourceManagerReload")
     public void visor$onResourceManagerReload(ResourceManager resourceManager, CallbackInfo ci) {
-        if (VisorState.getStateMode().isInitialized()) {
+        if (VisorState.getState().isInitialized()) {
             ClientContext.renderer.prepareReinit(
                     "Resources Reload"
             );
@@ -173,7 +173,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At("HEAD"), method = "levelEvent")
     public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
-        if(!VisorState.getStateMode().isNotActive()) return;
+        if(!VisorState.getState().isNotActive()) return;
 
         if (this.minecraft.player != null
                 && this.minecraft.player.isAlive()
@@ -183,19 +183,19 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                      1020,   // ZOMBIE_ATTACK_IRON_DOOR
                      1021    // ZOMBIE_BREAK_WOODEN_DOOR
                         -> {
-                    ClientContext.inputHandler
-                            .triggerHapticPulse(ControllerHand.MAIN, 0.75f);
-                    ClientContext.inputHandler
-                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.75f);
+                    ClientContext.inputManager
+                            .triggerHapticPulse(ControllerHand.MAIN, 0.0075f);
+                    ClientContext.inputManager
+                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.0075f);
                 }
                 case 1030 ->    // ANVIL_USE
-                        ClientContext.inputHandler
-                                .triggerHapticPulse(ControllerHand.MAIN, 0.5f);
+                        ClientContext.inputManager
+                                .triggerHapticPulse(ControllerHand.MAIN, 0.005f);
                 case 1031 -> {  // ANVIL_LAND
-                    ClientContext.inputHandler
-                            .triggerHapticPulse(ControllerHand.MAIN, 1.25f);
-                    ClientContext.inputHandler
-                            .triggerHapticPulse(ControllerHand.OFFHAND, 1.25f);
+                    ClientContext.inputManager
+                            .triggerHapticPulse(ControllerHand.MAIN, 0.0125f);
+                    ClientContext.inputManager
+                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.0125f);
                 }
             }
         }

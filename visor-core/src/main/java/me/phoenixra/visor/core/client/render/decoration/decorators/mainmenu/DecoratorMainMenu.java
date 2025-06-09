@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
@@ -54,13 +55,16 @@ public class DecoratorMainMenu extends VRDecorator {
                 true
         );
 
-        if(ClientContext.properties.isVrHandsAllowed()) {
+        if(ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
             ClientContext.handRenderer.renderSimpleHands(
                     poseStack, partialTicks,
                     true, true
             );
         }
 
+        ClientContext.decoratorManager.renderGameEffects(
+                poseStack, partialTicks
+        );
     }
 
     private static void renderPanorama(PoseStack poseStack){

@@ -1,9 +1,10 @@
 package me.phoenixra.visor.api;
 
 import me.phoenixra.atumconfig.api.ConfigManager;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.ClientPlayer;
-import me.phoenixra.visor.api.client.ClientProperties;
 import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
@@ -16,6 +17,7 @@ public interface VisorClient {
 
     ConfigManager getConfigManager();
 
+    InputManager getInputManager();
     /**
      *
      * @return Registry for VR tasks
@@ -29,14 +31,15 @@ public interface VisorClient {
     @NotNull
     Logger getLogger();
 
-    @NotNull
-    ClientProperties getProperties();
+
+    boolean isFeatureEnabled(@NotNull ClientFeature feature);
+
     /**
      *
      * @return VRClientPlayer instance
      */
     @NotNull
-    ClientPlayer getClientPlayer();
+    ClientPlayer getPlayer();
 
     /**
      *
@@ -51,7 +54,7 @@ public interface VisorClient {
      * @return VisorRenderer instance
      */
     @NotNull
-    VisorRenderer getVrRenderer();
+    VisorRenderer getRenderer();
 
     /**
      * Get VR Decorator manager.

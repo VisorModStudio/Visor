@@ -22,7 +22,7 @@ public class MovementInputMixin extends Input {
     public void visor$tick(boolean isSneaking,
                            float sneakSpeed,
                            CallbackInfo ci) {
-        if (!VisorState.getStateMode().isActive()) {
+        if (!VisorState.getState().isActive()) {
             return;
         }
 

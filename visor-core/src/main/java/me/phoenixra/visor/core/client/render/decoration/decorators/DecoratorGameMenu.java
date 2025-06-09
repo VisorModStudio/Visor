@@ -2,14 +2,12 @@ package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import lombok.Getter;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
-import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.helpers.VRScreenHelper;
 import net.minecraft.client.renderer.GameRenderer;
@@ -56,13 +54,15 @@ public class DecoratorGameMenu extends VRDecorator {
 
         ClientContext.guiManager.renderGUI(poseStack, partialTicks, !VRScreenHelper.shouldOccludeGui());
 
-        if (ClientContext.properties.isVrHandsAllowed()) {
+        if (ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
             ClientContext.handRenderer.renderSimpleHands(
                     poseStack, partialTicks,
                     true, true
             );
         }
-
+        ClientContext.decoratorManager.renderGameEffects(
+                poseStack, partialTicks
+        );
     }
 
 

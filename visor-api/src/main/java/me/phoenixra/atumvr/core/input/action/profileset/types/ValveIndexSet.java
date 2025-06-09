@@ -451,8 +451,8 @@ public class ValveIndexSet extends OpenXRProfileSet {
                 this,
                 "button.trackpad.force",
                 "Trackpad Force button",
-                0.9f,
-                0.85f,
+                0.3f,
+                0.1f,
                 List.of(
                         new FloatButtonMultiAction.SubActionFloatButton(
                                 BUTTON_TRACKPAD_FORCE_LEFT,

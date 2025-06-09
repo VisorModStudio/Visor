@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.client.render.decoration.hand;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,5 +15,10 @@ public abstract class VRHandItemPoseBase implements VRHandItemPose {
 
     public VRHandItemPoseBase(@NotNull VisorAddon owner){
         this.owner = owner;
+    }
+
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.NORMAL;
     }
 }

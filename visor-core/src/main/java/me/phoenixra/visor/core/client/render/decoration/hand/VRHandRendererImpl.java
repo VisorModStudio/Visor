@@ -3,12 +3,15 @@ package me.phoenixra.visor.core.client.render.decoration.hand;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
+import me.phoenixra.visor.api.client.render.decoration.effects.hand.HandRenderStage;
+import me.phoenixra.visor.api.client.render.decoration.effects.hand.VRHandEffect;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
@@ -26,12 +29,19 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11C;
 
 import me.phoenixra.visor.core.client.ClientContext;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRHandRendererImpl implements VRHandRenderer {
 
     @Getter
-    private final VRHandItemPoseRegistry handItemPosesRegistry = new VRHandItemPoseRegistry();
+    private final VRHandItemPoseRegistry itemPosesRegistry = new VRHandItemPoseRegistry();
+
+    @Getter
+    private final VRHandEffectRegistry effectsRegistry = new VRHandEffectRegistry();
 
 
     public void applyItemHandPose(@NotNull AbstractClientPlayer player,
@@ -41,7 +51,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
                                   float equippedProgress,
                                   float partialTick
     ){
-        for(VRHandItemPose entry : handItemPosesRegistry.getPosesSorted()){
+        for(VRHandItemPose entry : itemPosesRegistry.getSortedElements()){
             boolean appliedPose = entry.applyPose(
                     player,
                     hand,
@@ -64,8 +74,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
         // backup projection matrix, not doing might break some mods
         RenderSystem.backupProjectionMatrix();
         if (renderMain
-                && ClientContext.rawPoseHandler
-                .getControllerRightData()
+                && ClientContext.rawPoseHandler.getControllerData(ControllerHand.MAIN)
                 .isTracking()) {
             renderWorldHand(
                     ControllerHand.MAIN,
@@ -74,8 +83,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
         }
 
         if (renderOffhand
-                && ClientContext.rawPoseHandler
-                .getControllerLeftData()
+                && ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND)
                 .isTracking()) {
             renderWorldHand(
                     ControllerHand.OFFHAND,
@@ -95,12 +103,12 @@ public class VRHandRendererImpl implements VRHandRenderer {
         RenderSystem.backupProjectionMatrix();
 
         if (renderMain && ClientContext.rawPoseHandler
-                .getControllerRightData()
+                .getControllerData(ControllerHand.MAIN)
                 .isTracking()) {
             renderSimpleHand(ControllerHand.MAIN, partialTicks, poseStack);
         }
         if (renderOffhand && ClientContext.rawPoseHandler
-                .getControllerLeftData()
+                .getControllerData(ControllerHand.OFFHAND)
                 .isTracking()) {
             renderSimpleHand(ControllerHand.OFFHAND, partialTicks, poseStack);
         }
@@ -123,6 +131,17 @@ public class VRHandRendererImpl implements VRHandRenderer {
         RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
         RenderHelper.applyControllerPose(hand, poseStack);
 
+        //EFFECTS
+        List<VRHandEffect> effects = new ArrayList<>(effectsRegistry.getElementsMap().values());
+        renderHandEffects(
+                effects,
+                hand,
+                HandRenderStage.BEFORE_RENDERED,
+                true,
+                poseStack,
+                partialTick
+        );
+        //------
 
         if (MC.getOverlay() == null) {
             MC.getTextureManager()
@@ -185,6 +204,17 @@ public class VRHandRendererImpl implements VRHandRenderer {
         BufferUploader.drawWithShader(tesselator.getBuilder().end());
 
 
+        //EFFECTS
+        renderHandEffects(
+                effects,
+                hand,
+                HandRenderStage.AFTER_RENDERED,
+                true,
+                poseStack,
+                partialTick
+        );
+        //------
+
         poseStack.popPose();
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
     }
@@ -201,6 +231,17 @@ public class VRHandRendererImpl implements VRHandRenderer {
         RenderHelper.applyControllerPose(hand, poseStack);
 
 
+        //EFFECTS
+        List<VRHandEffect> effects = new ArrayList<>(effectsRegistry.getElementsMap().values());
+        renderHandEffects(
+                effects,
+                hand,
+                HandRenderStage.BEFORE_RENDERED,
+                false,
+                poseStack,
+                partialTick
+        );
+        //------
 
         RenderSystem.enableDepthTest();
 
@@ -226,9 +267,50 @@ public class VRHandRendererImpl implements VRHandRenderer {
 
         poseStack.popPose();
 
+        //EFFECTS
+        renderHandEffects(
+                effects,
+                hand,
+                HandRenderStage.AFTER_RENDERED,
+                false,
+                poseStack,
+                partialTick
+        );
+        //------
+
 
         poseStack.popPose();
     }
 
+
+    private void renderHandEffects(List<VRHandEffect> effects,
+                                   ControllerHand hand,
+                                   HandRenderStage renderStage,
+                                   boolean simpleHand,
+                                   PoseStack poseStack,
+                                   float partialTick){
+        String currentView = ClientContext.decoratorManager.getCurrentDecorator().getId();
+        List<VRHandEffect> consumed = new ArrayList<>();
+        for(VRHandEffect effect : effects){
+            if(!effect.isEnabled()) continue;
+            if(effect.renderAtStage() != renderStage){
+                continue;
+            }
+            if(!effect.isVisible(hand, simpleHand)){
+                continue;
+            }
+
+            consumed.add(effect);
+
+            effect.render(
+                    hand,
+                    VRRenderState.getCurrentVRDisplay(),
+                    poseStack,
+                    simpleHand,
+                    partialTick
+            );
+        }
+        effects.removeAll(consumed);
+    }
 
 }

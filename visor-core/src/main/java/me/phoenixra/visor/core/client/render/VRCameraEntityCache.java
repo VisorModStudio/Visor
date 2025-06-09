@@ -3,8 +3,10 @@ package me.phoenixra.visor.core.client.render;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 
 @Data @AllArgsConstructor @NoArgsConstructor
 public class VRCameraEntityCache {
@@ -40,4 +42,11 @@ public class VRCameraEntityCache {
         entity.eyeHeight = height;
     }
 
+    public Vec3 getInterpolatedPos(float partialTicks) {
+        return new Vec3(
+                Mth.lerp(partialTicks, this.lastX, this.x),
+                Mth.lerp(partialTicks, this.lastY, this.y),
+                Mth.lerp(partialTicks, this.lastZ, this.z)
+        );
+    }
 }

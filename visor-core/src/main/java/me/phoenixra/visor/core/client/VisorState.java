@@ -11,11 +11,12 @@ import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
+import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.lwjgl.glfw.GLFW;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -25,7 +26,7 @@ public class VisorState implements VisorClientState {
 
 
     @Getter
-    private static VRStateMode stateMode = VRStateMode.DISABLED;
+    private static VRStateMode state = VRStateMode.DISABLED;
 
 
     public static int TICK_COUNT;
@@ -51,30 +52,36 @@ public class VisorState implements VisorClientState {
         //INIT & DESTROY
         boolean canInit = VRClientSettings.getVrPlayMode().canInitVR();
         if (canInit) {
-            if (stateMode.isNotInitialized()) {
+            if (state.isNotInitialized()) {
                 initVR();
             }
-        } else if (stateMode.isInitialized()) {
+        } else if (state.isInitialized()) {
             destroyVR();
         }
 
-        if (stateMode.isNotInitialized()) {
+        if (state.isNotInitialized()) {
             return;
         }
 
         //ACTIVE & FOCUSED
         ClientContext.visor.syncVRState();
 
+
         boolean vrActive = ClientContext.visor.isActive()
                 && VRClientSettings.getVrPlayMode().canPlayVR();
 
         updateActive(vrActive);
 
-        if(stateMode.isActive()){
+        if(state.isActive()){
             if(ClientContext.visor.isFocused()){
-                stateMode = VRStateMode.FOCUSED;
+                state = VRStateMode.FOCUSED;
             }else{
-                stateMode = VRStateMode.ACTIVE;
+                if(state != VRStateMode.ACTIVE){
+                    if(MC.level != null){
+                        MC.setScreen(new GameMenuScreen());
+                    }
+                }
+                state = VRStateMode.ACTIVE;
             }
         }
 
@@ -89,7 +96,11 @@ public class VisorState implements VisorClientState {
 
         VisorAPI.Instance.setClientState(new VisorState());
 
-        VisorAPI.Instance.setClient(new VisorClientImpl());
+        ClientContext.visor = new VisorClientImpl();
+        VisorAPI.Instance.setClient(
+                ClientContext.visor
+        );
+        ClientContext.visor.prepare();
 
         VisorClientImpl.LOGGER.info(
                 "Current VR Play Mode: {}",
@@ -105,7 +116,7 @@ public class VisorState implements VisorClientState {
             ClientContext.visor.initializeVR();
             VRRenderState.startVanillaPhase();
 
-            stateMode = VRStateMode.INITIALIZED;
+            state = VRStateMode.INITIALIZED;
 
             VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
@@ -117,7 +128,7 @@ public class VisorState implements VisorClientState {
 
     private static void updateActive(boolean active) {
 
-        if(stateMode.isActive() == active){
+        if(state.isActive() == active){
             return;
         }
 
@@ -129,7 +140,7 @@ public class VisorState implements VisorClientState {
 
         ClientNetworking.sendVRPacket(
                 new VRActivePayloadToServer(
-                        stateMode.isActive()
+                        state.isActive()
                 )
         );
 
@@ -145,7 +156,7 @@ public class VisorState implements VisorClientState {
 
 
     private static void activate() {
-        stateMode = VRStateMode.ACTIVE;
+        state = VRStateMode.ACTIVE;
 
         if (MC.player != null) {
             ClientContext.player.recenterOrigin(
@@ -163,7 +174,7 @@ public class VisorState implements VisorClientState {
     }
 
     private static void deactivate() {
-        stateMode = VRStateMode.INITIALIZED;
+        state = VRStateMode.INITIALIZED;
 
         if (MC.player != null) {
             VRRemotePlayers.getInstance().removePlayer(
@@ -210,13 +221,13 @@ public class VisorState implements VisorClientState {
             ClientContext.visor.destroy();
         }
 
-        stateMode = VRStateMode.DISABLED;
+        state = VRStateMode.DISABLED;
     }
 
 
     @Override
     public VRStateMode stateMode() {
-        return stateMode;
+        return state;
     }
 
     @Override

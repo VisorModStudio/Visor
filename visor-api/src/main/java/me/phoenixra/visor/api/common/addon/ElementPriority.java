@@ -3,10 +3,13 @@ package me.phoenixra.visor.api.common.addon;
 import lombok.Getter;
 
 public enum ElementPriority {
-    HIGH(3),
-    NORMAL(2),
-    LOW(1),
-    FALLBACK(0);
+    HIGHEST(6),
+    HIGHER(5),
+    HIGH(4),
+    NORMAL(3),
+    LOW(2),
+    LOWER(1),
+    LOWEST(0);
 
     @Getter
     private final int weight;

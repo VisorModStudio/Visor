@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.player;
 
 import com.mojang.authlib.GameProfile;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -8,8 +9,8 @@ import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.types.game.movement.TaskRoomSwim;
-import me.phoenixra.visor.core.client.tasks.types.game.movement.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomSwim;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomVehicle;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -75,7 +76,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     \* ****************** */
     @Inject(at = @At("TAIL"), method = "startRiding")
     public void visor$onStartRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -87,7 +88,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(at = @At("TAIL"), method = "removeVehicle")
     public void visor$onStopRiding(CallbackInfo ci) {
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -102,7 +103,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;aiStep()V"), method = "aiStep")
     public void visor$tickPlayer(CallbackInfo ci) {
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -120,7 +121,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
      */
     @Inject(at = @At("HEAD"), method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", cancellable = true)
     public void visor$onMove(MoverType pType, Vec3 pPos, CallbackInfo info) {
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -132,7 +133,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             return;
         }
 
-        boolean canMove = ClientContext.properties.isMoveModifiersAllowed();
+        boolean canMove = ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS);
         boolean canMoveByY = canMove || !this.isShiftKeyDown();
 
 
@@ -201,7 +202,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Override
     public void moveTo(double pX, double e, double pY, float g, float pZ) {
         super.moveTo(pX, e, pY, g, pZ);
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -221,7 +222,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Override
     public void absMoveTo(double x, double e, double y, float g, float z) {
         super.absMoveTo(x, e, y, g, z);
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -237,7 +238,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
      */
     @Override
     public void moveRelative(float inputStrength, @NotNull Vec3 relative) {
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             super.moveRelative(inputStrength, relative);
             return;
@@ -296,7 +297,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;lastOnGround:Z", shift = At.Shift.AFTER, ordinal = 1), method = "sendPosition")
     public void visor$walkUp(CallbackInfo ci) {
-        if(VisorState.getStateMode().isNotActive()
+        if(VisorState.getState().isNotActive()
                 || !VRClientSettings.isWalkUpEnabled()){
             return;
         }
@@ -306,7 +307,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Override
     public void setPos(double posX, double posY, double posZ) {
         this.visor$initFromServer = true;
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             super.setPos(posX, posY, posZ);
             return;
@@ -351,7 +352,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpSin(float original) {
-        return VisorState.getStateMode().isActive()
+        return VisorState.getState().isActive()
                 ? ClientContext.player
                 .getPose(PoseType.PRE_TICK).getBodyYaw()
                 : original;
@@ -359,7 +360,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpCos(float original) {
-        return VisorState.getStateMode().isActive()
+        return VisorState.getState().isActive()
                 ? ClientContext.player
                 .getPose(PoseType.PRE_TICK).getBodyYaw()
                 : original;
@@ -374,7 +375,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     \* ********************* */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.BEFORE), method = "tick")
     public void visor$vrLookPose(CallbackInfo ci) {
-        if(VisorState.getStateMode().isNotActive()
+        if(VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)){
             return;
         }
@@ -386,7 +387,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.AFTER), method = "tick")
     public void visor$sendPlayerPose(CallbackInfo ci) {
-        if(VisorState.getStateMode().isNotActive()
+        if(VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)){
             return;
         }
@@ -407,11 +408,11 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Override
     public void die(DamageSource pCause) {
         super.die(pCause);
-        if (VisorState.getStateMode().isNotActive()
+        if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.inputHandler
+        ClientContext.inputManager
                 .triggerHapticPulseBoth(2f);
     }
 

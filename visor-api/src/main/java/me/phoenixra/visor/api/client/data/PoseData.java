@@ -1,8 +1,10 @@
 package me.phoenixra.visor.api.client.data;
 
+import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 public interface PoseData {
@@ -34,28 +36,28 @@ public interface PoseData {
      * @return right controller component
      */
     @NotNull
-    PoseElement getControllerRight();
+    PoseElement getControllerMain();
 
     /**
      *
      * @return left controller component
      */
     @NotNull
-    PoseElement getControllerLeft();
+    PoseElement getControllerOffhand();
 
     /**
      *
      * @return right hand component
      */
     @NotNull
-    PoseElement getHandRight();
+    PoseElement getHandMain();
 
     /**
      *
      * @return left hand component
      */
     @NotNull
-    PoseElement getHandLeft();
+    PoseElement getHandOffhand();
 
 
     /**
@@ -120,7 +122,7 @@ public interface PoseData {
     @NotNull
     default PoseElement getController(@NotNull ControllerHand controller) {
         return controller == ControllerHand.MAIN
-                ? getControllerRight() : getControllerLeft();
+                ? getControllerMain() : getControllerOffhand();
     }
 
     /**
@@ -129,8 +131,11 @@ public interface PoseData {
      */
     @NotNull
     default PoseElement getHand(@NotNull ControllerHand hand) {
-        return hand == ControllerHand.OFFHAND
-                ? this.getHandLeft() : getHandRight();
+        return hand == ControllerHand.MAIN
+                ? getHandMain() : this.getHandOffhand();
     }
+
+    @NotNull
+    PoseElement getElementForDisplay(@Nullable VRDisplay display);
 
 }

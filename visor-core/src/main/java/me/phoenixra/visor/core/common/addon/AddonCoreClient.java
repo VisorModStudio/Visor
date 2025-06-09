@@ -12,7 +12,9 @@ public class AddonCoreClient implements VisorAddon {
     }
     @Override
     public void onAddonLoad() {
-
+        ClientContext.overlayManager
+                .getOverlayCatalog()
+                .reload();
     }
 
     @Override

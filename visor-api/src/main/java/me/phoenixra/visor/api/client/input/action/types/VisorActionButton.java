@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.client.input.action.types;
 
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
@@ -23,23 +24,24 @@ public abstract class VisorActionButton implements VisorAction {
     private final String id;
 
     @Getter
-    private boolean active;
+    protected boolean active;
 
     @Getter
-    private boolean changed;
+    protected boolean changed;
 
     @Getter
-    private boolean pressed = false;
+    protected boolean pressed = false;
 
 
-    private boolean pressDelayed;
+    protected boolean pressDelayed;
 
-    private boolean releaseDelayed;
+    protected boolean releaseDelayed;
 
+    protected boolean forcedState;
 
-    private final Map<XRInteractionProfile, BindingPath> defaultBindings;
+    protected final Map<XRInteractionProfile, BindingPath> defaultBindings;
 
-    private final Map<XRInteractionProfile, BindingPath> bindings;
+    protected final Map<XRInteractionProfile, BindingPath> bindings;
 
 
     public VisorActionButton(VisorActionSet actionSet,
@@ -61,16 +63,24 @@ public abstract class VisorActionButton implements VisorAction {
 
     }
 
+
+    protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath,
+                                               @NotNull OpenXRProfileSet currentProfile,
+                                               boolean leftHanded){
+        return bindingPath.getButton(currentProfile, leftHanded);
+    }
+
     @Override
     public void preTick() {
-        if(pressDelayed){
+        if(pressDelayed && !pressed){
             pressed = true;
             pressDelayed = false;
             changed = true;
             onPress();
             return;
         }
-        if(releaseDelayed){
+        if(releaseDelayed && pressed){
+            forcedState = false;
             pressed = false;
             releaseDelayed = false;
             changed = true;
@@ -95,8 +105,11 @@ public abstract class VisorActionButton implements VisorAction {
             return;
         }
 
+        if(forcedState){
+            return;
+        }
 
-        var buttonData = bindingPath.getButton(currentProfile, leftHanded);
+        var buttonData = getButtonData(bindingPath, currentProfile, leftHanded);
 
         active = buttonData.isActive();
 
@@ -114,6 +127,7 @@ public abstract class VisorActionButton implements VisorAction {
         }
 
         if(buttonData.isPressed()){
+            pressed = false;
             pressDelayed = true;
             releaseDelayed = false;
         }else if(pressed){
@@ -138,6 +152,16 @@ public abstract class VisorActionButton implements VisorAction {
         changed = false;
 
         onClear();
+    }
+
+    public void forcePress(){
+        forcedState = true;
+        pressDelayed = true;
+        releaseDelayed = false;
+    }
+    public void forceRelease(){
+        pressDelayed = false;
+        releaseDelayed = true;
     }
 
     @Override

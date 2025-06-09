@@ -1,12 +1,11 @@
 package me.phoenixra.visor.core.client.render.decoration.registry;
 
 import lombok.Getter;
-
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.common.utils.LoggerUtils;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reflections.Reflections;
@@ -20,17 +19,23 @@ import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 
 public class DecoratorRegistry implements VisorElementRegistry<VRDecorator> {
+    private static final String REGISTRY_NAME = "VR Decorators";
 
-    private final Map<String, VRDecorator> decoratorsMap = new LinkedHashMap<>();
-
-    private final List<VRDecorator> sortedDecorators = new ArrayList<>();
-
-    private final Collection<VRDecorator> allDecorators =
-            Collections.unmodifiableCollection(decoratorsMap.values());
+    private static final String ELEMENT_NAME = "VRDecorator";
+    private static final String ANNOTATION_NAME = "@RegisterVRDecorator";
 
 
-    public List<VRDecorator> getSortedDecorators() {
-        return Collections.unmodifiableList(sortedDecorators);
+    private final Map<String, VRDecorator> elementsMap = new LinkedHashMap<>();
+
+    private final List<VRDecorator> sortedElements = new ArrayList<>();
+
+    @Getter
+    private final Collection<VRDecorator> allElements =
+            Collections.unmodifiableCollection(elementsMap.values());
+
+
+    public List<VRDecorator> getSortedElements() {
+        return Collections.unmodifiableList(sortedElements);
     }
 
 
@@ -43,92 +48,77 @@ public class DecoratorRegistry implements VisorElementRegistry<VRDecorator> {
         Set<Class<?>> annotated =
                 reflections.getTypesAnnotatedWith(RegisterVRDecorator.class);
 
-        LOGGER.info("Found {} VRDecorator to register in addon {}",
-                annotated.size(), addon.getAddonId());
+        LOGGER.info("Found {} {} to register in addon: '{}'",
+                annotated.size(), ELEMENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VRDecorator.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
-                        "{} is annotated with @RegisterVRDecorator but does not implement VRDecorator",
-                        clazz.getName()
+                        "{} is annotated with {} but does not implement {}",
+                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
                 );
                 continue;
             }
             try {
                 @SuppressWarnings("unchecked")
-                Constructor<? extends VRDecorator> ctor =
+                Constructor<? extends VRDecorator> constructor =
                         ((Class<? extends VRDecorator>) clazz)
                                 .getConstructor(VisorAddon.class);
 
-                VRDecorator view = ctor.newInstance(addon);
+                var element = constructor.newInstance(addon);
 
-                registerAddonComponent(view);
+                registerElement(element);
 
-            } catch (ReflectiveOperationException e) {
-                LOGGER.error("Failed to register VRDecorator from class: {}", clazz.getName());
+            } catch (Exception e) {
+                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
-                // continue registering other views
+                // continue registering other elements
             }
         }
     }
 
     @Override
-    public void registerAddonComponent(@NotNull VRDecorator decorator) {
-        var previous = decoratorsMap.put(decorator.getId(), decorator);
+    public void registerElement(@NotNull VRDecorator element) {
+        var previous = elementsMap.put(element.getId(), element);
 
-
-        if (previous == null) {
-            LOGGER.info("Registered VRDecorator: '{}'", decorator.getId());
-
-        }else{
+        if (previous != null) {
             LOGGER.info(
-                    "Overriding existing VRDecorator: '{}' from addon '{}'",
+                    "Overriding existing {}: '{}' from addon '{}'",
+                    ELEMENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
-            sortedDecorators.remove(previous);
+            sortedElements.remove(previous);
+
+        }else{
+            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
-        sortedDecorators.add(decorator);
-        Collections.sort(sortedDecorators);
+        sortedElements.add(element);
+        Collections.sort(sortedElements);
     }
 
     @Override
-    public @Nullable VRDecorator unregisterAddonComponent(@NotNull String id) {
-        var removed = decoratorsMap.remove(id);;
+    public @Nullable VRDecorator unregisterElement(@NotNull String id) {
+        var removed = elementsMap.remove(id);
         if(removed != null) {
-            sortedDecorators.remove(removed);
-            Collections.sort(sortedDecorators);
+            sortedElements.remove(removed);
+            Collections.sort(sortedElements);
+            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
         }
         return removed;
 
     }
 
     @Override
-    public @Nullable VRDecorator getAddonComponent(@NotNull String id) {
-        return decoratorsMap.get(id);
+    public @Nullable VRDecorator getElement(@NotNull String id) {
+        return elementsMap.get(id);
     }
 
-    @Override
-    public @NotNull Collection<VRDecorator> getAddonComponents(@NotNull VisorAddon addon) {
-        return decoratorsMap.values().stream()
-                .filter(v -> v.getOwner().equals(addon))
-                .toList();
-    }
 
-    @Override
-    public @NotNull Collection<VRDecorator> getAllComponents() {
-        return allDecorators;
-    }
 
 
     @Override
-    public void unregisterAddon(@NotNull VisorAddon addon) {
-        List<String> toRemove = decoratorsMap.values().stream()
-                .filter(v -> v.getOwner().equals(addon))
-                .map(VRDecorator::getId)
-                .toList();
-        toRemove.forEach(decoratorsMap::remove);
+    public @NotNull String getRegistryName() {
+        return REGISTRY_NAME;
     }
-
-
 }
