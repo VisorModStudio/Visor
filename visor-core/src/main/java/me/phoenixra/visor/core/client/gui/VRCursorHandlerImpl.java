@@ -92,16 +92,6 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     (float) inactiveState.cursorPos.y
             );
         }
-
-        // If the active hand is on an overlay that the inactive hand is not,
-        // clear the inactive cursor position for that overlay
-        if (activeState.isFocused()
-                && activeState.focusedOverlay != inactiveState.focusedOverlay) {
-            activeState.focusedOverlay.updateMousePosition(
-                    false,
-                    -1, -1
-            );
-        }
     }
 
 
