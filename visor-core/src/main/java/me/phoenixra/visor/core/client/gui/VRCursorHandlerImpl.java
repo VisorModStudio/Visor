@@ -7,11 +7,10 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayDraggedItem;
+import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -21,211 +20,188 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 
-/**
- * (don't update variables here, they are like
- * a result of current state and all settings related to cursor summarized)
- */
 public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Getter
-    private ControllerHand cursorHand;
-    @Getter
-    private double cursorDisplayLength;
-
-    @Getter
-    private VROverlay focusedOverlay;
-
-
-    @Getter
-    private boolean bothCursorsDisplayed;
-
-    @Getter
-    private double cursorDisplayLength2;
-
+    private ControllerHand activeCursorHand = ControllerHand.MAIN;
 
     @Getter
     @Setter
     private boolean draggingItem;
 
-    public VRCursorHandlerImpl() {
+    @Getter
+    private boolean isTwoHandedCursor;
 
-        ClientContext.cursorHandler = this;
-    }
+    private final CursorState mainHandState = new CursorState();
+    private final CursorState offhandState = new CursorState();
 
     public void process() {
-        PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+
+        updateCursorState(ControllerHand.MAIN, mainHandState, renderPose);
+        updateCursorState(ControllerHand.OFFHAND, offhandState, renderPose);
 
 
-        CursorResult cursorResult = getCursorResult(
-                null,
-                renderPose
-        );
+        updateOverlays();
+    }
 
-        VROverlay collidedOverlay = cursorResult.collidedOverlay;
-        Vec3 cursorPos = cursorResult.cursorPos;
+    private void updateCursorState(@NotNull ControllerHand hand, @NotNull CursorState state, @NotNull PoseData renderPose) {
+        VROverlay previouslyFocused = state.focusedOverlay;
 
-        //finish
-        if (collidedOverlay != null) {
-            focusedOverlay = collidedOverlay;
-            cursorHand = collidedOverlay.getCursorHand();
-            cursorDisplayLength = cursorPos.z;
-            bothCursorsDisplayed = collidedOverlay.isBothCursorsDisplayed();
+        CursorResult result = getCursorResult(hand, renderPose);
+        state.update(result.cursorPos, result.collidedOverlay);
 
-            collidedOverlay.updateMousePosition(
+        // Clean up previous focus
+        if(previouslyFocused != null) {
+            previouslyFocused.updateMousePosition(
                     true,
-                    (float) cursorPos.x,
-                    (float) cursorPos.y
+                    -1, -1
+            );
+            previouslyFocused.updateMousePosition(
+                    false,
+                    -1, -1
             );
 
-            if(bothCursorsDisplayed){
-                CursorResult cursorResult2 = getCursorResult(
-                        cursorHand.reversed(),
-                        renderPose
-                );
-                if(cursorResult2.collidedOverlay == focusedOverlay){
-                    cursorDisplayLength2 = cursorResult2.cursorPos.z;
-                    collidedOverlay.updateMousePosition(
-                            false,
-                            (float) cursorResult2.cursorPos.x,
-                            (float) cursorResult2.cursorPos.y
-                    );
-                }else{
-                    bothCursorsDisplayed = false;
-                }
-            }
-            if(!bothCursorsDisplayed
-                    && collidedOverlay.getCursorSecondary().isInGui()){
-                collidedOverlay.updateMousePosition(
-                        false,
-                        -1,
-                        -1
-                );
-            }
-
-        } else {
-            focusedOverlay = null;
-            cursorHand = null;
-            cursorDisplayLength = -1;
-            bothCursorsDisplayed = false;
+        }
+    }
 
 
-            if (draggingItem) {
-                VROverlayDraggedItem overlayDraggedItem =
-                        (VROverlayDraggedItem) ClientContext.overlayManager
-                                .getOverlay("dragged_item");
-                PoseElement controllerPose = renderPose.getController(
-                        overlayDraggedItem.getCursorHand()
-                );
-                cursorPos = getCursorCoordsInGuiWithDepth(
-                        controllerPose,
-                        overlayDraggedItem.getPosition(),
-                        overlayDraggedItem.getRotation(),
-                        overlayDraggedItem.getOverlayScale()
-                );
-                focusedOverlay = overlayDraggedItem;
-                cursorHand = overlayDraggedItem.getCursorHand();
-                cursorDisplayLength = cursorPos.z;
-            }
+
+    private void updateOverlays() {
+        isTwoHandedCursor = offhandState.supportsTwoHandedCursor()
+                || mainHandState.supportsTwoHandedCursor();
+
+        CursorState activeState = (activeCursorHand == ControllerHand.MAIN) ? mainHandState : offhandState;
+        CursorState inactiveState = (activeCursorHand == ControllerHand.MAIN) ? offhandState : mainHandState;
+
+        // Update the overlay for the active hand
+        if (activeState.isFocused()) {
+            activeState.focusedOverlay.updateMousePosition(
+                    true,
+                    (float) activeState.cursorPos.x,
+                    (float) activeState.cursorPos.y
+            );
         }
 
+        // Update the overlay for the inactive hand
+        if (inactiveState.isFocused()) {
+            inactiveState.focusedOverlay.updateMousePosition(
+                    false,
+                    (float) inactiveState.cursorPos.x,
+                    (float) inactiveState.cursorPos.y
+            );
+        }
 
+        // If the active hand is on an overlay that the inactive hand is not,
+        // clear the inactive cursor position for that overlay
+        if (activeState.isFocused()
+                && activeState.focusedOverlay != inactiveState.focusedOverlay) {
+            activeState.focusedOverlay.updateMousePosition(
+                    false,
+                    -1, -1
+            );
+        }
     }
-    private CursorResult getCursorResult(@Nullable ControllerHand hand,
-                                         @NotNull PoseData renderPose){
+
+
+    private CursorResult getCursorResult(@NotNull ControllerHand hand, @NotNull PoseData renderPose) {
         VROverlay collidingOverlay = null;
+        Vec3 finalCursorPos = new Vec3(0, 0, -1);
 
-        double lastDistanceZ = 1000;
-        double screenDistanceZ = 1000;
-        Vec3 cursor = new Vec3(0,0,-1);
+        if(VisorState.getState().isNotFocused()){
+            return new CursorResult(finalCursorPos, collidingOverlay);
+        }
 
-        //check if cursor colliding with overlay
+        double closestDistance = Double.MAX_VALUE;
+
+        PoseElement cursorElement = renderPose.getController(hand);
+
         for (VROverlay overlay : ClientContext.overlayManager
                 .getOverlaysRegistry().getSortedElements()) {
-            if (!overlay.isVisible()) continue;
-            if (!overlay.isCursorSupported()) continue;
-            PoseElement cursorElement = renderPose.getController(
-                            hand == null
-                                    ? overlay.getCursorHand()
-                                    : hand
-                    );
+            if (!overlay.isVisible() || !overlay.isCursorSupported()) {
+                continue;
+            }
 
-            double dist = getCursorDistanceToGui(
+            double distance = getCursorDistanceToGui(
                     renderPose,
                     cursorElement,
                     overlay.getPosition(),
                     overlay.getRotation()
             );
-            boolean mainCursor = hand == overlay.getCursorHand();
-            if ((!overlay.ignoreFacingGui() && !isFacingGui(
-                    overlay.getPosition(),
-                    overlay.getRotation(),
-                    cursorElement.getPosition(),
-                    cursorElement.getRotationMatrix(),
-                    false)
-            ) || (dist > screenDistanceZ)) {
-                overlay.updateMousePosition(
-                        mainCursor,
-                        -1,
-                        -1
-                );
-                continue;
-            }
-            if(dist > lastDistanceZ){
-                overlay.updateMousePosition(
-                        mainCursor,
-                        -1,
-                        -1
-                );
+
+            if (distance < 0 || distance > closestDistance) {
                 continue;
             }
 
-            Vec3 newCursor = getCursorCoordsInGuiWithDepth(
+            boolean notFacingGui = !overlay.ignoreFacingGui()
+                    && !isFacingGui(
+                            overlay.getPosition(),
+                            overlay.getRotation(),
+                            cursorElement.getPosition(),
+                            cursorElement.getRotationMatrix(),
+                    false
+            );
+            if (notFacingGui) {
+                continue;
+            }
+
+            Vec3 newCursorPos = findCursorGuiCoordinates3D(
                     cursorElement,
                     overlay.getPosition(),
                     overlay.getRotation(),
                     overlay.getOverlayScale()
             );
+
             if (overlay.isCursorWithinBounds(
-                    mainCursor,
-                    (float) newCursor.x,
-                    (float) newCursor.y
+                    true,
+                    (float) newCursorPos.x,
+                    (float) newCursorPos.y
             )) {
-                cursor = newCursor;
+                finalCursorPos = newCursorPos;
                 collidingOverlay = overlay;
-                lastDistanceZ = dist;
-            } else {
-                overlay.updateMousePosition(
-                        mainCursor,
-                        -1,
-                        -1
-                );
+                closestDistance = distance;
             }
         }
-        return new CursorResult(cursor, collidingOverlay);
+        return new CursorResult(finalCursorPos, collidingOverlay);
     }
 
     @Override
-    public boolean isComponentAimedAtOverlay(@NotNull VROverlay overlay,
-                                             @NotNull PoseElement component,
-                                             boolean checkUpsideDown,
-                                             float overlayBoundsExtraX,
-                                             float overlayBoundsExtraY
+    public void changeActiveCursorHand(@NotNull ControllerHand hand) {
+        this.activeCursorHand = hand;
+    }
+
+    @Override
+    public double getCursorLength(@NotNull ControllerHand hand) {
+        return (hand == ControllerHand.MAIN) ? mainHandState.getCursorLength() : offhandState.getCursorLength();
+    }
+
+    @Override
+    public @Nullable VROverlay getFocusedOverlay(@NotNull ControllerHand hand) {
+        return (hand == ControllerHand.MAIN) ? mainHandState.focusedOverlay : offhandState.focusedOverlay;
+    }
+
+
+    @Override
+    public boolean isElementAimedAtOverlay(@NotNull VROverlay overlay,
+                                           @NotNull PoseElement element,
+                                           boolean checkUpsideDown,
+                                           float overlayBoundsExtraX,
+                                           float overlayBoundsExtraY
     ) {
 
         if (!isFacingGui(
                 overlay.getPosition(),
                 overlay.getRotation(),
-                component.getPosition(),
-                component.getRotationMatrix(),
+                element.getPosition(),
+                element.getRotationMatrix(),
                 checkUpsideDown
         )) {
             return false;
         }
 
-        Vec3 newCursor = getCursorCoordsInGuiWithDepth(
-                component,
+        Vec3 newCursor = findCursorGuiCoordinates3D(
+                element,
                 overlay.getPosition(),
                 overlay.getRotation(),
                 overlay.getOverlayScale()
@@ -326,13 +302,13 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
     @Override
-    public @NotNull Vec2 getCursorCoordsInGui(@NotNull PoseElement component,
-                                              @NotNull Vec3 guiPosRoom,
-                                              @NotNull Matrix4fc guiRotationRoom,
-                                              float guiScale
+    public @NotNull Vec2 findCursorGuiCoordinates2D(@NotNull PoseElement component,
+                                                    @NotNull Vec3 guiPosRoom,
+                                                    @NotNull Matrix4fc guiRotationRoom,
+                                                    float guiScale
     ) {
 
-        Vec3 vec3 = getCursorCoordsInGuiWithDepth(
+        Vec3 vec3 = findCursorGuiCoordinates3D(
                 component,
                 guiPosRoom, guiRotationRoom,
                 guiScale
@@ -367,10 +343,10 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         return -1;
     }
     @Override
-    public Vec3 getCursorCoordsInGuiWithDepth(@NotNull PoseElement cursorElement,
-                                              @NotNull Vec3 guiPosRoom,
-                                              @NotNull Matrix4fc guiRotationRoom,
-                                              float guiScale
+    public Vec3 findCursorGuiCoordinates3D(@NotNull PoseElement cursorElement,
+                                           @NotNull Vec3 guiPosRoom,
+                                           @NotNull Matrix4fc guiRotationRoom,
+                                           float guiScale
     ) {
         PoseData renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
@@ -398,9 +374,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                 Vector3fc cursorOffset = cursorPosition3D.sub(cursorBase, new Vector3f());
                 float cursorX = cursorOffset.dot(aimX);
                 float cursorY = cursorOffset.dot(aimY);
-                float guiHeight = ClientContext.guiManager.getScaledGuiHeight();
-                float guiWidth = ClientContext.guiManager.getScaledGuiWidth();
-                float aspectRatio = guiHeight / guiWidth;
+                float aspectRatio = ClientContext.guiManager.getScaledAspectRatio();
                 cursorX = (cursorX - 0.5F) / 1.5F / guiScale + 0.5F;
                 cursorY = (cursorY - 0.5F) / aspectRatio / 1.5F / guiScale + 0.5F;
                 cursorY = 1.0F - cursorY;
@@ -416,21 +390,28 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    @Override
-    public VROverlayScreen getFocusedOverlayAsScreen(){
-        if(focusedOverlay instanceof VROverlayScreen overlayScreen){
-            return overlayScreen;
+
+    private record CursorResult(Vec3 cursorPos, VROverlay collidedOverlay) {
+    }
+
+    private static class CursorState {
+        private VROverlay focusedOverlay;
+        private Vec3 cursorPos = new Vec3(-1, -1, -1);
+
+        void update(@NotNull Vec3 newCursorPos, @Nullable VROverlay newFocusedOverlay) {
+            this.cursorPos = newCursorPos;
+            this.focusedOverlay = newFocusedOverlay;
         }
-        return null;
-    }
-    @Override
-    public boolean isCursorFocused() {
-        return focusedOverlay != null;
-    }
 
-    private record CursorResult(
-            Vec3 cursorPos,
-            VROverlay collidedOverlay){
+        boolean isFocused() {
+            return focusedOverlay != null;
+        }
+        boolean supportsTwoHandedCursor(){
+            return focusedOverlay != null && focusedOverlay.supportsTwoHandedCursor();
+        }
 
+        double getCursorLength() {
+            return isFocused() ? cursorPos.z : -1;
+        }
     }
 }

@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.mixin.client.gui;
 import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.KeyboardHandler;
@@ -63,8 +64,10 @@ public class KeyboardMixins {
             if(attachedScreen instanceof VROverlayScreen
                     && ClientContext.overlayManager.isShowingKeyboard()){
                 if (actionType == 0) {
+                    LoggerUtils.getLogger().info("KEY RELEASED");
                     attachedScreen.keyReleased(keyCode, keyScan, keyModifiers);
                 } else {
+                    LoggerUtils.getLogger().info("KEY PRESSED");
                     //pressed - 1, heldDown - 2
                     attachedScreen.keyPressed(keyCode, keyScan, keyModifiers);
                 }
@@ -94,7 +97,7 @@ public class KeyboardMixins {
                 return;
             }
 
-            if (!ClientContext.cursorHandler.isCursorFocused()) {
+            if (!ClientContext.cursorHandler.isFocused()) {
                 ClientContext.overlayManager.showKeyboard(true);
                 return;
             }

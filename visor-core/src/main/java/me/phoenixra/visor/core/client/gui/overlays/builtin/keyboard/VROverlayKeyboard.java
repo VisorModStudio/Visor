@@ -138,7 +138,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
 
     @Override
-    public boolean isBothCursorsDisplayed() {
+    public boolean supportsTwoHandedCursor() {
         return true;
     }
 

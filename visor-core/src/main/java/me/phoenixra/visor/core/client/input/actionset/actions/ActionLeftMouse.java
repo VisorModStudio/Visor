@@ -130,9 +130,8 @@ public class ActionLeftMouse extends VisorActionButton {
     @Override
     public void updateState(OpenXRProfileSet currentProfile,
                             boolean leftHanded) {
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
-
-        if(focusedOverlay == null){
+        if(!ClientContext.cursorHandler.isMainHandFocused()
+                && !ClientContext.cursorHandler.isOffhandFocused()){
             super.updateState(currentProfile, leftHanded);
             return;
         }
@@ -151,7 +150,6 @@ public class ActionLeftMouse extends VisorActionButton {
         var buttonDataMain = bindingPath.getButton(currentProfile, leftHanded);
 
         processCursorUpdate(
-                focusedOverlay,
                 buttonDataOffhand,
                 buttonDataMain
         );
@@ -159,10 +157,10 @@ public class ActionLeftMouse extends VisorActionButton {
         super.updateState(currentProfile, leftHanded);
     }
 
-    private void processCursorUpdate(@NotNull VROverlay focusedOverlay,
-                                     VRActionDataButton buttonDataOffhand,
+    private void processCursorUpdate(VRActionDataButton buttonDataOffhand,
                                      VRActionDataButton buttonDataMain){
-        ControllerHand cursorHand = focusedOverlay.getCursorHand();
+
+        ControllerHand cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
 
         boolean offHandClicked = buttonDataOffhand.isPressed()
                 && buttonDataOffhand.isButtonChanged();
@@ -179,15 +177,16 @@ public class ActionLeftMouse extends VisorActionButton {
                 && !buttonDataMain.isPressed()
                 && !buttonDataMain.isButtonChanged()) {
 
-            if(!focusedOverlay.isBothCursorsDisplayed()){
+            if(!ClientContext.cursorHandler.isOffhandFocused()){
+                return;
+            }
+            if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            boolean updateCursor = focusedOverlay.getCursorHand()
-                    != ControllerHand.OFFHAND;
-            if(updateCursor) {
-                focusedOverlay.setCursorHand(ControllerHand.OFFHAND);
-                ClientContext.cursorHandler.process();
-            }
+            ClientContext.cursorHandler.changeActiveCursorHand(
+                    ControllerHand.OFFHAND
+            );
+            ClientContext.cursorHandler.process();
             return;
         }
 
@@ -195,15 +194,17 @@ public class ActionLeftMouse extends VisorActionButton {
                 && mainClicked
                 && !buttonDataOffhand.isPressed()
                 && !buttonDataOffhand.isButtonChanged()) {
-            if(!focusedOverlay.isBothCursorsDisplayed()){
+
+            if(!ClientContext.cursorHandler.isMainHandFocused()){
+                return;
+            }
+            if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            boolean updateCursor = focusedOverlay.getCursorHand()
-                    != ControllerHand.MAIN;
-            if(updateCursor) {
-                focusedOverlay.setCursorHand(ControllerHand.MAIN);
-                ClientContext.cursorHandler.process();
-            }
+            ClientContext.cursorHandler.changeActiveCursorHand(
+                    ControllerHand.MAIN
+            );
+            ClientContext.cursorHandler.process();
         }
     }
 
@@ -265,12 +266,12 @@ public class ActionLeftMouse extends VisorActionButton {
     protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath, @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
-        if(focusedOverlay == null && MC.screen == null && MC.player != null){
+        if(!ClientContext.cursorHandler.isFocused()
+                && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
-        }else{
-            var cursorHand = ClientContext.cursorHandler.getCursorHand();
-            mainHand = cursorHand == ControllerHand.MAIN || cursorHand == null;
+        }else {
+            var cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+            mainHand = cursorHand == ControllerHand.MAIN;
         }
 
         lastUsedHand = mainHand ? ControllerHand.MAIN : ControllerHand.OFFHAND;

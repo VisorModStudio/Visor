@@ -29,8 +29,8 @@ public class GameActionSet extends VisorActionSet {
                 new GameActionJump(this),
                 new GameActionShift(this),
 
-                new ActionMenu(this),
                 new GameActionHotBar(this),
+                new ActionMenu(this),
 
                 new ActionLeftMouse(this),
                 new ActionRightMouse(this),

@@ -218,9 +218,28 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
 
     @Override
-    public void updateMousePosition(boolean mainCursor,
+    public void updateMousePosition(boolean activeCursorHand,
                                     float rawX, float rawY) {
         if (!isEnabled()) return;
+        if(rawX == -1 && rawY == -1){
+            OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
+
+            cursorData.rawCursorX = 0;
+            cursorData.rawCursorY = 0;
+            cursorData.cursorInGuiX = 0;
+            cursorData.cursorInGuiY = 0;
+
+            cursorData.mouseX = 0;
+            cursorData.mouseY = 0;
+            if(activeCursorHand) {
+                InputHelper.setMousePos(
+                        cursorData.mouseX,
+                        cursorData.mouseY
+                );
+            }
+            return;
+        }
+
         GuiManager guiManager = ClientContext.guiManager;
         Window mcWindow = MC.getWindow();
         float cursorInGuiX;
@@ -242,13 +261,16 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             );
         }
 
-        OverlayCursorData cursorData = mainCursor ? cursorMain : cursorSecondary;
+        OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
 
         cursorData.rawCursorX = rawX;
         cursorData.rawCursorY = rawY;
         cursorData.cursorInGuiX = cursorInGuiX;
         cursorData.cursorInGuiY = cursorInGuiY;
 
+        if(!activeCursorHand){
+            return;
+        }
         int width = ((WindowModified) (Object) mcWindow)
                 .visor$getActualWidth();
         int height = ((WindowModified) (Object) mcWindow)

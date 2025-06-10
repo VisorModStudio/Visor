@@ -28,6 +28,10 @@ public interface GuiManager {
      */
     int getGuiHeight();
 
+    default float getAspectRatio(){
+        return (float) getGuiHeight() / getGuiWidth();
+    }
+
     /**
      * Get width that is used by all GUIs
      * with applied scaleFactor
@@ -43,6 +47,10 @@ public interface GuiManager {
      * @return width integer
      */
     int getScaledGuiHeight();
+
+    default float getScaledAspectRatio(){
+        return (float) getScaledGuiHeight() / getScaledGuiWidth();
+    }
 
     /**
      *

@@ -212,13 +212,16 @@ public class VROverlaySettings extends VROverlayScreen {
 
     @Override
     protected void onTick() {
-
+        if(widgetSet != null) {
+            widgetSet.onTick();
+        }
     }
 
     @Override
     public void applyModelView(float partialTick) {
         if(movingPosition){
-            ModelViewAnchor anchor = getCursorHand() == ControllerHand.MAIN ?
+            ModelViewAnchor anchor = ClientContext.cursorHandler
+                    .getActiveCursorHand() == ControllerHand.MAIN ?
                     ModelViewAnchor.MAIN_HAND : ModelViewAnchor.OFFHAND;
             VROverlayHelper.applyModelView(
                     this,
@@ -317,6 +320,7 @@ public class VROverlaySettings extends VROverlayScreen {
         public abstract List<AbstractWidget> initWidgets();
 
         public abstract void onRender();
+        public abstract void onTick();
 
     }
 
@@ -364,6 +368,10 @@ public class VROverlaySettings extends VROverlayScreen {
             overlayIdField.setTextColor(AtumColor.WHITE.toInt());
             overlayIdField.setResponder(
                     it->{
+                        if(it.isBlank()){
+                            overlayIdField.setTextColor(AtumColor.RED.toInt());
+                            return;
+                        }
                         VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
                         if(registry.getElement(it) != null) {
                             overlayIdField.setTextColor(AtumColor.RED.toInt());
@@ -389,7 +397,7 @@ public class VROverlaySettings extends VROverlayScreen {
 
                                 String id = overlayIdField.getValue();
                                 VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-                                if(registry.getElement(id) != null) {
+                                if(id.isBlank() || registry.getElement(id) != null) {
                                     return;
                                 }
 
@@ -429,6 +437,11 @@ public class VROverlaySettings extends VROverlayScreen {
         public void onRender(){
             overlayIdField.setVisible(!overlayTypeWidget.isExpanded());
             confirmButton.visible = !overlayTypeWidget.isExpanded();
+        }
+
+        @Override
+        public void onTick() {
+            overlayIdField.tick();
         }
     }
 
@@ -547,6 +560,10 @@ public class VROverlaySettings extends VROverlayScreen {
                     && optionCategoryWidget.getSelectedIndex() >= 0;
         }
 
+        @Override
+        public void onTick() {
+
+        }
     }
 
 

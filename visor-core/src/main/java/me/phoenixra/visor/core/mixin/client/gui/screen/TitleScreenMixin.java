@@ -47,7 +47,7 @@ public abstract class TitleScreenMixin extends Screen {
                 Component.translatable(
                         "visor.button.playMode",
                                 Component.translatable(
-                                        "visor.button.playMode."+
+                                        "visor.enums.playMode."+
                                         VRClientSettings.getVrPlayMode().name()
                                 )
                 ),
@@ -60,7 +60,7 @@ public abstract class TitleScreenMixin extends Screen {
                             Component.translatable(
                             "visor.button.playMode",
                                     Component.translatable(
-                                            "visor.button.playMode."+
+                                            "visor.enums.playMode."+
                                                     VRClientSettings.getVrPlayMode().name()
                                     )
                             )

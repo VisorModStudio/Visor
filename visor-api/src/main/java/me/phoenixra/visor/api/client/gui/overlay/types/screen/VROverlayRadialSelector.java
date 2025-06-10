@@ -23,6 +23,9 @@ import java.util.List;
 public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected final int radialMenuSize;
 
+    @Getter
+    protected ControllerHand usedHand;
+
     protected HashMap<Integer, SelectionBox> selectionBoxes;
     @Getter
     protected List<Integer> disabledBoxes;
@@ -33,13 +36,13 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     private int selectedSlice = -1;
 
     protected VROverlayRadialSelector(@NotNull VisorAddon owner,
-                                      @NotNull ControllerHand controller,
+                                      @NotNull ControllerHand hand,
                                       @NotNull String id,
                                       int radialMenuSize,
                                       SelectionBox... selectionBoxes
     ) {
         super(owner, id);
-        this.setCursorHand(controller);
+        this.usedHand = hand;
 
         this.radialMenuSize = radialMenuSize;
 
@@ -62,11 +65,11 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
         Vec2 cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
-                .getCursorCoordsInGui(
+                .findCursorGuiCoordinates2D(
                         VisorAPI.client().getPlayer()
                                 .getPose(PoseType.RENDER)
                                 .getController(
-                                        getCursorHand()
+                                        usedHand
                                 ),
                         getPosition(),
                         getRotation(),
@@ -105,7 +108,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
             if (selectedSliceNew != -1
                     && selectedSliceNew != selectedSlice) {
                 VisorAPI.client().getInputManager()
-                        .triggerHapticPulse(getCursorHand(),
+                        .triggerHapticPulse(usedHand,
                                 0.001f
                         );
                 selectedSlice = selectedSliceNew;

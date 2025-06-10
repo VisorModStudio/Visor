@@ -12,120 +12,80 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
 
 
-/**
- * This class handles Gui Cursor behavior
- */
 public interface VRCursorHandler {
 
-    /**
-     * Returns Currently used hand as a cursor <br>
-     * OR NULL if client not using any GUI at the moment
-     *
-     * @return ControllerHand type or null
-     */
-    @Nullable
-    ControllerHand getCursorHand();
 
-    /**
-     * Get Length of a cursor line.<br>
-     * OR -1 if client not using any GUI at the moment
-     * <br><br>
-     * Cursor line is drawn between client hand and GUI<br>
-     *
-     * @return cursor line length
-     */
-    double getCursorDisplayLength();
+    @NotNull
+    ControllerHand getActiveCursorHand();
+    void changeActiveCursorHand(@NotNull ControllerHand hand);
 
-    /**
-     * Get Currently focused overlay
-     * or NULL
-     * @return focused overlay or null
-     */
-    @Nullable
-    VROverlay getFocusedOverlay();
+
+    double getCursorLength(@NotNull ControllerHand hand);
+
 
     @Nullable
-    VROverlayScreen getFocusedOverlayAsScreen();
+    VROverlay getFocusedOverlay(@NotNull ControllerHand hand);
+
+    default VROverlay getFocusedOverlay(){
+        return getFocusedOverlay(getActiveCursorHand());
+    }
 
 
-    boolean isBothCursorsDisplayed();
+    @Nullable
+    default VROverlayScreen getFocusedOverlayAsScreen(@NotNull ControllerHand hand){
+        if(getFocusedOverlay(hand) instanceof VROverlayScreen overlayScreen){
+            return overlayScreen;
+        }
+        return null;
+    }
+    default VROverlayScreen getFocusedOverlayAsScreen(){
+        return getFocusedOverlayAsScreen(getActiveCursorHand());
+    }
 
-    /**
-     *  Get second cursor length
-     *  (when both cursors displayed)
-     */
-    double getCursorDisplayLength2();
 
-    /**
-     *
-     * @return If currently dragging item in hand
-     */
+
+
+    default boolean isFocused(){
+        return getFocusedOverlay(getActiveCursorHand()) != null;
+    }
+    default boolean isMainHandFocused(){
+        return getFocusedOverlay(ControllerHand.MAIN) != null;
+    }
+    default boolean isOffhandFocused(){
+        return getFocusedOverlay(ControllerHand.OFFHAND) != null;
+    }
+
+    boolean isTwoHandedCursor();
+
+
     boolean isDraggingItem();
+
 
     @ApiStatus.Internal
     void setDraggingItem(boolean flag);
 
-    /**
-     * If player component aimed at overlay.<br>
-     * Ignores other overlays and game screen collisions
-     *
-     * @param overlay the overlay<br>
-     * @param component the player component<br>
-     * @param checkUpsideDown return false if
-     *                        component positioned upside down
-     *                        towards an overlay<br>
-     * @param overlayBoundsExtraX value added to width bounds
-     *                            (adds given value divided by
-     *                            2 for both sides)<br>
-     * @param overlayBoundsExtraY value added to height bounds
-     *                            (adds given value divided by
-     *                            2 for both sides)
-     * @return if aimed
-     */
-    boolean isComponentAimedAtOverlay(@NotNull VROverlay overlay,
-                                      @NotNull PoseElement component,
-                                      boolean checkUpsideDown,
-                                      float overlayBoundsExtraX,
-                                      float overlayBoundsExtraY);
 
-    /**
-     * Returns cursor coordinates, calculated
-     * from player component aim collision position at GUI
-     *
-     * @param component player component to get aim from
-     * @param guiPosRoom gui position in room
-     * @param guiRotationRoom gui rotation matrix in room
-     * @param guiScale gui scale
-     * @return x,y. if aim collision is within gui bounds, the values
-     * will be within [0,1] bounds
-     */
+
+    boolean isElementAimedAtOverlay(@NotNull VROverlay overlay,
+                                    @NotNull PoseElement element,
+                                    boolean checkUpsideDown,
+                                    float overlayBoundsExtraX,
+                                    float overlayBoundsExtraY);
+
+
+
     @NotNull
-    Vec2 getCursorCoordsInGui(@NotNull PoseElement component,
-                              @NotNull Vec3 guiPosRoom,
-                              @NotNull Matrix4fc guiRotationRoom,
-                              float guiScale);
+    Vec2 findCursorGuiCoordinates2D(@NotNull PoseElement component,
+                                    @NotNull Vec3 guiPosRoom,
+                                    @NotNull Matrix4fc guiRotationRoom,
+                                    float guiScale);
 
-    /**
-     * Returns cursor coordinates, calculated
-     * from player component aim collision position at GUI<br><br>
-     *
-     * Additionally, returns Z value
-     * (distance between component and aim collision)
-     * @param component player component to get aim from
-     * @param guiPosRoom gui position in room
-     * @param guiRotationRoom gui rotation matrix in room
-     * @param guiScale gui scale
-     * @return x,y,z. if aim collision is within gui bounds, the x,y values
-     * will be within [0,1] bounds
-     */
-    Vec3 getCursorCoordsInGuiWithDepth(@NotNull PoseElement component,
-                                       @NotNull Vec3 guiPosRoom,
-                                       @NotNull Matrix4fc guiRotationRoom,
-                                       float guiScale);
 
-    /**
-     * @return If cursor focused at overlay or game screen
-     */
-    boolean isCursorFocused();
+
+    Vec3 findCursorGuiCoordinates3D(@NotNull PoseElement component,
+                                    @NotNull Vec3 guiPosRoom,
+                                    @NotNull Matrix4fc guiRotationRoom,
+                                    float guiScale);
+
 
 }

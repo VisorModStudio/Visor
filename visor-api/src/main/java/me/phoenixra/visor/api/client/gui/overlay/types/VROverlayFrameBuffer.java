@@ -12,7 +12,6 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.world.phys.Vec3;
@@ -37,12 +36,10 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Getter
     protected RenderTarget renderTarget;
 
-    @Getter @Setter
-    private ControllerHand cursorHand = ControllerHand.MAIN;
     @Getter
-    protected final OverlayCursorData cursorMain = new OverlayCursorData();
+    protected final OverlayCursorData activeCursorData = new OverlayCursorData();
     @Getter
-    protected final OverlayCursorData cursorSecondary = new OverlayCursorData();
+    protected final OverlayCursorData inactiveCursorData = new OverlayCursorData();
 
 
     @Getter @Setter
@@ -216,26 +213,26 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     @Override
     public int getMouseX() {
-        return cursorMain.mouseX;
+        return activeCursorData.mouseX;
     }
     @Override
     public int getMouseY() {
-        return cursorMain.mouseY;
+        return activeCursorData.mouseY;
     }
 
     @Override
     public float getRawCursorX() {
-        return cursorMain.rawCursorX;
+        return activeCursorData.rawCursorX;
     }
 
     @Override
     public float getRawCursorY() {
-        return cursorMain.rawCursorY;
+        return activeCursorData.rawCursorY;
     }
 
 
     @Override
-    public void updateMousePosition(boolean mainCursor, float rawX, float rawY) {
+    public void updateMousePosition(boolean activeCursorHand, float rawX, float rawY) {
 
     }
 

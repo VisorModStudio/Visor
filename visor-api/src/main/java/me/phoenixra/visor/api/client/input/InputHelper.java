@@ -1,6 +1,7 @@
 package me.phoenixra.visor.api.client.input;
 
 
+import me.phoenixra.visor.api.VisorAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
@@ -82,6 +83,13 @@ public class InputHelper {
 
 
     public static void typeChar(char character, int modifiers) {
+        Screen screen = VisorAPI.client()
+                .getGuiManager().getOverlayManager().getKeyboardAttachedTo();
+        if(screen != null){
+            //overlays
+            screen.charTyped(character,modifiers);
+            return;
+        }
         Minecraft mc = Minecraft.getInstance();
         if(mc.screen != null) {
             Minecraft.getInstance().keyboardHandler.charTyped(

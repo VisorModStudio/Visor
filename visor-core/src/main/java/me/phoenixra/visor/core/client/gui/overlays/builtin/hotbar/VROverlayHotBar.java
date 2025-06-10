@@ -148,7 +148,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                 || event.getFeature() == ClientFeature.INPUT_VR_MOUSE) {
 
             if(isVisible()
-                    && ClientContext.player.getActiveHand() == getCursorHand()){
+                    && ClientContext.player.getActiveHand() == getUsedHand()){
                 event.setCanceled(true);
             }
 
@@ -313,7 +313,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Override
     public void onEnable() {
-        ModelViewAnchor posAnchor = (getCursorHand() == ControllerHand.OFFHAND ?
+        ModelViewAnchor posAnchor = (getUsedHand() == ControllerHand.OFFHAND ?
                 ModelViewAnchor.OFFHAND : ModelViewAnchor.MAIN_HAND);
 
         PoseData renderPose = ClientContext

@@ -83,7 +83,7 @@ public class VROverlayRegistry implements VisorElementRegistry<VROverlay> {
         return elementsMap.get(id);
     }
 
-    public @NotNull List<VROverlay> getAddonElementsByType(String typeId){
+    public @NotNull List<VROverlay> getElementsByType(String typeId){
         return elementsMap.values().stream()
                 .filter(it->
                         it.getOverlayType() != null

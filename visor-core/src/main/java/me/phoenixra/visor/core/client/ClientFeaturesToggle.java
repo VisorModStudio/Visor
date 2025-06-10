@@ -56,7 +56,7 @@ public class ClientFeaturesToggle {
         if (MC.level == null)               return false;
         if (MC.screen != null)              return false;
         if (ClientContext.overlayManager.isShowingKeyboard()) return false;
-        return !ClientContext.cursorHandler.isCursorFocused();
+        return !ClientContext.cursorHandler.isFocused();
     }
 
     private boolean checkVRHands() {

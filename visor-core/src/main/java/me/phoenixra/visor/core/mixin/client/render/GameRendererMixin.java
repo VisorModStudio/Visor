@@ -163,7 +163,16 @@ public abstract class GameRendererMixin
         }
     }
 
-
+    /**
+     * Draw GUI only after first level render
+     */
+    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(FJZ)V", ordinal = 0, argsOnly = true)
+    private boolean visor$renderGui(boolean doRender) {
+        if (VRRenderState.getCurrentPhase().isVanilla()) {
+            return doRender;
+        }
+        return MC.getEntityRenderDispatcher().camera != null;
+    }
 
     /**
      * If no crosshair rendered,

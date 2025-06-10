@@ -71,17 +71,13 @@ public class VROverlayDraggedItem extends VROverlayScreen {
     @Override
     public boolean updateVisibility() {
         if(minecraft.level==null ||
-                (ClientContext.cursorHandler.isCursorFocused()
+                (ClientContext.cursorHandler.isFocused()
                         && ClientContext.cursorHandler.getFocusedOverlayAsScreen() != this)
                 || minecraft.player.containerMenu == null
                 || minecraft.player.containerMenu.getCarried() == null
                 || minecraft.player.containerMenu.getCarried().isEmpty()) {
 
             ClientContext.cursorHandler.setDraggingItem(false);
-            return false;
-        }
-        if (!ClientContext.rawPoseHandler.getControllerData(getCursorHand())
-                .isTracking()) {
             return false;
         }
         return true;

@@ -40,20 +40,11 @@ public class HandEffectCursor extends VRHandEffectBase {
 
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
-        double cursorLength;
-        if(!cursorHandler.isBothCursorsDisplayed()) {
-            if (!cursorHandler.isCursorFocused()
-                    || cursorHandler.getCursorHand() != hand) {
-                return;
-            }
-            cursorLength = cursorHandler.getCursorDisplayLength();
-        }else{
-            if(cursorHandler.getCursorHand() == hand){
-                cursorLength = cursorHandler.getCursorDisplayLength();
-            }else{
-                cursorLength = cursorHandler.getCursorDisplayLength2();
-            }
+        double cursorLength = cursorHandler.getCursorLength(hand);
+        if(cursorLength <= 0){
+            return;
         }
+
         RenderSystem.disableDepthTest();
 
         if (MC.getOverlay() == null) {
@@ -117,12 +108,11 @@ public class HandEffectCursor extends VRHandEffectBase {
     public boolean isVisible(ControllerHand hand, boolean simpleHand) {
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
-        if(cursorHandler.isBothCursorsDisplayed()){
+        if(cursorHandler.isTwoHandedCursor()){
             return true;
         }
 
-        return cursorHandler.isCursorFocused()
-                && cursorHandler.getCursorHand() == hand;
+        return cursorHandler.getActiveCursorHand() == hand;
     }
 
 

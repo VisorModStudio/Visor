@@ -159,13 +159,13 @@ public class ActionMiddleMouse extends VisorActionButton {
     protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath, @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
-        if(focusedOverlay == null && MC.screen == null && MC.player != null){
+        if(!ClientContext.cursorHandler.isFocused()
+                && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
-        }else{
-            var cursorHand = ClientContext.cursorHandler.getCursorHand();
-            mainHand = cursorHand == ControllerHand.MAIN || cursorHand == null;        }
-
+        }else {
+            var cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+            mainHand = cursorHand == ControllerHand.MAIN;
+        }
         lastUsedHand = mainHand ? ControllerHand.MAIN : ControllerHand.OFFHAND;
         //Here we change leftHanded parameter for method call,
         //to match used hand

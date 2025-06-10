@@ -32,7 +32,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
     @Override
     public void preTick() {
         super.preTick();
-        if(ClientContext.cursorHandler.getCursorHand() == ControllerHand.OFFHAND){
+        if(ClientContext.cursorHandler.isOffhandFocused()){
             onClear();
             return;
         }

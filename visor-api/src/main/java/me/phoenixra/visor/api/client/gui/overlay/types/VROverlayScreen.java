@@ -15,7 +15,6 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
@@ -42,12 +41,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private final VisorAddon owner;
 
 
-    @Getter @Setter
-    private ControllerHand cursorHand = ControllerHand.MAIN;
     @Getter
-    private final OverlayCursorData cursorMain = new OverlayCursorData();
+    private final OverlayCursorData activeCursorData = new OverlayCursorData();
     @Getter
-    private final OverlayCursorData cursorSecondary = new OverlayCursorData();
+    private final OverlayCursorData inactiveCursorData = new OverlayCursorData();
 
     @Getter @Setter
     private RenderTarget renderTarget;
@@ -254,8 +251,20 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     @Override
-    public void updateMousePosition(boolean mainCursor, float rawX, float rawY) {
+    public void updateMousePosition(boolean activeCursorHand, float rawX, float rawY) {
         if (!enabled) return;
+        if(rawX == -1 && rawY == -1){
+            OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
+
+            cursorData.rawCursorX = 0;
+            cursorData.rawCursorY = 0;
+            cursorData.cursorInGuiX = 0;
+            cursorData.cursorInGuiY = 0;
+
+            cursorData.mouseX = 0;
+            cursorData.mouseY = 0;
+            return;
+        }
         GuiManager guiManager = VisorAPI.client().getGuiManager();
         float cursorInGuiX;
         float cursorInGuiY;
@@ -276,7 +285,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             );
         }
 
-        OverlayCursorData cursorData = mainCursor ? cursorMain : cursorSecondary;
+        OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
 
         cursorData.rawCursorX = rawX;
         cursorData.rawCursorY = rawY;
@@ -288,7 +297,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     }
 
     @Override
-    public boolean isCursorWithinBounds(boolean mainCursor, float rawX, float rawY) {
+    public boolean isCursorWithinBounds(boolean activeCursorHand, float rawX, float rawY) {
         if(rawX < 0f
                 || rawX > 1f
                 || rawY < 0f
@@ -300,14 +309,14 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 || mouseEdgeHeight == -1) return true;
 
 
-        OverlayCursorData cursorData = mainCursor ? cursorMain : cursorSecondary;
+        OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
 
         float oldRawX = cursorData.cursorInGuiX;
         float oldRawY = cursorData.cursorInGuiY;
         int oldMouseX = cursorData.mouseX;
         int oldMouseY = cursorData.mouseY;
 
-        updateMousePosition(mainCursor, rawX, rawY);
+        updateMousePosition(activeCursorHand, rawX, rawY);
         boolean result = cursorData.mouseX >= mouseEdgeX
                 && cursorData.mouseY >= mouseEdgeY
                 && cursorData.mouseX <= mouseEdgeWidth +mouseEdgeX
@@ -360,21 +369,21 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     @Override
     public int getMouseX() {
-        return cursorMain.mouseX;
+        return activeCursorData.mouseX;
     }
     @Override
     public int getMouseY() {
-        return cursorMain.mouseY;
+        return activeCursorData.mouseY;
     }
 
     @Override
     public float getRawCursorX() {
-        return cursorMain.rawCursorX;
+        return activeCursorData.rawCursorX;
     }
 
     @Override
     public float getRawCursorY() {
-        return cursorMain.rawCursorY;
+        return activeCursorData.rawCursorY;
     }
 
     @Override

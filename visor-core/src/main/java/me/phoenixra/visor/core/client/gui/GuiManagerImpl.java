@@ -31,6 +31,7 @@ public class GuiManagerImpl implements GuiManager {
     private int scaledGuiWidth;
     @Getter
     private int scaledGuiHeight;
+
     public GuiManagerImpl(){
         ClientContext.overlayManager = new OverlayManagerImpl();
         ClientContext.cursorHandler = new VRCursorHandlerImpl();

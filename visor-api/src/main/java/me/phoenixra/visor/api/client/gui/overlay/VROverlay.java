@@ -4,7 +4,6 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.types.OverlayCursorData;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorElement;
@@ -34,22 +33,11 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     <T extends OverlayOptionCategory> T getOptionCategory(@NotNull Class<T> type);
 
     @NotNull
-    OverlayCursorData getCursorMain();
-
+    OverlayCursorData getActiveCursorData();
 
     @NotNull
-    OverlayCursorData getCursorSecondary();
+    OverlayCursorData getInactiveCursorData();
 
-
-    /**
-     * Get hand used as a cursor
-     *
-     * @return the hand
-     */
-    @NotNull
-    ControllerHand getCursorHand();
-
-    void setCursorHand(@NotNull ControllerHand hand);
 
     /**
      * Get render target
@@ -85,7 +73,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      *
      * @return true/false
      */
-    default boolean isBothCursorsDisplayed(){
+    default boolean supportsTwoHandedCursor(){
         return false;
     }
 
@@ -110,7 +98,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     float getRawCursorY();
 
     @ApiStatus.Internal
-    void updateMousePosition(boolean mainCursor, float rawX, float rawY);
+    void updateMousePosition(boolean activeCursorHand, float rawX, float rawY);
 
 
     boolean mouseClicked(double d, double e, int i);

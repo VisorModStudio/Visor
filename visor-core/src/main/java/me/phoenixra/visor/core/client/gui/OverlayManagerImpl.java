@@ -49,7 +49,7 @@ public class OverlayManagerImpl implements OverlayManager {
             overlay.tick();
         }
 
-        hudDisplayed = overlaysRegistry.getAddonElementsByType(
+        hudDisplayed = overlaysRegistry.getElementsByType(
                 VROverlayHUD.ID_TYPE
         ).stream().anyMatch(VROverlay::isVisible);
 
