@@ -42,7 +42,7 @@ public class HandEffectCursor extends VRHandEffect {
                        boolean simpleHand,
                        float partialTicks) {
 
-        // --- Prepare variables
+        // --- Prepare variables ---
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
         double cursorLength = cursorHandler.getCursorLength(hand);
         if (cursorLength <= 0) {
@@ -75,7 +75,7 @@ public class HandEffectCursor extends VRHandEffect {
 
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
-        // --- GL setup
+        // --- GL setup ---
         RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
@@ -86,7 +86,7 @@ public class HandEffectCursor extends VRHandEffect {
         }
 
 
-        // --- Render
+        // --- Render ---
         builder.begin(
                 VertexFormat.Mode.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL
@@ -102,7 +102,7 @@ public class HandEffectCursor extends VRHandEffect {
         );
         BufferUploader.drawWithShader(builder.end());
 
-        // --- Restore GL
+        // --- Restore GL ---
         RenderSystem.enableDepthTest();
 
     }

@@ -38,7 +38,7 @@ public class GameEffectShadow extends VRGameEffect {
                        float partialTicks) {
 
 
-        // --- Prepare variables
+        // --- Prepare variables ---
         AABB box = MC.player.getBoundingBox();
         float playerWidth  = (float) box.getXsize();
         float playerLength = (float) box.getZsize();
@@ -52,7 +52,7 @@ public class GameEffectShadow extends VRGameEffect {
                 .subtract(camPos)
                 .add(0, 0.005, 0);
 
-        // --- GL setup
+        // --- GL setup ---
         RenderSystem.disableCull();
         RenderHelper.setupPolyRendering(true);
         RenderSystem.enableDepthTest();
@@ -62,7 +62,7 @@ public class GameEffectShadow extends VRGameEffect {
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
 
-        // --- Pose setup
+        // --- Pose setup ---
         poseStack.pushPose();
 
         poseStack.setIdentity();
@@ -70,7 +70,7 @@ public class GameEffectShadow extends VRGameEffect {
         poseStack.translate(shadowPos.x, shadowPos.y, shadowPos.z);
 
 
-        // --- Render
+        // --- Render ---
         VRScreenHelper.renderFlatQuad(
                 Vec3.ZERO,
                 playerWidth,
@@ -81,7 +81,7 @@ public class GameEffectShadow extends VRGameEffect {
                 poseStack
         );
 
-        // --- Restore GL & pose
+        // --- Restore GL & pose ---
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderHelper.setupPolyRendering(false);
         RenderSystem.enableCull();

@@ -21,12 +21,14 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.lwjgl.opengl.GL11C;
 
@@ -37,128 +39,136 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class HandEffectCrosshair extends VRHandEffect {
     private static final String ID = "crosshair";
 
-    public HandEffectCrosshair(@NotNull VisorAddon owner){
+    private static final ResourceLocation ICONS_LOC = Gui.GUI_ICONS_LOCATION;
+    private static final float BASE_SCALE = 0.125f;
+    private static final float UV_SIZE = 15f / 256f;
+    private static final float LIGHT_OFFSET = -0.01f;
+    private static final float FULL_BRIGHTNESS = 1.0f;
+    private static final float MISS_BRIGHTNESS = 0.5f;
+
+    public HandEffectCrosshair(@NotNull VisorAddon owner) {
         super(owner);
     }
 
     @Override
     public void render(@NotNull ControllerHand hand,
-                       @NotNull VRDisplay renderDisplay,
+                       @NotNull VRDisplay display,
                        @NotNull PoseStack poseStack,
-                       boolean simpleHand, float partialTicks
-    ) {
+                       boolean simpleHand,
+                       float partialTicks) {
 
-        PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
-        // white crosshair, with blending
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        Vec3 crosshairRenderPos = ((GameRendererModified) MC.gameRenderer).visor$getCrossVec();
-        Vec3 aim = crosshairRenderPos.subtract(renderPose.getController(hand).getPosition());
+        // --- Prepare variables ---
+        PoseData pose = ClientContext.player.getPose(PoseType.RENDER);
+        Vec3 rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec();
+        Vec3 aim = rawCross.subtract(pose.getController(hand).getPosition());
+        float worldScale = (float)Math.sqrt(pose.getWorldScale());
+        float scale = BASE_SCALE * worldScale;
 
-        float scale = (float) (0.125F * Math.sqrt(renderPose.getWorldScale()));
+        // nudge back for correct lighting
+        Vec3 crossPos = rawCross.add(aim.normalize().scale(LIGHT_OFFSET));
 
-        //scooch closer a bit for light calc.
-        crosshairRenderPos = crosshairRenderPos.add(aim.normalize().scale(-0.01D));
+        // light & brightness
+        BlockPos lightPos = BlockPos.containing(crossPos);
+        int lightCoords  = LevelRenderer.getLightColor(MC.level, lightPos);
+        float brightness = (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
+                ? MISS_BRIGHTNESS
+                : FULL_BRIGHTNESS;
 
-        poseStack.pushPose();
-        poseStack.setIdentity();
-        RenderHelper.applyDisplayOrientation(renderDisplay, poseStack);
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
 
-        Vec3 translate = crosshairRenderPos.subtract(MC.getCameraEntity().position());
-        poseStack.translate(translate.x, translate.y, translate.z);
-
-
-        if (MC.hitResult != null && MC.hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult blockhitresult = (BlockHitResult) MC.hitResult;
-
-            switch (blockhitresult.getDirection()) {
-                case DOWN -> {
-                    rotateDeg(poseStack,
-                            renderPose.getController(hand).getYaw(), 0.0F, 1.0F,
-                            0.0F);
-                    rotateDeg(poseStack, -90.0F, 1.0F, 0.0F, 0.0F);
-                }
-                case UP -> {
-                    rotateDeg(poseStack,
-                            -renderPose.getController(hand).getYaw(), 0.0F,
-                            1.0F, 0.0F);
-                    rotateDeg(poseStack, 90.0F, 1.0F, 0.0F, 0.0F);
-                }
-                case WEST -> rotateDeg(poseStack, 90.0F, 0.0F, 1.0F, 0.0F);
-                case EAST -> rotateDeg(poseStack, -90.0F, 0.0F, 1.0F, 0.0F);
-                case SOUTH -> rotateDeg(poseStack, 180.0F, 0.0F, 1.0F, 0.0F);
-            }
-        } else {
-            rotateDeg(poseStack,
-                    -renderPose.getController(hand).getYaw(), 0.0F, 1.0F,
-                    0.0F);
-            rotateDeg(poseStack,
-                    -renderPose.getController(hand).getPitch(), 1.0F, 0.0F,
-                    0.0F);
-        }
-
-
+        // --- GL setup ---
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         MC.gameRenderer.lightTexture().turnOnLightLayer();
-        poseStack.scale(scale, scale, scale);
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
-
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
 
-        RenderSystem.enableBlend(); // Fuck it, we want a proper crosshair
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
-                GlStateManager.DestFactor.ZERO, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        int light = LevelRenderer.getLightColor(MC.level, BlockPos.containing(crosshairRenderPos));
-        float brightness = 1.0F;
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
+                GlStateManager.DestFactor.ZERO,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        );
 
-        if (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS) {
-            brightness = 0.5F;
-        }
-
-        RenderSystem.setShaderTexture(0, Gui.GUI_ICONS_LOCATION);
-
-        // sprite location of the crosshair on the atlas
-        float uMax = 15.0F / 256.0F;
-        float vMax = 15.0F / 256.0F;
-
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-
+        RenderSystem.setShaderTexture(0, ICONS_LOC);
         RenderSystem.setShader(GameRenderer::getRendertypeEntityCutoutNoCullShader);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
 
-        bufferbuilder.vertex(poseStack.last().pose(), -1.0F, 1.0F, 0.0F)
-                .color(brightness, brightness, brightness, 1.0F)
-                .uv(uMax, 0.0F)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-                .normal(0.0F, 0.0F, 1.0F).endVertex();
-        bufferbuilder.vertex(poseStack.last().pose(), 1.0F, 1.0F, 0.0F)
-                .color(brightness, brightness, brightness, 1.0F)
-                .uv(0.0F, 0.0F)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-                .normal(0.0F, 0.0F, 1.0F).endVertex();
-        bufferbuilder.vertex(poseStack.last().pose(), 1.0F, -1.0F, 0.0F)
-                .color(brightness, brightness, brightness, 1.0F)
-                .uv(0.0F, vMax)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-                .normal(0.0F, 0.0F, 1.0F).endVertex();
-        bufferbuilder.vertex(poseStack.last().pose(), -1.0F, -1.0F, 0.0F)
-                .color(brightness, brightness, brightness, 1.0F)
-                .uv(uMax, vMax)
-                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
-                .normal(0.0F, 0.0F, 1.0F).endVertex();
+        // --- Pose setup ---
+        poseStack.pushPose();
+        poseStack.setIdentity();
+        RenderHelper.applyDisplayOrientation(display, poseStack);
 
-        BufferUploader.drawWithShader(bufferbuilder.end());
+        Vec3 camPos = MC.getCameraEntity().position();
+        Vec3 translate = crossPos.subtract(camPos);
+        poseStack.translate(translate.x, translate.y, translate.z);
 
+        applyCrossHairRotation(poseStack, hand, pose);
+
+        poseStack.scale(scale, scale, scale);
+
+        // --- Render ---
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+        Matrix4f mat = poseStack.last().pose();
+
+        buf.vertex(mat, -1f,  1f, 0f)
+                .color(brightness, brightness, brightness, 1f)
+                .uv(UV_SIZE, 0f)
+                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(lightCoords)
+                .normal(0f, 0f, 1f).endVertex();
+        buf.vertex(mat,  1f,  1f, 0f)
+                .color(brightness, brightness, brightness, 1f)
+                .uv(0f,       0f)
+                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(lightCoords)
+                .normal(0f, 0f, 1f).endVertex();
+        buf.vertex(mat,  1f, -1f, 0f)
+                .color(brightness, brightness, brightness, 1f)
+                .uv(0f,       UV_SIZE)
+                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(lightCoords)
+                .normal(0f, 0f, 1f).endVertex();
+        buf.vertex(mat, -1f, -1f, 0f)
+                .color(brightness, brightness, brightness, 1f)
+                .uv(UV_SIZE, UV_SIZE)
+                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(lightCoords)
+                .normal(0f, 0f, 1f).endVertex();
+
+        BufferUploader.drawWithShader(buf.end());
+
+        // --- Restore GL & pose ---
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         poseStack.popPose();
-
     }
 
-    private void rotateDeg(PoseStack pose, float angle, float x, float y, float z) {
-        pose.mulPose(new Quaternionf(new AxisAngle4f(angle * Mth.DEG_TO_RAD, x, y, z)));
+    private void applyCrossHairRotation(PoseStack poseStack,
+                                        ControllerHand hand,
+                                        PoseData pose) {
+        if (MC.hitResult instanceof BlockHitResult bhr) {
+            switch (bhr.getDirection()) {
+                case DOWN -> {
+                    rotateInDegrees(poseStack, pose.getController(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack, -90, 1, 0, 0);
+                }
+                case UP -> {
+                    rotateInDegrees(poseStack, -pose.getController(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack,  90, 1, 0, 0);
+                }
+                case WEST -> rotateInDegrees(poseStack,  90, 0, 1, 0);
+                case EAST -> rotateInDegrees(poseStack, -90, 0, 1, 0);
+                case SOUTH -> rotateInDegrees(poseStack, 180, 0, 1, 0);
+                default -> {}
+            }
+        } else {
+            rotateInDegrees(poseStack, -pose.getController(hand).getYaw(),   0, 1, 0);
+            rotateInDegrees(poseStack, -pose.getController(hand).getPitch(), 1, 0, 0);
+        }
+    }
+
+    private void rotateInDegrees(PoseStack pose, float angle, float x, float y, float z) {
+        pose.mulPose(new Quaternionf(new AxisAngle4f(
+                angle * Mth.DEG_TO_RAD, x, y, z
+        )));
     }
 
     @Override

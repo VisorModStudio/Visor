@@ -50,7 +50,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
                                   @NotNull ItemStack itemStack,
                                   @NotNull PoseStack poseStack,
                                   float equippedProgress,
-                                  float partialTick
+                                  float partialTicks
     ){
         for(VRHandItemPose entry : itemPosesRegistry.getSortedElements()){
             if(!entry.isEnabledAndCanApplyPose(player, hand, itemStack)){
@@ -62,7 +62,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
                     hand,
                     itemStack,
                     equippedProgress,
-                    partialTick
+                    partialTicks
             );
             return;
         }
@@ -90,8 +90,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
                             float partialTicks,
                             boolean renderMain,
                             boolean renderOffhand,
-                            boolean isGui
-    ){
+                            boolean isGui){
 
         RenderSystem.backupProjectionMatrix();
 
@@ -131,8 +130,13 @@ public class VRHandRendererImpl implements VRHandRenderer {
         RenderSystem.restoreProjectionMatrix();
     }
 
-    private void renderHand(ControllerHand hand, @NotNull PoseStack poseStack, float partialTick, boolean isGui,
-                            VRDisplay display, Collection<VRHandEffect> effects, VRDecorator decorator) {
+    private void renderHand(ControllerHand hand,
+                            @NotNull PoseStack poseStack,
+                            float partialTicks,
+                            boolean isGui,
+                            VRDisplay display,
+                            Collection<VRHandEffect> effects,
+                            VRDecorator decorator) {
 
         poseStack.pushPose();
 
@@ -151,13 +155,13 @@ public class VRHandRendererImpl implements VRHandRenderer {
                 display,
                 poseStack,
                 isGui,
-                partialTick
+                partialTicks
         );
 
         if (isGui) {
             renderGuiHand(poseStack);
         } else {
-            renderWorldHand(poseStack, hand, partialTick);
+            renderWorldHand(poseStack, hand, partialTicks);
         }
 
         renderHandEffects(
@@ -166,7 +170,7 @@ public class VRHandRendererImpl implements VRHandRenderer {
                 display,
                 poseStack,
                 isGui,
-                partialTick
+                partialTicks
         );
 
         poseStack.popPose();
@@ -269,18 +273,19 @@ public class VRHandRendererImpl implements VRHandRenderer {
     }
 
 
-    private void renderHandEffects(Collection<VRHandEffect> effects, ControllerHand hand, VRDisplay display,
-                                   PoseStack poseStack, boolean isSimple, float partialTick) {
+    private void renderHandEffects(Collection<VRHandEffect> effects,
+                                   ControllerHand hand,
+                                   VRDisplay display,
+                                   PoseStack poseStack,
+                                   boolean isSimple,
+                                   float partialTicks) {
         if (effects == null || effects.isEmpty()) return;
 
         effects.forEach(it->
-                it.render(hand, display, poseStack, isSimple, partialTick)
+                it.render(hand, display, poseStack, isSimple, partialTicks)
         );
     }
 
-    private boolean isControllerTracking(ControllerHand hand) {
-        return ClientContext.rawPoseHandler.getControllerData(hand).isTracking();
-    }
 
     private Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> groupEffectsByStage(
             Collection<VRHandEffect> effects, VRDecorator decorator, ControllerHand hand, boolean isSimple) {
@@ -292,6 +297,10 @@ public class VRHandRendererImpl implements VRHandRenderer {
             }
         }
         return map;
+    }
+
+    private boolean isControllerTracking(ControllerHand hand) {
+        return ClientContext.rawPoseHandler.getControllerData(hand).isTracking();
     }
 
 }

@@ -43,7 +43,7 @@ public class GameEffectOnFire extends VRGameEffect {
     public void render(@NotNull VRDisplay display,
                        @NotNull PoseStack stack,
                        float partialTicks) {
-        // --- Prepare variables
+        // --- Prepare variables ---
         PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
         float fireHeight = (float)(renderPose.getHeadPivot().y
                 - ((GameRendererModified)MC.gameRenderer)
@@ -65,7 +65,7 @@ public class GameEffectOnFire extends VRGameEffect {
         float v0 = Mth.lerp(shrink, vMin, midV);
         float v1 = Mth.lerp(shrink, vMax, midV);
 
-        // --- GL setup
+        // --- GL setup ---
         RenderSystem.depthFunc(
                 display == VRDisplay.THIRD_PERSON
                         ? GL11C.GL_LEQUAL
@@ -78,13 +78,13 @@ public class GameEffectOnFire extends VRGameEffect {
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, atlas);
 
-        // --- Pose setup
+        // --- Pose setup ---
         stack.pushPose();
         stack.setIdentity();
         RenderHelper.applyDisplayOrientation(display, stack);
         RenderHelper.applyDisplayTranslation(display, stack);
 
-        // --- Render
+        // --- Render ---
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
         for (int i = 0; i < 4; i++) {
             stack.pushPose();
@@ -109,7 +109,7 @@ public class GameEffectOnFire extends VRGameEffect {
             stack.popPose();
         }
 
-        // --- Restore GL & pose
+        // --- Restore GL & pose ---
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderSystem.disableBlend();
         stack.popPose();
