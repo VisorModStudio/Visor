@@ -17,6 +17,7 @@ import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -29,77 +30,88 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class GameEffectOnFire extends VRGameEffect {
 
     private static final String ID = "on_fire";
+
+    private static final float  FIRE_HALF_WIDTH  = 0.3f;
+    private static final float  FIRE_ALPHA       = 0.9f;
+
+
     public GameEffectOnFire(@NotNull VisorAddon owner) {
         super(owner);
     }
 
     @Override
-    public void render(@NotNull VRDisplay renderDisplay,
-                       @NotNull PoseStack poseStack,
+    public void render(@NotNull VRDisplay display,
+                       @NotNull PoseStack stack,
                        float partialTicks) {
+        // --- Prepare variables
+        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        float fireHeight = (float)(renderPose.getHeadPivot().y
+                - ((GameRendererModified)MC.gameRenderer)
+                .visor$getCameraEntityCache()
+                .getY());
 
-        PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+        TextureAtlasSprite sprite = ModelBakery.FIRE_1.sprite();
+        ResourceLocation atlas = sprite.atlasLocation();
+        float uMin = sprite.getU0();
+        float uMax = sprite.getU1();
+        float vMin = sprite.getV0();
+        float vMax = sprite.getV1();
+        float midU = (uMin + uMax) * 0.5f;
+        float midV = (vMin + vMax) * 0.5f;
+        float shrink = sprite.uvShrinkRatio();
 
-        poseStack = new PoseStack();
-        RenderHelper.applyDisplayOrientation(renderDisplay, poseStack);
-        RenderHelper.applyDisplayTranslation(renderDisplay, poseStack);
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        float u0 = Mth.lerp(shrink, uMin, midU);
+        float u1 = Mth.lerp(shrink, uMax, midU);
+        float v0 = Mth.lerp(shrink, vMin, midV);
+        float v1 = Mth.lerp(shrink, vMax, midV);
 
-        if (renderDisplay == VRDisplay.THIRD_PERSON) {
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        }
-
+        // --- GL setup
+        RenderSystem.depthFunc(
+                display == VRDisplay.THIRD_PERSON
+                        ? GL11C.GL_LEQUAL
+                        : GL11C.GL_ALWAYS
+        );
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        TextureAtlasSprite fireSprite = ModelBakery.FIRE_1.sprite();
         RenderSystem.enableDepthTest();
-
-
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, fireSprite.atlasLocation());
-        float fireXMin = fireSprite.getU0();
-        float fireXMax = fireSprite.getU1();
-        float fireXMid = (fireXMin + fireXMax) / 2.0F;
+        RenderSystem.setShaderTexture(0, atlas);
 
-        float fireYMin = fireSprite.getV0();
-        float fireYMax = fireSprite.getV1();
-        float fireYMid = (fireYMin + fireYMax) / 2.0F;
+        // --- Pose setup
+        stack.pushPose();
+        stack.setIdentity();
+        RenderHelper.applyDisplayOrientation(display, stack);
+        RenderHelper.applyDisplayTranslation(display, stack);
 
-        float ShrinkRatio = fireSprite.uvShrinkRatio();
+        // --- Render
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        for (int i = 0; i < 4; i++) {
+            stack.pushPose();
+            // spin quad around player
+            stack.mulPose(Axis.YP.rotation(
+                    i * (float)Math.PI/2 - renderPose.getBodyYaw()
+            ));
+            stack.translate(0, -fireHeight, 0);
 
-        float xMin = Mth.lerp(ShrinkRatio, fireXMin, fireXMid); //t, A, B
-        float xMax = Mth.lerp(ShrinkRatio, fireXMax, fireXMid);
-        float yMin = Mth.lerp(ShrinkRatio, fireYMin, fireYMid);
-        float yMax = Mth.lerp(ShrinkRatio, fireYMax, fireYMid);
+            Matrix4f mat = stack.last().pose();
+            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            buf.vertex(mat, -FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
+                    .uv(u1, v1).color(1,1,1,FIRE_ALPHA).endVertex();
+            buf.vertex(mat,  FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
+                    .uv(u0, v1).color(1,1,1,FIRE_ALPHA).endVertex();
+            buf.vertex(mat,  FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
+                    .uv(u0, v0).color(1,1,1,FIRE_ALPHA).endVertex();
+            buf.vertex(mat, -FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
+                    .uv(u1, v0).color(1,1,1,FIRE_ALPHA).endVertex();
+            BufferUploader.drawWithShader(buf.end());
 
-        float a = 0.3F;
-        float b = (float) (renderPose.getHeadPivot().y - ((GameRendererModified) MC.gameRenderer).visor$getCameraEntityCache().getY());
-
-        for (int i = 0; i < 4; ++i) {
-            poseStack.pushPose();
-            poseStack.mulPose(Axis.YP.rotation(
-                    i * ((float)Math.PI/2) - renderPose.getBodyYaw()));
-            poseStack.translate(0.0D, -b, 0.0D);
-            Matrix4f matrix4f = poseStack.last().pose();
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferbuilder.vertex(matrix4f, -a, 0.0F, -a)
-                    .uv(xMax, yMax).color(1.0F, 1.0F, 1.0F, 0.9F).endVertex();
-            bufferbuilder.vertex(matrix4f, a, 0.0F, -a)
-                    .uv(xMin, yMax).color(1.0F, 1.0F, 1.0F, 0.9F).endVertex();
-            bufferbuilder.vertex(matrix4f, a, b, -a)
-                    .uv(xMin, yMin).color(1.0F, 1.0F, 1.0F, 0.9F).endVertex();
-            bufferbuilder.vertex(matrix4f, -a, b, -a)
-                    .uv(xMax, yMin).color(1.0F, 1.0F, 1.0F, 0.9F).endVertex();
-            BufferUploader.drawWithShader(bufferbuilder.end());
-
-            poseStack.popPose();
+            stack.popPose();
         }
 
+        // --- Restore GL & pose
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderSystem.disableBlend();
-
+        stack.popPose();
     }
 
     @Override
