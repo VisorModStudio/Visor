@@ -7,6 +7,10 @@ import net.minecraft.world.phys.Vec3;
 public interface GameRendererModified {
 
 
+    boolean visor$isVRGuiVisible();
+
+    void visor$setVRGuiVisible(boolean flag);
+
 
     void visor$setupCameraEntity();
 

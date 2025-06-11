@@ -163,6 +163,19 @@ public abstract class GameRendererMixin
         }
     }
 
+    @Unique
+    private boolean visor$isVRGuiVisible;
+
+    @Override
+    public boolean visor$isVRGuiVisible(){
+        return visor$isVRGuiVisible;
+    }
+
+    @Override
+    public void visor$setVRGuiVisible(boolean flag){
+        visor$isVRGuiVisible = flag;
+    }
+
     /**
      * Draw GUI only after first level render
      */
@@ -171,7 +184,7 @@ public abstract class GameRendererMixin
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             return doRender;
         }
-        return MC.getEntityRenderDispatcher().camera != null;
+        return visor$isVRGuiVisible();
     }
 
     /**

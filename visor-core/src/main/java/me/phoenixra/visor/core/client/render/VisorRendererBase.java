@@ -124,6 +124,9 @@ public abstract class VisorRendererBase implements VisorRenderer {
         // push pose to pop it in scene
         RenderSystem.getModelViewStack().pushPose();
 
+        ((GameRendererModified)MC.gameRenderer).visor$setVRGuiVisible(
+                renderLevel && MC.getEntityRenderDispatcher().camera != null
+        );
     }
 
     public void updateState() throws Throwable {
