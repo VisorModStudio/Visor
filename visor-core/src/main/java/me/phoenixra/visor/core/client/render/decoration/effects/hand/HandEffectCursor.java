@@ -28,6 +28,10 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class HandEffectCursor extends VRHandEffect {
     private static final String ID = "cursor";
 
+    private static final Vec3i DEFAULT_COLOR = new Vec3i(228, 228, 228);
+    private static final byte DEFAULT_ALPHA = (byte) 255;
+    private static final float BOX_HALF_SIZE = 0.0016f;
+
     public HandEffectCursor(@NotNull VisorAddon owner){
         super(owner);
     }
@@ -38,36 +42,20 @@ public class HandEffectCursor extends VRHandEffect {
                        boolean simpleHand,
                        float partialTicks) {
 
+        // --- Prepare variables
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
-
         double cursorLength = cursorHandler.getCursorLength(hand);
-        if(cursorLength <= 0){
+        if (cursorLength <= 0) {
             return;
         }
 
-        RenderSystem.disableDepthTest();
+        Vec3 start = new Vec3(0, 0, 0);
+        Vec3 end = new Vec3(0, 0, -cursorLength);
 
-        if (MC.getOverlay() == null) {
-            MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
-            RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
-        }
-
-        Tesselator tesselator = Tesselator.getInstance();
-
-
-        Vec3i color = new Vec3i(228, 228, 228);
-        byte alpha = (byte) 255;
-
-
-        Vec3 start = new Vec3(0.0D, 0.0D, 0.0D);
-        Vec3 end = new Vec3(
-                start.x,
-                start.y,
-                start.z - cursorLength
-        );
-
+        // compute brightness-tinted color
+        Vec3i color = DEFAULT_COLOR;
         if (MC.level != null) {
-            float light = (float) MC.level.getMaxLocalRawBrightness(
+            float rawLight = MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
                             ClientContext.player
                                     .getPose(PoseType.RENDER)
@@ -75,32 +63,47 @@ public class HandEffectCursor extends VRHandEffect {
                                     .getPosition()
                     )
             );
-
-            int minLight = ShadersHelper.shaderLight();
-
-            if (light < (float) minLight) {
-                light = (float) minLight;
-            }
-
-            float lightPercent = light / (float) MC.level.getMaxLightLevel();
-            color = new Vec3i(Mth.floor(color.getX() * lightPercent), Mth.floor(color.getY() * lightPercent),
-                    Mth.floor(color.getZ() * lightPercent));
+            float minLight = ShadersHelper.shaderLight();
+            float light = Math.max(rawLight, minLight);
+            float pct = light / MC.level.getMaxLightLevel();
+            color = new Vec3i(
+                    Mth.floor(DEFAULT_COLOR.getX() * pct),
+                    Mth.floor(DEFAULT_COLOR.getY() * pct),
+                    Mth.floor(DEFAULT_COLOR.getZ() * pct)
+            );
         }
 
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+
+        // --- GL setup
+        RenderSystem.disableDepthTest();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        tesselator.getBuilder().begin(
+
+        if (MC.getOverlay() == null) {
+            var whiteTex = TexturesHelper.getWhiteTexture();
+            MC.getTextureManager().bindForSetup(whiteTex);
+            RenderSystem.setShaderTexture(0, whiteTex);
+        }
+
+
+        // --- Render
+        builder.begin(
                 VertexFormat.Mode.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL
         );
-        RenderHelper.renderBox(tesselator.getBuilder(),
+        RenderHelper.renderBox(
+                builder,
                 start, end,
-                -0.0016f, 0.0016f,
-                -0.0016f, 0.0016f,
+                -BOX_HALF_SIZE, BOX_HALF_SIZE,
+                -BOX_HALF_SIZE, BOX_HALF_SIZE,
                 color,
-                alpha,
+                DEFAULT_ALPHA,
                 poseStack
         );
-        BufferUploader.drawWithShader(tesselator.getBuilder().end());
+        BufferUploader.drawWithShader(builder.end());
+
+        // --- Restore GL
+        RenderSystem.enableDepthTest();
 
     }
 
@@ -112,6 +115,9 @@ public class HandEffectCursor extends VRHandEffect {
 
         if(cursorHandler.isTwoHandedCursor()){
             return true;
+        }
+        if(!cursorHandler.isActiveHandFocused()){
+            return false;
         }
 
         return cursorHandler.getActiveCursorHand() == hand;

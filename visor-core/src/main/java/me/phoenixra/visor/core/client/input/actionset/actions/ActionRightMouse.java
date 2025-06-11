@@ -38,7 +38,7 @@ public class ActionRightMouse extends VisorActionButton {
 
         //-------CLEANUP CLICKS-------
         if(focusedOverlay != null
-                && InputHelper.isKeyDown(BUTTON_TYPE)) {
+                && InputHelper.isMousePressed(BUTTON_TYPE)) {
             InputHelper.releaseMouse(BUTTON_TYPE);
         }
         if(focusedOverlay == null
@@ -152,7 +152,7 @@ public class ActionRightMouse extends VisorActionButton {
     protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath, @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        if(!ClientContext.cursorHandler.isFocused()
+        if(!ClientContext.cursorHandler.isActiveHandFocused()
                 && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
         }else {

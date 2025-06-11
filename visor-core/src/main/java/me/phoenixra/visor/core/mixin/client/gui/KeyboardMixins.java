@@ -97,7 +97,7 @@ public class KeyboardMixins {
                 return;
             }
 
-            if (!ClientContext.cursorHandler.isFocused()) {
+            if (!ClientContext.cursorHandler.isActiveHandFocused()) {
                 ClientContext.overlayManager.showKeyboard(true);
                 return;
             }

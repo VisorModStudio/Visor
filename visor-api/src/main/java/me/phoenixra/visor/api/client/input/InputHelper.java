@@ -36,6 +36,21 @@ public class InputHelper {
         releaseMouse(button, 0);
     }
 
+    public static boolean isMousePressed(int button){
+        var mouseHandler =  Minecraft.getInstance().mouseHandler;
+        switch (button){
+            case 0 ->{
+                return mouseHandler.isLeftPressed();
+            }
+            case 1 ->{
+                return mouseHandler.isRightPressed();
+            }
+            case 2 ->{
+                return mouseHandler.isMiddlePressed();
+            }
+        }
+        return false;
+    }
 
     public static void setMousePos(double x, double y) {
         Minecraft.getInstance().mouseHandler.onMove(

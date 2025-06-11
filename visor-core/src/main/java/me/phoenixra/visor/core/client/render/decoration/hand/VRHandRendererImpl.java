@@ -102,22 +102,26 @@ public class VRHandRendererImpl implements VRHandRenderer {
         VRDecorator decorator = ClientContext.decoratorManager.getCurrentDecorator();
 
         if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
+            boolean isGuiHand = isGui || ClientContext.cursorHandler.isMainHandFocused();
+
             renderHand(
                     ControllerHand.MAIN,
                     poseStack,
                     partialTicks,
-                    isGui,
+                    isGuiHand,
                     display,
                     effects,
                     decorator
             );
         }
         if (renderOffhand && isControllerTracking(ControllerHand.OFFHAND)) {
+            boolean isGuiHand = isGui || ClientContext.cursorHandler.isOffhandFocused();
+
             renderHand(
                     ControllerHand.OFFHAND,
                     poseStack,
                     partialTicks,
-                    isGui,
+                    isGuiHand,
                     display,
                     effects,
                     decorator

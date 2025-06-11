@@ -86,7 +86,7 @@ public class ActionScrollMouse extends VisorActionVec2 {
                                            @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        if(!ClientContext.cursorHandler.isFocused()
+        if(!ClientContext.cursorHandler.isActiveHandFocused()
                 && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
         }else {

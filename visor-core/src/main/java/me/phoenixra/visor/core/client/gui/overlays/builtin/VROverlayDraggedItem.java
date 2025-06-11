@@ -71,7 +71,7 @@ public class VROverlayDraggedItem extends VROverlayScreen {
     @Override
     public boolean updateVisibility() {
         if(minecraft.level==null ||
-                (ClientContext.cursorHandler.isFocused()
+                (ClientContext.cursorHandler.isActiveHandFocused()
                         && ClientContext.cursorHandler.getFocusedOverlayAsScreen() != this)
                 || minecraft.player.containerMenu == null
                 || minecraft.player.containerMenu.getCarried() == null

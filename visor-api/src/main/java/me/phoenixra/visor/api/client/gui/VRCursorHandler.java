@@ -44,9 +44,15 @@ public interface VRCursorHandler {
 
 
 
+    default boolean isAnyHandFocused(){
+        return isMainHandFocused() || isOffhandFocused();
+    }
 
-    default boolean isFocused(){
+    default boolean isActiveHandFocused(){
         return getFocusedOverlay(getActiveCursorHand()) != null;
+    }
+    default boolean isHandFocused(@NotNull ControllerHand hand){
+        return getFocusedOverlay(hand) != null;
     }
     default boolean isMainHandFocused(){
         return getFocusedOverlay(ControllerHand.MAIN) != null;
