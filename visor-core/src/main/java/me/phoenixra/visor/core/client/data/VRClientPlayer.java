@@ -80,7 +80,7 @@ public class VRClientPlayer implements ClientPlayer {
         var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
 
         for (VisorTask task : tasks) {
-            if (task.isActive(player)) {
+            if (task.isEnabledAndActive(player)) {
                 task.run(player);
             } else {
                 task.clear(player);

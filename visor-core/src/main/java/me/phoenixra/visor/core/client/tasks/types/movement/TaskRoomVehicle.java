@@ -137,7 +137,7 @@ public class TaskRoomVehicle extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
-        if (!isEnabled() || p == null || MC.gameMode == null) {
+        if (p == null || MC.gameMode == null) {
             return false;
         }
         return p.isAlive();

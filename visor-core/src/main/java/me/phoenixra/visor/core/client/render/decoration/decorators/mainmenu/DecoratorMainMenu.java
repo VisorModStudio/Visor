@@ -56,7 +56,7 @@ public class DecoratorMainMenu extends VRDecorator {
         );
 
         if(ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            ClientContext.handRenderer.renderSimpleHands(
+            ClientContext.handRenderer.renderGuiHands(
                     poseStack, partialTicks,
                     true, true
             );
@@ -94,7 +94,7 @@ public class DecoratorMainMenu extends VRDecorator {
     }
 
     @Override
-    public boolean isDisplayable() {
+    public boolean canActivate() {
         return VRRenderState.isInMainMenu();
     }
 

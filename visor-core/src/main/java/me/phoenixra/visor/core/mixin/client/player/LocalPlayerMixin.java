@@ -138,7 +138,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
 
         boolean moveAllowed = (canMove
-                || TaskRoomSwim.getInstance().isActive((LocalPlayer) (Object) this)
+                || TaskRoomSwim.getInstance().isEnabledAndActive((LocalPlayer) (Object) this)
         );
         boolean moved = (this.isFallFlying()
                 || this.zza != 0.0F

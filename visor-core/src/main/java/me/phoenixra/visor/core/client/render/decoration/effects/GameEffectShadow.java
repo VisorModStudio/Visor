@@ -4,8 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffectBase;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
@@ -25,7 +26,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVRGameEffect
-public class GameEffectShadow extends VRGameEffectBase {
+public class GameEffectShadow extends VRGameEffect {
     private static final String ID = "shadow";
     public GameEffectShadow(@NotNull VisorAddon owner) {
         super(owner);
@@ -36,47 +37,61 @@ public class GameEffectShadow extends VRGameEffectBase {
                        @NotNull PoseStack poseStack,
                        float partialTicks) {
 
-        MC.getProfiler().push("vr shadow");
-        AABB playerBox = MC.player.getBoundingBox();
-        poseStack.pushPose();
-        poseStack.setIdentity();
-        RenderSystem.disableCull();
 
-        RenderHelper.applyDisplayOrientation(renderDisplay, poseStack);
+        // --- Prepare variables
+        AABB box = MC.player.getBoundingBox();
+        float playerWidth  = (float) box.getXsize();
+        float playerLength = (float) box.getZsize();
 
-        Vec3 cameraPos = RenderHelper.getCameraPosition(
-                renderDisplay,
-                ClientContext.player.getPose(PoseType.RENDER)
-        );
-        Vec3 interpolatedPlayerPos = ((GameRendererModified) MC.gameRenderer)
+        Vec3 camPos = RenderHelper.getCameraPosition(renderDisplay,
+                ClientContext.player.getPose(PoseType.RENDER));
+        Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
                 .visor$getCameraEntityCache()
                 .getInterpolatedPos(partialTicks);
-        Vec3 pos = interpolatedPlayerPos.subtract(cameraPos).add(0.0D, 0.005D, 0.0D);
+        Vec3 shadowPos = worldPlayerPos
+                .subtract(camPos)
+                .add(0, 0.005, 0);
+
+        // --- GL setup
+        RenderSystem.disableCull();
         RenderHelper.setupPolyRendering(true);
         RenderSystem.enableDepthTest();
-
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
-        VRScreenHelper.renderFlatQuad(pos, (float) (playerBox.maxX - playerBox.minX), (float) (playerBox.maxZ - playerBox.minZ),
-                0.0F, 0, 0, 0, 64, poseStack);
 
+        // --- Pose setup
+        poseStack.pushPose();
+
+        poseStack.setIdentity();
+        RenderHelper.applyDisplayOrientation(renderDisplay, poseStack);
+        poseStack.translate(shadowPos.x, shadowPos.y, shadowPos.z);
+
+
+        // --- Render
+        VRScreenHelper.renderFlatQuad(
+                Vec3.ZERO,
+                playerWidth,
+                playerLength,
+                0f,
+                0, 0,
+                0, 64,
+                poseStack
+        );
+
+        // --- Restore GL & pose
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderHelper.setupPolyRendering(false);
-        poseStack.popPose();
         RenderSystem.enableCull();
-        MC.getProfiler().pop();
+
+        poseStack.popPose();
     }
 
     @Override
-    public boolean isVisible() {
-        String currentViewId = ClientContext.decoratorManager
-                .getCurrentDecorator()
-                .getId();
-        if(!currentViewId.equals(DecoratorGame.ID)){
+    public boolean isVisible(@NotNull VRDecorator currentDecorator) {
+        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
             return false;
         }
         if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){

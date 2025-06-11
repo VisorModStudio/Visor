@@ -97,7 +97,6 @@ public class TaskRoomRun extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
-        if (!isEnabled()) return false;
         if (MC.gameMode == null) return false;
         if (!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)) return false;
         if (p == null || !p.isAlive()) return false;

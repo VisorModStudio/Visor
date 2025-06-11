@@ -4,9 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.hand.HandRenderStage;
-import me.phoenixra.visor.api.client.render.decoration.effects.hand.VRHandEffectBase;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -25,7 +25,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVRHandEffect
-public class HandEffectCursor extends VRHandEffectBase {
+public class HandEffectCursor extends VRHandEffect {
     private static final String ID = "cursor";
 
     public HandEffectCursor(@NotNull VisorAddon owner){
@@ -105,7 +105,9 @@ public class HandEffectCursor extends VRHandEffectBase {
     }
 
     @Override
-    public boolean isVisible(ControllerHand hand, boolean simpleHand) {
+    public boolean isVisible(@NotNull VRDecorator currentDecorator,
+                             @NotNull ControllerHand hand,
+                             boolean simpleHand) {
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
         if(cursorHandler.isTwoHandedCursor()){
@@ -117,8 +119,8 @@ public class HandEffectCursor extends VRHandEffectBase {
 
 
     @Override
-    public HandRenderStage renderAtStage() {
-        return HandRenderStage.BEFORE_RENDERED;
+    public RenderStage renderAtStage() {
+        return RenderStage.BEFORE_HANDS;
     }
 
 

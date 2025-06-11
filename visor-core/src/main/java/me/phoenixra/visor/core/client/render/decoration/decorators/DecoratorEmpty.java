@@ -39,7 +39,7 @@ public class DecoratorEmpty extends VRDecorator {
     }
 
     @Override
-    public boolean isDisplayable() {
+    public boolean canActivate() {
         return true;
     }
 

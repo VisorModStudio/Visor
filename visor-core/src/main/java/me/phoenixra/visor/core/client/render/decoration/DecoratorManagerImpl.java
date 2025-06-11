@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffect;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
@@ -47,7 +47,7 @@ public class DecoratorManagerImpl implements VRDecoratorManager {
     public void tick() {
         VRDecorator newScene = null;
         for(var entry : registry.getSortedElements()){
-            if(entry.isDisplayable()){
+            if(entry.isEnabledAndCanActivate()){
                 newScene = entry;
                 break;
             }
@@ -90,9 +90,9 @@ public class DecoratorManagerImpl implements VRDecoratorManager {
 
     public void renderGameEffects(PoseStack poseStack,
                                   float partialTick) {
+        VRDecorator currentDecorator = ClientContext.decoratorManager.getCurrentDecorator();
         for (VRGameEffect effect : effectsRegistry.getElementsMap().values()) {
-            if (!effect.isEnabled()) continue;
-            if (!effect.isVisible()) continue;
+            if (!effect.isEnabledAndVisible(currentDecorator)) continue;
 
             effect.render(
                     VRRenderState.getCurrentVRDisplay(),

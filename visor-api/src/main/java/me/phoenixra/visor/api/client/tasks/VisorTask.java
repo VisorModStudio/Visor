@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-
 @Getter
 public abstract class VisorTask implements VisorElement, PrioritySupporter {
     @NotNull
@@ -32,6 +31,7 @@ public abstract class VisorTask implements VisorElement, PrioritySupporter {
 
     protected abstract void onClear(@Nullable LocalPlayer player);
 
+    public abstract boolean isActive(@Nullable LocalPlayer player);
 
 
     public final void run(@Nullable LocalPlayer player) {
@@ -46,14 +46,11 @@ public abstract class VisorTask implements VisorElement, PrioritySupporter {
     }
 
 
-
-    /**
-     * If task is active
-     * @param player use null if not required
-     */
-    public boolean isActive(@Nullable LocalPlayer player){
-        return isEnabled();
+    public boolean isEnabledAndActive(@Nullable LocalPlayer player) {
+        return enabled && isActive(player);
     }
+
+
 
 
     @Override

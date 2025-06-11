@@ -1,0 +1,76 @@
+package me.phoenixra.visor.api.client.render.decoration.effects;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import lombok.Getter;
+import lombok.Setter;
+
+import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
+import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.addon.VisorElement;
+import org.jetbrains.annotations.NotNull;
+
+public abstract class VRHandEffect implements VisorElement {
+    @Getter
+    private final VisorAddon owner;
+
+    @Getter @Setter
+    private boolean enabled = true;
+
+    public VRHandEffect(@NotNull VisorAddon owner){
+        this.owner = owner;
+    }
+
+    /**
+     * Render hand effect
+     *
+     * @param hand for which hand render the effect
+     * @param renderDisplay current rendering display
+     * @param poseStack used poseStack
+     * @param simpleHand if hand is without skin (main menu)
+     * @param partialTicks current partialTick
+     */
+    public abstract void render(@NotNull ControllerHand hand,
+                                @NotNull VRDisplay renderDisplay,
+                                @NotNull PoseStack poseStack,
+                                boolean simpleHand,
+                                float partialTicks);
+
+
+    public abstract boolean isVisible(@NotNull VRDecorator currentDecorator,
+                                      @NotNull ControllerHand hand,
+                                      boolean simpleHand);
+
+
+    public RenderStage renderAtStage(){
+        return RenderStage.AFTER_HANDS;
+    }
+
+
+
+    public boolean isEnabledAndVisible(@NotNull VRDecorator currentDecorator,
+                                       @NotNull ControllerHand hand,
+                                       boolean simpleHand){
+        return enabled && isVisible(currentDecorator, hand, simpleHand);
+    }
+
+
+
+
+
+
+    public enum RenderStage {
+        /**
+         * Effect is rendered right before hands
+         */
+        BEFORE_HANDS,
+
+        /**
+         * Effect is rendered right after hands
+         */
+        AFTER_HANDS,
+
+    }
+
+}

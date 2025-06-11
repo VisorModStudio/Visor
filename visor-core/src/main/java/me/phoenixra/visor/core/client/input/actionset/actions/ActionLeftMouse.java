@@ -183,7 +183,7 @@ public class ActionLeftMouse extends VisorActionButton {
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            ClientContext.cursorHandler.changeActiveCursorHand(
+            ClientContext.cursorHandler.setActiveCursorHand(
                     ControllerHand.OFFHAND
             );
             ClientContext.cursorHandler.process();
@@ -201,7 +201,7 @@ public class ActionLeftMouse extends VisorActionButton {
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            ClientContext.cursorHandler.changeActiveCursorHand(
+            ClientContext.cursorHandler.setActiveCursorHand(
                     ControllerHand.MAIN
             );
             ClientContext.cursorHandler.process();

@@ -131,7 +131,7 @@ public class TaskRoomConsume extends VisorTask {
 
     @Override
     public boolean isActive(@Nullable LocalPlayer player) {
-        if (!isEnabled() || MC.gameMode == null || player == null
+        if (MC.gameMode == null || player == null
                 || !player.isAlive() || player.isSleeping() || player.isSpectator()) {
             return false;
         }

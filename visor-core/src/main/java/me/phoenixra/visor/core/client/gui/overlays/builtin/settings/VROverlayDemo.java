@@ -239,7 +239,7 @@ public class VROverlayDemo extends VROverlayScreen {
                 : ModelViewAnchor.MAIN_HAND;
         demoModelViewOptions.setMovingDemoAnchor(movingByAnchor);
 
-        ClientContext.cursorHandler.changeActiveCursorHand(
+        ClientContext.cursorHandler.setActiveCursorHand(
                 movingByAnchor == ModelViewAnchor.OFFHAND
                 ? ControllerHand.OFFHAND : ControllerHand.MAIN
         );

@@ -2,8 +2,9 @@ package me.phoenixra.visor.core.client.render.decoration.effects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffectBase;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.decoration.decorators.DecoratorGame;
@@ -14,7 +15,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVRGameEffect
-public class GameEffectVanilla extends VRGameEffectBase {
+public class GameEffectVanilla extends VRGameEffect {
     private static final String ID = "vanilla";
     public GameEffectVanilla(@NotNull VisorAddon owner) {
         super(owner);
@@ -28,12 +29,11 @@ public class GameEffectVanilla extends VRGameEffectBase {
     }
 
     @Override
-    public boolean isVisible() {
-        String currentViewId = ClientContext.decoratorManager
-                .getCurrentDecorator()
-                .getId();
-        return currentViewId.equals(DecoratorGame.ID)
-                || currentViewId.equals(DecoratorGameMenu.ID);
+    public boolean isVisible(@NotNull VRDecorator currentDecorator) {
+        String decoratorId = currentDecorator.getId();
+
+        return decoratorId.equals(DecoratorGame.ID)
+                || decoratorId.equals(DecoratorGameMenu.ID);
     }
 
     @Override

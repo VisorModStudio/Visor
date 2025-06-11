@@ -17,7 +17,7 @@ public interface VRCursorHandler {
 
     @NotNull
     ControllerHand getActiveCursorHand();
-    void changeActiveCursorHand(@NotNull ControllerHand hand);
+    void setActiveCursorHand(@NotNull ControllerHand hand);
 
 
     double getCursorLength(@NotNull ControllerHand hand);

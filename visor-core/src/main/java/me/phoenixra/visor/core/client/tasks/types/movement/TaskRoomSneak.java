@@ -57,7 +57,7 @@ public class TaskRoomSneak extends VisorTask {
         if(!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
         }
-        if (!isEnabled() || MC.gameMode == null) {
+        if (MC.gameMode == null) {
             return false;
         }
         if (p != null && p.isAlive() && p.onGround()) {

@@ -7,12 +7,14 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.hand.VRHandEffectBase;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.core.client.render.decoration.decorators.DecoratorGame;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GameRenderer;
@@ -32,7 +34,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVRHandEffect
-public class HandEffectCrosshair extends VRHandEffectBase {
+public class HandEffectCrosshair extends VRHandEffect {
     private static final String ID = "crosshair";
 
     public HandEffectCrosshair(@NotNull VisorAddon owner){
@@ -45,9 +47,6 @@ public class HandEffectCrosshair extends VRHandEffectBase {
                        @NotNull PoseStack poseStack,
                        boolean simpleHand, float partialTicks
     ) {
-
-        MC.getProfiler().push("crosshair");
-
 
         PoseData renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
@@ -155,7 +154,6 @@ public class HandEffectCrosshair extends VRHandEffectBase {
         RenderSystem.disableBlend();
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         poseStack.popPose();
-        MC.getProfiler().pop();
 
     }
 
@@ -164,8 +162,12 @@ public class HandEffectCrosshair extends VRHandEffectBase {
     }
 
     @Override
-    public boolean isVisible(ControllerHand hand,
+    public boolean isVisible(@NotNull VRDecorator currentDecorator,
+                             @NotNull ControllerHand hand,
                              boolean simpleHand) {
+        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
+            return false;
+        }
         if(simpleHand){
             return false;
         }

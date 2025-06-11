@@ -53,7 +53,7 @@ public class TaskRoomJump extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
-        if (!isEnabled() || p == null || !p.isAlive() || MC.gameMode == null) {
+        if (p == null || !p.isAlive() || MC.gameMode == null) {
             return false;
         }
         // Only active if movement is not blocked or falling is simulated.

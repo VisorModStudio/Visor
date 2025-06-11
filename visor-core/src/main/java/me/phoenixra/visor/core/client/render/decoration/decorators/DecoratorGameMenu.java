@@ -55,7 +55,7 @@ public class DecoratorGameMenu extends VRDecorator {
         ClientContext.guiManager.renderGUI(poseStack, partialTicks, !VRScreenHelper.shouldOccludeGui());
 
         if (ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            ClientContext.handRenderer.renderSimpleHands(
+            ClientContext.handRenderer.renderGuiHands(
                     poseStack, partialTicks,
                     true, true
             );
@@ -95,7 +95,7 @@ public class DecoratorGameMenu extends VRDecorator {
     }
 
     @Override
-    public boolean isDisplayable() {
+    public boolean canActivate() {
         return MC.level != null && MC.screen != null;
     }
 

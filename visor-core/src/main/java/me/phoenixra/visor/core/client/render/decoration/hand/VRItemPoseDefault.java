@@ -6,7 +6,8 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
-import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPoseBase;
+import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
@@ -29,7 +30,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVRItemPose
-public class VRItemPoseDefault extends VRHandItemPoseBase {
+public class VRItemPoseDefault extends VRHandItemPose {
     private static final String ID = "default";
 
     public VRItemPoseDefault(@NotNull VisorAddon owner) {
@@ -37,15 +38,14 @@ public class VRItemPoseDefault extends VRHandItemPoseBase {
     }
 
     @Override
-    public boolean applyPose(@NotNull AbstractClientPlayer player,
-                             @NotNull ControllerHand hand,
-                             @NotNull ItemStack itemStack,
-                             @NotNull PoseStack poseStack,
-                             float equippedProgress,
-                             float partialTick
+    public void applyPose(@NotNull PoseStack poseStack,
+                          @NotNull AbstractClientPlayer player,
+                          @NotNull ControllerHand hand,
+                          @NotNull ItemStack itemStack,
+                          float equippedProgress,
+                          float partialTick
     ) {
-        PoseDataImpl renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+
 
         InteractionHand interactionHand = hand == ControllerHand.MAIN ?
                 InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
@@ -255,8 +255,9 @@ public class VRItemPoseDefault extends VRHandItemPoseBase {
         poseStack.translate(offsetX, offsetY, offsetZ);
         poseStack.mulPose(itemRotation);
         poseStack.scale((float) itemScale, (float) itemScale, (float) itemScale);
-        return true;
+
     }
+
 
     public static VRItemPoseType getTransformType(ItemStack itemStack,
                                                   AbstractClientPlayer player,
@@ -333,6 +334,16 @@ public class VRItemPoseDefault extends VRHandItemPoseBase {
                 || item instanceof AxeItem
                 || item instanceof PickaxeItem
                 || item instanceof ShovelItem;
+    }
+
+    @Override
+    public boolean canApplyPose(@NotNull AbstractClientPlayer player, @NotNull ControllerHand hand, @NotNull ItemStack itemStack) {
+        return true;
+    }
+
+    @Override
+    public @NotNull ElementPriority getPriority() {
+        return ElementPriority.LOWEST;
     }
 
     @Override

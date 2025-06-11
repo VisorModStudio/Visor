@@ -7,7 +7,9 @@ import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElement;
+import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -16,8 +18,8 @@ public abstract class VisorActionSet implements VisorElement, PrioritySupporter 
     @Getter
     private final VisorAddon owner;
 
-    @Getter @Setter
-    private boolean enabled;
+    @Setter @Getter
+    private boolean enabled = true;
 
     protected Map<String, VisorAction> actionsMap;
 
@@ -32,6 +34,10 @@ public abstract class VisorActionSet implements VisorElement, PrioritySupporter 
     protected abstract List<VisorAction> loadActions();
 
     public abstract boolean canActivate();
+
+    public boolean isEnabledAndCanActivate() {
+        return enabled && canActivate();
+    }
 
     public void preTick(){
         getActions().forEach(

@@ -31,7 +31,7 @@ public class InputManagerImpl implements InputManager {
     public void preTick(){
         VisorActionSet newActiveSet = null;
         for(var entry : actionSetRegistry.getSortedElements()){
-            if(entry.canActivate()){
+            if(entry.isEnabledAndCanActivate()){
                 newActiveSet = entry;
                 break;
             }

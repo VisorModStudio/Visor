@@ -104,7 +104,6 @@ public class TaskRoomSwim extends VisorTask {
         if(!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
         }
-        if (!isEnabled()) return false;
         if (MC.screen != null) return false;
         if (MC.gameMode == null) return false;
         if (p == null || !p.isAlive()) return false;

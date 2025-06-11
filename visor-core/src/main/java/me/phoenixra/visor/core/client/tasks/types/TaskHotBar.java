@@ -52,8 +52,6 @@ public class TaskHotBar extends VisorTask {
 
     @Override
     public void onRun(@Nullable LocalPlayer player) {
-        if(player == null) return;
-        if(MC.screen != null) return;
 
         if(resetData
                 || player.getInventory().selected
@@ -185,6 +183,13 @@ public class TaskHotBar extends VisorTask {
     @Override
     protected void onClear(@Nullable LocalPlayer player) {
 
+    }
+
+    @Override
+    public boolean isActive(@Nullable LocalPlayer player) {
+        if(player == null) return false;
+        if(MC.screen != null) return false;
+        return true;
     }
 
     @Override

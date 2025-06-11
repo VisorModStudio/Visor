@@ -54,7 +54,7 @@ public class DecoratorGame extends VRDecorator {
         if (ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
             boolean simpleHands = ClientContext.overlayManager.isShowingKeyboard();
             if (simpleHands) {
-                ClientContext.handRenderer.renderSimpleHands(
+                ClientContext.handRenderer.renderGuiHands(
                         poseStack, partialTicks,
                         true, true
                 );
@@ -75,7 +75,7 @@ public class DecoratorGame extends VRDecorator {
 
 
     @Override
-    public boolean isDisplayable() {
+    public boolean canActivate() {
         return MC.level != null && MC.screen == null;
     }
 

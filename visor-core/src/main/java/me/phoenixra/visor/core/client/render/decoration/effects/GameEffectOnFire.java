@@ -6,8 +6,9 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffectBase;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -25,7 +26,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 @RegisterVRGameEffect
-public class GameEffectOnFire extends VRGameEffectBase {
+public class GameEffectOnFire extends VRGameEffect {
 
     private static final String ID = "on_fire";
     public GameEffectOnFire(@NotNull VisorAddon owner) {
@@ -55,11 +56,6 @@ public class GameEffectOnFire extends VRGameEffectBase {
         TextureAtlasSprite fireSprite = ModelBakery.FIRE_1.sprite();
         RenderSystem.enableDepthTest();
 
-        /*if (OptifineHelper.isOptifineLoaded()) {
-            OptifineHelper.markTextureAsActive(fireSprite);
-        }*/
-
-        // code adapted from net.minecraft.client.renderer.ScreenEffectRenderer.renderFire
 
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, fireSprite.atlasLocation());
@@ -107,11 +103,8 @@ public class GameEffectOnFire extends VRGameEffectBase {
     }
 
     @Override
-    public boolean isVisible() {
-        String currentViewId = ClientContext.decoratorManager
-                .getCurrentDecorator()
-                .getId();
-        if(!currentViewId.equals(DecoratorGame.ID)){
+    public boolean isVisible(@NotNull VRDecorator currentDecorator) {
+        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
             return false;
         }
         return ((GameRendererModified) MC.gameRenderer).visor$isOnFire();

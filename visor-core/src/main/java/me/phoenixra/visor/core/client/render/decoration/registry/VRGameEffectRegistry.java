@@ -1,14 +1,10 @@
 package me.phoenixra.visor.core.client.render.decoration.registry;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.hand.VRHandEffect;
-import me.phoenixra.visor.api.client.render.decoration.effects.view.VRGameEffect;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

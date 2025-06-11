@@ -23,11 +23,10 @@ import org.joml.Vector3fc;
 public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
-    @Getter
+    @Getter @Setter
     private ControllerHand activeCursorHand = ControllerHand.MAIN;
 
-    @Getter
-    @Setter
+    @Getter @Setter
     private boolean draggingItem;
 
     @Getter
@@ -156,10 +155,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         return new CursorResult(finalCursorPos, collidingOverlay);
     }
 
-    @Override
-    public void changeActiveCursorHand(@NotNull ControllerHand hand) {
-        this.activeCursorHand = hand;
-    }
+
 
     @Override
     public double getCursorLength(@NotNull ControllerHand hand) {

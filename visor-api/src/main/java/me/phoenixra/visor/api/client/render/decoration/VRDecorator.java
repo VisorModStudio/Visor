@@ -3,12 +3,14 @@ package me.phoenixra.visor.api.client.render.decoration;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.VisorElement;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
 
 public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     @Getter
@@ -18,7 +20,8 @@ public abstract class VRDecorator implements VisorElement, PrioritySupporter {
 
 
     @Getter @Setter
-    private boolean enabled;
+    private boolean enabled = true;
+
 
     public VRDecorator(@NotNull VisorAddon owner,
                        @NotNull String id){
@@ -36,8 +39,12 @@ public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     public abstract void render(PoseStack poseStack, float partialTicks);
 
 
-    public abstract boolean isDisplayable();
+    public abstract boolean canActivate();
 
+
+    public boolean isEnabledAndCanActivate() {
+        return enabled && canActivate();
+    }
 
     @Override
     public @NotNull ElementPriority getPriority() {

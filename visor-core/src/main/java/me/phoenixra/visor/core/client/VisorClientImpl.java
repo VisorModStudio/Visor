@@ -128,7 +128,7 @@ public class VisorClientImpl implements VisorClient {
 
         var tasks = ClientContext.visor.getTaskRegistry().getPreTick();
         for (VisorTask task : tasks) {
-            if (task.isActive(null)) {
+            if (task.isEnabledAndActive(null)) {
                 task.run(null);
             } else {
                 task.clear(null);
@@ -172,7 +172,7 @@ public class VisorClientImpl implements VisorClient {
 
         var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
         for (VisorTask task : tasks) {
-            if (task.isActive(null)) {
+            if (task.isEnabledAndActive(null)) {
                 task.run(null);
             } else {
                 task.clear(null);
