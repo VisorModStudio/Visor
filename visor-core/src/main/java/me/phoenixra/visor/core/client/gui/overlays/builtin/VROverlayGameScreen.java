@@ -195,6 +195,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                     null,
                     MC.screen
             );
+            return;
         }
 
         PoseData renderPose = ClientContext.player

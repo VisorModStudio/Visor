@@ -7,6 +7,10 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.ProgressScreen;
+import net.minecraft.client.gui.screens.ReceivingLevelScreen;
+import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -84,6 +88,11 @@ public class VRRenderState {
         if(MC == null){
             return false;
         }
-        return MC.level == null;
+        return MC.level == null
+                || MC.screen instanceof WinScreen
+                || MC.screen instanceof ReceivingLevelScreen
+                || MC.screen instanceof ProgressScreen
+                || MC.screen instanceof GenericDirtMessageScreen
+                || MC.getOverlay() != null;
     }
 }

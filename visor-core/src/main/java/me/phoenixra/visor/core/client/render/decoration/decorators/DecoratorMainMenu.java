@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
+package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDec
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.world.phys.Vec3;
