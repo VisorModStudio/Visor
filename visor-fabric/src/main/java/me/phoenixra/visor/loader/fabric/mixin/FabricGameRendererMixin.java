@@ -1,7 +1,7 @@
 package me.phoenixra.visor.loader.fabric.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Quaternionf;
@@ -24,7 +24,7 @@ public class FabricGameRendererMixin {
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             s.mulPose(quaternion);
         } else {
-            RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), s);
+            RenderPoseHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), s);
         }
     }
 

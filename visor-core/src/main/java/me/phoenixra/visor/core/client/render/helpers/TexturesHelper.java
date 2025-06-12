@@ -14,12 +14,13 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 public class TexturesHelper {
     private TexturesHelper() {
-        throw new UnsupportedOperationException("TexturesHelper is a utility class and cannot be instantiated");
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
-    private static final Minecraft MC = Minecraft.getInstance();
     private static final Map<Color, ResourceLocation> CACHE = new ConcurrentHashMap<>();
 
     private static final Color WHITE_COLOR = Color.WHITE;

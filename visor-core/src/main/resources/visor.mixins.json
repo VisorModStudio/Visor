@@ -8,7 +8,6 @@
     "client.accessors.RenderStateShardAccessor",
     "client.accessors.RenderSystemAccessor",
     "client.audio.LibraryMixin",
-    "client.gui.GuiGraphicsMixin",
     "client.gui.GuiMixin",
     "client.gui.KeyboardMixins$AbstractSignEditScreenMixin",
     "client.gui.KeyboardMixins$BookEditScreenMixin",

@@ -10,6 +10,7 @@ import org.joml.Vector3fc;
 import redempt.crunch.Crunch;
 
 public class VRMathUtils {
+    public static final Vector3fc zeroVector = new Vector3f(0,0,0);
     public static final Vector3fc forwardVector = new Vector3f(0.0F, 0.0F, -1.0F);
     public static final Vector3fc forwardVectorReversed = new Vector3f(0.0F, 0.0F, 1.0F);
     public static final Vector3fc upVector = new Vector3f(0.0F, 1.0F, 0.0F);

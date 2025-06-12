@@ -20,7 +20,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -139,7 +139,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         if (hand == ControllerHand.MAIN) {
             setPriority(ElementPriority.HIGH);
         }
-        VisorAPI.getEventBus().registerListener(owner,this);
+        VisorAPI.eventBus().registerListener(owner,this);
     }
 
     @VREventHandler
@@ -299,7 +299,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Override
     public void applyModelView(float partialTick) {
-        Vec3 devicePose = RenderHelper.getCameraPosition(
+        Vec3 devicePose = RenderPoseHelper.getCameraPosition(
                 VRDisplay.GUI,
                 ClientContext.player.getPose(PoseType.RENDER)
         );

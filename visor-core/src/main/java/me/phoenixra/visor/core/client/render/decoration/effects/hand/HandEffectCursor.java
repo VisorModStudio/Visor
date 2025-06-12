@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration.effects.hand;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
@@ -16,10 +17,9 @@ import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -28,8 +28,11 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class HandEffectCursor extends VRHandEffect {
     private static final String ID = "cursor";
 
-    private static final Vec3i DEFAULT_COLOR = new Vec3i(228, 228, 228);
-    private static final byte DEFAULT_ALPHA = (byte) 255;
+    private static final AtumColorImmutable DEFAULT_COLOR = new AtumColorImmutable(
+            228, 228, 228,
+            255
+    );
+
     private static final float BOX_HALF_SIZE = 0.0016f;
 
     public HandEffectCursor(@NotNull VisorAddon owner){
@@ -44,16 +47,16 @@ public class HandEffectCursor extends VRHandEffect {
 
         // --- Prepare variables ---
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
-        double cursorLength = cursorHandler.getCursorLength(hand);
+        float cursorLength = (float) cursorHandler.getCursorLength(hand);
         if (cursorLength <= 0) {
             return;
         }
 
-        Vec3 start = new Vec3(0, 0, 0);
-        Vec3 end = new Vec3(0, 0, -cursorLength);
+        Vector3f start = new Vector3f(0, 0, 0);
+        Vector3f end = new Vector3f(0, 0, -cursorLength);
 
         // compute brightness-tinted color
-        Vec3i color = DEFAULT_COLOR;
+        AtumColorImmutable color;
         if (MC.level != null) {
             float rawLight = MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
@@ -65,12 +68,15 @@ public class HandEffectCursor extends VRHandEffect {
             );
             float minLight = ShadersHelper.shaderLight();
             float light = Math.max(rawLight, minLight);
-            float pct = light / MC.level.getMaxLightLevel();
-            color = new Vec3i(
-                    Mth.floor(DEFAULT_COLOR.getX() * pct),
-                    Mth.floor(DEFAULT_COLOR.getY() * pct),
-                    Mth.floor(DEFAULT_COLOR.getZ() * pct)
+            float lightPercent = light / MC.level.getMaxLightLevel();
+            color = new AtumColorImmutable(
+                    Mth.floor(DEFAULT_COLOR.getRedInt() * lightPercent),
+                    Mth.floor(DEFAULT_COLOR.getGreenInt() * lightPercent),
+                    Mth.floor(DEFAULT_COLOR.getBlueInt() * lightPercent),
+                    255
             );
+        }else{
+            color = DEFAULT_COLOR;
         }
 
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
@@ -87,20 +93,16 @@ public class HandEffectCursor extends VRHandEffect {
 
 
         // --- Render ---
-        builder.begin(
-                VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL
-        );
-        RenderHelper.renderBox(
+
+        RenderHelper.renderCuboid(
                 builder,
+                poseStack.last().pose(),
                 start, end,
                 -BOX_HALF_SIZE, BOX_HALF_SIZE,
                 -BOX_HALF_SIZE, BOX_HALF_SIZE,
-                color,
-                DEFAULT_ALPHA,
-                poseStack
+                color
         );
-        BufferUploader.drawWithShader(builder.end());
+
 
         // --- Restore GL ---
         RenderSystem.enableDepthTest();

@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.mixin.client.render.entity;
 
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +19,7 @@ public class MobRendererMixin {
         if (VRRenderState.getCurrentPhase().isNotVRWorld()) {
             return instance.getRopeHoldPosition(partialTick);
         }
-        return RenderHelper.getControllerPosition(
+        return RenderPoseHelper.getControllerPosition(
                 ControllerHand.MAIN
         );
     }

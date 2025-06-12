@@ -29,8 +29,8 @@ public class VRMenuPanorama {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        poseStack.pushPose();
 
+        poseStack.pushPose();
         poseStack.translate(-50F, -50F, -50.0F);
 
         Matrix4f matrix = poseStack.last().pose();

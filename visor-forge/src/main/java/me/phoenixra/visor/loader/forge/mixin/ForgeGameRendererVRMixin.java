@@ -2,7 +2,7 @@ package me.phoenixra.visor.loader.forge.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
@@ -43,7 +43,7 @@ public class ForgeGameRendererVRMixin {
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             s.mulPose(quaternion);
         } else {
-            RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), s);
+            RenderPoseHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), s);
         }
     }
 

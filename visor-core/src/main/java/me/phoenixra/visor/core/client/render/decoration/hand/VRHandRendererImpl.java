@@ -3,6 +3,8 @@ package me.phoenixra.visor.core.client.render.decoration.hand;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
+import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
@@ -16,18 +18,19 @@ import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 
 import me.phoenixra.visor.core.client.ClientContext;
@@ -37,6 +40,11 @@ import java.util.*;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRHandRendererImpl implements VRHandRenderer {
+
+    private static final AtumColorImmutable GUI_HANDS_COLOR = new AtumColorImmutable(
+            64, 64, 64,
+            255
+    );
 
     @Getter
     private final VRHandItemPoseRegistry itemPosesRegistry = new VRHandItemPoseRegistry();
@@ -91,7 +99,9 @@ public class VRHandRendererImpl implements VRHandRenderer {
                             boolean renderMain,
                             boolean renderOffhand,
                             boolean isGui){
-
+        if (!ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
+            return;
+        }
         RenderSystem.backupProjectionMatrix();
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
@@ -141,8 +151,8 @@ public class VRHandRendererImpl implements VRHandRenderer {
         poseStack.pushPose();
 
         poseStack.setIdentity();
-        RenderHelper.applyDisplayOrientation(display, poseStack);
-        RenderHelper.applyControllerPose(hand, poseStack);
+        RenderPoseHelper.applyDisplayOrientation(display, poseStack);
+        RenderPoseHelper.applyControllerPose(hand, poseStack);
 
         var stageEffects = groupEffectsByStage(effects, decorator, hand, isGui);
 
@@ -188,15 +198,15 @@ public class VRHandRendererImpl implements VRHandRenderer {
 
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
 
-        Vec3i color = new Vec3i(64, 64, 64);
+        AtumColorImmutable color;
 
-        Vec3 dir = VRMathUtils.forwardVectorMc;
+        Vector3fc dir = VRMathUtils.forwardVector;
 
-        Vec3 start = new Vec3(0.0D, 0.0D, 0.0D);
-        Vec3 end = new Vec3(
-                start.x - dir.x * 0.18D,
-                start.y - dir.y * 0.18D,
-                start.z - dir.z * 0.18D
+        Vector3f start = new Vector3f(0.0f, 0.0f, 0.0f);
+        Vector3f end = new Vector3f(
+                start.x - dir.x() * 0.18f,
+                start.y - dir.y() * 0.18f,
+                start.z - dir.z() * 0.18f
         );
 
         if (MC.level != null) {
@@ -211,30 +221,27 @@ public class VRHandRendererImpl implements VRHandRenderer {
             light = Math.max(light, ShadersHelper.shaderLight());
             float lightPercent = light / (float) MC.level.getMaxLightLevel();
 
-            color = new Vec3i(
-                    Mth.floor(color.getX() * lightPercent),
-                    Mth.floor(color.getY() * lightPercent),
-                    Mth.floor(color.getZ() * lightPercent)
+            color = new AtumColorImmutable(
+                    Mth.floor(GUI_HANDS_COLOR.getRedInt() * lightPercent),
+                    Mth.floor(GUI_HANDS_COLOR.getGreenInt() * lightPercent),
+                    Mth.floor(GUI_HANDS_COLOR.getBlueInt() * lightPercent),
+                    255
             );
+        }else{
+            color = GUI_HANDS_COLOR;
         }
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         Tesselator tesselator = Tesselator.getInstance();
-        tesselator.getBuilder().begin(
-                VertexFormat.Mode.QUADS,
-                DefaultVertexFormat.POSITION_COLOR_NORMAL
-        );
-        RenderHelper.renderBox(
+        RenderHelper.renderCuboid(
                 tesselator.getBuilder(),
+                poseStack.last().pose(),
                 start, end,
                 -0.02F, 0.02F,
                 -0.0125F, 0.0125F,
-                color, (byte) 255,
-                poseStack
+                color
         );
-        BufferUploader.drawWithShader(tesselator.getBuilder().end());
-
 
     }
 

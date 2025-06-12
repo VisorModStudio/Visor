@@ -37,7 +37,7 @@ public class ClientFeaturesToggle {
                 continue;
             }
             var event = new AllowClientFeatureVREvent(feature);
-            VisorAPI.getEventBus().callEvent(event);
+            VisorAPI.eventBus().callEvent(event);
 
             features.put(feature, !event.isCanceled());
         }

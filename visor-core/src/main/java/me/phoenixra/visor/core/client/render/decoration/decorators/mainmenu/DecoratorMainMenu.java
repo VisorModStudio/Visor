@@ -2,14 +2,13 @@ package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +43,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
-        RenderHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
+        RenderPoseHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
 
         renderPanorama(poseStack);
 
@@ -55,12 +54,10 @@ public class DecoratorMainMenu extends VRDecorator {
                 true
         );
 
-        if(ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            ClientContext.handRenderer.renderGuiHands(
-                    poseStack, partialTicks,
-                    true, true
-            );
-        }
+        ClientContext.handRenderer.renderGuiHands(
+                poseStack, partialTicks,
+                true, true
+        );
 
         ClientContext.decoratorManager.renderGameEffects(
                 poseStack, partialTicks
@@ -72,7 +69,7 @@ public class DecoratorMainMenu extends VRDecorator {
         PoseDataImpl renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
         poseStack.pushPose();
-        Vec3 eye = RenderHelper.getCameraPosition(
+        Vec3 eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
                 renderPose
         );

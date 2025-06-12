@@ -17,52 +17,52 @@ import java.awt.*;
 public interface AtumColor {
 
     /** Predefined white color */
-    AtumColor WHITE = immutable(1.0f, 1.0f, 1.0f, 1.0f);
+    AtumColorImmutable WHITE = immutable(1.0f, 1.0f, 1.0f, 1.0f);
 
     /** Predefined black color */
-    AtumColor BLACK = immutable(0.0f, 0.0f, 0.0f, 1.0f);
+    AtumColorImmutable BLACK = immutable(0.0f, 0.0f, 0.0f, 1.0f);
 
     /** Predefined red color */
-    AtumColor RED = immutable(1.0f, 0.0f, 0.0f, 1.0f);
+    AtumColorImmutable RED = immutable(1.0f, 0.0f, 0.0f, 1.0f);
 
     /** Predefined green color */
-    AtumColor GREEN = immutable(0.0f, 1.0f, 0.0f, 1.0f);
+    AtumColorImmutable GREEN = immutable(0.0f, 1.0f, 0.0f, 1.0f);
 
     /** Predefined blue color */
-    AtumColor BLUE = immutable(0.0f, 0.0f, 1.0f, 1.0f);
+    AtumColorImmutable BLUE = immutable(0.0f, 0.0f, 1.0f, 1.0f);
 
     /** Predefined yellow color */
-    AtumColor YELLOW = immutable(1.0f, 1.0f, 0.0f, 1.0f);
+    AtumColorImmutable YELLOW = immutable(1.0f, 1.0f, 0.0f, 1.0f);
 
     /** Predefined cyan color */
-    AtumColor CYAN = immutable(0.0f, 1.0f, 1.0f, 1.0f);
+    AtumColorImmutable CYAN = immutable(0.0f, 1.0f, 1.0f, 1.0f);
 
     /** Predefined magenta color */
-    AtumColor MAGENTA = immutable(1.0f, 0.0f, 1.0f, 1.0f);
+    AtumColorImmutable MAGENTA = immutable(1.0f, 0.0f, 1.0f, 1.0f);
 
     /** Predefined gray color: (50% gray) */
-    AtumColor GRAY = immutable(0.5f, 0.5f, 0.5f, 1.0f);
+    AtumColorImmutable GRAY = immutable(0.5f, 0.5f, 0.5f, 1.0f);
 
     /** Predefined dark gray color: (25% gray) */
-    AtumColor DARK_GRAY = immutable(0.25f, 0.25f, 0.25f, 1.0f);
+    AtumColorImmutable DARK_GRAY = immutable(0.25f, 0.25f, 0.25f, 1.0f);
 
     /** Predefined light gray color: (75% gray) */
-    AtumColor LIGHT_GRAY = immutable(0.75f, 0.75f, 0.75f, 1.0f);
+    AtumColorImmutable LIGHT_GRAY = immutable(0.75f, 0.75f, 0.75f, 1.0f);
 
     /** Predefined orange color */
-    AtumColor ORANGE = immutable(1.0f, 0.5f, 0.0f, 1.0f);
+    AtumColorImmutable ORANGE = immutable(1.0f, 0.5f, 0.0f, 1.0f);
 
     /** Predefined pink color */
-    AtumColor PINK = immutable(1.0f, 0.68f, 0.68f, 1.0f);
+    AtumColorImmutable PINK = immutable(1.0f, 0.68f, 0.68f, 1.0f);
 
     /** Predefined purple color */
-    AtumColor PURPLE = immutable(0.5f, 0.0f, 0.5f, 1.0f);
+    AtumColorImmutable PURPLE = immutable(0.5f, 0.0f, 0.5f, 1.0f);
 
     /** Predefined brown color */
-    AtumColor BROWN = immutable(0.5f, 0.25f, 0.0f, 1.0f);
+    AtumColorImmutable BROWN = immutable(0.5f, 0.25f, 0.0f, 1.0f);
 
     /** Predefined lime color */
-    AtumColor LIME = immutableFromHex("#39FF14");
+    AtumColorImmutable LIME = immutableFromHex("#39FF14");
 
 
     /**

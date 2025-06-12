@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.core.client.render.helpers.ShaderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderShaderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 
@@ -33,6 +33,6 @@ public class VRShaderPostProcess implements VRShader{
                            float partialTick) {
 
 
-        ShaderHelper.renderFullscreenQuad(handle, source);
+        RenderShaderHelper.renderFullscreenQuad(handle, source);
     }
 }

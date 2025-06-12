@@ -17,6 +17,7 @@ import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import me.phoenixra.visor.core.client.render.VRGameCamera;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
@@ -453,8 +454,7 @@ public abstract class GameRendererMixin
             float fov = VRClientSettings.getThirdPersonFov();
             sinN *= (float) (fov / 70.0);
         }
-        RenderHelper.applyDisplayOrientation(currentDisplay, poseStack);
-        RenderHelper.applyDisplayTranslation(currentDisplay, poseStack);
+        RenderPoseHelper.applyDisplayPose(currentDisplay, poseStack);
         poseStack.scale(sinN, sinN, sinN);
         poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
         poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
@@ -641,11 +641,11 @@ public abstract class GameRendererMixin
                 || VRRenderState.isInMainMenu()){
             return;
         }
-        Vec3 cameraPos = RenderHelper.getCameraPosition(
+        Vec3 cameraPos = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
                 ClientContext.player.getPose(PoseType.RENDER)
         );
-        Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = VREffectsHelper
+        Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
                 .findNearestSolidBlock(
                         cameraPos,
                         this.visor$nearClipPlane

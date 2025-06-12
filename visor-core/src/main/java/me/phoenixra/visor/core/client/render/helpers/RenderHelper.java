@@ -1,190 +1,66 @@
 package me.phoenixra.visor.core.client.render.helpers;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
-import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import net.minecraft.core.Vec3i;
+import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.common.utils.VRMathUtils;
+import me.phoenixra.visor.core.mixin.client.accessors.RenderSystemAccessor;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
-import me.phoenixra.visor.core.client.ClientContext;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL43C;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.function.Supplier;
+
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class RenderHelper {
+    private RenderHelper() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
 
-    private static int polyBlendSrcA;
-    private static int polyBlendDstA;
-    private static int polyBlendSrcRGB;
-    private static int polyBlendDstRGB;
-    private static boolean polyBlend;
-    private static boolean polyCull;
-
-
-    public static void applyDisplayOrientation(VRDisplay vrDisplay, PoseStack poseStack) {
-        float mirrorSmooth = VRClientSettings.getMirrorSmooth();
-
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
-        final Matrix4f rotationMatrix;
-
-        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
-        if (smooth) {
-            // average rotation over history
-            rotationMatrix = new Matrix4f()
-                    .rotation(
-                            ClientContext.rawPoseHandler
-                                    .getHmdData()
-                                    .getRotationHistory()
-                                    .averageRotation(mirrorSmooth)
-                    );
+    public static boolean isInSolidBlock(Vec3 in) {
+        if (MC.level == null) {
+            return false;
         } else {
-            // direct VR eye/head rotation
-            rotationMatrix = renderPose
-                    .getElementForDisplay(vrDisplay)
-                    .getRotationMatrix()
-                    .transpose(new Matrix4f());
-        }
-
-        // apply to both pos & normal
-        poseStack.last().pose().mul(rotationMatrix);
-        poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
-    }
-
-    public static void applyDisplayTranslation(VRDisplay vrDisplay, PoseStack poseStack) {
-        if (!vrDisplay.isEye()) {
-            return;
-        }
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
-        Vec3 eyePos = renderPose.getElementForDisplay(vrDisplay).getPosition();
-        Vec3 hmdOrigin = renderPose.getHmd().getPosition();
-        Vec3 offset = eyePos.subtract(hmdOrigin);
-
-        poseStack.translate(-offset.x, -offset.y, -offset.z);
-    }
-
-
-
-    public static void applyControllerPose(ControllerHand hand, PoseStack poseStack) {
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
-
-        // move origin to controller pos relative to camera
-        Vec3 controllerPos = getControllerPosition(hand);
-        Vec3 cameraPos    = getCameraPosition(VRRenderState.getCurrentVRDisplay(), renderPose);
-        Vec3 relative     = controllerPos.subtract(cameraPos);
-        poseStack.translate(relative.x, relative.y, relative.z);
-
-        // apply controller’s inverse rotation
-        Matrix4f invRot = renderPose
-                .getController(hand)
-                .getRotationMatrix()
-                .invert(new Matrix4f())
-                .transpose(new Matrix4f());
-        poseStack.last().pose().mul(invRot);
-
-        // 3) scale to world scale
-        float s = renderPose.getWorldScale();
-        poseStack.scale(s, s, s);
-    }
-
-
-    public static Vec3 getCameraPosition(VRDisplay vrDisplay, PoseData vrPose) {
-        float mirrorSmooth = VRClientSettings.getMirrorSmooth();
-
-        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
-        if (smooth) {
-            Vec3 avg = ClientContext.rawPoseHandler
-                    .getHmdData()
-                    .getPositionHistory()
-                    .averagePosition(mirrorSmooth);
-            // scale, rotate by yaw, then offset by origin
-            return avg
-                    .scale(vrPose.getWorldScale())
-                    .yRot(vrPose.getRotationY())
-                    .add(vrPose.getOrigin());
-        }
-
-        return vrPose.getElementForDisplay(vrDisplay).getPosition();
-    }
-
-
-
-
-    public static Vec3 getControllerPosition(ControllerHand hand) {
-        return ClientContext
-                .player
-                .getPose(PoseType.RENDER)
-                .getController(hand)
-                .getPosition();
-    }
-
-
-    public static void setupPolyRendering(boolean enable) {
-
-        if (enable) {
-            polyBlendSrcA = GlStateManager.BLEND.srcAlpha;
-            polyBlendDstA = GlStateManager.BLEND.dstAlpha;
-            polyBlendSrcRGB = GlStateManager.BLEND.srcRgb;
-            polyBlendDstRGB = GlStateManager.BLEND.dstRgb;
-            polyBlend = GL43C.glIsEnabled(GL11.GL_BLEND);
-            polyCull = true;
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.disableCull();
-
-        } else {
-            RenderSystem.blendFuncSeparate(polyBlendSrcRGB, polyBlendDstRGB, polyBlendSrcA,
-                    polyBlendDstA);
-
-            if (!polyBlend) {
-                RenderSystem.disableBlend();
-            }
-
-            if (polyCull) {
-                RenderSystem.enableCull();
-            }
-
-
+            BlockPos blockpos = BlockPos.containing(in);
+            return MC.level.getBlockState(blockpos).isSolidRender(MC.level, blockpos);
         }
     }
 
+    public static void renderCuboid(BufferBuilder bufferBuilder,
+                                    Matrix4f poseMatrix,
+                                    Vector3fc start,
+                                    Vector3fc end,
+                                    float innerWidth, float outerWidth,
+                                    float innerHeight, float outerHeight,
+                                    AtumColor color) {
 
-    public static void renderBox(BufferBuilder buffer,
-                                 Vec3 start,
-                                 Vec3 end,
-                                 float minX, float maxX,
-                                 float minY, float maxY,
-                                 Vec3i color,
-                                 byte alpha,
-                                 PoseStack poseStack) {
-        // Compute local axes
-        Vec3 forward = end.subtract(start).normalize();
-        Vec3 upWorld = new Vec3(0, 1, 0);
-        Vec3 right = forward.cross(upWorld).normalize();
-        Vec3 up = right.cross(forward).normalize();
+        // --- Prepare variables ---
+        var forward = end.sub(start, new Vector3f()).normalize();
+        var right = forward.cross(VRMathUtils.upVector, new Vector3f()).normalize();
+        var up = right.cross(forward, new Vector3f()).normalize();
 
-        // Scale axes for thickness
-        Vec3 r0 = right.scale(minX);
-        Vec3 r1 = right.scale(maxX);
-        Vec3 u0 = up.scale(minY);
-        Vec3 u1 = up.scale(maxY);
+        var r0 = right.mul(innerWidth, new Vector3f());
+        var r1 = right.mul(outerWidth, new Vector3f());
+        var u0 = up.mul(innerHeight, new Vector3f());
+        var u1 = up.mul(outerHeight, new Vector3f());
 
-        // Precompute corners: each entry is {basePoint, x-offset, y-offset}
-        Vec3[][] corners = new Vec3[][] {
+        var corners = new Vector3fc[][] {
                 { start, r0, u0 }, { start, r1, u0 }, { start, r1, u1 }, { start, r0, u1 },
                 { end,   r0, u0 }, { end,   r1, u0 }, { end,   r1, u1 }, { end,   r0, u1 }
         };
 
-        Matrix4f mat = poseStack.last().pose();
-        Vec3[] normals = new Vec3[] { forward, right, up };
-        int[][] faceIndices = new int[][] {
+        var faceIndices = new int[][] {
                 // back face (start)
                 {0, 3, 2, 1},
                 // front face (end)
@@ -198,38 +74,249 @@ public class RenderHelper {
                 // bottom face
                 {0, 1, 5, 4}
         };
-        Vec3[] faceNormals = new Vec3[] {
-                forward, forward.scale(-1),
-                right, right.scale(-1),
-                up, up.scale(-1)
+        var faceNormals = new Vector3f[] {
+                forward, forward.mul(-1, new Vector3f()).normalize(),
+                right, right.mul(-1, new Vector3f()).normalize(),
+                up, up.mul(-1, new Vector3f()).normalize()
         };
 
-        // Draw each face
+
+        // --- Render ---
+        bufferBuilder.begin(
+                VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.POSITION_COLOR_NORMAL
+        );
         for (int f = 0; f < faceIndices.length; f++) {
-            Vec3 normal = faceNormals[f].normalize();
+            Vector3f normal = faceNormals[f];
             for (int idx : faceIndices[f]) {
-                Vec3 base = corners[idx][0];
-                Vec3 xOff = corners[idx][1];
-                Vec3 yOff = corners[idx][2];
-                Vec3 pos = base.add(xOff).add(yOff);
-                addVertex(buffer, mat, pos, color, alpha, normal);
+                var base = corners[idx][0];
+                var xOff = corners[idx][1];
+                var yOff = corners[idx][2];
+                var pos = base.add(xOff, new Vector3f()).add(yOff);
+                addVertex(bufferBuilder, poseMatrix, pos, color, normal);
             }
+        }
+        BufferUploader.drawWithShader(bufferBuilder.end());
+    }
+
+
+    public static void renderFlatQuad(BufferBuilder bufferBuilder,
+                                      Matrix4f poseMatrix,
+                                      Vector3fc pos,
+                                      float width,
+                                      float height,
+                                      float yaw,
+                                      AtumColor color) {
+        // --- Prepare variables ---
+        float halfW = width  * 0.5f;
+        float halfH = height * 0.5f;
+        Vector3f off = new Vector3f(halfW, 0, halfH)
+                .rotateY((float)Math.toRadians(-yaw));
+        Vector3fc normal = VRMathUtils.upVector;
+        float xOff = off.x, zOff = off.z;
+        float r = color.getRed(), g = color.getGreen(),
+                b = color.getBlue(), a = color.getAlpha();
+
+
+        float[][] vertices = {
+                { pos.x() + xOff, pos.y(), pos.z() + zOff },
+                { pos.x() + xOff, pos.y(), pos.z() - zOff },
+                { pos.x() - xOff, pos.y(), pos.z() - zOff },
+                { pos.x() - xOff, pos.y(), pos.z() + zOff }
+        };
+
+
+        // --- Render ---
+        bufferBuilder.begin(VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        for (float[] vertex : vertices) {
+            bufferBuilder.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
+                    .color(r, g, b, a)
+                    .normal(normal.x(), normal.y(), normal.z())
+                    .endVertex();
+        }
+        BufferUploader.drawWithShader(bufferBuilder.end());
+
+    }
+
+
+    public static void renderDisplayQuad(Matrix4f poseMatrix,
+                                         AtumColor color,
+                                         float displayWidth,
+                                         float displayHeight,
+                                         float size) {
+        // --- Prepare variables ---
+        float aspect = displayHeight / displayWidth;
+        float halfSize = size * 0.5f;
+        float halfHeight = halfSize * aspect;
+        float u0 = 0f, u1 = 1f, v0 = 0f, v1 = 1f;
+        float r = color.getRed(), g = color.getGreen(),
+                b = color.getBlue(), a = color.getAlpha();
+
+
+        float[][] vertices = {
+                { -halfSize, -halfHeight, 0f,   u0, v0 },
+                {  halfSize, -halfHeight, 0f,   u1, v0 },
+                {  halfSize,  halfHeight, 0f,   u1, v1 },
+                { -halfSize,  halfHeight, 0f,   u0, v1 }
+        };
+
+        // --- Setup ---
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(r, g, b, a);
+
+        // --- Render ---
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS,
+                DefaultVertexFormat.POSITION_TEX);
+
+        for (float[] vertex : vertices) {
+            buf.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
+                    .uv(vertex[3], vertex[4])
+                    .endVertex();
+        }
+        BufferUploader.drawWithShader(buf.end());
+
+        // --- Restore ---
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+
+    }
+
+
+    public static void renderDisplayQuadWithLight(Matrix4f poseMatrix,
+                                                  AtumColor color,
+                                                  float displayWidth,
+                                                  float displayHeight,
+                                                  float size,
+                                                  int light,
+                                                  boolean flipY) {
+        renderDisplayQuadWithLight(poseMatrix, color, GameRenderer::getRendertypeEntityCutoutNoCullShader, displayWidth, displayHeight, size, light, flipY);
+    }
+
+
+
+    public static void renderDisplayQuadWithLight(Matrix4f poseMatrix,
+                                                  AtumColor color,
+                                                  Supplier<ShaderInstance> shader,
+                                                  float displayWidth,
+                                                  float displayHeight,
+                                                  float size,
+                                                  int light,
+                                                  boolean flipY) {
+        // --- Prepare variables ---
+        float red = color.getRed();
+        float green = color.getGreen();
+        float blue = color.getBlue();
+        float alpha = color.getAlpha();
+
+        float aspect = displayHeight / displayWidth;
+        float halfSize = size * 0.5f;
+        float halfHeight = halfSize * aspect;
+        float uMin = 0f;
+        float uMax = 1f;
+        float vMin = flipY ? 1f : 0f;
+        float vMax = flipY ? 0f : 1f;
+
+        float[][] pos = {
+                { -halfSize, -halfHeight },
+                {  halfSize, -halfHeight },
+                {  halfSize,  halfHeight },
+                { -halfSize,  halfHeight }
+        };
+        float[][] uv = {
+                { uMin, vMin },
+                { uMax, vMin },
+                { uMax, vMax },
+                { uMin, vMax }
+        };
+
+        // --- Setup ---
+        RenderSystem.setShader(shader);
+        MC.gameRenderer.lightTexture().turnOnLightLayer();
+        MC.gameRenderer.overlayTexture().setupOverlayColor();
+
+        // cache old light directions
+        Vector3f[] oldLights = RenderSystemAccessor.getShaderLightDirections();
+        Vector3f old0 = oldLights[0];
+        Vector3f old1 = oldLights[1];
+
+        // force lighting to face forward
+        Vector3f forward = (Vector3f) VRMathUtils.forwardVectorReversed;
+        RenderSystem.setShaderLights(forward, forward);
+        RenderSystem.setupShaderLights(RenderSystem.getShader());
+
+
+        // --- Render ---
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+
+        for (int i = 0; i < 4; i++) {
+            float x = pos[i][0], y = pos[i][1];
+            float u = uv[i][0], v = uv[i][1];
+            buf.vertex(poseMatrix, x, y, 0f)
+                    .color(red, green, blue, alpha)
+                    .uv(u, v)
+                    .overlayCoords(OverlayTexture.NO_OVERLAY)
+                    .uv2(light)
+                    .normal(0f, 0f, 1f)
+                    .endVertex();
+        }
+
+        BufferUploader.drawWithShader(buf.end());
+
+        // --- Restore ---
+        MC.gameRenderer.lightTexture().turnOffLightLayer();
+        if (old0 != null && old1 != null) {
+            RenderSystem.setShaderLights(old0, old1);
+            RenderSystem.setupShaderLights(RenderSystem.getShader());
         }
     }
 
-    private static void addVertex(BufferBuilder buff,
-                                  Matrix4f mat,
-                                  Vec3 pos,
-                                  Vec3i color,
-                                  int alpha,
-                                  Vec3 normal) {
-        buff.vertex(mat, (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(color.getX(), color.getY(), color.getZ(), alpha)
-                .normal((float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+
+
+    /**
+     * Searches within a sphere of radius {@code radius} around {@code origin}
+     * for the nearest block whose {@code isSolidRender} is true.
+     *
+     * @param origin the center of the search in world coordinates
+     * @param radius the search radius
+     * @return an Optional containing the nearest opaque block info, or empty if none found
+     */
+    public static Optional<VREffectsHelper.NearestOpaqueBlock> findNearestSolidBlock(Vec3 origin, double radius) {
+        ClientLevel level = MC.level;
+        if (level == null) {
+            return Optional.empty();
+        }
+
+
+        AABB box = new AABB(
+                origin.subtract(radius, radius, radius),
+                origin.add(radius, radius, radius)
+        );
+
+        return BlockPos
+                .betweenClosedStream(box)
+                // only those that actually render as solid
+                .filter(pos -> level.getBlockState(pos).isSolidRender(level, pos))
+                .map(pos -> {
+                    float dist = (float) Vec3.atCenterOf(pos).distanceTo(origin);
+                    return new VREffectsHelper.NearestOpaqueBlock(dist, level.getBlockState(pos), pos);
+                })
+                // pick the one with the minimum distance
+                .min(Comparator.comparingDouble(VREffectsHelper.NearestOpaqueBlock::distance));
     }
 
 
 
 
+    private static void addVertex(BufferBuilder buff,
+                                  Matrix4f mat,
+                                  Vector3fc pos,
+                                  AtumColor color,
+                                  Vector3fc normal) {
+        buff.vertex(mat, pos.x(), pos.y(), pos.z())
+                .color(color.getRedInt(), color.getGreenInt(), color.getBlueInt(), (byte) color.getAlphaInt())
+                .normal(normal.x(), normal.y(), normal.z())
+                .endVertex();
+    }
 }

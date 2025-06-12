@@ -94,6 +94,10 @@ public class AtumColorImmutable implements AtumColor {
         return (channel <= 0.03928) ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
     }
 
+    public AtumColorMutable asMutable(){
+        return new AtumColorMutable(red, green, blue, alpha);
+    }
+
     @Override
     public String toString() {
         return "AtumColorImmutable{" +

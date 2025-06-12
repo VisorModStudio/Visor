@@ -119,7 +119,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     overlay.getRotation()
             );
 
-            if (distance < 0 || distance > closestDistance) {
+            //can focus cursor if distance within [0;5] bounds
+            if (distance < 0 || distance > 5 || distance > closestDistance) {
                 continue;
             }
 

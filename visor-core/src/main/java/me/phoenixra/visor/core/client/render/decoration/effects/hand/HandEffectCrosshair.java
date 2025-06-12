@@ -15,7 +15,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.decoration.decorators.DecoratorGame;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -97,7 +97,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- Pose setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderHelper.applyDisplayOrientation(display, poseStack);
+        RenderPoseHelper.applyDisplayOrientation(display, poseStack);
 
         Vec3 camPos = MC.getCameraEntity().position();
         Vec3 translate = crossPos.subtract(camPos);

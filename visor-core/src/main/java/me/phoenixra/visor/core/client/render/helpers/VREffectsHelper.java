@@ -10,67 +10,28 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL43;
 
-import java.util.Comparator;
-import java.util.Optional;
-
-import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
-
 public class VREffectsHelper {
-
+    private VREffectsHelper() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
 
     public record NearestOpaqueBlock(float distance, BlockState state, BlockPos position) {}
 
-    /**
-     * Searches within a sphere of radius {@code radius} around {@code origin}
-     * for the nearest block whose {@code isSolidRender} is true.
-     *
-     * @param origin the center of the search in world coordinates
-     * @param radius the search radius
-     * @return an Optional containing the nearest opaque block info, or empty if none found
-     */
-    public static Optional<NearestOpaqueBlock> findNearestSolidBlock(Vec3 origin, double radius) {
-        ClientLevel level = MC.level;
-        if (level == null) {
-            return Optional.empty();
-        }
 
 
-        AABB box = new AABB(
-                origin.subtract(radius, radius, radius),
-                origin.add(radius, radius, radius)
-        );
-
-        return BlockPos
-                .betweenClosedStream(box)
-                // only those that actually render as solid
-                .filter(pos -> level.getBlockState(pos).isSolidRender(level, pos))
-                .map(pos -> {
-                    float dist = (float) Vec3.atCenterOf(pos).distanceTo(origin);
-                    return new NearestOpaqueBlock(dist, level.getBlockState(pos), pos);
-                })
-                // pick the one with the minimum distance
-                .min(Comparator.comparingDouble(NearestOpaqueBlock::distance));
-    }
-
-
-    public static void renderInsideBlockOverlay() {
+    public static void renderInBlockEffect() {
+        // --- Prepare variables ---
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
-        RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
-
-        // orthographic matrix, (-1, -1) to (1, 1), near = 0.0, far 2.0
+        // orthographic matrix
         Matrix4f mat = new Matrix4f();
         mat.m00(1.0F);
         mat.m11(1.0F);
@@ -78,16 +39,23 @@ public class VREffectsHelper {
         mat.m33(1.0F);
         mat.m32(-1.0F);
 
+        // --- Setup ---
+        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(true);
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
+
+        // --- Render ---
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
         bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).endVertex();
         bufferbuilder.vertex(mat, 1.5F, -1.5F, 0.0F).endVertex();
         bufferbuilder.vertex(mat, 1.5F, 1.5F, 0.0F).endVertex();
         bufferbuilder.vertex(mat, -1.5F, 1.5F, 0.0F).endVertex();
         tesselator.end();
+
+        // --- Restore ---
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }

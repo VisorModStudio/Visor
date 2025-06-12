@@ -4,14 +4,12 @@ package me.phoenixra.visor.core.client.render.decoration.hand;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,14 +18,17 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.joml.Vector3f;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 
 @RegisterVRItemPose
 public class VRItemPoseDefault extends VRHandItemPose {
@@ -38,277 +39,198 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
 
     @Override
-    public void applyPose(@NotNull PoseStack poseStack,
+    public void applyPose(@NotNull PoseStack stack,
                           @NotNull AbstractClientPlayer player,
                           @NotNull ControllerHand hand,
-                          @NotNull ItemStack itemStack,
-                          float equippedProgress,
-                          float partialTick
-    ) {
+                          @NotNull ItemStack item,
+                          float equipProgress,
+                          float partialTicks) {
 
-
-        InteractionHand interactionHand = hand == ControllerHand.MAIN ?
-                InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        InteractionHand mcHand = hand == ControllerHand.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         int handDir = hand == ControllerHand.MAIN ? 1 : -1;
-        double itemScale = 0.7;
-        double offsetX = -0.05;
-        double offsetY = 0.005;
-        double offsetZ = 0.0;
-
         double gunAngle = ClientContext.rawPoseHandler.getGunAngle();
-        Quaternionf itemRotation = Axis.YP.rotationDegrees(0.0F);
-        Quaternionf preRotation = Axis.YP.rotationDegrees(0.0F);
-        itemRotation.mul(Axis.XP.rotationDegrees((float) (-110.0D + gunAngle)));
 
-        VRItemPoseType transformType = getTransformType(
-                itemStack, player, MC.getItemRenderer()
-        );
-        switch (transformType){
-            default -> {
-                if (itemStack.getItem() instanceof ArrowItem) {
-                    preRotation = Axis.ZP.rotationDegrees(-180.0F);
-                    itemRotation.mul(Axis.XP.rotationDegrees((float) (-gunAngle)));
-                }
-            }
 
-            case DEFAULT, BLOCK_ITEM -> {
-                itemRotation = Axis.ZP.rotationDegrees(180.0F);
-                itemRotation.mul(Axis.XP.rotationDegrees(-135.0F));
-                itemScale = 0.4F;
-                offsetX += 0.08F;
-                offsetZ += -0.08F;
-            }
-            case BLOCK_3D -> {
-                itemScale = 0.3F;
-                offsetZ += -0.1F;
-                offsetX += 0.05F;
-            }
-            case BLOCK_STICK -> {
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                offsetY += -0.105D + 0.06D * gunAngle / 40.0D;
-                offsetZ += -0.1F;
-                itemRotation.mul(Axis.XP.rotationDegrees(-45.0F));
-                itemRotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
-            }
+        PoseParams params = computeParams(item, player, mcHand, handDir, (float) gunAngle, equipProgress, partialTicks);
 
-            case CONSUMABLE -> {
-                long l = MC.player.getUseItemRemainingTicks();
-                itemRotation = Axis.ZP.rotationDegrees(180.0F);
-                itemRotation.mul(Axis.XP.rotationDegrees(-135.0F));
-                offsetZ = offsetZ + 0.006D * Mth.sin(l);
-                offsetZ = offsetZ + (double) 0.02F;
-                offsetX += 0.08F;
-                itemScale = 0.4F;
-            }
-            case HORN -> {
-                itemScale = 0.3F;
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                offsetY += -0.105D + 0.06D * gunAngle / 40.0D;
-                offsetZ += -0.1F;
-                itemRotation.mul(Axis.XP.rotationDegrees(-45.0F));
-                itemRotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
-            }
-            case FISHING_ROD -> {
-                offsetZ += -0.15F;
-                offsetY += -0.02D + gunAngle / 40.0D * 0.1D;
-                offsetX += 0.05F;
-                itemRotation.mul(Axis.XP.rotationDegrees(40.0F));
-                itemScale = 0.8F;
-            }
 
-            case MAP -> {
-                itemRotation = Axis.XP.rotationDegrees(-45.0F);
-                offsetX = 0.0D;
-                offsetY = 0.16D;
-                offsetZ = -0.075D;
-                itemScale = 0.75D;
-            }
-            case COMPASS -> {
-                itemRotation = Axis.YP.rotationDegrees(90.0F);
-                itemRotation.mul(Axis.XP.rotationDegrees(25.0F));
-                itemScale = 0.4F;
-            }
-            case TELESCOPE -> {
-                preRotation = Axis.XP.rotationDegrees(0.0F);
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                offsetZ = 0.0D;
-                offsetY = 0.0D;
-                offsetX = 0.0D;
-            }
+        stack.mulPose(params.preRotation);
+        stack.translate(params.offsetX, params.offsetY, params.offsetZ);
+        stack.mulPose(params.rotation);
+        stack.scale(params.scale, params.scale, params.scale);
+    }
 
-            case CROSSBOW -> {
-                offsetX += 0.01F;
-                offsetZ += -0.02F;
-                offsetY += -0.02F;
-                itemScale = 0.5D;
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                itemRotation.mul(Axis.YP.rotationDegrees(10.0F));
-            }
-            case BOW -> {
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                poseStack.mulPose(Axis.XP.rotationDegrees((float) (-90.0D + gunAngle)));
-                offsetY -= 0.25D;
-                offsetZ += (double) 0.025F + 0.03D * gunAngle / 40.0D;
-                offsetX += -0.0225D;
-                itemScale = 1.0D;
-            }
-            case SHIELD -> {
-                boolean reverse = VRClientSettings.isLeftHanded();
-                if (reverse) {
-                    handDir *= -1;
-                }
-                itemScale = 0.4F;
+    //@TODO rework legacy code
+    private PoseParams computeParams(ItemStack item,
+                                     AbstractClientPlayer player,
+                                     InteractionHand mcHand,
+                                     int handDir,
+                                     float gunAngle,
+                                     float equipProgress,
+                                     float partialTicks) {
+        // defaults
+        float scale = 0.7f;
+        float translateX = -0.05f, translateY = 0.005f, translateZ = 0f;
+        Quaternionf preRotation = Axis.YP.rotationDegrees(0);
+        Quaternionf rotation = Axis.YP.rotationDegrees(0);
+        rotation.mul(Axis.XP.rotationDegrees(-110 + gunAngle));
 
-                offsetY += 0.18F;
-                //
-                if (handDir == 1) {
-                    itemRotation.mul(Axis.XP.rotationDegrees((float) (105.0D - gunAngle)));
-                    offsetX += 0.11F;
+        var transformType = getTransformType(item, player, MC.getItemRenderer());
+        switch (transformType) {
+            case BLOCK_ITEM, DEFAULT:
+                if (item.getItem() instanceof ArrowItem) {
+                    preRotation = Axis.ZP.rotationDegrees(-180);
+                    rotation = Axis.XP.rotationDegrees(-gunAngle);
                 } else {
-                    itemRotation.mul(Axis.XP.rotationDegrees((float) (115.0D - gunAngle)));
-                    offsetX += -0.015D;
+                    rotation = Axis.ZP.rotationDegrees(180);
+                    rotation.mul(Axis.XP.rotationDegrees(-135));
+                    scale = 0.4f;
+                    translateX += 0.08f;
+                    translateZ -= 0.08f;
                 }
-                ////
-                offsetZ += 0.1F;
-
-                if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == interactionHand) {
-                    itemRotation.mul(Axis.XP.rotationDegrees(handDir * 5F));
-                    itemRotation.mul(Axis.ZP.rotationDegrees(-5F));
-
-                    if (handDir == 1) {
-                        offsetY += -0.12F;
-                        offsetZ += -.1F;
-                        offsetX += .04F;
-                    } else {
-                        offsetY += -0.12F;
-                        offsetZ += -.11F;
-                        offsetX += 0.19F;
+                break;
+            case BLOCK_3D:
+                scale = 0.3f;
+                translateX += 0.05f;
+                translateZ -= 0.1f;
+                break;
+            case BLOCK_STICK:
+                translateY += -0.105f + 0.06f * gunAngle / 40;
+                translateZ -= 0.1f;
+                rotation = Axis.XP.rotationDegrees(-45);
+                rotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
+                break;
+            case CONSUMABLE:
+                long ticks = player.getUseItemRemainingTicks();
+                rotation = Axis.ZP.rotationDegrees(180);
+                rotation.mul(Axis.XP.rotationDegrees(-135));
+                translateZ += 0.006f * Mth.sin(ticks) + 0.02f;
+                translateX += 0.08f;
+                scale = 0.4f;
+                break;
+            case MAP:
+                preRotation = Axis.YP.rotationDegrees(0);
+                rotation = Axis.XP.rotationDegrees(-45);
+                translateX = 0;
+                translateY = 0.16f;
+                translateZ = -0.075f;
+                scale = 0.75f;
+                break;
+            case COMPASS:
+                rotation = Axis.YP.rotationDegrees(90);
+                rotation.mul(Axis.XP.rotationDegrees(25));
+                scale = 0.4f;
+                break;
+            case FISHING_ROD:
+                translateX += 0.05f;
+                translateY += -0.02f + gunAngle / 40 * 0.1f;
+                translateZ -= 0.15f;
+                rotation.mul(Axis.XP.rotationDegrees(40));
+                scale = 0.8f;
+                break;
+            case BOW:
+                rotation.mul(Axis.XP.rotationDegrees(90.0F - gunAngle));
+                translateY += -0.1F;
+                translateZ += 0.1F;
+                break;
+            case SHIELD:
+                if (VRClientSettings.isLeftHanded()) handDir *= -1;
+                scale = 0.4f;
+                translateY += 0.18f;
+                translateZ += 0.1f;
+                rotation.mul(Axis.XP.rotationDegrees((float) ((handDir == 1 ? 105 : 115) - gunAngle)));
+                translateX += handDir == 1 ? 0.11f : -0.015f;
+                if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
+                    rotation.mul(Axis.XP.rotationDegrees(handDir * 5));
+                    rotation.mul(Axis.ZP.rotationDegrees(-5));
+                    translateY -= 0.12f;
+                    translateZ -= handDir == 1 ? 0.1f : 0.11f;
+                    translateX += handDir == 1 ? 0.04f : 0.19f;
+                    rotation.mul(Axis.YP.rotationDegrees(handDir * (player.isBlocking() ? 90 : (1 - equipProgress) * 90)));
+                }
+                rotation.mul(Axis.YP.rotationDegrees((float) handDir * -90));
+                break;
+            case SPEAR:
+                rotation = Axis.XP.rotationDegrees(-65);
+                scale = 0.6f;
+                translateX -= 0.135f;
+                translateZ += 0.575f;
+                if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
+                    float duration = item.getUseDuration() - (MC.player.getUseItemRemainingTicks() - partialTicks + 1);
+                    if (duration > 10) duration = 10;
+                    if (VisorState.FRAME_COUNT % 4 == 0 && duration >= 10) {
+                        ClientContext.inputManager
+                                .triggerHapticPulse(
+                                        ControllerHand.fromInt(mcHand == InteractionHand.MAIN_HAND ? 0 : 1),
+                                        0.0002f
+                                );
                     }
-
-
-                    ////
-                    if (player.isBlocking()) {
-                        itemRotation.mul(Axis.YP.rotationDegrees((float) handDir * 90.0F));
-                    } else {
-                        itemRotation.mul(Axis.YP.rotationDegrees((1.0F - equippedProgress) * (float) handDir * 90.0F));
-                    }
-                    ////
+                    translateX += 0.003f * Mth.sin(Util.getMillis());
+                } else {
+                    translateY += 0.2f * gunAngle / 40;
+                    rotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
                 }
-                ////
-                itemRotation.mul(Axis.YP.rotationDegrees((float) handDir * -90.0F));
-            }
-            case SPEAR -> {
-                itemRotation = Axis.XP.rotationDegrees(0.0F);
-                offsetX += -0.135F;
-                offsetZ = offsetZ + (double) 0.575F;
-                itemScale = 0.6F;
-                float state = 0.0F;
-                boolean flag5 = false;
-                int riptide = 0;
-
-                if (player.isUsingItem() && player.getUseItemRemainingTicks() > 0 && player.getUsedItemHand() == interactionHand) {
-                    flag5 = true;
-                    riptide = EnchantmentHelper.getRiptide(itemStack);
-
-                    if (riptide <= 0 || player.isInWaterOrRain()) {
-                        state = (float) itemStack.getUseDuration()
-                                - ((float) MC.player.getUseItemRemainingTicks()
-                                - partialTick + 1.0F);
-
-                        if (state > 10.0F) {
-                            state = 10.0F;
-
-                            if (riptide > 0 && player.isInWaterOrRain()) {
-                                poseStack.mulPose(Axis.ZP.rotationDegrees((float) (-VisorState.TICK_COUNT * 10 * riptide % 360) - partialTick * 10.0F * (float) riptide));
-                            }
-
-                            if (VisorState.FRAME_COUNT % 4L == 0L) {
-                                /*ClientContext.vrApp.getInputManager()
-                                        .triggerHapticPulse(
-                                                ControllerHand.fromInt(hand == ControllerHand.MAIN ? 0 : 1),
-                                                200
-                                        );*/
-                            }
-                            offsetX += 0.003D * Mth.sin(Util.getMillis());
-                        }
-                    }
-                }
-
-                if (player.isAutoSpinAttack()) {
-                    riptide = 5;
-                    offsetZ += -0.15F;
-                    poseStack.mulPose(Axis.ZP.rotationDegrees((float) (-VisorState.TICK_COUNT * 10 * riptide % 360) - partialTick * 10.0F * (float) riptide));
-                    flag5 = true;
-                }
-
-                if (!flag5) {
-                    offsetY += 0.0D + 0.2D * gunAngle / 40.0D;
-                    itemRotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
-                }
-
-                itemRotation.mul(Axis.XP.rotationDegrees(-65.0F));
-                offsetZ = offsetZ + (double) (-0.75F + state / 10.0F * 0.25F);
-            }
+                break;
+            default:
+                break;
         }
-
-        poseStack.mulPose(preRotation);
-        poseStack.translate(offsetX, offsetY, offsetZ);
-        poseStack.mulPose(itemRotation);
-        poseStack.scale((float) itemScale, (float) itemScale, (float) itemScale);
-
+        return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
     }
 
 
-    public static VRItemPoseType getTransformType(ItemStack itemStack,
-                                                  AbstractClientPlayer player,
-                                                  ItemRenderer itemRenderer) {
-        VRItemPoseType transformType = VRItemPoseType.DEFAULT;
+
+
+
+    public static TransformType getTransformType(ItemStack itemStack,
+                                                 AbstractClientPlayer player,
+                                                 ItemRenderer itemRenderer) {
+        TransformType transformType = TransformType.DEFAULT;
         Item item = itemStack.getItem();
 
         if (itemStack.getUseAnimation() == UseAnim.EAT
                 || itemStack.getUseAnimation() == UseAnim.DRINK) {
-            return VRItemPoseType.CONSUMABLE;
+            return TransformType.CONSUMABLE;
         }
         if (item instanceof BlockItem) {
             Block block = ((BlockItem) item).getBlock();
 
             if (block instanceof TorchBlock) {
-                transformType = VRItemPoseType.BLOCK_STICK;
+                transformType = TransformType.BLOCK_STICK;
             } else {
                 BakedModel model = itemRenderer.getModel(
                         itemStack, MC.level, MC.player, 0
                 );
 
                 if (model.isGui3d()) {
-                    transformType = VRItemPoseType.BLOCK_3D;
+                    transformType = TransformType.BLOCK_3D;
                 } else {
-                    transformType = VRItemPoseType.BLOCK_ITEM;
+                    transformType = TransformType.BLOCK_ITEM;
                 }
             }
         } else if (item instanceof MapItem) {
-            transformType = VRItemPoseType.MAP;
+            transformType = TransformType.MAP;
         } else if (item instanceof BowItem) {
-            transformType = VRItemPoseType.BOW;
+            transformType = TransformType.BOW;
 
         } else if (itemStack.getUseAnimation() == UseAnim.TOOT_HORN) {
-            transformType = VRItemPoseType.HORN;
+            transformType = TransformType.HORN;
         } else if (ItemClassifier.SWORD.is(item)) {
-            transformType = VRItemPoseType.SWORD;
+            transformType = TransformType.SWORD;
         } else if (ItemClassifier.SHIELD.is(item)) {
-            transformType = VRItemPoseType.SHIELD;
+            transformType = TransformType.SHIELD;
         } else if (ItemClassifier.SPEAR.is(item)) {
-            transformType = VRItemPoseType.SPEAR;
+            transformType = TransformType.SPEAR;
         } else if (item instanceof CrossbowItem) {
-            transformType = VRItemPoseType.CROSSBOW;
+            transformType = TransformType.CROSSBOW;
         } else if (item instanceof CompassItem || item == Items.CLOCK) {
-            transformType = VRItemPoseType.COMPASS;
+            transformType = TransformType.COMPASS;
         } else {
             if (isTool(item)) {
-                transformType = VRItemPoseType.TOOL;
+                transformType = TransformType.TOOL;
 
                 if (item instanceof FoodOnAStickItem
                         || item instanceof FishingRodItem) {
-                    transformType = VRItemPoseType.FISHING_ROD;
+                    transformType = TransformType.FISHING_ROD;
                 }
             }
         }
@@ -336,6 +258,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 || item instanceof ShovelItem;
     }
 
+
+
     @Override
     public boolean canApplyPose(@NotNull AbstractClientPlayer player, @NotNull ControllerHand hand, @NotNull ItemStack itemStack) {
         return true;
@@ -351,7 +275,13 @@ public class VRItemPoseDefault extends VRHandItemPose {
         return ID;
     }
 
-    public enum VRItemPoseType {
+    private record PoseParams(Quaternionf preRotation,
+                              Quaternionf rotation,
+                              float offsetX,
+                              float offsetY,
+                              float offsetZ,
+                              float scale) {}
+    public enum TransformType {
         DEFAULT,
         BLOCK_3D,
         BLOCK_STICK,

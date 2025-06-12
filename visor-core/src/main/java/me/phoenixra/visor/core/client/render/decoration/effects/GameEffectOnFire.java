@@ -13,7 +13,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.decoration.decorators.DecoratorGame;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -81,8 +81,7 @@ public class GameEffectOnFire extends VRGameEffect {
         // --- Pose setup ---
         stack.pushPose();
         stack.setIdentity();
-        RenderHelper.applyDisplayOrientation(display, stack);
-        RenderHelper.applyDisplayTranslation(display, stack);
+        RenderPoseHelper.applyDisplayPose(display, stack);
 
         // --- Render ---
         BufferBuilder buf = Tesselator.getInstance().getBuilder();

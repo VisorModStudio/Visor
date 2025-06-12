@@ -6,27 +6,28 @@ import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.jetbrains.annotations.NotNull;
 
-public class ShaderHelper {
-
-    private ShaderHelper() {
-        throw new UnsupportedOperationException("Utility class");
+public class RenderShaderHelper {
+    private RenderShaderHelper() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
 
     public static void renderFullscreenQuad(@NotNull ShaderInstance shader,
                                             @NotNull RenderTarget source
     ) {
-
+        // --- Setup ---
         RenderSystem.colorMask(true, true, true, false);
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.disableBlend();
-
         shader.setSampler("Sampler0", source.getColorTextureId());
         shader.apply();
 
-        drawQuad(DefaultVertexFormat.POSITION_TEX_COLOR);
+        // --- Render ---
+        renderQuad(shader.getVertexFormat());
 
+
+        // --- Restore ---
         shader.clear();
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
@@ -41,12 +42,17 @@ public class ShaderHelper {
     private static final float[]  UV_U   = {  0.0F,  1.0F,  0.0F,  1.0F };
     private static final float[]  UV_V   = {  0.0F,  0.0F,  1.0F,  1.0F };
 
-    private static void drawQuad(VertexFormat format) {
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
+    private static void renderQuad(VertexFormat format) {
+        if(format != DefaultVertexFormat.POSITION_TEX
+                && format != DefaultVertexFormat.POSITION_TEX_COLOR){
+            throw new RuntimeException("Unexpected vertex format " + format);
+        }
 
         boolean needColor = format == DefaultVertexFormat.POSITION_TEX_COLOR;
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
 
+
+        buf.begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
         for (int i = 0; i < 4; i++) {
             var v = buf
                     .vertex(POS_X[i], POS_Y[i], 0.0)

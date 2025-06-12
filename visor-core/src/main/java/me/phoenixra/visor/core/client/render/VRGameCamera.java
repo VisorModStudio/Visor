@@ -4,7 +4,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.client.Camera;
@@ -64,7 +64,7 @@ public class VRGameCamera extends Camera {
                 .getElementForDisplay(display);
 
         // Position
-        this.setPosition(RenderHelper.getCameraPosition(
+        this.setPosition(RenderPoseHelper.getCameraPosition(
                 display,
                 ClientContext.player.getPose(PoseType.RENDER)
         ));

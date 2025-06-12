@@ -21,6 +21,10 @@ import static com.mojang.blaze3d.platform.GlStateManager._glBlitFrameBuffer;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class MirrorHelper {
+    private MirrorHelper() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
+
 
     public static void drawMirror() {
         switch (VRClientSettings.getDisplayMirrorMode()){
@@ -216,18 +220,14 @@ public class MirrorHelper {
                                    float xCropFactor, float yCropFactor,
                                    boolean keepAspect) {
         if (keepAspect) {
-            float drawAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
-            float bufferAspect = (float) source.viewWidth / (float) source.viewHeight;
-            if (drawAspect > bufferAspect) {
-
-                float heightAspect = (bufferAspect / drawAspect) * (0.5F - yCropFactor);
-
-                yCropFactor = 0.5F - heightAspect;
+            float targetAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
+            float sourceAspect = (float) source.viewWidth / (float) source.viewHeight;
+            if (targetAspect > sourceAspect) {
+                yCropFactor = 0.5F
+                        - (sourceAspect / targetAspect) * (0.5F - yCropFactor);
             } else {
-
-                float widthAspect = (drawAspect / bufferAspect) * (0.5F - xCropFactor);
-
-                xCropFactor = 0.5F - widthAspect;
+                xCropFactor = 0.5F
+                        - (targetAspect / sourceAspect) * (0.5F - xCropFactor);
             }
         }
 

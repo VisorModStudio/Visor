@@ -19,18 +19,26 @@ public class AtumColorMutable implements AtumColor {
 
 
     public AtumColorMutable(float red, float green, float blue, float alpha) {
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
-        this.alpha = alpha;
-        updateIntValues();
+        setRGBA(red, green, blue, alpha);
     }
 
     public AtumColorMutable(int red, int green, int blue, int alpha) {
+        setRGBA(red, green, blue, alpha);
+    }
+
+
+    public void setRGBA(int red, int green, int blue, int alpha){
         this.red = red / 255f;
         this.green = green / 255f;
         this.blue = blue / 255f;
         this.alpha = alpha / 255f;
+        updateIntValues();
+    }
+    public void setRGBA(float red, float green, float blue, float alpha){
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
         updateIntValues();
     }
 
@@ -40,7 +48,6 @@ public class AtumColorMutable implements AtumColor {
         this.blueInt = floatToInt(blue);
         this.alphaInt = floatToInt(alpha);
     }
-
 
     @Override
     public @NotNull AtumColorMutable blend(@NotNull AtumColor other, float ratio) {
@@ -104,6 +111,11 @@ public class AtumColorMutable implements AtumColor {
 
     private double adjust(double channel) {
         return (channel <= 0.03928) ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    }
+
+
+    public AtumColorImmutable asImmutable(){
+        return new AtumColorImmutable(red, green, blue, alpha);
     }
 
 

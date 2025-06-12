@@ -1,14 +1,13 @@
 package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.*;
-import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
-import me.phoenixra.visor.core.client.render.helpers.VRScreenHelper;
+import me.phoenixra.visor.core.client.render.helpers.RenderGuiHelper;
 import org.jetbrains.annotations.NotNull;
 
 import me.phoenixra.visor.core.client.ClientContext;
@@ -41,29 +40,26 @@ public class DecoratorGame extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
-        //RenderSystem.viewport(0, 0, MC.mainRenderTarget.viewWidth, MC.mainRenderTarget.viewHeight);
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
         if (insideBlock) {
-            VREffectsHelper.renderInsideBlockOverlay();
+            VREffectsHelper.renderInBlockEffect();
         }
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks, !VRScreenHelper.shouldOccludeGui());
+        ClientContext.guiManager.renderGUI(poseStack, partialTicks, !RenderGuiHelper.shouldOccludeGui());
 
-        if (ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            boolean simpleHands = ClientContext.overlayManager.isShowingKeyboard();
-            if (simpleHands) {
-                ClientContext.handRenderer.renderGuiHands(
-                        poseStack, partialTicks,
-                        true, true
-                );
-            } else {
-                ClientContext.handRenderer.renderWorldHands(
-                        poseStack, partialTicks,
-                        true, true
-                );
-            }
+        boolean guiHands = ClientContext.overlayManager.isShowingKeyboard();
+        if (guiHands) {
+            ClientContext.handRenderer.renderGuiHands(
+                    poseStack, partialTicks,
+                    true, true
+            );
+        } else {
+            ClientContext.handRenderer.renderWorldHands(
+                    poseStack, partialTicks,
+                    true, true
+            );
         }
         ClientContext.decoratorManager.renderGameEffects(
                 poseStack, partialTicks

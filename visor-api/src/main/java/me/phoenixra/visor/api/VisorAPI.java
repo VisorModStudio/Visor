@@ -59,7 +59,7 @@ public interface VisorAPI {
         return Instance.addonManager;
     }
 
-    static VREventBus getEventBus(){
+    static VREventBus eventBus(){
         return Instance.eventBus;
     }
 
