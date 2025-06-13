@@ -1,8 +1,8 @@
 package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.ClientPlayer;
 
+import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseData;
@@ -26,7 +26,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class VRClientPlayer implements ClientPlayer {
+public class VRClientPlayerImpl implements VRClientPlayer {
 
     private final PoseDataImpl roomPose;
 
@@ -48,7 +48,7 @@ public class VRClientPlayer implements ClientPlayer {
     @Getter
     private Input inputMovement = new Input();
 
-    public VRClientPlayer() {
+    public VRClientPlayerImpl() {
         this.roomPose = new PoseDataImpl(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
         this.preTickPose = new PoseDataImpl(PoseType.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);

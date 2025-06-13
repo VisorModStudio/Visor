@@ -2,7 +2,7 @@ package me.phoenixra.visor.api;
 
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.ClientPlayer;
+import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.gui.GuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
@@ -32,7 +32,7 @@ public interface VisorClient {
      * @return VRClientPlayer instance
      */
     @NotNull
-    ClientPlayer getPlayer();
+    VRClientPlayer getPlayer();
 
     /**
      *

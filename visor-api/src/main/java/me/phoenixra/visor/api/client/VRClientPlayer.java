@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * of this class becomes available
  *
  */
-public interface ClientPlayer {
+public interface VRClientPlayer {
 
 
 

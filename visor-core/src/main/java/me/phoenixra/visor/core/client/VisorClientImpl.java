@@ -9,14 +9,14 @@ import me.phoenixra.atumvr.api.VRState;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorClient;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.ClientPlayer;
+import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.client.data.VRClientPlayer;
+import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
@@ -85,7 +85,7 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.inputManager = new InputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new GuiManagerImpl();
-        ClientContext.player = new VRClientPlayer();
+        ClientContext.player = new VRClientPlayerImpl();
 
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
@@ -221,7 +221,7 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull ClientPlayer getPlayer() {
+    public @NotNull VRClientPlayer getPlayer() {
         return ClientContext.player;
     }
 

@@ -10,7 +10,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.VRClientPlayer;
+import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -114,7 +114,7 @@ public class TaskRoomVehicle extends VisorTask {
         float smoothed = 200.0F * (float) (horizontalSpeed * horizontalSpeed);
         smoothed = Math.max(smoothed, 10.0F);
 
-        VRClientPlayer vrClientPlayer = ClientContext.player;
+        VRClientPlayerImpl vrClientPlayer = ClientContext.player;
         // Determine how much to rotate by comparing the target and current rotation.
         float rotateTo = rotationDelta((float) rotationTarget, this.vehicleRotation);
         // Clamp the rotation adjustment within [-smoothed, smoothed]
@@ -149,7 +149,7 @@ public class TaskRoomVehicle extends VisorTask {
      * @param vehicle the vehicle being ridden.
      */
     public void onStartRiding(Entity vehicle) {
-        VRClientPlayer vrClientPlayer = ClientContext.player;
+        VRClientPlayerImpl vrClientPlayer = ClientContext.player;
         PoseDataImpl preTickPose = vrClientPlayer
                 .getPose(PoseType.PRE_TICK);
 
