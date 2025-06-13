@@ -1,94 +1,115 @@
 package me.phoenixra.visor.core.client.gui.screens;
 
-import me.phoenixra.visor.api.client.gui.widgets.TextScrollWidget;
-import me.phoenixra.visor.core.client.exceptions.VRInitException;
+import me.phoenixra.visor.core.client.exceptions.VisorException;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 
-public class VRErrorScreen extends Screen {
-    private final Screen previousScreen;
-    private final Component error;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 
-    public VRErrorScreen(Component title, Component error) {
+public class VRErrorScreen extends Screen {
+    private final String discordUrl;
+    private final String logsFolderUrl;
+
+    private final Component summary;
+    private List<FormattedCharSequence> summaryLines;
+
+    public VRErrorScreen(Component title, Throwable t) {
         super(title);
-        this.previousScreen = Minecraft.getInstance().screen;
-        this.error = error;
+        this.discordUrl = Component.translatable("visor.messages.discord_link").getString();
+        this.logsFolderUrl = Minecraft.getInstance()
+                .gameDirectory
+                .toPath()
+                .resolve("logs")
+                .toUri()
+                .toString();
+
+        this.summary = Component.translatable("visor.messages.error.summary");
+
     }
 
     @Override
     protected void init() {
+        int maxWidth = this.width - 40;
+        this.summaryLines = this.font.split(this.summary, maxWidth);
 
-        this.addRenderableWidget(
-                new TextScrollWidget(
-                        this.width / 2 - 155,
-                        30, 310,
-                        this.height - 30 - 36,
-                        this.error
-                )
+        final int btnW = 100;
+        final int btnH = 20;
+        final int gap = 10;
+        final int rowCnt = 3;
+
+        int bottomY = this.height - 32;
+
+        int totalW = btnW * rowCnt + gap * (rowCnt - 1);
+        int startX = (this.width - totalW) / 2;
+
+        // Back
+        addRenderableWidget(Button.builder(
+                        Component.translatable("visor.button.back"),
+                        b -> Minecraft.getInstance().setScreen(new TitleScreen()))
+                .size(btnW, btnH)
+                .pos(startX, bottomY)
+                .build()
         );
 
-        this.addRenderableWidget(
-                new Button.Builder(
-                        Component.literal("Back"),
-                        (p) -> Minecraft.getInstance()
-                                .setScreen(this.previousScreen)
-                ).pos(this.width / 2 + 55, this.height - 32)
-                        .size(100, 20)
-                        .build()
+        // Open Logs folder
+        addRenderableWidget(Button.builder(
+                        Component.translatable("visor.button.open_logs"),
+                        b -> Util.getPlatform().openUri(logsFolderUrl))
+                .size(btnW, btnH)
+                .pos(startX + (btnW + gap), bottomY)
+                .build()
         );
-        this.addRenderableWidget(
-                new Button.Builder(
-                        Component.literal("Report error"),
-                        (p) -> Minecraft.getInstance().setScreen(new VRReportError())
-                ).pos(this.width / 2 - 50, this.height - 32)
-                        .size(100, 20)
-                        .build()
-        );
-        this.addRenderableWidget(
-                new Button.Builder(
-                        Component.literal("Copy"),
-                        (p) -> Minecraft.getInstance()
-                                .keyboardHandler.setClipboard(
-                                        this.title.getString() + "\n" + this.error.getString()
-                                )
-                ).pos(this.width / 2 - 155, this.height - 32)
-                        .size(100, 20)
-                        .build()
+
+        // Discord
+        addRenderableWidget(Button.builder(
+                        Component.translatable("visor.button.discord"),
+                        b -> Util.getPlatform().openUri(discordUrl))
+                .size(btnW, btnH)
+                .pos(startX + (btnW + gap) * 2, bottomY)
+                .build()
         );
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.drawCenteredString(
-                this.font,
-                this.title,
-                this.width / 2, 15,
-                0xFFFFFF
-        );
+    public void render(@NotNull GuiGraphics gfx, int mx, int my, float pt) {
+        this.renderBackground(gfx);
+
+        gfx.drawCenteredString(this.font, this.title, this.width/2, 15, 0xFF5555);
+
+        int y = 40;
+        for (var line : summaryLines) {
+            int lineWidth = this.font.width(line);
+            int x = (this.width - lineWidth) / 2;
+            gfx.drawString(this.font, line, x, y, 0xFFFFFF, false);
+            y += this.font.lineHeight;
+        }
+
+        super.render(gfx, mx, my, pt);
     }
 
+    public static void catchError(Throwable t, boolean log) {
+        if (log) LoggerUtils.printError(t);
 
-    public static void catchError(Throwable throwable, boolean logError){
-        if(logError) {
-            LoggerUtils.printError(throwable);
-        }
-        if(throwable instanceof  VRInitException initException){
-            Minecraft.getInstance().setScreen(
-                    new VRErrorScreen(initException.getTitle(), initException.getError())
-            );
-        }else{
-            Minecraft.getInstance().setScreen(
-                    new VRErrorScreen(
-                            Component.literal("Error: "+throwable.getClass().getName()),
-                            LoggerUtils.throwableToComponent(throwable)
-                    )
-            );
-        }
+        Component title = (t instanceof VisorException vx)
+                ? vx.getTitle()
+                : Component.translatable("visor.messages.error.generic");
+
+        Minecraft.getInstance().tell(() ->
+                Minecraft.getInstance().setScreen(new VRErrorScreen(title, t))
+        );
     }
 }

@@ -133,7 +133,7 @@ public class OverlaysCatalogListener implements OverlayCatalog, ConfigCatalogLis
 
                 overlaysRegistry.registerElement(overlay);
             }catch (Throwable throwable){
-                VisorState.destroyVRWithError(throwable);
+                VisorState.destroyVRWithErrorScreen(throwable);
             }
         }
     }
@@ -159,7 +159,7 @@ public class OverlaysCatalogListener implements OverlayCatalog, ConfigCatalogLis
                     true
             );
         }catch (Throwable e){
-            VisorState.destroyVRWithError(e);
+            VisorState.destroyVRWithErrorScreen(e);
         }
 
     }

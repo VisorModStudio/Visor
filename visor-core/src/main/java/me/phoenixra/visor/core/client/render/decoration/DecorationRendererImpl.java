@@ -2,9 +2,10 @@ package me.phoenixra.visor.core.client.render.decoration;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
+import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
@@ -18,7 +19,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import java.util.List;
 
 
-public class DecoratorManagerImpl implements VRDecoratorManager {
+public class DecorationRendererImpl implements VRDecorationRenderer {
     @Getter
     private final DecoratorRegistry registry;
     @Getter
@@ -27,7 +28,7 @@ public class DecoratorManagerImpl implements VRDecoratorManager {
     @Getter
     private VRDecorator currentDecorator;
 
-    public DecoratorManagerImpl(){
+    public DecorationRendererImpl(){
         this.registry = new DecoratorRegistry();
         this.effectsRegistry = new VRGameEffectRegistry();
 
@@ -90,7 +91,7 @@ public class DecoratorManagerImpl implements VRDecoratorManager {
 
     public void renderGameEffects(PoseStack poseStack,
                                   float partialTick) {
-        VRDecorator currentDecorator = ClientContext.decoratorManager.getCurrentDecorator();
+        VRDecorator currentDecorator = ClientContext.decorationRenderer.getCurrentDecorator();
         for (VRGameEffect effect : effectsRegistry.getElementsMap().values()) {
             if (!effect.isEnabledAndVisible(currentDecorator)) continue;
 
@@ -102,4 +103,9 @@ public class DecoratorManagerImpl implements VRDecoratorManager {
         }
     }
 
+
+    @Override
+    public @NotNull VRHandRenderer getHandsRenderer() {
+        return ClientContext.handRenderer;
+    }
 }

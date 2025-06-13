@@ -109,7 +109,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
             ClientContext.renderer.updateState();
             GLUtils.checkGLError("post render setup ");
         } catch (Throwable throwable) {
-            VisorState.destroyVRWithError(throwable);
+            VisorState.destroyVRWithErrorScreen(throwable);
             return;
         }
 

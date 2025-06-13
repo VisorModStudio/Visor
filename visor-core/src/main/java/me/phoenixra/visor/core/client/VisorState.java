@@ -12,11 +12,15 @@ import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
 import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
+import me.phoenixra.visor.core.client.gui.screens.VRErrorScreen;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import net.minecraft.client.gui.screens.DirectJoinServerScreen;
+import net.minecraft.client.gui.screens.DisconnectedScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import org.lwjgl.glfw.GLFW;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -24,9 +28,8 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VisorState implements VisorClientState {
 
 
-
     @Getter
-    private static VRStateMode state = VRStateMode.DISABLED;
+    private static VRStateMode state = VRStateMode.OFF;
 
 
     public static int TICK_COUNT;
@@ -34,19 +37,26 @@ public class VisorState implements VisorClientState {
     public static long FRAME_COUNT;
 
 
-
     @Setter
     private static boolean minecraftLoaded = false;
 
+    private static Runnable delayedErrorHandling = null;
 
     public static void updateState() {
-
         //STARTUP
         if (ClientContext.visor == null) {
             if (!minecraftLoaded) {
                 return;
             }
             startClient();
+        }
+
+        //HANDLE DELAYED ERROR IN WORLD
+        if(delayedErrorHandling != null
+                && (MC.screen instanceof DisconnectedScreen
+                || MC.screen instanceof TitleScreen)){
+            delayedErrorHandling.run();
+            delayedErrorHandling = null;
         }
 
         //INIT & DESTROY
@@ -72,12 +82,12 @@ public class VisorState implements VisorClientState {
 
         updateActive(vrActive);
 
-        if(state.isActive()){
-            if(ClientContext.visor.isFocused()){
+        if (state.isActive()) {
+            if (ClientContext.visor.isFocused()) {
                 state = VRStateMode.FOCUSED;
-            }else{
-                if(state != VRStateMode.ACTIVE){
-                    if(MC.level != null){
+            } else {
+                if (state != VRStateMode.ACTIVE) {
+                    if (MC.level != null) {
                         MC.setScreen(new GameMenuScreen());
                     }
                 }
@@ -85,31 +95,36 @@ public class VisorState implements VisorClientState {
             }
         }
 
+
     }
 
     private static void startClient() {
-        if (ClientContext.visor != null) {
-            return;
+        try {
+            if (ClientContext.visor != null) {
+                return;
+            }
+
+            VisorClientImpl.LOGGER.info("Starting Visor client...");
+
+            VisorAPI.Instance.setClientState(new VisorState());
+
+            ClientContext.visor = new VisorClientImpl();
+            VisorAPI.Instance.setClient(
+                    ClientContext.visor
+            );
+            ClientContext.visor.prepare();
+
+            VisorClientImpl.LOGGER.info(
+                    "Current VR Play Mode: {}",
+                    VRClientSettings.getVrPlayMode()
+            );
+        } catch (Throwable e) {
+            destroyVRWithErrorScreen(e);
         }
-
-        VisorClientImpl.LOGGER.info("Starting Visor client...");
-
-        VisorAPI.Instance.setClientState(new VisorState());
-
-        ClientContext.visor = new VisorClientImpl();
-        VisorAPI.Instance.setClient(
-                ClientContext.visor
-        );
-        ClientContext.visor.prepare();
-
-        VisorClientImpl.LOGGER.info(
-                "Current VR Play Mode: {}",
-                VRClientSettings.getVrPlayMode()
-        );
 
     }
 
-    private static void initVR(){
+    private static void initVR() {
         try {
             VisorClientImpl.LOGGER.info("Initializing VR session...");
 
@@ -121,14 +136,13 @@ public class VisorState implements VisorClientState {
             VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
         } catch (Throwable e) {
-            destroyVRWithError(e);
+            destroyVRWithErrorScreen(e);
         }
     }
 
-
+    //Has to be stable, on error MC will be crashed
     private static void updateActive(boolean active) {
-
-        if(state.isActive() == active){
+        if (state.isActive() == active) {
             return;
         }
 
@@ -207,11 +221,18 @@ public class VisorState implements VisorClientState {
         }
     }
 
-    public static void destroyVRWithError(Throwable throwable) {
+    public static void destroyVRWithErrorScreen(Throwable throwable) {
+
         destroyVR();
-        LoggerUtils.printError(throwable);
 
         VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
+
+        if(MC.level != null) {
+            MC.level.disconnect();
+            delayedErrorHandling = ()-> VRErrorScreen.catchError(throwable,true);
+        }else {
+            VRErrorScreen.catchError(throwable, true);
+        }
     }
 
     public static void destroyVR() {
@@ -221,7 +242,7 @@ public class VisorState implements VisorClientState {
             ClientContext.visor.destroy();
         }
 
-        state = VRStateMode.DISABLED;
+        state = VRStateMode.OFF;
     }
 
 

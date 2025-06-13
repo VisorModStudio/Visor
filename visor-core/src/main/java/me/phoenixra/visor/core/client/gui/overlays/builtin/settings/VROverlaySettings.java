@@ -416,7 +416,7 @@ public class VROverlaySettings extends VROverlayScreen {
                                             true
                                     );
                                 }catch (Exception e){
-                                    VisorState.destroyVRWithError(e);
+                                    VisorState.destroyVRWithErrorScreen(e);
                                 }
                             }
                     )

@@ -3,22 +3,32 @@ package me.phoenixra.visor.api.client;
 public enum VRStateMode {
 
     /**
-     * No VR session is present; all behaviors fall back to vanilla.
+     * No VR session is present.
+     * <br>
+     * All behaviors fall back to vanilla.
      */
-    DISABLED,
+    OFF,
 
     /**
      * VR session created and ready, but not yet rendering.
+     * <br>
+     * All behaviors fall back to vanilla.
      */
     INITIALIZED,
 
     /**
      * VR session is rendering
+     *
+     * <p>In that state, VR is partially functional,
+     * some features may be inactive to not waste resources
+     * or cause unexpected/unwanted behaviour</p>
      */
     ACTIVE,
 
     /**
-     * VR session is focused
+     * VR session is focused.
+     *
+     * <p>In that state, VR is fully functional</p>
      */
     FOCUSED;
 
@@ -28,7 +38,7 @@ public enum VRStateMode {
      * @return true when mode is INITIALIZED, ACTIVE, or FOCUSED
      */
     public boolean isInitialized(){
-        return this != DISABLED;
+        return this != OFF;
     }
 
     /**

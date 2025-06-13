@@ -4,10 +4,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
-import me.phoenixra.visor.core.client.exceptions.VRInitException;
 import me.phoenixra.visor.core.common.eventbus.VREventBusImpl;
-import me.phoenixra.visor.api.common.utils.LoggerUtils;
-import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -73,26 +70,13 @@ public class AddonManagerImpl implements AddonManager {
 
 
     private void loadAddon(VisorAddon addon) {
-        try {
-            if(addon.getAddonPackagePath() != null) {
-                for(var registry : elementRegistries){
-                    registry.registerAddonPath(addon);
-                }
-            }
-            addon.onAddonLoad();
-            logger.info("-----SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
-        } catch (Throwable throwable) {
-            addonsMap.remove(addon.getAddonId());
-            LoggerUtils.printError(logger, throwable);
-            logger.info("-----FAILED LOADING Visor Addon with ID: {}", addon.getAddonId());
-            if(addon.getAddonId().equals("core")){
-                throw new VRInitException(
-                        Component.literal("Core addon init failed"),
-                        Component.literal(""),
-                        throwable
-                );
+        if(addon.getAddonPackagePath() != null) {
+            for(var registry : elementRegistries){
+                registry.registerAddonPath(addon);
             }
         }
+        addon.onAddonLoad();
+        logger.info("-----SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
 
     }
 

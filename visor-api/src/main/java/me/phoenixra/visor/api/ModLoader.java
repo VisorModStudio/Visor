@@ -57,11 +57,36 @@ public interface ModLoader {
      */
     boolean isDedicatedServer();
 
+    /**
+     * Get config folder
+     *
+     * @return config folder
+     */
     File getConfigFolder();
 
 
+    /**
+     * Create Client-To-Server packet from payload
+     *
+     * @param payload payload
+     * @return packet
+     */
+    @NotNull
+    Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload);
+
+    /**
+     * Create Server-To-Client packet from payload
+     *
+     * @param payload payload
+     * @return packet
+     */
+    @NotNull
+    Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload);
+
+
+
     @ApiStatus.Internal
-    boolean enableRenderTargetStencil(RenderTarget renderTarget);
+    boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget);
     @ApiStatus.Internal
     double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot);
     @ApiStatus.Internal
@@ -73,16 +98,6 @@ public interface ModLoader {
 
 
 
-    Packet<?> createPacketToServer(VisorPayloadToServer payload);
-
-    /**
-     * wraps the given payload into the mod loader specific packet
-     *
-     * @param payload payload to wrap
-     * @return ClientboundCustomPayloadPacket
-     */
-    Packet<?> createPacketToClient(VisorPayloadToClient payload);
-
     /**
      * Get instance of this class
      *
@@ -92,12 +107,15 @@ public interface ModLoader {
         return Instance.get();
     }
 
+
+
     @ApiStatus.Internal
     final class Instance {
-        private static ModLoader api;
         private Instance() {
             throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
         }
+
+        private static ModLoader api;
 
         static ModLoader get() {
             if(api != null){

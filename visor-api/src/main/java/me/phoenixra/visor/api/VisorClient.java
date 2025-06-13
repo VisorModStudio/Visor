@@ -6,8 +6,7 @@ import me.phoenixra.visor.api.client.ClientPlayer;
 import me.phoenixra.visor.api.client.gui.GuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
-import me.phoenixra.visor.api.client.render.decoration.VRDecoratorManager;
-import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
+import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.apache.logging.log4j.Logger;
@@ -24,12 +23,6 @@ public interface VisorClient {
      */
     @NotNull
     VisorElementRegistry<VisorTask> getTaskRegistry();
-
-    /**
-     * @return Logger of client core
-     */
-    @NotNull
-    Logger getLogger();
 
 
     boolean isFeatureEnabled(@NotNull ClientFeature feature);
@@ -51,25 +44,25 @@ public interface VisorClient {
 
     /**
      *
-     * @return VisorRenderer instance
+     * @return VisorRenderer
      */
     @NotNull
     VisorRenderer getRenderer();
 
     /**
-     * Get VR Decorator manager.
+     * Get VR Decoration renderer
      *
-     * @return VR Decorator manager instance
+     * @return VR Decoration renderer
      */
-    @NotNull VRDecoratorManager getDecoratorManager();
+    @NotNull
+    VRDecorationRenderer getDecorationRenderer();
+
+
 
     /**
-     * Get Hands renderer.
-     * <br>
-     * Can be used to render effects attached
-     * to VR hands.
-     * @return Hands renderer instance
+     * @return Logger of visor client
      */
-    @NotNull VRHandRenderer getHandsRenderer();
+    @NotNull
+    Logger getLogger();
 
 }

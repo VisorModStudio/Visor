@@ -3,44 +3,60 @@ package me.phoenixra.visor.api;
 
 import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.eventbus.VREventBus;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 
+
+/**
+ * Central access point for all Visor API functionality.
+ *
+ */
 public interface VisorAPI {
+
+    /** Visor mod identifier */
     String MOD_ID = "visor";
+
+    /** Visor mod name */
     String MOD_NAME = "Visor";
-    Path CONFIG_PATH = Path.of("config/"+MOD_NAME);
+
+    /** Base path for Visor configuration files (relative to game directory). */
+    Path CONFIG_PATH = ModLoader.get().getConfigFolder().toPath().resolve(MOD_NAME);
 
 
 
     /**
      * Get Visor client
-     * <br>
-     * @return visor client or null if on dedicated server
+     *
+     * @return visor client
      */
+    @NotNull
+    @Environment(EnvType.CLIENT)
     static VisorClient client(){
         return Instance.client;
     }
 
+    /**
+     * Get Visor client state
+     *
+     * @return visor client state
+     */
+    @NotNull
+    @Environment(EnvType.CLIENT)
     static VisorClientState clientState(){
         return Instance.clientState;
     }
 
     /**
-     * Get VR Server Core
-     * <br>
-     * NULL WHEN:<br>
-     * Environment is not dedicated server <br>
-     * AND <br>
-     * Client is playing on non-local server
-     * <br><br>
-     * Its instance is cleared when <br>
-     * player left his local server, so,<br>
-     * don't save server core instance on client side,<br>
-     * only access it from here.
-     * @return server core or null
+     * Get Visor Server.
+     * <p>NOT NULL: Dedicated server environment</p>
+     * <p>NULL: When client is not in a world or on a dedicated server</p>
+     *
+     * @return visor server
      */
     static VisorServer server(){
         return Instance.server;
@@ -49,9 +65,7 @@ public interface VisorAPI {
 
     /**
      * Get Visor Addon manager.
-     * <br>
-     * You can use it to create your own addons to extend
-     * Visor features
+     *
      * @return addons manager
      */
     @NotNull
@@ -59,30 +73,44 @@ public interface VisorAPI {
         return Instance.addonManager;
     }
 
+    /**
+     * Get Event Bus
+     *
+     * @return event bus
+     */
+    @NotNull
     static VREventBus eventBus(){
         return Instance.eventBus;
     }
 
+
     @ApiStatus.Internal
     final class Instance {
+        private Instance() {
+            throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+        }
 
+        @Environment(EnvType.CLIENT)
         private static VisorClient client;
+
+        @Environment(EnvType.CLIENT)
         private static VisorClientState clientState;
+
 
         private static VisorServer server;
 
         private static AddonManager addonManager;
         private static VREventBus eventBus;
 
-        private Instance() {
-            throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
-        }
 
         @ApiStatus.Internal
+        @Environment(EnvType.CLIENT)
         public static void setClient(final VisorClient api) {
             Instance.client = api;
         }
+
         @ApiStatus.Internal
+        @Environment(EnvType.CLIENT)
         public static void setClientState(final VisorClientState api) {
             Instance.clientState = api;
         }

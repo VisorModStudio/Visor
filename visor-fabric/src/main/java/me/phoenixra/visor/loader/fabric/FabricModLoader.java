@@ -56,7 +56,7 @@ public class FabricModLoader implements ModLoader {
 
 
     @Override
-    public boolean enableRenderTargetStencil(RenderTarget renderTarget) {
+    public boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget) {
         return false;
     }
 
@@ -66,14 +66,14 @@ public class FabricModLoader implements ModLoader {
     }
 
     @Override
-    public Packet<?> createPacketToClient(VisorPayloadToClient payload) {
+    public @NotNull Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
         return ServerPlayNetworking.createS2CPacket(payload.id(), buffer);
     }
 
     @Override
-    public Packet<?> createPacketToServer(VisorPayloadToServer payload) {
+    public @NotNull Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
         return ClientPlayNetworking.createC2SPacket(payload.id(), buffer);

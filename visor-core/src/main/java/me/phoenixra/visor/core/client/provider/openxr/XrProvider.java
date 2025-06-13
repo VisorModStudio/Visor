@@ -13,9 +13,9 @@ import me.phoenixra.visor.core.client.provider.openxr.render.XrRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class XrVRProvider extends OpenXRProvider {
+public class XrProvider extends OpenXRProvider {
 
-    public XrVRProvider(@NotNull String appName, @NotNull VRLogger logger) {
+    public XrProvider(@NotNull String appName, @NotNull VRLogger logger) {
         super(appName, logger);
 
         ClientContext.rawPoseHandler = new XrRawPoseHandler(this);

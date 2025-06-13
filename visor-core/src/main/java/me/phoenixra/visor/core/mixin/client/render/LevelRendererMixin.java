@@ -79,7 +79,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             return;
         }
 
-        ClientContext.decoratorManager.render(
+        ClientContext.decorationRenderer.render(
                 poseStack, partialTicks
         );
 

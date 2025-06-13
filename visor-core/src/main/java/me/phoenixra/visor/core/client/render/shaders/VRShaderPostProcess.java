@@ -28,9 +28,9 @@ public class VRShaderPostProcess implements VRShader{
 
 
 
-    public void processEye(EyeType eye,
-                           RenderTarget source,
-                           float partialTick) {
+    public void renderEye(EyeType eye,
+                          RenderTarget source,
+                          float partialTick) {
 
 
         RenderShaderHelper.renderFullscreenQuad(handle, source);

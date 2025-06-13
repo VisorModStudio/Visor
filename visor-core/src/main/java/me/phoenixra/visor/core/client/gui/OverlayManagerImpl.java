@@ -90,13 +90,13 @@ public class OverlayManagerImpl implements OverlayManager {
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
             if(!overlay.isVisible()) continue;
 
-            profiler.push("Render Overlay Texture " + overlay.getId());
+            profiler.push("VROverlay Texture: " + overlay.getId());
 
             if(overlay instanceof VROverlayScreen overlayScreen) {
 
                 RenderTarget target = overlay.getRenderTarget();
                 if(target == null){
-                    throw new RuntimeException("Tried to render overlay with");
+                    throw new RuntimeException("Tried to render overlay with null renderTarget");
                 }
 
                 //apply clean render target

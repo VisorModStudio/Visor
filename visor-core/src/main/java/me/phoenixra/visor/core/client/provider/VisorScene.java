@@ -140,7 +140,7 @@ public class VisorScene implements VRScene {
                         .getRenderTarget().bindWrite(true);
             }
 
-            VRShaders.getPostProcess().processEye(
+            VRShaders.getPostProcess().renderEye(
                     display == VRDisplay.EYE_LEFT
                             ? EyeType.LEFT : EyeType.RIGHT,
                     MC.mainRenderTarget,

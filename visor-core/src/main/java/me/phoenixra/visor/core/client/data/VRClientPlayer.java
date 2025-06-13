@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -77,14 +78,19 @@ public class VRClientPlayer implements ClientPlayer {
 
     public void tickPlayer(LocalPlayer player) {
 
-        var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
+        try {
+            var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
 
-        for (VisorTask task : tasks) {
-            if (task.isEnabledAndActive(player)) {
-                task.run(player);
-            } else {
-                task.clear(player);
+            for (VisorTask task : tasks) {
+                if (task.isEnabledAndActive(player)) {
+                    task.run(player);
+                } else {
+                    task.clear(player);
+                }
             }
+            throw new RuntimeException("EXAMPLE EXCEPTION");
+        } catch (Throwable e) {
+            VisorState.destroyVRWithErrorScreen(e);
         }
     }
 

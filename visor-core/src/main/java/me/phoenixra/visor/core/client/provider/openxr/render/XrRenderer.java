@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.rendering.IRenderContext;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
 import me.phoenixra.visor.core.client.provider.VisorScene;
-import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
+import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ import java.nio.IntBuffer;
 
 public class XrRenderer extends VisorRendererBase {
     @Getter
-    private final XrVRProvider vrProvider;
+    private final XrProvider vrProvider;
 
     protected int swapIndex;
 
@@ -33,7 +33,7 @@ public class XrRenderer extends VisorRendererBase {
     boolean frameStarted;
     @Getter
     private final VisorScene currentScene;
-    public XrRenderer(XrVRProvider provider) {
+    public XrRenderer(XrProvider provider) {
         vrProvider = provider;
         currentScene = new VisorScene(this);
     }
@@ -97,18 +97,19 @@ public class XrRenderer extends VisorRendererBase {
     @Override
     public void renderFrame(@NotNull IRenderContext context) {
         if(!frameStarted) return;
-        frameStarted = false;
 
-        prepareSwapChains();
 
         try {
+            prepareSwapChains();
+
             getCurrentScene().render(context);
-        }catch (Throwable e){
-            LoggerUtils.printError(e);
+        }finally {
+            frameStarted = false;
+            finishFrame();
         }
 
 
-        finishFrame();
+
 
     }
     private void prepareSwapChains(){

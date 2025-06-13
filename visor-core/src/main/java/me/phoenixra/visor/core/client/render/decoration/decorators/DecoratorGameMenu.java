@@ -54,7 +54,7 @@ public class DecoratorGameMenu extends VRDecorator {
                 poseStack, partialTicks,
                 true, true
         );
-        ClientContext.decoratorManager.renderGameEffects(
+        ClientContext.decorationRenderer.renderGameEffects(
                 poseStack, partialTicks
         );
     }

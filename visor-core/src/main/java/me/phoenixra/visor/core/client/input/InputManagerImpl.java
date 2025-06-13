@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.provider.openxr.XrVRProvider;
+import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 
 import java.util.List;
@@ -50,7 +50,7 @@ public class InputManagerImpl implements InputManager {
         if(activeSet == null){
             return;
         }
-        var provider = (XrVRProvider)ClientContext.visor.getVrProvider();
+        var provider = (XrProvider)ClientContext.visor.getVrProvider();
         var currentProfile = provider.getInputHandler().getProfileSetHolder()
                 .getActiveProfileSet();
         if(currentProfile == null) {

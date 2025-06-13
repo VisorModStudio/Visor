@@ -14,6 +14,7 @@ import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -217,7 +218,7 @@ public class PoseDataImpl implements PoseData {
 
 
     @Override
-    public @NotNull PoseElement getElementForDisplay(@NotNull VRDisplay display) {
+    public @NotNull PoseElement getElementForDisplay(@Nullable VRDisplay display) {
         if(display == null){
             return hmd;
         }

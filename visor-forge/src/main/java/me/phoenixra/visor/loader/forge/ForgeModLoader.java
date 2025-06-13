@@ -65,7 +65,7 @@ public class ForgeModLoader implements ModLoader {
 
 
     @Override
-    public boolean enableRenderTargetStencil(RenderTarget renderTarget) {
+    public boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget) {
         renderTarget.enableStencil();
         return true;
     }
@@ -94,14 +94,14 @@ public class ForgeModLoader implements ModLoader {
     }
 
     @Override
-    public Packet<?> createPacketToClient(VisorPayloadToClient payload) {
+    public @NotNull Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
         return NetworkDirection.PLAY_TO_CLIENT.buildPacket(new ImmutablePair<>(buffer, 0), payload.id()).getThis();
     }
 
     @Override
-    public Packet<?> createPacketToServer(VisorPayloadToServer payload) {
+    public @NotNull Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
         return NetworkDirection.PLAY_TO_SERVER.buildPacket(new ImmutablePair<>(buffer, 0), payload.id()).getThis();

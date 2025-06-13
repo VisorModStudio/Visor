@@ -15,8 +15,8 @@ import org.joml.Vector3f;
 import me.phoenixra.visor.core.client.ClientContext;
 
 public class XrRawPoseHandler extends RawPoseHandler {
-    private final XrVRProvider provider;
-    public XrRawPoseHandler(XrVRProvider provider){
+    private final XrProvider provider;
+    public XrRawPoseHandler(XrProvider provider){
         this.provider = provider;
     }
 
