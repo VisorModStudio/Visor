@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.client.input.action.types.VisorActionButton;
+import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;

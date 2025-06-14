@@ -1,5 +1,9 @@
 package me.phoenixra.visor.api.client;
 
+/**
+ * Defines state of the VR session
+ *
+ */
 public enum VRStateMode {
 
     /**

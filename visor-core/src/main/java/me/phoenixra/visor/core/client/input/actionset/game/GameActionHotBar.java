@@ -5,7 +5,7 @@ import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.client.input.action.types.VisorActionButton;
+import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 
 

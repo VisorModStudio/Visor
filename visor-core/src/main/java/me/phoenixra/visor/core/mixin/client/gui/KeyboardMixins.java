@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;

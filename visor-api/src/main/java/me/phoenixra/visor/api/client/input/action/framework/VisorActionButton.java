@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.input.action.types;
+package me.phoenixra.visor.api.client.input.action.framework;
 
 
 import lombok.Getter;

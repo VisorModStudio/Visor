@@ -236,7 +236,7 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public InputManager getInputManager() {
+    public @NotNull InputManager getInputManager() {
         return ClientContext.inputManager;
     }
 

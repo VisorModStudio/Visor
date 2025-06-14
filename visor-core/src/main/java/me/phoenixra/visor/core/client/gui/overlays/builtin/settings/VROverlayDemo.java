@@ -12,7 +12,7 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;

@@ -21,6 +21,7 @@ import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.gui.screens.DirectJoinServerScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -43,7 +44,8 @@ public class VisorState implements VisorClientState {
     private static Runnable delayedErrorHandling = null;
 
     public static void updateState() {
-        //STARTUP
+
+        //STARTUP (intended to be called only once)
         if (ClientContext.visor == null) {
             if (!minecraftLoaded) {
                 return;
@@ -247,17 +249,17 @@ public class VisorState implements VisorClientState {
 
 
     @Override
-    public VRStateMode stateMode() {
+    public @NotNull VRStateMode stateMode() {
         return state;
     }
 
     @Override
-    public VRPlayMode playMode() {
+    public @NotNull VRPlayMode playMode() {
         return VRClientSettings.getVrPlayMode();
     }
 
     @Override
-    public RenderPhase renderPhase() {
+    public @NotNull RenderPhase renderPhase() {
         return VRRenderState.getCurrentPhase();
     }
 

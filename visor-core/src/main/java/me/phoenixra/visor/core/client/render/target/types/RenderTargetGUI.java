@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.render.target.RenderTargetHolder;

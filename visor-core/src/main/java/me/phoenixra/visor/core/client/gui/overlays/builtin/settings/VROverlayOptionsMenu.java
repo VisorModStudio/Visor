@@ -5,7 +5,7 @@ import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.types.screen.VROverlayScreenInScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;

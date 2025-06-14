@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayFrameBuffer;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;

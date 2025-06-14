@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.types;
+package me.phoenixra.visor.api.client.gui.overlay.framework;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
@@ -189,14 +189,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         }
     }
 
-    @Override
-    public void updateOptions() {
-        options.forEach(
-                (key,value)
-                        ->
-                        value.update(false)
-        );
-    }
+
 
     @Override
     public void setEnabled(boolean flag) {

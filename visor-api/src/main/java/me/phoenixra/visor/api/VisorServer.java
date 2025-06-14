@@ -10,15 +10,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * Access point for server part of the Visor
+ */
 public interface VisorServer {
 
-    ConfigManager getConfigManager();
-
-    /**
-     * @return Logger of server core
-     */
-    @NotNull
-    Logger getLogger();
 
     /**
      * Returns true if specified player is registered
@@ -45,8 +41,14 @@ public interface VisorServer {
     @Nullable
     VRServerPlayer getVrPlayer(@NotNull ServerPlayer player);
 
+    /**
+     * Get all VR server players
+     *
+     * @return VR server players collection
+     */
     @NotNull
     Collection<VRServerPlayer> getVrPlayers();
+
     /**
      * @return If in dedicated server environment
      */
@@ -60,4 +62,19 @@ public interface VisorServer {
     default boolean isLocalServer(){
         return !ModLoader.get().isDedicatedServer();
     }
+
+
+    /**
+     * Get Config Manager
+     *
+     * @return ConfigManager instance
+     */
+    ConfigManager getConfigManager();
+
+    /**
+     * @return Logger of server core
+     */
+    @NotNull
+    Logger getLogger();
+
 }

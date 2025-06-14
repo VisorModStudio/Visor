@@ -4,7 +4,7 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin;
 import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;

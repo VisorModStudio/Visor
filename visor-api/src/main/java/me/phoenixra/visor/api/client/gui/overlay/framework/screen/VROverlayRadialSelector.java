@@ -1,11 +1,11 @@
-package me.phoenixra.visor.api.client.gui.overlay.types.screen;
+package me.phoenixra.visor.api.client.gui.overlay.framework.screen;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.gui.GuiManager;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;

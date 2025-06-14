@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.types;
+package me.phoenixra.visor.api.client.gui.overlay.framework;
 
 import lombok.Getter;
 

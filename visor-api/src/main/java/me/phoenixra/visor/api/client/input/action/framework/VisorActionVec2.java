@@ -1,7 +1,6 @@
-package me.phoenixra.visor.api.client.input.action.types;
+package me.phoenixra.visor.api.client.input.action.framework;
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;

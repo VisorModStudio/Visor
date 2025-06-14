@@ -2,7 +2,7 @@ package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.types.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;

@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlay;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.types.OverlayCursorData;
+import me.phoenixra.visor.api.client.gui.overlay.framework.OverlayCursorData;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorElement;
@@ -20,12 +20,12 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
 
 
     void tick();
+
     void applyModelView(float partialTick);
 
     void onEnable();
     void onDisable();
 
-    void updateOptions();
 
     void setOverlayScale(float value);
 
@@ -196,14 +196,6 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      */
     void setRotation(@NotNull Matrix4f value);
 
-    /**
-     * Set drawing priority.
-     * <br>
-     * Overlay with the highest priority is rendered first
-     *
-     * @param value The integer
-     */
-    void setPriority(ElementPriority value);
 
 
     @NotNull

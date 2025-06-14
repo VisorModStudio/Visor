@@ -12,7 +12,7 @@ import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.types.screen.VROverlayRadialSelector;
+import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayRadialSelector;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;

@@ -17,8 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 /**
- * This class acts as an
- * accessor for specific mod-loader functionality
+ * Accessor for specific mod-loader functionality
  */
 public interface ModLoader {
 

@@ -12,29 +12,67 @@ import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Access point for client-side part of the Visor
+ */
 public interface VisorClient {
 
-    ConfigManager getConfigManager();
-
-    InputManager getInputManager();
     /**
+     * If specified client feature is enabled
      *
-     * @return Registry for VR tasks
+     * @param feature the feature
+     * @return if enabled
+     */
+    boolean isFeatureEnabled(@NotNull ClientFeature feature);
+
+
+    /**
+     * Get Task Registry
+     *
+     * @return task registry instance
      */
     @NotNull
     VisorElementRegistry<VisorTask> getTaskRegistry();
 
 
-    boolean isFeatureEnabled(@NotNull ClientFeature feature);
-
     /**
+     * Get VR Client Player
      *
      * @return VRClientPlayer instance
      */
     @NotNull
     VRClientPlayer getPlayer();
 
+
     /**
+     * Get Input Manager
+     *
+     * @return InputManager instance
+     */
+    @NotNull
+    InputManager getInputManager();
+
+
+    /**
+     * Get Visor Renderer
+     *
+     * @return VisorRenderer instance
+     */
+    @NotNull
+    VisorRenderer getRenderer();
+
+
+    /**
+     * Get VR Decoration renderer
+     *
+     * @return VRDecorationRenderer instance
+     */
+    @NotNull
+    VRDecorationRenderer getDecorationRenderer();
+
+
+    /**
+     * Get Gui Manager
      *
      * @return GuiManager instance
      */
@@ -43,24 +81,18 @@ public interface VisorClient {
 
 
     /**
+     * Get Config Manager
      *
-     * @return VisorRenderer
+     * @return ConfigManager instance
      */
     @NotNull
-    VisorRenderer getRenderer();
-
-    /**
-     * Get VR Decoration renderer
-     *
-     * @return VR Decoration renderer
-     */
-    @NotNull
-    VRDecorationRenderer getDecorationRenderer();
-
+    ConfigManager getConfigManager();
 
 
     /**
-     * @return Logger of visor client
+     * Get Logger
+     *
+     * @return Logger instance
      */
     @NotNull
     Logger getLogger();

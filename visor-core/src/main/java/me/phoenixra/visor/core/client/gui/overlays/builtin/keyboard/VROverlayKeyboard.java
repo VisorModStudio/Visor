@@ -5,7 +5,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.types.screen.VROverlayScreenInScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.screens.VRKeyboardScreen;

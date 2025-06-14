@@ -178,7 +178,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             return;
         }
 
-        //Climbing, falling... etc
+        //Climbing, falling
         if (canMoveByY) {
             super.move(pType, new Vec3(0.0D, pPos.y, 0.0D));
             Vec3 origin = ClientContext.player.getOrigin();
@@ -233,7 +233,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     }
 
     /**
-     * Makes movement affected by VR rotation element
+     * VR Input movement
      *
      */
     @Override
