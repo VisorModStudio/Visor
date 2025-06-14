@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VRGameEffectRegistry implements VisorElementRegistry<VRGameEffect> {
+public class VRGameEffectRegistry implements VisortRegistry<VRGameEffect> {
     private static final String REGISTRY_NAME = "VR Game Effects";
 
     private static final String ELEMENT_NAME = "VRGameEffect";

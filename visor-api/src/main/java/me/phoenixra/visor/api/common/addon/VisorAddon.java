@@ -13,11 +13,6 @@ public interface VisorAddon {
     void onAddonLoad();
 
     /**
-     * Called when addon is removed
-     */
-    void onAddonRemove();
-
-    /**
      * Get package that will be used to detect
      * VR-annotations
      * @return path

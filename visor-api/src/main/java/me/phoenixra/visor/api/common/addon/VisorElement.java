@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.common.addon;
 
 import org.jetbrains.annotations.NotNull;
 
+
 public interface VisorElement {
 
     /**

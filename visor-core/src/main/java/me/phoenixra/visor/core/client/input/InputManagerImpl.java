@@ -6,7 +6,7 @@ import me.phoenixra.atumvr.api.input.device.VRDeviceController;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
@@ -86,7 +86,7 @@ public class InputManagerImpl implements InputManager {
 
 
 
-    public List<VisorElementRegistry<?>> getElementRegistries(){
+    public List<VisortRegistry<?>> getElementRegistries(){
         return List.of(
                 actionSetRegistry
         );

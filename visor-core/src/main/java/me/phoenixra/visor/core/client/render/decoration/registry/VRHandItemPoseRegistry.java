@@ -1,11 +1,10 @@
 package me.phoenixra.visor.core.client.render.decoration.registry;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +17,7 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VRHandItemPoseRegistry implements VisorElementRegistry<VRHandItemPose> {
+public class VRHandItemPoseRegistry implements VisortRegistry<VRHandItemPose> {
     private static final String REGISTRY_NAME = "VR Hand Item Poses";
 
     private static final String ELEMENT_NAME = "VRHandItemPose";

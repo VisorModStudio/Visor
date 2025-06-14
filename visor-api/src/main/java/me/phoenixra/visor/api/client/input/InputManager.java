@@ -1,26 +1,13 @@
 package me.phoenixra.visor.api.client.input;
 
 
-import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Manages VR input
  */
 public interface InputManager {
-
-
-    /**
-     * Get Action Set registry
-     *
-     * @return Action Set registry instance
-     */
-    @NotNull
-    VisorElementRegistry<VisorActionSet> getActionSetRegistry();
-
-
 
 
     /**

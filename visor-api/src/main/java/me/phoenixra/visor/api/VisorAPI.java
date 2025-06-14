@@ -7,7 +7,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 
@@ -82,6 +81,7 @@ public interface VisorAPI {
     static VREventBus eventBus(){
         return Instance.eventBus;
     }
+
 
 
     @ApiStatus.Internal

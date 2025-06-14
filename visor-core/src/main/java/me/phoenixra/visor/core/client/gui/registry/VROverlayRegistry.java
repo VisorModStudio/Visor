@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.gui.registry;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import java.util.*;
 import static com.mojang.text2speech.Narrator.LOGGER;
 
 
-public class VROverlayRegistry implements VisorElementRegistry<VROverlay> {
+public class VROverlayRegistry implements VisortRegistry<VROverlay> {
     private static final String REGISTRY_NAME = "VR Overlays";
 
     private static final String ELEMENT_NAME = "VROverlay";

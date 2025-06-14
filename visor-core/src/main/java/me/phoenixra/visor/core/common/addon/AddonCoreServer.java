@@ -12,10 +12,6 @@ public class AddonCoreServer implements VisorAddon {
 
     }
 
-    @Override
-    public void onAddonRemove() {
-
-    }
 
 
     @Override

@@ -1,11 +1,9 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayType;
 import me.phoenixra.visor.api.client.gui.overlay.OverlayCatalog;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,21 +14,6 @@ import org.jetbrains.annotations.Nullable;
  * and behaviour.
  */
 public interface OverlayManager {
-
-
-    /**
-     *
-     * @return Registry for VR overlays
-     */
-    @NotNull
-    VisorElementRegistry<VROverlay> getOverlaysRegistry();
-
-    /**
-     *
-     * @return Registry for VR overlay types
-     */
-    @NotNull
-    VisorElementRegistry<VROverlayType> getOverlayTypesRegistry();
 
     /**
      * Get overlay with specified id

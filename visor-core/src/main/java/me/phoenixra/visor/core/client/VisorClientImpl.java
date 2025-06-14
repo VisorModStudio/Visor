@@ -15,7 +15,7 @@ import me.phoenixra.visor.api.client.render.context.PreRenderContext;
 import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
@@ -91,7 +91,7 @@ public class VisorClientImpl implements VisorClient {
         taskRegistry = new VisorTaskRegistry();
 
         //Addon Registries
-        var registries = new ArrayList<VisorElementRegistry<?>>();
+        var registries = new ArrayList<VisortRegistry<?>>();
         registries.add(taskRegistry);
         registries.addAll(ClientContext.inputManager.getElementRegistries());
         registries.addAll(ClientContext.decorationRenderer.getElementRegistries());

@@ -2,10 +2,8 @@ package me.phoenixra.visor.core.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.GuiManager;
-import me.phoenixra.visor.api.client.gui.OverlayManager;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
@@ -96,7 +94,7 @@ public class GuiManagerImpl implements GuiManager {
         }
     }
 
-    public List<VisorElementRegistry<?>> getElementRegistries(){
+    public List<VisortRegistry<?>> getElementRegistries(){
         return List.of(
                 ClientContext.overlayManager.getOverlaysRegistry(),
                 ClientContext.overlayManager.getOverlayTypesRegistry()
@@ -104,12 +102,12 @@ public class GuiManagerImpl implements GuiManager {
     }
 
     @Override
-    public @NotNull OverlayManager getOverlayManager() {
+    public @NotNull OverlayManagerImpl getOverlayManager() {
         return ClientContext.overlayManager;
     }
 
     @Override
-    public @NotNull VRCursorHandler getCursorHandler() {
+    public @NotNull VRCursorHandlerImpl getCursorHandler() {
         return ClientContext.cursorHandler;
     }
 }

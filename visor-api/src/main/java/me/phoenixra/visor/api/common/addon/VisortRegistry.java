@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-public interface VisorElementRegistry<T extends VisorElement> {
+public interface VisortRegistry<T extends VisorElement> {
 
     @ApiStatus.Internal
     void registerAddonPath(@NotNull VisorAddon addon);

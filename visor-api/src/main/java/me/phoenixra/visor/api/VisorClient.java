@@ -7,8 +7,6 @@ import me.phoenixra.visor.api.client.gui.GuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
-import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,14 +23,6 @@ public interface VisorClient {
      */
     boolean isFeatureEnabled(@NotNull ClientFeature feature);
 
-
-    /**
-     * Get Task Registry
-     *
-     * @return task registry instance
-     */
-    @NotNull
-    VisorElementRegistry<VisorTask> getTaskRegistry();
 
 
     /**

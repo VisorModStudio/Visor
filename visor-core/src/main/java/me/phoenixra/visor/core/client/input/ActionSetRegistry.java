@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class ActionSetRegistry implements VisorElementRegistry<VisorActionSet> {
+public class ActionSetRegistry implements VisortRegistry<VisorActionSet> {
     private static final String REGISTRY_NAME = "Visor Action Sets";
 
     private static final String ELEMENT_NAME = "VisorActionSet";

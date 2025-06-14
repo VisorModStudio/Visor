@@ -17,10 +17,6 @@ public class AddonCoreClient implements VisorAddon {
                 .reload();
     }
 
-    @Override
-    public void onAddonRemove() {
-
-    }
 
 
 

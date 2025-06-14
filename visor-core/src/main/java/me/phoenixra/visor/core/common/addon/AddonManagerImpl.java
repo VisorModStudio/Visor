@@ -1,9 +1,10 @@
 package me.phoenixra.visor.core.common.addon;
 
+import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.AddonManager;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.common.eventbus.VREventBusImpl;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -12,12 +13,14 @@ import java.util.*;
 
 
 public class AddonManagerImpl implements AddonManager {
+
     private final Logger logger;
 
-    private List<VisorElementRegistry<?>> elementRegistries;
 
     private final Map<String, VisorAddon> addonsMap;
 
+    @Getter
+    private VisorRegistriesImpl registries;
 
     private boolean initialized;
     public AddonManagerImpl(Logger logger) {
@@ -31,8 +34,9 @@ public class AddonManagerImpl implements AddonManager {
     }
 
     public void initialize(VisorAddon coreAddon,
-                           List<VisorElementRegistry<?>> elementRegistries){
-        this.elementRegistries = elementRegistries;
+                           List<VisortRegistry<?>> elementRegistries){
+
+        this.registries = new VisorRegistriesImpl(elementRegistries);
 
         addonsMap.put(coreAddon.getAddonId(), coreAddon);
         loadAddon(coreAddon);
@@ -71,7 +75,7 @@ public class AddonManagerImpl implements AddonManager {
 
     private void loadAddon(VisorAddon addon) {
         if(addon.getAddonPackagePath() != null) {
-            for(var registry : elementRegistries){
+            for(var registry : registries.list){
                 registry.registerAddonPath(addon);
             }
         }

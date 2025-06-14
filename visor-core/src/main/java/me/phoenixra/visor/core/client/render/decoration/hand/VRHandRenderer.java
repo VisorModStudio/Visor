@@ -11,7 +11,6 @@ import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
-import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -39,7 +38,7 @@ import java.util.*;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class VRHandRendererImpl implements VRHandRenderer {
+public class VRHandRenderer {
 
     private static final AtumColorImmutable GUI_HANDS_COLOR = new AtumColorImmutable(
             64, 64, 64,

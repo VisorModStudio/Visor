@@ -17,8 +17,8 @@ import java.util.Objects;
 
 
 
-public class VrSettingsScreen extends VRGuiOptionsBaseScreen {
-    public VrSettingsScreen(Screen lastScreen) {
+public class VRSettingsScreen extends VRGuiOptionsBaseScreen {
+    public VRSettingsScreen(Screen lastScreen) {
         super(lastScreen,
                 Component.translatable("visor.option.screen.main")
         );

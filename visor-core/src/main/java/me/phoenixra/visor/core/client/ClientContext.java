@@ -8,7 +8,7 @@ import me.phoenixra.visor.core.client.gui.OverlayManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
-import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
+import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
 import me.phoenixra.visor.core.common.addon.AddonCoreClient;
 
@@ -42,7 +42,7 @@ public class ClientContext {
     public static RawPoseHandler rawPoseHandler;
 
     public static DecorationRendererImpl decorationRenderer;
-    public static VRHandRendererImpl handRenderer;
+    public static VRHandRenderer handRenderer;
 
 
 

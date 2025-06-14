@@ -5,10 +5,9 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
-import me.phoenixra.visor.api.client.render.decoration.hand.VRHandRenderer;
-import me.phoenixra.visor.api.common.addon.VisorElementRegistry;
+import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRendererImpl;
+import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.render.decoration.registry.DecoratorRegistry;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRGameEffectRegistry;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +31,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         this.registry = new DecoratorRegistry();
         this.effectsRegistry = new VRGameEffectRegistry();
 
-        ClientContext.handRenderer = new VRHandRendererImpl();
+        ClientContext.handRenderer = new VRHandRenderer();
 
     }
 
@@ -79,7 +78,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
 
-    public List<VisorElementRegistry<?>> getElementRegistries(){
+    public List<VisortRegistry<?>> getElementRegistries(){
         return List.of(
                 registry,
                 effectsRegistry,
@@ -103,9 +102,4 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         }
     }
 
-
-    @Override
-    public @NotNull VRHandRenderer getHandsRenderer() {
-        return ClientContext.handRenderer;
-    }
 }
