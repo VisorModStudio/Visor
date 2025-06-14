@@ -11,6 +11,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -68,7 +69,7 @@ public class InputManagerImpl implements InputManager {
     }
 
     @Override
-    public void triggerHapticPulse(ControllerHand hand,
+    public void triggerHapticPulse(@NotNull ControllerHand hand,
                                    float frequency,
                                    float amplitude,
                                    long durationNanoSec) {
