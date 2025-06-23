@@ -9,9 +9,9 @@ import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class VRSettingsScreenControls extends VRGuiOptionsBaseScreen {
+public class VRSettingsControlsScreen extends VRGuiOptionsBaseScreen {
 
-    public VRSettingsScreenControls(Screen previousScreen) {
+    public VRSettingsControlsScreen(Screen previousScreen) {
         super(previousScreen,
                 Component.translatable("visor.option.screen.controls")
         );

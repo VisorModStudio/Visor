@@ -2,10 +2,10 @@ package me.phoenixra.visor.core.client.gui.screens.settings;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsScreenControls;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsScreenGui;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsScreenMovement;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsScreenRendering;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsControlsScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsGuiScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsMovementScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsRenderingScreen;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
 import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionPosition;
@@ -33,25 +33,25 @@ public class VRSettingsScreen extends VRGuiOptionsBaseScreen {
     protected VRGuiOptionEntry[] getOptionEntries() {
         return new VRGuiOptionEntry[]{
                 new VRGuiOptionEntry(
-                        VRSettingsScreenGui.class,
+                        VRSettingsGuiScreen.class,
                         VRGuiOptionPosition.LEFT,
                         1,
                         "visor.option.screen.gui.button"
                 ),
                 new VRGuiOptionEntry(
-                        VRSettingsScreenMovement.class,
+                        VRSettingsMovementScreen.class,
                         VRGuiOptionPosition.RIGHT,
                         1,
                         "visor.option.screen.movement.button"
                 ),
                 new VRGuiOptionEntry(
-                        VRSettingsScreenRendering.class,
+                        VRSettingsRenderingScreen.class,
                         VRGuiOptionPosition.LEFT,
                         2,
                         "visor.option.screen.rendering.button"
                 ),
                 new VRGuiOptionEntry(
-                        VRSettingsScreenControls.class,
+                        VRSettingsControlsScreen.class,
                         VRGuiOptionPosition.RIGHT,
                         2,
                         "visor.option.screen.controls.button"
