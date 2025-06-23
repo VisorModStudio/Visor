@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.gui.screens;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.FrameLayout;
@@ -45,7 +46,7 @@ public class GameMenuScreen extends Screen {
                             this.minecraft.player)
                     );
                 }).width(104).build(),
-                2, gridLayout.newCellSettings().paddingTop(100));
+                2, gridLayout.newCellSettings().paddingTop(50));
 
         //CHAT
         rowHelper.addChild(new Button.Builder(OPEN_CHAT, (p) ->
@@ -64,6 +65,14 @@ public class GameMenuScreen extends Screen {
                 }).width(104).build(),
                 2, gridLayout.newCellSettings().paddingTop(20)
         );
+
+        rowHelper.addChild(new Button.Builder(Component.translatable("visor.button.calibrate_height"), (p) ->
+        {
+            VRClientSettings.calibrateHeight();
+            ClientContext.settingsHandler.saveOptions();
+            this.minecraft.setScreen(null);
+        }).width(104).build(),
+                2, gridLayout.newCellSettings().paddingTop(20));
 
         //PAUSE MENU
         rowHelper.addChild(Button.builder(OPEN_PAUSE_MENU, (button) -> {
