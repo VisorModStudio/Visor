@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component;
 
 public class VRSettingsScreenMovement extends VRGuiOptionsBaseScreen {
 
-    public VRSettingsScreenMovement(Screen guiScreen) {
-        super(guiScreen,
+    public VRSettingsScreenMovement(Screen previousScreen) {
+        super(previousScreen,
                 Component.translatable("visor.option.screen.movement")
         );
     }

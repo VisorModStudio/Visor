@@ -9,8 +9,8 @@ import net.minecraft.network.chat.Component;
 
 public class VRSettingsScreenGui extends VRGuiOptionsBaseScreen {
 
-    public VRSettingsScreenGui(Screen guiScreen) {
-        super(guiScreen,
+    public VRSettingsScreenGui(Screen previousScreen) {
+        super(previousScreen,
                 Component.translatable("visor.option.screen.gui")
         );
     }

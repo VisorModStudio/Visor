@@ -273,14 +273,14 @@ public class ViveCosmosSet extends OpenXRProfileSet {
         listButton.addAll(thumbStickButton.getSubActionsAsButton());
         listButton.addAll(thumbStickTouch.getSubActionsAsButton());
 
-        buttonMap = new HashMap<>();
+        buttonMap = new LinkedHashMap<>();
         for(var entry : listButton){
             buttonMap.put(entry.getId(), entry);
         }
 
         List<VRActionDataVec2> listVec2 = new ArrayList<>(thumbStick.getSubActionsAsVec2());
 
-        vec2Map = new HashMap<>();
+        vec2Map = new LinkedHashMap<>();
         for(var entry : listVec2){
             vec2Map.put(entry.getId(), entry);
         }
@@ -307,7 +307,7 @@ public class ViveCosmosSet extends OpenXRProfileSet {
 
     @Override
     public Collection<String> getVec2Ids() {
-        return Collections.unmodifiableCollection(buttonMap.keySet());
+        return Collections.unmodifiableCollection(vec2Map.keySet());
     }
 
     @Override

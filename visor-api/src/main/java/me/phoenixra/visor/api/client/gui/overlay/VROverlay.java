@@ -101,21 +101,23 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     void updateMousePosition(boolean activeCursorHand, float rawX, float rawY);
 
 
-    boolean mouseClicked(double d, double e, int i);
+    boolean mouseClicked(double x, double y, int buttonType);
 
-    boolean mouseReleased(double d, double e, int i);
+    boolean mouseReleased(double x, double y, int buttonType);
+
+    void mouseMoved(double x, double y);
 
     boolean mouseDragged(double mouseX, double mouseY,
                          int button,
-                         double dragX, double drag);
+                         double deltaX, double deltaY);
 
-    boolean mouseScrolled(double d, double e, double f);
+    boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta);
 
     boolean keyPressed(int keyCode, int keyScan, int modifiers);
 
     boolean keyReleased(int keyCode, int keyScan, int modifiers);
 
-    boolean charTyped(char c, int i);
+    boolean charTyped(char chr, int modifiers);
 
 
     /**

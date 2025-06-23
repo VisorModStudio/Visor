@@ -9,6 +9,7 @@ import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,10 +28,10 @@ public abstract class OpenXRProfileSet extends OpenXRActionSet {
 
 
     public abstract Collection<String> getButtonIds();
-    public abstract VRActionDataButton getButton(@NotNull String id);
+    public abstract @Nullable VRActionDataButton getButton(@NotNull String id);
 
     public abstract Collection<String> getVec2Ids();
-    public abstract VRActionDataVec2 getVec2(@NotNull String id);
+    public abstract @Nullable VRActionDataVec2 getVec2(@NotNull String id);
 
 
     public boolean isProfileActive(){

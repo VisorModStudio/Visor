@@ -23,12 +23,12 @@ public class MenuActionSet extends VisorActionSet {
     @Override
     protected List<VisorAction> loadActions() {
         return List.of(
-                new ActionMenu(this),
-
                 new ActionLeftMouse(this),
                 new ActionRightMouse(this),
                 new ActionMiddleMouse(this),
-                new ActionScrollMouse(this)
+                new ActionScrollMouse(this),
+
+                new ActionMenu(this)
 
         );
     }

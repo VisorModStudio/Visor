@@ -99,10 +99,10 @@ public class VROverlayDraggedItem extends VROverlayScreen {
 
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(double x, double y, int buttonType) {
         this.minecraft.gameMode.handleInventoryMouseClick(
                 minecraft.player.containerMenu.containerId,
-                -999, i, ClickType.PICKUP, this.minecraft.player
+                -999, buttonType, ClickType.PICKUP, this.minecraft.player
         );
         return true;
     }

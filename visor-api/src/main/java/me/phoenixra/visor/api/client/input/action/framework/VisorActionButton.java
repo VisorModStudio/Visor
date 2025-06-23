@@ -5,14 +5,14 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 
 public abstract class VisorActionButton implements VisorAction {
@@ -39,9 +39,11 @@ public abstract class VisorActionButton implements VisorAction {
 
     protected boolean forcedState;
 
+
+
     protected final Map<XRInteractionProfile, BindingPath> defaultBindings;
 
-    protected final Map<XRInteractionProfile, BindingPath> bindings;
+    protected Map<XRInteractionProfile, BindingPath> bindings;
 
 
     public VisorActionButton(VisorActionSet actionSet,
@@ -64,7 +66,7 @@ public abstract class VisorActionButton implements VisorAction {
     }
 
 
-    protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath,
+    protected @Nullable VRActionDataButton getButtonData(@NotNull BindingPath bindingPath,
                                                @NotNull OpenXRProfileSet currentProfile,
                                                boolean leftHanded){
         return bindingPath.getButton(currentProfile, leftHanded);
@@ -93,7 +95,7 @@ public abstract class VisorActionButton implements VisorAction {
     }
 
     @Override
-    public void updateState(OpenXRProfileSet currentProfile, boolean leftHanded) {
+    public void updateState(@NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         BindingPath bindingPath = bindings.get(currentProfile.getType());
 
         if(bindingPath == null){
@@ -110,6 +112,13 @@ public abstract class VisorActionButton implements VisorAction {
         }
 
         var buttonData = getButtonData(bindingPath, currentProfile, leftHanded);
+
+        if(buttonData == null){
+            if(active) {
+                clear();
+            }
+            return;
+        }
 
         active = buttonData.isActive();
 
@@ -164,13 +173,33 @@ public abstract class VisorActionButton implements VisorAction {
         releaseDelayed = true;
     }
 
+    public void setBinding(@NotNull XRInteractionProfile profile, @NotNull BindingPath path){
+        bindings.put(profile, path);
+    }
+
     @Override
-    public @Nullable BindingPath getBinding(XRInteractionProfile profile) {
+    public @Nullable BindingPath getBinding(@NotNull XRInteractionProfile profile) {
         return bindings.get(profile);
     }
 
     @Override
-    public @Nullable BindingPath getDefaultBinding(XRInteractionProfile profile) {
+    public @Nullable BindingPath getDefaultBinding(@NotNull XRInteractionProfile profile) {
         return defaultBindings.get(profile);
     }
+
+
+    @Override
+    public @NotNull Collection<String> getSelectableBindings(@NotNull XRInteractionProfile profile) {
+        var profileSet = VisorAPI.client().getInputManager()
+                .getProfileSetHolder()
+                .getProfileSet(profile);
+
+        var out = new ArrayList<String>();
+        out.add(BindingPath.EMPTY_PATH);
+        if(profileSet != null){
+            out.addAll(profileSet.getButtonIds());
+        }
+        return out;
+    }
+
 }

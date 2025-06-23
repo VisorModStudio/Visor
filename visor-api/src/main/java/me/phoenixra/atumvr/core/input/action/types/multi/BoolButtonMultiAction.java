@@ -16,6 +16,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BoolButtonMultiAction extends OpenXRMultiAction<Boolean> {
 
@@ -37,7 +38,7 @@ public class BoolButtonMultiAction extends OpenXRMultiAction<Boolean> {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             for(SubAction<Boolean> entry : subActions) {
                 var state = XrActionStateBoolean.calloc(stack)
@@ -58,6 +59,10 @@ public class BoolButtonMultiAction extends OpenXRMultiAction<Boolean> {
                         state.changedSinceLastSync(),
                         state.isActive()
                 );
+                if(listener != null
+                        && state.changedSinceLastSync()){
+                    listener.accept(entry.getId());
+                }
             }
         }
     }

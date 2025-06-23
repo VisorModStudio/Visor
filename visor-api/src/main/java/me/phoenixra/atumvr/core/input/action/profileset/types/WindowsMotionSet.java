@@ -231,7 +231,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
         listButton.addAll(trackpadButton.getSubActionsAsButton());
         listButton.addAll(trackpadTouch.getSubActionsAsButton());
 
-        buttonMap = new HashMap<>();
+        buttonMap = new LinkedHashMap<>();
         for(var entry : listButton){
             buttonMap.put(entry.getId(), entry);
         }
@@ -240,7 +240,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
         listVec2.addAll(trackpad.getSubActionsAsVec2());
         listVec2.addAll(thumbStick.getSubActionsAsVec2());
 
-        vec2Map = new HashMap<>();
+        vec2Map = new LinkedHashMap<>();
         for(var entry : listVec2){
             vec2Map.put(entry.getId(), entry);
         }
@@ -267,7 +267,7 @@ public class WindowsMotionSet extends OpenXRProfileSet {
 
     @Override
     public Collection<String> getVec2Ids() {
-        return Collections.unmodifiableCollection(buttonMap.keySet());
+        return Collections.unmodifiableCollection(vec2Map.keySet());
     }
 
     @Override

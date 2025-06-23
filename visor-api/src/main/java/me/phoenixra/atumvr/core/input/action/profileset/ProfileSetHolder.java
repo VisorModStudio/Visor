@@ -19,7 +19,7 @@ public class ProfileSetHolder {
 
     public ProfileSetHolder(OpenXRProvider provider){
         this(new SharedActionSet(provider),
-                XRInteractionProfile.getSupportedProfileSets(provider)
+                        XRInteractionProfile.getSupportedProfileSets(provider)
         );
     }
 

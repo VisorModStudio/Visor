@@ -19,6 +19,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class Vec2MultiAction extends OpenXRMultiAction<Vector2f> {
 
@@ -41,7 +42,7 @@ public class Vec2MultiAction extends OpenXRMultiAction<Vector2f> {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             for(SubAction<Vector2f> entry : subActions) {
                 var state = XrActionStateVector2f.calloc(stack)
@@ -62,6 +63,10 @@ public class Vec2MultiAction extends OpenXRMultiAction<Vector2f> {
                         state.changedSinceLastSync(),
                         state.isActive()
                 );
+                if(listener != null
+                        && state.changedSinceLastSync()){
+                    listener.accept(entry.getId());
+                }
             }
         }
     }

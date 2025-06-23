@@ -1,8 +1,12 @@
 package me.phoenixra.visor.api.client.input;
 
 
+import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
+import me.phoenixra.atumvr.core.input.action.profileset.ProfileSetHolder;
+import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.ControllerHand;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Manages VR input
@@ -16,6 +20,13 @@ public interface InputManager {
      */
     boolean isLeftHanded();
 
+    VisorActionSet getActiveSet();
+
+    @NotNull
+    ProfileSetHolder getProfileSetHolder();
+
+    @Nullable
+    XRInteractionProfile getActiveProfile();
 
 
     /**

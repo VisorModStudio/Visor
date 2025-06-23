@@ -24,18 +24,18 @@ public class GameActionSet extends VisorActionSet {
     @Override
     protected List<VisorAction> loadActions() {
         return List.of(
+                new ActionLeftMouse(this),
+                new ActionRightMouse(this),
+                new ActionMiddleMouse(this),
+                new ActionScrollMouse(this),
+
                 new GameActionInputMovement(this),
                 new GameActionRotate(this),
                 new GameActionJump(this),
                 new GameActionShift(this),
 
                 new GameActionHotBar(this),
-                new ActionMenu(this),
-
-                new ActionLeftMouse(this),
-                new ActionRightMouse(this),
-                new ActionMiddleMouse(this),
-                new ActionScrollMouse(this)
+                new ActionMenu(this)
         );
     }
 

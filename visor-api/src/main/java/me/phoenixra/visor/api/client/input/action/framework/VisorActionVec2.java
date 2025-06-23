@@ -2,8 +2,10 @@ package me.phoenixra.visor.api.client.input.action.framework;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
+import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -11,8 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class VisorActionVec2 implements VisorAction {
     @Getter
@@ -57,7 +58,7 @@ public abstract class VisorActionVec2 implements VisorAction {
 
     }
 
-    protected VRActionDataVec2 getVec2Data(@NotNull BindingPath bindingPath,
+    protected @Nullable VRActionDataVec2 getVec2Data(@NotNull BindingPath bindingPath,
                                            @NotNull OpenXRProfileSet currentProfile,
                                            boolean leftHanded){
         return bindingPath.getVec2(currentProfile, leftHanded);
@@ -72,7 +73,7 @@ public abstract class VisorActionVec2 implements VisorAction {
     }
 
     @Override
-    public void updateState(OpenXRProfileSet currentProfile, boolean leftHanded) {
+    public void updateState(@NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         BindingPath bindingPath = bindings.get(currentProfile.getType());
         if(bindingPath == null){
             active = false;
@@ -86,6 +87,12 @@ public abstract class VisorActionVec2 implements VisorAction {
                 currentProfile,
                 leftHanded
         );
+        if(vec2Data == null){
+            if(active) {
+                clear();
+            }
+            return;
+        }
 
         active = vec2Data.isActive();
         if(!active){
@@ -112,14 +119,31 @@ public abstract class VisorActionVec2 implements VisorAction {
         onClear();
     }
 
+    public void setBinding(@NotNull XRInteractionProfile profile, @NotNull BindingPath path){
+        bindings.put(profile, path);
+    }
 
     @Override
-    public @Nullable BindingPath getBinding(XRInteractionProfile profile) {
+    public @Nullable BindingPath getBinding(@NotNull XRInteractionProfile profile) {
         return bindings.get(profile);
     }
 
     @Override
-    public @Nullable BindingPath getDefaultBinding(XRInteractionProfile profile) {
+    public @Nullable BindingPath getDefaultBinding(@NotNull XRInteractionProfile profile) {
         return defaultBindings.get(profile);
+    }
+
+    @Override
+    public @NotNull Collection<String> getSelectableBindings(@NotNull XRInteractionProfile profile) {
+        var profileSet = VisorAPI.client().getInputManager()
+                .getProfileSetHolder()
+                .getProfileSet(profile);
+
+        var out = new ArrayList<String>();
+        out.add(BindingPath.EMPTY_PATH);
+        if(profileSet != null){
+            out.addAll(profileSet.getVec2Ids());
+        }
+        return out;
     }
 }

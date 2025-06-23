@@ -50,11 +50,13 @@ public class PostChainMixin {
             return;
         }
         for (VRDisplay display : VRDisplay.values()) {
+            var target =VRRenderState.getTargetForDisplay(display);
+            if(target == null) continue;
             visor$vrChains.put(display,
                     new PostChain(
                             textureManager,
                             resourceManager,
-                            VRRenderState.getTargetForDisplay(display),
+                            target,
                             name
                     )
             );
@@ -109,6 +111,9 @@ public class PostChainMixin {
     private void visor$onResize(CallbackInfo ci) {
         visor$vrChains.forEach((display, pc) -> {
             RenderTarget target = VRRenderState.getTargetForDisplay(display);
+            if(target == null){
+                return;
+            }
             pc.resize(target.width, target.height);
         });
     }

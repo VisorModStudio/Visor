@@ -6,9 +6,11 @@ import me.phoenixra.atumvr.api.input.action.VRAction;
 
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openxr.XR10;
 import org.lwjgl.openxr.XrAction;
 
+import java.util.function.Consumer;
 
 
 public abstract class OpenXRAction implements VRAction {
@@ -44,7 +46,7 @@ public abstract class OpenXRAction implements VRAction {
 
     public abstract void init(OpenXRActionSet actionSet);
 
-    public abstract void update();
+    public abstract void update(@Nullable Consumer<String> listener);
 
 
     public void destroy() {

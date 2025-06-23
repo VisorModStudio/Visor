@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
+import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.controls.VRActionSetsScreen;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
@@ -10,8 +11,8 @@ import net.minecraft.network.chat.Component;
 
 public class VRSettingsScreenControls extends VRGuiOptionsBaseScreen {
 
-    public VRSettingsScreenControls(Screen guiScreen) {
-        super(guiScreen,
+    public VRSettingsScreenControls(Screen previousScreen) {
+        super(previousScreen,
                 Component.translatable("visor.option.screen.controls")
         );
     }
@@ -23,21 +24,33 @@ public class VRSettingsScreenControls extends VRGuiOptionsBaseScreen {
 
     @Override
     protected VRGuiOptionEntry[] getOptionEntries() {
-        return new VRGuiOptionEntry[]{
-                new VRGuiOptionEntry(
-                        VRGuiOption.LEFT_HANDED,
-                        VRGuiOptionPosition.LEFT,
-                        1,
-                        null
-                ),
-                new VRGuiOptionEntry(
-                        VRActionSetsScreen.class,
-                        VRGuiOptionPosition.RIGHT,
-                        1,
-                        "visor.option.screen.keyBindings.button"
-                ),
+        if(VisorState.getState().isInitialized()){
+            return new VRGuiOptionEntry[]{
+                    new VRGuiOptionEntry(
+                            VRGuiOption.LEFT_HANDED,
+                            VRGuiOptionPosition.LEFT,
+                            1,
+                            null
+                    ),
+                    new VRGuiOptionEntry(
+                            VRActionSetsScreen.class,
+                            VRGuiOptionPosition.RIGHT,
+                            1,
+                            "visor.option.screen.actionSets.button"
+                    ),
 
-        };
+            };
+        }else{
+            return new VRGuiOptionEntry[]{
+                    new VRGuiOptionEntry(
+                            VRGuiOption.LEFT_HANDED,
+                            VRGuiOptionPosition.LEFT,
+                            1,
+                            null
+                    )
+            };
+        }
+
     }
 
 }

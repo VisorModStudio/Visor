@@ -4,6 +4,7 @@ import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
 import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openxr.XR10;
 import org.lwjgl.openxr.XrActionStateFloat;
 import org.lwjgl.system.MemoryStack;
@@ -11,6 +12,7 @@ import org.lwjgl.system.MemoryStack;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class FloatMultiAction extends OpenXRMultiAction<Float> {
 
@@ -32,7 +34,7 @@ public class FloatMultiAction extends OpenXRMultiAction<Float> {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             for(SubAction<Float> entry : subActions) {
                 var state = XrActionStateFloat.calloc(stack)
@@ -54,6 +56,10 @@ public class FloatMultiAction extends OpenXRMultiAction<Float> {
                         state.changedSinceLastSync(),
                         state.isActive()
                 );
+                if(listener != null
+                        && state.changedSinceLastSync()){
+                    listener.accept(entry.getId());
+                }
             }
         }
     }

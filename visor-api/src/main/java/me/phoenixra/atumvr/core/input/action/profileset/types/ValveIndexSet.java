@@ -73,9 +73,9 @@ public class ValveIndexSet extends OpenXRProfileSet {
     public static final String VEC2_THUMBSTICK_LEFT = "vec2.thumbstick.left";
     public static final String VEC2_THUMBSTICK_RIGHT = "vec2.thumbstick.right";
 
+
     public static final String VEC2_TRACKPAD_LEFT = "vec2.trackpad.left";
     public static final String VEC2_TRACKPAD_RIGHT = "vec2.trackpad.right";
-
     // System Buttons
     private BoolButtonMultiAction systemButton;
     private BoolButtonMultiAction systemButtonTouch;
@@ -486,7 +486,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
         listButton.addAll(trackpadTouch.getSubActionsAsButton());
         listButton.addAll(trackpadForce.getSubActionsAsButton());
 
-        buttonMap = new HashMap<>();
+        buttonMap = new LinkedHashMap<>();
         for(var entry : listButton){
             buttonMap.put(entry.getId(), entry);
         }
@@ -495,7 +495,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
         listVec2.addAll(thumbStick.getSubActionsAsVec2());
         listVec2.addAll(trackpad.getSubActionsAsVec2());
 
-        vec2Map = new HashMap<>();
+        vec2Map = new LinkedHashMap<>();
         for(var entry : listVec2){
             vec2Map.put(entry.getId(), entry);
         }
@@ -525,7 +525,7 @@ public class ValveIndexSet extends OpenXRProfileSet {
 
     @Override
     public Collection<String> getVec2Ids() {
-        return Collections.unmodifiableCollection(buttonMap.keySet());
+        return Collections.unmodifiableCollection(vec2Map.keySet());
     }
 
     @Override

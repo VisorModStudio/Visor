@@ -12,13 +12,12 @@ import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
 import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
-import me.phoenixra.visor.core.client.gui.screens.VRErrorScreen;
+import me.phoenixra.visor.core.client.gui.screens.VRErrorReportScreen;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
-import net.minecraft.client.gui.screens.DirectJoinServerScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
@@ -231,9 +230,9 @@ public class VisorState implements VisorClientState {
 
         if(MC.level != null) {
             MC.level.disconnect();
-            delayedErrorHandling = ()-> VRErrorScreen.catchError(throwable,true);
+            delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
         }else {
-            VRErrorScreen.catchError(throwable, true);
+            VRErrorReportScreen.catchError(throwable, true);
         }
     }
 

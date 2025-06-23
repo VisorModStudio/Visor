@@ -1,20 +1,40 @@
 {
 
+  "_comment08": "*--------Action Sets--------*",
+  "visor.actionSet.menu": "Menu actions",
+  "visor.actionSet.game": "Game actions",
+
+  "_comment081": "*--------Action Sets--------*",
+  "visor.action.mouse_left": "Mouse Left Click",
+  "visor.action.mouse_right": "Mouse Right Click",
+  "visor.action.mouse_middle": "Mouse Middle Click",
+  "visor.action.mouse_scroll": "Mouse Scroll",
+  "visor.action.menu": "Menu",
+
+  "visor.action.hotbar": "Open HotBar",
+  "visor.action.input_movement": "Movement",
+  "visor.action.jump": "Jump",
+  "visor.action.rotate": "Rotate",
+  "visor.action.shift": "Shift",
+
   "_comment10": "*--------VR OPTION SCREEN TITLES--------*",
   "visor.option.screen.main": "VR Settings",
   "visor.option.screen.movement": "Movement Settings",
   "visor.option.screen.gui": "GUI Settings",
   "visor.option.screen.rendering": "Rendering Settings",
   "visor.option.screen.mixed_reality": "Mixed Reality Settings",
-  "visor.option.screen.controls": "Controller Settings",
+  "visor.option.screen.controls": "Controls",
+  "visor.option.screen.actionSets": "Action Sets",
+  "visor.option.screen.selectBinding": "Select Binding",
 
   "_comment11": "*--------VR OPTION SCREEN MAIN BUTTONS--------*",
   "visor.option.screen.main.button": "VR Settings...",
   "visor.option.screen.gui.button": "GUI Settings...",
   "visor.option.screen.rendering.button": "Rendering...",
   "visor.option.screen.mixed_reality.button": "Mixed Reality...",
-  "visor.option.screen.controls.button": "Controller Settings...",
+  "visor.option.screen.controls.button": "Controls...",
   "visor.option.screen.movement.button": "Movement Settings...",
+  "visor.option.screen.actionSets.button": "Action Sets...",
 
   "_comment12": "*--------VR OPTION NAMES--------*",
   "visor.option.HUD_DISABLED_HOTBAR": "Disable HUD Hotbar",
@@ -114,7 +134,16 @@
 
   "visor.overlaySettings.modelView.remove": "§cRM",
   "visor.overlaySettings.modelView.remove.tooltip": "Remove overlay",
-  "_comment16": "*--------VR ENUMS--------*",
+  "_comment16": "*--------Action Binds--------*",
+  "visor.actionBinds.selectedPath": "Selected Path: %s",
+  "visor.actionBinds.pickPath": "Pick Path",
+  "visor.actionBinds.touchFilter": "Touch",
+  "visor.actionBinds.forceFilter": "Force",
+  "visor.actionBinds.captureInput": "Capture Input",
+  "visor.actionBinds.captureInput.guide": "Press Start, then press the VR button you want to bind",
+  "visor.actionBinds.captureInput.listening": "Listening...",
+
+  "_comment17": "*--------VR ENUMS--------*",
   "visor.enums.playMode.ENABLED": "Enabled",
   "visor.enums.playMode.DISABLED": "Disabled",
   "visor.enums.playMode.WORLD_ONLY": "World Only",
@@ -143,26 +172,27 @@
   "visor.enums.option.ShaderGUIRenderMode.AFTER_SHADER": "After Shader",
   "visor.enums.option.ShaderGUIRenderMode.AFTER_TRANSLUCENT": "Translucent",
   "visor.enums.option.ShaderGUIRenderMode.BEFORE_TRANSLUCENT_SOLID": "Opaque",
-  "_comment17": "*--------BUTTON TEXT--------*",
+
+  "_comment18": "*--------BUTTON TEXT--------*",
   "visor.button.playMode": "VR: %s",
 
   "visor.button.load_defaults": "Load Defaults",
   "visor.button.overlay": "Overlay",
   "visor.button.profiler": "Profiler",
   "visor.button.calibrate_height": "Calibrate Height",
-  "visor.button.vr": "VR: %s",
   "visor.button.confirm": "Confirm",
-  "visor.button.vr.ENABLED": "Enabled",
-  "visor.button.vr.DISABLED": "Disabled",
-  "visor.button.vr.MIXED": "Mixed",
   "visor.button.create_new": "[Create New]",
   "visor.button.tick": "Tick",
   "visor.button.frame": "Frame",
 
   "visor.button.copy_log": "Copy latest log",
-  "visor.button.back": "Back",
+  "visor.button.start": "Start",
   "visor.button.open_logs": "Logs folder",
   "visor.button.discord": "Our discord",
+
+  "visor.button.apply_changes": "Apply Changes",
+  "visor.button.input_profile": "Input Profile",
+
 
   "_comment999": "*--------MESSAGES--------*",
   "visor.messages.error.generic": "An unexpected VR error occurred!",
@@ -173,5 +203,10 @@
   "visor.messages.height_set": "User height set to %d%%",
   "visor.messages.vr_auto_switch": "Put on your headset to play VR",
   "visor.messages.incompatible_settings": "Incompatible Settings",
-  "visor.messages.network.unsupported": "Unsupported Server Network version! Client: %s  Server: %s"
+  "visor.messages.network.unsupported": "Unsupported Server Network version! Client: %s  Server: %s",
+
+  "_comment9999": "*--------OTHER--------*",
+  "visor.text.action": "Action",
+  "visor.text.leftHanded": "Left Handed",
+  "visor.text.rightHanded": "Right Handed"
 }

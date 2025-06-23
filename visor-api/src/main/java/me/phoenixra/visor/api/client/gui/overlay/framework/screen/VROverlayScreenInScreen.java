@@ -50,15 +50,21 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
 
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(double x, double y, int buttonType) {
         if(screen==null) return true;
-        return screen.mouseClicked(d, e, i);
+        return screen.mouseClicked(x, y, buttonType);
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
+    public boolean mouseReleased(double x, double y, int buttonType) {
         if(screen==null) return true;
-        return screen.mouseReleased(d, e, i);
+        return screen.mouseReleased(x, y, buttonType);
+    }
+
+    @Override
+    public void mouseMoved(double d, double e) {
+        if(screen==null) return;
+        screen.mouseMoved(d, e);
     }
 
     @Override
@@ -72,9 +78,9 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
 
 
     @Override
-    public boolean mouseScrolled(double d, double e, double f) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
         if(screen==null) return true;
-        return screen.mouseScrolled(d, e, f);
+        return screen.mouseScrolled(mouseX, mouseY, scrollDelta);
     }
 
     @Override
@@ -90,9 +96,9 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
     }
 
     @Override
-    public boolean charTyped(char c, int i) {
+    public boolean charTyped(char chr, int modifiers) {
         if(screen==null) return true;
-        return screen.charTyped(c, i);
+        return screen.charTyped(chr, modifiers);
     }
 
     @Override

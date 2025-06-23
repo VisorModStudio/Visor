@@ -16,6 +16,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class FloatButtonMultiAction extends OpenXRMultiAction<Float> {
 
@@ -49,7 +50,7 @@ public class FloatButtonMultiAction extends OpenXRMultiAction<Float> {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             for(SubActionFloatButton entry : subActionsAsButton) {
                 var state = XrActionStateFloat.calloc(stack)
@@ -89,6 +90,10 @@ public class FloatButtonMultiAction extends OpenXRMultiAction<Float> {
                         state.changedSinceLastSync(),
                         state.isActive()
                 );
+                if(listener != null
+                        && entry.buttonChanged){
+                    listener.accept(entry.getId());
+                }
             }
         }
     }

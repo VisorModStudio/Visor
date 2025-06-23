@@ -8,26 +8,20 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
-public class VRErrorScreen extends Screen {
+public class VRErrorReportScreen extends Screen {
     private final String discordUrl;
     private final String logsFolderUrl;
 
     private final Component summary;
     private List<FormattedCharSequence> summaryLines;
 
-    public VRErrorScreen(Component title, Throwable t) {
+    public VRErrorReportScreen(Component title, Throwable t) {
         super(title);
         this.discordUrl = Component.translatable("visor.messages.discord_link").getString();
         this.logsFolderUrl = Minecraft.getInstance()
@@ -58,7 +52,7 @@ public class VRErrorScreen extends Screen {
 
         // Back
         addRenderableWidget(Button.builder(
-                        Component.translatable("visor.button.back"),
+                        Component.translatable("gui.back"),
                         b -> Minecraft.getInstance().setScreen(new TitleScreen()))
                 .size(btnW, btnH)
                 .pos(startX, bottomY)
@@ -109,7 +103,7 @@ public class VRErrorScreen extends Screen {
                 : Component.translatable("visor.messages.error.generic");
 
         Minecraft.getInstance().tell(() ->
-                Minecraft.getInstance().setScreen(new VRErrorScreen(title, t))
+                Minecraft.getInstance().setScreen(new VRErrorReportScreen(title, t))
         );
     }
 }

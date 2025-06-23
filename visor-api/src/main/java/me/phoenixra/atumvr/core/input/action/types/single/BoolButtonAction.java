@@ -13,6 +13,7 @@ import org.lwjgl.openxr.XrActionStateBoolean;
 import org.lwjgl.system.MemoryStack;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BoolButtonAction extends OpenXRSingleAction<Boolean> implements VRActionDataButton {
 
@@ -30,7 +31,7 @@ public class BoolButtonAction extends OpenXRSingleAction<Boolean> implements VRA
 
     }
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             var state = XrActionStateBoolean.calloc(stack)
                     .type(actionType.getStateId());
@@ -47,6 +48,9 @@ public class BoolButtonAction extends OpenXRSingleAction<Boolean> implements VRA
             this.changed = state.changedSinceLastSync();
             this.lastChangeTime = state.lastChangeTime();
             this.active = state.isActive();
+            if(listener != null && changed){
+                listener.accept(id);
+            }
         }
     }
 

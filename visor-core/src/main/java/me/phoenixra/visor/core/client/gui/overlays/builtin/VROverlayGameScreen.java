@@ -302,18 +302,22 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        InputHelper.pressMouse(i);
+    public boolean mouseClicked(double x, double y, int buttonType) {
+        InputHelper.pressMouse(buttonType);
         return true;
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
-        InputHelper.releaseMouse(i);
+    public boolean mouseReleased(double x, double y, int buttonType) {
+        InputHelper.releaseMouse(buttonType);
         return true;
     }
 
-
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+        InputHelper.scrollMouse(0, scrollDelta);
+        return true;
+    }
 
     @Override
     public boolean isCursorSupported() {

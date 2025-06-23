@@ -20,6 +20,7 @@ import java.nio.LongBuffer;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.lwjgl.openxr.XR10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -65,7 +66,7 @@ public class HapticPulseAction extends OpenXRAction {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
 
     }
 

@@ -1,8 +1,11 @@
 package me.phoenixra.visor.core.client.input;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.phoenixra.atumvr.api.input.device.VRDeviceController;
 
+import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
+import me.phoenixra.atumvr.core.input.action.profileset.ProfileSetHolder;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -12,6 +15,7 @@ import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -23,6 +27,10 @@ public class InputManagerImpl implements InputManager {
 
     @Getter
     private VisorActionSet activeSet;
+
+    @Setter
+    private long pausedActionsTicks = -1;
+
 
     public InputManagerImpl(){
         actionSetRegistry = new ActionSetRegistry();
@@ -37,14 +45,20 @@ public class InputManagerImpl implements InputManager {
                 break;
             }
         }
+
         if(activeSet != null && activeSet != newActiveSet){
             activeSet.clear();
         }
 
         activeSet = newActiveSet;
 
-        if(activeSet != null) {
+        var provider = ((XrProvider)ClientContext.visor.getVrProvider());
+        boolean canUpdate = pausedActionsTicks <= 0 && provider.getInputHandler().getActionListener() == null;
+        if(canUpdate && activeSet != null) {
             activeSet.preTick();
+        }
+        if(pausedActionsTicks > 0) {
+            pausedActionsTicks--;
         }
     }
     public void update(){
@@ -54,7 +68,9 @@ public class InputManagerImpl implements InputManager {
         var provider = (XrProvider)ClientContext.visor.getVrProvider();
         var currentProfile = provider.getInputHandler().getProfileSetHolder()
                 .getActiveProfileSet();
-        if(currentProfile == null) {
+        boolean canUpdate = pausedActionsTicks <= 0 && provider.getInputHandler().getActionListener() == null;
+
+        if(!canUpdate || currentProfile == null) {
             return;
         }
         activeSet.updateState(
@@ -66,6 +82,23 @@ public class InputManagerImpl implements InputManager {
     @Override
     public boolean isLeftHanded() {
         return VRClientSettings.isLeftHanded();
+    }
+
+    @Override
+    public @NotNull ProfileSetHolder getProfileSetHolder() {
+        return ((XrProvider)ClientContext.visor.getVrProvider())
+                .getInputHandler().getProfileSetHolder();
+    }
+
+    @Override
+    public @Nullable XRInteractionProfile getActiveProfile() {
+        var provider = (XrProvider)ClientContext.visor.getVrProvider();
+        var profileSet = provider.getInputHandler().getProfileSetHolder()
+                .getActiveProfileSet();
+        if(profileSet == null){
+            return null;
+        }
+        return profileSet.getType();
     }
 
     @Override

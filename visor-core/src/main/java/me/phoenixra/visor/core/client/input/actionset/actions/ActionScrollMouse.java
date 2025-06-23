@@ -31,6 +31,11 @@ public class ActionScrollMouse extends VisorActionVec2 {
 
 
     @Override
+    public void preTick() {
+        onStateChanged(getState());
+    }
+
+    @Override
     protected void onStateChanged(Vector2f newState) {
         if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_VR_MOUSE)){
             return;
@@ -54,29 +59,26 @@ public class ActionScrollMouse extends VisorActionVec2 {
 
     }
 
-    private void doScroll(double scrollDelta){
+    private void doScroll(double scroll){
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
         if (focusedOverlay == null) {
             return;
         }
-        if(MC.screen != null
-                && focusedOverlay.getId().equals(VROverlayGameScreen.ID)){
-            InputHelper.scrollMouse(0, scrollDelta);
-            return;
-        }
         boolean discrete = MC.options.discreteMouseScroll().get();
         double wheelSensitivity = MC.options.mouseWheelSensitivity().get();
-
-        scrollDelta = (
+        scroll = (
                 discrete
-                        ? Math.signum(scrollDelta)
-                        : scrollDelta
+                        ? Math.signum(scroll)
+                        : scroll
         ) * wheelSensitivity;
 
+        if(scroll == 0){
+            return;
+        }
 
         focusedOverlay.mouseScrolled(
                 focusedOverlay.getMouseX(), focusedOverlay.getMouseY(),
-                scrollDelta
+                scroll
         );
     }
 

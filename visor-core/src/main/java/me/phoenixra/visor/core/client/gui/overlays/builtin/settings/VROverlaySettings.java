@@ -268,7 +268,7 @@ public class VROverlaySettings extends VROverlayScreen {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(double x, double y, int buttonType) {
         if(movingPosition){
             movingPosition = false;
             return true;
@@ -279,16 +279,16 @@ public class VROverlaySettings extends VROverlayScreen {
             return true;
         }
 
-        return super.mouseClicked(d, e, i);
+        return super.mouseClicked(x, y, buttonType);
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
+    public boolean mouseReleased(double x, double y, int buttonType) {
         if(movingPosition){
             movingPosition = false;
             return true;
         }
-        return super.mouseReleased(d, e, i);
+        return super.mouseReleased(x, y, buttonType);
     }
 
 

@@ -17,8 +17,8 @@ import java.util.List;
 
 public class VRSettingsScreenRendering extends VRGuiOptionsBaseScreen {
 
-    public VRSettingsScreenRendering(Screen guiScreen) {
-        super(guiScreen,
+    public VRSettingsScreenRendering(Screen previousScreen) {
+        super(previousScreen,
                 Component.translatable("visor.option.screen.rendering")
         );
     }

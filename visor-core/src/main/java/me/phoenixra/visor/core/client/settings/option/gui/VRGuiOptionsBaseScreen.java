@@ -97,6 +97,7 @@ public abstract class VRGuiOptionsBaseScreen extends Screen {
     public void render(GuiGraphics guiGraphics,
                        int pMouseX, int pMouseY,
                        float pPartialTicks) {
+        renderBackground(guiGraphics);
         if (this.initAgain) {
             this.initAgain = false;
             VRGuiOption selected = this.getFocused()

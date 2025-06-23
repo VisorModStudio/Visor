@@ -235,13 +235,18 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(double x, double y, int buttonType) {
         return false;
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
+    public boolean mouseReleased(double x, double y, int buttonType) {
         return false;
+    }
+
+    @Override
+    public void mouseMoved(double x, double y) {
+
     }
 
     @Override
@@ -250,7 +255,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
     @Override
-    public boolean mouseScrolled(double d, double e, double f) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
         return false;
     }
 
@@ -260,7 +265,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
     @Override
-    public boolean charTyped(char c, int i) {
+    public boolean charTyped(char chr, int modifiers) {
         return false;
     }
     @Override

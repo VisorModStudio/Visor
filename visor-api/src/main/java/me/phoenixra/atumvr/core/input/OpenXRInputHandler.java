@@ -1,6 +1,7 @@
 package me.phoenixra.atumvr.core.input;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import me.phoenixra.atumvr.api.exceptions.VRException;
 import me.phoenixra.atumvr.api.input.VRInputHandler;
@@ -15,6 +16,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.LongBuffer;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static org.lwjgl.openxr.XR10.*;
 import static org.lwjgl.system.MemoryStack.*;
@@ -31,7 +33,8 @@ public abstract class OpenXRInputHandler implements VRInputHandler {
     private final Map<String, OpenXRActionSet> actionSets = new LinkedHashMap<>();
     private final Map<String, OpenXRDevice> devices = new LinkedHashMap<>();
 
-
+    @Getter @Setter
+    private Consumer<String> actionListener;
 
     public OpenXRInputHandler(OpenXRProvider provider){
         this.vrProvider = provider;
@@ -118,7 +121,7 @@ public abstract class OpenXRInputHandler implements VRInputHandler {
         }
 
         for (OpenXRActionSet entry : actionSets.values()) {
-            entry.update();
+            entry.update(actionListener);
         }
         for (OpenXRDevice entry : devices.values()) {
             entry.update();

@@ -6,6 +6,7 @@ import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -28,7 +29,6 @@ public class ActionLeftMouse extends VisorActionButton {
     private VROverlay previousFocused;
 
     private boolean wasPressed;
-    private boolean canDrag;
     private boolean ignoreSingleClick;
 
     public ActionLeftMouse(VisorActionSet actionSet) {
@@ -60,26 +60,6 @@ public class ActionLeftMouse extends VisorActionButton {
 
         super.preTick();
 
-
-        //-------DRAG-------
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_VR_MOUSE)){
-            return;
-        }
-        if(ignoreSingleClick){
-            return;
-        }
-        if(focusedOverlay != null
-                && wasPressed && pressed){
-            if(!canDrag){
-                canDrag = true;
-                return;
-            }
-            focusedOverlay.mouseDragged(
-                    focusedOverlay.getMouseX(), focusedOverlay.getMouseY(),
-                    BUTTON_TYPE,
-                    0,0 //ignore it for now
-            );
-        }
 
     }
 
@@ -121,14 +101,13 @@ public class ActionLeftMouse extends VisorActionButton {
         previousFocused = null;
 
         wasPressed = false;
-        canDrag = false;
         ignoreSingleClick = false;
 
     }
 
 
     @Override
-    public void updateState(OpenXRProfileSet currentProfile,
+    public void updateState(@NotNull OpenXRProfileSet currentProfile,
                             boolean leftHanded) {
         if(!ClientContext.cursorHandler.isMainHandFocused()
                 && !ClientContext.cursorHandler.isOffhandFocused()){
@@ -149,6 +128,10 @@ public class ActionLeftMouse extends VisorActionButton {
         var buttonDataOffhand = bindingPath.getButton(currentProfile, !leftHanded);
         var buttonDataMain = bindingPath.getButton(currentProfile, leftHanded);
 
+        if(buttonDataOffhand == null
+                || buttonDataMain == null){
+            return;
+        }
         processCursorUpdate(
                 buttonDataOffhand,
                 buttonDataMain
@@ -233,14 +216,12 @@ public class ActionLeftMouse extends VisorActionButton {
                     BUTTON_TYPE
             );
             wasPressed = true;
-            canDrag = false;
         }else if(wasPressed){
             overlay.mouseReleased(
                     overlay.getMouseX(),overlay.getMouseY(),
                     BUTTON_TYPE
             );
             wasPressed = false;
-            canDrag = false;
         }
     }
 

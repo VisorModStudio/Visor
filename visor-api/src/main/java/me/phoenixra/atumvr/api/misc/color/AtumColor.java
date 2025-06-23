@@ -16,6 +16,9 @@ import java.awt.*;
  */
 public interface AtumColor {
 
+    /**Symbol used in color codes formatting*/
+    String COLOR_SYMBOL = "§";
+
     /** Predefined white color */
     AtumColorImmutable WHITE = immutable(1.0f, 1.0f, 1.0f, 1.0f);
 

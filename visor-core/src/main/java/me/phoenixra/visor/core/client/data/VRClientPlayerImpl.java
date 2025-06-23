@@ -88,7 +88,6 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                     task.clear(player);
                 }
             }
-            throw new RuntimeException("EXAMPLE EXCEPTION");
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }

@@ -15,6 +15,7 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
@@ -94,6 +95,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     protected final OverlayOptionsGlobal optionsGlobal;
     protected final OverlayOptionsModelView optionsModelView;
     private boolean initializedModelView;
+
 
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id) {
@@ -255,6 +257,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
             cursorData.mouseX = 0;
             cursorData.mouseY = 0;
+            mouseMoved(cursorData.mouseX, cursorData.mouseY);
             return;
         }
         GuiManager guiManager = VisorAPI.client().getGuiManager();
@@ -284,8 +287,27 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         cursorData.cursorInGuiX = cursorInGuiX;
         cursorData.cursorInGuiY = cursorInGuiY;
 
+        int oldMouseX = cursorData.mouseX;
+        int oldMouseY = cursorData.mouseY;
         cursorData.mouseX = (int)(cursorData.cursorInGuiX * (double) this.width / (double) guiManager.getScaledGuiWidth());
         cursorData.mouseY = (int)(cursorData.cursorInGuiY * (double) this.height / (double) guiManager.getScaledGuiHeight());
+
+       mouseMoved(cursorData.mouseX, cursorData.mouseY);
+
+       if(InputHelper.canDragMouse()) {
+           for (int button : new int[]{0, 1, 2}) {
+               if (!InputHelper.isMousePressed(button)) continue;
+               int deltaX = cursorData.mouseX - oldMouseX;
+               int deltaY = cursorData.mouseY - oldMouseY;
+               mouseDragged(
+                       cursorData.mouseX, cursorData.mouseY,
+                       button,
+                       deltaX, deltaY
+               );
+               break;
+           }
+       }
+
     }
 
     @Override
@@ -383,24 +405,32 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return rotation;
     }
 
+
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        return super.mouseClicked(d, e, i);
+    public boolean mouseClicked(double x, double y, int buttonType) {
+        return super.mouseClicked(x, y, buttonType);
     }
 
     @Override
-    public boolean mouseReleased(double d, double e, int i) {
-        return super.mouseReleased(d, e, i);
+    public boolean mouseReleased(double x, double y, int buttonType) {
+        return super.mouseReleased(x, y, buttonType);
     }
 
     @Override
-    public boolean mouseDragged(double d, double e, int i, double f, double g) {
-        return super.mouseDragged(d, e, i, f, g);
+    public void mouseMoved(double x, double y) {
+        super.mouseMoved(x, y);
     }
 
     @Override
-    public boolean mouseScrolled(double d, double e, double f) {
-        return super.mouseScrolled(d, e, f);
+    public boolean mouseDragged(double mouseX, double mouseY,
+                                int button,
+                                double deltaX, double deltaY) {
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+        return super.mouseScrolled(mouseX, mouseY, scrollDelta);
     }
 
     @Override
@@ -409,8 +439,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     }
 
     @Override
-    public boolean charTyped(char c, int i) {
-        return super.charTyped(c, i);
+    public boolean charTyped(char chr, int modifiers) {
+        return super.charTyped(chr, modifiers);
     }
 
     @Override

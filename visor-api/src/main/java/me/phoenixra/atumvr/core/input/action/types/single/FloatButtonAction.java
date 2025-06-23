@@ -6,9 +6,12 @@ import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
 import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.openxr.XR10;
 import org.lwjgl.openxr.XrActionStateFloat;
 import org.lwjgl.system.MemoryStack;
+
+import java.util.function.Consumer;
 
 @Getter
 public class FloatButtonAction extends OpenXRSingleAction<Float> implements VRActionDataButton {
@@ -41,7 +44,7 @@ public class FloatButtonAction extends OpenXRSingleAction<Float> implements VRAc
 
     }
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             var state = XrActionStateFloat.calloc(stack)
                     .type(actionType.getStateId());
@@ -79,7 +82,9 @@ public class FloatButtonAction extends OpenXRSingleAction<Float> implements VRAc
             this.lastChangeTime = state.lastChangeTime();
             this.active = state.isActive();
 
-
+            if(listener != null && buttonChanged){
+                listener.accept(id);
+            }
         }
     }
 

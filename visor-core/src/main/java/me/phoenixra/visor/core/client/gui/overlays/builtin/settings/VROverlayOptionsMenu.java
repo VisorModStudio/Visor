@@ -118,13 +118,13 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
 
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
+    public boolean mouseClicked(double x, double y, int buttonType) {
         VROverlayDemo demo = (VROverlayDemo) ClientContext.overlayManager
                 .getOverlay(VROverlayDemo.ID);
         if(demo != null && demo.getMovingByAnchor() != null){
             return true;
         }
-        return super.mouseClicked(d, e, i);
+        return super.mouseClicked(x, y, buttonType);
     }
 
     @Override

@@ -7,9 +7,12 @@ import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
 import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
+
+import java.util.function.Consumer;
 
 import static org.lwjgl.openxr.XR10.XR_NULL_PATH;
 import static org.lwjgl.system.MemoryStack.stackCallocPointer;
@@ -54,7 +57,7 @@ public class PoseAction extends OpenXRSingleAction<VRPoseRecord> {
 
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             var state = XrActionStatePose.calloc(stack)
                     .type(actionType.getStateId());
@@ -83,6 +86,7 @@ public class PoseAction extends OpenXRSingleAction<VRPoseRecord> {
                             OpenXRHelper.normalizeXrQuaternion(loc.pose().orientation()),
                             OpenXRHelper.normalizeXrVector(loc.pose().position$())
                     );
+
         }
     }
 }

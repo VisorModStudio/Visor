@@ -6,12 +6,9 @@ import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
 import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.OpenXRAction;
-import me.phoenixra.atumvr.core.input.action.OpenXRMultiAction;
-import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.types.multi.BoolButtonMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.FloatButtonMultiAction;
-import me.phoenixra.atumvr.core.input.action.types.multi.FloatMultiAction;
 import me.phoenixra.atumvr.core.input.action.types.multi.Vec2MultiAction;
 import me.phoenixra.atumvr.core.input.action.types.single.BoolButtonAction;
 import org.jetbrains.annotations.NotNull;
@@ -29,16 +26,16 @@ public class OculusTouchSet extends OpenXRProfileSet {
     public static final String BUTTON_MENU = "button.menu";
     public static final String BUTTON_SYSTEM = "button.system";
 
-    public static final String BUTTON_PRIMARY_LEFT = "button.primary.left";
-    public static final String BUTTON_PRIMARY_RIGHT = "button.primary.right";
-    public static final String BUTTON_PRIMARY_TOUCH_LEFT = "button.primary.touch.left";
-    public static final String BUTTON_PRIMARY_TOUCH_RIGHT = "button.primary.touch.right";
+    public static final String BUTTON_X = "button.x";
+    public static final String BUTTON_A = "button.a";
+    public static final String BUTTON_X_TOUCH = "button.x.touch";
+    public static final String BUTTON_A_TOUCH = "button.a.touch";
 
 
-    public static final String BUTTON_SECONDARY_LEFT = "button.secondary.left";
-    public static final String BUTTON_SECONDARY_RIGHT = "button.secondary.right";
-    public static final String BUTTON_SECONDARY_TOUCH_LEFT = "button.secondary.touch.left";
-    public static final String BUTTON_SECONDARY_TOUCH_RIGHT = "button.secondary.touch.right";
+    public static final String BUTTON_Y = "button.y";
+    public static final String BUTTON_B = "button.b";
+    public static final String BUTTON_Y_TOUCH = "button.y.touch";
+    public static final String BUTTON_B_TOUCH = "button.b.touch";
 
 
     public static final String BUTTON_GRIP_LEFT = "button.grip.left";
@@ -115,12 +112,12 @@ public class OculusTouchSet extends OpenXRProfileSet {
                 "button.primary", "Primary Button",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_LEFT,
+                                BUTTON_X,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/x/click"),
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_RIGHT,
+                                BUTTON_A,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/click")
@@ -131,12 +128,12 @@ public class OculusTouchSet extends OpenXRProfileSet {
                 "button.primary.touch", "Primary Button Touch",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_TOUCH_LEFT,
+                                BUTTON_X_TOUCH,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/x/touch"),
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_PRIMARY_TOUCH_RIGHT,
+                                BUTTON_A_TOUCH,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/a/touch")
@@ -148,12 +145,12 @@ public class OculusTouchSet extends OpenXRProfileSet {
                 "button.secondary", "Secondary Button",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_LEFT,
+                                BUTTON_Y,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/y/click"),
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_RIGHT,
+                                BUTTON_B,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/click")
@@ -164,12 +161,12 @@ public class OculusTouchSet extends OpenXRProfileSet {
                 "button.secondary.touch", "Secondary Button Touch",
                 List.of(
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_TOUCH_LEFT,
+                                BUTTON_Y_TOUCH,
                                 LEFT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/y/touch"),
                         new BoolButtonMultiAction.SubActionBoolButton(
-                                BUTTON_SECONDARY_TOUCH_RIGHT,
+                                BUTTON_B_TOUCH,
                                 RIGHT_HAND_PATH,
                                 false
                         ).putDefaultBindings(PROFILE, "input/b/touch")
@@ -314,14 +311,14 @@ public class OculusTouchSet extends OpenXRProfileSet {
         listButton.addAll(thumbStickTouch.getSubActionsAsButton());
         listButton.addAll(thumbRestTouch.getSubActionsAsButton());
 
-        buttonMap = new HashMap<>();
+        buttonMap = new LinkedHashMap<>();
         for(var entry : listButton){
             buttonMap.put(entry.getId(), entry);
         }
 
         List<VRActionDataVec2> listVec2 = new ArrayList<>(thumbStick.getSubActionsAsVec2());
 
-        vec2Map = new HashMap<>();
+        vec2Map = new LinkedHashMap<>();
         for(var entry : listVec2){
             vec2Map.put(entry.getId(), entry);
         }
@@ -350,7 +347,7 @@ public class OculusTouchSet extends OpenXRProfileSet {
 
     @Override
     public Collection<String> getVec2Ids() {
-        return Collections.unmodifiableCollection(buttonMap.keySet());
+        return Collections.unmodifiableCollection(vec2Map.keySet());
     }
 
     @Override

@@ -48,6 +48,7 @@ public class VisorClientImpl implements VisorClient {
     public static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
 
 
+    @Getter
     private VRProvider vrProvider;
 
     private ConfigManager configManager;

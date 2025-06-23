@@ -5,11 +5,14 @@ import me.phoenixra.atumvr.core.OpenXRProvider;
 import me.phoenixra.atumvr.core.enums.XRInputActionType;
 import me.phoenixra.atumvr.core.input.action.OpenXRSingleAction;
 import me.phoenixra.atumvr.core.input.action.OpenXRActionSet;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 import org.lwjgl.openxr.XR10;
 import org.lwjgl.openxr.XrActionStateVector2f;
 import org.lwjgl.system.MemoryStack;
+
+import java.util.function.Consumer;
 
 public class Vec2Action extends OpenXRSingleAction<Vector2fc> {
 
@@ -29,7 +32,7 @@ public class Vec2Action extends OpenXRSingleAction<Vector2fc> {
     }
 
     @Override
-    public void update() {
+    public void update(@Nullable Consumer<String> listener) {
         try(MemoryStack stack = MemoryStack.stackPush()) {
             var state = XrActionStateVector2f.calloc(stack)
                     .type(actionType.getStateId());
@@ -46,6 +49,10 @@ public class Vec2Action extends OpenXRSingleAction<Vector2fc> {
             this.changed = state.changedSinceLastSync();
             this.lastChangeTime = state.lastChangeTime();
             this.active = state.isActive();
+
+            if(listener != null && changed){
+                listener.accept(id);
+            }
         }
     }
 
