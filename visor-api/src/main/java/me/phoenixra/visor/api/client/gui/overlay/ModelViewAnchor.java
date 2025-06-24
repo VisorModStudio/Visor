@@ -4,15 +4,13 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector3f;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.function.Function;
 
 public enum ModelViewAnchor {
@@ -52,8 +50,8 @@ public enum ModelViewAnchor {
         return Component.translatable("visor.enums.ModelViewAnchor."+name());
     }
 
-    public Vec3 anchorPos(@NotNull PoseData renderPose,
-                          Vector3f offset){
+    public Vector3f anchorPos(@NotNull PoseData renderPose,
+                              Vector3f offset){
         AnchoredPosition pose = getAnchor(renderPose);
 
         float worldScale = renderPose.getWorldScale();
@@ -63,7 +61,7 @@ public enum ModelViewAnchor {
                 offset.z * worldScale
         );
         if(pose == null){
-            return new Vec3(offset.x, offset.y, offset.z);
+            return new Vector3f(offset.x, offset.y, offset.z);
         }
 
         return pose.component
@@ -72,7 +70,7 @@ public enum ModelViewAnchor {
 
     }
     public Matrix4f anchorRotation(@NotNull PoseData renderPose,
-                                     @NotNull Vector3f offset){
+                                   @NotNull Vector3fc offset){
         AnchoredPosition pose = getAnchor(renderPose);
         if(pose == null){
             return new Matrix4f();
@@ -81,29 +79,29 @@ public enum ModelViewAnchor {
         PoseElement poseElement = pose.component;
 
         Matrix4f overlayRot = poseElement
-                .getRotationMatrix()
+                .getRotation()
                 .mul(
-                        new Matrix4f().rotationZ(offset.z),
+                        new Matrix4f().rotationZ(offset.z()),
                         new Matrix4f()
                 );
-        overlayRot.mul(new Matrix4f().rotationY(offset.y));
-        overlayRot.mul(new Matrix4f().rotationX(offset.x));
+        overlayRot.mul(new Matrix4f().rotationY(offset.y()));
+        overlayRot.mul(new Matrix4f().rotationX(offset.x()));
 
         return overlayRot;
     }
     public Matrix4f anchorRotationAim(@NotNull PoseData renderPose,
-                                        @NotNull Vector3f offset,
-                                        @NotNull Vec3 objPosition){
+                                      @NotNull Vector3fc offset,
+                                      @NotNull Vector3fc objPosition){
         AnchoredPosition pose = getAnchor(renderPose);
         if(pose == null){
             return new Matrix4f();
         }
 
-        Vec3 devicePos = pose.position;
+        Vector3fc elementPos = pose.position;
         Vector3f directionToTarget = new Vector3f(
-                (float) (objPosition.x - devicePos.x),
-                (float) (objPosition.y - devicePos.y),
-                (float) (objPosition.z - devicePos.z)
+                objPosition.x() - elementPos.x(),
+                objPosition.y() - elementPos.y(),
+                objPosition.z() - elementPos.z()
         );
         float rotationX = (float) Math.asin(
                 directionToTarget.y() / directionToTarget.length()
@@ -115,9 +113,9 @@ public enum ModelViewAnchor {
                                 directionToTarget.z()
                         )
         );
-        Matrix4f rotation = new Matrix4f().rotationZ(offset.z);
-        rotation.mul(new Matrix4f().rotationY(rotationY + offset.y));
-        rotation.mul(new Matrix4f().rotationX(rotationX + offset.x));
+        Matrix4f rotation = new Matrix4f().rotationZ(offset.z());
+        rotation.mul(new Matrix4f().rotationY(rotationY + offset.y()));
+        rotation.mul(new Matrix4f().rotationX(rotationX + offset.x()));
 
         return rotation;
     }
@@ -141,13 +139,13 @@ public enum ModelViewAnchor {
     @Getter
     public static class AnchoredPosition {
         private final PoseElement component;
-        private final Vec3 position;
+        private final Vector3fc position;
         private final Matrix4f rotationMatrix;
 
         public AnchoredPosition(PoseElement playerComponent) {
 
             this.position = playerComponent.getPosition();
-            this.rotationMatrix = new Matrix4f(playerComponent.getRotationMatrix());
+            this.rotationMatrix = new Matrix4f(playerComponent.getRotation());
             this.component = playerComponent;
         }
 

@@ -20,6 +20,7 @@ import net.minecraft.world.item.PotionItem;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 
 import org.spongepowered.asm.mixin.Unique;
@@ -123,7 +124,9 @@ public abstract class MultiPlayerGameModeMixin {
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
             PoseData preTickPose = ClientContext
                     .player.getPose(PoseType.PRE_TICK);
-            lookDirection = preTickPose.getController(controllerHand).getDirection();
+            lookDirection = new Vec3(
+                    (Vector3f) preTickPose.getController(controllerHand).getDirection()
+            );
 
 
         }

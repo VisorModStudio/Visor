@@ -4,8 +4,8 @@ import com.mojang.blaze3d.platform.Window;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.gui.GuiManager;
-import me.phoenixra.visor.api.client.gui.OverlayManager;
+import me.phoenixra.visor.api.client.gui.VRGuiManager;
+import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.framework.OverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public static final String ID = "game_screen";
 
-    private Vec3 roomPosition = null;
+    private Vector3fc roomPosition = null;
     private Matrix4f roomRotation = null;
 
 
@@ -81,7 +82,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             //CLIENT_CONTEXT.inputManager.setIgnoreButtonsPressed(true);
         }
 
-        OverlayManager overlayManager = ClientContext.overlayManager;
+        VROverlayManager overlayManager = ClientContext.overlayManager;
         if (newScreen == null) {
             resetOrient();
             Screen attachedTo = overlayManager.getKeyboardAttachedTo();
@@ -125,19 +126,19 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 forwardVec = new Vector3f(0.0f, 0.25f, -2.0f);
             }
 
-            Vec3 hmdPos = hmd.getPosition();
-            Vec3 offset = hmd.getCustomVector(forwardVec);
-            roomPosition = new Vec3(
-                    offset.x / 2.0D + hmdPos.x,
-                    offset.y / 2.0D + hmdPos.y,
-                    offset.z / 2.0D + hmdPos.z
+            var hmdPos = hmd.getPosition();
+            var offset = hmd.getCustomVector(forwardVec);
+            roomPosition = new Vector3f(
+                    offset.x / 2.0f + hmdPos.x(),
+                    offset.y / 2.0f + hmdPos.y(),
+                    offset.z / 2.0f + hmdPos.z()
             );
 
             // orient screen
             Vector3f look = new Vector3f(
-                    (float) (roomPosition.x - hmdPos.x),
-                    (float) (roomPosition.y - hmdPos.y),
-                    (float) (roomPosition.z - hmdPos.z)
+                    roomPosition.x() - hmdPos.x(),
+                    roomPosition.y() - hmdPos.y(),
+                    roomPosition.z() - hmdPos.z()
             );
 
             float yaw = (float) (Math.PI + Mth.atan2(look.x, look.z));
@@ -157,13 +158,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         ClientContext.player.setRotationY(0);
         setOverlayScale(2.0F);
         Vector2f afloat = ClientUtils.getPlayAreaSize();
-        roomPosition = new Vec3(
-                0.02D,
+        roomPosition = new Vector3f(
+                0.02f,
                 1.3F,
                 -Math.max(
-                        afloat != null
-                                ? afloat.y / 2.0F
-                                : 0.0F,
+                        afloat.y / 2.0F,
                         1.5F
                 )
         );
@@ -201,7 +200,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         PoseData renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
 
-        Vec3 renderScreenPos = renderPose.convertPosition(
+        Vector3f renderScreenPos = renderPose.convertPosition(
                 PoseType.ROOM,
                 roomPosition
         );
@@ -241,7 +240,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             return;
         }
 
-        GuiManager guiManager = ClientContext.guiManager;
+        VRGuiManager guiManager = ClientContext.guiManager;
         Window mcWindow = MC.getWindow();
         float cursorInGuiX;
         float cursorInGuiY;

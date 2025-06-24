@@ -19,6 +19,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -38,10 +39,10 @@ public class TaskRoomMovement extends VisorTask {
     protected void onRun(@Nullable LocalPlayer player) {
         PoseDataImpl preTickPose = ClientContext.player
                 .getPose(PoseType.PRE_TICK);
-        Vec3 roomOrigin = ClientContext.player.getOrigin();
+        var roomOrigin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 
-        Vec3 headPivot = PoseDataHelper.getHeadPivot(
+        var headPivot = PoseDataHelper.getHeadPivot(
                 roomOrigin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
@@ -108,7 +109,10 @@ public class TaskRoomMovement extends VisorTask {
                 player.setPosRaw(headPivot.x, collisionBox.minY, headPivot.z);
                 player.setBoundingBox(collisionBox);
 
-                Vec3 newRoomOrigin = roomOrigin.add(0.0, 0.1F * (i + 1), 0.0);
+                var newRoomOrigin = roomOrigin.add(
+                        0.0f, 0.1f * (i + 1), 0.0f,
+                        new Vector3f()
+                );
                 ClientContext.player.setOrigin(
                         newRoomOrigin.x,
                         newRoomOrigin.y,

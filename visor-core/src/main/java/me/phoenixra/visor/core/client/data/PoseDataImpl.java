@@ -12,15 +12,16 @@ import me.phoenixra.visor.core.client.data.raw.RawController;
 import me.phoenixra.visor.core.client.data.raw.RawHmd;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
 import java.util.List;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.joml.Vector3fc;
 
 @Getter
 public class PoseDataImpl implements PoseData {
@@ -41,15 +42,15 @@ public class PoseDataImpl implements PoseData {
 
     private final List<PoseElementImpl> elements;
 
-    private Vec3 origin;
+    private Vector3fc origin;
     private float rotationY;
     private float worldScale;
 
     private float bodyYaw;
-    private Vec3 headPivot;
+    private Vector3fc headPivot;
 
     public PoseDataImpl(PoseType type,
-                        Vec3 origin,
+                        Vector3fc origin,
                         float walkMul,
                         float worldScale,
                         float rotationY) {
@@ -79,7 +80,7 @@ public class PoseDataImpl implements PoseData {
 
     }
 
-    protected void update(Vec3 origin,
+    protected void update(Vector3fc origin,
                           float walkMul,
                           float worldScale,
                           float rotationY){
@@ -90,11 +91,11 @@ public class PoseDataImpl implements PoseData {
         this.worldScale = worldScale;
         this.rotationY = rotationY;
         RawHmd hmdData = ClientContext.rawPoseHandler.getHmdData();
-        Vec3 headsetPos = hmdData.getHeadsetPosition();
-        Vec3 headsetPosFinal = new Vec3(
-                headsetPos.x * (double) walkMul,
+        Vector3f headsetPos = hmdData.getHeadsetPosition();
+        Vector3f headsetPosFinal = new Vector3f(
+                headsetPos.x *  walkMul,
                 headsetPos.y,
-                headsetPos.z * (double) walkMul
+                headsetPos.z * walkMul
         );
 
         this.hmd.update(
@@ -109,7 +110,7 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.LEFT),
-                hmdData.getEyePosition(EyeType.LEFT).subtract(headsetPos).add(headsetPosFinal),
+                hmdData.getEyePosition(EyeType.LEFT).sub(headsetPos).add(headsetPosFinal),
                 hmdData.getVector()
         );
         this.eyeRight.update(
@@ -117,7 +118,7 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 hmdData.getEyeRotation(EyeType.RIGHT),
-                hmdData.getEyePosition(EyeType.RIGHT).subtract(headsetPos).add(headsetPosFinal),
+                hmdData.getEyePosition(EyeType.RIGHT).sub(headsetPos).add(headsetPosFinal),
                 hmdData.getVector()
         );
 
@@ -126,7 +127,7 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 dataOffhand.getAimRotation(),
-                dataOffhand.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
                 dataOffhand.getAimVector()
         );
         this.controllerMain.update(
@@ -134,7 +135,7 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 dataMain.getAimRotation(),
-                dataMain.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
                 dataMain.getAimVector()
         );
         this.handOffhand.update(
@@ -142,7 +143,7 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 dataOffhand.getGripRotation(),
-                dataOffhand.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
                 dataOffhand.getGripVector()
         );
         this.handMain.update(
@@ -150,26 +151,24 @@ public class PoseDataImpl implements PoseData {
                 this.rotationY,
                 this.worldScale,
                 dataMain.getGripRotation(),
-                dataMain.getAimPosition().subtract(headsetPos).add(headsetPosFinal),
+                dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
                 dataMain.getGripVector()
         );
 
 
-        Vec3 camPos = new Vec3(
+        Vector3f camPos = new Vector3f(
                 VRClientSettings.getFixedCameraPosX(),
                 VRClientSettings.getFixedCameraPosY(),
                 VRClientSettings.getFixedCameraPosZ()
         );
-        Matrix4f camRot = (new Matrix4f().set(VRClientSettings.getFixedCameraRotation())).transpose();
-        Vec3 camDir = VRMathUtils.convertToMcVector(
-                camRot.transformDirection(VRMathUtils.forwardVector, new Vector3f())
-        );
+        Matrix4fc camRot = (new Matrix4f().set(VRClientSettings.getFixedCameraRotation())).transpose();
+        Vector3f camDir = camRot.transformDirection(VRMathUtils.forwardVector, new Vector3f());
         this.thirdPersonCamera.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
                 camRot,
-                camPos.subtract(headsetPos).add(headsetPosFinal),
+                camPos.sub(headsetPos).add(headsetPosFinal),
                 camDir
         );
         this.bodyYaw = calcBodyYaw();
@@ -177,23 +176,23 @@ public class PoseDataImpl implements PoseData {
     }
 
     private float calcBodyYaw() {
-        Vec3 bodyPos = this.controllerOffhand.getPosition()
-                .subtract(this.controllerMain.getPosition())
+        Vector3f bodyPos = this.controllerOffhand.getPosition()
+                .sub(this.controllerMain.getPosition(), new Vector3f())
                 .normalize()
-                .yRot((-(float) Math.PI / 2F));
-        Vec3 hmdDirection = this.hmd.getDirection();
+                .rotateY((-(float) Math.PI / 2F));
+        var hmdDirection = this.hmd.getDirection();
 
         if (bodyPos.dot(hmdDirection) < 0.0D) {
-            bodyPos = bodyPos.reverse();
+            bodyPos = bodyPos.mul(-1);
         }
 
-        bodyPos = VRMathUtils.lerpVector(hmdDirection, bodyPos, 0.7D);
+        bodyPos = VRMathUtils.lerpVector(hmdDirection, bodyPos, 0.7f);
         return (float) Mth.atan2(-bodyPos.x, bodyPos.z);
     }
 
-    private Vec3 calcHeadPivot() {
-        Vec3 hmdPosition = this.hmd.getPosition();
-        Vector3f transform = this.hmd.getRotationMatrix()
+    private Vector3f calcHeadPivot() {
+        var hmdPosition = this.hmd.getPosition();
+        Vector3f transform = this.hmd.getRotation()
                 .transformDirection(
                         new Vector3f(
                                 0.0F,
@@ -201,14 +200,14 @@ public class PoseDataImpl implements PoseData {
                                 0.1F * worldScale
                         )
                 );
-        return new Vec3(
-                (double) transform.x() + hmdPosition.x,
-                (double) transform.y() + hmdPosition.y,
-                (double) transform.z() + hmdPosition.z
+        return new Vector3f(
+                transform.x() + hmdPosition.x(),
+                transform.y() + hmdPosition.y(),
+                transform.z() + hmdPosition.z()
         );
     }
 
-    protected void resetOrigin(Vec3 newOrigin){
+    protected void resetOrigin(Vector3fc newOrigin){
         this.origin = newOrigin;
         elements.forEach(
                 it->it.onOriginChanged(this.origin)
@@ -232,35 +231,35 @@ public class PoseDataImpl implements PoseData {
     }
 
     @Override
-    public @NotNull Vec3 convertPosition(@NotNull PoseType originStage,
-                                         @NotNull Vec3 position){
+    public @NotNull Vector3f convertPosition(@NotNull PoseType originStage,
+                                               @NotNull Vector3fc position){
         if(originStage == type) {
-            return new Vec3(
-                    position.x,
-                    position.y,
-                    position.z
+            return new Vector3f(
+                    position.x(),
+                    position.y(),
+                    position.z()
             );
         }
         if (originStage == PoseType.ROOM) {
-            return position.scale(worldScale)
-                    .yRot(rotationY)
+            return position.mul(worldScale, new Vector3f())
+                    .rotateY(rotationY)
                     .add(origin);
         }
 
         PoseDataImpl originPose = ClientContext.player
                 .getPose(originStage);
 
-        Vec3 roomPose = position
-                .subtract(originPose.origin)
-                .scale(1.0 / originPose.worldScale)
-                .yRot(-originPose.rotationY);
+        Vector3f roomPose = position
+                .sub(originPose.origin, new Vector3f())
+                .mul(1.0f / originPose.worldScale)
+                .rotateY(-originPose.rotationY);
 
         if(type == PoseType.ROOM){
             return roomPose;
         }
 
-        return roomPose.scale(worldScale)
-                .yRot(rotationY)
+        return roomPose.mul(worldScale)
+                .rotateY(rotationY)
                 .add(origin);
     }
 

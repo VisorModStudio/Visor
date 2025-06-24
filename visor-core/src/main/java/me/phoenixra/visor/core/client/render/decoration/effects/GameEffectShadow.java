@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL43C;
@@ -61,8 +62,9 @@ public class GameEffectShadow extends VRGameEffect {
         float playerWidth  = (float) box.getXsize();
         float playerLength = (float) box.getZsize();
 
-        Vec3 camPos = RenderPoseHelper.getCameraPosition(renderDisplay,
-                ClientContext.player.getPose(PoseType.RENDER));
+        Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderDisplay,
+                ClientContext.player.getPose(PoseType.RENDER))
+        );
         Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
                 .visor$getCameraEntityCache()
                 .getInterpolatedPos(partialTicks);

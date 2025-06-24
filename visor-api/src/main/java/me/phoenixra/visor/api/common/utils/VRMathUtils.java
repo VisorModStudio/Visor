@@ -4,7 +4,9 @@ import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
 import me.phoenixra.atumconfig.core.AtumConfigManager;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import redempt.crunch.Crunch;
@@ -20,6 +22,20 @@ public class VRMathUtils {
     public static final Vec3 upVectorMc = new Vec3(0.0F, 1.0F, 0.0F);
     public static final Vec3 downVector = new Vec3(0.0D, -1.0D, 0.0D);
 
+
+    public static @NotNull Vector3f extractUpDir(@NotNull Matrix4fc rotation, boolean normalize) {
+        var out = new Vector3f(rotation.m10(), rotation.m11(), rotation.m12());
+        return normalize ? out.normalize() : out;
+    }
+
+    public static @NotNull Vector3f extractForwardDir(@NotNull Matrix4fc rotation, boolean normalize) {
+        var out = new Vector3f(-rotation.m20(), -rotation.m21(), -rotation.m22());
+        return normalize ? out.normalize() : out;
+    }
+    public static @NotNull Vector3f extractRightDir(@NotNull Matrix4fc rotation, boolean normalize) {
+        Vector3f v = new Vector3f(rotation.m00(), rotation.m01(), rotation.m02());
+        return normalize ? v.normalize() : v;
+    }
 
 
     public static double getEvaluated(ConfigManager configManager, String formula){
@@ -38,15 +54,11 @@ public class VRMathUtils {
                env
         ).evaluate();
     }
-    public static Vec3 lerpVector(Vec3 start, Vec3 end, double stepScale) {
-        double d0 = start.x + (end.x - start.x) * stepScale;
-        double d1 = start.y + (end.y - start.y) * stepScale;
-        double d2 = start.z + (end.z - start.z) * stepScale;
-        return new Vec3(d0, d1, d2);
-    }
-
-    public static Vec3 convertToMcVector(Vector3f vector) {
-        return new Vec3(vector.x(), vector.y(), vector.z());
+    public static Vector3f lerpVector(Vector3fc start, Vector3fc end, float stepScale) {
+        float d0 = start.x() + (end.x() - start.x()) * stepScale;
+        float d1 = start.y() + (end.y() - start.y()) * stepScale;
+        float d2 = start.z() + (end.z() - start.z()) * stepScale;
+        return new Vector3f(d0, d1, d2);
     }
 
 

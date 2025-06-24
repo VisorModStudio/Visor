@@ -239,7 +239,7 @@ public class VROverlayDemo extends VROverlayScreen {
                 : ModelViewAnchor.MAIN_HAND;
         demoModelViewOptions.setMovingDemoAnchor(movingByAnchor);
 
-        ClientContext.cursorHandler.setActiveCursorHand(
+        ClientContext.cursorHandler.setCursorHand(
                 movingByAnchor == ModelViewAnchor.OFFHAND
                 ? ControllerHand.OFFHAND : ControllerHand.MAIN
         );
@@ -269,12 +269,12 @@ public class VROverlayDemo extends VROverlayScreen {
         PoseElement componentAnchorRot = rotationAnchor.getSupplier()
                 .apply(renderPose)
                 .getComponent();
-        Vec3 componentPos = componentAnchorPos.getPosition();
-        Matrix4fc componentRotation = componentAnchorRot.getRotationMatrix();
+        var componentPos = componentAnchorPos.getPosition();
+        Matrix4fc componentRotation = componentAnchorRot.getRotation();
 
         Vector3f offsetPos = componentAnchorPos
                 .reverseCustomVector(
-                        getPosition().subtract(componentPos)
+                        getPosition().sub(componentPos, new Vector3f())
                 ).div(
                         renderPose.getWorldScale()
                 );

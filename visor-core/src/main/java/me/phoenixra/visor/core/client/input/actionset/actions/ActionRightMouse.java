@@ -152,11 +152,11 @@ public class ActionRightMouse extends VisorActionButton {
     protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath, @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        if(!ClientContext.cursorHandler.isActiveHandFocused()
+        if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
         }else {
-            var cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+            var cursorHand = ClientContext.cursorHandler.getCursorHand();
             mainHand = cursorHand == ControllerHand.MAIN;
         }
 

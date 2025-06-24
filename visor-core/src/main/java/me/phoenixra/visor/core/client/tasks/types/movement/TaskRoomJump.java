@@ -31,13 +31,13 @@ public class TaskRoomJump extends VisorTask {
         final var hmdData = ClientContext.rawPoseHandler.getHmdData();
         final var pivotHistory = hmdData.getPivotHistory();
 
-        final double netMovementY = pivotHistory.netMovement(0.25D).y;
+        final double netMovementY = pivotHistory.netMovement(0.25f).y;
         if (netMovementY < 0.1D) {
             return;
         }
 
 
-        final double latestY = pivotHistory.latest().y;
+        final double latestY = pivotHistory.latest().y();
         final double playerHeight = VRClientSettings.getPlayerHeight();
         final double deltaY = latestY - playerHeight;
 

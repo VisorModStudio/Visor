@@ -12,7 +12,7 @@ import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.VisorClientImpl;
-import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
+import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.provider.VisorScene;
@@ -215,7 +215,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
         }
 
 
-        GuiManagerImpl guiManager = ClientContext.visor.getGuiManager();
+        VRGuiManagerImpl guiManager = ClientContext.visor.getGuiManager();
         guiManager.updateResolution();
         guiTarget = new RenderTargetGUI();
         guiTarget.init(
@@ -289,7 +289,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
         // resize gui, if changed
-        GuiManagerImpl guiManager = ClientContext.visor.getGuiManager();
+        VRGuiManagerImpl guiManager = ClientContext.visor.getGuiManager();
         if (guiManager.updateResolution()) {
             guiTarget.resize(
                     guiManager.getGuiWidth(),

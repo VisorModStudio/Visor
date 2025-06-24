@@ -15,6 +15,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -47,9 +48,9 @@ public class TaskRoomRun extends VisorTask {
     protected void onRun(LocalPlayer player) {
 
         final double rightHandSpeed = ClientContext.rawPoseHandler.getControllerData(ControllerHand.MAIN)
-                .getPositionHistory().averageSpeed(0.33D);
+                .getPositionHistory().averageSpeed(0.33f);
         final double leftHandSpeed = ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND)
-                .getPositionHistory().averageSpeed(0.33D);
+                .getPositionHistory().averageSpeed(0.33f);
 
         if (this.speed > 0) {
             if (rightHandSpeed < RUNNING_SPEED_THRESHOLD
@@ -71,13 +72,14 @@ public class TaskRoomRun extends VisorTask {
         PoseDataImpl preTickPose = ClientContext.player
                 .getPose(PoseType.PRE_TICK);
 
-        final Vec3 mainHandDir = preTickPose
+        final var mainHandDir = preTickPose
                 .getController(ControllerHand.MAIN)
                 .getDirection();
-        final Vec3 offhandDir = preTickPose
+        final var offhandDir = preTickPose
                 .getController(ControllerHand.OFFHAND)
                 .getDirection();
-        final Vec3 directionAvg = mainHandDir.add(offhandDir).scale(0.5D);
+        final var directionAvg = mainHandDir.add(offhandDir, new Vector3f())
+                .mul(0.5f);
 
         this.direction = Math.toDegrees(Mth.atan2(-directionAvg.x, directionAvg.z));
 

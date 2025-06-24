@@ -9,7 +9,6 @@ import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -24,7 +23,7 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Setter
     private PlayerPoseBuffer playerPoseBuffer;
 
-    public Vec3 offset = new Vec3(0.0D, 0.0D, 0.0D);
+    public Vector3f offset = new Vector3f(0.0f, 0.0f, 0.0f);
 
     public int networkVersion = 1;
 
@@ -51,7 +50,7 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
 
     @Override
-    public @NotNull Vec3 getControllerVectorCustom(@NotNull ControllerHand controller,
+    public @NotNull Vector3f getControllerVectorCustom(@NotNull ControllerHand controller,
                                                    @NotNull Vector3fc direction
     ) {
 
@@ -61,49 +60,51 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
         if (controllerPose != null) {
             Vector3f vector3 = controllerPose.orientation().transform(direction, new Vector3f());
-            return new Vec3(vector3.x(), vector3.y(), vector3.z());
+            return new Vector3f(vector3.x(), vector3.y(), vector3.z());
         } else {
-            return this.mcPlayer.getLookAngle();
+            return this.mcPlayer.getLookAngle().toVector3f();
         }
     }
 
     @Override
-    public @NotNull Vec3 getControllerDir(@NotNull ControllerHand controller) {
+    public @NotNull Vector3f getControllerDir(@NotNull ControllerHand controller) {
         return this.getControllerVectorCustom(controller, VRMathUtils.forwardVector);
     }
 
     @Override
-    public @NotNull Vec3 getHmdDir() {
+    public @NotNull Vector3f getHmdDir() {
         if (this.playerPoseBuffer != null) {
             Vector3f vector3 = this.playerPoseBuffer.hmd().orientation()
                     .transform(VRMathUtils.forwardVector, new Vector3f());
-            return new Vec3(vector3.x(), vector3.y(), vector3.z());
+            return new Vector3f(vector3.x(), vector3.y(), vector3.z());
         }
-        return this.mcPlayer.getLookAngle();
+        return this.mcPlayer.getLookAngle().toVector3f();
     }
 
     @Override
-    public @NotNull Vec3 getHmdPos(@NotNull Player player) {
+    public @NotNull Vector3f getHmdPos(@NotNull Player player) {
         if (this.playerPoseBuffer != null) {
             return this.playerPoseBuffer.hmd().position()
-                    .add(player.position()).add(this.offset);
+                    .add(player.position().toVector3f(), new Vector3f())
+                    .add(this.offset);
         }
-        return player.position().add(0.0D, 1.62D, 0.0D);
+        return player.position().add(0.0D, 1.62D, 0.0D).toVector3f();
     }
 
     @Override
-    public @NotNull Vec3 getControllerPos(@NotNull ControllerHand controller) {
+    public @NotNull Vector3f getControllerPos(@NotNull ControllerHand controller) {
         if (this.playerPoseBuffer != null) {
 
             DevicePoseBuffer controllerState = controller == ControllerHand.MAIN
                     ? this.playerPoseBuffer.mainHand()
                     : this.playerPoseBuffer.offhand();
 
-            return controllerState.position().add(this.mcPlayer.position())
+            return controllerState.position()
+                    .add(this.mcPlayer.position().toVector3f(), new Vector3f())
                     .add(this.offset);
         }
 
-        return this.mcPlayer.position().add(0.0D, 1.62D, 0.0D);
+        return this.mcPlayer.position().add(0.0D, 1.62D, 0.0D).toVector3f();
     }
 
 }

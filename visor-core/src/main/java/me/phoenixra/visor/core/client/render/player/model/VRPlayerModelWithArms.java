@@ -18,6 +18,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel<T> {
     private final boolean slim;
@@ -187,10 +189,10 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
         }
 
         double height = -1.501F * remotePlayerData.heightScale();
-        float offhandYaw = (float) Mth.atan2(-remotePlayerData.offhandDirection().x, -remotePlayerData.offhandDirection().z);
-        float offhandPitch = (float) Math.asin(remotePlayerData.offhandDirection().y / remotePlayerData.offhandDirection().length());
-        float mainHandYaw = (float) Mth.atan2(-remotePlayerData.mainHandDirection().x, -remotePlayerData.mainHandDirection().z);
-        float mainHandPitch = (float) Math.asin(remotePlayerData.mainHandDirection().y / remotePlayerData.mainHandDirection().length());
+        float offhandYaw = (float) Mth.atan2(-remotePlayerData.offhandDirection().x(), -remotePlayerData.offhandDirection().z());
+        float offhandPitch = (float) Math.asin(remotePlayerData.offhandDirection().y() / remotePlayerData.offhandDirection().length());
+        float mainHandYaw = (float) Mth.atan2(-remotePlayerData.mainHandDirection().x(), -remotePlayerData.mainHandDirection().z());
+        float mainHandPitch = (float) Math.asin(remotePlayerData.mainHandDirection().y() / remotePlayerData.mainHandDirection().length());
         double bodyYaw = remotePlayerData.getBodyYawRad();
 
         this.laying = this.swimAmount > 0.0F || entity.isFallFlying() && !entity.isAutoSpinAttack();
@@ -224,27 +226,27 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             this.leftShoulder.y += 3.2F;
         }
 
-        Vec3 offhandArmPos = remotePlayerData.offhandPosition();
-        offhandArmPos = offhandArmPos.add(0.0D, height, 0.0D);
-        offhandArmPos = offhandArmPos.yRot((float) (-Math.PI + bodyYaw));
-        offhandArmPos = offhandArmPos.scale(16.0F / remotePlayerData.heightScale());
+        Vector3f offhandArmPos = remotePlayerData.offhandPosition()
+                .add(0.0f, (float) height, 0.0f, new Vector3f())
+                .rotateY((float) (-Math.PI + bodyYaw))
+                .mul(16.0F / remotePlayerData.heightScale());
         this.leftHand.setPos(
-                (float) (-offhandArmPos.x),
-                (float) (-offhandArmPos.y),
-                (float) offhandArmPos.z
+                -offhandArmPos.x,
+                -offhandArmPos.y,
+                offhandArmPos.z
         );
         this.leftHand.xRot = (float) ((double) (-offhandPitch) + (Math.PI * 1.5D));
         this.leftHand.yRot = (float) (Math.PI - (double) offhandYaw - bodyYaw);
         this.leftHand.zRot = 0.0F;
 
 
-        Vec3 leftShoulderPos = new Vec3(
-                (double) this.leftShoulder.x + offhandArmPos.x,
-                (double) this.leftShoulder.y + offhandArmPos.y,
-                (double) this.leftShoulder.z - offhandArmPos.z
+        Vector3fc leftShoulderPos = new Vector3f(
+                this.leftShoulder.x + offhandArmPos.x,
+                this.leftShoulder.y + offhandArmPos.y,
+                this.leftShoulder.z - offhandArmPos.z
         );
-        float leftShoulderYaw = (float) Mth.atan2(leftShoulderPos.x, leftShoulderPos.z);
-        float leftShoulderPitch = (float) ((Math.PI * 1.5D) - Math.asin(leftShoulderPos.y / leftShoulderPos.length()));
+        float leftShoulderYaw = (float) Mth.atan2(leftShoulderPos.x(), leftShoulderPos.z());
+        float leftShoulderPitch = (float) ((Math.PI * 1.5D) - Math.asin(leftShoulderPos.y() / leftShoulderPos.length()));
         this.leftShoulder.zRot = 0.0F;
         this.leftShoulder.xRot = leftShoulderPitch;
         this.leftShoulder.yRot = leftShoulderYaw;
@@ -257,11 +259,12 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             this.leftHand.xRot = (float) ((double) this.leftHand.xRot - (Math.PI / 2D));
         }
 
-        Vec3 mainArm = remotePlayerData.mainHandPosition();
-        mainArm = mainArm.add(0.0D, height, 0.0D);
-        mainArm = mainArm.yRot((float) (-Math.PI + bodyYaw));
-        mainArm = mainArm.scale(16.0F / remotePlayerData.heightScale());
-        this.rightHand.setPos((float) (-mainArm.x), -((float) mainArm.y), (float) mainArm.z);
+        Vector3f mainArm = remotePlayerData.mainHandPosition()
+                .add(0.0f, (float) height, 0.0f, new Vector3f())
+                .rotateY((float) (-Math.PI + bodyYaw))
+                .mul(16.0F / remotePlayerData.heightScale());
+
+        this.rightHand.setPos(-mainArm.x, -((float) mainArm.y), mainArm.z);
         this.rightHand.xRot = (float) ((double) (-mainHandPitch) + (Math.PI * 1.5D));
         this.rightHand.yRot = (float) (Math.PI - (double) mainHandYaw - bodyYaw);
         this.rightHand.zRot = 0.0F;

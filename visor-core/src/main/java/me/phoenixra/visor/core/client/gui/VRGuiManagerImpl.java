@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-public class GuiManagerImpl implements GuiManager {
+public class VRGuiManagerImpl implements VRGuiManager {
     @Getter
     private final int guiWidth = 1280;
     @Getter
@@ -30,8 +30,8 @@ public class GuiManagerImpl implements GuiManager {
     @Getter
     private int scaledGuiHeight;
 
-    public GuiManagerImpl(){
-        ClientContext.overlayManager = new OverlayManagerImpl();
+    public VRGuiManagerImpl(){
+        ClientContext.overlayManager = new VROverlayManagerImpl();
         ClientContext.cursorHandler = new VRCursorHandlerImpl();
     }
 
@@ -102,7 +102,7 @@ public class GuiManagerImpl implements GuiManager {
     }
 
     @Override
-    public @NotNull OverlayManagerImpl getOverlayManager() {
+    public @NotNull VROverlayManagerImpl getOverlayManager() {
         return ClientContext.overlayManager;
     }
 

@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.client.data;
 
 
-import me.phoenixra.visor.api.common.utils.Vec3History;
+import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
 
@@ -11,11 +11,11 @@ public interface ControllerHistory {
     Matrix4fc getAimRotation();
 
     @NotNull
-    Vec3History getPositionHistory();
+    Vector3fHistory getPositionHistory();
     @NotNull
-    Vec3History getForwardHistory();
+    Vector3fHistory getForwardHistory();
     @NotNull
-    Vec3History getUpHistory();
+    Vector3fHistory getUpHistory();
 
 
 

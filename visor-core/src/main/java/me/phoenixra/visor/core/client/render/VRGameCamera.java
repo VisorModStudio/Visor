@@ -4,6 +4,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
@@ -64,9 +65,11 @@ public class VRGameCamera extends Camera {
                 .getElementForDisplay(display);
 
         // Position
-        this.setPosition(RenderPoseHelper.getCameraPosition(
+        this.setPosition(new Vec3(
+                (Vector3f) RenderPoseHelper.getCameraPosition(
                 display,
                 ClientContext.player.getPose(PoseType.RENDER)
+                )
         ));
 
         // Orientation
@@ -74,13 +77,13 @@ public class VRGameCamera extends Camera {
         this.yRot =  eye.getYaw();
 
         // Look, Up, Left vectors
-        Vec3 dir = eye.getDirection();
-        Vec3 upVec = eye.getCustomVector(new Vector3f(0, 1, 0));
-        Vec3 leftVec= eye.getCustomVector(new Vector3f(1, 0, 0));
+        var dir = eye.getDirection();
+        var upVec = eye.getCustomVector(VRMathUtils.upVector);
+        var leftVec = eye.getCustomVector(VRMathUtils.rightVector);
 
-        this.getLookVector().set((float) dir.x,   (float) dir.y,    (float) dir.z);
-        this.getUpVector().set((float) upVec.x,  (float) upVec.y,   (float) upVec.z);
-        this.getLeftVector().set((float) leftVec.x,(float) leftVec.y,(float) leftVec.z);
+        this.getLookVector().set(dir.x(), dir.y(), dir.z());
+        this.getUpVector().set(upVec.x, upVec.y, upVec.z);
+        this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
         // Build rotation quaternion: Yaw then Pitch
         this.rotation().identity()

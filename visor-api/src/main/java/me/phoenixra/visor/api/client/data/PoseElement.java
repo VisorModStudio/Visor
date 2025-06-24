@@ -5,6 +5,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public interface PoseElement {
 
@@ -13,49 +14,36 @@ public interface PoseElement {
      * @return position of the component
      */
     @NotNull
-    Vec3 getPosition();
-
+    Vector3fc getPosition();
     /**
      *
      * @return direction of the component
      */
     @NotNull
-    Vec3 getDirection();
+    Vector3fc getDirection();
+
+
 
     /**
      * Get custom vector from component
      * @return vector
      */
     @NotNull
-    default Vec3 getCustomVector(@NotNull Vec3 vec){
-        return getCustomVector(
-                new Vector3f(
-                        (float) vec.x,
-                        (float) vec.y,
-                        (float) vec.z
-                )
-        );
-    }
-    /**
-     * Get custom vector from component
-     * @return vector
-     */
-    @NotNull
-    Vec3 getCustomVector(@NotNull Vector3f vec);
+    Vector3f getCustomVector(@NotNull Vector3fc vec);
 
     /**
-     * Reverse {@link PoseElement#getCustomVector(Vec3)}
+     * Reverse {@link PoseElement#getCustomVector(Vector3fc)}
      * @param customVec vec
      * @return original vector
      */
-    @NotNull Vector3f reverseCustomVector(@NotNull Vec3 customVec);
+    @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc customVec);
 
     /**
      *
      * @return rotation matrix of the component
      */
     @NotNull
-    Matrix4fc getRotationMatrix();
+    Matrix4fc getRotation();
 
 
     /**

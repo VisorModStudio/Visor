@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -146,13 +147,13 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || Math.abs(this.getDeltaMovement().z) > 0.0095
         );
         if (moveAllowed && moved) {
-            Vec3 roomOrigin = ClientContext.player.getOrigin();
+            var roomOrigin = ClientContext.player.getOrigin();
 
             double prevX = this.getX();
             double prevZ = this.getZ();
 
-            double roomPrevX = roomOrigin.x - this.getX();
-            double roomPrevZ = roomOrigin.z - this.getZ();
+            double roomPrevX = roomOrigin.x() - this.getX();
+            double roomPrevZ = roomOrigin.z() - this.getZ();
 
             super.move(pType, pPos);
 
@@ -170,9 +171,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             }
 
             ClientContext.player.setOrigin(
-                    this.getX() + roomPrevX,
-                    this.getY() + this.visor$getRoomYOffset(),
-                    this.getZ() + roomPrevZ,
+                    (float) (this.getX() + roomPrevX),
+                    (float) (this.getY() + this.visor$getRoomYOffset()),
+                    (float) (this.getZ() + roomPrevZ),
                     false
             );
             return;
@@ -181,11 +182,11 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         //Climbing, falling
         if (canMoveByY) {
             super.move(pType, new Vec3(0.0D, pPos.y, 0.0D));
-            Vec3 origin = ClientContext.player.getOrigin();
+            var origin = ClientContext.player.getOrigin();
             ClientContext.player.setOrigin(
-                    origin.x,
-                    this.getY() + this.visor$getRoomYOffset(),
-                    origin.z,
+                    origin.x(),
+                    (float) (this.getY() + this.visor$getRoomYOffset()),
+                    origin.z(),
                     false
             );
             return;
@@ -331,7 +332,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             posX = posX - premountPos.x;
             posZ = posZ - premountPos.z;
             ClientContext.player.setOrigin(
-                    posX, posY, posZ,
+                    (float) posX, (float) posY, (float) posZ,
                     shouldReset
             );
             return;
@@ -341,11 +342,11 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         double deltaY = this.getY() - preY;
         double deltaZ = this.getZ() - preZ;
 
-        Vec3 roomOrigin = ClientContext.player.getOrigin();
+        var roomOrigin = ClientContext.player.getOrigin();
         ClientContext.player.setOrigin(
-                roomOrigin.x + deltaX,
-                roomOrigin.y + deltaY,
-                roomOrigin.z + deltaZ,
+                (float) (roomOrigin.x() + deltaX),
+                (float) (roomOrigin.y() + deltaY),
+                (float) (roomOrigin.z() + deltaZ),
                 shouldReset
         );
     }

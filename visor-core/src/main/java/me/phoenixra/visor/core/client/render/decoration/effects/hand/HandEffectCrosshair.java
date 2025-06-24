@@ -30,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -59,16 +60,16 @@ public class HandEffectCrosshair extends VRHandEffect {
 
         // --- Prepare variables ---
         PoseData pose = ClientContext.player.getPose(PoseType.RENDER);
-        Vec3 rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec();
-        Vec3 aim = rawCross.subtract(pose.getController(hand).getPosition());
+        var rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec().toVector3f();
+        var aim = rawCross.sub(pose.getController(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
         float scale = BASE_SCALE * worldScale;
 
         // nudge back for correct lighting
-        Vec3 crossPos = rawCross.add(aim.normalize().scale(LIGHT_OFFSET));
+        var crossPos = rawCross.add(aim.normalize().mul(LIGHT_OFFSET));
 
         // light & brightness
-        BlockPos lightPos = BlockPos.containing(crossPos);
+        BlockPos lightPos = BlockPos.containing(new Vec3(crossPos));
         int lightCoords  = LevelRenderer.getLightColor(MC.level, lightPos);
         float brightness = (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
                 ? MISS_BRIGHTNESS
@@ -99,8 +100,8 @@ public class HandEffectCrosshair extends VRHandEffect {
         poseStack.setIdentity();
         RenderPoseHelper.applyDisplayOrientation(display, poseStack);
 
-        Vec3 camPos = MC.getCameraEntity().position();
-        Vec3 translate = crossPos.subtract(camPos);
+        Vector3f camPos = MC.getCameraEntity().position().toVector3f();
+        Vector3f translate = crossPos.sub(camPos);
         poseStack.translate(translate.x, translate.y, translate.z);
 
         applyCrossHairRotation(poseStack, hand, pose);

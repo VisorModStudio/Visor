@@ -7,7 +7,6 @@ import me.phoenixra.atumvr.core.input.device.OpenXRDeviceController;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -40,15 +39,15 @@ public class XrRawPoseHandler extends RawPoseHandler {
         Matrix4f hmdPose = hmdData.getDevicePoseMutable();
         hmdRotation.set3x3(hmdPose);
 
-        Vec3 headsetPos = hmdData.getHeadsetPosition();
+        Vector3f headsetPos = hmdData.getHeadsetPosition();
         hmdData.getPositionHistory().add(headsetPos);
         Vector3f vector3 = hmdData.getRotation()
                 .transformDirection(new Vector3f(0.0F, -0.1F, 0.1F));
         hmdData.getPivotHistory()
-                .add(new Vec3(
-                                (double) vector3.x() + headsetPos.x,
-                                (double) vector3.y() + headsetPos.y,
-                                (double) vector3.z() + headsetPos.z
+                .add(new Vector3f(
+                                vector3.x() + headsetPos.x,
+                                vector3.y() + headsetPos.y,
+                                vector3.z() + headsetPos.z
                         )
                 );
         hmdData.getRotationHistory()
@@ -87,10 +86,8 @@ public class XrRawPoseHandler extends RawPoseHandler {
         controllerLeftData.getForwardHistory().add(
                 controllerLeftData.getAimVector()
         );
-        Vec3 upVec =  VRMathUtils.convertToMcVector(
-                controllerLeftDevice.getPose().orientation()
-                .transform(VRMathUtils.upVector, new Vector3f())
-        );
+        Vector3f upVec =  controllerLeftDevice.getPose().orientation()
+                .transform(VRMathUtils.upVector, new Vector3f());
         controllerLeftData.getUpHistory().add(upVec);
 
 
@@ -124,10 +121,9 @@ public class XrRawPoseHandler extends RawPoseHandler {
         controllerRightData.getForwardHistory().add(
                 controllerRightData.getAimVector()
         );
-        upVec =  VRMathUtils.convertToMcVector(
-                controllerRightDevice.getPose().orientation()
-                        .transform(VRMathUtils.upVector, new Vector3f())
-        );
+        upVec =  controllerRightDevice.getPose().orientation()
+                .transform(VRMathUtils.upVector, new Vector3f());
+
         controllerRightData.getUpHistory().add(upVec);
 
 

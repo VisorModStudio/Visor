@@ -6,7 +6,6 @@ import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -109,8 +108,7 @@ public class ActionLeftMouse extends VisorActionButton {
     @Override
     public void updateState(@NotNull OpenXRProfileSet currentProfile,
                             boolean leftHanded) {
-        if(!ClientContext.cursorHandler.isMainHandFocused()
-                && !ClientContext.cursorHandler.isOffhandFocused()){
+        if(!ClientContext.cursorHandler.isAnyHandFocused()){
             super.updateState(currentProfile, leftHanded);
             return;
         }
@@ -143,7 +141,7 @@ public class ActionLeftMouse extends VisorActionButton {
     private void processCursorUpdate(VRActionDataButton buttonDataOffhand,
                                      VRActionDataButton buttonDataMain){
 
-        ControllerHand cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+        ControllerHand cursorHand = ClientContext.cursorHandler.getCursorHand();
 
         boolean offHandClicked = buttonDataOffhand.isPressed()
                 && buttonDataOffhand.isButtonChanged();
@@ -160,13 +158,13 @@ public class ActionLeftMouse extends VisorActionButton {
                 && !buttonDataMain.isPressed()
                 && !buttonDataMain.isButtonChanged()) {
 
-            if(!ClientContext.cursorHandler.isOffhandFocused()){
+            if(!ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
                 return;
             }
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            ClientContext.cursorHandler.setActiveCursorHand(
+            ClientContext.cursorHandler.setCursorHand(
                     ControllerHand.OFFHAND
             );
             ClientContext.cursorHandler.process();
@@ -178,13 +176,13 @@ public class ActionLeftMouse extends VisorActionButton {
                 && !buttonDataOffhand.isPressed()
                 && !buttonDataOffhand.isButtonChanged()) {
 
-            if(!ClientContext.cursorHandler.isMainHandFocused()){
+            if(!ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN)){
                 return;
             }
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
-            ClientContext.cursorHandler.setActiveCursorHand(
+            ClientContext.cursorHandler.setCursorHand(
                     ControllerHand.MAIN
             );
             ClientContext.cursorHandler.process();
@@ -247,11 +245,11 @@ public class ActionLeftMouse extends VisorActionButton {
     protected VRActionDataButton getButtonData(@NotNull BindingPath bindingPath, @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        if(!ClientContext.cursorHandler.isActiveHandFocused()
+        if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
         }else {
-            var cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+            var cursorHand = ClientContext.cursorHandler.getCursorHand();
             mainHand = cursorHand == ControllerHand.MAIN;
         }
 

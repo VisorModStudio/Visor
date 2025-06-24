@@ -3,14 +3,24 @@ package me.phoenixra.visor.api.client.gui;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This class handles GUIs rendering
- * and behaviour.
+ * Manages GUI for VR
  */
-public interface GuiManager {
+public interface VRGuiManager {
 
 
+    /**
+     * Get VR Overlay Manager
+     *
+     * @return VROverlayManager instance
+     */
     @NotNull
-    OverlayManager getOverlayManager();
+    VROverlayManager getOverlayManager();
+
+    /**
+     * Get VR Cursor Handler
+     *
+     * @return VRCursorHandler instance
+     */
     @NotNull
     VRCursorHandler getCursorHandler();
 
@@ -28,10 +38,6 @@ public interface GuiManager {
      */
     int getGuiHeight();
 
-    default float getAspectRatio(){
-        return (float) getGuiHeight() / getGuiWidth();
-    }
-
     /**
      * Get width that is used by all GUIs
      * with applied scaleFactor
@@ -48,6 +54,20 @@ public interface GuiManager {
      */
     int getScaledGuiHeight();
 
+    /**
+     * Get aspect ratio
+     *
+     * @return aspect ratio
+     */
+    default float getAspectRatio(){
+        return (float) getGuiHeight() / getGuiWidth();
+    }
+
+    /**
+     * Get scaled aspect ratio
+     *
+     * @return scaled aspect ratio
+     */
     default float getScaledAspectRatio(){
         return (float) getScaledGuiHeight() / getScaledGuiWidth();
     }

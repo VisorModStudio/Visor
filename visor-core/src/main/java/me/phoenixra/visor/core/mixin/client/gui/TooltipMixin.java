@@ -32,7 +32,7 @@ public class TooltipMixin {
                 return visor$attachedTo;
             }
             VROverlayScreen overlay = ClientContext.cursorHandler
-                    .getFocusedOverlayAsScreen();
+                    .getFocusedOverlayScreen();
 
 
             if(overlay != null){

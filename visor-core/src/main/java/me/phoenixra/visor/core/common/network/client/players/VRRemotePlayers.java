@@ -60,10 +60,8 @@ public class VRRemotePlayers {
                     //offhand direction
                     VRMathUtils.lerpVector(
                             playerDataPrev.offhandDirection(),
-                            VRMathUtils.convertToMcVector(
-                                    playerData1.offhandRotation()
-                                            .transform(VRMathUtils.forwardVector, new Vector3f())
-                            ),
+                            playerData1.offhandRotation()
+                                    .transform(VRMathUtils.forwardVector, new Vector3f()),
                             frameTime
                     ),
                     //offhand position
@@ -77,10 +75,8 @@ public class VRRemotePlayers {
                     //mainHand direction
                     VRMathUtils.lerpVector(
                             playerDataPrev.mainHandDirection(),
-                            VRMathUtils.convertToMcVector(
-                                    playerData1.mainHandRotation()
-                                            .transform(VRMathUtils.forwardVector, new Vector3f())
-                            ),
+                            playerData1.mainHandRotation()
+                                    .transform(VRMathUtils.forwardVector, new Vector3f()),
                             frameTime
                     ),
                     //mainHand position
@@ -94,10 +90,8 @@ public class VRRemotePlayers {
                     //HMD direction
                     VRMathUtils.lerpVector(
                             playerDataPrev.hmdDirection(),
-                            VRMathUtils.convertToMcVector(
-                                    playerData1.hmdRotation()
-                                            .transform(VRMathUtils.forwardVector, new Vector3f())
-                            ),
+                            playerData1.hmdRotation()
+                                    .transform(VRMathUtils.forwardVector, new Vector3f()),
                             frameTime
                     ),
                     //HMD position
@@ -143,7 +137,7 @@ public class VRRemotePlayers {
         VRRemotePlayerData playerData = new VRRemotePlayerData(
                 //OFFHAND
                 poseBuffer.offhand().orientation(),
-                new Vec3(
+                new Vector3f(
                         offhandDir.x(),
                         offhandDir.y(),
                         offhandDir.z()
@@ -151,7 +145,7 @@ public class VRRemotePlayers {
                 poseBuffer.offhand().position(),
                 //MAIN HAND
                 poseBuffer.mainHand().orientation(),
-                new Vec3(
+                new Vector3f(
                         mainHandDir.x(),
                         mainHandDir.y(),
                         mainHandDir.z()
@@ -159,7 +153,7 @@ public class VRRemotePlayers {
                 poseBuffer.mainHand().position(),
                 //HMD
                 poseBuffer.hmd().orientation(),
-                new Vec3(hmdDir.x(), hmdDir.y(), hmdDir.z()),
+                new Vector3f(hmdDir.x(), hmdDir.y(), hmdDir.z()),
                 poseBuffer.hmd().position(),
                 //MISC
                 worldScale,

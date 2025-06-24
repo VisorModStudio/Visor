@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -63,9 +63,9 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
-        Vec2 cursor = VisorAPI.client().getGuiManager()
+        Vector2f cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
-                .findCursorGuiCoordinates2D(
+                .findCursorPosition2D(
                         VisorAPI.client().getPlayer()
                                 .getPose(PoseType.RENDER)
                                 .getController(
@@ -86,7 +86,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
         //update selected box if cursor is valid
         if (cursorValid) {
-            GuiManager guiManager = VisorAPI.client().getGuiManager();
+            VRGuiManager guiManager = VisorAPI.client().getGuiManager();
             //used to find selected slice are based
             // on origin in the center of the menu
             //and without coords bounds

@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -59,13 +60,14 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             cir.setReturnValue(this.camera.rotation());
             return;
         }
-        Vec3 cameraPos = ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition();
+        var cameraPos = ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
             cameraPos = ClientContext.player.getPose(PoseType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }
-        Vec3 entityToCamera = entity.position().add(0.0D, entity.getBbHeight() / 2.0F, 0.0D).subtract(cameraPos).normalize();
+        Vec3 entityToCamera = entity.position().add(0.0D, entity.getBbHeight() / 2.0F, 0.0D)
+                .subtract(new Vec3((Vector3f) cameraPos)).normalize();
         Quaternionf orientation = new Quaternionf();
         orientation.mul(Axis.YP.rotationDegrees((float) (-Math.toDegrees(Mth.atan2(-entityToCamera.x, entityToCamera.z)))));
         orientation.mul(Axis.XP.rotationDegrees((float) (-Math.toDegrees(Math.asin(entityToCamera.y / entityToCamera.length())))));
@@ -99,7 +101,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
         if (entity == null) {
             return this.camera.rotation();
         }
-        Vec3 cameraPos = ClientContext.player
+        var cameraPos = ClientContext.player
                 .getPose(PoseType.RENDER)
                 .getHmd()
                 .getPosition();
@@ -112,7 +114,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
                 0.0D,
                 entity.getBbHeight() + offset,
                 0.0D
-        ).subtract(cameraPos).normalize();
+        ).subtract(new Vec3((Vector3f) cameraPos)).normalize();
         Quaternionf orient = new Quaternionf();
         orient.mul(Axis.YP.rotationDegrees(
                 (float) (-Math.toDegrees(

@@ -17,7 +17,7 @@ import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.common.addon.VisortRegistry;
 import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
-import me.phoenixra.visor.core.client.gui.GuiManagerImpl;
+import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
@@ -85,7 +85,7 @@ public class VisorClientImpl implements VisorClient {
         //-------Main client classes-------
         ClientContext.inputManager = new InputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
-        ClientContext.guiManager = new GuiManagerImpl();
+        ClientContext.guiManager = new VRGuiManagerImpl();
         ClientContext.player = new VRClientPlayerImpl();
 
         //-------Addons-------
@@ -180,6 +180,9 @@ public class VisorClientImpl implements VisorClient {
 
             featuresToggle.preRender();
 
+            ClientContext.player
+                    .preRender(context.partialTick());
+
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
             for (VisorTask task : tasks) {
                 if (task.isEnabledAndActive(null)) {
@@ -188,9 +191,6 @@ public class VisorClientImpl implements VisorClient {
                     task.clear(null);
                 }
             }
-
-            ClientContext.player
-                    .preRender(context.partialTick());
 
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
@@ -249,7 +249,7 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull GuiManagerImpl getGuiManager() {
+    public @NotNull VRGuiManagerImpl getGuiManager() {
         return ClientContext.guiManager;
     }
 

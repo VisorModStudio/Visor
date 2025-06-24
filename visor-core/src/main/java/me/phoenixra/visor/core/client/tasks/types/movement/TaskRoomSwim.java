@@ -15,10 +15,10 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
 
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -29,15 +29,15 @@ public class TaskRoomSwim extends VisorTask {
     @Getter
     private static TaskRoomSwim instance;
 
-    private static final double SWIM_SPEED = 1.3;
-    private static final double FRICTION = 0.9;
-    private static final double SWIM_MOTION_SCALE = 0.15;
-    private static final double MIN_SWIM_THRESHOLD = 0.3;
-    private static final double SPRINTING_THRESHOLD = 1.0;
-    private static final double HEAD_PIVOT_Y_OFFSET = 0.3;
+    private static final float SWIM_SPEED = 1.3f;
+    private static final float FRICTION = 0.9f;
+    private static final float SWIM_MOTION_SCALE = 0.1f;
+    private static final float MIN_SWIM_THRESHOLD = 0.3f;
+    private static final float SPRINTING_THRESHOLD = 1.0f;
+    private static final float HEAD_PIVOT_Y_OFFSET = 0.3f;
 
-    private Vec3 motion = Vec3.ZERO;
-    private double lastDist;
+    private Vector3fc motion = new Vector3f();
+    private float lastDist;
 
     public TaskRoomSwim(@NotNull VisorAddon owner) {
         super(owner);
@@ -53,35 +53,36 @@ public class TaskRoomSwim extends VisorTask {
         final PoseElement offhand = preTickPose.getController(ControllerHand.OFFHAND);
         final PoseElement hmd = preTickPose.getHmd();
 
-        final Vec3 mainHandPos = mainHand.getPosition();
-        final Vec3 offhandPos = offhand.getPosition();
+        final Vector3fc mainHandPos = mainHand.getPosition();
+        final Vector3fc offhandPos = offhand.getPosition();
 
-        final Vec3 betweenHandsPos = offhandPos
-                .subtract(mainHandPos)
-                .scale(0.5)
+        final Vector3fc betweenHandsPos = offhandPos
+                .sub(mainHandPos, new Vector3f())
+                .mul(0.5f)
                 .add(mainHandPos);
-        final Vec3 headPivotPos = preTickPose.getHeadPivot()
-                .subtract(0.0, HEAD_PIVOT_Y_OFFSET, 0.0);
+        final Vector3fc headPivotPos = preTickPose.getHeadPivot()
+                .sub(0.0f, HEAD_PIVOT_Y_OFFSET, 0.0f, new Vector3f());
         // Compute the direction from the head pivot to the midpoint, then blend with the HMD's direction.
-        final Vec3 betweenHandsDir = betweenHandsPos
-                .subtract(headPivotPos)
+        final Vector3fc betweenHandsDir = betweenHandsPos
+                .sub(headPivotPos, new Vector3f())
                 .normalize()
                 .add(hmd.getDirection())
-                .scale(0.5);
+                .mul(0.5f);
 
         // Compute the aim vector from the main hand using a custom forward (-Z) vector.
-        final Vec3 mainHandAim = mainHand.getCustomVector(new Vector3f(0.0f, 0.0f, -1.0f))
+        final var mainHandAim = mainHand.getCustomVector(new Vector3f(0.0f, 0.0f, -1.0f))
                 .add(mainHand.getCustomVector(new Vector3f(0.0f, 0.0f, -1.0f)))
-                .scale(0.5);
+                .mul(0.5f);
 
-        final double swimPower = mainHandAim.add(betweenHandsDir).length() / 2.0;
-        final double handDistance = headPivotPos.distanceTo(betweenHandsPos);
-        final double distanceDelta = this.lastDist - handDistance;
+        final float swimPower = mainHandAim.add(betweenHandsDir).length() / 2.0f;
+        final float handDistance = headPivotPos.distance(betweenHandsPos);
+        final float distanceDelta = this.lastDist - handDistance;
 
         // If the hands moved closer together, compute a swim motion vector.
         if (distanceDelta > 0.0) {
-            final Vec3 swimMotion = betweenHandsDir.scale(distanceDelta * SWIM_SPEED * swimPower);
-            this.motion = this.motion.add(swimMotion.scale(SWIM_MOTION_SCALE));
+            final Vector3f swimMotion = betweenHandsDir
+                    .mul(distanceDelta * SWIM_SPEED * swimPower, new Vector3f());
+            this.motion = this.motion.add(swimMotion.mul(SWIM_MOTION_SCALE), new Vector3f());
         }
 
         this.lastDist = handDistance;
@@ -89,9 +90,9 @@ public class TaskRoomSwim extends VisorTask {
         final double motionLength = this.motion.length();
         player.setSwimming(motionLength > MIN_SWIM_THRESHOLD);
         player.setSprinting(motionLength > SPRINTING_THRESHOLD);
-        player.push(this.motion.x, this.motion.y, this.motion.z);
+        player.push(this.motion.x(), this.motion.y(), this.motion.z());
         // Apply friction to gradually dampen the motion.
-        this.motion = this.motion.scale(FRICTION);
+        this.motion = this.motion.mul(FRICTION, new Vector3f());
     }
 
     @Override

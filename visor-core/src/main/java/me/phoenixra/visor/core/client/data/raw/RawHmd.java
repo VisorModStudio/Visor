@@ -6,12 +6,8 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.data.HmdHistory;
 import me.phoenixra.visor.api.common.utils.QuaternionFloatHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.api.common.utils.Vec3History;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import me.phoenixra.visor.api.common.utils.Vector3fHistory;
+import org.joml.*;
 
 public class RawHmd implements HmdHistory {
 
@@ -23,18 +19,18 @@ public class RawHmd implements HmdHistory {
 
     private final Matrix4f rightEyePose = new Matrix4f();
     @Getter
-    private final Vec3History positionHistory = new Vec3History(301);
+    private final Vector3fHistory positionHistory = new Vector3fHistory(301);
     @Getter
-    private final Vec3History pivotHistory = new Vec3History(301);
+    private final Vector3fHistory pivotHistory = new Vector3fHistory(301);
     @Getter
     private final QuaternionFloatHistory rotationHistory = new QuaternionFloatHistory(301);
 
 
     @Getter @Setter
-    private Vec3 velocity = new Vec3(0,0,0);
+    private Vector3fc velocity = new Vector3f(0,0,0);
 
     @Getter @Setter
-    private Vec3 angularVelocity = new Vec3(0,0,0);
+    private Vector3fc angularVelocity = new Vector3f(0,0,0);
 
     @Getter @Setter
     private boolean tracking;
@@ -63,13 +59,11 @@ public class RawHmd implements HmdHistory {
         return rightEyePose;
     }
 
-    public Vec3 getHeadsetPosition() {
-        return VRMathUtils.convertToMcVector(
-                this.devicePose.getTranslation(new Vector3f())
-        );
+    public Vector3f getHeadsetPosition() {
+        return this.devicePose.getTranslation(new Vector3f());
     }
 
-    public Vec3 getEyePosition(EyeType eye) {
+    public Vector3f getEyePosition(EyeType eye) {
         Matrix4f eyePose;
 
         if (eye == EyeType.LEFT) {
@@ -77,9 +71,7 @@ public class RawHmd implements HmdHistory {
         }  else {
             eyePose = this.rightEyePose;
         }
-        return VRMathUtils.convertToMcVector(
-                eyePose.getTranslation(new Vector3f())
-        );
+        return eyePose.getTranslation(new Vector3f());
     }
 
     public Matrix4fc getEyeRotation(EyeType eye) {
@@ -95,11 +87,9 @@ public class RawHmd implements HmdHistory {
 
     }
 
-    public Vec3 getVector() {
-        return VRMathUtils.convertToMcVector(
-                this.rotation
-                .transformDirection(VRMathUtils.forwardVector, new Vector3f())
-        );
+    public Vector3f getVector() {
+        return this.rotation
+                .transformDirection(VRMathUtils.forwardVector, new Vector3f());
     }
 
 }

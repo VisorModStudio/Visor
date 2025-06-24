@@ -54,11 +54,11 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         }
 
         float f1 = (float) Mth.atan2(
-                -remotePlayerData.hmdDirection().x,
-                -remotePlayerData.hmdDirection().z
+                -remotePlayerData.hmdDirection().x(),
+                -remotePlayerData.hmdDirection().z()
         );
         float f2 = (float) Math.asin(
-                remotePlayerData.hmdDirection().y
+                remotePlayerData.hmdDirection().y()
                         / remotePlayerData.hmdDirection().length()
         );
         double d1 = remotePlayerData.getBodyYawRad();

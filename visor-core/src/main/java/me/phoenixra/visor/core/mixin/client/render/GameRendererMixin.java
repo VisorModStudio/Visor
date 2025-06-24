@@ -35,6 +35,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -342,7 +343,7 @@ public abstract class GameRendererMixin
                 this.minecraft.gameMode.getPickRange()
         );
 
-        return renderPose.getController(activeHand).getPosition();
+        return new Vec3((Vector3f) renderPose.getController(activeHand).getPosition());
     }
 
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 1)
@@ -352,8 +353,10 @@ public abstract class GameRendererMixin
         }
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
-        return ClientContext.player.getPose(PoseType.RENDER)
-                .getController(activeHand).getDirection();
+        return new Vec3(
+                (Vector3f) ClientContext.player.getPose(PoseType.RENDER)
+                        .getController(activeHand).getDirection()
+        );
     }
 
 
@@ -503,15 +506,15 @@ public abstract class GameRendererMixin
             PoseElement eye = ClientContext.player
                     .getPose(PoseType.RENDER)
                     .getElementForDisplay(VRRenderState.getCurrentVRDisplay());
-            Vec3 eyePos = eye.getPosition();
+            var eyePos = eye.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
-            cameraEntity.setPosRaw(eyePos.x, eyePos.y, eyePos.z);
-            cameraEntity.xOld = eyePos.x;
-            cameraEntity.yOld = eyePos.y;
-            cameraEntity.zOld = eyePos.z;
-            cameraEntity.xo = eyePos.x;
-            cameraEntity.yo = eyePos.y;
-            cameraEntity.zo = eyePos.z;
+            cameraEntity.setPosRaw(eyePos.x(), eyePos.y(), eyePos.z());
+            cameraEntity.xOld = eyePos.x();
+            cameraEntity.yOld = eyePos.y();
+            cameraEntity.zOld = eyePos.z();
+            cameraEntity.xo = eyePos.x();
+            cameraEntity.yo = eyePos.y();
+            cameraEntity.zo = eyePos.z();
             cameraEntity.setXRot(-eye.getPitch());
             cameraEntity.xRotO = cameraEntity.getXRot();
             cameraEntity.setYRot(eye.getYaw());
@@ -641,13 +644,13 @@ public abstract class GameRendererMixin
                 || VRRenderState.isInMainMenu()){
             return;
         }
-        Vec3 cameraPos = RenderPoseHelper.getCameraPosition(
+        var cameraPos = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
                 ClientContext.player.getPose(PoseType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
                 .findNearestSolidBlock(
-                        cameraPos,
+                        new Vec3((Vector3f) cameraPos),
                         this.visor$nearClipPlane
                 );
 
@@ -684,13 +687,15 @@ public abstract class GameRendererMixin
     @Unique
     public Vec3 visor$aimedPointAtDistance(PoseElement poseElement,
                                            double distance) {
-        Vec3 dir = poseElement.getDirection();
-        return poseElement
+        var dir = poseElement.getDirection();
+        return new Vec3(poseElement
                 .getPosition().add(
-                        dir.x * distance,
-                        dir.y * distance,
-                        dir.z * distance
-                );
+                        dir.x() * (float) distance,
+                        dir.y() * (float) distance,
+                        dir.z() * (float) distance,
+                        new Vector3f()
+                )
+        );
     }
 
     @Unique
@@ -698,11 +703,11 @@ public abstract class GameRendererMixin
                                      double blockReachDistance,
                                      boolean fluid
     ) {
-        Vec3 position = poseElement.getPosition();
+        var position = poseElement.getPosition();
         Vec3 aimedPointAtDistance = visor$aimedPointAtDistance(poseElement, blockReachDistance);
         return MC.level.clip(
                 new ClipContext(
-                        position,
+                        new Vec3((Vector3f) position),
                         aimedPointAtDistance,
                         ClipContext.Block.OUTLINE,
                         fluid

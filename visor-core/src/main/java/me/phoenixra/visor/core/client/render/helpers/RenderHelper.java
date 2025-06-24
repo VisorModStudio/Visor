@@ -28,11 +28,11 @@ public class RenderHelper {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
-    public static boolean isInSolidBlock(Vec3 in) {
+    public static boolean isInSolidBlock(Vector3fc in) {
         if (MC.level == null) {
             return false;
         } else {
-            BlockPos blockpos = BlockPos.containing(in);
+            BlockPos blockpos = BlockPos.containing(new Vec3((Vector3f) in));
             return MC.level.getBlockState(blockpos).isSolidRender(MC.level, blockpos);
         }
     }

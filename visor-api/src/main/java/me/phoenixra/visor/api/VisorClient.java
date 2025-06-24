@@ -4,7 +4,7 @@ import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumvr.api.VRProvider;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.VRClientPlayer;
-import me.phoenixra.visor.api.client.gui.GuiManager;
+import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.render.VisorRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
@@ -68,7 +68,7 @@ public interface VisorClient {
      * @return GuiManager instance
      */
     @NotNull
-    GuiManager getGuiManager();
+    VRGuiManager getGuiManager();
 
 
     /**

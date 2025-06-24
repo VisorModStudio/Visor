@@ -11,11 +11,10 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -24,13 +23,13 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Getter @Setter
-    private ControllerHand activeCursorHand = ControllerHand.MAIN;
+    private ControllerHand cursorHand = ControllerHand.MAIN;
 
     @Getter @Setter
     private boolean draggingItem;
 
     @Getter
-    private boolean isTwoHandedCursor;
+    private boolean twoHandedCursor;
 
     private final CursorState mainHandState = new CursorState();
     private final CursorState offhandState = new CursorState();
@@ -68,18 +67,18 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     private void updateOverlays() {
-        isTwoHandedCursor = offhandState.supportsTwoHandedCursor()
+        twoHandedCursor = offhandState.supportsTwoHandedCursor()
                 || mainHandState.supportsTwoHandedCursor();
 
-        CursorState activeState = (activeCursorHand == ControllerHand.MAIN) ? mainHandState : offhandState;
-        CursorState inactiveState = (activeCursorHand == ControllerHand.MAIN) ? offhandState : mainHandState;
+        CursorState activeState = (cursorHand == ControllerHand.MAIN) ? mainHandState : offhandState;
+        CursorState inactiveState = (cursorHand == ControllerHand.MAIN) ? offhandState : mainHandState;
 
         // Update the overlay for the active hand
         if (activeState.isFocused()) {
             activeState.focusedOverlay.updateMousePosition(
                     true,
-                    (float) activeState.cursorPos.x,
-                    (float) activeState.cursorPos.y
+                    activeState.cursorPos.x(),
+                    activeState.cursorPos.y()
             );
         }
 
@@ -87,8 +86,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         if (inactiveState.isFocused()) {
             inactiveState.focusedOverlay.updateMousePosition(
                     false,
-                    (float) inactiveState.cursorPos.x,
-                    (float) inactiveState.cursorPos.y
+                    inactiveState.cursorPos.x(),
+                    inactiveState.cursorPos.y()
             );
         }
     }
@@ -96,7 +95,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
     private CursorResult getCursorResult(@NotNull ControllerHand hand, @NotNull PoseData renderPose) {
         VROverlay collidingOverlay = null;
-        Vec3 finalCursorPos = new Vec3(0, 0, -1);
+        Vector3fc finalCursorPos = new Vector3f(0, 0, -1);
 
         if(VisorState.getState().isNotFocused()){
             return new CursorResult(finalCursorPos, collidingOverlay);
@@ -125,18 +124,13 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
             }
 
             boolean notFacingGui = !overlay.ignoreFacingGui()
-                    && !isFacingGui(
-                            overlay.getPosition(),
-                            overlay.getRotation(),
-                            cursorElement.getPosition(),
-                            cursorElement.getRotationMatrix(),
-                    false
+                    && !isFacingOverlay(cursorElement, overlay, false
             );
             if (notFacingGui) {
                 continue;
             }
 
-            Vec3 newCursorPos = findCursorGuiCoordinates3D(
+            Vector3fc newCursorPos = findCursorPosition3D(
                     cursorElement,
                     overlay.getPosition(),
                     overlay.getRotation(),
@@ -145,8 +139,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
             if (overlay.isCursorWithinBounds(
                     true,
-                    (float) newCursorPos.x,
-                    (float) newCursorPos.y
+                    newCursorPos.x(),
+                    newCursorPos.y()
             )) {
                 finalCursorPos = newCursorPos;
                 collidingOverlay = overlay;
@@ -159,7 +153,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Override
-    public double getCursorLength(@NotNull ControllerHand hand) {
+    public double getCursorLineLength(@NotNull ControllerHand hand) {
         return (hand == ControllerHand.MAIN) ? mainHandState.getCursorLength() : offhandState.getCursorLength();
     }
 
@@ -169,155 +163,56 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    @Override
-    public boolean isElementAimedAtOverlay(@NotNull VROverlay overlay,
-                                           @NotNull PoseElement element,
-                                           boolean checkUpsideDown,
-                                           float overlayBoundsExtraX,
-                                           float overlayBoundsExtraY
+    public boolean isFacingOverlay(PoseElement element,
+                                   VROverlay overlay,
+                                   boolean checkUpsideDown,
+                                   double threshold
     ) {
-
-        if (!isFacingGui(
-                overlay.getPosition(),
-                overlay.getRotation(),
-                element.getPosition(),
-                element.getRotationMatrix(),
-                checkUpsideDown
-        )) {
-            return false;
-        }
-
-        Vec3 newCursor = findCursorGuiCoordinates3D(
-                element,
-                overlay.getPosition(),
-                overlay.getRotation(),
-                overlay.getOverlayScale()
+        Vector3f elementForward = VRMathUtils.extractForwardDir(
+                element.getRotation(), true
         );
-        if (overlayBoundsExtraX != 0 || overlayBoundsExtraY != 0) {
-            float multX = overlayBoundsExtraX / 2;
-            float multY = overlayBoundsExtraY / 2;
-            double x;
-            double y;
-            if ((newCursor.x < 0.5 && newCursor.x >= -multX)
-                    || (newCursor.x > 0.5 && newCursor.x <= 1 + multX)) {
-                x = 0.5;
-            } else {
-                x = newCursor.x;
-            }
-            if ((newCursor.y < 0.5 && newCursor.y >= -multY)
-                    || (newCursor.y > 0.5 && newCursor.y <= 1 + multY)) {
-                y = 0.5;
-            } else {
-                y = newCursor.y;
-            }
-            newCursor = new Vec3(x, y, 0);
-        }
-
-
-        return overlay.isCursorWithinBounds(
-                true,
-                (float) newCursor.x,
-                (float) newCursor.y
+        Vector3f overlayForward = VRMathUtils.extractForwardDir(
+                overlay.getRotation(), true
         );
-    }
 
+        Vector3f toOverlayDir = new Vector3f(overlay.getPosition())
+                .sub(element.getPosition()).normalize();
 
-    public boolean isFacingGui(Vec3 guiPosition,
-                               Matrix4fc guiRotation,
-                               Vec3 devicePosition,
-                               Matrix4fc deviceRotation,
-                               boolean checkUpsideDown
-    ) {
-        return isFacingGui(
-                guiPosition,
-                guiRotation,
-                devicePosition,
-                deviceRotation,
-                checkUpsideDown,0.2
-        );
-    }
-    public boolean isFacingGui(Vec3 guiPosition,
-                               Matrix4fc guiRotation,
-                               Vec3 devicePosition,
-                               Matrix4fc deviceRotation,
-                               boolean checkUpsideDown,
-                               double threshold
-    ) {
-
-
-        Vector3f deviceForward = extractForwardDirection(deviceRotation);
-        Vector3f guiForward = extractForwardDirection(guiRotation);
-
-        Vector3f deviceToGui = new Vector3f(guiPosition.toVector3f())
-                .sub(devicePosition.toVector3f());
-
-        deviceForward.normalize();
-        guiForward.normalize();
-        deviceToGui.normalize();
-
-        float deviceFacingGui = deviceForward.dot(deviceToGui);
-        float GuiFacingDevice = guiForward.dot(deviceToGui.negate());
-
-
-        boolean isFacingGui = deviceFacingGui > threshold && GuiFacingDevice < -threshold;
-
-        if (!isFacingGui) {
+        //  - Element must face Overlay.
+        //  - Overlay must face Element.
+        float elementDot = elementForward.dot(toOverlayDir);
+        float overlayDot = overlayForward.dot(toOverlayDir.negate());
+        if (elementDot <= threshold || overlayDot >= -threshold) {
             return false;
         }
 
         if (!checkUpsideDown) return true;
 
-
-        Vector3f deviceUp = extractUpDirection(deviceRotation);
-        Vector3f guiUp = extractUpDirection(guiRotation);
-        deviceUp.normalize();
-        guiUp.normalize();
-
-        float guiUpAlignment = guiUp.dot(
-                new Vector3f(0, 1, 0)
-        );
-
-        return guiUpAlignment > 0.2;
+        //Ensure is not upside down
+        Vector3f overlayUp = VRMathUtils.extractUpDir(overlay.getRotation(), true);
+        float upDot = overlayUp.dot(VRMathUtils.upVector);
+        return upDot > 0.2;
     }
 
-    private Vector3f extractUpDirection(Matrix4fc matrix) {
-        return new Vector3f(matrix.m10(), matrix.m11(), matrix.m12());
-    }
 
-    private Vector3f extractForwardDirection(Matrix4fc rotation) {
-        return new Vector3f(-rotation.m20(), -rotation.m21(), -rotation.m22());
-    }
 
-    @Override
-    public @NotNull Vec2 findCursorGuiCoordinates2D(@NotNull PoseElement component,
-                                                    @NotNull Vec3 guiPosRoom,
-                                                    @NotNull Matrix4fc guiRotationRoom,
-                                                    float guiScale
-    ) {
-
-        Vec3 vec3 = findCursorGuiCoordinates3D(
-                component,
-                guiPosRoom, guiRotationRoom,
-                guiScale
-        );
-        return new Vec2((float) vec3.x, (float) vec3.y);
-    }
 
     public float getCursorDistanceToGui(@NotNull PoseData clientPose,
                                         @NotNull PoseElement cursorElement,
-                                        @NotNull Vec3 guiPosRoom,
-                                        @NotNull Matrix4fc guiRotationRoom){
-        Vector3fc position = cursorElement.getPosition().toVector3f();
-        Vector3fc direction = cursorElement.getDirection().toVector3f();
-        Vector3fc aimZ = guiRotationRoom.transformDirection(VRMathUtils.forwardVectorReversed, new Vector3f());
-        Vector3fc aimX = guiRotationRoom.transformDirection(VRMathUtils.rightVector, new Vector3f());
-        Vector3fc aimY = guiRotationRoom.transformDirection(VRMathUtils.upVector, new Vector3f());
+                                        @NotNull Vector3fc guiPosition,
+                                        @NotNull Matrix4fc guiRotation){
+        Vector3fc position = cursorElement.getPosition();
+        Vector3fc direction = cursorElement.getDirection();
+        Vector3fc aimZ = guiRotation.transformDirection(VRMathUtils.forwardVectorReversed, new Vector3f());
+        Vector3fc aimX = guiRotation.transformDirection(VRMathUtils.rightVector, new Vector3f());
+        Vector3fc aimY = guiRotation.transformDirection(VRMathUtils.upVector, new Vector3f());
         float point = aimZ.dot(direction);
 
         if (Math.abs(point) > 1.0E-5F) {
-            Vector3f cursorBase = guiPosRoom.toVector3f()
+            Vector3f cursorBase = guiPosition
                     .sub(
-                            aimY.div(2f, new Vector3f())
+                            aimY.div(2f, new Vector3f()),
+                            new Vector3f()
                     ).sub(
                             aimX.div(2f, new Vector3f())
                     );
@@ -329,63 +224,85 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         }
         return -1;
     }
+
     @Override
-    public Vec3 findCursorGuiCoordinates3D(@NotNull PoseElement cursorElement,
-                                           @NotNull Vec3 guiPosRoom,
-                                           @NotNull Matrix4fc guiRotationRoom,
-                                           float guiScale
+    public @NotNull Vector2f findCursorPosition2D(@NotNull PoseElement component,
+                                                  @NotNull Vector3fc guiPosition,
+                                                  @NotNull Matrix4fc guiRotation,
+                                                  float guiScale
     ) {
-        PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
-        guiScale *= renderPose.getWorldScale();
-        Vector3fc position = cursorElement.getPosition().toVector3f();
-        Vector3fc direction = cursorElement.getDirection().toVector3f();
-        Vector3fc aimZ = guiRotationRoom.transformDirection(VRMathUtils.forwardVectorReversed, new Vector3f());
-        Vector3fc aimX = guiRotationRoom.transformDirection(VRMathUtils.rightVector, new Vector3f());
-        Vector3fc aimY = guiRotationRoom.transformDirection(VRMathUtils.upVector, new Vector3f());
-        float point = aimZ.dot(direction);
 
-        if (Math.abs(point) > 1.0E-5F) {
-            Vector3f cursorBase = guiPosRoom.toVector3f()
-                    .sub(
-                            aimY.div(2f, new Vector3f())
-                    ).sub(
-                            aimX.div(2f, new Vector3f())
-                    );
-            float depthFactor = -aimZ.dot(
-                    position.sub(cursorBase, new Vector3f())
-            ) / point;
+        var vec3 = findCursorPosition3D(
+                component,
+                guiPosition, guiRotation,
+                guiScale
+        );
+        return new Vector2f((float) vec3.x, (float) vec3.y);
+    }
 
-            if (depthFactor > 0.0F) {
-                Vector3fc cursorPosition3D = position.add(direction.div(1.0F / depthFactor, new Vector3f()), new Vector3f());
-                Vector3fc cursorOffset = cursorPosition3D.sub(cursorBase, new Vector3f());
-                float cursorX = cursorOffset.dot(aimX);
-                float cursorY = cursorOffset.dot(aimY);
-                float aspectRatio = ClientContext.guiManager.getScaledAspectRatio();
-                cursorX = (cursorX - 0.5F) / 1.5F / guiScale + 0.5F;
-                cursorY = (cursorY - 0.5F) / aspectRatio / 1.5F / guiScale + 0.5F;
-                cursorY = 1.0F - cursorY;
-                return new Vec3(
-                        cursorX,
-                        cursorY,
-                        depthFactor
-                                / renderPose.getWorldScale());
-            }
+    @Override
+    public Vector3f findCursorPosition3D(@NotNull PoseElement cursorElement,
+                                         @NotNull Vector3fc guiPosition,
+                                         @NotNull Matrix4fc guiRotation,
+                                         float guiScale
+    ) {
+        // 1) World‐space setup
+        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        float worldScale = renderPose.getWorldScale();
+        float effectiveScale = guiScale * worldScale;
+
+        Vector3fc rayOrigin = cursorElement.getPosition();
+        Vector3fc rayDirection = cursorElement.getDirection()
+                .normalize(new Vector3f());
+
+        // 2) GUI basis vectors (scaled later)
+        Vector3fc planeRight = VRMathUtils.extractRightDir(guiRotation, false);
+        Vector3fc planeUp = VRMathUtils.extractUpDir(guiRotation,false);
+        Vector3fc planeNormal = VRMathUtils.extractForwardDir(guiRotation, true);
+
+        // 3) Intersection: t = dot(P0–O, N) / dot(D, N)
+        float denom = planeNormal.dot(rayDirection);
+        if (Math.abs(denom) < 1e-5f) {
+            return new Vector3f(-1, -1, -1);
         }
 
-        return new Vec3(-1.0F, -1.0F, -1.0f);
+        float numerator = planeNormal.dot(guiPosition.sub(rayOrigin, new Vector3f()));
+        float t = numerator / denom;
+        if (t <= 0) {
+            return new Vector3f(-1, -1, -1);
+        }
+
+        // 4) Compute hit point on plane
+        Vector3f hitPoint = rayOrigin.add(rayDirection.mul(t, new Vector3f()), new Vector3f());
+
+        // 5) Convert to local GUI coords (0..1)
+        Vector3f local = hitPoint.sub(
+                guiPosition.sub(planeRight.mul(0.5f, new Vector3f()), new Vector3f())
+                        .sub(planeUp.mul(0.5f, new Vector3f()))
+        );
+
+        float rawU = local.dot(planeRight);
+        float rawV = local.dot(planeUp);
+
+        // 6) Normalize by GUI size (1.5 units?) and scale/aspect
+        float aspect = ClientContext.guiManager.getScaledAspectRatio();
+        float u = (rawU - 0.5f) / (1.5f * effectiveScale) + 0.5f;
+        float v = 1f - ((rawV - 0.5f) / (1.5f * effectiveScale * aspect) + 0.5f);
+
+        return new Vector3f(u, v, t / worldScale);
     }
 
 
 
-    private record CursorResult(Vec3 cursorPos, VROverlay collidedOverlay) {
+
+    private record CursorResult(Vector3fc cursorPos, VROverlay collidedOverlay) {
     }
 
     private static class CursorState {
         private VROverlay focusedOverlay;
-        private Vec3 cursorPos = new Vec3(-1, -1, -1);
+        private Vector3fc cursorPos = new Vector3f(-1, -1, -1);
 
-        void update(@NotNull Vec3 newCursorPos, @Nullable VROverlay newFocusedOverlay) {
+        void update(@NotNull Vector3fc newCursorPos, @Nullable VROverlay newFocusedOverlay) {
             this.cursorPos = newCursorPos;
             this.focusedOverlay = newFocusedOverlay;
         }
@@ -398,7 +315,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         }
 
         double getCursorLength() {
-            return isFocused() ? cursorPos.z : -1;
+            return isFocused() ? cursorPos.z() : -1;
         }
     }
 }

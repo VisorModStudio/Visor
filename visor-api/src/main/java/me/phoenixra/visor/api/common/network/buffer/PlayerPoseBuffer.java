@@ -7,8 +7,8 @@ import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 
 public record PlayerPoseBuffer(DevicePoseBuffer hmd,
@@ -46,12 +46,13 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
     }
 
     private static DevicePoseBuffer getHmdPose(VRClientPlayer clientPlayer) {
+
         PoseData postTickPose = clientPlayer
                 .getPose(PoseType.POST_TICK);
-        Vec3 position = postTickPose
+        Vector3f position = postTickPose
                 .getHmd().getPosition()
-                .subtract(Minecraft.getInstance().player.position());
-        Quaternionf orientation = postTickPose.getHmd().getRotationMatrix()
+                .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
+        Quaternionf orientation = postTickPose.getHmd().getRotation()
                 .getNormalizedRotation(new Quaternionf());
 
         return new DevicePoseBuffer(position, orientation);
@@ -62,12 +63,12 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
     ) {
         PoseData postTickPose = clientPlayer
             .getPose(PoseType.POST_TICK);
-        Vec3 position = postTickPose
+        Vector3f position = postTickPose
                 .getController(controller).getPosition()
-                .subtract(Minecraft.getInstance().player.position());
+                .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
         Quaternionf orientation = postTickPose
                 .getController(controller)
-                .getRotationMatrix().getNormalizedRotation(new Quaternionf());
+                .getRotation().getNormalizedRotation(new Quaternionf());
 
         return new DevicePoseBuffer(position, orientation);
     }

@@ -299,15 +299,15 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Override
     public void applyModelView(float partialTick) {
-        Vec3 devicePose = RenderPoseHelper.getCameraPosition(
+        var camPos = RenderPoseHelper.getCameraPosition(
                 VRDisplay.GUI,
                 ClientContext.player.getPose(PoseType.RENDER)
         );
 
-        setPosition(new Vec3(
-                devicePose.x + orientPosOffsetRender.x,
-                devicePose.y + orientPosOffsetRender.y,
-                devicePose.z + orientPosOffsetRender.z
+        setPosition(new Vector3f(
+                camPos.x() + orientPosOffsetRender.x,
+                camPos.y() + orientPosOffsetRender.y,
+                camPos.z() + orientPosOffsetRender.z
         ));
     }
 
@@ -333,9 +333,10 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                 )
         );
 
-        orientPosOffsetRender = getPosition().subtract(
-                renderPose.getHmd().getPosition()
-        ).toVector3f();
+        orientPosOffsetRender = getPosition().sub(
+                renderPose.getHmd().getPosition(),
+                new Vector3f()
+        );
         disabledBoxes.clear();
     }
 

@@ -15,10 +15,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.EnumMap;
 
@@ -50,15 +50,15 @@ public class TaskRoomConsume extends VisorTask {
     protected void onRun(LocalPlayer player) {
         PoseDataImpl roomPose = ClientContext.player
                 .getPose(PoseType.ROOM);
-        Vec3 hmdPos = roomPose.getHmd().getPosition();
-        Vec3 mouthPos = roomPose
+        Vector3fc hmdPos = roomPose.getHmd().getPosition();
+        Vector3fc mouthPos = roomPose
                 .getController(ControllerHand.MAIN)
                 .getCustomVector(new Vector3f(0, 0, 0))
                 .add(hmdPos);
 
         for (ControllerHand hand : ControllerHand.values()) {
-            Vec3 handPos = calculateHandPosition(roomPose, hand);
-            if (mouthPos.distanceTo(handPos) >= MOUTH_DISTANCE) {
+            Vector3fc handPos = calculateHandPosition(roomPose, hand);
+            if (mouthPos.distance(handPos) >= MOUTH_DISTANCE) {
                 consuming.put(hand, false);
                 continue;
             }
@@ -149,17 +149,17 @@ public class TaskRoomConsume extends VisorTask {
         return ID;
     }
 
-    private Vec3 calculateHandPosition(PoseDataImpl roomPose,
+    private Vector3fc calculateHandPosition(PoseDataImpl roomPose,
                                        ControllerHand hand) {
-        Vec3 basePos = ClientContext.rawPoseHandler.getControllerData(hand)
+        Vector3fc basePos = ClientContext.rawPoseHandler.getControllerData(hand)
                 .getPositionHistory()
-                .averagePosition(0.333);
-        Vec3 customOffset = roomPose.getController(hand)
+                .averagePosition(0.333f);
+        Vector3fc customOffset = roomPose.getController(hand)
                 .getCustomVector(new Vector3f(0.0f, 0.0f, -0.1f));
-        Vec3 directionOffset = roomPose.getController(hand)
+        Vector3fc directionOffset = roomPose.getController(hand)
                 .getDirection()
-                .scale(0.1D);
-        return basePos.add(customOffset).add(directionOffset);
+                .mul(0.1f, new Vector3f());
+        return basePos.add(customOffset, new Vector3f()).add(directionOffset);
     }
 
     private boolean isConsumable(ItemStack item) {

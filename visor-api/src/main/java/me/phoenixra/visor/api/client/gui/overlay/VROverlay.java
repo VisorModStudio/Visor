@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.Collection;
 
@@ -58,7 +60,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      * @return the mc 3d vector
      */
     @NotNull
-    Vec3 getPosition();
+    Vector3fc getPosition();
 
     /**
      * Get overlay rotation
@@ -189,7 +191,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      *
      * @param value the mc 3d vector
      */
-    void setPosition(@NotNull Vec3 value);
+    void setPosition(@NotNull Vector3fc value);
 
     /**
      * Set overlay rotation relative to VR room

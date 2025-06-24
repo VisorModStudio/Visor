@@ -74,7 +74,7 @@ public class VROverlayHelper {
 
     public static void anchorOverlayPositionTo(@NotNull VROverlay overlay,
                                                @NotNull PoseData renderPose,
-                                               @NotNull Vec3 objPosition,
+                                               @NotNull Vector3fc objPosition,
                                                @NotNull Matrix4fc objRotation,
                                                @NotNull Vector3fc offset){
         float worldScale = renderPose.getWorldScale();
@@ -107,11 +107,12 @@ public class VROverlayHelper {
                                                     @NotNull Vec3 objPosition,
                                                     @NotNull Vector3fc offset){
 
-        Vec3 overlayPosition = overlay.getPosition();
+        var overlayPosition = overlay.getPosition();
+
         Vector3f directionToTarget = new Vector3f(
-                (float) (overlayPosition.x - objPosition.x),
-                (float) (overlayPosition.y - objPosition.y),
-                (float) (overlayPosition.z - objPosition.z)
+                (float) (overlayPosition.x() - objPosition.x),
+                (float) (overlayPosition.y() - objPosition.y),
+                (float) (overlayPosition.z() - objPosition.z)
         );
         float rotationX = (float) Math.asin(
                 directionToTarget.y() / directionToTarget.length()
@@ -130,9 +131,9 @@ public class VROverlayHelper {
         overlay.setRotation(rotation);
     }
 
-    private static @NotNull Vec3 getCustomVector(@NotNull Vector3fc vec,
-                                                 @NotNull Matrix4fc rotationMatrix) {
-        Vector3f transform = rotationMatrix
+    private static @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec,
+                                                     @NotNull Matrix4fc rotationMatrix) {
+        return rotationMatrix
                 .transformDirection(
                         new Vector3f(
                                 vec.x(),
@@ -140,7 +141,6 @@ public class VROverlayHelper {
                                 vec.z()
                         )
                 );
-        return VRMathUtils.convertToMcVector(transform);
     }
 
 }

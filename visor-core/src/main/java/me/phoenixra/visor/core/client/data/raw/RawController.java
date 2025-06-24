@@ -3,8 +3,7 @@ package me.phoenixra.visor.core.client.data.raw;
 import lombok.Data;
 import me.phoenixra.visor.api.client.data.ControllerHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.api.common.utils.Vec3History;
-import net.minecraft.world.phys.Vec3;
+import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -20,9 +19,9 @@ public class RawController implements ControllerHistory {
     private Matrix4f gripPose = new Matrix4f();
     private Matrix4f gripRotation = new Matrix4f();
 
-    private Vec3History positionHistory = new Vec3History(301);
-    private Vec3History forwardHistory = new Vec3History(301);
-    private Vec3History upHistory = new Vec3History(301);
+    private Vector3fHistory positionHistory = new Vector3fHistory(301);
+    private Vector3fHistory forwardHistory = new Vector3fHistory(301);
+    private Vector3fHistory upHistory = new Vector3fHistory(301);
 
 
 
@@ -61,32 +60,24 @@ public class RawController implements ControllerHistory {
         return gripRotation;
     }
 
-    public Vec3 getAimVector() {
-        return VRMathUtils.convertToMcVector(
-                aimRotation.transformDirection(
-                        VRMathUtils.forwardVector, new Vector3f()
-                )
+    public Vector3f getAimVector() {
+        return  aimRotation.transformDirection(
+                VRMathUtils.forwardVector, new Vector3f()
         );
     }
 
-    public Vec3 getGripVector() {
-        return VRMathUtils.convertToMcVector(
-                gripRotation.transformDirection(
-                        VRMathUtils.forwardVector, new Vector3f()
-                )
+    public Vector3f getGripVector() {
+        return gripRotation.transformDirection(
+                VRMathUtils.forwardVector, new Vector3f()
         );
     }
 
 
 
-    public Vec3 getAimPosition(){
-        return VRMathUtils.convertToMcVector(
-                aimPose.getTranslation(new Vector3f())
-        );
+    public Vector3f getAimPosition(){
+        return aimPose.getTranslation(new Vector3f());
     }
-    public Vec3 getGripPosition(){
-        return VRMathUtils.convertToMcVector(
-                gripPose.getTranslation(new Vector3f())
-        );
+    public Vector3f getGripPosition(){
+        return gripPose.getTranslation(new Vector3f());
     }
 }

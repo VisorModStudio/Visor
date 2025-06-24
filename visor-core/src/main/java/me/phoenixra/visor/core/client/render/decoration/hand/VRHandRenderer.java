@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -110,7 +111,7 @@ public class VRHandRenderer {
         VRDecorator decorator = ClientContext.decorationRenderer.getCurrentDecorator();
 
         if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
-            boolean isGuiHand = isGui || ClientContext.cursorHandler.isMainHandFocused();
+            boolean isGuiHand = isGui || ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN);
 
             renderHand(
                     ControllerHand.MAIN,
@@ -123,7 +124,7 @@ public class VRHandRenderer {
             );
         }
         if (renderOffhand && isControllerTracking(ControllerHand.OFFHAND)) {
-            boolean isGuiHand = isGui || ClientContext.cursorHandler.isOffhandFocused();
+            boolean isGuiHand = isGui || ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND);
 
             renderHand(
                     ControllerHand.OFFHAND,
@@ -211,9 +212,11 @@ public class VRHandRenderer {
         if (MC.level != null) {
             float light = (float) MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
-                            ClientContext.player
-                                    .getPose(PoseType.RENDER)
-                                    .getHmd().getPosition()
+                            new Vec3(
+                                    (Vector3f) ClientContext.player
+                                                    .getPose(PoseType.RENDER)
+                                                    .getHmd().getPosition()
+                            )
                     )
             );
 

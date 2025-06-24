@@ -9,6 +9,7 @@ import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseType;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -23,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -35,7 +38,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private final PoseDataImpl renderPose;
 
     @Getter
-    private Vec3 origin = new Vec3(0.0D, 0.0D, 0.0D);
+    private Vector3fc origin = new Vector3f(0.0f, 0.0f, 0.0f);
     @Getter
     private float worldScale = 1.0f;
     @Getter
@@ -49,11 +52,11 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private Input inputMovement = new Input();
 
     public VRClientPlayerImpl() {
-        this.roomPose = new PoseDataImpl(PoseType.ROOM, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomPose = new PoseDataImpl(PoseType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new PoseDataImpl(PoseType.PRE_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new PoseDataImpl(PoseType.POST_TICK, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new PoseDataImpl(PoseType.RENDER, new Vec3(0.0D, 0.0D, 0.0D), VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.preTickPose = new PoseDataImpl(PoseType.PRE_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.postTickPose = new PoseDataImpl(PoseType.POST_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new PoseDataImpl(PoseType.RENDER, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
 
@@ -95,7 +98,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     public void postTick() {
 
-        Vec3 hmdPosWorldScaleOld = PoseDataHelper
+        var hmdPosWorldScaleOld = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -103,7 +106,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                         preTickPose.getRotationY()
                 ).getPosition();
 
-        Vec3 hmdPosWorldScaleNow = PoseDataHelper
+        var hmdPosWorldScaleNow = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -111,10 +114,10 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                         preTickPose.getRotationY()
                 ).getPosition();
 
-        Vec3 hmdWorldScaleDiff = hmdPosWorldScaleNow.subtract(hmdPosWorldScaleOld);
-        this.origin = this.origin.subtract(hmdWorldScaleDiff);
+        Vector3f hmdWorldScaleDiff = hmdPosWorldScaleNow.sub(hmdPosWorldScaleOld, new Vector3f());
+        this.origin = this.origin.sub(hmdWorldScaleDiff, new Vector3f());
 
-        Vec3 headPivot = PoseDataHelper.getHeadPivot(
+        Vector3f headPivot = PoseDataHelper.getHeadPivot(
                 origin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
@@ -144,7 +147,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     public void preRender(float partialTicks) {
 
         this.roomPose.update(
-                new Vec3(0.0, 0.0, 0.0),
+                new Vector3f(0.0f, 0.0f, 0.0f),
                 VRClientSettings.getWalkMultiplier(),
                 1.0f, 0.0f
         );
@@ -165,18 +168,18 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 * partialTicks + rotationPre * (1.0f - partialTicks);
 
         //Interpolated Origin
-        Vec3 preTickOrigin = this.preTickPose.getOrigin();
-        Vec3 postTickOrigin = this.postTickPose.getOrigin();
+        var preTickOrigin = this.preTickPose.getOrigin();
+        var postTickOrigin = this.postTickPose.getOrigin();
 
-        Vec3 renderOrigin = new Vec3(
-                preTickOrigin.x
-                        + (postTickOrigin.x - preTickOrigin.x)
+        Vector3fc renderOrigin = new Vector3f(
+                preTickOrigin.x()
+                        + (postTickOrigin.x() - preTickOrigin.x())
                         * partialTicks,
-                preTickOrigin.y
-                        + (postTickOrigin.y - preTickOrigin.y)
+                preTickOrigin.y()
+                        + (postTickOrigin.y() - preTickOrigin.y())
                         * partialTicks,
-                preTickOrigin.z
-                        + (postTickOrigin.z - preTickOrigin.z)
+                preTickOrigin.z()
+                        + (postTickOrigin.z() - preTickOrigin.z())
                         * partialTicks
         );
 
@@ -194,8 +197,6 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         );
 
 
-
-        //PROCESS RENDER_TICKED TRACKERS
 
     }
 
@@ -271,19 +272,20 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                                boolean reset) {
 
 
-        Vec3 headPivot = this.preTickPose.getHeadPivot();
+        var headPivot = this.preTickPose.getHeadPivot();
 
-        Vec3 headOffset = headPivot.subtract(
-                this.preTickPose.getOrigin()
+        var headOffset = headPivot.sub(
+                this.preTickPose.getOrigin(),
+                new Vector3f()
         );
-        double x = player.getX() - headOffset.x;
-        double z = player.getZ() - headOffset.z;
-        double y = player.getY()/* + roomYOffset*/;
+        float x = (float) (player.getX() - headOffset.x);
+        float z = (float) (player.getZ() - headOffset.z);
+        float y = (float) (player.getY() + ((LocalPlayerModified) player).visor$getRoomYOffset());
         this.setOrigin(x, y, z, reset);
 
     }
 
-    public void rotateOriginAround(Vec3 anchor, float radians) {
+    public void rotateOriginAround(Vector3fc anchor, float radians) {
 
         if(radians ==0f){
             return;
@@ -292,27 +294,27 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         float radCos = Mth.cos(radians);
         this.setOrigin(
                 radCos
-                        * (origin.x - anchor.x)
+                        * (origin.x() - anchor.x())
                         - radSin
-                        * (origin.z - anchor.z)
-                        + anchor.x, origin.y,
+                        * (origin.z() - anchor.z())
+                        + anchor.x(), origin.y(),
                 radSin
-                        * (origin.x - anchor.x)
+                        * (origin.x() - anchor.x())
                         + radCos
-                        * (origin.z - anchor.z)
-                        + anchor.z,
+                        * (origin.z() - anchor.z())
+                        + anchor.z(),
                 false
         );
     }
 
 
-    public void setOrigin(double x, double y, double z,
+    public void setOrigin(float x, float y, float z,
                           boolean reset) {
         if (reset && this.preTickPose != null) {
-            this.preTickPose.resetOrigin(new Vec3(x, y, z));
+            this.preTickPose.resetOrigin(new Vector3f(x, y, z));
         }
 
-        this.origin = new Vec3(x, y, z);
+        this.origin = new Vector3f(x, y, z);
     }
 
 

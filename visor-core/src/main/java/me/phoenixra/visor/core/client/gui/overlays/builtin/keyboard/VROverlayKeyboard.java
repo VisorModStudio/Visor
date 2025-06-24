@@ -47,7 +47,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     @Override
     public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
-        if(ClientContext.cursorHandler.getFocusedOverlayAsScreen() != this){
+        if(ClientContext.cursorHandler.getFocusedOverlayScreen() != this){
             getScreen().clearPress();
         }
         super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);

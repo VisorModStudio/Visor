@@ -7,8 +7,8 @@ import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.gui.GuiManager;
-import me.phoenixra.visor.api.client.gui.OverlayManager;
+import me.phoenixra.visor.api.client.gui.VRGuiManager;
+import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.RegisterOverlayType;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -51,7 +52,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private RenderTarget renderTarget;
 
     @Getter @Setter
-    private Vec3 position = new Vec3(0.0D, 0.0D, 0.0D);
+    private Vector3fc position = new Vector3f(0f, 0f, 0f);
     @Setter
     private Matrix4f rotation = new Matrix4f();
 
@@ -260,7 +261,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             mouseMoved(cursorData.mouseX, cursorData.mouseY);
             return;
         }
-        GuiManager guiManager = VisorAPI.client().getGuiManager();
+        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
         float cursorInGuiX;
         float cursorInGuiY;
         if (rawX >= 0.0F && rawY >= 0.0F
@@ -346,7 +347,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public void setEnabled(boolean flag) {
         if(flag == enabled) return;
-        GuiManager guiManager = VisorAPI.client().getGuiManager();
+        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
 
         if (flag) {
             enabled = true;
@@ -359,7 +360,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         } else {
             enabled = false;
             initializedModelView = false;
-            OverlayManager overlayHandler = VisorAPI.client()
+            VROverlayManager overlayHandler = VisorAPI.client()
                     .getGuiManager()
                     .getOverlayManager();
             if(overlayHandler.getKeyboardAttachedTo() == this){

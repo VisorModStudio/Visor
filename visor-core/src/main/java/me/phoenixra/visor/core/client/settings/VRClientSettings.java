@@ -195,8 +195,8 @@ public class VRClientSettings {
     public static void calibrateHeight() {
 
         VRClientSettings.setPlayerHeight(
-                (float) ClientContext.rawPoseHandler.getHmdData()
-                        .getPivotHistory().averagePosition(0.5D).y
+                ClientContext.rawPoseHandler.getHmdData()
+                        .getPivotHistory().averagePosition(0.5f).y
         );
         int i = (int) (Math.round(100.0D
                 * VRClientSettings.getPlayerHeight()

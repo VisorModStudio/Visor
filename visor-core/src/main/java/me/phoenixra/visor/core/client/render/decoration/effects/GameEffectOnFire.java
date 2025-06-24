@@ -45,7 +45,7 @@ public class GameEffectOnFire extends VRGameEffect {
                        float partialTicks) {
         // --- Prepare variables ---
         PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
-        float fireHeight = (float)(renderPose.getHeadPivot().y
+        float fireHeight = (float)(renderPose.getHeadPivot().y()
                 - ((GameRendererModified)MC.gameRenderer)
                 .visor$getCameraEntityCache()
                 .getY());

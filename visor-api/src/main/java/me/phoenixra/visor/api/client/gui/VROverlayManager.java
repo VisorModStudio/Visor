@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
  * This class handles VR Overlays rendering
  * and behaviour.
  */
-public interface OverlayManager {
+public interface VROverlayManager {
 
     /**
      * Get overlay with specified id

@@ -1,16 +1,16 @@
 package me.phoenixra.visor.api.client.data;
 
 import me.phoenixra.visor.api.common.utils.QuaternionFloatHistory;
-import me.phoenixra.visor.api.common.utils.Vec3History;
+import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 
 public interface HmdHistory {
 
 
     @NotNull
-    Vec3History getPositionHistory();
+    Vector3fHistory getPositionHistory();
     @NotNull
-    Vec3History getPivotHistory();
+    Vector3fHistory getPivotHistory();
     @NotNull
     QuaternionFloatHistory getRotationHistory();
 }

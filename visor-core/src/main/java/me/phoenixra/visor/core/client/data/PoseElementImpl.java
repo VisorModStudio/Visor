@@ -4,18 +4,18 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 @Getter
 public class PoseElementImpl implements PoseElement {
 
-    private Vec3 position;
+    private Vector3fc position;
 
-    private Vec3 direction;
+    private Vector3fc direction;
 
     private Matrix4f rotationMatrix;
 
@@ -23,22 +23,22 @@ public class PoseElementImpl implements PoseElement {
 
 
 
-    private Vec3 originCached;
+    private Vector3fc originCached;
 
 
     public PoseElementImpl() {
-        position = new Vec3(0,0,0);
-        direction = new Vec3(0,0,0);
+        position = new Vector3f(0,0,0);
+        direction = new Vector3f(0,0,0);
         rotationMatrix = new Matrix4f();
 
-        originCached = new Vec3(0,0,0);
+        originCached = new Vector3f(0,0,0);
     }
 
-    public PoseElementImpl(Vec3 origin,
+    public PoseElementImpl(Vector3fc origin,
                            float rotationY,
                            float worldScale,
                            Matrix4fc rotationMatrix,
-                           Vec3 position, Vec3 direction
+                           Vector3fc position, Vector3fc direction
     ) {
         update(
                 origin,
@@ -51,15 +51,15 @@ public class PoseElementImpl implements PoseElement {
     }
 
 
-    public @NotNull Matrix4fc getRotationMatrix() {
+    public @NotNull Matrix4fc getRotation() {
         return rotationMatrix;
     }
 
-    protected void update(Vec3 origin,
+    protected void update(Vector3fc origin,
                           float rotationY,
                           float worldScale,
                           Matrix4fc rotationMatrix,
-                          Vec3 position, Vec3 direction){
+                          Vector3fc position, Vector3fc direction){
         this.originCached = origin;
 
         this.rotationMatrix = new Matrix4f().rotationY(rotationY).mul(
@@ -69,17 +69,19 @@ public class PoseElementImpl implements PoseElement {
 
 
         this.position = position
-                .scale(worldScale)
-                .yRot(rotationY)
-                .add(origin.x, origin.y, origin.z);
+                .mul(worldScale, new Vector3f())
+                .rotateY(rotationY)
+                .add(origin);
 
-        this.direction = direction.yRot(rotationY);
+
+        this.direction = direction.rotateY(rotationY, new Vector3f());
+
 
         this.yaw =  (float) Math.toDegrees(
-                Mth.atan2(-this.direction.x, this.direction.z)
+                Mth.atan2(-this.direction.x(), this.direction.z())
         );
         this.pitch = (float) Math.toDegrees(
-                Math.asin(this.direction.y / this.direction.length())
+                Math.asin(this.direction.y() / this.direction.length())
         );
         this.roll = (float) (
                 -Math.toDegrees(Mth.atan2(this.rotationMatrix.m10(),
@@ -91,39 +93,32 @@ public class PoseElementImpl implements PoseElement {
 
 
 
-    protected void onOriginChanged(Vec3 origin){
+    protected void onOriginChanged(Vector3fc origin){
         this.position = this.position
                 .add(
-                        origin.x - originCached.x,
-                        origin.y - originCached.y,
-                        origin.z - originCached.z
+                        origin.x() - originCached.x(),
+                        origin.y() - originCached.y(),
+                        origin.z() - originCached.z(),
+                        new Vector3f()
                 );
     }
 
-
     @Override
-    public @NotNull Vec3 getCustomVector(@NotNull Vector3f vec) {
-        Vector3f transform = this.rotationMatrix
+    public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {
+        return this.rotationMatrix
                 .transformDirection(
-                        new Vector3f(
-                                vec.x,
-                                vec.y,
-                                vec.z
-                        )
+                        vec.x(), vec.y(), vec.z(),
+                        new Vector3f()
                 );
-        return VRMathUtils.convertToMcVector(transform);
     }
 
     @Override
-    public @NotNull Vector3f reverseCustomVector(@NotNull Vec3 customVec) {
+    public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc vec) {
 
         return this.rotationMatrix.invert(new Matrix4f())
                 .transformDirection(
-                        new Vector3f(
-                                (float) customVec.x,
-                                (float) customVec.y,
-                                (float) customVec.z
-                        )
+                        vec.x(), vec.y(), vec.z(),
+                        new Vector3f()
                 );
     }
 

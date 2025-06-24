@@ -1,11 +1,12 @@
 package me.phoenixra.visor.api.common.network.buffer;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
-public record DevicePoseBuffer(Vec3 position,
+public record DevicePoseBuffer(Vector3fc position,
                                Quaternionfc orientation) implements BufferSerializable {
 
     @Override
@@ -15,15 +16,15 @@ public record DevicePoseBuffer(Vec3 position,
     }
     public static DevicePoseBuffer deserialize(FriendlyByteBuf byteBuf) {
         return new DevicePoseBuffer(
-                deserializeFVec3(byteBuf),
+                deserializeVec(byteBuf),
                 deserializeVRQuaternion(byteBuf)
         );
     }
 
-    public static void serializeVec(FriendlyByteBuf buffer, Vec3 vec3) {
-        buffer.writeFloat((float) vec3.x);
-        buffer.writeFloat((float) vec3.y);
-        buffer.writeFloat((float) vec3.z);
+    public static void serializeVec(FriendlyByteBuf buffer, Vector3fc vec3) {
+        buffer.writeFloat(vec3.x());
+        buffer.writeFloat(vec3.y());
+        buffer.writeFloat(vec3.z());
     }
 
     public static void serializeQuat(FriendlyByteBuf buffer, Quaternionfc quat) {
@@ -34,8 +35,8 @@ public record DevicePoseBuffer(Vec3 position,
     }
 
 
-    public static Vec3 deserializeFVec3(FriendlyByteBuf buffer) {
-        return new Vec3(
+    public static Vector3f deserializeVec(FriendlyByteBuf buffer) {
+        return new Vector3f(
                 buffer.readFloat(),
                 buffer.readFloat(),
                 buffer.readFloat()

@@ -20,6 +20,8 @@ import net.minecraft.world.phys.Vec3;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -35,23 +37,25 @@ public class RenderGuiHelper {
         if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
             return true;
         }
-        Vec3 pos = ClientContext.player
-                .getPose(PoseType.RENDER)
-                .getElementForDisplay(VRRenderState.getCurrentVRDisplay())
-                .getPosition();
 
         return !VRRenderState.isInMainMenu()
                 && MC.screen == null
                 && !ClientContext.overlayManager.isShowingKeyboard()
                 && !ClientContext.overlayManager.isEnabledAtLeastOne()
-                && !RenderHelper.isInSolidBlock(pos);
+                &&
+                !RenderHelper.isInSolidBlock(
+                        ClientContext.player
+                                .getPose(PoseType.RENDER)
+                                .getElementForDisplay(VRRenderState.getCurrentVRDisplay())
+                                .getPosition()
+                );
     }
 
 
 
     public static void renderOverlayQuad(RenderTarget renderTarget,
                                          PoseStack poseStack,
-                                         Vec3 position,
+                                         Vector3fc position,
                                          Matrix4fc orientation,
                                          boolean depthAlways,
                                          float scale
@@ -60,7 +64,7 @@ public class RenderGuiHelper {
         PoseData renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
 
-        Vec3 eye = RenderPoseHelper.getCameraPosition(
+        var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
                 renderPose
         );
@@ -113,7 +117,7 @@ public class RenderGuiHelper {
 
         // --- Setup Pose ---
         poseStack.pushPose();
-        poseStack.translate((float) (position.x - eye.x), (float) (position.y - eye.y), (float) (position.z - eye.z));
+        poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
         poseStack.mulPoseMatrix((Matrix4f) orientation);
         poseStack.scale(scale, scale, scale);
 
@@ -126,7 +130,7 @@ public class RenderGuiHelper {
             }
 
             int minLight = ShadersHelper.shaderLight();
-            int light = ClientUtils.getCombinedLightWithMin(MC.level, BlockPos.containing(position), minLight);
+            int light = ClientUtils.getCombinedLightWithMin(MC.level, BlockPos.containing(new Vec3((Vector3f) position)), minLight);
             RenderHelper.renderDisplayQuadWithLight(
                     poseStack.last().pose(),
                     color,

@@ -221,7 +221,7 @@ public class VROverlaySettings extends VROverlayScreen {
     public void applyModelView(float partialTick) {
         if(movingPosition){
             ModelViewAnchor anchor = ClientContext.cursorHandler
-                    .getActiveCursorHand() == ControllerHand.MAIN ?
+                    .getCursorHand() == ControllerHand.MAIN ?
                     ModelViewAnchor.MAIN_HAND : ModelViewAnchor.OFFHAND;
             VROverlayHelper.applyModelView(
                     this,

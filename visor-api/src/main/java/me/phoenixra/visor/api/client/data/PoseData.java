@@ -2,10 +2,11 @@ package me.phoenixra.visor.api.client.data;
 
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 public interface PoseData {
     PoseType getType();
@@ -65,7 +66,7 @@ public interface PoseData {
      * @return origin of player
      */
     @NotNull
-    Vec3 getOrigin();
+    Vector3fc getOrigin();
 
     /**
      *
@@ -84,7 +85,7 @@ public interface PoseData {
      * @return player head pivot
      */
     @NotNull
-    Vec3 getHeadPivot();
+    Vector3fc getHeadPivot();
 
     /**
      *
@@ -101,8 +102,8 @@ public interface PoseData {
      * @param position the position vector in the coordinate system of the specified origin stage
      * @return the converted position vector
      */
-    @NotNull Vec3 convertPosition(@NotNull PoseType originStage,
-                                  @NotNull Vec3 position);
+    @NotNull Vector3f convertPosition(@NotNull PoseType originStage,
+                                        @NotNull Vector3fc position);
 
     /**
      * Converts a rotation matrix from the coordinate system defined by the specified origin stage
@@ -115,6 +116,7 @@ public interface PoseData {
      */
     @NotNull Matrix4f convertRotation(@NotNull PoseType originStage,
                                       @NotNull Matrix4f rotationMatrix);
+
     /**
      *
      * @return controller component

@@ -6,13 +6,11 @@ import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -88,11 +86,11 @@ public class ActionScrollMouse extends VisorActionVec2 {
                                            @NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
         boolean mainHand;
 
-        if(!ClientContext.cursorHandler.isActiveHandFocused()
+        if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
             mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
         }else {
-            var cursorHand = ClientContext.cursorHandler.getActiveCursorHand();
+            var cursorHand = ClientContext.cursorHandler.getCursorHand();
             mainHand = cursorHand == ControllerHand.MAIN;
         }
 

@@ -21,6 +21,8 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -48,14 +50,14 @@ public class TaskRoomVehicle extends VisorTask {
         if (MC.isPaused()) return;
 
         if (canAutoDismount(player)) {
-            Vec3 mountPos = player.getVehicle().position();
-            Vec3 headPivot = ClientContext.player
+            Vector3fc mountPos = player.getVehicle().position().toVector3f();
+            Vector3fc headPivot = ClientContext.player
                     .getPose(PoseType.PRE_TICK).getHeadPivot();
             double distance = Math.sqrt(
-                    (headPivot.x - mountPos.x)
-                            * (headPivot.x - mountPos.x)
-                            + (headPivot.z - mountPos.z)
-                            * (headPivot.z - mountPos.z)
+                    (headPivot.x() - mountPos.x())
+                            * (headPivot.x() - mountPos.x())
+                            + (headPivot.z() - mountPos.z())
+                            * (headPivot.z() - mountPos.z())
             );
 
             if (distance > 0.7D
@@ -153,11 +155,11 @@ public class TaskRoomVehicle extends VisorTask {
         PoseDataImpl preTickPose = vrClientPlayer
                 .getPose(PoseType.PRE_TICK);
 
-        final Vec3 headPivot = vrClientPlayer
+        final Vector3fc headPivot = vrClientPlayer
                 .getPose(PoseType.ROOM)
                 .getHeadPivot();
         // Record the player's room position (ignoring vertical component)
-        this.premountPosRoom = new Vec3(headPivot.x, 0.0D, headPivot.z);
+        this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
         this.dismountDelay = 5;
 
         final float hmdYaw = preTickPose.getHmd().getYaw();
@@ -235,7 +237,7 @@ public class TaskRoomVehicle extends VisorTask {
      * @param player the local player.
      * @return the direction vector, or null if not applicable.
      */
-    public static Vec3 getVehicleLookDirection(LocalPlayer player) {
+    public static Vector3fc getVehicleLookDirection(LocalPlayer player) {
         final Entity entity = player.getVehicle();
         if (entity instanceof AbstractHorse || entity instanceof Boat) {
             if (player.zza <= 0) return null;
@@ -251,7 +253,7 @@ public class TaskRoomVehicle extends VisorTask {
             final PoseElement handPose = ClientContext.player
                     .getPose(PoseType.PRE_TICK)
                     .getController(handWithFood);
-            return handPose.getDirection().normalize();
+            return handPose.getDirection().normalize(new Vector3f());
         }
         return null;
     }

@@ -422,7 +422,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
         if (VisorState.getState().isActive()) {
             ClientContext.player.setOrigin(
-                    0.0D, 0.0D, 0.0D, true
+                    0.0f, 0.0f, 0.0f, true
             );
         }
     }

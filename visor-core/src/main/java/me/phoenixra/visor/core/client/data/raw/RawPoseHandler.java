@@ -4,8 +4,8 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 
 public abstract class RawPoseHandler {
@@ -36,13 +36,13 @@ public abstract class RawPoseHandler {
     public Matrix4f getSmoothedRotation(ControllerHand controller, float lenSec) {
         RawController controllerData = getControllerData(controller);
 
-        Vec3 averagePosForward = controllerData.getForwardHistory().averagePosition(lenSec);
-        Vec3 averagePosUp = controllerData.getUpHistory().averagePosition(lenSec);
-        Vec3 cross = averagePosForward.cross(averagePosUp);
+        Vector3f averagePosForward = controllerData.getForwardHistory().averagePosition(lenSec);
+        Vector3f averagePosUp = controllerData.getUpHistory().averagePosition(lenSec);
+        Vector3f cross = averagePosForward.cross(averagePosUp);
         return new Matrix4f(
-                (float) cross.x, (float) averagePosForward.x, (float) averagePosUp.x, 0,
-                (float) cross.y, (float) averagePosForward.y, (float) averagePosUp.y, 0,
-                (float) cross.z, (float) averagePosForward.z, (float) averagePosUp.z, 0,
+                cross.x, averagePosForward.x, averagePosUp.x, 0,
+                cross.y, averagePosForward.y, averagePosUp.y, 0,
+                cross.z, averagePosForward.z, averagePosUp.z, 0,
                 0,0,0, 1
         );
     }

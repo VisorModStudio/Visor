@@ -19,6 +19,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -43,7 +45,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
 
     @Getter @Setter
-    private Vec3 position = new Vec3(0.0D, 0.0D, 0.0D);
+    private Vector3fc position = new Vector3f(0f, 0f, 0f);
     @Setter
     private Matrix4f rotation = new Matrix4f();
 

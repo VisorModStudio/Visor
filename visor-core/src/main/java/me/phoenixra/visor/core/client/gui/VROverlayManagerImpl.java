@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.OverlayManager;
+import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.OverlayCatalog;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
@@ -36,7 +36,7 @@ import org.joml.Matrix4f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class OverlayManagerImpl implements OverlayManager {
+public class VROverlayManagerImpl implements VROverlayManager {
 
     @Getter
     private final VROverlayRegistry overlaysRegistry = new VROverlayRegistry();

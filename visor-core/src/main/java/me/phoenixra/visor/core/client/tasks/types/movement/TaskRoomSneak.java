@@ -40,7 +40,7 @@ public class TaskRoomSneak extends VisorTask {
 
         final double playerHeight = VRClientSettings.getPlayerHeight();
         final double latestPivotY = ClientContext.rawPoseHandler.getHmdData()
-                .getPivotHistory().latest().y;
+                .getPivotHistory().latest().y();
         final double sneakThreshold = VRClientSettings.getSneakThreshold();
 
         // Determine if the difference between the configured height and the current head height exceeds the threshold.

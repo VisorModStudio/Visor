@@ -11,7 +11,6 @@ import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import me.phoenixra.visor.core.client.ClientContext;
@@ -70,15 +69,15 @@ public class DecoratorMainMenu extends VRDecorator {
         PoseDataImpl renderPose = ClientContext.player
                 .getPose(PoseType.RENDER);
         poseStack.pushPose();
-        Vec3 eye = RenderPoseHelper.getCameraPosition(
+        var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
                 renderPose
         );
-        Vec3 origin = renderPose.getOrigin();
+        var origin = renderPose.getOrigin();
         poseStack.translate(
-                origin.x - eye.x,
-                origin.y - eye.y,
-                origin.z - eye.z
+                origin.x() - eye.x(),
+                origin.y() - eye.y(),
+                origin.z() - eye.z()
         );
 
         poseStack.mulPose(

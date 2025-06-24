@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
+import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomSneak;
@@ -31,7 +32,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
     @Override
     public void preTick() {
         super.preTick();
-        if(ClientContext.cursorHandler.isOffhandFocused()){
+        if(ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
             onClear();
             return;
         }

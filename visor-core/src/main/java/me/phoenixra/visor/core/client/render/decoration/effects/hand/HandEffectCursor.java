@@ -18,6 +18,7 @@ import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -47,7 +48,7 @@ public class HandEffectCursor extends VRHandEffect {
 
         // --- Prepare variables ---
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
-        float cursorLength = (float) cursorHandler.getCursorLength(hand);
+        float cursorLength = (float) cursorHandler.getCursorLineLength(hand);
         if (cursorLength <= 0) {
             return;
         }
@@ -60,10 +61,12 @@ public class HandEffectCursor extends VRHandEffect {
         if (MC.level != null) {
             float rawLight = MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
-                            ClientContext.player
+                            new Vec3(
+                                    (Vector3f) ClientContext.player
                                     .getPose(PoseType.RENDER)
                                     .getHmd()
                                     .getPosition()
+                            )
                     )
             );
             float minLight = ShadersHelper.shaderLight();
@@ -118,11 +121,11 @@ public class HandEffectCursor extends VRHandEffect {
         if(cursorHandler.isTwoHandedCursor()){
             return true;
         }
-        if(!cursorHandler.isActiveHandFocused()){
+        if(!cursorHandler.isCursorHandFocused()){
             return false;
         }
 
-        return cursorHandler.getActiveCursorHand() == hand;
+        return cursorHandler.getCursorHand() == hand;
     }
 
 
