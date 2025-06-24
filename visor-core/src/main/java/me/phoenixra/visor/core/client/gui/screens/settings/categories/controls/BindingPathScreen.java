@@ -26,21 +26,24 @@ public class BindingPathScreen extends Screen {
     private final VRActionsScreen parent;
     private final XRInteractionProfile profile;
     private final VisorAction action;
-    private final boolean leftHanded;
     private final BindingPath oldPath;
+    private final boolean leftHanded;
+
+
+    private PathList list;
+    private Button confirmButton;
+    private String selectedPath;
+    private Checkbox touchFilter;
+    private Checkbox forceFilter;
 
 
     private List<String> availablePaths;
 
     private Mode mode = Mode.PICK_PATH;
-    private PathList list;
-    private Button confirmButton;
-    private String selectedPath;
+
     private boolean capturing = false;
     private long captureStart = 0L;
 
-    private Checkbox touchFilter;
-    private Checkbox forceFilter;
 
     public BindingPathScreen(VRActionsScreen parent,
                              XRInteractionProfile profile,
@@ -73,12 +76,12 @@ public class BindingPathScreen extends Screen {
         inputHandler.setActionListener(null);
 
         // Layout constants
-        int pad        = 10;
-        int titleY     = 15;
-        int btnH       = 20;
-        int modeBtnY   = titleY + 10;            // 25
-        int halfWidth  = (this.width - pad * 3) / 2;
-        int listTop    = modeBtnY + btnH + pad;  // 55
+        int pad = 10;
+        int titleY = 15;
+        int btnH = 20;
+        int modeBtnY = titleY + 10;            // 25
+        int halfWidth = (this.width - pad * 3) / 2;
+        int listTop = modeBtnY + btnH + pad;  // 55
         int listBottom = this.height - 50;
 
         // ─── Mode-switch buttons ─────────────────────
@@ -146,8 +149,8 @@ public class BindingPathScreen extends Screen {
         }
 
         // ─── Filters ────────────────────────────
-        int radioY     = this.height - 25;
-        int gap        = 20;
+        int radioY = this.height - 25;
+        int gap = 20;
 
         // measure text widths
         Component touchLabel = Component.translatable("visor.actionBinds.touchFilter");
@@ -226,13 +229,12 @@ public class BindingPathScreen extends Screen {
         // Title
         gui.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 
-        // Instruction in CAPTURE_INPUT mode
         if (mode == Mode.CAPTURE_INPUT) {
-            int pad        = 10;
-            int titleY     = 15;
-            int btnH       = 20;
-            int modeBtnY   = titleY + 10;            // 25
-            int listTop    = modeBtnY + btnH + pad;  // 55
+            int pad = 10;
+            int titleY = 15;
+            int btnH = 20;
+            int modeBtnY = titleY + 10;            // 25
+            int listTop = modeBtnY + btnH + pad;  // 55
             int listBottom = this.height - 50;
             int y  = listTop + (listBottom - listTop) / 2 - (btnH / 2) - 40;
             gui.drawCenteredString(
@@ -244,7 +246,7 @@ public class BindingPathScreen extends Screen {
             );
         }
 
-        // “Selected path” text just above footer
+        // “Selected path”
         gui.drawCenteredString(
                 this.font,
                 Component.translatable("visor.actionBinds.selectedPath", selectedPath),

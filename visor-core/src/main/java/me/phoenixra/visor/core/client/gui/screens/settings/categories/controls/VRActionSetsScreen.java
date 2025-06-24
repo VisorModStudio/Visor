@@ -17,7 +17,9 @@ import java.util.List;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRActionSetsScreen extends Screen {
+
     private final Screen previousScreen;
+
     private ActionSetsList list;
 
     public VRActionSetsScreen(Screen previous) {
@@ -52,7 +54,7 @@ public class VRActionSetsScreen extends Screen {
         //Back button
         this.addRenderableWidget(
                 Button.builder(Component.translatable("gui.back"), btn -> {
-                            this.minecraft.setScreen(this.previousScreen);
+                            MC.setScreen(this.previousScreen);
                         })
                         .bounds(this.width / 2 - 100, this.height - 27, 200, 20)
                         .build()
@@ -63,19 +65,22 @@ public class VRActionSetsScreen extends Screen {
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_ESCAPE) {
             ClientContext.settingsHandler.saveOptions();
-            this.minecraft.setScreen(this.previousScreen);
+            MC.setScreen(this.previousScreen);
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override
-    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gui);
-        this.list.renderBackground(gui);
-        this.list.render(gui, mouseX, mouseY, partialTicks);
-        gui.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
-        super.render(gui, mouseX, mouseY, partialTicks);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(guiGraphics);
+
+        this.list.renderBackground(guiGraphics);
+        this.list.render(guiGraphics, mouseX, mouseY, partialTicks);
+
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+
+        super.render(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
 
@@ -107,13 +112,8 @@ public class VRActionSetsScreen extends Screen {
 
     private class ActionSetEntry extends ObjectSelectionList.Entry<ActionSetEntry> {
         private final Button leftButton, rightButton;
-        private final VisorActionSet leftSet;
-        @Nullable
-        private final VisorActionSet rightSet;
 
         public ActionSetEntry(VisorActionSet left, @Nullable VisorActionSet right, int rowWidth) {
-            this.leftSet  = left;
-            this.rightSet = right;
 
             int spacing = 5;
             int buttonWidth = (rowWidth - spacing) / 2;

@@ -25,15 +25,16 @@ import java.util.stream.Collectors;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRActionsScreen extends Screen {
-    // layout constants
-    private static final int MARGIN         = 20;
+
+
+    private static final int MARGIN = 20;
     private static final int BUTTON_HEIGHT = 20;
-    private static final int HEADER_H       = 20;
-    private static final int FOOTER_H       = 45;
-    private static final int ENTRY_H        = 30;
-    private static final int GAP            = 5;
+    private static final int HEADER_H = 20;
+    private static final int FOOTER_H = 45;
+    private static final int ENTRY_H = 30;
+    private static final int GAP  = 5;
     private static final float ACTION_RATIO = 0.30f;
-    private static final float BIND_RATIO   = 0.35f;
+    private static final float BIND_RATIO = 0.35f;
 
     private final Screen previousScreen;
     private final VisorActionSet actionSet;
