@@ -2,15 +2,22 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
+import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayType;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
 import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
+import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
@@ -30,7 +37,8 @@ import java.util.List;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
-public class VROverlaySettings extends VROverlayScreen {
+public class VROverlaySettings extends VROverlayScreen
+        implements VREventListener {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(
             "visor:textures/gui/overlays_settings.png"
     );
@@ -53,39 +61,49 @@ public class VROverlaySettings extends VROverlayScreen {
 
     private boolean addedWidgetSet;
 
-    private boolean movingPosition;
+    private boolean draggingByCursorHand;
 
-    protected VROverlay selectedOverlay;
+    protected OverlayTemplate selectedOverlay;
     private int selectedOverlayIndex = -1;
 
     private DropDownListWidget selectOverlayWidget;
-    private List<VROverlay> selectableOverlays;
+    private List<OverlayTemplate> selectableOverlays;
 
     public VROverlaySettings(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id);
-
-        overlayScale = 0.55f;
-
-
+        super(owner, id, ElementPriority.NORMAL,0.55f);
+        VisorAPI.eventBus().registerListener(owner,this);
     }
 
+    @VREventHandler
+    public void disableWorldHands(AllowClientFeatureVREvent event){
+        if(event.getFeature() == ClientFeature.VR_WORLD_HANDS
+                || event.getFeature() == ClientFeature.AIM_EFFECTS
+                || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
+            if(isVisible()){
+                event.setCanceled(true);
+            }
+        }
+    }
 
     @Override
     protected void init() {
         clearWidgets();
 
         addedWidgetSet = false;
-        movingPosition = false;
-        mouseEdgeX = width / 2 - BACKGROUND_WIDTH / 2;
-        mouseEdgeY = height / 2 - BACKGROUND_HEIGHT / 2;
+        resetDragging();
 
-        mouseEdgeWidth = (width / 2 + BACKGROUND_WIDTH / 2) - mouseEdgeX;
-        mouseEdgeHeight = (height / 2 + BACKGROUND_HEIGHT / 2) - mouseEdgeY;
+        cursorEdgeX = width / 2 - BACKGROUND_WIDTH / 2;
+        cursorEdgeY = height / 2 - BACKGROUND_HEIGHT / 2;
+
+        cursorEdgeWidth = (width / 2 + BACKGROUND_WIDTH / 2) - cursorEdgeX;
+        cursorEdgeHeight = (height / 2 + BACKGROUND_HEIGHT / 2) - cursorEdgeY;
 
         selectableOverlays = ClientContext.overlayManager
-                .getOverlaysRegistry().getSortedElements().stream().filter(
-                        it->!it.getOptionsList().isEmpty()
+                .getOverlaysRegistry().getSortedElements().stream()
+                .map(VROverlay::asOverlayType)
+                .filter(it ->
+                        it != null && !it.getOptions().isEmpty()
                 ).toList();
         this.addRenderableWidget(
                 Button.builder(
@@ -96,8 +114,8 @@ public class VROverlaySettings extends VROverlayScreen {
                                 }
                         )
                         .pos(
-                                mouseEdgeX + mouseEdgeWidth - 20,
-                                mouseEdgeY
+                                cursorEdgeX + cursorEdgeWidth - 20,
+                                cursorEdgeY
                         )
                         .size(20, 20)
                         .build()
@@ -108,12 +126,15 @@ public class VROverlaySettings extends VROverlayScreen {
                                 Component.literal("§a<->"),
                                 (p) ->
                                 {
-                                    movingPosition = true;
+                                    ClientContext.cursorHandler.setForceFocused(
+                                            this
+                                    );
+                                    draggingByCursorHand = true;
                                 }
                         )
                         .pos(
-                                mouseEdgeX,
-                                mouseEdgeY
+                                cursorEdgeX,
+                                cursorEdgeY
                         )
                         .size(20, 20)
                         .build()
@@ -121,11 +142,11 @@ public class VROverlaySettings extends VROverlayScreen {
 
         List<Component> elements = new ArrayList<>();
         elements.add(Component.translatable("visor.button.create_new"));
-        for(VROverlay overlay : selectableOverlays){
-            elements.add(Component.literal(overlay.getDisplayName()));
+        for(var overlay : selectableOverlays){
+            elements.add(overlay.getOverlayName());
         }
         selectOverlayWidget = DropDownListWidget.builder(elements)
-                .pos(mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2), mouseEdgeY + 50)
+                .pos(cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2), cursorEdgeY + 50)
                 .size(95,25)
                 .setMessage(Component.translatable("visor.overlaySettings.main.widget.choose_overlay"))
                 .setStartIndex(selectedOverlayIndex)
@@ -181,11 +202,11 @@ public class VROverlaySettings extends VROverlayScreen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
+    public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
         VROverlayHelper.renderImage(
                 guiGraphics,
                 BACKGROUND,
-                mouseEdgeX, mouseEdgeY,
+                cursorEdgeX, cursorEdgeY,
                 BACKGROUND_WIDTH, BACKGROUND_HEIGHT,
                 BACKGROUND_WIDTH, BACKGROUND_HEIGHT
         );
@@ -200,15 +221,16 @@ public class VROverlaySettings extends VROverlayScreen {
             }
             widgetSet.onRender();
         }
-        super.render(guiGraphics, pMouseX, pMouseY, partialTicks);
+
     }
+
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-
+    protected void onPreTick() {
+        if(!isInViewDistance()){
+            setEnabled(false);
+        }
     }
-
-
 
     @Override
     protected void onTick() {
@@ -218,15 +240,16 @@ public class VROverlaySettings extends VROverlayScreen {
     }
 
     @Override
-    public void applyModelView(float partialTick) {
-        if(movingPosition){
-            ModelViewAnchor anchor = ClientContext.cursorHandler
+    public void updatePose(float partialTicks) {
+        if(draggingByCursorHand){
+            PoseAnchor anchor = ClientContext.cursorHandler
                     .getCursorHand() == ControllerHand.MAIN ?
-                    ModelViewAnchor.MAIN_HAND : ModelViewAnchor.OFFHAND;
-            VROverlayHelper.applyModelView(
+                    PoseAnchor.MAIN_HAND : PoseAnchor.OFFHAND;
+            VROverlayHelper.applyPose(
                     this,
                     anchor,
                     anchor,
+                    getPose().getScale(),
                     true,
                     posMovingOffset,
                     rotationOffset
@@ -242,10 +265,11 @@ public class VROverlaySettings extends VROverlayScreen {
 
     @Override
     public void onEnable() {
-        VROverlayHelper.applyModelView(
+        VROverlayHelper.applyPose(
                 this,
-                ModelViewAnchor.HMD,
-                ModelViewAnchor.HMD,
+                PoseAnchor.HMD,
+                PoseAnchor.HMD,
+                getPose().getScale(),
                 true,
                 posOffset,
                 rotationOffset
@@ -263,14 +287,15 @@ public class VROverlaySettings extends VROverlayScreen {
         selectedOverlayIndex = -1;
         selectedOverlay = null;
         currentState = State.NOT_SELECTED;
-        movingPosition = false;
+        resetDragging();
 
     }
 
     @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
-        if(movingPosition){
-            movingPosition = false;
+        if(draggingByCursorHand){
+            resetDragging();
+
             return true;
         }
         VROverlayDemo demo = (VROverlayDemo) ClientContext.overlayManager
@@ -283,19 +308,25 @@ public class VROverlaySettings extends VROverlayScreen {
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int buttonType) {
-        if(movingPosition){
-            movingPosition = false;
+    public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if(draggingByCursorHand){
+            resetDragging();
             return true;
         }
-        return super.mouseReleased(x, y, buttonType);
+        return super.mouseReleased(mouseX, mouseY, buttonType);
     }
 
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of(
-        );
+
+    private void resetDragging(){
+        if(draggingByCursorHand){
+            if(ClientContext.cursorHandler.getForceFocused() == this) {
+                ClientContext.cursorHandler.setForceFocused(
+                        null
+                );
+            }
+            draggingByCursorHand = false;
+        }
     }
 
     private enum State{
@@ -326,7 +357,7 @@ public class VROverlaySettings extends VROverlayScreen {
 
     private class NewOverlayWidgets extends WidgetSet{
         protected DropDownListWidget overlayTypeWidget;
-        protected List<VROverlayType> selectableOverlayTypes;
+        protected List<OverlayTemplateRecord> selectableOverlayTypes;
 
         protected EditBox overlayIdField;
 
@@ -343,12 +374,12 @@ public class VROverlaySettings extends VROverlayScreen {
                     .getAllElements().stream().toList();
 
             List<Component> elements = new ArrayList<>();
-            for(VROverlayType overlayType : selectableOverlayTypes){
+            for(OverlayTemplateRecord overlayType : selectableOverlayTypes){
                 elements.add(Component.literal(overlayType.id()));
             }
             overlayTypeWidget =  new DropDownListWidget(
-                    mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2),
-                    mouseEdgeY + 80,
+                    cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
+                    cursorEdgeY + 80,
                     95,25,
                     Component.translatable("visor.overlaySettings.main.widget.choose_overlay_type"),
                     elements
@@ -357,8 +388,8 @@ public class VROverlaySettings extends VROverlayScreen {
 
             overlayIdField = new EditBox(
                     MC.font,
-                    mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2),
-                    mouseEdgeY + 110,
+                    cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
+                    cursorEdgeY + 110,
                     95,20,
                     Component.empty()
             );
@@ -401,7 +432,7 @@ public class VROverlaySettings extends VROverlayScreen {
                                     return;
                                 }
 
-                                VROverlayType overlayType = selectableOverlayTypes.get(index);
+                                OverlayTemplateRecord overlayType = selectableOverlayTypes.get(index);
                                 try {
                                     VROverlay overlay = overlayType.constructor().newInstance(
                                             ClientContext.coreAddon,
@@ -421,8 +452,8 @@ public class VROverlaySettings extends VROverlayScreen {
                             }
                     )
                     .pos(
-                            mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2),
-                            mouseEdgeY + 150
+                            cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
+                            cursorEdgeY + 150
                     )
                     .size(95, 20)
                     .build();
@@ -475,8 +506,8 @@ public class VROverlaySettings extends VROverlayScreen {
                             }
                     )
                     .pos(
-                            mouseEdgeX + ((mouseEdgeWidth)/2 + 95/2) + 5,
-                            mouseEdgeY + 50
+                            cursorEdgeX + ((cursorEdgeWidth)/2 + 95/2) + 5,
+                            cursorEdgeY + 50
                     )
                     .size(25, 25)
                     .tooltip(Tooltip.create(Component.translatable("visor.overlaySettings.modelView.remove.tooltip")))
@@ -506,19 +537,19 @@ public class VROverlaySettings extends VROverlayScreen {
                             }
                     )
                     .pos(
-                            mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2),
-                            mouseEdgeY + 120
+                            cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
+                            cursorEdgeY + 120
                     )
                     .size(95, 25)
                     .build();
 
-            selectableOptionCategories = selectedOverlay.getOptionsList().stream().toList();
+            selectableOptionCategories = selectedOverlay.getOptions().stream().toList();
             List<Component> elements = new ArrayList<>();
             for(OverlayOptionCategory optionCategory : selectableOptionCategories){
                 elements.add(optionCategory.getDisplayName());
             }
             optionCategoryWidget =  DropDownListWidget.builder(elements)
-                    .pos(mouseEdgeX + ((mouseEdgeWidth)/2 - 95/2), mouseEdgeY + 80)
+                    .pos(cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2), cursorEdgeY + 80)
                     .size(95,25)
                     .setMessage(Component.translatable("visor.overlaySettings.main.widget.choose_option_category"))
                     .setResponder(

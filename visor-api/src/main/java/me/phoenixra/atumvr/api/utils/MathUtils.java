@@ -15,6 +15,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * and other
  */
 public class MathUtils {
+
+    private MathUtils() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
+
     /**
      * Sin lookup table.
      */
@@ -234,7 +239,4 @@ public class MathUtils {
         return rotation;
     }
 
-    private MathUtils() {
-        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
-    }
 }

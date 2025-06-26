@@ -2,12 +2,10 @@ package me.phoenixra.visor.core.client.render;
 
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
@@ -47,9 +45,7 @@ public class VRGameCamera extends Camera {
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             return super.isDetached();
         }
-        MirrorMode mirror = VRClientSettings.getDisplayMirrorMode();
-        return VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON
-                && mirror == MirrorMode.THIRD_PERSON;
+        return VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON;
     }
 
 
@@ -61,14 +57,14 @@ public class VRGameCamera extends Camera {
 
         VRDisplay display = VRRenderState.getCurrentVRDisplay();
         PoseElement eye = ClientContext.player
-                .getPose(PoseType.RENDER)
+                .getPose(PoseDataType.RENDER)
                 .getElementForDisplay(display);
 
         // Position
         this.setPosition(new Vec3(
                 (Vector3f) RenderPoseHelper.getCameraPosition(
                 display,
-                ClientContext.player.getPose(PoseType.RENDER)
+                ClientContext.player.getPose(PoseDataType.RENDER)
                 )
         ));
 
@@ -78,8 +74,8 @@ public class VRGameCamera extends Camera {
 
         // Look, Up, Left vectors
         var dir = eye.getDirection();
-        var upVec = eye.getCustomVector(VRMathUtils.upVector);
-        var leftVec = eye.getCustomVector(VRMathUtils.rightVector);
+        var upVec = eye.getCustomVector(VRMathUtils.UP_VECTOR);
+        var leftVec = eye.getCustomVector(VRMathUtils.RIGHT_VECTOR);
 
         this.getLookVector().set(dir.x(), dir.y(), dir.z());
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);

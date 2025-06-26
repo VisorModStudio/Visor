@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.WidgetsFactory;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
@@ -24,7 +24,7 @@ public class FormulaPosWidgets extends WidgetSet{
     public List<AbstractWidget> initWidgets(int edgeX, int edgeY,
                                             int edgeWidth, int edgeHeight) {
 
-        OverlayOptionsModelView optionCategory = owner.getOptionCategory();
+        OverlayOptionsLocation optionCategory = owner.getOptionCategory();
 
 
         int middleX = edgeX + edgeWidth/2;

@@ -6,8 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -33,23 +33,7 @@ public class RenderGuiHelper {
 
 
 
-    public static boolean shouldOccludeGui() {
-        if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
-            return true;
-        }
 
-        return !VRRenderState.isInMainMenu()
-                && MC.screen == null
-                && !ClientContext.overlayManager.isShowingKeyboard()
-                && !ClientContext.overlayManager.isEnabledAtLeastOne()
-                &&
-                !RenderHelper.isInSolidBlock(
-                        ClientContext.player
-                                .getPose(PoseType.RENDER)
-                                .getElementForDisplay(VRRenderState.getCurrentVRDisplay())
-                                .getPosition()
-                );
-    }
 
 
 
@@ -62,7 +46,7 @@ public class RenderGuiHelper {
     ) {
         // --- Prepare variables ---
         PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+                .getPose(PoseDataType.RENDER);
 
         var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
@@ -126,17 +110,21 @@ public class RenderGuiHelper {
         if (MC.level != null) {
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F) {
-                position = ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition();
+                position = ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition();
             }
 
             int minLight = ShadersHelper.shaderLight();
-            int light = ClientUtils.getCombinedLightWithMin(MC.level, BlockPos.containing(new Vec3((Vector3f) position)), minLight);
+            int light = ClientUtils.getCombinedLightWithMin(
+                    MC.level,
+                    BlockPos.containing(new Vec3((Vector3f) position)),
+                    minLight
+            );
             RenderHelper.renderDisplayQuadWithLight(
                     poseStack.last().pose(),
                     color,
                     (float) MC.getWindow().getGuiScaledWidth(),
                     (float) MC.getWindow().getGuiScaledHeight(),
-                    1.5F,
+                    VROverlayPose.QUAD_SCALE,
                     light,
                     false
             );
@@ -146,7 +134,7 @@ public class RenderGuiHelper {
                     color,
                     (float) MC.getWindow().getGuiScaledWidth(),
                     (float) MC.getWindow().getGuiScaledHeight(),
-                    1.5F
+                    VROverlayPose.QUAD_SCALE
             );
         }
 

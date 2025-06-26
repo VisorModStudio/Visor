@@ -7,17 +7,16 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.OverlayCatalog;
+import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysCatalog;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
-import me.phoenixra.visor.core.client.gui.overlays.types.VROverlayHUD;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayTypeRegistry;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenGlobal;
@@ -46,9 +45,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     private VROverlayKeyboard keyboard;
 
-    @Getter
-    private boolean hudDisplayed;
-
 
     public void tick(){
         for(VROverlay overlay : overlaysRegistry.getSortedElements()){
@@ -56,9 +52,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
             overlay.tick();
         }
 
-        hudDisplayed = overlaysRegistry.getElementsByType(
-                VROverlayHUD.ID_TYPE
-        ).stream().anyMatch(VROverlay::isVisible);
 
     }
 
@@ -66,7 +59,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                                       GuiGraphics guiGraphics,
                                       float partialTicks) {
 
-        //--- Setup ---
+        // --- Setup ---
         Matrix4f projection = new Matrix4f();
         int prevOverlayWidth = -1;
         int prevOverlayHeight = -1;
@@ -86,7 +79,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         );
 
 
-        //--- Render ---
+        // --- Render ---
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
             if(!overlay.isVisible()) continue;
 
@@ -104,7 +97,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 target.clear(Minecraft.ON_OSX);
                 target.bindWrite(true);
 
-                //setup projection
+                //setup projection if changed
                 if(prevOverlayWidth != overlayScreen.width
                         || prevOverlayHeight != overlayScreen.height) {
                     projection.setOrtho(
@@ -118,6 +111,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     prevOverlayHeight = overlayScreen.height;
                 }
 
+                //update pose before rendering texture
+                overlay.updatePose(partialTicks);
+
                 //render overlay texture
                 overlayScreen.renderWithTooltip(
                         guiGraphics,
@@ -128,15 +124,17 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 guiGraphics.flush();
 
             }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
-                // renderTarget is fully handled by VROverlayFrameBuffer,
-                // so, just call render(), to let it do the rest
+                // rendering is fully handled by VROverlayFrameBuffer,
+                // so, just call updatePose() and render(),
+                // to let it do the rest
+                overlay.updatePose(partialTicks);
                 overlayFrameBuffer.render(partialTicks);
             }
 
             profiler.pop();
         }
 
-        //--- Restore ---
+        // --- Restore ---
         RenderSystem.restoreProjectionMatrix();
 
         posestack.popPose();
@@ -144,48 +142,41 @@ public class VROverlayManagerImpl implements VROverlayManager {
     }
 
     public void renderOverlays(float partialTicks,
-                               boolean depthAlways,
                                PoseStack poseStack) {
-        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+
+
+        // --- Setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
         RenderPoseHelper.applyDisplayOrientation(
                 VRRenderState.getCurrentVRDisplay(),
                 poseStack
         );
+
+        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+
+        // --- Render ---
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
             if(!overlay.isVisible()) continue;
             var target = overlay.getRenderTarget();
             if(target == null){
-                throw new RuntimeException("Tried to render overlay with");
+                throw new RuntimeException("Tried to render overlay with null renderTarget");
             }
-            overlay.applyModelView(partialTicks);
+
             RenderGuiHelper.renderOverlayQuad(
                     target,
                     poseStack,
-                    overlay.getPosition(),
-                    overlay.getRotation(),
-                    depthAlways,
-                    overlay.getOverlayScale()
+                    overlay.getPose().getPosition(),
+                    overlay.getPose().getRotation(),
+                    !overlay.supportsDepth(),
+                    overlay.getPose().getScale()
             );
         }
+
+        // --- Restore ---
         poseStack.popPose();
     }
 
-    @Override
-    public boolean isEnabled(@NotNull String id) {
-        VROverlay overlay = getOverlay(id);
-        if (overlay == null) return false;
-        return overlay.isEnabled();
-    }
-
-    @Override
-    public boolean isEnabledAtLeastOne() {
-        for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
-            if (overlay.isEnabled()) return true;
-        }
-        return false;
-    }
 
 
     @Override
@@ -222,7 +213,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
     }
 
     @Override
-    public @NotNull OverlayCatalog getOverlayCatalog() {
+    public @NotNull ConfigOverlaysCatalog getOverlayCatalog() {
         return ClientContext.settingsHandler.getOverlayCatalog();
     }
 
@@ -230,7 +221,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
     public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionCategory category, float mainMenuWidth, float mainMenuHeight) {
         if(category instanceof OverlayOptionsGlobal category1){
             return new OptionsScreenGlobal(category1,mainMenuWidth,mainMenuHeight);
-        }else if(category instanceof OverlayOptionsModelView category1){
+        }else if(category instanceof OverlayOptionsLocation category1){
             return new OptionsScreenModelView(category1, mainMenuWidth, mainMenuHeight);
         }
         return null; // tsss, secret

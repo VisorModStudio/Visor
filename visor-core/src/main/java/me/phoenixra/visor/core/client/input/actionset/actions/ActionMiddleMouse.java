@@ -37,14 +37,23 @@ public class ActionMiddleMouse extends VisorActionButton {
     public void preTick() {
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
 
-        //-------CLEANUP CLICKS-------
+        // --- Cleanup Clicks ---
         if(focusedOverlay != null
                 && InputHelper.isMousePressed(BUTTON_TYPE)) {
             InputHelper.releaseMouse(BUTTON_TYPE);
         }
-        if(focusedOverlay == null
+        else if(focusedOverlay == null
                 && previousFocused != null
                 && wasPressed){
+            previousFocused.mouseReleased(
+                    previousFocused.getMouseX(),
+                    previousFocused.getMouseY(),
+                    BUTTON_TYPE
+            );
+            wasPressed = false;
+        }else if(focusedOverlay != null
+                && previousFocused != null
+                && focusedOverlay != previousFocused){
             previousFocused.mouseReleased(
                     previousFocused.getMouseX(),
                     previousFocused.getMouseY(),
@@ -58,7 +67,7 @@ public class ActionMiddleMouse extends VisorActionButton {
         super.preTick();
 
         //-------DRAG-------
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_VR_MOUSE)){
+        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)){
             return;
         }
         if(focusedOverlay != null
@@ -78,7 +87,7 @@ public class ActionMiddleMouse extends VisorActionButton {
 
     @Override
     protected void onPress() {
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_VR_MOUSE)){
+        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)){
             return;
         }
         ClientContext.inputManager.triggerHapticPulseClick(lastUsedHand);

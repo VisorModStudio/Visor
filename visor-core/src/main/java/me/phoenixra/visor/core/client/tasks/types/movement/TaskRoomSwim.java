@@ -4,7 +4,7 @@ import lombok.Getter;
 
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -48,7 +48,7 @@ public class TaskRoomSwim extends VisorTask {
     protected void onRun(LocalPlayer player) {
 
         PoseDataImpl preTickPose = ClientContext.player
-                .getPose(PoseType.PRE_TICK);
+                .getPose(PoseDataType.PRE_TICK);
         final PoseElement mainHand = preTickPose.getController(ControllerHand.MAIN);
         final PoseElement offhand = preTickPose.getController(ControllerHand.OFFHAND);
         final PoseElement hmd = preTickPose.getHmd();

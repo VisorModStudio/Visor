@@ -1,13 +1,13 @@
-package me.phoenixra.visor.api.client.gui.overlay.options.sections;
+package me.phoenixra.visor.api.client.gui.overlay.template.options.sections;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsBase;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsBase;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -18,16 +18,16 @@ import java.util.function.Consumer;
 
 //@TODO maybe should not call update in onTick and onRender always? make optional?
 @Getter @Setter
-public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsModelView> {
-    public static final String ID = "model_view";
+public class OverlayOptionsLocation extends OverlayOptionsBase<OverlayOptionsLocation> {
+    public static final String ID = "location";
 
 
     private boolean tickModelView;
 
     @NotNull
-    private ModelViewAnchor positionAnchor;
+    private PoseAnchor positionAnchor;
     @NotNull
-    private ModelViewAnchor rotationAnchor;
+    private PoseAnchor rotationAnchor;
 
     private boolean aimRotation;
 
@@ -56,18 +56,10 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
 
     private Vector3f rotationOffsetVec;
 
-    /**
-     *
-     * When demo is moving by hand, here variable is change.
-     * (temporary solution)
-     */
-    //@TODO make something more meaningful
-    @Getter @Setter
-    private @Nullable ModelViewAnchor movingDemoAnchor;
 
 
-    public OverlayOptionsModelView(@NotNull VROverlay owner,
-                                   @NotNull Consumer<OverlayOptionsModelView> defaultSettings){
+    public OverlayOptionsLocation(@NotNull OverlayTemplate owner,
+                                  @NotNull Consumer<OverlayOptionsLocation> defaultSettings){
         super(owner, defaultSettings);
         if(posOffset==null){
             posOffset = new Vector3f();
@@ -80,13 +72,13 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
     @Override
     public void update(boolean force) {
 
-        var configManager = owner.getConfig().getConfigOwner();
+        var configManager = owner.getTypeConfig().getConfigOwner();
         if(force){
             float x = 0;
             float y = 0;
             float z = 0;
 
-            //---POSITION
+            // ---Position
 
             try{
                 if(formulaPosX != null) {
@@ -120,7 +112,7 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
             posOffset = new Vector3f(x, y, z);
 
 
-            //---ROTATION
+            // ---Rotation
             x = 0;
             y = 0;
             z = 0;
@@ -204,17 +196,17 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
 
     @Override
     protected void onLoad(@NotNull Config section){
-        var configManager = owner.getConfig().getConfigOwner();
+        var configManager = owner.getTypeConfig().getConfigOwner();
 
         tickModelView = section.getBool("tick");
 
         positionAnchor =
-                ModelViewAnchor.valueOf(
+                PoseAnchor.valueOf(
                         section.getStringOrDefault("position.type","HMD")
                                 .toUpperCase()
                 );
         rotationAnchor =
-                ModelViewAnchor.valueOf(
+                PoseAnchor.valueOf(
                         section.getStringOrDefault("rotation.type","HMD")
                                 .toUpperCase()
                 );
@@ -222,7 +214,7 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
         aimRotation = section.getBool("rotation.aim");
 
 
-        //POSITION
+        // ---Position
         float x = 0;
         float y = 0;
         float z = 0;
@@ -263,7 +255,7 @@ public class OverlayOptionsModelView extends OverlayOptionsBase<OverlayOptionsMo
         posOffset = new Vector3f(x,y,z);
 
 
-        // ROTATION
+        // ---Rotation
         x = 0;
         y = 0;
         z = 0;

@@ -3,10 +3,11 @@ package me.phoenixra.visor.api.client;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 /**
  * This class handles client-specific VR data
@@ -22,7 +23,7 @@ public interface VRClientPlayer {
 
 
     @NotNull
-    PoseData getPose(@NotNull PoseType stage);
+    PoseData getPose(@NotNull PoseDataType stage);
 
     /**
      * Get ControllerHand type which is currently used
@@ -32,6 +33,7 @@ public interface VRClientPlayer {
      */
     @NotNull
     ControllerHand getActiveHand();
+
 
     /**
      * Returns global world scale,
@@ -47,7 +49,7 @@ public interface VRClientPlayer {
      * Get component that affects client rotation
      * @return component
      */
-    @NotNull PoseElement getRotationElement(@NotNull PoseType stage);
+    @NotNull PoseElement getRotationElement(@NotNull PoseDataType stage);
 
     @Nullable
     Player getMcPlayer();

@@ -11,6 +11,11 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
 
 public class LoggerUtils {
+
+    private LoggerUtils() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
+
     public static Logger getLogger(){
         if(ModLoader.get().isDedicatedServer()){
             return VisorAPI.server().getLogger();

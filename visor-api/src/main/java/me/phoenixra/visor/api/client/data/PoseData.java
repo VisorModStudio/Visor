@@ -8,62 +8,86 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
+/**
+ * Provides detailed pose information for the player
+ * and tracked VR elements
+ */
 public interface PoseData {
-    PoseType getType();
 
     /**
+     * Get the pose data type used
      *
-     * @return HMD component
+     * @return the pose type
+     */
+    PoseDataType getType();
+
+    /**
+     * Get the head-mounted display (HMD) pose element.
+     *
+     * @return the HMD element
      */
     @NotNull
     PoseElement getHmd();
 
     /**
+     * Get the left eye pose element.
      *
-     * @return left eye component
+     * @return the left eye element
      */
     @NotNull
     PoseElement getEyeLeft();
 
     /**
+     * Get the right eye pose element.
      *
-     * @return right eye component
+     * @return the right eye element
      */
     @NotNull
     PoseElement getEyeRight();
 
     /**
+     * Gets the main hand controller element.
      *
-     * @return right controller component
+     * @return the main controller element
      */
     @NotNull
     PoseElement getControllerMain();
 
     /**
+     * Gets the offhand controller element.
      *
-     * @return left controller component
+     * @return the offhand controller element
      */
     @NotNull
     PoseElement getControllerOffhand();
 
     /**
+     * Get the main hand element.<br>
+     * Difference from {@link #getControllerMain()}
+     * is that this element uses grip pose, which is better
+     * representing hand
      *
-     * @return right hand component
+     * @return the main hand element
      */
     @NotNull
     PoseElement getHandMain();
 
     /**
+     * Get the offhand element.<br>
+     * Difference from {@link #getControllerOffhand()}
+     * is that this element uses grip pose, which is better
+     * representing hand
      *
-     * @return left hand component
+     * @return the offhand element
      */
     @NotNull
     PoseElement getHandOffhand();
 
 
     /**
+     * Get the player origin in world coordinates.
      *
-     * @return origin of player
+     * @return the origin
      */
     @NotNull
     Vector3fc getOrigin();
@@ -102,7 +126,7 @@ public interface PoseData {
      * @param position the position vector in the coordinate system of the specified origin stage
      * @return the converted position vector
      */
-    @NotNull Vector3f convertPosition(@NotNull PoseType originStage,
+    @NotNull Vector3f convertPosition(@NotNull PoseDataType originStage,
                                         @NotNull Vector3fc position);
 
     /**
@@ -114,7 +138,7 @@ public interface PoseData {
      * @param rotationMatrix the rotation matrix to convert
      * @return the converted rotation matrix
      */
-    @NotNull Matrix4f convertRotation(@NotNull PoseType originStage,
+    @NotNull Matrix4f convertRotation(@NotNull PoseDataType originStage,
                                       @NotNull Matrix4f rotationMatrix);
 
     /**

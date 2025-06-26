@@ -38,14 +38,12 @@ public class VRGuiManagerImpl implements VRGuiManager {
 
 
     public void renderGUI(PoseStack poseStack,
-                          float partialTicks,
-                          boolean depthAlways) {
+                          float partialTicks) {
 
         ClientContext.cursorHandler.process();
 
         ClientContext.overlayManager.renderOverlays(
                 partialTicks,
-                depthAlways,
                 poseStack
         );
     }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
@@ -26,7 +26,7 @@ import org.joml.Vector3fc;
 @Getter
 public class PoseDataImpl implements PoseData {
 
-    private final PoseType type;
+    private final PoseDataType type;
 
     protected final PoseElementImpl hmd;
     protected final PoseElementImpl eyeLeft;
@@ -49,7 +49,7 @@ public class PoseDataImpl implements PoseData {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public PoseDataImpl(PoseType type,
+    public PoseDataImpl(PoseDataType type,
                         Vector3fc origin,
                         float walkMul,
                         float worldScale,
@@ -162,7 +162,7 @@ public class PoseDataImpl implements PoseData {
                 VRClientSettings.getFixedCameraPosZ()
         );
         Matrix4fc camRot = (new Matrix4f().set(VRClientSettings.getFixedCameraRotation())).transpose();
-        Vector3f camDir = camRot.transformDirection(VRMathUtils.forwardVector, new Vector3f());
+        Vector3f camDir = camRot.transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
                 this.origin,
                 this.rotationY,
@@ -231,7 +231,7 @@ public class PoseDataImpl implements PoseData {
     }
 
     @Override
-    public @NotNull Vector3f convertPosition(@NotNull PoseType originStage,
+    public @NotNull Vector3f convertPosition(@NotNull PoseDataType originStage,
                                                @NotNull Vector3fc position){
         if(originStage == type) {
             return new Vector3f(
@@ -240,7 +240,7 @@ public class PoseDataImpl implements PoseData {
                     position.z()
             );
         }
-        if (originStage == PoseType.ROOM) {
+        if (originStage == PoseDataType.ROOM) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
@@ -254,7 +254,7 @@ public class PoseDataImpl implements PoseData {
                 .mul(1.0f / originPose.worldScale)
                 .rotateY(-originPose.rotationY);
 
-        if(type == PoseType.ROOM){
+        if(type == PoseDataType.ROOM){
             return roomPose;
         }
 
@@ -265,7 +265,7 @@ public class PoseDataImpl implements PoseData {
 
 
     @Override
-    public @NotNull Matrix4f convertRotation(@NotNull PoseType originStage,
+    public @NotNull Matrix4f convertRotation(@NotNull PoseDataType originStage,
                                               @NotNull Matrix4f rotationMatrix) {
         if (originStage == this.type) {
             return rotationMatrix;
@@ -273,14 +273,14 @@ public class PoseDataImpl implements PoseData {
 
 
 
-        if (originStage == PoseType.ROOM) {
+        if (originStage == PoseDataType.ROOM) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
         PoseDataImpl originPose = ClientContext.player.getPose(originStage);
 
-        if (this.type == PoseType.ROOM) {
+        if (this.type == PoseDataType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);
         }
 

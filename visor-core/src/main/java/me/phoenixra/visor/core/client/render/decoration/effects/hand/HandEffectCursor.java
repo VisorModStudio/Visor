@@ -3,7 +3,8 @@ package me.phoenixra.visor.core.client.render.decoration.effects.hand;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
@@ -63,7 +64,7 @@ public class HandEffectCursor extends VRHandEffect {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.player
-                                    .getPose(PoseType.RENDER)
+                                    .getPose(PoseDataType.RENDER)
                                     .getHmd()
                                     .getPosition()
                             )
@@ -118,12 +119,17 @@ public class HandEffectCursor extends VRHandEffect {
                              boolean simpleHand) {
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
+        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)){
+            return false;
+        }
+
         if(cursorHandler.isTwoHandedCursor()){
             return true;
         }
         if(!cursorHandler.isCursorHandFocused()){
             return false;
         }
+
 
         return cursorHandler.getCursorHand() == hand;
     }

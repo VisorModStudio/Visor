@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.tasks.types.movement;
 
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -38,7 +38,7 @@ public class TaskRoomMovement extends VisorTask {
     @Override
     protected void onRun(@Nullable LocalPlayer player) {
         PoseDataImpl preTickPose = ClientContext.player
-                .getPose(PoseType.PRE_TICK);
+                .getPose(PoseDataType.PRE_TICK);
         var roomOrigin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 

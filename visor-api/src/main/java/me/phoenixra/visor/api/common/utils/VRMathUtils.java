@@ -12,16 +12,18 @@ import org.joml.Vector3fc;
 import redempt.crunch.Crunch;
 
 public class VRMathUtils {
-    public static final Vector3fc zeroVector = new Vector3f(0,0,0);
-    public static final Vector3fc forwardVector = new Vector3f(0.0F, 0.0F, -1.0F);
-    public static final Vector3fc forwardVectorReversed = new Vector3f(0.0F, 0.0F, 1.0F);
-    public static final Vector3fc upVector = new Vector3f(0.0F, 1.0F, 0.0F);
-    public static final Vector3fc rightVector = new Vector3f(1.0F, 0.0F, 0.0F);
 
-    public static final Vec3 forwardVectorMc = new Vec3(0.0F, 0.0F, -1.0F);
-    public static final Vec3 upVectorMc = new Vec3(0.0F, 1.0F, 0.0F);
-    public static final Vec3 downVector = new Vec3(0.0D, -1.0D, 0.0D);
+    private VRMathUtils() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
 
+    public static final Vector3fc ZERO_VECTOR = new Vector3f(0,0,0);
+    public static final Vector3fc FORWARD_VECTOR = new Vector3f(0.0F, 0.0F, -1.0F);
+    public static final Vector3fc FORWARD_VECTOR_REVERSED = new Vector3f(0.0F, 0.0F, 1.0F);
+    public static final Vector3fc UP_VECTOR = new Vector3f(0.0F, 1.0F, 0.0F);
+    public static final Vector3fc RIGHT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
+
+    public static final Matrix4fc EMPTY_MATRIX = new Matrix4f();
 
     public static @NotNull Vector3f extractUpDir(@NotNull Matrix4fc rotation, boolean normalize) {
         var out = new Vector3f(rotation.m10(), rotation.m11(), rotation.m12());

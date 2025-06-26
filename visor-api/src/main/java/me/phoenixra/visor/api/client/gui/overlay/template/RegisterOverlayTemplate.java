@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay;
+package me.phoenixra.visor.api.client.gui.overlay.template;
 
 
 import org.jetbrains.annotations.NotNull;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RegisterOverlayType {
+public @interface RegisterOverlayTemplate {
     @NotNull
     String id();
 }

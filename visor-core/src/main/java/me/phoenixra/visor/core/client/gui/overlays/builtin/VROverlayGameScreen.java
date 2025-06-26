@@ -1,15 +1,15 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
-import com.mojang.blaze3d.platform.Window;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.framework.OverlayCursorData;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.input.InputHelper;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
@@ -19,14 +19,11 @@ import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-
-import java.util.List;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -37,10 +34,17 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     private Vector3fc roomPosition = null;
     private Matrix4f roomRotation = null;
 
+    private float overlayScale = 1.0f;
 
     public VROverlayGameScreen(@NotNull VisorAddon owner,
                                @NotNull String id) {
-        super(owner, id, null);
+        super(
+                owner,
+                id,
+                ElementPriority.LOW,
+                null,
+                1.0f
+        );
         setEnabled(true);
     }
 
@@ -51,8 +55,25 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    protected void onTick() {
+    protected void onPreTick() {
         renderTarget = ClientContext.renderer.guiTarget.getTarget();
+
+        if (MC.screen != null
+                && roomPosition == null) {
+            //mods/addons did something
+            onScreenChanged(
+                    null, MC.screen,
+                    false
+            );
+        } else if (MC.screen == null
+                && roomPosition != null) {
+            //mods/addons did something
+            onScreenChanged(
+                    null,
+                    null,
+                    false
+            );
+        }
 
     }
 
@@ -99,6 +120,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         orient(previousGuiScreen,newScreen);
 
+        updatePose(1);
+
     }
 
     private void orient(Screen previousGuiScreen,
@@ -109,13 +132,13 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             orientMainMenu();
             return;
         }
-        setOverlayScale(1.0F);
+        overlayScale = 1.0f;
         if ((previousGuiScreen == null && newScreen != null)
                 || newScreen instanceof ChatScreen
                 || newScreen instanceof BookEditScreen
                 || newScreen instanceof AbstractSignEditScreen) {
             PoseElement hmd = ClientContext.player
-                    .getPose(PoseType.ROOM)
+                    .getPose(PoseDataType.ROOM)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 
@@ -156,7 +179,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     private void orientMainMenu(){
 
         ClientContext.player.setRotationY(0);
-        setOverlayScale(2.0F);
+        overlayScale = 2.0f;
         Vector2f afloat = ClientUtils.getPlayAreaSize();
         roomPosition = new Vector3f(
                 0.02f,
@@ -171,115 +194,86 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public void applyModelView(float partialTick) {
-        //check state and update if needed
-        if (MC.screen != null
-                && roomPosition == null) {
-            //mods/addons did something
-            onScreenChanged(
-                    null, MC.screen,
-                    false
-            );
-        } else if (MC.screen == null
-                && roomPosition != null) {
-            //mods/addons did something
-            onScreenChanged(
-                    null,
-                    null,
-                    false
-            );
-        }
-        if (roomPosition == null) {
+    public void updatePose(float partialTicks) {
+
+        if (roomPosition == null || roomRotation == null) {
             orient(
                     null,
                     MC.screen
             );
             return;
         }
-
         PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+                .getPose(PoseDataType.RENDER);
 
         Vector3f renderScreenPos = renderPose.convertPosition(
-                PoseType.ROOM,
+                PoseDataType.ROOM,
                 roomPosition
         );
         Matrix4f renderScreenRotation =  renderPose.convertRotation(
-                PoseType.ROOM,
+                PoseDataType.ROOM,
                 roomRotation
         );
 
         //applying
 
-        setPosition(renderScreenPos);
-        setRotation(renderScreenRotation);
+        getPose().update(
+                renderScreenPos,
+                renderScreenRotation,
+                overlayScale
+        );
 
     }
 
 
     @Override
-    public void updateMousePosition(boolean activeCursorHand,
-                                    float rawX, float rawY) {
+    public void updateCursorData(boolean activeCursor,
+                                 float rawX, float rawY) {
         if (!isEnabled()) return;
-        if(rawX == -1 && rawY == -1){
-            OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
+        if(!activeCursor) return;
 
-            cursorData.rawCursorX = 0;
-            cursorData.rawCursorY = 0;
-            cursorData.cursorInGuiX = 0;
-            cursorData.cursorInGuiY = 0;
+        if (rawX < 0f || rawX > 1f
+                || rawY < 0f || rawY > 1f) {
+            VROverlayCursorData cursorData = activeCursorData;
 
-            cursorData.mouseX = 0;
-            cursorData.mouseY = 0;
-            if(activeCursorHand) {
-                InputHelper.setMousePos(
-                        cursorData.mouseX,
-                        cursorData.mouseY
-                );
-            }
+            cursorData.setRawCursorX(-1);
+            cursorData.setRawCursorY(-1);
+            cursorData.setCursorX(0);
+            cursorData.setCursorY(0);
+
+            InputHelper.setMousePos(
+                    0,
+                    0
+            );
             return;
         }
 
-        VRGuiManager guiManager = ClientContext.guiManager;
-        Window mcWindow = MC.getWindow();
-        float cursorInGuiX;
-        float cursorInGuiY;
-        if (rawX >= 0.0F && rawY >= 0.0F
-                && rawX <= 1.0F && rawY <= 1.0F) {
-            cursorInGuiX = (float) (
-                    (int) (rawX * guiManager.getScaledGuiWidth())
-            );
-            cursorInGuiY = (float) (
-                    (int) (rawY * guiManager.getScaledGuiHeight())
-            );
-        } else {
-            cursorInGuiX = (float) (
-                    (int) (Math.min(1.0f, Math.max(rawX, 0.0f)) * guiManager.getScaledGuiWidth())
-            );
-            cursorInGuiY = (float) (
-                    (int) (Math.min(1.0f, Math.max(rawY, 0.0f)) * guiManager.getScaledGuiHeight())
-            );
-        }
+        // ---- Preparing
+        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
 
-        OverlayCursorData cursorData = activeCursorHand ? activeCursorData : inactiveCursorData;
+        var mcWindow = ((WindowModified) (Object) MC.getWindow());
+        int windowWidth = mcWindow.visor$getActualWidth();
+        int windowHeight = mcWindow.visor$getActualHeight();
 
-        cursorData.rawCursorX = rawX;
-        cursorData.rawCursorY = rawY;
-        cursorData.cursorInGuiX = cursorInGuiX;
-        cursorData.cursorInGuiY = cursorInGuiY;
+        VROverlayCursorData cursorData = activeCursorData;
 
-        if(!activeCursorHand){
-            return;
-        }
-        int width = ((WindowModified) (Object) mcWindow)
-                .visor$getActualWidth();
-        int height = ((WindowModified) (Object) mcWindow)
-                .visor$getActualHeight();
-        cursorData.mouseX = (int)(cursorData.cursorInGuiX * (double) width / (double) guiManager.getScaledGuiWidth());
-        cursorData.mouseY = (int)(cursorData.cursorInGuiY * (double) height / (double) guiManager.getScaledGuiHeight());
+        // ---- Updating mouse data
+        cursorData.setRawCursorX(rawX);
+        cursorData.setRawCursorY(rawY);
+
+        float preMouseX = (float) (
+                (int) (rawX * guiManager.getScaledGuiWidth())
+        );
+        float preMouseY = (float) (
+                (int) (rawY * guiManager.getScaledGuiHeight())
+        );
+
+
+        cursorData.setCursorX((int)(preMouseX * (double) windowWidth / (double) guiManager.getScaledGuiWidth()));
+        cursorData.setCursorY((int)(preMouseY * (double) windowHeight / (double) guiManager.getScaledGuiHeight()));
         InputHelper.setMousePos(
-                cursorData.mouseX,
-                cursorData.mouseY
+                cursorData.getCursorX(),
+                cursorData.getCursorY()
         );
 
     }
@@ -288,7 +282,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public void resetOrient() {
         roomPosition = null;
         roomRotation = null;
-        setOverlayScale(1.0f);
+        overlayScale = 1.0f;
     }
 
     public boolean  willBeInMenuRoom(Screen newScreen) {
@@ -307,7 +301,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int buttonType) {
+    public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
         InputHelper.releaseMouse(buttonType);
         return true;
     }
@@ -319,12 +313,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public boolean isCursorSupported() {
+    public boolean supportsCursor() {
         return true;
     }
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of();
-    }
 }

@@ -1,6 +1,6 @@
 package me.phoenixra.visor.api.client.data;
 
-public enum PoseType {
+public enum PoseDataType {
 
     /**
      * Pose is relative to VR room

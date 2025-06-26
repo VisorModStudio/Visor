@@ -8,7 +8,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.VisorState;
@@ -329,7 +329,7 @@ public abstract class GameRendererMixin
             return original;
         }
         PoseDataImpl renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+                .getPose(PoseDataType.RENDER);
 
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
@@ -354,7 +354,7 @@ public abstract class GameRendererMixin
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
         return new Vec3(
-                (Vector3f) ClientContext.player.getPose(PoseType.RENDER)
+                (Vector3f) ClientContext.player.getPose(PoseDataType.RENDER)
                         .getController(activeHand).getDirection()
         );
     }
@@ -459,8 +459,8 @@ public abstract class GameRendererMixin
         }
         RenderPoseHelper.applyDisplayPose(currentDisplay, poseStack);
         poseStack.scale(sinN, sinN, sinN);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPose(PoseType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPose(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPose(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
     }
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
@@ -504,7 +504,7 @@ public abstract class GameRendererMixin
     public void visor$setupCameraEntity() {
         if (this.visor$cameraEntityCached) {
             PoseElement eye = ClientContext.player
-                    .getPose(PoseType.RENDER)
+                    .getPose(PoseDataType.RENDER)
                     .getElementForDisplay(VRRenderState.getCurrentVRDisplay());
             var eyePos = eye.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
@@ -646,7 +646,7 @@ public abstract class GameRendererMixin
         }
         var cameraPos = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
-                ClientContext.player.getPose(PoseType.RENDER)
+                ClientContext.player.getPose(PoseDataType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
                 .findNearestSolidBlock(

@@ -1,17 +1,13 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
 
 
 @Getter
@@ -30,29 +26,30 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
     protected void init() {
         super.init();
 
-        mouseEdgeX = screen.getMouseEdgeX();
-        mouseEdgeY = screen.getMouseEdgeY();
+        cursorEdgeX = screen.getMouseEdgeX();
+        cursorEdgeY = screen.getMouseEdgeY();
 
-        mouseEdgeWidth = screen.getMouseEdgeWidth();
-        mouseEdgeHeight = screen.getMouseEdgeHeight();
+        cursorEdgeWidth = screen.getMouseEdgeWidth();
+        cursorEdgeHeight = screen.getMouseEdgeHeight();
     }
 
     @Override
-    public void applyModelView(float partialTick) {
+    public void updatePose(float partialTicks) {
         if(screen == null) return;
 
-        VROverlayHelper.anchorOverlayPositionTo(
-                this,
-                ClientContext.player.getPose(PoseType.RENDER),
-                settingsMenu.getPosition(),
-                settingsMenu.getRotation(),
+        var newPos = PoseAnchor.getAnchorPos(
+                settingsMenu.getPose().getPosition(),
+                settingsMenu.getPose().getRotation(),
                 screen.getPositionOffset()
-
         );
-        VROverlayHelper.anchorOverlayRotationTo(
-                this,
-                settingsMenu.getRotation(),
+
+        var newRotation = PoseAnchor.getAnchorRotation(
+                settingsMenu.getPose().getRotation(),
                 screen.getRotationOffset()
+        );
+        getPose().update(
+                newPos, newRotation,
+                settingsMenu.getPose().getScale()
         );
     }
 
@@ -105,11 +102,12 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
         this.settingsMenu = settingsMenu;
         this.category = optionCategory;
         this.screen = optionCategory.getScreen(
-                2.084f * settingsMenu.getOverlayScale(),
-                1.7f * settingsMenu.getOverlayScale()
+                2.084f * settingsMenu.getPose().getScale(),
+                1.7f * settingsMenu.getPose().getScale()
         );
-        this.setOverlayScale(settingsMenu.getOverlayScale());
+
         setEnabled(true);
+        updatePose(1);
     }
 
     public OverlayOptionsScreen<?> getOptionsScreen(){
@@ -127,10 +125,4 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
         return super.mouseClicked(x, y, buttonType);
     }
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of(
-
-        );
-    }
 }

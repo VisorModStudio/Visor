@@ -47,7 +47,6 @@ public class ClientFeaturesToggle {
         return switch (feature) {
             case AIM_EFFECTS -> checkAimEffects();
             case VR_HANDS  -> checkVRHands();
-            case INPUT_MOVEMENT -> !ClientContext.overlayManager.isShowingKeyboard();
             default -> true;
         };
     }
@@ -55,7 +54,6 @@ public class ClientFeaturesToggle {
     private boolean checkAimEffects() {
         if (MC.level == null)               return false;
         if (MC.screen != null)              return false;
-        if (ClientContext.overlayManager.isShowingKeyboard()) return false;
         return !ClientContext.cursorHandler.isCursorHandFocused();
     }
 

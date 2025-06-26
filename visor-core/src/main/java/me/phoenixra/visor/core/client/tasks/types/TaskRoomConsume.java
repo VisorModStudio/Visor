@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.tasks.types;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -49,7 +49,7 @@ public class TaskRoomConsume extends VisorTask {
     @Override
     protected void onRun(LocalPlayer player) {
         PoseDataImpl roomPose = ClientContext.player
-                .getPose(PoseType.ROOM);
+                .getPose(PoseDataType.ROOM);
         Vector3fc hmdPos = roomPose.getHmd().getPosition();
         Vector3fc mouthPos = roomPose
                 .getController(ControllerHand.MAIN)

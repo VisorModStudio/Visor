@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.options;
+package me.phoenixra.visor.api.client.gui.overlay.template.options;
 
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;

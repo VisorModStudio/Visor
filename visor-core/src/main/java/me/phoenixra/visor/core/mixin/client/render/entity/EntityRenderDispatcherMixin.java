@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.render.entity;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.entity.EntityRenderDispatcherVRModified;
@@ -60,9 +60,9 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             cir.setReturnValue(this.camera.rotation());
             return;
         }
-        var cameraPos = ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition();
+        var cameraPos = ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPose(PoseType.RENDER)
+            cameraPos = ClientContext.player.getPose(PoseDataType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }
@@ -102,11 +102,11 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             return this.camera.rotation();
         }
         var cameraPos = ClientContext.player
-                .getPose(PoseType.RENDER)
+                .getPose(PoseDataType.RENDER)
                 .getHmd()
                 .getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPose(PoseType.RENDER)
+            cameraPos = ClientContext.player.getPose(PoseDataType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }

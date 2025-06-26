@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay;
+package me.phoenixra.visor.api.client.gui.overlay.template;
 
 
 import me.phoenixra.atumconfig.api.config.ConfigFile;
@@ -7,7 +7,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public interface OverlayCatalog {
+/**
+ *
+ */
+public interface ConfigOverlaysCatalog {
 
     void reload();
 

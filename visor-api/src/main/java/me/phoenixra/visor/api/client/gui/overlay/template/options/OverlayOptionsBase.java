@@ -1,9 +1,9 @@
-package me.phoenixra.visor.api.client.gui.overlay.options;
+package me.phoenixra.visor.api.client.gui.overlay.template.options;
 
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -11,17 +11,17 @@ import java.util.function.Consumer;
 public abstract class OverlayOptionsBase<T extends OverlayOptionsBase<T>> implements OverlayOptionCategory {
 
     @Getter
-    protected final VROverlay owner;
+    protected final OverlayTemplate owner;
 
     protected final Consumer<T> defaultSettings;
 
     private final ConfigFile overlayConfig;
 
-    public OverlayOptionsBase(@NotNull VROverlay owner,
+    public OverlayOptionsBase(@NotNull OverlayTemplate owner,
                               @NotNull Consumer<T> defaultSettings) {
         this.owner = owner;
         this.defaultSettings = defaultSettings;
-        this.overlayConfig = owner.getConfig();
+        this.overlayConfig = owner.getTypeConfig();
         if (overlayConfig.getSubsectionOrNull(getId().toUpperCase()) == null) {
             saveDefaults();
         } else {

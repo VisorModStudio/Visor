@@ -47,7 +47,7 @@ public class DecoratorGameMenu extends VRDecorator {
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks, !RenderGuiHelper.shouldOccludeGui());
+        ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
 
         ClientContext.handRenderer.renderGuiHands(

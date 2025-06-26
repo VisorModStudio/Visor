@@ -5,27 +5,22 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
-
-import java.util.List;
-
 
 
 public class VROverlayDemo extends VROverlayScreen {
@@ -38,8 +33,8 @@ public class VROverlayDemo extends VROverlayScreen {
     private final Vector3f movingRotationOffset = new Vector3f(0,0,0);
 
 
-    private VROverlay demonstrating;
-    private OverlayOptionsModelView demoModelViewOptions;
+    private OverlayTemplate demonstrating;
+    private OverlayOptionsLocation demoModelViewOptions;
     private OverlayOptionsGlobal demoOptionsGlobal;
 
     private boolean appliedModelView;
@@ -48,13 +43,13 @@ public class VROverlayDemo extends VROverlayScreen {
     public boolean emulatingModelView;
 
     @Nullable @Getter
-    private ModelViewAnchor movingByAnchor;
+    private PoseAnchor movingByAnchor;
+
+    private float overlayScale = 1.0f;
     public VROverlayDemo(@NotNull VisorAddon owner,
                          @NotNull String id) {
-        super(owner, id);
+        super(owner, id, ElementPriority.HIGHEST, 1.0f);
 
-        //have to be drawn on top of everything
-        setPriority(ElementPriority.HIGHEST);
     }
 
 
@@ -70,11 +65,11 @@ public class VROverlayDemo extends VROverlayScreen {
         renderOutline(guiGraphics, startX, startY, width, height, AtumColor.RED.toInt());
 
         //MOUSE bounds outline
-        startX = mouseEdgeX;
-        startY = mouseEdgeY;
+        startX = cursorEdgeX;
+        startY = cursorEdgeY;
 
-        width = mouseEdgeWidth;
-        height = mouseEdgeHeight;
+        width = cursorEdgeWidth;
+        height = cursorEdgeHeight;
 
         if(startX == -1
                 || startY == -1
@@ -143,46 +138,47 @@ public class VROverlayDemo extends VROverlayScreen {
     }
 
     @Override
-    public void applyModelView(float partialTick) {
+    public void updatePose(float partialTicks) {
         if(!demonstrating.isVisible()
                 && demoOptionsGlobal != null
                 && demoOptionsGlobal.getUpdateOptionsType() == OverlayOptionsGlobal.UpdateOptionsType.FRAME) {
             //since demonstrating overlay is not visible
             //its options are not handled on render tick
             //So, we have to do that ourselves to ensure modelView is valid
-            demonstrating.getOptionsList().forEach(
+            demonstrating.getOptions().forEach(
                     it->it.update(false)
             );
         }
         if(demonstrating != null){
             if(movingByAnchor != null){
-                VROverlayHelper.applyModelView(
+                VROverlayHelper.applyPose(
                         this,
                         movingByAnchor,
                         movingByAnchor,
+                        overlayScale,
                         false,
                         movingPosOffset,
                         movingRotationOffset
                 );
-            }
-
-            if(demoModelViewOptions.isTickModelView()) {
+            }else if(demoModelViewOptions.isTickModelView()) {
 
                 if(!emulatingModelView) return;
 
-                VROverlayHelper.applyModelView(
+                VROverlayHelper.applyPose(
                         this,
                         demoModelViewOptions.getPositionAnchor(),
                         demoModelViewOptions.getRotationAnchor(),
+                        overlayScale,
                         demoModelViewOptions.isAimRotation(),
                         demoModelViewOptions.getPosOffset(),
                         demoModelViewOptions.getRotationOffsetVec()
                 );
             }else if(!appliedModelView){
-                VROverlayHelper.applyModelView(
+                VROverlayHelper.applyPose(
                         this,
                         demoModelViewOptions.getPositionAnchor(),
                         demoModelViewOptions.getRotationAnchor(),
+                        overlayScale,
                         demoModelViewOptions.isAimRotation(),
                         demoModelViewOptions.getPosOffset(),
                         demoModelViewOptions.getRotationOffsetVec()
@@ -192,25 +188,25 @@ public class VROverlayDemo extends VROverlayScreen {
         }
     }
 
-    public void showDemo(@NotNull VROverlay overlay){
+    public void showDemo(@NotNull OverlayTemplate overlay){
         setEnabled(false);
 
         demonstrating = overlay;
-        demoModelViewOptions = demonstrating.getOptionCategory(OverlayOptionsModelView.class);
-        demoOptionsGlobal = demonstrating.getOptionCategory(OverlayOptionsGlobal.class);
+        demoModelViewOptions = demonstrating.getOption(OverlayOptionsLocation.class);
+        demoOptionsGlobal = demonstrating.getOption(OverlayOptionsGlobal.class);
 
-        setOverlayScale(demonstrating.getOverlayScale());
+        overlayScale = demonstrating.getPose().getScale();
 
         if(demonstrating instanceof VROverlayScreen overlayScreen){
-            mouseEdgeX = overlayScreen.getMouseEdgeX();
-            mouseEdgeY = overlayScreen.getMouseEdgeY();
-            mouseEdgeWidth = overlayScreen.getMouseEdgeWidth();
-            mouseEdgeHeight = overlayScreen.getMouseEdgeHeight();
+            cursorEdgeX = overlayScreen.getCursorEdgeX();
+            cursorEdgeY = overlayScreen.getCursorEdgeY();
+            cursorEdgeWidth = overlayScreen.getCursorEdgeWidth();
+            cursorEdgeHeight = overlayScreen.getCursorEdgeHeight();
         }else{
-            mouseEdgeX = -1;
-            mouseEdgeY = -1;
-            mouseEdgeWidth = -1;
-            mouseEdgeHeight = -1;
+            cursorEdgeX = -1;
+            cursorEdgeY = -1;
+            cursorEdgeWidth = -1;
+            cursorEdgeHeight = -1;
         }
 
         setEnabled(demoModelViewOptions != null);
@@ -218,10 +214,11 @@ public class VROverlayDemo extends VROverlayScreen {
 
     public void teleportToHMD(){
         if(!isEnabled()) return;
-        VROverlayHelper.applyModelView(
+        VROverlayHelper.applyPose(
                 this,
-                ModelViewAnchor.HMD,
-                ModelViewAnchor.HMD,
+                PoseAnchor.HMD,
+                PoseAnchor.HMD,
+                overlayScale,
                 true,
                 new Vector3f(0,-0.5f,-0.6f),
                 new Vector3f()
@@ -232,15 +229,15 @@ public class VROverlayDemo extends VROverlayScreen {
     public void startMovingByAnchor(){
         if(!isEnabled()) return;
 
-        ModelViewAnchor posAnchor = demoModelViewOptions.getPositionAnchor();
+        PoseAnchor posAnchor = demoModelViewOptions.getPositionAnchor();
         emulatingModelView = false;
-        movingByAnchor = posAnchor == ModelViewAnchor.MAIN_HAND
-                ? ModelViewAnchor.OFFHAND
-                : ModelViewAnchor.MAIN_HAND;
-        demoModelViewOptions.setMovingDemoAnchor(movingByAnchor);
+        movingByAnchor = posAnchor == PoseAnchor.MAIN_HAND
+                ? PoseAnchor.OFFHAND
+                : PoseAnchor.MAIN_HAND;
+        demonstrating.setDemoAnchor(movingByAnchor);
 
         ClientContext.cursorHandler.setCursorHand(
-                movingByAnchor == ModelViewAnchor.OFFHAND
+                movingByAnchor == PoseAnchor.OFFHAND
                 ? ControllerHand.OFFHAND : ControllerHand.MAIN
         );
     }
@@ -251,30 +248,28 @@ public class VROverlayDemo extends VROverlayScreen {
         applyNewOffset();
 
         movingByAnchor = null;
-        demoModelViewOptions.setMovingDemoAnchor(movingByAnchor);
+        demonstrating.setDemoAnchor(null);
     }
 
     public void applyNewOffset(){
         if(!isEnabled()) return;
         PoseData renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+                .getPose(PoseDataType.RENDER);
         emulatingModelView = true;
 
-        ModelViewAnchor posAnchor = demoModelViewOptions.getPositionAnchor();
-        ModelViewAnchor rotationAnchor = demoModelViewOptions.getRotationAnchor();
+        PoseAnchor posAnchor = demoModelViewOptions.getPositionAnchor();
+        PoseAnchor rotationAnchor = demoModelViewOptions.getRotationAnchor();
 
         PoseElement componentAnchorPos = posAnchor.getSupplier()
-                .apply(renderPose)
-                .getComponent();
+                .apply(renderPose);
         PoseElement componentAnchorRot = rotationAnchor.getSupplier()
-                .apply(renderPose)
-                .getComponent();
+                .apply(renderPose);
         var componentPos = componentAnchorPos.getPosition();
         Matrix4fc componentRotation = componentAnchorRot.getRotation();
 
         Vector3f offsetPos = componentAnchorPos
                 .reverseCustomVector(
-                        getPosition().sub(componentPos, new Vector3f())
+                        getPose().getPosition().sub(componentPos, new Vector3f())
                 ).div(
                         renderPose.getWorldScale()
                 );
@@ -299,9 +294,9 @@ public class VROverlayDemo extends VROverlayScreen {
             return;
         }
 
-        Vector3f rotationOffset = rotationAnchor.reverseAnchorRotation(
+        Vector3f rotationOffset = rotationAnchor.reverseAnchoredRotation(
                 componentRotation,
-                getRotation()
+                getPose().getRotation()
         );
 
         demoModelViewOptions.setFormulaRotationX(
@@ -329,7 +324,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
 
     @Override
-    public boolean isCursorSupported() {
+    public boolean supportsCursor() {
         return movingByAnchor != null;
     }
 
@@ -345,9 +340,4 @@ public class VROverlayDemo extends VROverlayScreen {
         return true;
     }
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of(
-        );
-    }
 }

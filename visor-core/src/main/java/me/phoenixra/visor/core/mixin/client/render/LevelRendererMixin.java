@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -130,7 +130,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainX(double x) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition().x();
+            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().x();
         }
         return x;
     }
@@ -139,7 +139,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainY(double y) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition().y();
+            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().y();
         }
         return y;
     }
@@ -148,7 +148,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainZ(double z) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseType.RENDER).getHmd().getPosition().z();
+            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().z();
         }
         return z;
     }

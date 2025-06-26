@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.tasks.types.movement;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -52,7 +52,7 @@ public class TaskRoomVehicle extends VisorTask {
         if (canAutoDismount(player)) {
             Vector3fc mountPos = player.getVehicle().position().toVector3f();
             Vector3fc headPivot = ClientContext.player
-                    .getPose(PoseType.PRE_TICK).getHeadPivot();
+                    .getPose(PoseDataType.PRE_TICK).getHeadPivot();
             double distance = Math.sqrt(
                     (headPivot.x() - mountPos.x())
                             * (headPivot.x() - mountPos.x())
@@ -153,10 +153,10 @@ public class TaskRoomVehicle extends VisorTask {
     public void onStartRiding(Entity vehicle) {
         VRClientPlayerImpl vrClientPlayer = ClientContext.player;
         PoseDataImpl preTickPose = vrClientPlayer
-                .getPose(PoseType.PRE_TICK);
+                .getPose(PoseDataType.PRE_TICK);
 
         final Vector3fc headPivot = vrClientPlayer
-                .getPose(PoseType.ROOM)
+                .getPose(PoseDataType.ROOM)
                 .getHeadPivot();
         // Record the player's room position (ignoring vertical component)
         this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
@@ -242,7 +242,7 @@ public class TaskRoomVehicle extends VisorTask {
         if (entity instanceof AbstractHorse || entity instanceof Boat) {
             if (player.zza <= 0) return null;
             return ClientContext.player
-                    .getRotationElement(PoseType.PRE_TICK)
+                    .getRotationElement(PoseDataType.PRE_TICK)
                     .getDirection();
         }
         if (entity instanceof Mob mob && mob.isControlledByLocalInstance()) {
@@ -251,7 +251,7 @@ public class TaskRoomVehicle extends VisorTask {
                     ? ControllerHand.MAIN
                     : ControllerHand.OFFHAND;
             final PoseElement handPose = ClientContext.player
-                    .getPose(PoseType.PRE_TICK)
+                    .getPose(PoseDataType.PRE_TICK)
                     .getController(handWithFood);
             return handPose.getDirection().normalize(new Vector3f());
         }

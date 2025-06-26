@@ -3,13 +3,13 @@ package me.phoenixra.visor.api.client.gui.overlay.framework.screen;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * The overlay that has selection boxes.
+ * The overlay with selection boxes.
  */
 public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected final int radialMenuSize;
@@ -38,10 +38,11 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected VROverlayRadialSelector(@NotNull VisorAddon owner,
                                       @NotNull ControllerHand hand,
                                       @NotNull String id,
+                                      @NotNull ElementPriority priority,
                                       int radialMenuSize,
                                       SelectionBox... selectionBoxes
     ) {
-        super(owner, id);
+        super(owner, id, priority, 1.0f);
         this.usedHand = hand;
 
         this.radialMenuSize = radialMenuSize;
@@ -62,25 +63,25 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     );
 
     @Override
-    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
         Vector2f cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
                 .findCursorPosition2D(
                         VisorAPI.client().getPlayer()
-                                .getPose(PoseType.RENDER)
+                                .getPose(PoseDataType.RENDER)
                                 .getController(
                                         usedHand
                                 ),
-                        getPosition(),
-                        getRotation(),
-                        overlayScale
+                        getPose().getPosition(),
+                        getPose().getRotation(),
+                        getPose().getScale()
                 );
         boolean cursorValid;
         if (cursor.x == -1 && cursor.y == -1) {
             cursorValid = false;
         } else {
             cursorValid = true;
-            updateMousePosition(true, cursor.x, cursor.y);
+            updateCursorData(true, cursor.x, cursor.y);
         }
 
 
@@ -91,11 +92,11 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
             // on origin in the center of the menu
             //and without coords bounds
             int specialMouseX = (int) (
-                    ((getRawCursorX() - 0.5) * guiManager.getGuiWidth())
+                    ((getRawMouseX() - 0.5) * guiManager.getGuiWidth())
                             * (double) this.width / (double) guiManager.getGuiWidth()
             );
             int specialMouseY = (int) (
-                    ((getRawCursorY() - 0.5) * guiManager.getGuiHeight())
+                    ((getRawMouseY() - 0.5) * guiManager.getGuiHeight())
                             * (double) this.height / (double) guiManager.getGuiHeight()
             );
             int selectedSliceNew = getSliceFromPos(
@@ -114,7 +115,6 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
                 selectedSlice = selectedSliceNew;
             }
         }
-        super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
     }
 
     @Override
@@ -147,7 +147,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
 
     @Override
-    public boolean isCursorSupported() {
+    public boolean supportsCursor() {
         return false;
     }
 

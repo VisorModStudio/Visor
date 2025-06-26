@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
@@ -63,7 +63,7 @@ public class GameEffectShadow extends VRGameEffect {
         float playerLength = (float) box.getZsize();
 
         Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderDisplay,
-                ClientContext.player.getPose(PoseType.RENDER))
+                ClientContext.player.getPose(PoseDataType.RENDER))
         );
         Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
                 .visor$getCameraEntityCache()
@@ -94,7 +94,7 @@ public class GameEffectShadow extends VRGameEffect {
         RenderHelper.renderFlatQuad(
                 Tesselator.getInstance().getBuilder(),
                 poseStack.last().pose(),
-                VRMathUtils.zeroVector,
+                VRMathUtils.ZERO_VECTOR,
                 playerWidth,
                 playerLength,
                 0f,

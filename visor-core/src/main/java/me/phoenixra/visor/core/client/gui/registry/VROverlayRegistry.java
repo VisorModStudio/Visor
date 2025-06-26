@@ -65,8 +65,9 @@ public class VROverlayRegistry implements VisortRegistry<VROverlay> {
         if(removed != null) {
             sortedElements.remove(removed);
             Collections.sort(sortedElements);
-            if(removed.isConfigOverlay()){
-                removed.getConfig().getFile().delete();
+            var type = removed.asOverlayType();
+            if(type != null){
+                type.getTypeConfig().getFile().delete();
                 ClientContext.settingsHandler.getOverlayCatalog()
                         .removeConfig(removed.getId());
             }
@@ -81,14 +82,6 @@ public class VROverlayRegistry implements VisortRegistry<VROverlay> {
     @Override
     public @Nullable VROverlay getElement(@NotNull String id) {
         return elementsMap.get(id);
-    }
-
-    public @NotNull List<VROverlay> getElementsByType(String typeId){
-        return elementsMap.values().stream()
-                .filter(it->
-                        it.getOverlayType() != null
-                        && it.getOverlayType().equals(typeId))
-                .toList();
     }
 
 

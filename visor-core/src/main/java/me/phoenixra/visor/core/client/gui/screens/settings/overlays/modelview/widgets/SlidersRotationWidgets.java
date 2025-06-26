@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets;
 
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.SliderValueWidget;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
@@ -31,7 +31,7 @@ public class SlidersRotationWidgets extends WidgetSet {
     }
     @Override
     public List<AbstractWidget> initWidgets(int edgeX, int edgeY, int edgeWidth, int edgeHeight) {
-        OverlayOptionsModelView optionCategory = owner.getOptionCategory();
+        OverlayOptionsLocation optionCategory = owner.getOptionCategory();
 
         formulaX = Objects.requireNonNullElse(
                 optionCategory.getFormulaRotationX(),

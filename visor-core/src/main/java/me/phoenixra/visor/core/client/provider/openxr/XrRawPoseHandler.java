@@ -87,7 +87,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
                 controllerLeftData.getAimVector()
         );
         Vector3f upVec =  controllerLeftDevice.getPose().orientation()
-                .transform(VRMathUtils.upVector, new Vector3f());
+                .transform(VRMathUtils.UP_VECTOR, new Vector3f());
         controllerLeftData.getUpHistory().add(upVec);
 
 
@@ -122,7 +122,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
                 controllerRightData.getAimVector()
         );
         upVec =  controllerRightDevice.getPose().orientation()
-                .transform(VRMathUtils.upVector, new Vector3f());
+                .transform(VRMathUtils.UP_VECTOR, new Vector3f());
 
         controllerRightData.getUpHistory().add(upVec);
 

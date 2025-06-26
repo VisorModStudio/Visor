@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
@@ -50,8 +50,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
         ClientContext.guiManager.renderGUI(
                 poseStack,
-                partialTicks,
-                true
+                partialTicks
         );
 
         ClientContext.handRenderer.renderGuiHands(
@@ -67,7 +66,7 @@ public class DecoratorMainMenu extends VRDecorator {
     private static void renderPanorama(PoseStack poseStack){
 
         PoseDataImpl renderPose = ClientContext.player
-                .getPose(PoseType.RENDER);
+                .getPose(PoseDataType.RENDER);
         poseStack.pushPose();
         var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),

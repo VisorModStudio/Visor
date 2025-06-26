@@ -47,7 +47,7 @@ public class RenderHelper {
 
         // --- Prepare variables ---
         var forward = end.sub(start, new Vector3f()).normalize();
-        var right = forward.cross(VRMathUtils.upVector, new Vector3f()).normalize();
+        var right = forward.cross(VRMathUtils.UP_VECTOR, new Vector3f()).normalize();
         var up = right.cross(forward, new Vector3f()).normalize();
 
         var r0 = right.mul(innerWidth, new Vector3f());
@@ -112,7 +112,7 @@ public class RenderHelper {
         float halfH = height * 0.5f;
         Vector3f off = new Vector3f(halfW, 0, halfH)
                 .rotateY((float)Math.toRadians(-yaw));
-        Vector3fc normal = VRMathUtils.upVector;
+        Vector3fc normal = VRMathUtils.UP_VECTOR;
         float xOff = off.x, zOff = off.z;
         float r = color.getRed(), g = color.getGreen(),
                 b = color.getBlue(), a = color.getAlpha();
@@ -241,7 +241,7 @@ public class RenderHelper {
         Vector3f old1 = oldLights[1];
 
         // force lighting to face forward
-        Vector3f forward = (Vector3f) VRMathUtils.forwardVectorReversed;
+        Vector3f forward = (Vector3f) VRMathUtils.FORWARD_VECTOR_REVERSED;
         RenderSystem.setShaderLights(forward, forward);
         RenderSystem.setupShaderLights(RenderSystem.getShader());
 

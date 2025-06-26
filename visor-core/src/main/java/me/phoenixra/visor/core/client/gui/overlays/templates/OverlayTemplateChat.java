@@ -1,14 +1,14 @@
-package me.phoenixra.visor.core.client.gui.overlays.types;
+package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 
 
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.RegisterOverlayType;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.framework.OverlayTemplateScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -19,12 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-@RegisterOverlayType(id = VROverlayChat.ID_TYPE)
-public class VROverlayChat extends VROverlayScreen {
-    public static final String ID_TYPE = "chat";
+@RegisterOverlayTemplate(id = OverlayTemplateChat.ID)
+public class OverlayTemplateChat extends OverlayTemplateScreen {
+    public static final String ID = "chat";
 
-    public VROverlayChat(@NotNull VisorAddon owner,
-                         @NotNull String id) {
+    public OverlayTemplateChat(@NotNull VisorAddon owner,
+                               @NotNull String id) {
         super(owner, id);
         setEnabled(true);
     }
@@ -60,7 +60,7 @@ public class VROverlayChat extends VROverlayScreen {
 
 
     @Override
-    public boolean isCursorSupported() {
+    public boolean supportsCursor() {
         return false;
     }
 
@@ -84,17 +84,17 @@ public class VROverlayChat extends VROverlayScreen {
                             it.setFormulaOverlayScale("0.5");
                         }
                 ),
-                new OverlayOptionsModelView(
+                new OverlayOptionsLocation(
                         this,
                         it->{
                             it.setTickModelView(true);
                             it.setAimRotation(false);
 
-                            it.setPositionAnchor(ModelViewAnchor.OFFHAND);
+                            it.setPositionAnchor(PoseAnchor.OFFHAND);
                             it.setFormulaPosX("-0.15 * %main_hand%");
                             it.setFormulaPosY("0.06");
                             it.setFormulaPosZ("-0.13 * %main_hand% + (0.06 * %right_handed%)");
-                            it.setRotationAnchor(ModelViewAnchor.OFFHAND);
+                            it.setRotationAnchor(PoseAnchor.OFFHAND);
                             it.setFormulaRotationX("-pi/2 * %main_hand%");
                             it.setFormulaRotationY("pi/2 * %main_hand%");
                             it.setFormulaRotationZ("pi * %left_handed%");
@@ -103,4 +103,5 @@ public class VROverlayChat extends VROverlayScreen {
                 )
         );
     }
+
 }

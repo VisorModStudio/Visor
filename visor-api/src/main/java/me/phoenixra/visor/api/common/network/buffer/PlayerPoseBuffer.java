@@ -4,7 +4,7 @@ package me.phoenixra.visor.api.common.network.buffer;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import org.joml.Quaternionf;
@@ -48,7 +48,7 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
     private static DevicePoseBuffer getHmdPose(VRClientPlayer clientPlayer) {
 
         PoseData postTickPose = clientPlayer
-                .getPose(PoseType.POST_TICK);
+                .getPose(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
                 .getHmd().getPosition()
                 .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
@@ -62,7 +62,7 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
                                                       ControllerHand controller
     ) {
         PoseData postTickPose = clientPlayer
-            .getPose(PoseType.POST_TICK);
+            .getPose(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
                 .getController(controller).getPosition()
                 .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());

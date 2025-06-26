@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.common.utils.VRMathUtils;
+import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -32,6 +32,7 @@ public class PoseElementImpl implements PoseElement {
         rotationMatrix = new Matrix4f();
 
         originCached = new Vector3f(0,0,0);
+
     }
 
     public PoseElementImpl(Vector3fc origin,
@@ -88,6 +89,7 @@ public class PoseElementImpl implements PoseElement {
                         this.rotationMatrix.m11()))
         );
 
+
     }
 
 
@@ -101,6 +103,7 @@ public class PoseElementImpl implements PoseElement {
                         origin.z() - originCached.z(),
                         new Vector3f()
                 );
+
     }
 
     @Override

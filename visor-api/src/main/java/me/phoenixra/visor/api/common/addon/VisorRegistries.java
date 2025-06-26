@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.common.addon;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayType;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -91,6 +91,6 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VROverlayType> overlayTypes();
+    VisortRegistry<OverlayTemplateRecord> overlayTypes();
 
 }

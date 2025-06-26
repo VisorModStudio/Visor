@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.common.network.client;
 
 import me.phoenixra.visor.api.ModLoader;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.HeightPayloadToServer;
@@ -101,7 +101,7 @@ public class ClientNetworking {
         ClientContext.player
                 .updatePlayerLook(
                         player,
-                        PoseType.PRE_TICK
+                        PoseDataType.PRE_TICK
                 );
     }
 

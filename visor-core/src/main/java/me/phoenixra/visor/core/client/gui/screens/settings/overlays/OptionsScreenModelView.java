@@ -2,10 +2,10 @@ package me.phoenixra.visor.core.client.gui.screens.settings.overlays;
 
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.utils.StringUtils;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.sections.OverlayOptionsModelView;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
@@ -26,7 +26,7 @@ import java.util.List;
 
 
 @Getter
-public class OptionsScreenModelView extends OverlayOptionsScreen<OverlayOptionsModelView> {
+public class OptionsScreenModelView extends OverlayOptionsScreen<OverlayOptionsLocation> {
     private static final ResourceLocation BACKGROUND = new ResourceLocation(
             "visor:textures/gui/overlays_settings.png"
     );
@@ -60,7 +60,7 @@ public class OptionsScreenModelView extends OverlayOptionsScreen<OverlayOptionsM
 
     private boolean emulateModelViewCache;
 
-    public OptionsScreenModelView(@NotNull OverlayOptionsModelView optionCategory,
+    public OptionsScreenModelView(@NotNull OverlayOptionsLocation optionCategory,
                                float mainMenuWidth, float mainMenuHeight) {
         super(optionCategory,mainMenuWidth,mainMenuHeight);
     }
@@ -216,8 +216,8 @@ public class OptionsScreenModelView extends OverlayOptionsScreen<OverlayOptionsM
 
 
         List<Component> elements = new ArrayList<>();
-        List<ModelViewAnchor> anchorList = Arrays.stream(ModelViewAnchor.values()).toList();
-        for(ModelViewAnchor anchor : anchorList){
+        List<PoseAnchor> anchorList = Arrays.stream(PoseAnchor.values()).toList();
+        for(PoseAnchor anchor : anchorList){
             elements.add(anchor.getName());
         }
 

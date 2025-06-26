@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.mixin.client.player;
 
 import com.mojang.authlib.GameProfile;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
@@ -31,7 +31,6 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -265,7 +264,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
 
         var rotationElement = ClientContext.player
-                .getRotationElement(PoseType.PRE_TICK);
+                .getRotationElement(PoseDataType.PRE_TICK);
 
         //SWIMMING OR FLYING
         if (!this.isPassenger()
@@ -326,7 +325,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             premountPos = premountPos
                     .yRot(
                             ClientContext.player
-                                    .getPose(PoseType.PRE_TICK)
+                                    .getPose(PoseDataType.PRE_TICK)
                                     .getRotationY()
                     );
             posX = posX - premountPos.x;
@@ -355,7 +354,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.getState().isActive()
                 ? ClientContext.player
-                .getPose(PoseType.PRE_TICK).getBodyYaw()
+                .getPose(PoseDataType.PRE_TICK).getBodyYaw()
                 : original;
     }
 
@@ -363,7 +362,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.getState().isActive()
                 ? ClientContext.player
-                .getPose(PoseType.PRE_TICK).getBodyYaw()
+                .getPose(PoseDataType.PRE_TICK).getBodyYaw()
                 : original;
     }
 
@@ -382,7 +381,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         }
         ClientContext.player.updatePlayerLook(
                 (LocalPlayer) (Object) this,
-                PoseType.PRE_TICK
+                PoseDataType.PRE_TICK
         );
     }
 

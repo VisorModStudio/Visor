@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.player;
 
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -123,7 +123,7 @@ public abstract class MultiPlayerGameModeMixin {
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
             PoseData preTickPose = ClientContext
-                    .player.getPose(PoseType.PRE_TICK);
+                    .player.getPose(PoseDataType.PRE_TICK);
             lookDirection = new Vec3(
                     (Vector3f) preTickPose.getController(controllerHand).getDirection()
             );

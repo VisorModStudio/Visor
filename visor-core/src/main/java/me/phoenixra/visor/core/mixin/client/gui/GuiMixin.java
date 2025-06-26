@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.mixin.client.gui;
 
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.GuiModified;
@@ -36,31 +37,31 @@ public abstract class GuiMixin implements GuiModified {
         if(VisorState.getState().isNotActive()
                 || (minecraft.screen == null
                 && !VRClientSettings.isHudDisableHotBar()
-                && ClientContext.overlayManager.isHudDisplayed())) return;
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderPlayerHealth", cancellable = true)
     public void visor$noVanillaPlayerHealth(CallbackInfo ci) {
         if(VisorState.getState().isNotActive() || (minecraft.screen == null
-                && ClientContext.overlayManager.isHudDisplayed())) return;
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderVehicleHealth", cancellable = true)
     public void visor$noVanillaVehicleHealth(CallbackInfo ci) {
         if(VisorState.getState().isNotActive() || (minecraft.screen == null
-                && ClientContext.overlayManager.isHudDisplayed())) return;
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderJumpMeter", cancellable = true)
     public void visor$noVanillaJumpMeter(CallbackInfo ci) {
         if(VisorState.getState().isNotActive() || (minecraft.screen == null
-                && ClientContext.overlayManager.isHudDisplayed())) return;
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Inject(at = @At("HEAD"), method = "renderExperienceBar", cancellable = true)
     public void visor$noVanillaExperienceBar(CallbackInfo ci) {
         if(VisorState.getState().isNotActive() || (minecraft.screen == null
-                && ClientContext.overlayManager.isHudDisplayed())) return;
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
     @Redirect(at = @At(value = "INVOKE",
@@ -69,7 +70,7 @@ public abstract class GuiMixin implements GuiModified {
     public void visor$noVanillaGuiBossHealth(BossHealthOverlay instance,
                                              GuiGraphics guiGraphics) {
         if(VisorState.getState().isNotActive() || (minecraft.screen == null
-                && ClientContext.overlayManager.isHudDisplayed())) {
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) {
             instance.render(guiGraphics);
         }
     }

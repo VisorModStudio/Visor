@@ -1,9 +1,9 @@
+template: chat
 displayName: Chat
 GLOBAL:
   overlayScale: '0.5'
   update_options: TICK
-type: chat
-MODEL_VIEW:
+LOCATION:
   rotation:
     aim: false
     offset:

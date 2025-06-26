@@ -1,45 +1,47 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.OverlayCatalog;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysCatalog;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
 /**
- * This class handles VR Overlays rendering
- * and behaviour.
+ * Manager of VR Overlays
  */
 public interface VROverlayManager {
 
     /**
-     * Get overlay with specified id
+     * Get overlay with specified {@code id}
+     *
      * @param id overlay id
      * @return the overlay instance
      */
     @Nullable
     VROverlay getOverlay(@NotNull String id);
 
+    /**
+     * Get overlay with specified {@code id} and {@code type}.<br>
+     * If found overlay is not an instance of {@code type},
+     * null is returned
+     *
+     * @param id overlay id
+     * @param type overlay class instance
+     *
+     * @return the overlay instance
+     */
     @Nullable
-    default <T extends VROverlay> T getOverlay(@NotNull String id, Class<T> overlayType){
-        return (T)getOverlay(id);
+    default <T extends VROverlay> T getOverlay(@NotNull String id, Class<T> type){
+        var overlay = getOverlay(id);
+        if(type.isInstance(overlay)){
+            return type.cast(overlay);
+        }
+        return null;
     }
 
-    /**
-     * If overlay with specified ID is active
-     * @param id overlay id
-     * @return true/false
-     */
-    boolean isEnabled(@NotNull String id);
-
-    /**
-     *
-     * @return If there is at least one overlay active
-     */
-    boolean isEnabledAtLeastOne();
 
     /**
      * Set the display state for the keyboard overlay
@@ -70,7 +72,7 @@ public interface VROverlayManager {
     boolean isShowingKeyboard();
 
     @NotNull
-    OverlayCatalog getOverlayCatalog();
+    ConfigOverlaysCatalog getOverlayCatalog();
 
 
     @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionCategory category,

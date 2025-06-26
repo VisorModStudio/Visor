@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.render.helpers;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -33,7 +33,7 @@ public class RenderPoseHelper {
                                                PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
         final Matrix4f rotationMatrix;
 
         boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
@@ -65,7 +65,7 @@ public class RenderPoseHelper {
         if (!vrDisplay.isEye()) {
             return;
         }
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
         var eyePos = renderPose.getElementForDisplay(vrDisplay).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
@@ -77,7 +77,7 @@ public class RenderPoseHelper {
 
     public static void applyControllerPose(ControllerHand hand,
                                            PoseStack poseStack) {
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
 
         // move origin to controller pos relative to camera
         var controllerPos = getControllerPosition(hand);
@@ -125,7 +125,7 @@ public class RenderPoseHelper {
     public static Vector3fc getControllerPosition(ControllerHand hand) {
         return ClientContext
                 .player
-                .getPose(PoseType.RENDER)
+                .getPose(PoseDataType.RENDER)
                 .getController(hand)
                 .getPosition();
     }

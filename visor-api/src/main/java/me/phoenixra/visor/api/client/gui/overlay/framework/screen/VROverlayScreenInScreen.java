@@ -3,6 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlay.framework.screen;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,8 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The overlay that draws mc screen.
- * It also handles mouse and keyboard actions via this screen
+ * The overlay that renders other mc screen.
  */
 @Getter
 public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverlayScreen {
@@ -21,10 +21,20 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
     public VROverlayScreenInScreen(@NotNull VisorAddon owner,
                                    @NotNull String id,
                                    @Nullable T screen) {
-        super(owner, id);
+        this(owner, id, ElementPriority.NORMAL, 1.0f, screen);
+
+    }
+
+    public VROverlayScreenInScreen(@NotNull VisorAddon owner,
+                                   @NotNull String id,
+                                   @NotNull ElementPriority priority,
+                                   float overlayScale,
+                                   @Nullable T screen) {
+        super(owner, id, priority, overlayScale);
         this.screen = screen;
 
     }
+
 
     @Override
     protected void init() {
@@ -56,24 +66,24 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int buttonType) {
+    public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
         if(screen==null) return true;
-        return screen.mouseReleased(x, y, buttonType);
+        return screen.mouseReleased(mouseX, mouseY, buttonType);
     }
 
     @Override
-    public void mouseMoved(double d, double e) {
+    public void mouseMoved(double mouseX, double mouseY) {
         if(screen==null) return;
-        screen.mouseMoved(d, e);
+        screen.mouseMoved(mouseX, mouseY);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY,
-                                int button,
+                                int buttonType,
                                 double dragX, double dragY
     ) {
         if(screen==null) return true;
-        return screen.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return screen.mouseDragged(mouseX, mouseY, buttonType, dragX, dragY);
     }
 
 

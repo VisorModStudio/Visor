@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.tasks.types.movement;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -13,7 +13,6 @@ import me.phoenixra.visor.core.client.data.PoseDataImpl;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
@@ -70,7 +69,7 @@ public class TaskRoomRun extends VisorTask {
         }
 
         PoseDataImpl preTickPose = ClientContext.player
-                .getPose(PoseType.PRE_TICK);
+                .getPose(PoseDataType.PRE_TICK);
 
         final var mainHandDir = preTickPose
                 .getController(ControllerHand.MAIN)

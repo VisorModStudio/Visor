@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
@@ -44,7 +44,7 @@ public class GameEffectOnFire extends VRGameEffect {
                        @NotNull PoseStack stack,
                        float partialTicks) {
         // --- Prepare variables ---
-        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseData renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
         float fireHeight = (float)(renderPose.getHeadPivot().y()
                 - ((GameRendererModified)MC.gameRenderer)
                 .visor$getCameraEntityCache()

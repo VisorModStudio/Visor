@@ -35,7 +35,7 @@ public class ActionScrollMouse extends VisorActionVec2 {
 
     @Override
     protected void onStateChanged(Vector2f newState) {
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_VR_MOUSE)){
+        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)){
             return;
         }
         float scrollPos = newState.y;

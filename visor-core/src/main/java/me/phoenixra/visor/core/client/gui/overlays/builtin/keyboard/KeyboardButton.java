@@ -35,15 +35,14 @@ public class KeyboardButton extends Button {
     protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
         VROverlayKeyboard overlayKeyboard = keyboardScreen.getOverlayKeyboard();
         if(overlayKeyboard.getInactiveCursorData().isInGui()){
-            int mX = overlayKeyboard.getInactiveCursorData().getMouseX();
-            int mY = overlayKeyboard.getInactiveCursorData().getMouseY();
+            int mX = overlayKeyboard.getInactiveCursorData().getCursorX();
+            int mY = overlayKeyboard.getInactiveCursorData().getCursorY();
             hoveredSecondary = mX >= this.getX()
                     && mY >= this.getY()
                     && mX < this.getX() + this.width
                     && mY < this.getY() + this.height;
         }else{
             hoveredSecondary = false;
-
         }
 
         super.renderWidget(guiGraphics, i, j, f);

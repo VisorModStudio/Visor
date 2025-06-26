@@ -2,11 +2,13 @@ package me.phoenixra.visor.core.client.gui;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -14,7 +16,6 @@ import me.phoenixra.visor.core.client.VisorState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -26,7 +27,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private ControllerHand cursorHand = ControllerHand.MAIN;
 
     @Getter @Setter
-    private boolean draggingItem;
+    private VROverlay forceFocused;
 
     @Getter
     private boolean twoHandedCursor;
@@ -35,7 +36,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private final CursorState offhandState = new CursorState();
 
     public void process() {
-        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseData renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
 
         updateCursorState(ControllerHand.MAIN, mainHandState, renderPose);
         updateCursorState(ControllerHand.OFFHAND, offhandState, renderPose);
@@ -47,16 +48,30 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private void updateCursorState(@NotNull ControllerHand hand, @NotNull CursorState state, @NotNull PoseData renderPose) {
         VROverlay previouslyFocused = state.focusedOverlay;
 
-        CursorResult result = getCursorResult(hand, renderPose);
-        state.update(result.cursorPos, result.collidedOverlay);
+        CursorResult result;
+        if(ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)){
+            result = getCursorResult(hand, renderPose);
+            if(hand == cursorHand
+                    && forceFocused != null
+                    && result.focusedOverlay != forceFocused){
+                forceFocused = null;
+            }
+        }else{
+            result = new CursorResult(
+                    new Vector3f(-1,-1,-1),
+                    null
+            );
+            forceFocused = null;
+        }
+        state.update(result.cursorPos, result.focusedOverlay);
 
         // Clean up previous focus
         if(previouslyFocused != null) {
-            previouslyFocused.updateMousePosition(
+            previouslyFocused.updateCursorData(
                     true,
                     -1, -1
             );
-            previouslyFocused.updateMousePosition(
+            previouslyFocused.updateCursorData(
                     false,
                     -1, -1
             );
@@ -67,15 +82,15 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     private void updateOverlays() {
-        twoHandedCursor = offhandState.supportsTwoHandedCursor()
-                || mainHandState.supportsTwoHandedCursor();
+        twoHandedCursor = offhandState.supportsTwoCursors()
+                || mainHandState.supportsTwoCursors();
 
         CursorState activeState = (cursorHand == ControllerHand.MAIN) ? mainHandState : offhandState;
         CursorState inactiveState = (cursorHand == ControllerHand.MAIN) ? offhandState : mainHandState;
 
         // Update the overlay for the active hand
         if (activeState.isFocused()) {
-            activeState.focusedOverlay.updateMousePosition(
+            activeState.focusedOverlay.updateCursorData(
                     true,
                     activeState.cursorPos.x(),
                     activeState.cursorPos.y()
@@ -84,7 +99,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         // Update the overlay for the inactive hand
         if (inactiveState.isFocused()) {
-            inactiveState.focusedOverlay.updateMousePosition(
+            inactiveState.focusedOverlay.updateCursorData(
                     false,
                     inactiveState.cursorPos.x(),
                     inactiveState.cursorPos.y()
@@ -105,50 +120,59 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         PoseElement cursorElement = renderPose.getController(hand);
 
+
+
         for (VROverlay overlay : ClientContext.overlayManager
                 .getOverlaysRegistry().getSortedElements()) {
-            if (!overlay.isVisible() || !overlay.isCursorSupported()) {
+            if (!overlay.isVisible() || !overlay.supportsCursor()) {
+                continue;
+            }
+            boolean forcedFocus = hand == cursorHand && forceFocused == overlay;
+
+
+            boolean facingGui = isFacingOverlay(
+                    cursorElement,
+                    overlay,
+                    false
+            );
+            if (!facingGui) {
                 continue;
             }
 
-            double distance = getCursorDistanceToGui(
-                    renderPose,
+            Vector3fc cursorPos = findCursorPosition3D(
                     cursorElement,
-                    overlay.getPosition(),
-                    overlay.getRotation()
+                    overlay.getPose().getPosition(),
+                    overlay.getPose().getRotation(),
+                    overlay.getPose().getScale()
             );
 
             //can focus cursor if distance within [0;5] bounds
-            if (distance < 0 || distance > 5 || distance > closestDistance) {
+            if (cursorPos.z() < 0 || cursorPos.z() > 5) {
                 continue;
             }
 
-            boolean notFacingGui = !overlay.ignoreFacingGui()
-                    && !isFacingOverlay(cursorElement, overlay, false
-            );
-            if (notFacingGui) {
+            //there is a closer overlay (ignore if forced focus)
+            if(!forcedFocus && cursorPos.z() > closestDistance){
                 continue;
             }
 
-            Vector3fc newCursorPos = findCursorPosition3D(
-                    cursorElement,
-                    overlay.getPosition(),
-                    overlay.getRotation(),
-                    overlay.getOverlayScale()
-            );
-
-            if (overlay.isCursorWithinBounds(
+            boolean withinBounds = overlay.isCursorWithinBounds(
                     true,
-                    newCursorPos.x(),
-                    newCursorPos.y()
-            )) {
-                finalCursorPos = newCursorPos;
+                    cursorPos.x(),
+                    cursorPos.y()
+            );
+            if (withinBounds) {
+                finalCursorPos = cursorPos;
                 collidingOverlay = overlay;
-                closestDistance = distance;
+                closestDistance = cursorPos.z();
+                if(forcedFocus){
+                    break;
+                }
             }
         }
         return new CursorResult(finalCursorPos, collidingOverlay);
     }
+
 
 
 
@@ -163,8 +187,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    public boolean isFacingOverlay(PoseElement element,
-                                   VROverlay overlay,
+    public boolean isFacingOverlay(@NotNull PoseElement element,
+                                   @NotNull VROverlay overlay,
                                    boolean checkUpsideDown,
                                    double threshold
     ) {
@@ -172,10 +196,10 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                 element.getRotation(), true
         );
         Vector3f overlayForward = VRMathUtils.extractForwardDir(
-                overlay.getRotation(), true
+                overlay.getPose().getRotation(), true
         );
 
-        Vector3f toOverlayDir = new Vector3f(overlay.getPosition())
+        Vector3f toOverlayDir = new Vector3f(overlay.getPose().getPosition())
                 .sub(element.getPosition()).normalize();
 
         //  - Element must face Overlay.
@@ -189,78 +213,35 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         if (!checkUpsideDown) return true;
 
         //Ensure is not upside down
-        Vector3f overlayUp = VRMathUtils.extractUpDir(overlay.getRotation(), true);
-        float upDot = overlayUp.dot(VRMathUtils.upVector);
+        Vector3f overlayUp = VRMathUtils.extractUpDir(overlay.getPose().getRotation(), true);
+        float upDot = overlayUp.dot(VRMathUtils.UP_VECTOR);
         return upDot > 0.2;
     }
 
 
 
 
-    public float getCursorDistanceToGui(@NotNull PoseData clientPose,
-                                        @NotNull PoseElement cursorElement,
-                                        @NotNull Vector3fc guiPosition,
-                                        @NotNull Matrix4fc guiRotation){
-        Vector3fc position = cursorElement.getPosition();
-        Vector3fc direction = cursorElement.getDirection();
-        Vector3fc aimZ = guiRotation.transformDirection(VRMathUtils.forwardVectorReversed, new Vector3f());
-        Vector3fc aimX = guiRotation.transformDirection(VRMathUtils.rightVector, new Vector3f());
-        Vector3fc aimY = guiRotation.transformDirection(VRMathUtils.upVector, new Vector3f());
-        float point = aimZ.dot(direction);
 
-        if (Math.abs(point) > 1.0E-5F) {
-            Vector3f cursorBase = guiPosition
-                    .sub(
-                            aimY.div(2f, new Vector3f()),
-                            new Vector3f()
-                    ).sub(
-                            aimX.div(2f, new Vector3f())
-                    );
-            float depthFactor = -aimZ.dot(
-                    position.sub(cursorBase, new Vector3f())
-            ) / point;
 
-            return depthFactor / clientPose.getWorldScale();
-        }
-        return -1;
-    }
 
     @Override
-    public @NotNull Vector2f findCursorPosition2D(@NotNull PoseElement component,
+    public @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
                                                   @NotNull Vector3fc guiPosition,
                                                   @NotNull Matrix4fc guiRotation,
                                                   float guiScale
     ) {
-
-        var vec3 = findCursorPosition3D(
-                component,
-                guiPosition, guiRotation,
-                guiScale
-        );
-        return new Vector2f((float) vec3.x, (float) vec3.y);
-    }
-
-    @Override
-    public Vector3f findCursorPosition3D(@NotNull PoseElement cursorElement,
-                                         @NotNull Vector3fc guiPosition,
-                                         @NotNull Matrix4fc guiRotation,
-                                         float guiScale
-    ) {
-        // 1) World‐space setup
-        PoseData renderPose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseData renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
         float worldScale = renderPose.getWorldScale();
-        float effectiveScale = guiScale * worldScale;
+        float effectiveScale = VROverlayPose.QUAD_SCALE * guiScale * worldScale;
 
-        Vector3fc rayOrigin = cursorElement.getPosition();
-        Vector3fc rayDirection = cursorElement.getDirection()
+        Vector3fc rayOrigin = element.getPosition();
+        Vector3fc rayDirection = element.getDirection()
                 .normalize(new Vector3f());
 
-        // 2) GUI basis vectors (scaled later)
         Vector3fc planeRight = VRMathUtils.extractRightDir(guiRotation, false);
         Vector3fc planeUp = VRMathUtils.extractUpDir(guiRotation,false);
         Vector3fc planeNormal = VRMathUtils.extractForwardDir(guiRotation, true);
 
-        // 3) Intersection: t = dot(P0–O, N) / dot(D, N)
         float denom = planeNormal.dot(rayDirection);
         if (Math.abs(denom) < 1e-5f) {
             return new Vector3f(-1, -1, -1);
@@ -272,10 +253,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
             return new Vector3f(-1, -1, -1);
         }
 
-        // 4) Compute hit point on plane
         Vector3f hitPoint = rayOrigin.add(rayDirection.mul(t, new Vector3f()), new Vector3f());
 
-        // 5) Convert to local GUI coords (0..1)
         Vector3f local = hitPoint.sub(
                 guiPosition.sub(planeRight.mul(0.5f, new Vector3f()), new Vector3f())
                         .sub(planeUp.mul(0.5f, new Vector3f()))
@@ -284,18 +263,17 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         float rawU = local.dot(planeRight);
         float rawV = local.dot(planeUp);
 
-        // 6) Normalize by GUI size (1.5 units?) and scale/aspect
         float aspect = ClientContext.guiManager.getScaledAspectRatio();
-        float u = (rawU - 0.5f) / (1.5f * effectiveScale) + 0.5f;
-        float v = 1f - ((rawV - 0.5f) / (1.5f * effectiveScale * aspect) + 0.5f);
+        float xPos = (rawU - 0.5f) / (effectiveScale) + 0.5f;
+        float yPos = 1f - ((rawV - 0.5f) / (effectiveScale * aspect) + 0.5f);
 
-        return new Vector3f(u, v, t / worldScale);
+        return new Vector3f(xPos, yPos, t / worldScale);
     }
 
 
 
 
-    private record CursorResult(Vector3fc cursorPos, VROverlay collidedOverlay) {
+    private record CursorResult(@NotNull Vector3fc cursorPos, @Nullable VROverlay focusedOverlay) {
     }
 
     private static class CursorState {
@@ -310,8 +288,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         boolean isFocused() {
             return focusedOverlay != null;
         }
-        boolean supportsTwoHandedCursor(){
-            return focusedOverlay != null && focusedOverlay.supportsTwoHandedCursor();
+        boolean supportsTwoCursors(){
+            return focusedOverlay != null && focusedOverlay.supportsTwoCursors();
         }
 
         double getCursorLength() {

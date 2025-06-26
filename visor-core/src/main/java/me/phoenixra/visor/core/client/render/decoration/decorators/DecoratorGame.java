@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.ElementPriority;
@@ -47,20 +48,15 @@ public class DecoratorGame extends VRDecorator {
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks, !RenderGuiHelper.shouldOccludeGui());
+        ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
-        boolean guiHands = ClientContext.overlayManager.isShowingKeyboard();
-        if (guiHands) {
-            ClientContext.handRenderer.renderGuiHands(
-                    poseStack, partialTicks,
-                    true, true
-            );
-        } else {
-            ClientContext.handRenderer.renderWorldHands(
-                    poseStack, partialTicks,
-                    true, true
-            );
-        }
+        ClientContext.handRenderer.renderHands(
+                poseStack, partialTicks,
+                true, true,
+                ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
+        );
+
+
         ClientContext.decorationRenderer.renderGameEffects(
                 poseStack, partialTicks
         );

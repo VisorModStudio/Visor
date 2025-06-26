@@ -62,13 +62,13 @@ public class RawController implements ControllerHistory {
 
     public Vector3f getAimVector() {
         return  aimRotation.transformDirection(
-                VRMathUtils.forwardVector, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
     }
 
     public Vector3f getGripVector() {
         return gripRotation.transformDirection(
-                VRMathUtils.forwardVector, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
     }
 

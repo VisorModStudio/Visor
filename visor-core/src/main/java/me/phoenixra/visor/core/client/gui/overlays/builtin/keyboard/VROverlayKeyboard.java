@@ -2,11 +2,16 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard;
 
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
+import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
+import me.phoenixra.visor.api.common.addon.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
+import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.screens.VRKeyboardScreen;
 import net.minecraft.client.gui.GuiGraphics;
@@ -16,10 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.List;
 
-
-public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen> {
+public class VROverlayKeyboard
+        extends VROverlayScreenInScreen<VRKeyboardScreen>
+        implements VREventListener {
     public static final String ID = "keyboard";
 
     private final Vector3f posOffset = new Vector3f(0,-0.5f,-0.6f);
@@ -36,23 +41,33 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private boolean shown;
     public VROverlayKeyboard(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id,
+        super(owner, id, ElementPriority.HIGHER,0.5f,
                 new VRKeyboardScreen(Component.literal(""))
         );
         getScreen().setOverlayKeyboard(this);
-        overlayScale = 0.5f;
         setEnabled(true);
+        VisorAPI.eventBus().registerListener(owner,this);
+    }
+
+
+    @VREventHandler
+    public void disableWorldHands(AllowClientFeatureVREvent event){
+        if(event.getFeature() == ClientFeature.VR_WORLD_HANDS
+                || event.getFeature() == ClientFeature.AIM_EFFECTS
+                || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
+            if(isVisible()){
+                event.setCanceled(true);
+            }
+        }
     }
 
 
     @Override
-    public void render(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+    protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if(ClientContext.cursorHandler.getFocusedOverlayScreen() != this){
             getScreen().clearPress();
         }
-        super.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
     }
-
 
     @Override
     public boolean updateVisibility() {
@@ -101,10 +116,11 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
 
     public void updateOrient(){
-        VROverlayHelper.applyModelView(
+        VROverlayHelper.applyPose(
                 this,
-                ModelViewAnchor.HMD,
-                ModelViewAnchor.HMD,
+                PoseAnchor.HMD,
+                PoseAnchor.HMD,
+                getPose().getScale(),
                 true,
                 posOffset,
                 rotationOffset
@@ -119,10 +135,11 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
         this.attachedTo = attachedTo;
 
-        VROverlayHelper.applyModelView(
+        VROverlayHelper.applyPose(
                 this,
-                ModelViewAnchor.HMD,
-                ModelViewAnchor.HMD,
+                PoseAnchor.HMD,
+                PoseAnchor.HMD,
+                getPose().getScale(),
                 true,
                 posOffset,
                 rotationOffset
@@ -131,31 +148,22 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
-    public void applyModelView(float partialTick) {
+    public void updatePose(float partialTicks) {
 
     }
 
 
 
     @Override
-    public boolean supportsTwoHandedCursor() {
+    public boolean supportsTwoCursors() {
         return true;
     }
 
     @Override
-    public boolean isCursorSupported() {
+    public boolean supportsCursor() {
         return shown;
     }
 
-    @Override
-    public boolean ignoreFacingGui() {
-        return true;
-    }
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of(
-        );
-    }
 
 }

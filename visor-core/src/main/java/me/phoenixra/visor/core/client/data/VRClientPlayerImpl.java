@@ -7,7 +7,7 @@ import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -52,11 +52,11 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private Input inputMovement = new Input();
 
     public VRClientPlayerImpl() {
-        this.roomPose = new PoseDataImpl(PoseType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomPose = new PoseDataImpl(PoseDataType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new PoseDataImpl(PoseType.PRE_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new PoseDataImpl(PoseType.POST_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new PoseDataImpl(PoseType.RENDER, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.preTickPose = new PoseDataImpl(PoseDataType.PRE_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.postTickPose = new PoseDataImpl(PoseDataType.POST_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new PoseDataImpl(PoseDataType.RENDER, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
 
@@ -138,7 +138,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 currentRotation
         );
 
-        this.updatePlayerLook(MC.player, PoseType.POST_TICK);
+        this.updatePlayerLook(MC.player, PoseDataType.POST_TICK);
 
         ClientNetworking.sendVRPlayerPose();
     }
@@ -202,7 +202,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
 
 
-    public void updatePlayerLook(LocalPlayer player, PoseType stage) {
+    public void updatePlayerLook(LocalPlayer player, PoseDataType stage) {
         if (player == null) {
             return;
         }
@@ -342,7 +342,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     }
 
     @Override
-    public @NotNull PoseElement getRotationElement(@NotNull PoseType stage){
+    public @NotNull PoseElement getRotationElement(@NotNull PoseDataType stage){
         PoseData playerPose = getPose(stage);
         return switch (VRClientSettings.getRotationMode()) {
             case CONTROLLER_MAIN -> playerPose.getController(
@@ -356,7 +356,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     }
 
     @Override
-    public @NotNull PoseDataImpl getPose(@NotNull PoseType stage) {
+    public @NotNull PoseDataImpl getPose(@NotNull PoseDataType stage) {
         return switch (stage){
             case PRE_TICK -> preTickPose;
             case POST_TICK -> postTickPose;

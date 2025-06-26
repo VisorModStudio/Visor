@@ -2,145 +2,131 @@ package me.phoenixra.visor.api.client.gui.overlay;
 
 
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
+/**
+ * Helper class for overlays
+ */
 public class VROverlayHelper {
 
+    private VROverlayHelper() {
+        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    }
+
+    /**
+     * Apply new pose to an overlay with specified pose Anchors
+     *
+     * <p>You can also adjust offsets for position and rotation</p>
+     *
+     * <p>If <code>aimRotation</code> is true,
+     * the overlay is aimed at rotation anchor.
+     * Otherwise, applies same rotation as anchor<p/>
+     *
+     * @param overlay        The overlay
+     * @param positionType   The position anchor
+     * @param rotationType   The rotation anchor
+     * @param overlayScale   The scale of an overlay quad
+     * @param aimRotation    If aim overlay at rotation anchor
+     * @param positionOffset The position offset
+     * @param rotationOffset The rotation offset
+     */
+    public static void applyPose(@NotNull VROverlay overlay,
+                                 @NotNull PoseAnchor positionType,
+                                 @NotNull PoseAnchor rotationType,
+                                 float overlayScale,
+                                 boolean aimRotation,
+                                 @NotNull Vector3fc positionOffset,
+                                 @NotNull Vector3fc rotationOffset
+    ) {
+
+        PoseData renderPose = VisorAPI.client().getPlayer()
+                .getPose(PoseDataType.RENDER);
+
+        Vector3f newPosition = positionType.anchorPos(
+                renderPose,
+                positionOffset
+        );
+        Matrix4f newRotation;
+        if(aimRotation){
+            newRotation = rotationType.anchorRotationAim(
+                    renderPose,
+                    rotationOffset,
+                    newPosition
+            );
+        }else {
+            newRotation = rotationType.anchorRotation(
+                    renderPose,
+                    rotationOffset
+            );
+        }
+        overlay.getPose().update(
+                newPosition,
+                newRotation,
+                overlayScale
+        );
+    }
+
+    /**
+     * Shorter version of {@link #applyPose(VROverlay, PoseAnchor, PoseAnchor, float, boolean, Vector3fc, Vector3fc)}
+     *
+     * @param overlay        The overlay
+     * @param positionType   The position anchor
+     * @param rotationType   The rotation anchor
+     * @param overlayScale   The scale of an overlay quad
+     * @param aimRotation    If aim overlay at rotation anchor
+     */
+    public static void applyPose(@NotNull VROverlay overlay,
+                                 @NotNull PoseAnchor positionType,
+                                 @NotNull PoseAnchor rotationType,
+                                 float overlayScale,
+                                 boolean aimRotation
+    ){
+        applyPose(
+                overlay,
+                positionType,
+                rotationType,
+                overlayScale,
+                aimRotation,
+                VRMathUtils.ZERO_VECTOR,
+                VRMathUtils.ZERO_VECTOR
+        );
+    }
+
+
+    /**
+     * Render image
+     *
+     * @param guiGraphics the gfx
+     * @param textureLocation the image location
+     * @param posX the position X
+     * @param posY the position Y
+     * @param width the width
+     * @param height the height
+     * @param textureWidth the texture width
+     * @param textureHeight the texture height
+     */
     public static void renderImage(GuiGraphics guiGraphics,
-                                   ResourceLocation resourceLocation,
+                                   ResourceLocation textureLocation,
                                    int posX, int posY,
                                    int width, int height,
                                    int textureWidth, int textureHeight) {
         guiGraphics.blit(
-                resourceLocation,
+                textureLocation,
                 posX, posY,         // screen x, y
                 0,                  // z-depth
                 0.0F, 0.0F,         // texture u, v
                 width, height,      // area to draw (width, height in pixels)
                 textureWidth, textureHeight  // full texture size
         );
-    }
-
-    /**
-     * Orient your overlay with a predefined OverlayOrient types
-     * <br>
-     * You can also adjust offsets for position and rotation
-     *
-     * @param overlay      The overlay to orient
-     * @param positionType   The predefined position type
-     * @param rotationType   The predefined rotation type
-     * @param aimRotation    Should aim overlay at ModelViewLock rotation?
-     * @param positionOffset The position offset
-     * @param rotationOffset The rotation offset
-     */
-    public static void applyModelView(VROverlay overlay,
-                                      ModelViewAnchor positionType,
-                                      ModelViewAnchor rotationType,
-                                      boolean aimRotation,
-                                      Vector3f positionOffset,
-                                      Vector3f rotationOffset
-    ) {
-
-        PoseData renderPose = VisorAPI.client().getPlayer()
-                .getPose(PoseType.RENDER);
-        overlay.setPosition(positionType.anchorPos(
-                renderPose,
-                positionOffset
-        ));
-        if(aimRotation){
-            overlay.setRotation(rotationType.anchorRotationAim(
-                    renderPose,
-                    rotationOffset,
-                    overlay.getPosition()
-            ));
-        }else {
-            overlay.setRotation(rotationType.anchorRotation(
-                    renderPose,
-                    rotationOffset
-            ));
-        }
-    }
-
-    public static void anchorOverlayPositionTo(@NotNull VROverlay overlay,
-                                               @NotNull PoseData renderPose,
-                                               @NotNull Vector3fc objPosition,
-                                               @NotNull Matrix4fc objRotation,
-                                               @NotNull Vector3fc offset){
-        float worldScale = renderPose.getWorldScale();
-        offset = new Vector3f(
-                offset.x() * worldScale,
-                offset.y() * worldScale,
-                offset.z() * worldScale
-        );
-        overlay.setPosition(
-                getCustomVector(
-                        offset,
-                        objRotation
-                ).add(objPosition)
-        );
-    }
-
-    public static void anchorOverlayRotationTo(@NotNull VROverlay overlay,
-                                               @NotNull Matrix4fc objRotation,
-                                               @NotNull Vector3fc offset){
-        Matrix4f overlayRot = objRotation.mul(
-                new Matrix4f().rotationZ(offset.z()),
-                new Matrix4f()
-        );
-        overlayRot.mul(new Matrix4f().rotationY(offset.y()));
-        overlayRot.mul(new Matrix4f().rotationX(offset.x()));
-
-        overlay.setRotation(overlayRot);
-    }
-    public static void anchorOverlayRotationToAimed(@NotNull VROverlay overlay,
-                                                    @NotNull Vec3 objPosition,
-                                                    @NotNull Vector3fc offset){
-
-        var overlayPosition = overlay.getPosition();
-
-        Vector3f directionToTarget = new Vector3f(
-                (float) (overlayPosition.x() - objPosition.x),
-                (float) (overlayPosition.y() - objPosition.y),
-                (float) (overlayPosition.z() - objPosition.z)
-        );
-        float rotationX = (float) Math.asin(
-                directionToTarget.y() / directionToTarget.length()
-        );
-        float rotationY = (float) (
-                (double) (float) Math.PI +
-                        Mth.atan2(
-                                directionToTarget.x(),
-                                directionToTarget.z()
-                        )
-        );
-        Matrix4f rotation = new Matrix4f().rotationZ(offset.z());
-        rotation.mul(new Matrix4f().rotationY(rotationY + offset.y()));
-        rotation.mul(new Matrix4f().rotationX(rotationX + offset.x()));
-
-        overlay.setRotation(rotation);
-    }
-
-    private static @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec,
-                                                     @NotNull Matrix4fc rotationMatrix) {
-        return rotationMatrix
-                .transformDirection(
-                        new Vector3f(
-                                vec.x(),
-                                vec.y(),
-                                vec.z()
-                        )
-                );
     }
 
 }

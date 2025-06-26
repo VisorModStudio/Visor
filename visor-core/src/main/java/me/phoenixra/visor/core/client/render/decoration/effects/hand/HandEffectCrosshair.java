@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
@@ -59,7 +59,7 @@ public class HandEffectCrosshair extends VRHandEffect {
                        float partialTicks) {
 
         // --- Prepare variables ---
-        PoseData pose = ClientContext.player.getPose(PoseType.RENDER);
+        PoseData pose = ClientContext.player.getPose(PoseDataType.RENDER);
         var rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec().toVector3f();
         var aim = rawCross.sub(pose.getController(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());

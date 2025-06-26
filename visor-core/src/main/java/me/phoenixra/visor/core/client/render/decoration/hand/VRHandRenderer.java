@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -200,7 +200,7 @@ public class VRHandRenderer {
 
         AtumColorImmutable color;
 
-        Vector3fc dir = VRMathUtils.forwardVector;
+        Vector3fc dir = VRMathUtils.FORWARD_VECTOR;
 
         Vector3f start = new Vector3f(0.0f, 0.0f, 0.0f);
         Vector3f end = new Vector3f(
@@ -214,7 +214,7 @@ public class VRHandRenderer {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.player
-                                                    .getPose(PoseType.RENDER)
+                                                    .getPose(PoseDataType.RENDER)
                                                     .getHmd().getPosition()
                             )
                     )

@@ -4,9 +4,6 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
@@ -15,7 +12,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 /**
- * Handler of GUI cursor
+ * Handler of VR GUI cursor
  */
 public interface VRCursorHandler {
 
@@ -41,14 +38,40 @@ public interface VRCursorHandler {
 
 
     /**
+     * Get force focused overlay
+     *
+     * @return force focused overlay
+     */
+    @Nullable VROverlay getForceFocused();
+
+    /**
+     * Set force focused overlay<br>
+     *
+     * <p>Force focused overlay is prioritized,
+     * and any other overlay closer to cursor is ignored.</p>
+     *
+     * <p>Force focus will be lost if cursor
+     * is not focusing this overlay at all</p>
+     *
+     * <p>This feature can be used for example
+     * in case, where your overlay is being dragged by hand,
+     * and you don't want other overlays to interfere</p>
+     *
+     * @param overlay the overlay to force focus on
+     */
+    void setForceFocused(@Nullable VROverlay overlay);
+
+
+    /**
      * If both hands are considered as cursor.
      *
-     * <p>This might happen when one or both hands are interacting
-     * with overlay that supports two cursors {@link VROverlay#supportsTwoHandedCursor()}</p>
+     * <p>This might happen when one or both hands are focused
+     * at overlay which supports two cursors {@link VROverlay#supportsTwoCursors()}</p>
      *
      * <p>When true, {@link #getCursorHand()} is considered as active/last used,
-     * while the other, inactive cursor is just displayed.
-     * <br>Active cursor means, it interacts with GUI</p>
+     * while the other, inactive cursor is just displayed.</p>
+     *
+     * <p>Active cursor means, it interacts with GUI</p>
      *
      * @return if both hands are cursor
      */
@@ -130,12 +153,6 @@ public interface VRCursorHandler {
     }
 
 
-    boolean isDraggingItem();
-
-    @ApiStatus.Internal
-    void setDraggingItem(boolean flag);
-
-
     /**
      * Get cursor line length for specified hand.<br>
      * Cursor line length is a distance from hand
@@ -149,16 +166,39 @@ public interface VRCursorHandler {
     double getCursorLineLength(@NotNull ControllerHand hand);
 
 
-    boolean isFacingOverlay(PoseElement element,
-                            VROverlay overlay,
+    /**
+     * If {@code element} is considered to be facing {@code overlay}
+     *
+     * @param element   the pose element
+     * @param overlay   overlay that should be faced
+     *
+     * @param checkUpsideDown  if {@code true}, rejects 180°-flipped orientations
+     *
+     * @param threshold    the alignment threshold in the range {@code (0.0, 1.0]}; smaller
+     *                     values are more permissive, larger values are stricter
+     *
+     * @return If facing
+     */
+    boolean isFacingOverlay(@NotNull PoseElement element,
+                            @NotNull VROverlay overlay,
                             boolean checkUpsideDown,
-                            double threshold
-    );
+                            double threshold);
 
-    default boolean isFacingOverlay(PoseElement element,
-                                    VROverlay overlay,
-                                    boolean checkUpsideDown
-    ) {
+    /**
+     * Same as {@link #isFacingOverlay(PoseElement, VROverlay, boolean, double)}
+     * with a default {@code threshold} of {@code 0.2}.
+     *
+     * @param element  the pose element
+     * @param overlay  overlay that should be faced
+     *
+     * @param checkUpsideDown  if {@code true}, rejects 180°-flipped orientations
+     *
+     * @return If facing
+     *
+     */
+    default boolean isFacingOverlay(@NotNull PoseElement element,
+                                    @NotNull VROverlay overlay,
+                                    boolean checkUpsideDown) {
         return isFacingOverlay(
                 element, overlay,
                 checkUpsideDown,0.2
@@ -167,25 +207,43 @@ public interface VRCursorHandler {
 
 
     /**
+     * Computes the cursor’s position in GUI for the given
+     * {@code element}.
      *
-     * @param component
-     * @param guiPosition
-     * @param guiRotation
-     * @param guiScale
-     * @return
+     * @param element     pose element whose cursor is queried
+     * @param guiPosition position of the GUI
+     * @param guiRotation rotation of the GUI
+     * @param guiScale    scale factor applied to the GUI
+     *
+     * @return Vector where x,y are cursor coordinates and z is cursor length
      */
-    @NotNull
-    Vector2f findCursorPosition2D(@NotNull PoseElement component,
-                                    @NotNull Vector3fc guiPosition,
-                                    @NotNull Matrix4fc guiRotation,
-                                    float guiScale);
+    @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
+                                           @NotNull Vector3fc guiPosition,
+                                           @NotNull Matrix4fc guiRotation,
+                                           float guiScale);
 
-
-
-    Vector3f findCursorPosition3D(@NotNull PoseElement component,
-                              @NotNull Vector3fc guiPosition,
-                              @NotNull Matrix4fc guiRotation,
-                              float guiScale);
+    /**
+     * Computes the cursor’s position in GUI for the given
+     * {@code element}.
+     *
+     * @param element     pose element whose cursor is queried
+     * @param guiPosition position of the GUI
+     * @param guiRotation rotation of the GUI
+     * @param guiScale    scale factor applied to the GUI
+     *
+     * @return Vector where x,y are cursor coordinates
+     */
+    default @NotNull Vector2f findCursorPosition2D(@NotNull PoseElement element,
+                                                   @NotNull Vector3fc guiPosition,
+                                                   @NotNull Matrix4fc guiRotation,
+                                                   float guiScale) {
+        var vec3 = findCursorPosition3D(
+                element,
+                guiPosition, guiRotation,
+                guiScale
+        );
+        return new Vector2f(vec3.x, vec3.y);
+    }
 
 
 }

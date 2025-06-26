@@ -24,7 +24,15 @@ public interface VisorClient {
      */
     boolean isFeatureEnabled(@NotNull ClientFeature feature);
 
-
+    /**
+     * If specified client feature is disabled
+     *
+     * @param feature the feature
+     * @return if enabled
+     */
+    default boolean isFeatureDisabled(@NotNull ClientFeature feature){
+        return !isFeatureEnabled(feature);
+    }
 
     /**
      * Get VR Client Player

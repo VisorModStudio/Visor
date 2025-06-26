@@ -1,10 +1,9 @@
-package me.phoenixra.visor.api.client.gui.overlay.options;
+package me.phoenixra.visor.api.client.gui.overlay.template.options;
 
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 public abstract class OverlayOptionsScreen<T extends OverlayOptionCategory> extends Screen {

@@ -7,11 +7,10 @@ import me.phoenixra.atumvr.api.utils.MathUtils;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseType;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
-import me.phoenixra.visor.api.client.gui.overlay.ModelViewAnchor;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionCategory;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayRadialSelector;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -27,13 +26,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-
-import java.util.List;
-
-
 
 
 public class VROverlayHotBar extends VROverlayRadialSelector
@@ -66,7 +60,11 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                            @NotNull ControllerHand hand,
                            @NotNull String id) {
 
-        super(owner, hand, id, 98,
+        super(owner, hand, id,
+                hand == ControllerHand.MAIN
+                        ? ElementPriority.HIGH
+                        :ElementPriority.NORMAL,
+                98,
                 new SelectionBoxHotBar(
                         HotBarSlice.CENTER.getSlot(),
                         41, 41,
@@ -136,16 +134,14 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                                 -1d  //separately checked
                         )
                 ));
-        if (hand == ControllerHand.MAIN) {
-            setPriority(ElementPriority.HIGH);
-        }
         VisorAPI.eventBus().registerListener(owner,this);
     }
 
     @VREventHandler
     public void disableAimEffectsAndMouse(AllowClientFeatureVREvent event){
         if(event.getFeature() == ClientFeature.AIM_EFFECTS
-                || event.getFeature() == ClientFeature.INPUT_VR_MOUSE) {
+                || event.getFeature() == ClientFeature.INPUT_MOUSE
+                || event.getFeature() == ClientFeature.GUI_CURSOR) {
 
             if(isVisible()
                     && ClientContext.player.getActiveHand() == getUsedHand()){
@@ -153,8 +149,6 @@ public class VROverlayHotBar extends VROverlayRadialSelector
             }
 
         }
-
-
     }
 
 
@@ -298,13 +292,13 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     }
 
     @Override
-    public void applyModelView(float partialTick) {
+    public void updatePose(float partialTicks) {
         var camPos = RenderPoseHelper.getCameraPosition(
                 VRDisplay.GUI,
-                ClientContext.player.getPose(PoseType.RENDER)
+                ClientContext.player.getPose(PoseDataType.RENDER)
         );
 
-        setPosition(new Vector3f(
+        getPose().updateOnlyPosition(new Vector3f(
                 camPos.x() + orientPosOffsetRender.x,
                 camPos.y() + orientPosOffsetRender.y,
                 camPos.z() + orientPosOffsetRender.z
@@ -313,30 +307,28 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Override
     public void onEnable() {
-        ModelViewAnchor posAnchor = (getUsedHand() == ControllerHand.OFFHAND ?
-                ModelViewAnchor.OFFHAND : ModelViewAnchor.MAIN_HAND);
+        PoseAnchor posAnchor = (getUsedHand() == ControllerHand.OFFHAND ?
+                PoseAnchor.OFFHAND : PoseAnchor.MAIN_HAND);
 
         PoseData renderPose = ClientContext
                 .player
-                .getPose(PoseType.RENDER);
-        setPosition(
-                posAnchor.anchorPos(
-                        renderPose,
-                        orientPosOffset
-                )
-        );
-        setRotation(
-                ModelViewAnchor.HMD.anchorRotationAim(
-                        renderPose,
-                        orientRotationOffset,
-                        getPosition()
-                )
-        );
+                .getPose(PoseDataType.RENDER);
 
-        orientPosOffsetRender = getPosition().sub(
+        VROverlayHelper.applyPose(
+                this,
+                posAnchor,
+                PoseAnchor.HMD,
+                getPose().getScale(),
+                true,
+                orientPosOffset,
+                orientRotationOffset
+
+        );
+        orientPosOffsetRender = getPose().getPosition().sub(
                 renderPose.getHmd().getPosition(),
                 new Vector3f()
         );
+
         disabledBoxes.clear();
     }
 
@@ -387,8 +379,4 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         }
     }
 
-    @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
-        return List.of();
-    }
 }

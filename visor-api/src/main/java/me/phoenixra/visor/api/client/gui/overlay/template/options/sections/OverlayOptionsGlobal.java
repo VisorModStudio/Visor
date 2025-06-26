@@ -1,13 +1,13 @@
-package me.phoenixra.visor.api.client.gui.overlay.options.sections;
+package me.phoenixra.visor.api.client.gui.overlay.template.options.sections;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.Config;
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsBase;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsBase;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -22,13 +22,16 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
 
     private UpdateOptionsType updateOptionsType;
 
+    private float overlayScale;
+
+
     @Nullable
     private String formulaOverlayScale;
     private boolean updatableOverlayScale;
 
 
 
-    public OverlayOptionsGlobal(@NotNull VROverlay owner,
+    public OverlayOptionsGlobal(@NotNull OverlayTemplate owner,
                                 @NotNull Consumer<OverlayOptionsGlobal> defaultSettings){
         super(owner, defaultSettings);
     }
@@ -36,9 +39,9 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
 
     @Override
     public void update(boolean force) {
-        var configManager = owner.getConfig().getConfigOwner();
+        var configManager = owner.getTypeConfig().getConfigOwner();
         if(force){
-            float overlayScale = 1.0f;
+            overlayScale = 1.0f;
             try{
                 if(formulaOverlayScale != null) {
                     overlayScale = (float) Double.parseDouble(formulaOverlayScale);
@@ -50,30 +53,25 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
                 updatableOverlayScale = true;
             }
             overlayScale = overlayScale <= 0 ? 1.0f : overlayScale;
-            owner.setOverlayScale(
-                    overlayScale
-            );
             return;
         }
         if(updatableOverlayScale) {
             float overlayScale = (float) VRMathUtils.getEvaluated(configManager, formulaOverlayScale);
             overlayScale = overlayScale <= 0 ? 1.0f : overlayScale;
-            owner.setOverlayScale(
-                    overlayScale
-            );
+            this.overlayScale = overlayScale;
         }
     }
 
     @Override
     protected void onLoad(@NotNull Config section){
-        var configManager = owner.getConfig().getConfigOwner();
+        var configManager = owner.getTypeConfig().getConfigOwner();
 
         updateOptionsType = UpdateOptionsType.valueOf(
                 section.getStringOrDefault("update_options", UpdateOptionsType.OFF.name())
         );
 
         formulaOverlayScale = section.getStringOrNull("overlayScale");
-        float overlayScale = 1.0f;
+        overlayScale = 1.0f;
         try{
             if(formulaOverlayScale != null) {
                 overlayScale = (float) Double.parseDouble(formulaOverlayScale);
@@ -85,9 +83,7 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
             updatableOverlayScale = true;
         }
         overlayScale = overlayScale <= 0 ? 1.0f : overlayScale;
-        owner.setOverlayScale(
-                overlayScale
-        );
+
     }
     @Override
     public void onSave(@NotNull Config section){

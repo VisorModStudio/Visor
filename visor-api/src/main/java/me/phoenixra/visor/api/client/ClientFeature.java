@@ -12,21 +12,41 @@ public enum ClientFeature {
     MOVEMENT_MODIFIERS(false),
 
     /**
-     * Movement via VR Input actions
+     * Movement via input from VR
      */
     INPUT_MOVEMENT(false),
 
-    INPUT_VR_MOUSE(false),
+    /**
+     * Mouse actions in VR
+     */
+    INPUT_MOUSE(false),
+
 
     /**
-     * Effects like crosshair, block outline
+     * If HUD should not be rendered
+     */
+    GUI_DISABLE_HUD(false),
+
+    /**
+     * VR cursor processing and display
+     */
+    GUI_CURSOR(true),
+
+
+    /**
+     * Effects like cross-hair, block outline
      */
     AIM_EFFECTS(true),
 
     /**
      * VR Hands rendering
      */
-    VR_HANDS(true);
+    VR_HANDS(true),
+
+    /**
+     * VR World hands rendering. If false, GUI hands rendered instead
+     */
+    VR_WORLD_HANDS(true);
 
     @Getter
     private boolean renderFeature;

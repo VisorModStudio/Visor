@@ -64,10 +64,8 @@ public class KeyboardMixins {
             if(attachedScreen instanceof VROverlayScreen
                     && ClientContext.overlayManager.isShowingKeyboard()){
                 if (actionType == 0) {
-                    LoggerUtils.getLogger().info("KEY RELEASED");
                     attachedScreen.keyReleased(keyCode, keyScan, keyModifiers);
                 } else {
-                    LoggerUtils.getLogger().info("KEY PRESSED");
                     //pressed - 1, heldDown - 2
                     attachedScreen.keyPressed(keyCode, keyScan, keyModifiers);
                 }
