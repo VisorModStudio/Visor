@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
+import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VisorTask> tasks();
+    VisorRegistry<VisorTask> tasks();
 
     /**
      * Get Action Set registry
@@ -33,7 +34,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VisorActionSet> actionSets();
+    VisorRegistry<VisorActionSet> actionSets();
 
 
 
@@ -44,7 +45,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VRDecorator> decorators();
+    VisorRegistry<VRDecorator> decorators();
 
     /**
      * Get VR Game Effect registry
@@ -53,7 +54,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VRGameEffect> gameEffects();
+    VisorRegistry<VRGameEffect> gameEffects();
 
     /**
      * Get VR Hand Effect registry
@@ -62,7 +63,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VRHandEffect> handEffects();
+    VisorRegistry<VRHandEffect> handEffects();
 
     /**
      * Get VR Hand Item Pose registry
@@ -71,7 +72,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VRHandItemPose> itemPoses();
+    VisorRegistry<VRHandItemPose> itemPoses();
 
 
 
@@ -82,7 +83,7 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<VROverlay> overlays();
+    VisorRegistry<VROverlay> overlays();
 
     /**
      * Get VR Overlay Types registry
@@ -91,6 +92,6 @@ public interface VisorRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisortRegistry<OverlayTemplateRecord> overlayTypes();
+    VisorRegistry<OverlayTemplateRecord> overlayTypes();
 
 }

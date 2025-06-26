@@ -104,8 +104,10 @@ public class InputHelper {
 
 
     public static void typeChar(char character, int modifiers) {
-        Screen screen = VisorAPI.client()
-                .getGuiManager().getOverlayManager().getKeyboardAttachedTo();
+        var keyboardAccessor = VisorAPI.client().getGuiManager()
+                .getOverlayManager()
+                .getKeyboardAccessor();
+        Screen screen = keyboardAccessor.getAttachedTo();
         if(screen != null){
             //overlays
             screen.charTyped(character,modifiers);

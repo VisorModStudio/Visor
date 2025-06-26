@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.widgets.WidgetsFactory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

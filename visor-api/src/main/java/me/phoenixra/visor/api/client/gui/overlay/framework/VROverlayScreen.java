@@ -5,11 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
-import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
 import me.phoenixra.visor.api.client.input.InputHelper;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -173,11 +173,11 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             onEnable();
         } else {
             enabled = false;
-            VROverlayManager overlayHandler = VisorAPI.client()
-                    .getGuiManager()
-                    .getOverlayManager();
-            if (overlayHandler.getKeyboardAttachedTo() == this) {
-                overlayHandler.showKeyboard(false);
+            var keyboardAccessor = VisorAPI.client().getGuiManager()
+                    .getOverlayManager()
+                    .getKeyboardAccessor();
+            if (keyboardAccessor.getAttachedTo() == this) {
+                keyboardAccessor.setVisible(false);
             }
             onDisable();
         }
@@ -191,12 +191,12 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 || rawY < 0f || rawY > 1f) {
             VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
 
-            cursorData.rawCursorX = -1;
-            cursorData.rawCursorY = -1;
+            cursorData.setRawCursorX(-1);
+            cursorData.setRawCursorY(-1);
 
-            cursorData.cursorX = 0;
-            cursorData.cursorY = 0;
-            mouseMoved(cursorData.cursorX, cursorData.cursorY);
+            cursorData.setCursorX(0);
+            cursorData.setCursorY(0);
+            mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());
             return;
         }
 
@@ -206,12 +206,12 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
 
 
-        int oldMouseX = cursorData.cursorX;
-        int oldMouseY = cursorData.cursorY;
+        int oldMouseX = cursorData.getCursorX();
+        int oldMouseY = cursorData.getCursorY();
 
         // ---- Updating mouse data
-        cursorData.rawCursorX = rawX;
-        cursorData.rawCursorY = rawY;
+        cursorData.setRawCursorX(rawX);
+        cursorData.setRawCursorY(rawY);
 
         float preMouseX = (float) (
                 (int) (rawX * guiManager.getScaledGuiWidth())
@@ -220,19 +220,23 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 (int) (rawY * guiManager.getScaledGuiHeight())
         );
 
-        cursorData.cursorX = (int) (preMouseX * (double) this.width / (double) guiManager.getScaledGuiWidth());
-        cursorData.cursorY = (int) (preMouseY * (double) this.height / (double) guiManager.getScaledGuiHeight());
+        cursorData.setCursorX(
+                (int) (preMouseX * (double) this.width / (double) guiManager.getScaledGuiWidth())
+        );
+        cursorData.setCursorY(
+                (int) (preMouseY * (double) this.height / (double) guiManager.getScaledGuiHeight())
+        );
 
         // ---- Move and Drag events
-        mouseMoved(cursorData.cursorX, cursorData.cursorY);
+        mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());
 
         if (InputHelper.canDragMouse()) {
             for (int button : new int[]{0, 1, 2}) {
                 if (!InputHelper.isMousePressed(button)) continue;
-                int deltaX = cursorData.cursorX - oldMouseX;
-                int deltaY = cursorData.cursorY - oldMouseY;
+                int deltaX = cursorData.getCursorX() - oldMouseX;
+                int deltaY = cursorData.getCursorY() - oldMouseY;
                 mouseDragged(
-                        cursorData.cursorX, cursorData.cursorY,
+                        cursorData.getCursorX(), cursorData.getCursorY(),
                         button,
                         deltaX, deltaY
                 );
@@ -253,21 +257,21 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
         VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
 
-        float originRawMouseX = cursorData.rawCursorX;
-        float originRawMouseY = cursorData.rawCursorY;
-        int originMouseX = cursorData.cursorX;
-        int originMouseY = cursorData.cursorY;
+        float originRawCursorX = cursorData.getRawCursorX();
+        float originRawCursorY = cursorData.getRawCursorY();
+        int originCursorX = cursorData.getCursorX();
+        int originCursorY = cursorData.getCursorY();
 
         updateCursorData(activeCursor, rawX, rawY);
-        boolean result = cursorData.cursorX >= cursorEdgeX
-                && cursorData.cursorY >= cursorEdgeY
-                && cursorData.cursorX <= cursorEdgeWidth + cursorEdgeX
-                && cursorData.cursorY <= cursorEdgeHeight + cursorEdgeY;
+        boolean result = cursorData.getCursorX() >= cursorEdgeX
+                && cursorData.getCursorY() >= cursorEdgeY
+                && cursorData.getCursorX() <= cursorEdgeWidth + cursorEdgeX
+                && cursorData.getCursorY() <= cursorEdgeHeight + cursorEdgeY;
 
-        cursorData.rawCursorX = originRawMouseX;
-        cursorData.rawCursorY = originRawMouseY;
-        cursorData.cursorX = originMouseX;
-        cursorData.cursorY = originMouseY;
+        cursorData.setRawCursorX(originRawCursorX);
+        cursorData.setRawCursorY(originRawCursorY);
+        cursorData.setCursorX(originCursorX);
+        cursorData.setCursorY(originCursorY);
         return result;
     }
 

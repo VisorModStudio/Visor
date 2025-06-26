@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets;
 
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.SliderValueWidget;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;

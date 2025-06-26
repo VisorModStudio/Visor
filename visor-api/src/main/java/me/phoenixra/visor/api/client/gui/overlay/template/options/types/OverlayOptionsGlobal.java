@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.template.options.sections;
+package me.phoenixra.visor.api.client.gui.overlay.template.options.types;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +39,7 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
 
     @Override
     public void update(boolean force) {
-        var configManager = owner.getTypeConfig().getConfigOwner();
+        var configManager = owner.getConfig().getConfigOwner();
         if(force){
             overlayScale = 1.0f;
             try{
@@ -64,7 +64,7 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
 
     @Override
     protected void onLoad(@NotNull Config section){
-        var configManager = owner.getTypeConfig().getConfigOwner();
+        var configManager = owner.getConfig().getConfigOwner();
 
         updateOptionsType = UpdateOptionsType.valueOf(
                 section.getStringOrDefault("update_options", UpdateOptionsType.OFF.name())
@@ -92,11 +92,10 @@ public class OverlayOptionsGlobal extends OverlayOptionsBase<OverlayOptionsGloba
     }
 
     @Override
-    public @NotNull OverlayOptionsScreen getScreen(float mainMenuWidth, float mainMenuHeight) {
+    public @NotNull OverlayOptionsScreen<?> getScreen(float mainMenuWidth, float mainMenuHeight) {
         return VisorAPI.client().getGuiManager().getOverlayManager().getOptionsScreenFor(
                 this,mainMenuWidth,mainMenuHeight
         );
-
     }
 
     @Override

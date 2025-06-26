@@ -6,9 +6,10 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
+import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
@@ -22,9 +23,8 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 
-public class VROverlayKeyboard
-        extends VROverlayScreenInScreen<VRKeyboardScreen>
-        implements VREventListener {
+public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
+        implements VRKeyboardAccessor, VREventListener {
     public static final String ID = "keyboard";
 
     private final Vector3f posOffset = new Vector3f(0,-0.5f,-0.6f);
@@ -46,6 +46,9 @@ public class VROverlayKeyboard
         );
         getScreen().setOverlayKeyboard(this);
         setEnabled(true);
+
+        ClientContext.overlayManager.setKeyboardAccessor(this);
+
         VisorAPI.eventBus().registerListener(owner,this);
     }
 
@@ -93,12 +96,12 @@ public class VROverlayKeyboard
     }
 
 
-    public boolean showKeyboard(boolean flag){
-        return showKeyboard(flag, null);
+    public void setVisible(boolean flag){
+        setVisible(flag, null);
     }
 
-    public boolean showKeyboard(boolean flag,
-                                @Nullable Screen attachedTo) {
+    public void setVisible(boolean flag,
+                           @Nullable Screen attachedTo) {
         shown = flag;
 
         if (shown) {
@@ -110,12 +113,11 @@ public class VROverlayKeyboard
             this.attachedTo = null;
         }
 
-        return shown;
 
     }
 
 
-    public void updateOrient(){
+    public void resetPose(){
         VROverlayHelper.applyPose(
                 this,
                 PoseAnchor.HMD,
@@ -157,11 +159,6 @@ public class VROverlayKeyboard
     @Override
     public boolean supportsTwoCursors() {
         return true;
-    }
-
-    @Override
-    public boolean supportsCursor() {
-        return shown;
     }
 
 

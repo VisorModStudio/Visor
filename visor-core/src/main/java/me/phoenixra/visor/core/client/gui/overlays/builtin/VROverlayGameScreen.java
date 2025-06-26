@@ -6,13 +6,12 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayCursorData;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.input.InputHelper;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
@@ -104,17 +103,19 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         }
 
         VROverlayManager overlayManager = ClientContext.overlayManager;
+        var keyboardAccessor = overlayManager
+                .getKeyboardAccessor();
         if (newScreen == null) {
             resetOrient();
-            Screen attachedTo = overlayManager.getKeyboardAttachedTo();
+            Screen attachedTo = keyboardAccessor.getAttachedTo();
             if (attachedTo != null
                     && attachedTo == previousGuiScreen) {
-                overlayManager.showKeyboard(false);
+                keyboardAccessor.setVisible(false);
             }
         } else if (newScreen instanceof ChatScreen) {
-            if(!overlayManager.isShowingKeyboard()
-                    || overlayManager.getKeyboardAttachedTo() != null){
-                overlayManager.showKeyboard(true, newScreen);
+            if(!keyboardAccessor.isVisible()
+                    || keyboardAccessor.getAttachedTo() != null){
+                keyboardAccessor.setVisible(true, newScreen);
             }
         }
 
@@ -171,9 +172,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                     .mul(new Matrix4f().rotationX(pitch));
 
         }
-        VROverlayKeyboard keyboard = ClientContext.overlayManager.getKeyboardOverlay();
 
-        keyboard.updateOrient();
+        ClientContext.overlayManager.getKeyboardAccessor()
+                .resetPose();
     }
 
     private void orientMainMenu(){

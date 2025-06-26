@@ -1,10 +1,11 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysCatalog;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,38 +45,34 @@ public interface VROverlayManager {
 
 
     /**
-     * Set the display state for the keyboard overlay
-     * @param flag true/false
-     */
-    void showKeyboard(boolean flag);
-
-    /**
-     * Set the display state for the keyboard overlay
-     * @param flag true/false
-     * @param attachedTo screen to which keyboard is attached
-     */
-    boolean showKeyboard(boolean flag,
-                         @Nullable Screen attachedTo);
-
-    /**
-     *  Screen to which keyboard is attached
-     * @return screen or NULL if keyboard is not shown
-     * or not attached to any screen
-     */
-    @Nullable
-    Screen getKeyboardAttachedTo();
-
-    /**
+     * Get keyboard accessor
      *
-     * @return If keyboard is currently displayed
+     * @return the keyboard accessor
      */
-    boolean isShowingKeyboard();
-
     @NotNull
-    ConfigOverlaysCatalog getOverlayCatalog();
+    VRKeyboardAccessor getKeyboardAccessor();
+
+    /**
+     * Set keyboard accessor
+     *
+     * @param keyboardAccessor the keyboard accessor
+     */
+    void setKeyboardAccessor(@NotNull VRKeyboardAccessor keyboardAccessor);
 
 
-    @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionCategory category,
+    /**
+     * Get Config overlays accessor
+     *
+     * @return the accessor
+     */
+    @NotNull
+    ConfigOverlaysAccessor getConfigOverlaysAccessor();
+
+
+
+
+    @ApiStatus.Internal
+    @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptions category,
                                                          float mainMenuWidth,
                                                          float mainMenuHeight);
 }

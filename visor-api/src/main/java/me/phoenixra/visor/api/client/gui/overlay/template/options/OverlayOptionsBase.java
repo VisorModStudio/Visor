@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public abstract class OverlayOptionsBase<T extends OverlayOptionsBase<T>> implements OverlayOptionCategory {
+public abstract class OverlayOptionsBase<T extends OverlayOptionsBase<T>> implements OverlayOptions {
 
     @Getter
     protected final OverlayTemplate owner;
@@ -21,7 +21,7 @@ public abstract class OverlayOptionsBase<T extends OverlayOptionsBase<T>> implem
                               @NotNull Consumer<T> defaultSettings) {
         this.owner = owner;
         this.defaultSettings = defaultSettings;
-        this.overlayConfig = owner.getTypeConfig();
+        this.overlayConfig = owner.getConfig();
         if (overlayConfig.getSubsectionOrNull(getId().toUpperCase()) == null) {
             saveDefaults();
         } else {

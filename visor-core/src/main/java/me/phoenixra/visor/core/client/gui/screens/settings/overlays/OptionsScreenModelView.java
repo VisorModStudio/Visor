@@ -5,8 +5,9 @@ import me.phoenixra.atumconfig.api.utils.StringUtils;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
+
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
@@ -69,8 +70,9 @@ public class OptionsScreenModelView extends OverlayOptionsScreen<OverlayOptionsL
     protected void init() {
         clearWidgets();
 
-        demoOverlay = (VROverlayDemo) ClientContext.overlayManager.getOverlay(
-                VROverlayDemo.ID
+        demoOverlay = ClientContext.overlayManager.getOverlay(
+                VROverlayDemo.ID,
+                VROverlayDemo.class
         );
         mouseEdgeX = width - BACKGROUND_WIDTH;
         mouseEdgeY = height - BACKGROUND_HEIGHT;

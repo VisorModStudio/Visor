@@ -3,8 +3,9 @@ package me.phoenixra.visor.api.client.gui.overlay.framework;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -121,27 +122,6 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Override
     public boolean supportsCursor() {
         return false;
-    }
-
-
-    @Override
-    public int getMouseX() {
-        return activeCursorData.cursorX;
-    }
-    @Override
-    public int getMouseY() {
-        return activeCursorData.cursorY;
-    }
-
-
-    @Override
-    public float getRawMouseX() {
-        return activeCursorData.rawCursorX;
-    }
-
-    @Override
-    public float getRawMouseY() {
-        return activeCursorData.rawCursorY;
     }
 
 

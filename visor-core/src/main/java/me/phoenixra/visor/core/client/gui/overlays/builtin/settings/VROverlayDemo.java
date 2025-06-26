@@ -8,12 +8,12 @@ import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
@@ -145,7 +145,7 @@ public class VROverlayDemo extends VROverlayScreen {
             //since demonstrating overlay is not visible
             //its options are not handled on render tick
             //So, we have to do that ourselves to ensure modelView is valid
-            demonstrating.getOptions().forEach(
+            demonstrating.getTemplateOptions().forEach(
                     it->it.update(false)
             );
         }
@@ -192,8 +192,8 @@ public class VROverlayDemo extends VROverlayScreen {
         setEnabled(false);
 
         demonstrating = overlay;
-        demoModelViewOptions = demonstrating.getOption(OverlayOptionsLocation.class);
-        demoOptionsGlobal = demonstrating.getOption(OverlayOptionsGlobal.class);
+        demoModelViewOptions = demonstrating.getTemplateOption(OverlayOptionsLocation.class);
+        demoOptionsGlobal = demonstrating.getTemplateOption(OverlayOptionsGlobal.class);
 
         overlayScale = demonstrating.getPose().getScale();
 

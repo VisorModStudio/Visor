@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3fc;
 
-public abstract class OverlayOptionsScreen<T extends OverlayOptionCategory> extends Screen {
+public abstract class OverlayOptionsScreen<T extends OverlayOptions> extends Screen {
     @Getter
     protected final T optionCategory;
 

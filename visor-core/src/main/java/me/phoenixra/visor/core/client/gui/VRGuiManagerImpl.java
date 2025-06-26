@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
-import me.phoenixra.visor.api.common.addon.VisortRegistry;
+import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
@@ -92,7 +92,7 @@ public class VRGuiManagerImpl implements VRGuiManager {
         }
     }
 
-    public List<VisortRegistry<?>> getElementRegistries(){
+    public List<VisorRegistry<?>> getElementRegistries(){
         return List.of(
                 ClientContext.overlayManager.getOverlaysRegistry(),
                 ClientContext.overlayManager.getOverlayTypesRegistry()

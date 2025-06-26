@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.framework;
+package me.phoenixra.visor.api.client.gui.overlay;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +9,12 @@ public class VROverlayCursorData {
     /**
      * Cursor X position relative to overlay coordinates
      */
-    protected int cursorX;
+    private int cursorX;
 
     /**
      * Cursor Y position relative to overlay coordinates
      */
-    protected int cursorY;
+    private int cursorY;
 
     /**
      * Raw cursor X position<br>
@@ -22,7 +22,7 @@ public class VROverlayCursorData {
      * <p>If Value is from 0 to 1,
      * then cursor is within overlay bounds</p>
      */
-    protected float rawCursorX;
+    private float rawCursorX;
 
     /**
      * Raw cursor Y position<br>
@@ -31,10 +31,14 @@ public class VROverlayCursorData {
      * then cursor is within overlay bounds</p>
      *
      */
-    protected float rawCursorY;
+    private float rawCursorY;
 
 
-
+    /**
+     * Is cursor within GUI bounds
+     *
+     * @return true/false
+     */
     public boolean isInGui(){
 
         return rawCursorX >= 0f && rawCursorX <= 1f

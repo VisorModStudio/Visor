@@ -1,5 +1,6 @@
-package me.phoenixra.visor.api.common.addon;
+package me.phoenixra.visor.api.common.addon.element;
 
+import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-public interface VisortRegistry<T extends VisorElement> {
+public interface VisorRegistry<T extends VisorElement> {
 
     @ApiStatus.Internal
     void registerAddonPath(@NotNull VisorAddon addon);

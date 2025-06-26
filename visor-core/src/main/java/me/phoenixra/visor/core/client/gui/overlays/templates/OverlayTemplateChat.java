@@ -4,9 +4,9 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 
 import me.phoenixra.visor.api.client.gui.overlay.template.framework.OverlayTemplateScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -47,7 +47,7 @@ public class OverlayTemplateChat extends OverlayTemplateScreen {
     public boolean updateVisibility() {
         if(minecraft.level == null) return false;
         if(minecraft.isPaused()
-                || ClientContext.overlayManager.isShowingKeyboard()) return false;
+                || ClientContext.overlayManager.getKeyboardAccessor().isVisible()) return false;
         if (!ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND)
                 .isTracking()) {
             return false;
@@ -75,7 +75,7 @@ public class OverlayTemplateChat extends OverlayTemplateScreen {
     }
 
     @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
+    protected @NotNull List<OverlayOptions> createOptions() {
         return List.of(
                 new OverlayOptionsGlobal(
                         this,

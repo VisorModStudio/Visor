@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -16,7 +16,7 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
 
     private VROverlaySettings settingsMenu;
 
-    private OverlayOptionCategory category;
+    private OverlayOptions category;
     public VROverlayOptionsMenu(@NotNull VisorAddon owner,
                                 @NotNull String id) {
         super(owner, id, null);
@@ -91,7 +91,7 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
 
 
     public void openMenu(@NotNull VROverlaySettings settingsMenu,
-                         @NotNull OverlayOptionCategory optionCategory){
+                         @NotNull OverlayOptions optionCategory){
         if(isEnabled()
                 && (this.settingsMenu == settingsMenu
                 && this.category == optionCategory)){

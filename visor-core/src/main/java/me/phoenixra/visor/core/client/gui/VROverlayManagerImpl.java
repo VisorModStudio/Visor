@@ -6,13 +6,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
+import lombok.Setter;
+import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysCatalog;
+import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -35,15 +37,15 @@ import org.joml.Matrix4f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
+@Getter
 public class VROverlayManagerImpl implements VROverlayManager {
 
-    @Getter
     private final VROverlayRegistry overlaysRegistry = new VROverlayRegistry();
-    @Getter
     private final VROverlayTypeRegistry overlayTypesRegistry = new VROverlayTypeRegistry();
 
 
-    private VROverlayKeyboard keyboard;
+    @Setter
+    private VRKeyboardAccessor keyboardAccessor;
 
 
     public void tick(){
@@ -184,41 +186,14 @@ public class VROverlayManagerImpl implements VROverlayManager {
         return overlaysRegistry.getElement(id);
     }
 
+
     @Override
-    public boolean isShowingKeyboard() {
-        return getKeyboardOverlay().isShown();
+    public @NotNull ConfigOverlaysAccessor getConfigOverlaysAccessor() {
+        return ClientContext.settingsHandler.getOverlaysAccessor();
     }
 
     @Override
-    public void showKeyboard(boolean flag) {
-        getKeyboardOverlay().showKeyboard(flag);
-    }
-    @Override
-    public boolean showKeyboard(boolean flag,
-                                @Nullable Screen attachedTo){
-        return getKeyboardOverlay().showKeyboard(flag,attachedTo);
-    }
-
-    @Override
-    public Screen getKeyboardAttachedTo() {
-        return getKeyboardOverlay().getAttachedTo();
-    }
-
-
-    public VROverlayKeyboard getKeyboardOverlay() {
-        if(keyboard == null) {
-            keyboard = (VROverlayKeyboard) getOverlay("keyboard");
-        }
-        return keyboard;
-    }
-
-    @Override
-    public @NotNull ConfigOverlaysCatalog getOverlayCatalog() {
-        return ClientContext.settingsHandler.getOverlayCatalog();
-    }
-
-    @Override
-    public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionCategory category, float mainMenuWidth, float mainMenuHeight) {
+    public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptions category, float mainMenuWidth, float mainMenuHeight) {
         if(category instanceof OverlayOptionsGlobal category1){
             return new OptionsScreenGlobal(category1,mainMenuWidth,mainMenuHeight);
         }else if(category instanceof OverlayOptionsLocation category1){

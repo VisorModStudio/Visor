@@ -148,8 +148,9 @@ public class VRKeyboardScreen extends Screen {
                         Component.literal("§cx"),
                         (p) ->
                         {
-                            ClientContext.overlayManager
-                                    .showKeyboard(false);
+                            var keyboardAccessor = ClientContext.overlayManager
+                                    .getKeyboardAccessor();
+                            keyboardAccessor.setVisible(false);
                         })
                         .size(30, 20)
                         .pos(0, yPos + -1 * (20 + l))

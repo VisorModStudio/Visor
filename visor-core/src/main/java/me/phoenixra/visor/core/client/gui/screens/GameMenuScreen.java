@@ -30,7 +30,9 @@ public class GameMenuScreen extends Screen {
         //@TODO temporary. Get rid of it when player tick tasks
         // start to reset on player world leave
         TaskHotBar.setResetData(true);
-        ClientContext.overlayManager.showKeyboard(false);
+        var keyboardAccessor = ClientContext.overlayManager
+                .getKeyboardAccessor();
+        keyboardAccessor.setVisible(false);
     }
 
     private void create(){
@@ -61,7 +63,9 @@ public class GameMenuScreen extends Screen {
         //KEYBOARD
         rowHelper.addChild(Button.builder(OPEN_KEYBOARD, (button) -> {
                     this.minecraft.setScreen(null);
-                    ClientContext.overlayManager.showKeyboard(true);
+                    var keyboardAccessor = ClientContext.overlayManager
+                            .getKeyboardAccessor();
+                    keyboardAccessor.setVisible(true);
                 }).width(104).build(),
                 2, gridLayout.newCellSettings().paddingTop(20)
         );

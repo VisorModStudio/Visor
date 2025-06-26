@@ -1,21 +1,39 @@
 package me.phoenixra.visor.api.client.gui.overlay.template;
 
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElement;
+import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
 
+/**
+ * Record of registered overlay template
+ *
+ * @param owner the owner
+ * @param id the template id
+ * @param clazz the template class
+ * @param constructor the template constructor
+ */
 public record OverlayTemplateRecord(@NotNull VisorAddon owner,
                                     @NotNull String id,
                                     @NotNull Class<? extends OverlayTemplate> clazz,
                                     @NotNull Constructor<? extends OverlayTemplate> constructor
                             ) implements VisorElement {
+    /**
+     * Overlay templates are always enabled
+     *
+     * @return true
+     */
     @Override
     public boolean isEnabled() {
         return true;
     }
 
+    /**
+     * Overlay templates are always enabled,
+     * don't use this method
+     *
+     */
     @Override
     public void setEnabled(boolean flag) {
         if(!flag) {
@@ -23,11 +41,21 @@ public record OverlayTemplateRecord(@NotNull VisorAddon owner,
         }
     }
 
+    /**
+     * Get Template id
+     *
+     * @return the template id
+     */
     @Override
     public @NotNull String getId() {
         return id;
     }
 
+    /**
+     * Get Template owner
+     *
+     * @return the addon
+     */
     @Override
     public @NotNull VisorAddon getOwner() {
         return owner;

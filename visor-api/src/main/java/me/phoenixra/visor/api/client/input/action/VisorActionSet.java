@@ -7,10 +7,10 @@ import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
-import me.phoenixra.visor.api.common.addon.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElement;
+import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 

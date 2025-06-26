@@ -5,7 +5,7 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public interface OverlayOptionCategory {
+public interface OverlayOptions {
 
     void load();
 
@@ -22,7 +22,7 @@ public interface OverlayOptionCategory {
      * @return
      */
     @NotNull
-    OverlayOptionsScreen getScreen(float mainMenuWidth, float mainMenuHeight);
+    OverlayOptionsScreen<?> getScreen(float mainMenuWidth, float mainMenuHeight);
 
     @NotNull
     String getId();

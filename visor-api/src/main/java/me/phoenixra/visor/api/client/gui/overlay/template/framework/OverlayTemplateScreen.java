@@ -7,12 +7,12 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -28,13 +28,13 @@ import java.util.Map;
 
 public abstract class OverlayTemplateScreen extends VROverlayScreen implements OverlayTemplate {
     @Getter
-    private final String typeId;
+    private final String templateId;
     @Getter
     private final Component overlayName;
 
     @Getter
-    private final ConfigFile typeConfig;
-    protected final Map<Class<? extends OverlayOptionCategory>, OverlayOptionCategory> options;
+    private final ConfigFile config;
+    protected final Map<Class<? extends OverlayOptions>, OverlayOptions> options;
 
     protected final OverlayOptionsGlobal optionsGlobal;
     protected final OverlayOptionsLocation optionsModelView;
@@ -56,10 +56,10 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
         super(owner, id, priority, overlayScale);
 
         try {
-            this.typeConfig = VisorAPI.client()
+            this.config = VisorAPI.client()
                     .getGuiManager()
                     .getOverlayManager()
-                    .getOverlayCatalog()
+                    .getConfigOverlaysAccessor()
                     .getConfigOrCreate(id);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -67,16 +67,16 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
         RegisterOverlayTemplate annotation = getClass().getAnnotation(
                 RegisterOverlayTemplate.class
         );
-        typeId = annotation.id();
-        typeConfig.set("template",typeId);
+        templateId = annotation.id();
+        config.set("template", templateId);
         try {
-            typeConfig.save();
+            config.save();
         }catch (Exception e){
             throw new RuntimeException(e);
         }
 
         options = new LinkedHashMap<>();
-        List<OverlayOptionCategory> preOptions = createOptions();
+        List<OverlayOptions> preOptions = createOptions();
         preOptions.forEach(it->{
             options.put(it.getClass(),it);
         });
@@ -85,12 +85,12 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
         optionsModelView = (OverlayOptionsLocation) options.get(OverlayOptionsLocation.class);
 
         overlayName = Component.literal(
-                typeConfig.getStringOrDefault("displayName", id)
+                config.getStringOrDefault("displayName", id)
         );
     }
 
     @NotNull
-    protected abstract List<OverlayOptionCategory> createOptions();
+    protected abstract List<OverlayOptions> createOptions();
 
 
     @Override
@@ -163,12 +163,12 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
     }
 
     @Override
-    public @NotNull Collection<OverlayOptionCategory> getOptions() {
+    public @NotNull Collection<OverlayOptions> getTemplateOptions() {
         return options.values();
     }
 
     @Override
-    public <T extends OverlayOptionCategory> @Nullable T getOption(@NotNull Class<T> type) {
+    public <T extends OverlayOptions> @Nullable T getTemplateOption(@NotNull Class<T> type) {
         var overlay = options.get(type);
         if(type.isInstance(overlay)){
             return type.cast(overlay);

@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisortRegistry;
+import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 
-public class DecoratorRegistry implements VisortRegistry<VRDecorator> {
+public class DecoratorRegistry implements VisorRegistry<VRDecorator> {
     private static final String REGISTRY_NAME = "VR Decorators";
 
     private static final String ELEMENT_NAME = "VRDecorator";

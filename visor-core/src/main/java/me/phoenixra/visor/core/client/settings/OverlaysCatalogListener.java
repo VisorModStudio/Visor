@@ -7,7 +7,7 @@ import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalogListener;
 import me.phoenixra.atumconfig.core.config.AtumConfigFile;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysCatalog;
+import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class OverlaysCatalogListener implements ConfigOverlaysCatalog, ConfigCatalogListener {
+public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCatalogListener {
     private final HashMap<String, ConfigFile> configs;
 
     protected ConfigCatalog catalog;

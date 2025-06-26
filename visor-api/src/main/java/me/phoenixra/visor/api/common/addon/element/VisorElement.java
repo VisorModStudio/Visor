@@ -1,5 +1,6 @@
-package me.phoenixra.visor.api.common.addon;
+package me.phoenixra.visor.api.common.addon.element;
 
+import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 
 

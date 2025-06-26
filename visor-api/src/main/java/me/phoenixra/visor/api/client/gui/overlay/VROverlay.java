@@ -3,10 +3,9 @@ package me.phoenixra.visor.api.client.gui.overlay;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
-import me.phoenixra.visor.api.common.addon.PrioritySupporter;
-import me.phoenixra.visor.api.common.addon.VisorElement;
+import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,8 +98,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     }
 
     /**
-     * Should cursor handler IGNORE
-     * aim collision with this overlay?
+     * If cursor handling is supported
      *
      * @return true/false
      */

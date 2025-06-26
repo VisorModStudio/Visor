@@ -10,15 +10,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to register your Visor task
- * <br><br>
- * Class have to:<br>
- * 1) Be a child of {@link VisorTask} <br>
- * 2) Contain constructor with only parameter:
- * {@link VisorAddon}
- * <br><br>
- * To make it detectable by Visor, you need to implement
- * {@link VisorAddon#getAddonPackagePath()}
+ * Annotation to register your {@link VisorTask} automatically on addon load.
+ *
+ * <p>
+ *     Class have to:<br>
+ *     1) Be a child of {@link VisorTask} <br>
+ *     2) Contain constructor with a single parameter:
+ *     {@link VisorAddon}
+ * </p>
+ *
+ * <p>
+ *     To make it detectable by Visor, you need to implement
+ *     {@link VisorAddon#getAddonPackagePath()}
+ * </p>
  *
  */
 @Retention(RetentionPolicy.RUNTIME)

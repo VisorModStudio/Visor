@@ -3,14 +3,11 @@ package me.phoenixra.visor.api.client.render.decoration;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
-import me.phoenixra.visor.api.common.addon.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElement;
+import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-import java.util.Map;
 
 public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     @Getter

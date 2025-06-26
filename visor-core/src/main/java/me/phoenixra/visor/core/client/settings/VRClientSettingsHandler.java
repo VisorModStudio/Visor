@@ -40,7 +40,7 @@ public class VRClientSettingsHandler {
     private final ConfigFile settings;
 
     @Getter
-    private final OverlaysCatalogListener overlayCatalog;
+    private final OverlaysCatalogListener overlaysAccessor;
 
     private boolean wasInit;
 
@@ -65,13 +65,13 @@ public class VRClientSettingsHandler {
         //to sync config with fields
         saveOptions();
 
-        overlayCatalog = new OverlaysCatalogListener();
-        overlayCatalog.catalog = configManager.createCatalog(
+        overlaysAccessor = new OverlaysCatalogListener();
+        overlaysAccessor.catalog = configManager.createCatalog(
                 ConfigType.YAML,
                 "overlays",
                 Path.of("overlays"),
                 true,
-                overlayCatalog
+                overlaysAccessor
         );
 
         PlaceholderHandler placeholderHandler = configManager.getPlaceholderHandler().get();

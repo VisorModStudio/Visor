@@ -5,7 +5,7 @@ import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplat
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisortRegistry;
+import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,7 +17,7 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VROverlayTypeRegistry implements VisortRegistry<OverlayTemplateRecord> {
+public class VROverlayTypeRegistry implements VisorRegistry<OverlayTemplateRecord> {
     private static final String REGISTRY_NAME = "VR Overlay Types";
 
     private static final String ELEMENT_NAME = "VROverlayType";

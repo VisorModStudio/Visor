@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.mixin.client.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -59,10 +60,11 @@ public class KeyboardMixins {
             if (VisorState.getState().isNotActive()) {
                 return;
             }
-            Screen attachedScreen = ClientContext.overlayManager
-                    .getKeyboardAttachedTo();
+            var keyboardAccessor = ClientContext.overlayManager.getKeyboardAccessor();
+            Screen attachedScreen = keyboardAccessor
+                    .getAttachedTo();
             if(attachedScreen instanceof VROverlayScreen
-                    && ClientContext.overlayManager.isShowingKeyboard()){
+                    && keyboardAccessor.isVisible()){
                 if (actionType == 0) {
                     attachedScreen.keyReleased(keyCode, keyScan, keyModifiers);
                 } else {
@@ -95,8 +97,11 @@ public class KeyboardMixins {
                 return;
             }
 
+            var keyboardAccessor = VisorAPI.client().getGuiManager()
+                    .getOverlayManager()
+                    .getKeyboardAccessor();
             if (!ClientContext.cursorHandler.isCursorHandFocused()) {
-                ClientContext.overlayManager.showKeyboard(true);
+                keyboardAccessor.setVisible(true);
                 return;
             }
 
@@ -108,7 +113,7 @@ public class KeyboardMixins {
             Screen screenFocused = overlayBase == null
                     ? Minecraft.getInstance().screen
                     : overlayBase;
-            ClientContext.overlayManager.showKeyboard(
+            keyboardAccessor.setVisible(
                     true,
                     screenFocused
             );
@@ -128,7 +133,9 @@ public class KeyboardMixins {
             if (VisorState.getState().isNotActive()) {
                 return;
             }
-            ClientContext.overlayManager.showKeyboard(true,this);
+            var keyboardAccessor = ClientContext.overlayManager
+                    .getKeyboardAccessor();
+            keyboardAccessor.setVisible(true,this);
         }
 
         @Inject(at = @At("HEAD"), method = "removed")
@@ -136,7 +143,9 @@ public class KeyboardMixins {
             if (VisorState.getState().isNotActive()) {
                 return;
             }
-            ClientContext.overlayManager.showKeyboard(false);
+            var keyboardAccessor = ClientContext.overlayManager
+                    .getKeyboardAccessor();
+            keyboardAccessor.setVisible(false);
         }
     }
 
@@ -152,7 +161,9 @@ public class KeyboardMixins {
             if (VisorState.getState().isNotActive()) {
                 return;
             }
-            ClientContext.overlayManager.showKeyboard(true,this);
+            var keyboardAccessor = ClientContext.overlayManager
+                    .getKeyboardAccessor();
+            keyboardAccessor.setVisible(true,this);
 
         }
     }

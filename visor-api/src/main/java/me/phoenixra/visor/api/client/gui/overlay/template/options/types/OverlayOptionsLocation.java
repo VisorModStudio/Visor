@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.overlay.template.options.sections;
+package me.phoenixra.visor.api.client.gui.overlay.template.options.types;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -72,7 +72,7 @@ public class OverlayOptionsLocation extends OverlayOptionsBase<OverlayOptionsLoc
     @Override
     public void update(boolean force) {
 
-        var configManager = owner.getTypeConfig().getConfigOwner();
+        var configManager = owner.getConfig().getConfigOwner();
         if(force){
             float x = 0;
             float y = 0;
@@ -196,7 +196,7 @@ public class OverlayOptionsLocation extends OverlayOptionsBase<OverlayOptionsLoc
 
     @Override
     protected void onLoad(@NotNull Config section){
-        var configManager = owner.getTypeConfig().getConfigOwner();
+        var configManager = owner.getConfig().getConfigOwner();
 
         tickModelView = section.getBool("tick");
 

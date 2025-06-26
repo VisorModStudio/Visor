@@ -5,7 +5,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
-import me.phoenixra.visor.api.common.addon.VisortRegistry;
+import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.render.decoration.registry.DecoratorRegistry;
@@ -78,7 +78,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
 
-    public List<VisortRegistry<?>> getElementRegistries(){
+    public List<VisorRegistry<?>> getElementRegistries(){
         return List.of(
                 registry,
                 effectsRegistry,

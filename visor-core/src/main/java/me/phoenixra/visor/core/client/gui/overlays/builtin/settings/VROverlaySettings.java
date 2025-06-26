@@ -10,11 +10,11 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
@@ -103,7 +103,7 @@ public class VROverlaySettings extends VROverlayScreen
                 .getOverlaysRegistry().getSortedElements().stream()
                 .map(VROverlay::asOverlayType)
                 .filter(it ->
-                        it != null && !it.getOptions().isEmpty()
+                        it != null && !it.getTemplateOptions().isEmpty()
                 ).toList();
         this.addRenderableWidget(
                 Button.builder(
@@ -479,7 +479,7 @@ public class VROverlaySettings extends VROverlayScreen
     private class WidgetSetSetupExisting extends WidgetSet{
         protected Button removeOverlayButton;
         protected DropDownListWidget optionCategoryWidget;
-        protected List<OverlayOptionCategory> selectableOptionCategories;
+        protected List<OverlayOptions> selectableOptionCategories;
 
         protected Button loadDefaultsButton;
 
@@ -527,7 +527,7 @@ public class VROverlaySettings extends VROverlayScreen
                                     return;
                                 }
 
-                                OverlayOptionCategory currentCategory =
+                                OverlayOptions currentCategory =
                                         selectableOptionCategories.get(categoryIndex);
                                 currentCategory.saveDefaults();
 
@@ -543,9 +543,9 @@ public class VROverlaySettings extends VROverlayScreen
                     .size(95, 25)
                     .build();
 
-            selectableOptionCategories = selectedOverlay.getOptions().stream().toList();
+            selectableOptionCategories = selectedOverlay.getTemplateOptions().stream().toList();
             List<Component> elements = new ArrayList<>();
-            for(OverlayOptionCategory optionCategory : selectableOptionCategories){
+            for(OverlayOptions optionCategory : selectableOptionCategories){
                 elements.add(optionCategory.getDisplayName());
             }
             optionCategoryWidget =  DropDownListWidget.builder(elements)
@@ -566,7 +566,7 @@ public class VROverlaySettings extends VROverlayScreen
                                     return;
                                 }
 
-                                OverlayOptionCategory currentCategory =
+                                OverlayOptions currentCategory =
                                         selectableOptionCategories.get(selectedIndex);
                                 optionsMenu.openMenu(
                                         VROverlaySettings.this,

@@ -2,10 +2,10 @@ package me.phoenixra.visor.api.client.tasks;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
-import me.phoenixra.visor.api.common.addon.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.VisorElement;
+import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

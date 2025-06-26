@@ -6,7 +6,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
-import me.phoenixra.visor.api.common.addon.ElementPriority;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import me.phoenixra.visor.core.client.ClientContext;
-import org.joml.Vector3f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 

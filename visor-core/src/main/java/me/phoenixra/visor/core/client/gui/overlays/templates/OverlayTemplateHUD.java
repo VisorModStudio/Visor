@@ -7,8 +7,8 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionCategory;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.sections.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
+import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 
 
 import me.phoenixra.visor.api.client.gui.overlay.template.framework.OverlayTemplateFrameBuffer;
@@ -71,7 +71,7 @@ public class OverlayTemplateHUD extends OverlayTemplateFrameBuffer implements VR
     }
 
     @Override
-    protected @NotNull List<OverlayOptionCategory> createOptions() {
+    protected @NotNull List<OverlayOptions> createOptions() {
         return List.of(
                 new OverlayOptionsLocation(
                         this,
