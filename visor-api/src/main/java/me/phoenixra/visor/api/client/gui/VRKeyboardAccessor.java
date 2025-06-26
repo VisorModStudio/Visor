@@ -1,6 +1,7 @@
 package me.phoenixra.visor.api.client.gui;
 
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -21,13 +22,11 @@ public interface VRKeyboardAccessor {
     void setVisible(boolean flag);
 
     /**
-     * Set the visibility state for the keyboard
+     * Show and attach screen to the keyboard
      *
-     * @param flag true/false
-     * @param attachedTo the screen, keyboard is attached to
+     * @param attachTo the screen that has to be attached to keyboard
      */
-    void setVisible(boolean flag,
-                    @Nullable Screen attachedTo);
+    void showKeyboard(@NotNull Screen attachTo);
 
     /**
      * The screen, keyboard is attached to

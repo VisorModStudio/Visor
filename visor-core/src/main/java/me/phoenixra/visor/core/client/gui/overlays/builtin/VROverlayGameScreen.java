@@ -115,7 +115,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         } else if (newScreen instanceof ChatScreen) {
             if(!keyboardAccessor.isVisible()
                     || keyboardAccessor.getAttachedTo() != null){
-                keyboardAccessor.setVisible(true, newScreen);
+                keyboardAccessor.showKeyboard( newScreen);
             }
         }
 

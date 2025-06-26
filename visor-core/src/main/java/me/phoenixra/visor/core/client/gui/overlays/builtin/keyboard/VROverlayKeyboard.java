@@ -73,32 +73,47 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
+    public void resetPose(){
+        VROverlayHelper.applyPose(
+                this,
+                PoseAnchor.HMD,
+                PoseAnchor.HMD,
+                getPose().getScale(),
+                true,
+                posOffset,
+                rotationOffset
+        );
+
+    }
+
+    @Override
+    public void setVisible(boolean flag){
+        setVisible(flag, null);
+    }
+
+    @Override
+    public void showKeyboard(@NotNull Screen attachTo) {
+        setVisible(true, attachTo);
+    }
+
+    @Override
     public boolean updateVisibility() {
         return shown;
     }
 
-    @Override
-    public void onEnable() {
-
-    }
 
     @Override
-    public void onDisable() {
+    public void updatePose(float partialTicks) {
 
     }
 
 
-    public void setShiftPressed(boolean shift) {
-        if (shift != this.shiftPressed) {
-            this.shiftPressed = shift;
-            this.initAgain = true;
-        }
+
+    @Override
+    public boolean supportsTwoCursors() {
+        return true;
     }
 
-
-    public void setVisible(boolean flag){
-        setVisible(flag, null);
-    }
 
     public void setVisible(boolean flag,
                            @Nullable Screen attachedTo) {
@@ -112,23 +127,16 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
             getScreen().clearPress();
             this.attachedTo = null;
         }
-
-
     }
 
 
-    public void resetPose(){
-        VROverlayHelper.applyPose(
-                this,
-                PoseAnchor.HMD,
-                PoseAnchor.HMD,
-                getPose().getScale(),
-                true,
-                posOffset,
-                rotationOffset
-        );
-
+    public void setShiftPressed(boolean shift) {
+        if (shift != this.shiftPressed) {
+            this.shiftPressed = shift;
+            this.initAgain = true;
+        }
     }
+
     private void orient(@Nullable Screen attachedTo) {
         if (!shown) {
             this.attachedTo = null;
@@ -149,17 +157,6 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     }
 
-    @Override
-    public void updatePose(float partialTicks) {
-
-    }
-
-
-
-    @Override
-    public boolean supportsTwoCursors() {
-        return true;
-    }
 
 
 

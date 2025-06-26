@@ -104,9 +104,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
-    protected abstract void onEnable();
+    protected void onEnable() {};
 
-    protected abstract void onDisable();
+    protected void onDisable() {};
 
 
     @Override

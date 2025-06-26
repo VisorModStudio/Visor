@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
-import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.KeyboardHandler;
@@ -113,8 +112,7 @@ public class KeyboardMixins {
             Screen screenFocused = overlayBase == null
                     ? Minecraft.getInstance().screen
                     : overlayBase;
-            keyboardAccessor.setVisible(
-                    true,
+            keyboardAccessor.showKeyboard(
                     screenFocused
             );
         }
@@ -135,7 +133,7 @@ public class KeyboardMixins {
             }
             var keyboardAccessor = ClientContext.overlayManager
                     .getKeyboardAccessor();
-            keyboardAccessor.setVisible(true,this);
+            keyboardAccessor.showKeyboard(this);
         }
 
         @Inject(at = @At("HEAD"), method = "removed")
@@ -163,7 +161,7 @@ public class KeyboardMixins {
             }
             var keyboardAccessor = ClientContext.overlayManager
                     .getKeyboardAccessor();
-            keyboardAccessor.setVisible(true,this);
+            keyboardAccessor.showKeyboard(this);
 
         }
     }
