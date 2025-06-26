@@ -29,7 +29,7 @@ public class AddonManagerImpl implements AddonManager {
         VisorAPI.Instance.setEventBus(new VREventBusImpl());
 
         this.logger = logger;
-        this.addonsMap = new HashMap<>();
+        this.addonsMap = new LinkedHashMap<>();
 
 
     }
