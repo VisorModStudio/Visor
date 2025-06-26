@@ -65,9 +65,9 @@ public class VROverlayRegistry implements VisorRegistry<VROverlay> {
         if(removed != null) {
             sortedElements.remove(removed);
             Collections.sort(sortedElements);
-            var type = removed.asOverlayType();
-            if(type != null){
-                type.getConfig().getFile().delete();
+            var template = removed.asTemplate();
+            if(template != null){
+                template.getConfig().getFile().delete();
                 ClientContext.settingsHandler.getOverlaysAccessor()
                         .removeConfig(removed.getId());
             }

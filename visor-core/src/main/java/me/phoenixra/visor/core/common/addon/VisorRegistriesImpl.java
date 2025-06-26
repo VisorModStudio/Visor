@@ -60,9 +60,9 @@ public class VisorRegistriesImpl implements VisorRegistries {
     }
 
     @Override
-    public @NotNull VisorRegistry<OverlayTemplateRecord> overlayTypes() {
+    public @NotNull VisorRegistry<OverlayTemplateRecord> overlayTemplates() {
         return ClientContext.guiManager
                 .getOverlayManager()
-                .getOverlayTypesRegistry();
+                .getOverlayTemplatesRegistry();
     }
 }

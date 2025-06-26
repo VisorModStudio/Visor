@@ -76,9 +76,9 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      *
      * @return overlay type or null if not an instance of {@link OverlayTemplate}
      */
-    default @Nullable OverlayTemplate asOverlayType(){
-        if(this instanceof OverlayTemplate overlayType){
-            return overlayType;
+    default @Nullable OverlayTemplate asTemplate(){
+        if(this instanceof OverlayTemplate overlayTemplate){
+            return overlayTemplate;
         }else{
             return null;
         }

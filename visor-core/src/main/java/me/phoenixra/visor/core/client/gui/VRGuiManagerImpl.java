@@ -95,7 +95,7 @@ public class VRGuiManagerImpl implements VRGuiManager {
     public List<VisorRegistry<?>> getElementRegistries(){
         return List.of(
                 ClientContext.overlayManager.getOverlaysRegistry(),
-                ClientContext.overlayManager.getOverlayTypesRegistry()
+                ClientContext.overlayManager.getOverlayTemplatesRegistry()
         );
     }
 

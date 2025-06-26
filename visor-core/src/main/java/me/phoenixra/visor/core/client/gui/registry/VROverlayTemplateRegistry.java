@@ -17,11 +17,11 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VROverlayTypeRegistry implements VisorRegistry<OverlayTemplateRecord> {
-    private static final String REGISTRY_NAME = "VR Overlay Types";
+public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateRecord> {
+    private static final String REGISTRY_NAME = "VR Overlay Templates";
 
-    private static final String ELEMENT_NAME = "VROverlayType";
-    private static final String ANNOTATION_NAME = "@RegisterOverlayType";
+    private static final String ELEMENT_NAME = "VROverlayTemplate";
+    private static final String ANNOTATION_NAME = "@RegisterOverlayTemplate";
 
     private final Map<String, OverlayTemplateRecord> elementsMap = new LinkedHashMap<>();
 
@@ -43,7 +43,7 @@ public class VROverlayTypeRegistry implements VisorRegistry<OverlayTemplateRecor
             if (!OverlayTemplate.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
-                        clazz.getName(), ANNOTATION_NAME, "VROverlayType"
+                        clazz.getName(), ANNOTATION_NAME, "VROverlayTemplate"
                 );
                 continue;
             }

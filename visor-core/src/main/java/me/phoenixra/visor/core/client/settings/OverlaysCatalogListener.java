@@ -49,7 +49,7 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
     public void beforeLoadDefaults() {
         ConfigManager configManager = catalog.getConfigManager();
         try {
-            //create default overlay types
+            //create default overlay templates
             new AtumConfigFile(
                     configManager,
                     ConfigType.YAML,
@@ -107,8 +107,8 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
     private void loadOverlays(){
         var overlaysRegistry = ClientContext.overlayManager
                 .getOverlaysRegistry();
-        var typesRegistry = ClientContext.overlayManager
-                .getOverlayTypesRegistry();
+        var templatesRegistry = ClientContext.overlayManager
+                .getOverlayTemplatesRegistry();
         for(Map.Entry<String,ConfigFile> entry : configs.entrySet()){
             String id = entry.getKey();
             Config config = entry.getValue();
@@ -119,17 +119,17 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
                 );
                 continue;
             }
-            String type  = config.getString("template");
-            OverlayTemplateRecord overlayType = typesRegistry.getElement(type);
-            if(overlayType == null){
+            String templateId  = config.getString("template");
+            OverlayTemplateRecord templateRecord = templatesRegistry.getElement(templateId);
+            if(templateRecord == null){
                 LoggerUtils.getLogger().error(
-                        "Unknown overlay type {} specified for {}", type, id
+                        "Unknown overlay template {} specified for {}", templateId, id
                 );
                 continue;
             }
             try {
-                var overlay = overlayType.constructor().newInstance(
-                        overlayType.owner(),
+                var overlay = templateRecord.constructor().newInstance(
+                        templateRecord.owner(),
                         id
                 );
                 overlaysRegistry.registerElement(overlay);

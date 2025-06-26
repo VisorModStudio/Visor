@@ -2,11 +2,18 @@ package me.phoenixra.visor.api.common.addon;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
+import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
+import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
+import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
+import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
+import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
+import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import net.fabricmc.api.EnvType;
@@ -21,6 +28,8 @@ public interface VisorRegistries {
     /**
      * Get Task Registry
      *
+     * <p>Annotation to auto-register on load: {@link RegisterVisorTask}</p>
+     *
      * @return task registry instance
      */
     @NotNull
@@ -29,6 +38,8 @@ public interface VisorRegistries {
 
     /**
      * Get Action Set registry
+     *
+     * <p>Annotation to auto-register on load: {@link RegisterActionSet}</p>
      *
      * @return Action Set registry instance
      */
@@ -41,6 +52,8 @@ public interface VisorRegistries {
     /**
      * Get VR Decorator registry
      *
+     * <p>Annotation to auto-register on load: {@link RegisterVRDecorator}</p>
+     *
      * @return VR decorator registry instance
      */
     @NotNull
@@ -49,6 +62,8 @@ public interface VisorRegistries {
 
     /**
      * Get VR Game Effect registry
+     *
+     * <p>Annotation to auto-register on load: {@link RegisterVRGameEffect}</p>
      *
      * @return VR game effect registry instance
      */
@@ -59,6 +74,8 @@ public interface VisorRegistries {
     /**
      * Get VR Hand Effect registry
      *
+     * <p>Annotation to auto-register on load: {@link RegisterVRHandEffect}</p>
+     *
      * @return VR hand effect registry instance
      */
     @NotNull
@@ -67,6 +84,8 @@ public interface VisorRegistries {
 
     /**
      * Get VR Hand Item Pose registry
+     *
+     * <p>Annotation to auto-register on load: {@link RegisterVRItemPose}</p>
      *
      * @return VR hand item pose registry instance
      */
@@ -79,6 +98,8 @@ public interface VisorRegistries {
     /**
      * Get VR Overlays registry
      *
+     * <p>Auto-registering is not supported</p>
+     *
      * @return VR overlays registry instance
      */
     @NotNull
@@ -86,12 +107,14 @@ public interface VisorRegistries {
     VisorRegistry<VROverlay> overlays();
 
     /**
-     * Get VR Overlay Types registry
+     * Get VR Overlay templates registry
      *
-     * @return VR overlay types registry instance
+     * <p>Annotation to auto-register on load: {@link RegisterOverlayTemplate}</p>
+     *
+     * @return VR overlay templates registry instance
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisorRegistry<OverlayTemplateRecord> overlayTypes();
+    VisorRegistry<OverlayTemplateRecord> overlayTemplates();
 
 }

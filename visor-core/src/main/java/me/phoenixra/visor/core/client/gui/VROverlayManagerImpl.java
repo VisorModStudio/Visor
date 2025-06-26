@@ -18,9 +18,8 @@ import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayO
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
-import me.phoenixra.visor.core.client.gui.registry.VROverlayTypeRegistry;
+import me.phoenixra.visor.core.client.gui.registry.VROverlayTemplateRegistry;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenGlobal;
 import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -29,10 +28,8 @@ import me.phoenixra.visor.core.client.render.helpers.RenderGuiHelper;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
@@ -41,7 +38,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VROverlayManagerImpl implements VROverlayManager {
 
     private final VROverlayRegistry overlaysRegistry = new VROverlayRegistry();
-    private final VROverlayTypeRegistry overlayTypesRegistry = new VROverlayTypeRegistry();
+    private final VROverlayTemplateRegistry overlayTemplatesRegistry = new VROverlayTemplateRegistry();
 
 
     @Setter

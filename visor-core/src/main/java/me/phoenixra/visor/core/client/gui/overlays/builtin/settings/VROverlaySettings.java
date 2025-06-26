@@ -101,7 +101,7 @@ public class VROverlaySettings extends VROverlayScreen
 
         selectableOverlays = ClientContext.overlayManager
                 .getOverlaysRegistry().getSortedElements().stream()
-                .map(VROverlay::asOverlayType)
+                .map(VROverlay::asTemplate)
                 .filter(it ->
                         it != null && !it.getTemplateOptions().isEmpty()
                 ).toList();
@@ -356,8 +356,8 @@ public class VROverlaySettings extends VROverlayScreen
     }
 
     private class NewOverlayWidgets extends WidgetSet{
-        protected DropDownListWidget overlayTypeWidget;
-        protected List<OverlayTemplateRecord> selectableOverlayTypes;
+        protected DropDownListWidget overlayTemplateWidget;
+        protected List<OverlayTemplateRecord> selectableOverlayTemplates;
 
         protected EditBox overlayIdField;
 
@@ -369,15 +369,15 @@ public class VROverlaySettings extends VROverlayScreen
 
         @Override
         public List<AbstractWidget> initWidgets() {
-            selectableOverlayTypes = ClientContext.overlayManager
-                    .getOverlayTypesRegistry()
+            selectableOverlayTemplates = ClientContext.overlayManager
+                    .getOverlayTemplatesRegistry()
                     .getAllElements().stream().toList();
 
             List<Component> elements = new ArrayList<>();
-            for(OverlayTemplateRecord overlayType : selectableOverlayTypes){
-                elements.add(Component.literal(overlayType.id()));
+            for(var overlayTemplate : selectableOverlayTemplates){
+                elements.add(Component.literal(overlayTemplate.id()));
             }
-            overlayTypeWidget =  new DropDownListWidget(
+            overlayTemplateWidget =  new DropDownListWidget(
                     cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
                     cursorEdgeY + 80,
                     95,25,
@@ -422,9 +422,9 @@ public class VROverlaySettings extends VROverlayScreen
                             Component.translatable("visor.button.confirm"),
                             (p) ->
                             {
-                                int index = overlayTypeWidget.getSelectedIndex();
+                                int index = overlayTemplateWidget.getSelectedIndex();
                                 if(index<0) return;
-                                if(index >= selectableOverlayTypes.size()) return;
+                                if(index >= selectableOverlayTemplates.size()) return;
 
                                 String id = overlayIdField.getValue();
                                 VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
@@ -432,9 +432,9 @@ public class VROverlaySettings extends VROverlayScreen
                                     return;
                                 }
 
-                                OverlayTemplateRecord overlayType = selectableOverlayTypes.get(index);
+                                OverlayTemplateRecord templateRecord = selectableOverlayTemplates.get(index);
                                 try {
-                                    VROverlay overlay = overlayType.constructor().newInstance(
+                                    VROverlay overlay = templateRecord.constructor().newInstance(
                                             ClientContext.coreAddon,
                                             id
                                     );
@@ -457,17 +457,17 @@ public class VROverlaySettings extends VROverlayScreen
                     )
                     .size(95, 20)
                     .build();
-            return List.of(overlayTypeWidget, overlayIdField, confirmButton);
+            return List.of(overlayTemplateWidget, overlayIdField, confirmButton);
         }
 
         @Override
         public List<AbstractWidget> getWidgets() {
-            return List.of(overlayTypeWidget, overlayIdField, confirmButton);
+            return List.of(overlayTemplateWidget, overlayIdField, confirmButton);
         }
 
         public void onRender(){
-            overlayIdField.setVisible(!overlayTypeWidget.isExpanded());
-            confirmButton.visible = !overlayTypeWidget.isExpanded();
+            overlayIdField.setVisible(!overlayTemplateWidget.isExpanded());
+            confirmButton.visible = !overlayTemplateWidget.isExpanded();
         }
 
         @Override
