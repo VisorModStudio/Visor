@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.input.actionset.game;
 
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
+import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 
 import me.phoenixra.visor.api.client.input.action.BindingPath;
@@ -38,6 +39,11 @@ public class GameActionHotBar extends VisorActionButton {
                 new BindingPath(
                         ValveIndexSet.BUTTON_TRACKPAD_FORCE_RIGHT,
                         ValveIndexSet.BUTTON_TRACKPAD_FORCE_LEFT
+                ),
+                XRInteractionProfile.OCULUS_TOUCH,
+                new BindingPath(
+                        OculusTouchSet.BUTTON_GRIP_RIGHT,
+                        OculusTouchSet.BUTTON_GRIP_LEFT
                 )
         );
     }

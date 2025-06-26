@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client.input.actionset.actions;
 import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
@@ -282,6 +283,11 @@ public class ActionLeftMouse extends VisorActionButton {
                 new BindingPath(
                         ValveIndexSet.BUTTON_TRIGGER_RIGHT,
                         ValveIndexSet.BUTTON_TRIGGER_LEFT
+                ),
+                XRInteractionProfile.OCULUS_TOUCH,
+                new BindingPath(
+                        OculusTouchSet.BUTTON_TRIGGER_RIGHT,
+                        OculusTouchSet.BUTTON_TRIGGER_LEFT
                 )
         );
     }

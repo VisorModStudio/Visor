@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client.input.actionset.actions;
 import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
@@ -194,6 +195,11 @@ public class ActionMiddleMouse extends VisorActionButton {
                 new BindingPath(
                         ValveIndexSet.BUTTON_GRIP_FORCE_RIGHT,
                         ValveIndexSet.BUTTON_GRIP_FORCE_LEFT
+                ),
+                XRInteractionProfile.OCULUS_TOUCH,
+                new BindingPath(
+                        BindingPath.EMPTY_PATH,
+                        BindingPath.EMPTY_PATH
                 )
         );
     }

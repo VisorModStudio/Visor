@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.input.actionset.actions;
 
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
+import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -41,6 +42,11 @@ public class ActionMenu extends VisorActionButton {
                 new BindingPath(
                         ValveIndexSet.BUTTON_A_LEFT,
                         ValveIndexSet.BUTTON_A_RIGHT
+                ),
+                XRInteractionProfile.OCULUS_TOUCH,
+                new BindingPath(
+                        OculusTouchSet.BUTTON_Y,
+                        OculusTouchSet.BUTTON_B
                 )
         );
     }
