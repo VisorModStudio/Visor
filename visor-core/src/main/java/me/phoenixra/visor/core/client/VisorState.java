@@ -65,9 +65,11 @@ public class VisorState implements VisorClientState {
         if (canInit) {
             if (state.isNotInitialized()) {
                 initVR();
+                return;
             }
         } else if (state.isInitialized()) {
             destroyVR();
+            return;
         }
 
         if (state.isNotInitialized()) {
@@ -78,10 +80,16 @@ public class VisorState implements VisorClientState {
         ClientContext.visor.syncVRState();
 
 
-        boolean vrActive = ClientContext.visor.isActive()
-                && VRClientSettings.getVrPlayMode().canPlayVR();
+        var playMode = VRClientSettings.getVrPlayMode();
+        boolean vrActive = playMode.canPlayVR()
+                && (ClientContext.visor.isActive()
+                || playMode == VRPlayMode.ALWAYS_ACTIVE);
 
-        updateActive(vrActive);
+
+        boolean changed = updateActive(vrActive);
+        if(changed){
+            return;
+        }
 
         if (state.isActive()) {
             if (ClientContext.visor.isFocused()) {
@@ -142,9 +150,9 @@ public class VisorState implements VisorClientState {
     }
 
     //Has to be stable, on error MC will be crashed
-    private static void updateActive(boolean active) {
+    private static boolean updateActive(boolean active) {
         if (state.isActive() == active) {
-            return;
+            return false;
         }
 
         if (active) {
@@ -167,6 +175,7 @@ public class VisorState implements VisorClientState {
         MC.resizeDisplay();
         MC.getWindow().updateVsync(MC.options.enableVsync().get());
         ClientContext.renderer.prepareReinit("Switched state");
+        return true;
     }
 
 
@@ -238,12 +247,15 @@ public class VisorState implements VisorClientState {
 
     public static void destroyVR() {
 
+
         if (ClientContext.visor != null) {
             updateActive(false);
+            state = VRStateMode.OFF;
             ClientContext.visor.destroy();
+        }else{
+            state = VRStateMode.OFF;
         }
 
-        state = VRStateMode.OFF;
     }
 
 

@@ -14,7 +14,7 @@ public interface VisorClientState {
 
 
     /**
-     * Get User’s selected VR play mode.
+     * Get VR play mode.
      *
      * @return the current {@link VRPlayMode}
      */

@@ -6,6 +6,8 @@ import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
 import me.phoenixra.atumvr.api.rendering.IRenderContext;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
+import me.phoenixra.visor.api.client.VRStateMode;
+import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.provider.VisorScene;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
@@ -196,8 +198,34 @@ public class XrRenderer extends VisorRendererBase {
         }
     }
 
+
+
+    @Override
+    public Matrix4f getProjectionMatrix(EyeType eyeType, float nearClip, float farClip) {
+        XrFovf fov = vrProvider.getInputHandler()
+                .getDevice(VRDeviceHMD.ID, OpenXRDeviceHMD.class)
+                .getXrView(eyeType).fov();
+
+        return new Matrix4f()
+                .setPerspectiveOffCenterFov(
+                        fov.angleLeft(),
+                        fov.angleRight(),
+                        fov.angleDown(),
+                        fov.angleUp(),
+                        nearClip,
+                        farClip
+                );
+    }
+
+    @Override
+    protected void setupResolution(MemoryStack stack) {
+        resolutionWidth = vrProvider.getState().getEyeTexWidth();
+        resolutionHeight = vrProvider.getState().getEyeTexHeight();
+    }
+
+
+    @Override
     protected void setupEyes() {
-        if(leftFramebuffers != null) return;
         try (MemoryStack stack = MemoryStack.stackPush()) {
 
             // Get amount of views in the swapchain
@@ -237,47 +265,6 @@ public class XrRenderer extends VisorRendererBase {
         }
 
     }
-
-
-    @Override
-    public Matrix4f getProjectionMatrix(EyeType eyeType, float nearClip, float farClip) {
-        XrFovf fov = vrProvider.getInputHandler()
-                .getDevice(VRDeviceHMD.ID, OpenXRDeviceHMD.class)
-                .getXrView(eyeType).fov();
-
-        return  new Matrix4f()
-                .setPerspectiveOffCenterFov(
-                        fov.angleLeft(),
-                        fov.angleRight(),
-                        fov.angleDown(),
-                        fov.angleUp(),
-                        nearClip,
-                        farClip
-                );
-    }
-
-    @Override
-    protected void setupResolution(MemoryStack stack) {
-        resolutionWidth = vrProvider.getState().getEyeTexWidth();
-        resolutionHeight = vrProvider.getState().getEyeTexHeight();
-    }
-
-    @Override
-    public XrEyeTexture getTextureLeftEye() {
-        if(leftFramebuffers==null){
-            return null;
-        }
-        return leftFramebuffers[swapIndex];
-    }
-
-    @Override
-    public XrEyeTexture getTextureRightEye() {
-        if(rightFramebuffers==null){
-            return null;
-        }
-        return rightFramebuffers[swapIndex];
-    }
-
 
     @Override
     protected void setupHiddenArea(MemoryStack stack) {
@@ -349,4 +336,20 @@ public class XrRenderer extends VisorRendererBase {
         }
     }
 
+
+    @Override
+    public XrEyeTexture getTextureLeftEye() {
+        if(leftFramebuffers==null){
+            return null;
+        }
+        return leftFramebuffers[swapIndex];
+    }
+
+    @Override
+    public XrEyeTexture getTextureRightEye() {
+        if(rightFramebuffers==null){
+            return null;
+        }
+        return rightFramebuffers[swapIndex];
+    }
 }

@@ -61,7 +61,6 @@ public abstract class VisorRendererBase implements VisorRenderer {
     public float renderScale;
 
 
-    protected MirrorMode lastMirror;
     public long lastWindow = 0L;
 
 
@@ -135,12 +134,6 @@ public abstract class VisorRendererBase implements VisorRenderer {
         if (MC.getWindow().getWindow() != this.lastWindow) {
             this.lastWindow = MC.getWindow().getWindow();
             this.prepareReinit("Window Handle Changed");
-        }
-
-        //mirror mode
-        if (this.lastMirror != VRClientSettings.getDisplayMirrorMode()) {
-            this.prepareReinit("Mirror Changed");
-            this.lastMirror = VRClientSettings.getDisplayMirrorMode();
         }
 
         //-----------------

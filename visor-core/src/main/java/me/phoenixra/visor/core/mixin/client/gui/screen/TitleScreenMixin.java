@@ -52,8 +52,9 @@ public abstract class TitleScreenMixin extends Screen {
                                 )
                 ),
                 (button) -> {
+                    var playMode = VRClientSettings.getVrPlayMode();
                     VRClientSettings.setVrPlayMode(
-                            VRClientSettings.getVrPlayMode().next()
+                            playMode.next()
                     );
                     ClientContext.settingsHandler.saveOptions();
                     button.setMessage(
