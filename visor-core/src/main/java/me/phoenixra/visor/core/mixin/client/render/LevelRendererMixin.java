@@ -154,6 +154,19 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     }
 
 
+    /**
+     * That fixes issue with incorrect resolution
+     * for post chain effects in some cases
+     * (like for FIRST_PERSON, THIRD_PERSON displays
+     * that use different resolution from initial)
+     */
+    @Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
+    private void visor$ensureVanillaPhase(CallbackInfo ci) {
+        if (VisorState.getState().isActive()) {
+            VRRenderState.startVanillaPhase();
+        }
+    }
+
     /* **************** *\
   //--------EVENTS--------\\
     \* **************** */
