@@ -165,6 +165,7 @@
   "visor.enums.option.MirrorMode.THIRD_PERSON": "3rd Person (slow)",
   "visor.enums.option.MirrorMode.MIXED_REALITY": "Mixed Reality (slow)",
   "visor.enums.option.MirrorMode.CROPPED": "Cropped (fast)",
+  "visor.enums.option.MirrorMode.GUI": "GUI (fast)",
   "visor.enums.option.RotationMode.CONTROLLER_RIGHT": "Controller Right",
   "visor.enums.option.RotationMode.CONTROLLER_LEFT": "Controller Left",
   "visor.enums.option.RotationMode.HMD": "HMD",

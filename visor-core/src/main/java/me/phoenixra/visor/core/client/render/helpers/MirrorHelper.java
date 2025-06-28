@@ -28,7 +28,7 @@ public class MirrorHelper {
 
     public static void drawMirror() {
         switch (VRClientSettings.getDisplayMirrorMode()){
-            case DISABLED -> drawTextMirror("Mirror is DISABLED", true);
+            case OFF -> drawTextMirror("Mirror is DISABLED", true);
             case GUI -> drawGuiMirror();
             case SINGLE -> drawSingleMirror();
             case CROPPED -> drawCroppedMirror();

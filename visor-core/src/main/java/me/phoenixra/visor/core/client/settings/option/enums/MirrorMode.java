@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.settings.option.enums;
 
 public enum MirrorMode {
-    DISABLED,
+    OFF,
     GUI,
     CROPPED,
     SINGLE,
