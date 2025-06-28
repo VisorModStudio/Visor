@@ -30,7 +30,7 @@ public class VRRenderTarget extends RenderTarget {
         this.textureSupplier = textureSupplier;
         this.name = name;
 
-        ((RenderTargetModified) this).visor$setTextid(textureSupplier.get());
+        ((RenderTargetModified) this).visor$setTextureId(textureSupplier.get());
         ((RenderTargetModified) this).visor$isLinearFilter(linearFilter);
         this.resize(width, height, Minecraft.ON_OSX);
         if (useStencil) {

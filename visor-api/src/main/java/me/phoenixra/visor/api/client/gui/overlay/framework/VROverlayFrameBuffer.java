@@ -114,6 +114,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         if(enabled){
             onEnable();
         }else{
+            visible = false;
             onDisable();
         }
     }

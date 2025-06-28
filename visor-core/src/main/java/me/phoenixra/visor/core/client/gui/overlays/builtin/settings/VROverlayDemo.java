@@ -120,15 +120,11 @@ public class VROverlayDemo extends VROverlayScreen {
     }
 
     @Override
-    public void onTick() {
-
+    public void onPreTick() {
+        updatePose(1);
     }
 
 
-    @Override
-    public void onEnable() {
-
-    }
 
     @Override
     public void onDisable() {

@@ -90,7 +90,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected void onPreTick() {}
 
-    protected abstract void onTick();
+    protected void onTick() {};
 
 
     protected void onPreRender(GuiGraphics guiGraphics,
@@ -173,6 +173,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             onEnable();
         } else {
             enabled = false;
+            visible = false;
             var keyboardAccessor = VisorAPI.client().getGuiManager()
                     .getOverlayManager()
                     .getKeyboardAccessor();
