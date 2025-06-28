@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
+import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -40,6 +41,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     public void render(PoseStack poseStack, float partialTicks) {
         if(currentDecorator != null) {
             currentDecorator.render(poseStack, partialTicks);
+            GLUtils.checkGLError("post vr decoration");
         }
     }
 

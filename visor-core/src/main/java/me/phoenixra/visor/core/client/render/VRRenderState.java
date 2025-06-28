@@ -46,7 +46,7 @@ public class VRRenderState {
     public static void startVRGuiPhase() {
         currentPhase = RenderPhase.VR_GUI;
         currentVRDisplay = VRDisplay.GUI;
-        MC.mainRenderTarget = getTargetForDisplay(currentVRDisplay);
+        MC.mainRenderTarget = getTargetForDisplay(VRDisplay.GUI);
     }
 
     public static void startVRWorldPhase(@NotNull VRDisplay display) {
@@ -58,7 +58,7 @@ public class VRRenderState {
         }
         currentPhase = RenderPhase.VR_WORLD;
         currentVRDisplay = display;
-        MC.mainRenderTarget = getTargetForDisplay(currentVRDisplay);
+        MC.mainRenderTarget = getTargetForDisplay(display);
     }
 
     public static void startVRMirrorPhase(){

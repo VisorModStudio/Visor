@@ -47,6 +47,7 @@ public class DecoratorGame extends VRDecorator {
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 
+
         ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
         ClientContext.handRenderer.renderHands(

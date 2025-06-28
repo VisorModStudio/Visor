@@ -93,12 +93,9 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
     public void render(RenderContext context) {
-        getCurrentScene()
-                .updateRenderData(context.renderLevel(), context.nanoTime());
 
         renderFrame(context);
 
-        GLUtils.checkGLError("vr render");
     }
 
     public void onGameRenderStart(boolean renderLevel) {
@@ -174,6 +171,10 @@ public abstract class VisorRendererBase implements VisorRenderer {
         int eyeRenderWidth = (int) Math.ceil(eyeWidth * this.renderScale);
         int eyeRenderHeight = (int) Math.ceil(eyeHeight * this.renderScale);
 
+        List<VRDisplay> list = getVRWorldDisplays();
+        for (VRDisplay renderStage : list) {
+            VisorClientImpl.LOGGER.info("VR Displays: {}", renderStage.toString());
+        }
 
         updateMirrorSize(eyeRenderWidth, eyeRenderHeight);
 
@@ -182,13 +183,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
                 eyeRenderWidth, eyeRenderHeight
         );
 
-        List<VRDisplay> list = getVRWorldDisplays();
-        for (VRDisplay renderStage : list) {
-            VisorClientImpl.LOGGER.info("Passes: " + renderStage.toString());
-        }
-
         firstPersonTarget = new RenderTargetFirst();
-
         if(list.contains(VRDisplay.FIRST_PERSON)
                 || ShadersHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
@@ -196,7 +191,6 @@ public abstract class VisorRendererBase implements VisorRenderer {
                     mirrorWidth, mirrorHeight
             );
         }
-
 
         thirdPersonTarget = new RenderTargetThird();
         if(list.contains(VRDisplay.THIRD_PERSON)
@@ -245,11 +239,13 @@ public abstract class VisorRendererBase implements VisorRenderer {
         }
 
 
-        VisorClientImpl.LOGGER.info("[Visor] render targets created:" +
+        VisorClientImpl.LOGGER.info(
+                "[Visor] render targets created:" +
                 "\nEye target width: " + eyeWidth + ", height: " + eyeHeight + " [" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP]" +
                 "\nRender target width: " + eyeRenderWidth + ", height: " + eyeRenderHeight + " [Render scale: " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "%, " + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP]" +
                 "\nMain window width: " + windowModif.visor$getActualWidth() + ", height: " + windowModif.visor$getActualHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
-                "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)");
+                "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)"
+        );
 
         minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
 
@@ -289,6 +285,8 @@ public abstract class VisorRendererBase implements VisorRenderer {
                     guiManager.getGuiHeight()
             );
         }
+
+        Minecraft.getInstance().resizeDisplay();
     }
 
 
@@ -332,7 +330,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
     }
 
-    private void updateMirrorSize(int eyeFBWidth, int eyeFBHeight) {
+    private void updateMirrorSize(int eyeWidth, int eyeHeight) {
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
@@ -344,8 +342,8 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
         if (ShadersHelper.sameSizedBuffers()) {
-            mirrorWidth = eyeFBWidth;
-            mirrorHeight = eyeFBHeight;
+            mirrorWidth = eyeWidth;
+            mirrorHeight = eyeHeight;
         }
     }
     public static List<VRDisplay> getVRWorldDisplays() {

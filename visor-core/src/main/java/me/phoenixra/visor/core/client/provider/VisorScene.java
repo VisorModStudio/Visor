@@ -9,8 +9,8 @@ import me.phoenixra.atumvr.api.rendering.VRRenderer;
 import me.phoenixra.atumvr.api.rendering.VRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.context.RenderContext;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.mcmodified.MinecraftModified;
 import me.phoenixra.visor.core.client.render.VRShaders;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -30,11 +30,6 @@ public class VisorScene implements VRScene {
     private VRRenderer vrRenderer;
 
 
-
-
-    private boolean dataRenderLevel;
-    private long dataNanoTime;
-
     public VisorScene(VRRenderer vrRenderer) {
         this.vrRenderer = vrRenderer;
     }
@@ -47,43 +42,50 @@ public class VisorScene implements VRScene {
     @Override
     public void render(@NotNull IRenderContext context) {
 
-        Minecraft mc = Minecraft.getInstance();
-
-        RenderSystem.depthMask(true);
+        var renderContext = (RenderContext) context;
+        var profiler =  renderContext.profiler();
 
         // pop pose pushed in onGameRenderStart method
         RenderSystem.getModelViewStack().popPose();
 
+
+        RenderSystem.depthMask(true);
         RenderSystem.applyModelViewMatrix();
 
-        float partialTicks = ((MinecraftModified) mc).visor$getPartialTicks();
 
-        GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+        profiler.push("VROverlay texturing");
+        GuiGraphics guiGraphics = new GuiGraphics(MC, MC.renderBuffers().bufferSource());
         ClientContext.overlayManager.renderOverlayTextures(
                 MC.getProfiler(),
                 guiGraphics,
-                partialTicks
+                renderContext.partialTicks()
         );
-        GLUtils.checkGLError("post overlays");
+        profiler.pop();
+        GLUtils.checkGLError("post VR Overlays texturing");
 
         for (VRDisplay display : VisorRendererBase.getVRWorldDisplays()) {
+            profiler.push("VR world display: "+display.name());
 
             renderVRDisplay(
-                    display, partialTicks,
-                    dataNanoTime, dataRenderLevel
+                    display,
+                    renderContext
             );
+            GLUtils.checkGLError("post VR world display render: " + display.name());
 
 
             if (ClientContext.renderer.isAskedForScreenShot()) {
                 takeScreenshot(display);
             }
-
+            profiler.pop();
         }
 
+
+        profiler.push("VR mirror");
         VRRenderState.startVRMirrorPhase();
         MC.mainRenderTarget.bindWrite(true);
         MirrorHelper.drawMirror();
-        GLUtils.checkGLError("mirror");
+        profiler.pop();
+        GLUtils.checkGLError("post mirror");
 
 
     }
@@ -115,9 +117,7 @@ public class VisorScene implements VRScene {
     }
 
     private void renderVRDisplay(VRDisplay display,
-                                 float partialTick,
-                                 long nanoTime,
-                                 boolean renderWorld
+                                 RenderContext context
     ) {
         VRRenderState.startVRWorldPhase(display);
 
@@ -126,9 +126,11 @@ public class VisorScene implements VRScene {
         RenderSystem.clear(16384, Minecraft.ON_OSX);
         RenderSystem.enableDepthTest();
 
-        MC.gameRenderer.render(partialTick, nanoTime, renderWorld);
-        GLUtils.checkGLError("post game render " + display.name());
-
+        MC.gameRenderer.render(
+                context.partialTicks(),
+                context.nanoTime(),
+                context.renderLevel()
+        );
 
         if (display.isEye()) {
 
@@ -144,18 +146,12 @@ public class VisorScene implements VRScene {
                     display == VRDisplay.EYE_LEFT
                             ? EyeType.LEFT : EyeType.RIGHT,
                     MC.mainRenderTarget,
-                    partialTick
+                    context.partialTicks()
             );
-            GLUtils.checkGLError("post overlay");
+
         }
     }
 
-
-
-    public void updateRenderData(boolean renderLevel, long nanoTime) {
-        dataRenderLevel = renderLevel;
-        dataNanoTime = nanoTime;
-    }
 
 
 }

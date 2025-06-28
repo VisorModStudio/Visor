@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
@@ -81,16 +82,13 @@ public class VROverlayManagerImpl implements VROverlayManager {
         // --- Render ---
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
             if(!overlay.isVisible()) continue;
-
+            RenderTarget target = overlay.getRenderTarget();
+            if(target == null){
+                continue;
+            }
             profiler.push("VROverlay Texture: " + overlay.getId());
 
             if(overlay instanceof VROverlayScreen overlayScreen) {
-
-                RenderTarget target = overlay.getRenderTarget();
-                if(target == null){
-                    throw new RuntimeException("Tried to render overlay with null renderTarget");
-                }
-
                 //apply clean render target
                 MC.mainRenderTarget = target;
                 target.clear(Minecraft.ON_OSX);
@@ -131,6 +129,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
             }
 
             profiler.pop();
+            GLUtils.checkGLError("post VROverlay texture: "+overlay.getId());
         }
 
         // --- Restore ---
@@ -153,13 +152,13 @@ public class VROverlayManagerImpl implements VROverlayManager {
         );
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
-
+        GLUtils.checkGLError("before overlays");
         // --- Render ---
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
             if(!overlay.isVisible()) continue;
             var target = overlay.getRenderTarget();
             if(target == null){
-                throw new RuntimeException("Tried to render overlay with null renderTarget");
+                continue;
             }
 
             RenderGuiHelper.renderOverlayQuad(
@@ -170,6 +169,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     !overlay.supportsDepth(),
                     overlay.getPose().getScale()
             );
+            GLUtils.checkGLError("post VROverlay quad: "+overlay.getId());
         }
 
         // --- Restore ---

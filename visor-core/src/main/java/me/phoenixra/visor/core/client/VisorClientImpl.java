@@ -6,6 +6,7 @@ import me.phoenixra.atumconfig.core.AtumConfigManager;
 import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.VRProvider;
 import me.phoenixra.atumvr.api.VRState;
+import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorClient;
 import me.phoenixra.visor.api.client.ClientFeature;
@@ -181,7 +182,7 @@ public class VisorClientImpl implements VisorClient {
             featuresToggle.preRender();
 
             ClientContext.player
-                    .preRender(context.partialTick());
+                    .preRender(context.partialTicks());
 
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
             for (VisorTask task : tasks) {
@@ -200,8 +201,11 @@ public class VisorClientImpl implements VisorClient {
 
     public void renderVR(RenderContext context){
         try {
+            context.profiler().push("VR render");
             ClientContext.renderer
                     .render(context);
+            context.profiler().pop();
+            GLUtils.checkGLError("post VR render");
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }

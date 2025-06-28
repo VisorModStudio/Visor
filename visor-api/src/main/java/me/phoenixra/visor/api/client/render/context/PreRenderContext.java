@@ -5,5 +5,5 @@ import net.minecraft.util.profiling.ProfilerFiller;
 
 public record PreRenderContext(ProfilerFiller profilerFiller,
                                boolean gameIsTicking,
-                               float partialTick) implements IRenderContext {
+                               float partialTicks) implements IRenderContext {
 }
