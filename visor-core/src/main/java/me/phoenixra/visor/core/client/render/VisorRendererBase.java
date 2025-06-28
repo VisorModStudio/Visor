@@ -358,7 +358,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
         if (windowModif.visor$getActualWidth() > 0
                 && windowModif.visor$getActualHeight() > 0) {
-            MirrorMode mirrorMode = VRClientSettings.getDisplayMirrorMode();
+            MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
                 list.add(VRDisplay.FIRST_PERSON);
             } else if (mirrorMode == MirrorMode.THIRD_PERSON) {

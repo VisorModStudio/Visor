@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 /**
- * Accessor to configs of overlays created from {@link OverlayTemplate}
+ * Accessor to configs of overlays created from {@link VROverlayTemplate}
  */
 public interface ConfigOverlaysAccessor {
 
@@ -18,7 +18,7 @@ public interface ConfigOverlaysAccessor {
     void reload();
 
     /**
-     * Get Config of overlay created from {@link OverlayTemplate}
+     * Get Config of overlay created from {@link VROverlayTemplate}
      *
      * @param id the overlay id
      * @return config file
@@ -26,7 +26,7 @@ public interface ConfigOverlaysAccessor {
     @Nullable ConfigFile getConfig(@NotNull String id);
 
     /**
-     * Get or Create Config of overlay created from {@link OverlayTemplate}
+     * Get or Create Config of overlay created from {@link VROverlayTemplate}
      *
      * <p>If config not found, creates it</p>
      *

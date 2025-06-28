@@ -11,8 +11,8 @@ import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.network.chat.Component;
@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class OverlayTemplateFrameBuffer extends VROverlayFrameBuffer implements OverlayTemplate {
+public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer implements VROverlayTemplate {
     @Getter
     private final String templateId;
     @Getter
@@ -46,15 +46,15 @@ public abstract class OverlayTemplateFrameBuffer extends VROverlayFrameBuffer im
     private boolean initializedPose;
 
 
-    public OverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
-                                      @NotNull String id) {
+    public VROverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
+                                        @NotNull String id) {
         this(owner, id, ElementPriority.NORMAL,null,1.0f);
     }
-    public OverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
-                                      @NotNull String id,
-                                      @NotNull ElementPriority priority,
-                                      @Nullable RenderTarget renderTarget,
-                                      float overlayScale) {
+    public VROverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
+                                        @NotNull String id,
+                                        @NotNull ElementPriority priority,
+                                        @Nullable RenderTarget renderTarget,
+                                        float overlayScale) {
         super(owner, id, priority, renderTarget, overlayScale);
 
         try {
@@ -66,8 +66,8 @@ public abstract class OverlayTemplateFrameBuffer extends VROverlayFrameBuffer im
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        RegisterOverlayTemplate annotation = getClass().getAnnotation(
-                RegisterOverlayTemplate.class
+        RegisterVROverlayTemplate annotation = getClass().getAnnotation(
+                RegisterVROverlayTemplate.class
         );
         templateId = annotation.id();
         config.set("template", templateId);

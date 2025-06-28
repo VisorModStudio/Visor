@@ -2,7 +2,6 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffectsScreen;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
@@ -15,7 +14,6 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
@@ -58,7 +56,7 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
                 )
         );
 
-        MirrorMode mirrorMode = VRClientSettings.getDisplayMirrorMode();
+        MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
 
         if(mirrorMode == MirrorMode.THIRD_PERSON){
             options.add(

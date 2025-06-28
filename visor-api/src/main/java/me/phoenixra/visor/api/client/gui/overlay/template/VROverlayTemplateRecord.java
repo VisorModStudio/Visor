@@ -14,10 +14,11 @@ import java.lang.reflect.Constructor;
  * @param clazz the template class
  * @param constructor the template constructor
  */
-public record OverlayTemplateRecord(@NotNull VisorAddon owner,
-                                    @NotNull String id,
-                                    @NotNull Class<? extends OverlayTemplate> clazz,
-                                    @NotNull Constructor<? extends OverlayTemplate> constructor
+public record VROverlayTemplateRecord(@NotNull VisorAddon owner,
+                                      @NotNull String id,
+                                      boolean isPublic,
+                                      @NotNull Class<? extends VROverlayTemplate> clazz,
+                                      @NotNull Constructor<? extends VROverlayTemplate> constructor
                             ) implements VisorElement {
     /**
      * Overlay templates are always enabled

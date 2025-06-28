@@ -8,7 +8,7 @@ import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalogListener;
 import me.phoenixra.atumconfig.core.config.AtumConfigFile;
 import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -120,7 +120,7 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
                 continue;
             }
             String templateId  = config.getString("template");
-            OverlayTemplateRecord templateRecord = templatesRegistry.getElement(templateId);
+            VROverlayTemplateRecord templateRecord = templatesRegistry.getElement(templateId);
             if(templateRecord == null){
                 LoggerUtils.getLogger().error(
                         "Unknown overlay template {} specified for {}", templateId, id

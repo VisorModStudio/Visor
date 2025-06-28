@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlay.template.options;
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -11,13 +11,13 @@ import java.util.function.Consumer;
 public abstract class OverlayOptionsBase<T extends OverlayOptionsBase<T>> implements OverlayOptions {
 
     @Getter
-    protected final OverlayTemplate owner;
+    protected final VROverlayTemplate owner;
 
     protected final Consumer<T> defaultSettings;
 
     private final ConfigFile overlayConfig;
 
-    public OverlayOptionsBase(@NotNull OverlayTemplate owner,
+    public OverlayOptionsBase(@NotNull VROverlayTemplate owner,
                               @NotNull Consumer<T> defaultSettings) {
         this.owner = owner;
         this.defaultSettings = defaultSettings;

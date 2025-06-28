@@ -32,7 +32,7 @@ import java.util.Collection;
  * </p>
 
  */
-public interface OverlayTemplate extends VROverlay {
+public interface VROverlayTemplate extends VROverlay {
 
 
     /**

@@ -8,8 +8,8 @@ import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
@@ -63,11 +63,11 @@ public class VROverlaySettings extends VROverlayScreen
 
     private boolean draggingByCursorHand;
 
-    protected OverlayTemplate selectedOverlay;
+    protected VROverlayTemplate selectedOverlay;
     private int selectedOverlayIndex = -1;
 
     private DropDownListWidget selectOverlayWidget;
-    private List<OverlayTemplate> selectableOverlays;
+    private List<VROverlayTemplate> selectableOverlays;
 
     public VROverlaySettings(@NotNull VisorAddon owner,
                              @NotNull String id) {
@@ -357,7 +357,7 @@ public class VROverlaySettings extends VROverlayScreen
 
     private class NewOverlayWidgets extends WidgetSet{
         protected DropDownListWidget overlayTemplateWidget;
-        protected List<OverlayTemplateRecord> selectableOverlayTemplates;
+        protected List<VROverlayTemplateRecord> selectableOverlayTemplates;
 
         protected EditBox overlayIdField;
 
@@ -371,7 +371,8 @@ public class VROverlaySettings extends VROverlayScreen
         public List<AbstractWidget> initWidgets() {
             selectableOverlayTemplates = ClientContext.overlayManager
                     .getOverlayTemplatesRegistry()
-                    .getAllElements().stream().toList();
+                    .getAllElements().stream()
+                    .filter(VROverlayTemplateRecord::isPublic).toList();
 
             List<Component> elements = new ArrayList<>();
             for(var overlayTemplate : selectableOverlayTemplates){
@@ -432,7 +433,7 @@ public class VROverlaySettings extends VROverlayScreen
                                     return;
                                 }
 
-                                OverlayTemplateRecord templateRecord = selectableOverlayTemplates.get(index);
+                                VROverlayTemplateRecord templateRecord = selectableOverlayTemplates.get(index);
                                 try {
                                     VROverlay overlay = templateRecord.constructor().newInstance(
                                             ClientContext.coreAddon,

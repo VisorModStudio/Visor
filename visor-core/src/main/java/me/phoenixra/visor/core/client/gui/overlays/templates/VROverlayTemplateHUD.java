@@ -6,12 +6,12 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.template.framework.OverlayTemplateFrameBuffer;
+import me.phoenixra.visor.api.client.gui.overlay.template.framework.VROverlayTemplateFrameBuffer;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
@@ -23,12 +23,12 @@ import java.util.List;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-@RegisterOverlayTemplate(id = OverlayTemplateHUD.ID)
-public class OverlayTemplateHUD extends OverlayTemplateFrameBuffer implements VREventListener {
+@RegisterVROverlayTemplate(id = VROverlayTemplateHUD.ID)
+public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implements VREventListener {
     public static final String ID = "hud";
 
-    public OverlayTemplateHUD(@NotNull VisorAddon owner,
-                              @NotNull String id) {
+    public VROverlayTemplateHUD(@NotNull VisorAddon owner,
+                                @NotNull String id) {
         super(owner, id);
         setEnabled(true);
         VisorAPI.eventBus().registerListener(owner,this);
@@ -54,15 +54,6 @@ public class OverlayTemplateHUD extends OverlayTemplateFrameBuffer implements VR
         super.onPreTick();
     }
 
-    @Override
-    public void onEnable() {
-
-    }
-
-    @Override
-    public void onDisable() {
-
-    }
 
     @Override
     public boolean updateVisibility() {

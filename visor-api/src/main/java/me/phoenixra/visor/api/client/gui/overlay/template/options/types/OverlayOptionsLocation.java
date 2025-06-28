@@ -7,7 +7,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsBase;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +58,7 @@ public class OverlayOptionsLocation extends OverlayOptionsBase<OverlayOptionsLoc
 
 
 
-    public OverlayOptionsLocation(@NotNull OverlayTemplate owner,
+    public OverlayOptionsLocation(@NotNull VROverlayTemplate owner,
                                   @NotNull Consumer<OverlayOptionsLocation> defaultSettings){
         super(owner, defaultSettings);
         if(posOffset==null){

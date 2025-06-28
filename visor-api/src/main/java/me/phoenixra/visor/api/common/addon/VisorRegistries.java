@@ -1,8 +1,8 @@
 package me.phoenixra.visor.api.common.addon;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
@@ -109,12 +109,12 @@ public interface VisorRegistries {
     /**
      * Get VR Overlay templates registry
      *
-     * <p>Annotation to auto-register on load: {@link RegisterOverlayTemplate}</p>
+     * <p>Annotation to auto-register on load: {@link RegisterVROverlayTemplate}</p>
      *
      * @return VR overlay templates registry instance
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    VisorRegistry<OverlayTemplateRecord> overlayTemplates();
+    VisorRegistry<VROverlayTemplateRecord> overlayTemplates();
 
 }

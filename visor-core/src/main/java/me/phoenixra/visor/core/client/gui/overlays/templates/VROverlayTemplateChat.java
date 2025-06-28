@@ -3,12 +3,12 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 
 import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 
-import me.phoenixra.visor.api.client.gui.overlay.template.framework.OverlayTemplateScreen;
+import me.phoenixra.visor.api.client.gui.overlay.template.framework.VROverlayTemplateScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -19,12 +19,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-@RegisterOverlayTemplate(id = OverlayTemplateChat.ID)
-public class OverlayTemplateChat extends OverlayTemplateScreen {
+@RegisterVROverlayTemplate(id = VROverlayTemplateChat.ID)
+public class VROverlayTemplateChat extends VROverlayTemplateScreen {
     public static final String ID = "chat";
 
-    public OverlayTemplateChat(@NotNull VisorAddon owner,
-                               @NotNull String id) {
+    public VROverlayTemplateChat(@NotNull VisorAddon owner,
+                                 @NotNull String id) {
         super(owner, id);
         setEnabled(true);
     }
@@ -38,10 +38,6 @@ public class OverlayTemplateChat extends OverlayTemplateScreen {
         );
     }
 
-    @Override
-    protected void onTick() {
-
-    }
 
     @Override
     public boolean updateVisibility() {
@@ -64,15 +60,6 @@ public class OverlayTemplateChat extends OverlayTemplateScreen {
         return false;
     }
 
-    @Override
-    public void onEnable() {
-
-    }
-
-    @Override
-    public void onDisable() {
-
-    }
 
     @Override
     protected @NotNull List<OverlayOptions> createOptions() {

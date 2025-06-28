@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlay;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
@@ -51,8 +51,8 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     /**
      * If overlay is within view distance
      *
-     * <p>This method is called every tick when overlay is enabled,
-     * to check if overlay can be visible</p>
+     * <p>If not in view distance, rendering will be aborted,
+     * but {@link #isVisible()} won't be affected by that.</p>
      *
      * @return true/false
      */
@@ -66,6 +66,9 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     /**
      * If overlay is visible
      *
+     * <p>Ignores {@link #isInViewDistance()}, so, if you want to know
+     * when overlay is exactly visible, use these two methods together</p>
+     *
      * @return true/false
      */
     boolean isVisible();
@@ -74,10 +77,10 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     /**
      * Get this object as overlay type
      *
-     * @return overlay type or null if not an instance of {@link OverlayTemplate}
+     * @return overlay type or null if not an instance of {@link VROverlayTemplate}
      */
-    default @Nullable OverlayTemplate asTemplate(){
-        if(this instanceof OverlayTemplate overlayTemplate){
+    default @Nullable VROverlayTemplate asTemplate(){
+        if(this instanceof VROverlayTemplate overlayTemplate){
             return overlayTemplate;
         }else{
             return null;

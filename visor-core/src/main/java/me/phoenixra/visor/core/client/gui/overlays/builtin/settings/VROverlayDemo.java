@@ -11,7 +11,7 @@ import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -33,7 +33,7 @@ public class VROverlayDemo extends VROverlayScreen {
     private final Vector3f movingRotationOffset = new Vector3f(0,0,0);
 
 
-    private OverlayTemplate demonstrating;
+    private VROverlayTemplate demonstrating;
     private OverlayOptionsLocation demoModelViewOptions;
     private OverlayOptionsGlobal demoOptionsGlobal;
 
@@ -119,11 +119,6 @@ public class VROverlayDemo extends VROverlayScreen {
         );
     }
 
-    @Override
-    public void onPreTick() {
-        updatePose(1);
-    }
-
 
 
     @Override
@@ -184,7 +179,7 @@ public class VROverlayDemo extends VROverlayScreen {
         }
     }
 
-    public void showDemo(@NotNull OverlayTemplate overlay){
+    public void showDemo(@NotNull VROverlayTemplate overlay){
         setEnabled(false);
 
         demonstrating = overlay;

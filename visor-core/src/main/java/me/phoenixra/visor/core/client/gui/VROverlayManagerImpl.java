@@ -33,6 +33,9 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @Getter
@@ -46,6 +49,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
     private VRKeyboardAccessor keyboardAccessor;
 
 
+    private List<VROverlay> preparedOverlays = new ArrayList<>();
     public void tick(){
         for(VROverlay overlay : overlaysRegistry.getSortedElements()){
             if(!overlay.isEnabled()) continue;
@@ -78,6 +82,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 GlStateManager.DestFactor.ONE
         );
 
+        preparedOverlays.clear();
 
         // --- Render ---
         for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
@@ -87,6 +92,14 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 continue;
             }
             profiler.push("VROverlay Texture: " + overlay.getId());
+
+            //update pose before rendering texture
+            overlay.updatePose(partialTicks);
+
+            //do not render texture if out of view distance
+            if(!overlay.isInViewDistance()){
+                continue;
+            }
 
             if(overlay instanceof VROverlayScreen overlayScreen) {
                 //apply clean render target
@@ -108,9 +121,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     prevOverlayHeight = overlayScreen.height;
                 }
 
-                //update pose before rendering texture
-                overlay.updatePose(partialTicks);
-
                 //render overlay texture
                 overlayScreen.renderWithTooltip(
                         guiGraphics,
@@ -122,14 +132,16 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
                 // rendering is fully handled by VROverlayFrameBuffer,
-                // so, just call updatePose() and render(),
+                // so, just call render(),
                 // to let it do the rest
-                overlay.updatePose(partialTicks);
                 overlayFrameBuffer.render(partialTicks);
+            }else{
+                throw new RuntimeException("Tried to render overlay of unsupported abstract class: "+overlay.getId());
             }
 
             profiler.pop();
             GLUtils.checkGLError("post VROverlay texture: "+overlay.getId());
+            preparedOverlays.add(overlay);
         }
 
         // --- Restore ---
@@ -142,7 +154,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
     public void renderOverlays(float partialTicks,
                                PoseStack poseStack) {
 
-
+        if(preparedOverlays.isEmpty()){
+            return;
+        }
         // --- Setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
@@ -154,11 +168,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
         GLUtils.checkGLError("before overlays");
         // --- Render ---
-        for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
-            if(!overlay.isVisible()) continue;
+        for (VROverlay overlay : preparedOverlays) {
             var target = overlay.getRenderTarget();
             if(target == null){
-                continue;
+                throw new RuntimeException("Tried to render overlay quad with null renderTarget: "+overlay.getId());
             }
 
             RenderGuiHelper.renderOverlayQuad(

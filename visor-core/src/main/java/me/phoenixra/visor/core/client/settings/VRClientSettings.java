@@ -72,7 +72,7 @@ public class VRClientSettings {
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.MIRROR_DISPLAY,
             key = "rendering.mirror.mode")
-    protected static MirrorMode displayMirrorMode = MirrorMode.CROPPED_LEFT;
+    protected static MirrorMode mirrorMode = MirrorMode.CROPPED_LEFT;
 
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.EYE_FOV_SCALE,

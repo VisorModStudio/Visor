@@ -80,20 +80,16 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
-    protected abstract void onEnable();
+    protected void onEnable() {}
 
-    protected abstract void onDisable();
+    protected void onDisable() {}
 
     @Override
     public final void tick(){
         onPreTick();
 
-        boolean withinViewDistance = false;
-        if(enabled){
-            withinViewDistance = isInViewDistance();
-        }
 
-        visible = enabled && withinViewDistance && updateVisibility() && renderTarget != null;
+        visible = enabled && updateVisibility() && renderTarget != null;
 
         onTick();
     }

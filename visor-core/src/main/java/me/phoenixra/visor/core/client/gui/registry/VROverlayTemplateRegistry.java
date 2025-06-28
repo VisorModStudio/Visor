@@ -1,9 +1,9 @@
 package me.phoenixra.visor.core.client.gui.registry;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -17,13 +17,13 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 import static org.reflections.scanners.Scanners.SubTypes;
 import static org.reflections.scanners.Scanners.TypesAnnotated;
 
-public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateRecord> {
+public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplateRecord> {
     private static final String REGISTRY_NAME = "VR Overlay Templates";
 
     private static final String ELEMENT_NAME = "VROverlayTemplate";
-    private static final String ANNOTATION_NAME = "@RegisterOverlayTemplate";
+    private static final String ANNOTATION_NAME = "@RegisterVROverlayTemplate";
 
-    private final Map<String, OverlayTemplateRecord> elementsMap = new LinkedHashMap<>();
+    private final Map<String, VROverlayTemplateRecord> elementsMap = new LinkedHashMap<>();
 
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
@@ -33,14 +33,14 @@ public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateR
                 SubTypes, TypesAnnotated
         );
         Set<Class<?>> annotated =
-                reflections.getTypesAnnotatedWith(RegisterOverlayTemplate.class);
+                reflections.getTypesAnnotatedWith(RegisterVROverlayTemplate.class);
 
 
         LOGGER.info("Found {} {} to register in addon: '{}'",
                 annotated.size(), ELEMENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
-            if (!OverlayTemplate.class.isAssignableFrom(clazz)) {
+            if (!VROverlayTemplate.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
                         clazz.getName(), ANNOTATION_NAME, "VROverlayTemplate"
@@ -49,17 +49,20 @@ public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateR
             }
 
             try {
-                var id = clazz.getAnnotation(RegisterOverlayTemplate.class).id();
+                var annotation = clazz.getAnnotation(RegisterVROverlayTemplate.class);
+                var id = annotation.id();
+                var isPublic = annotation.isPublic();
 
                 @SuppressWarnings("unchecked")
-                var elementClazz = (Class<? extends OverlayTemplate>) clazz;
+                var elementClazz = (Class<? extends VROverlayTemplate>) clazz;
                 var constructor = elementClazz.getConstructor(
                         VisorAddon.class,
                         String.class
                 );
-                var element = new OverlayTemplateRecord(
+                var element = new VROverlayTemplateRecord(
                         addon,
                         id,
+                        isPublic,
                         elementClazz,
                         constructor
                 );
@@ -73,7 +76,7 @@ public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateR
     }
 
     @Override
-    public void registerElement(@NotNull OverlayTemplateRecord element) {
+    public void registerElement(@NotNull VROverlayTemplateRecord element) {
         var previous = elementsMap.put(element.getId(), element);
 
         if (previous != null) {
@@ -90,7 +93,7 @@ public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateR
     }
 
     @Override
-    public OverlayTemplateRecord unregisterElement(@NotNull String id) {
+    public VROverlayTemplateRecord unregisterElement(@NotNull String id) {
         var removed = elementsMap.remove(id);;
         if(removed != null) {
             LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
@@ -99,13 +102,13 @@ public class VROverlayTemplateRegistry implements VisorRegistry<OverlayTemplateR
     }
 
     @Override
-    public @Nullable OverlayTemplateRecord getElement(@NotNull String id) {
+    public @Nullable VROverlayTemplateRecord getElement(@NotNull String id) {
         return elementsMap.get(id);
     }
 
 
     @Override
-    public @NotNull Collection<OverlayTemplateRecord> getAllElements() {
+    public @NotNull Collection<VROverlayTemplateRecord> getAllElements() {
         return elementsMap.values()
                 .stream()
                 .toList();

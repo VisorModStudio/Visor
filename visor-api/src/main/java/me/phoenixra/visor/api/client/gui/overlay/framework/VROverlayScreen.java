@@ -113,11 +113,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     public final void tick() {
         onPreTick();
 
-        boolean withinRange = false;
-        if(enabled){
-            withinRange = isInViewDistance();
-        }
-        visible = enabled && withinRange && updateVisibility();
+        visible = enabled && updateVisibility();
         VisorAPI.client().getRenderer().updateOverlayTarget(
                 this
         );

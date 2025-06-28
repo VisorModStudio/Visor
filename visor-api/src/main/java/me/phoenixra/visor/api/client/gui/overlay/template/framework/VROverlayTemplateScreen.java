@@ -10,8 +10,8 @@ import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterOverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.OverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class OverlayTemplateScreen extends VROverlayScreen implements OverlayTemplate {
+public abstract class VROverlayTemplateScreen extends VROverlayScreen implements VROverlayTemplate {
     @Getter
     private final String templateId;
     @Getter
@@ -45,14 +45,14 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
     private boolean initializedPose;
 
 
-    public OverlayTemplateScreen(@NotNull VisorAddon owner,
-                                 @NotNull String id) {
+    public VROverlayTemplateScreen(@NotNull VisorAddon owner,
+                                   @NotNull String id) {
         this(owner, id, ElementPriority.NORMAL,1.0f);
     }
-    public OverlayTemplateScreen(@NotNull VisorAddon owner,
-                                 @NotNull String id,
-                                 @NotNull ElementPriority priority,
-                                 float overlayScale) {
+    public VROverlayTemplateScreen(@NotNull VisorAddon owner,
+                                   @NotNull String id,
+                                   @NotNull ElementPriority priority,
+                                   float overlayScale) {
         super(owner, id, priority, overlayScale);
 
         try {
@@ -64,8 +64,8 @@ public abstract class OverlayTemplateScreen extends VROverlayScreen implements O
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        RegisterOverlayTemplate annotation = getClass().getAnnotation(
-                RegisterOverlayTemplate.class
+        RegisterVROverlayTemplate annotation = getClass().getAnnotation(
+                RegisterVROverlayTemplate.class
         );
         templateId = annotation.id();
         config.set("template", templateId);
