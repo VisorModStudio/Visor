@@ -46,7 +46,7 @@
   "visor.option.MIXED_REALITY_WITH_FIRST_PERSON": "First Person",
   "visor.option.MIXED_REALITY_UNITY_ENGINE_LIKE": "Unity Engine Like",
   "visor.option.MIXED_REALITY_RENDER_HANDS": "Render VR Hands",
-  "visor.option.MIRROR_DISPLAY": "Desktop Mirror",
+  "visor.option.MIRROR_DISPLAY": "Mirror",
   "visor.option.MOVEMENT_MULTIPLIER": "Move Speed Multiplier",
   "visor.option.LEFT_HANDED": "Left Handed",
   "visor.option.WORLD_SCALE": "World Scale",

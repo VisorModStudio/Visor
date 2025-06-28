@@ -74,27 +74,6 @@ public class VRClientSettings {
             key = "rendering.mirror.mode")
     protected static MirrorMode displayMirrorMode = MirrorMode.CROPPED_LEFT;
 
-
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.LOW_HEALTH_INDICATOR,
-            key = "rendering.lowHealthIndicator")
-    protected static boolean lowHealthIndicatorEnabled = true;
-
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.HIT_INDICATOR,
-            key = "rendering.hitIndicator")
-    protected static boolean hitIndicatorEnabled = true;
-
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.FREEZE_EFFECT,
-            key = "rendering.freezeEffect")
-    protected static boolean freezeEffectEnabled = true;
-
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.PUMPKIN_EFFECT,
-            key = "rendering.pumpkinEffect")
-    protected static boolean pumpkinEffectEnabled = true;
-
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.EYE_FOV_SCALE,
             key = "rendering.eyes.fovScale")
@@ -113,6 +92,28 @@ public class VRClientSettings {
     @Getter
     protected static final float mirrorCrop = 0.15F;
     //
+
+    //----Eye Effects
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.LOW_HEALTH_INDICATOR,
+            key = "rendering.eyeEffect.lowHealthIndicator")
+    protected static boolean lowHealthIndicatorEnabled = true;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.HIT_INDICATOR,
+            key = "rendering.eyeEffect.hitIndicator")
+    protected static boolean hitIndicatorEnabled = true;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.FREEZE_EFFECT,
+            key = "rendering.eyeEffect.freeze")
+    protected static boolean freezeEffectEnabled = true;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.PUMPKIN_EFFECT,
+            key = "rendering.eyeEffect.pumpkin")
+    protected static boolean pumpkinEffectEnabled = true;
+
 
     //----GUI && HUD
     @Getter
