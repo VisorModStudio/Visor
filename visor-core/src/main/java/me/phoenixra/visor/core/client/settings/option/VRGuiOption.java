@@ -47,6 +47,9 @@ public enum VRGuiOption {
     },
 
     LOW_HEALTH_INDICATOR,
+    HIT_INDICATOR,
+    FREEZE_EFFECT,
+    PUMPKIN_EFFECT,
     MIRROR_DISPLAY(){
         @Override
         public void onChanged() {

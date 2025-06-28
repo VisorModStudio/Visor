@@ -90,6 +90,21 @@ public class VRClientSettings {
     protected static boolean lowHealthIndicatorEnabled = true;
 
     @Getter
+    @VROptionField(guiOptionType = VRGuiOption.HIT_INDICATOR,
+            key = "rendering.hitIndicator")
+    protected static boolean hitIndicatorEnabled = true;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.FREEZE_EFFECT,
+            key = "rendering.freezeEffect")
+    protected static boolean freezeEffectEnabled = true;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.PUMPKIN_EFFECT,
+            key = "rendering.pumpkinEffect")
+    protected static boolean pumpkinEffectEnabled = true;
+
+    @Getter
     @VROptionField(guiOptionType = VRGuiOption.EYE_FOV_SCALE,
             key = "rendering.eyes.fovScale")
     protected static float eyesFovScale = 1f;
