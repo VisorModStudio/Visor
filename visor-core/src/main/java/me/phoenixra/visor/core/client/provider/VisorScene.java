@@ -16,6 +16,7 @@ import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.MirrorHelper;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -96,9 +97,7 @@ public class VisorScene implements VRScene {
         if (currentStage == VRDisplay.FIRST_PERSON) {
             flag = true;
         } else {
-            flag = VRClientSettings.isDisplayMirrorLeftEye()
-                    ? currentStage == VRDisplay.EYE_LEFT
-                    : currentStage == VRDisplay.EYE_RIGHT;
+            flag = currentStage == VRDisplay.EYE_LEFT;
         }
 
         if (flag) {

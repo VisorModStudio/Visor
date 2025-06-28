@@ -24,14 +24,6 @@ public class VRClientSettings {
     @VROptionField
     protected static VRPlayMode vrPlayMode = VRPlayMode.ENABLED;
 
-    public static void setVrPlayMode(VRPlayMode vrPlayMode) {
-        VRClientSettings.vrPlayMode = vrPlayMode;
-        VisorClientImpl.LOGGER.info(
-                "Changed VR Play Mode to: {}",
-                VRClientSettings.getVrPlayMode()
-        );
-    }
-
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.LEFT_HANDED)
     protected static boolean leftHanded = false;
@@ -64,6 +56,8 @@ public class VRClientSettings {
 
     //---
 
+
+
     //----Locomotion
 
 
@@ -78,11 +72,8 @@ public class VRClientSettings {
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.MIRROR_DISPLAY,
             key = "rendering.mirror.mode")
-    protected static MirrorMode displayMirrorMode = MirrorMode.CROPPED;
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.MIRROR_USE_LEFT_EYE,
-            key = "rendering.mirror.useLeftEye")
-    protected static boolean displayMirrorLeftEye = false;
+    protected static MirrorMode displayMirrorMode = MirrorMode.CROPPED_LEFT;
+
 
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.LOW_HEALTH_INDICATOR,
@@ -114,11 +105,6 @@ public class VRClientSettings {
     private static float eyeFovScaleCurrent = 1.0f;
     @Getter @Setter
     private static boolean eyeFovChanged = false;
-
-    public static void setEyeFovScaleCurrent(float value) {
-        eyeFovScaleCurrent = value;
-        eyeFovChanged = true;
-    }
 
     @Getter
     protected static final float renderScaleFactor = 1.0f;
@@ -179,17 +165,9 @@ public class VRClientSettings {
     protected static final boolean walkUpEnabled = true;
 
     //
-
-
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.ROTATION_MODE)
     protected static RotationMode rotationMode = RotationMode.CONTROLLER_OFFHAND;
-
-    public static boolean isWalkUpEnabled() {
-        return walkUpEnabled
-                && MC.player!= null
-                && !MC.player.isSpectator();
-    }
 
 
     private static final float defaultHeight = 1.52F;
@@ -198,6 +176,26 @@ public class VRClientSettings {
     @VROptionField(key = "player.height")
     protected static float playerHeight = defaultHeight;
 
+
+    public static void setVrPlayMode(VRPlayMode vrPlayMode) {
+        VRClientSettings.vrPlayMode = vrPlayMode;
+        VisorClientImpl.LOGGER.info(
+                "Changed VR Play Mode to: {}",
+                VRClientSettings.getVrPlayMode()
+        );
+    }
+
+
+    public static void setEyeFovScaleCurrent(float value) {
+        eyeFovScaleCurrent = value;
+        eyeFovChanged = true;
+    }
+
+    public static boolean isWalkUpEnabled() {
+        return walkUpEnabled
+                && MC.player!= null
+                && !MC.player.isSpectator();
+    }
 
     public static float getPlayerHeight() {
         if (playerHeight < 0) {

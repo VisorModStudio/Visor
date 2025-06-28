@@ -61,7 +61,6 @@ public enum VRGuiOption {
             }
         }
     },
-    MIRROR_USE_LEFT_EYE, // Mirror Eye
 
     EYE_FOV_SCALE(0.2f, 2.0f,0.1f){
         @Override

@@ -30,8 +30,10 @@ public class MirrorHelper {
         switch (VRClientSettings.getDisplayMirrorMode()){
             case OFF -> drawTextMirror("Mirror is DISABLED", true);
             case GUI -> drawGuiMirror();
-            case SINGLE -> drawSingleMirror();
-            case CROPPED -> drawCroppedMirror();
+            case CROPPED_LEFT -> drawCroppedMirror(true);
+            case CROPPED_RIGHT -> drawCroppedMirror(false);
+            case SINGLE_LEFT -> drawSingleMirror(true);
+            case SINGLE_RIGHT -> drawSingleMirror(false);
             case DUAL -> drawDualMirror();
             case FIRST_PERSON -> drawFirstPersonMirror();
             case THIRD_PERSON -> drawThirdPersonMirror();
@@ -51,27 +53,10 @@ public class MirrorHelper {
                 screenHeight
         );
     }
-    private static void drawSingleMirror(){
-        RenderTarget source;
-        if (VRClientSettings.isDisplayMirrorLeftEye()) {
-            source = ClientContext.renderer.getTextureLeftEye().getRenderTarget();
-        }else {
-            source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
-        }
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
-        blit(
-                source,
-                0,0,
-                screenWidth,
-                screenHeight
-        );
-    }
-
-    private static void drawCroppedMirror(){
+    private static void drawCroppedMirror(boolean leftEye){
         RenderTarget source;
-        if (VRClientSettings.isDisplayMirrorLeftEye()) {
+        if (leftEye) {
             source = ClientContext.renderer.getTextureLeftEye().getRenderTarget();
         }else {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
@@ -91,6 +76,24 @@ public class MirrorHelper {
                 true
         );
     }
+    private static void drawSingleMirror(boolean leftEye){
+        RenderTarget source;
+        if (leftEye) {
+            source = ClientContext.renderer.getTextureLeftEye().getRenderTarget();
+        }else {
+            source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
+        }
+
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        blit(
+                source,
+                0,0,
+                screenWidth,
+                screenHeight
+        );
+    }
+
 
 
 

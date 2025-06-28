@@ -2,17 +2,20 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffectsScreen;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
+import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionPosition;
 import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Objects;
 
 
 public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
@@ -31,27 +34,45 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
 
     @Override
     protected VRGuiOption[] getOptionTypes() {
-        List<VRGuiOption> options = new ArrayList<>();
-        options.add(VRGuiOption.MIRROR_DISPLAY);
-        if (VRClientSettings.getDisplayMirrorMode() == MirrorMode.CROPPED
-                || VRClientSettings.getDisplayMirrorMode() == MirrorMode.SINGLE) {
-            options.add(VRGuiOption.MIRROR_USE_LEFT_EYE);
-        }
-        options.add(VRGuiOption.LOW_HEALTH_INDICATOR);
 
-        MirrorMode mirrorMode = VRClientSettings.getDisplayMirrorMode();
-
-        if(mirrorMode == MirrorMode.THIRD_PERSON){
-            options.add(VRGuiOption.THIRD_PERSON_FOV);
-        }
-
-        options.add(VRGuiOption.EYE_FOV_SCALE);
-        return options.toArray(new VRGuiOption[0]);
+        return new VRGuiOption[0];
     }
 
     @Override
     protected VRGuiOptionEntry[] getOptionEntries() {
-        return new VRGuiOptionEntry[0];
+        List<VRGuiOptionEntry> options = new ArrayList<>();
+        options.add(
+                new VRGuiOptionEntry(
+                        VRGuiOption.MIRROR_DISPLAY,
+                        VRGuiOptionPosition.LEFT,
+                        1,
+                        null
+                )
+        );
+        options.add(
+                new VRGuiOptionEntry(
+                        VRSettingsEyeEffectsScreen.class,
+                        VRGuiOptionPosition.RIGHT,
+                        1,
+                        "visor.option.screen.rendering.eyeEffects.button"
+                )
+        );
+
+        MirrorMode mirrorMode = VRClientSettings.getDisplayMirrorMode();
+
+        if(mirrorMode == MirrorMode.THIRD_PERSON){
+            options.add(
+                    new VRGuiOptionEntry(
+                            VRGuiOption.THIRD_PERSON_FOV,
+                            VRGuiOptionPosition.LEFT,
+                            2,
+                            null
+                    )
+            );
+        }
+
+
+        return options.toArray(new VRGuiOptionEntry[0]);
     }
 
 
