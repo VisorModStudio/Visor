@@ -45,7 +45,7 @@ public class OverlayTemplateHUD extends OverlayTemplateFrameBuffer implements VR
 
     @Override
     public void onRender(float partialTicks) {
-
+        renderTarget = ClientContext.renderer.guiTarget.getTarget();
     }
 
     @Override
