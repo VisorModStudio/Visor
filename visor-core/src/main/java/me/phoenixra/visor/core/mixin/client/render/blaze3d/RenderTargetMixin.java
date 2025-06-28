@@ -114,13 +114,13 @@ public abstract class RenderTargetMixin implements RenderTargetModified {
 
     @Override
     @Unique
-    public boolean visor$isUseStencil() {
+    public boolean visor$isUsingStencil() {
         return visor$useStencil;
     }
 
     @Override
     @Unique
-    public void visor$setTextid(int texid) {
+    public void visor$setTextureId(int texid) {
         this.visor$textureId = texid;
     }
 

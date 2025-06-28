@@ -5,8 +5,6 @@ import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
 import java.util.EnumMap;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 
 public class MultiDisplayRenderTarget extends RenderTarget {
@@ -20,111 +18,100 @@ public class MultiDisplayRenderTarget extends RenderTarget {
         this.mainTarget = mainTarget;
         this.vrTargets = vrTargets;
 
-        // use the default vanilla target for those
+        //Defaults from main target
+        this.frameBufferId = mainTarget.frameBufferId;
+        this.filterMode = mainTarget.filterMode;
+
         this.width = mainTarget.width;
         this.height = mainTarget.height;
         this.viewWidth = mainTarget.viewWidth;
         this.viewHeight = mainTarget.viewHeight;
-        this.frameBufferId = mainTarget.frameBufferId;
-        this.filterMode = mainTarget.filterMode;
+    }
+
+    private RenderTarget getCurrentTarget() {
+        return VRRenderState.getCurrentPhase().isVanilla()
+                ? mainTarget
+                : vrTargets.get(VRRenderState.getCurrentVRDisplay());
     }
 
     @Override
     public void resize(int width, int height, boolean clearError) {
-        callOnTarget(r -> r.resize(width, height, clearError));
+        getCurrentTarget().resize(width, height, clearError);
     }
 
     @Override
     public void destroyBuffers() {
-        this.mainTarget.destroyBuffers();
-        for (RenderTarget renderTarget : this.vrTargets.values()) {
-            renderTarget.destroyBuffers();
-        }
+        mainTarget.destroyBuffers();
+        vrTargets.values().forEach(RenderTarget::destroyBuffers);
     }
 
     @Override
-    public void copyDepthFrom(RenderTarget otherTarget) {
-        callOnTarget(r -> r.copyDepthFrom(otherTarget));
+    public void copyDepthFrom(RenderTarget other) {
+        getCurrentTarget().copyDepthFrom(other);
     }
 
     @Override
     public void createBuffers(int width, int height, boolean clearError) {
-        callOnTarget(r -> r.createBuffers(width, height, clearError));
+        getCurrentTarget().createBuffers(width, height, clearError);
     }
 
     @Override
     public void setFilterMode(int filterMode) {
-        callOnTarget(r -> r.setFilterMode(filterMode));
+        getCurrentTarget().setFilterMode(filterMode);
     }
 
     @Override
     public void checkStatus() {
-        callOnTarget(RenderTarget::checkStatus);
+        getCurrentTarget().checkStatus();
     }
 
     @Override
     public void bindRead() {
-        callOnTarget(RenderTarget::bindRead);
+        getCurrentTarget().bindRead();
     }
 
     @Override
     public void unbindRead() {
-        callOnTarget(RenderTarget::unbindRead);
+        getCurrentTarget().unbindRead();
     }
 
     @Override
     public void bindWrite(boolean setViewport) {
-        callOnTarget(r -> r.bindWrite(setViewport));
+        getCurrentTarget().bindWrite(setViewport);
     }
 
     @Override
     public void unbindWrite() {
-        callOnTarget(RenderTarget::unbindWrite);
+        getCurrentTarget().unbindWrite();
     }
 
     @Override
     public void setClearColor(float red, float green, float blue, float alpha) {
-        callOnTarget(r -> r.setClearColor(red, green, blue, alpha));
+        getCurrentTarget().setClearColor(red, green, blue, alpha);
     }
 
     @Override
     public void blitToScreen(int width, int height) {
-        callOnTarget(r -> r.blitToScreen(width, height));
+        getCurrentTarget().blitToScreen(width, height);
     }
 
     @Override
     public void blitToScreen(int width, int height, boolean disableBlend) {
-        callOnTarget(r -> r.blitToScreen(width, height, disableBlend));
+        getCurrentTarget().blitToScreen(width, height, disableBlend);
     }
 
     @Override
     public void clear(boolean clearError) {
-        callOnTarget(r -> r.clear(clearError));
+        getCurrentTarget().clear(clearError);
     }
 
     @Override
     public int getColorTextureId() {
-        return callOnTargetInt(RenderTarget::getColorTextureId);
+        return getCurrentTarget().getColorTextureId();
     }
 
     @Override
     public int getDepthTextureId() {
-        return callOnTargetInt(RenderTarget::getDepthTextureId);
-    }
-
-    private void callOnTarget(Consumer<RenderTarget> consumer) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
-            consumer.accept(this.mainTarget);
-        } else {
-            consumer.accept(this.vrTargets.get(VRRenderState.getCurrentVRDisplay()));
-        }
-    }
-
-    private int callOnTargetInt(Function<RenderTarget, Integer> function) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
-            return function.apply(this.mainTarget);
-        } else {
-            return function.apply(this.vrTargets.get(VRRenderState.getCurrentVRDisplay()));
-        }
+        return getCurrentTarget().getDepthTextureId();
     }
 }

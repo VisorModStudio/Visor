@@ -34,9 +34,6 @@ public class PostChainMixin {
     @Unique @Final
     private final EnumMap<VRDisplay, PostChain> visor$vrChains = new EnumMap<>(VRDisplay.class);
 
-    @Unique @Final
-    private final EnumMap<VRDisplay, RenderTarget> visor$vrTempTargets = new EnumMap<>(VRDisplay.class);
-
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     private void visor$onInit(TextureManager textureManager,
@@ -50,7 +47,7 @@ public class PostChainMixin {
             return;
         }
         for (VRDisplay display : VRDisplay.values()) {
-            var target =VRRenderState.getTargetForDisplay(display);
+            var target = VRRenderState.getTargetForDisplay(display);
             if(target == null) continue;
             visor$vrChains.put(display,
                     new PostChain(
@@ -80,21 +77,23 @@ public class PostChainMixin {
     @Inject(method = "getTempTarget", at = @At("RETURN"), cancellable = true)
     private void visor$onGetTempTarget(String attributeName, CallbackInfoReturnable<RenderTarget> cir) {
         if (VisorState.getState().isNotInitialized()
-                || visor$vrChains.isEmpty()) return;
-        visor$vrTempTargets.clear();
+                || visor$vrChains.isEmpty()) {
+            return;
+        }
+        var vrTempTargets = new EnumMap<VRDisplay, RenderTarget>(VRDisplay.class);
         visor$vrChains.forEach((d, pc) -> {
-            visor$vrTempTargets.put(d, pc.getTempTarget(attributeName));
+            vrTempTargets.put(d, pc.getTempTarget(attributeName));
         });
         cir.setReturnValue(
                 new MultiDisplayRenderTarget(
-                        cir.getReturnValue(), visor$vrTempTargets
+                        cir.getReturnValue(), vrTempTargets
                 )
         );
     }
 
     @ModifyVariable(method = "addTempTarget", at = @At(value = "STORE"), ordinal = 0)
     private RenderTarget visor$tempTargetStencil(RenderTarget renderTarget) {
-        if (((RenderTargetModified) this.screenTarget).visor$isUseStencil()) {
+        if (((RenderTargetModified) this.screenTarget).visor$isUsingStencil()) {
             ((RenderTargetModified) renderTarget).visor$setUseStencil(true);
             renderTarget.resize(renderTarget.width, renderTarget.height, Minecraft.ON_OSX);
         }
