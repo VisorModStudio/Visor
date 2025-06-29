@@ -5,10 +5,13 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorClientImpl;
+import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
 import me.phoenixra.visor.core.client.render.target.RenderTargetHolder;
 import me.phoenixra.visor.core.client.render.target.VRRenderTarget;
 import net.minecraft.client.Minecraft;
+
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
 public class RenderTargetMain implements RenderTargetHolder {
@@ -30,10 +33,11 @@ public class RenderTargetMain implements RenderTargetHolder {
         GLUtils.checkGLError("Main VR target setup");
         VisorClientImpl.LOGGER.info(this.target.toString());
 
+        var mcWindow = (WindowModified) (Object) MC.getWindow();
         this.mirrorTarget = new VRRenderTarget(
                 "Mirror",
-                Math.max(1, ClientContext.renderer.getMirrorWidth()),
-                Math.max(1, ClientContext.renderer.getMirrorHeight()),
+                mcWindow.visor$getActualWidth(),
+                mcWindow.visor$getActualHeight(),
                 false, () -> -1,
                 false, false
         );

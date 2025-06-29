@@ -3,7 +3,9 @@ package me.phoenixra.visor.core.client.render.helpers;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.core.client.mcmodified.WindowModified;
+import me.phoenixra.visor.core.client.render.VRShaders;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
@@ -28,15 +30,14 @@ public class MirrorHelper {
 
     public static void drawMirror() {
         switch (VRClientSettings.getMirrorMode()){
-            case OFF -> drawTextMirror("Mirror is DISABLED", true);
+            case OFF -> drawTextMirror("Mirror is OFF", true);
             case GUI -> drawGuiMirror();
-            case CROPPED_LEFT -> drawCroppedMirror(true);
-            case CROPPED_RIGHT -> drawCroppedMirror(false);
-            case SINGLE_LEFT -> drawSingleMirror(true);
-            case SINGLE_RIGHT -> drawSingleMirror(false);
+            case CROPPED -> drawCroppedMirror();
+            case SINGLE -> drawSingleMirror();
             case DUAL -> drawDualMirror();
             case FIRST_PERSON -> drawFirstPersonMirror();
             case THIRD_PERSON -> drawThirdPersonMirror();
+            case MIXED_REALITY -> VRShaders.getMixedReality().drawMirror();
         }
     }
 
@@ -54,9 +55,9 @@ public class MirrorHelper {
         );
     }
 
-    private static void drawCroppedMirror(boolean leftEye){
+    private static void drawCroppedMirror(){
         RenderTarget source;
-        if (leftEye) {
+        if (VRClientSettings.getMirrorEye() == EyeType.LEFT) {
             source = ClientContext.renderer.getTextureLeftEye().getRenderTarget();
         }else {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
@@ -76,9 +77,9 @@ public class MirrorHelper {
                 true
         );
     }
-    private static void drawSingleMirror(boolean leftEye){
+    private static void drawSingleMirror(){
         RenderTarget source;
-        if (leftEye) {
+        if (VRClientSettings.getMirrorEye() == EyeType.LEFT) {
             source = ClientContext.renderer.getTextureLeftEye().getRenderTarget();
         }else {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();

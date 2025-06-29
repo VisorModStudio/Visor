@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client.mcmodified.render;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 
 public interface GameRendererModified {
 
@@ -40,4 +41,6 @@ public interface GameRendererModified {
     Vec3 visor$getCrossVec();
 
     VRCameraEntityCache visor$getCameraEntityCache();
+
+    Matrix4f visor$getThirdPersonProjection();
 }

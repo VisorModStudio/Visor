@@ -17,7 +17,7 @@ public class PoseElementImpl implements PoseElement {
 
     private Vector3fc direction;
 
-    private Matrix4f rotationMatrix;
+    private Matrix4fc rotation;
 
     private float yaw, pitch, roll;
 
@@ -29,7 +29,7 @@ public class PoseElementImpl implements PoseElement {
     public PoseElementImpl() {
         position = new Vector3f(0,0,0);
         direction = new Vector3f(0,0,0);
-        rotationMatrix = new Matrix4f();
+        rotation = new Matrix4f();
 
         originCached = new Vector3f(0,0,0);
 
@@ -51,11 +51,6 @@ public class PoseElementImpl implements PoseElement {
         );
     }
 
-
-    public @NotNull Matrix4fc getRotation() {
-        return rotationMatrix;
-    }
-
     protected void update(Vector3fc origin,
                           float rotationY,
                           float worldScale,
@@ -63,7 +58,7 @@ public class PoseElementImpl implements PoseElement {
                           Vector3fc position, Vector3fc direction){
         this.originCached = origin;
 
-        this.rotationMatrix = new Matrix4f().rotationY(rotationY).mul(
+        this.rotation = new Matrix4f().rotationY(rotationY).mul(
                 rotationMatrix,
                 new Matrix4f()
         );
@@ -85,8 +80,8 @@ public class PoseElementImpl implements PoseElement {
                 Math.asin(this.direction.y() / this.direction.length())
         );
         this.roll = (float) (
-                -Math.toDegrees(Mth.atan2(this.rotationMatrix.m10(),
-                        this.rotationMatrix.m11()))
+                -Math.toDegrees(Mth.atan2(this.rotation.m10(),
+                        this.rotation.m11()))
         );
 
 
@@ -108,7 +103,7 @@ public class PoseElementImpl implements PoseElement {
 
     @Override
     public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {
-        return this.rotationMatrix
+        return this.rotation
                 .transformDirection(
                         vec.x(), vec.y(), vec.z(),
                         new Vector3f()
@@ -118,7 +113,7 @@ public class PoseElementImpl implements PoseElement {
     @Override
     public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc vec) {
 
-        return this.rotationMatrix.invert(new Matrix4f())
+        return this.rotation.invert(new Matrix4f())
                 .transformDirection(
                         vec.x(), vec.y(), vec.z(),
                         new Vector3f()

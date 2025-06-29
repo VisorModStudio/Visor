@@ -58,7 +58,18 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
 
         MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
 
-        if(mirrorMode == MirrorMode.THIRD_PERSON){
+        if(mirrorMode == MirrorMode.CROPPED
+                || mirrorMode == MirrorMode.SINGLE
+                || mirrorMode == MirrorMode.MIXED_REALITY){
+            options.add(
+                    new VRGuiOptionEntry(
+                            VRGuiOption.MIRROR_EYE,
+                            VRGuiOptionPosition.LEFT,
+                            2,
+                            null
+                    )
+            );
+        } else if(mirrorMode == MirrorMode.THIRD_PERSON){
             options.add(
                     new VRGuiOptionEntry(
                             VRGuiOption.THIRD_PERSON_FOV,

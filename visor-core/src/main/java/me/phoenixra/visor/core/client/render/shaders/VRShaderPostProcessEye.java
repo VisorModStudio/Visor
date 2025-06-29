@@ -21,7 +21,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRShaderPostProcessEye implements VRShader{
 
-    private static AtumColor PUMPKIN_VIGNETTE_COLOR
+    private static final AtumColor PUMPKIN_VIGNETTE_COLOR
             = AtumColor.ORANGE.blend(AtumColor.BLACK, 0.5f);
 
     @Getter

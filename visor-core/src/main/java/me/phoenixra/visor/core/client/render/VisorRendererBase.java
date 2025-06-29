@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +170,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
         int eyeRenderWidth = (int) Math.ceil(eyeWidth * this.renderScale);
         int eyeRenderHeight = (int) Math.ceil(eyeHeight * this.renderScale);
 
-        List<VRDisplay> list = getVRWorldDisplays();
+        List<VRDisplay> list = VRRenderState.getVRWorldDisplays();
         for (VRDisplay renderStage : list) {
             VisorClientImpl.LOGGER.info("VR Displays: {}", renderStage.toString());
         }
@@ -339,35 +338,20 @@ public abstract class VisorRendererBase implements VisorRenderer {
         mirrorHeight = Math.max(1,
                 windowModif.visor$getActualHeight()
         );
+        if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
+            mirrorWidth = mirrorWidth / 2;
 
+            if (VRClientSettings.isMixedRealityAsGrid2x2()) {
+                mirrorHeight = mirrorHeight / 2;
+            }
+        }
 
         if (ShadersHelper.sameSizedBuffers()) {
             mirrorWidth = eyeWidth;
             mirrorHeight = eyeHeight;
         }
     }
-    public static List<VRDisplay> getVRWorldDisplays() {
 
-
-        List<VRDisplay> list = new ArrayList<>();
-        list.add(VRDisplay.EYE_LEFT);
-        list.add(VRDisplay.EYE_RIGHT);
-
-        var windowModif =  ((WindowModified) (Object)
-                Minecraft.getInstance().getWindow());
-
-        if (windowModif.visor$getActualWidth() > 0
-                && windowModif.visor$getActualHeight() > 0) {
-            MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
-            if (mirrorMode == MirrorMode.FIRST_PERSON) {
-                list.add(VRDisplay.FIRST_PERSON);
-            } else if (mirrorMode == MirrorMode.THIRD_PERSON) {
-                list.add(VRDisplay.THIRD_PERSON);
-            }
-        }
-
-        return list;
-    }
 
     @Override
     public void destroy() {

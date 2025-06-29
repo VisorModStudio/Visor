@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.settings;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.settings.lang.LangHandler;
 import me.phoenixra.visor.core.client.settings.option.VROptionField;
@@ -15,6 +16,9 @@ import net.minecraft.network.chat.Component;
 import org.joml.Quaternionf;
 
 import me.phoenixra.visor.core.client.ClientContext;
+
+import java.awt.*;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRClientSettings {
@@ -72,7 +76,12 @@ public class VRClientSettings {
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.MIRROR_DISPLAY,
             key = "rendering.mirror.mode")
-    protected static MirrorMode mirrorMode = MirrorMode.CROPPED_LEFT;
+    protected static MirrorMode mirrorMode = MirrorMode.CROPPED;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.MIRROR_EYE,
+            key = "rendering.mirror.eye")
+    protected static EyeType mirrorEye = EyeType.LEFT;
 
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.EYE_FOV_SCALE,
@@ -152,6 +161,46 @@ public class VRClientSettings {
     @VROptionField(key = "rendering.mirror.thirdPerson.fixedCamera.rotation")
     protected static Quaternionf fixedCameraRotation = new Quaternionf(.041f, .125f, .239f, .962f);
 
+
+    //----Mixed Reality Mirror
+    @Getter
+    @VROptionField(
+            key = "rendering.mirror.mixedReality.renderHands"
+    )
+    protected static boolean mixedRealityRenderHands = false;
+
+    @Getter
+    @VROptionField(
+            key = "rendering.mirror.mixedReality.asGrid2x2"
+    )
+    protected static boolean mixedRealityAsGrid2x2 = true;
+
+    @Getter
+    @VROptionField(
+            key = "rendering.mirror.mixedReality.withFirstPerson"
+    )
+    protected static boolean mixedRealityWithFirstPerson = true;
+
+    @Getter
+    @VROptionField(
+            key = "rendering.mirror.mixedReality.alphaMask"
+    )
+    protected static boolean mixedRealityAlphaMask = false;
+
+    @Getter
+    @VROptionField(
+            key = "rendering.mirror.mixedReality.fov"
+    )
+    protected static float mixedRealityFov = 40;
+
+    @Getter
+    @VROptionField(key = "rendering.mirror.mixedReality.keyColor")
+    protected static Color mixedRealityKeyColor = new Color(0, 0, 0);
+
+    @Getter
+    @VROptionField(key = "rendering.mirror.mixedReality.aspectRatio")
+    protected static float mixedRealityAspectRatio = 16F / 9F;
+    //
 
 
     @Getter

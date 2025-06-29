@@ -7,11 +7,18 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.core.client.mcmodified.WindowModified;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -94,5 +101,35 @@ public class VRRenderState {
                 || MC.screen instanceof ProgressScreen
                 || MC.screen instanceof GenericDirtMessageScreen
                 || MC.getOverlay() != null;
+    }
+
+
+    public static List<VRDisplay> getVRWorldDisplays() {
+
+
+        List<VRDisplay> list = new ArrayList<>();
+        list.add(VRDisplay.EYE_LEFT);
+        list.add(VRDisplay.EYE_RIGHT);
+
+        var windowModif =  ((WindowModified) (Object)
+                Minecraft.getInstance().getWindow());
+
+        if (windowModif.visor$getActualWidth() > 0
+                && windowModif.visor$getActualHeight() > 0) {
+            MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
+            if (mirrorMode == MirrorMode.FIRST_PERSON) {
+                list.add(VRDisplay.FIRST_PERSON);
+            } else if (mirrorMode == MirrorMode.THIRD_PERSON) {
+                list.add(VRDisplay.THIRD_PERSON);
+            } else if (mirrorMode == MirrorMode.MIXED_REALITY) {
+                if (VRClientSettings.isMixedRealityWithFirstPerson() && VRClientSettings.isMixedRealityAsGrid2x2()) {
+                    list.add(VRDisplay.FIRST_PERSON);
+                }
+
+                list.add(VRDisplay.THIRD_PERSON);
+            }
+        }
+
+        return list;
     }
 }

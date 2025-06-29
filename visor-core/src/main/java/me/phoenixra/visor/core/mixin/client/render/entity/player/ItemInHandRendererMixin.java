@@ -12,6 +12,8 @@ import me.phoenixra.visor.core.client.mcmodified.entity.EntityRenderDispatcherVR
 import me.phoenixra.visor.core.client.mcmodified.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.player.VRPlayerRendererArms;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -135,7 +137,10 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
         pEquippedProgress = this.visor$getEquipProgress(pHand, pPartialTicks);
 
 
-        boolean renderArm = VRRenderState.getCurrentVRDisplay() != VRDisplay.THIRD_PERSON;
+        boolean renderArm =
+                VRRenderState.getCurrentVRDisplay() != VRDisplay.THIRD_PERSON
+                || (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
+                        && VRClientSettings.isMixedRealityRenderHands());
 
         poseStack.pushPose();
         if (renderArm && !pPlayer.isInvisible()) {

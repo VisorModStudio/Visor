@@ -61,6 +61,7 @@ public enum VRGuiOption {
             }
         }
     },
+    MIRROR_EYE,
 
     EYE_FOV_SCALE(0.2f, 2.0f,0.1f){
         @Override

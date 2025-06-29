@@ -22,13 +22,13 @@ import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
@@ -110,17 +110,13 @@ public abstract class GameRendererMixin
 
 
     @Unique
-    public Matrix4f visor$thirdPassProjectionMatrix = new Matrix4f();
+    public Matrix4f visor$thirdPersonProjection = new Matrix4f();
     @Unique
     public float visor$nearClipPlane = 0.02F;
     @Unique
     private float visor$farClipPlane = 128.0F;
     @Unique
     public Vec3 visor$crossVec;
-    @Unique
-    public boolean visor$inwater;
-    @Unique
-    public boolean visor$inportal;
     @Unique
     public boolean visor$onfire;
     @Unique
@@ -247,15 +243,25 @@ public abstract class GameRendererMixin
             return;
         }
         if (display == VRDisplay.THIRD_PERSON) {
-            posestack.mulPoseMatrix(
-                    new Matrix4f().setPerspective(
-                            VRClientSettings.getThirdPersonFov() * 0.01745329238474369F,
-                            (float) this.minecraft.getWindow().getScreenWidth()
-                                    / (float) this.minecraft.getWindow().getScreenHeight(),
-                            this.visor$nearClipPlane, this.visor$farClipPlane
-                    )
-            );
-            this.visor$thirdPassProjectionMatrix = new Matrix4f(posestack.last().pose());
+            if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
+                posestack.mulPoseMatrix(
+                        new Matrix4f().setPerspective(
+                                VRClientSettings.getMixedRealityFov() * 0.01745329238474369F,
+                                VRClientSettings.getMixedRealityAspectRatio(), this.visor$nearClipPlane,
+                                this.visor$farClipPlane
+                        )
+                );
+            }else {
+                posestack.mulPoseMatrix(
+                        new Matrix4f().setPerspective(
+                                VRClientSettings.getThirdPersonFov() * 0.01745329238474369F,
+                                (float) this.minecraft.getWindow().getScreenWidth()
+                                        / (float) this.minecraft.getWindow().getScreenHeight(),
+                                this.visor$nearClipPlane, this.visor$farClipPlane
+                        )
+                );
+            }
+            this.visor$thirdPersonProjection = new Matrix4f(posestack.last().pose());
             info.setReturnValue(posestack.last().pose());
             return;
         }
@@ -454,7 +460,12 @@ public abstract class GameRendererMixin
         float sinN = Mth.sin(n) * 0.5F;
         poseStack.translate(0, 0, sinN - 1.0);
         if (currentDisplay == VRDisplay.THIRD_PERSON) {
-            float fov = VRClientSettings.getThirdPersonFov();
+            float fov;
+            if(VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY){
+                fov = VRClientSettings.getMixedRealityFov();
+            }else{
+                fov = VRClientSettings.getThirdPersonFov();
+            }
             sinN *= (float) (fov / 70.0);
         }
         RenderPoseHelper.applyDisplayPose(currentDisplay, poseStack);
@@ -584,12 +595,6 @@ public abstract class GameRendererMixin
 
 
 
-    @Override
-    @Unique
-    public boolean visor$isInWater() {
-        return visor$inwater;
-    }
-
 
 
     @Override
@@ -598,11 +603,6 @@ public abstract class GameRendererMixin
         return visor$onfire;
     }
 
-    @Override
-    @Unique
-    public boolean visor$isInPortal() {
-        return this.visor$inportal;
-    }
 
     @Override
     @Unique
@@ -629,6 +629,13 @@ public abstract class GameRendererMixin
         return visor$cameraEntityCache;
     }
 
+    @Override
+    @Unique
+    public Matrix4f visor$getThirdPersonProjection() {
+        return visor$thirdPersonProjection;
+    }
+
+
     /* ************************* *\
       //--------UTILITY METHODS--------\\
         \* ************************* */
@@ -636,7 +643,7 @@ public abstract class GameRendererMixin
     private void visor$setupOverlayStatus(float partialTicks) {
         //@TODO add post process for these effects
         this.visor$inBlock = 0.0F;
-        this.visor$inwater = false;
+
         this.visor$onfire = false;
 
         if(minecraft.player.isSpectator()
@@ -673,10 +680,6 @@ public abstract class GameRendererMixin
         }
 
 
-        this.visor$inwater = this.minecraft.player.isEyeInFluid(FluidTags.WATER)
-                && !ModLoader.get().renderWaterOverlay(
-                this.minecraft.player, new PoseStack()
-        );
         this.visor$onfire = VRRenderState.getCurrentVRDisplay() != VRDisplay.THIRD_PERSON
                 && this.minecraft.player.isOnFire()
                 && !ModLoader.get().renderFireOverlay(

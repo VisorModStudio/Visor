@@ -64,7 +64,7 @@ public class VisorScene implements VRScene {
         profiler.pop();
         GLUtils.checkGLError("post VR Overlays texturing");
 
-        for (VRDisplay display : VisorRendererBase.getVRWorldDisplays()) {
+        for (VRDisplay display : VRRenderState.getVRWorldDisplays()) {
             profiler.push("VR world display: "+display.name());
 
             renderVRDisplay(
@@ -97,7 +97,9 @@ public class VisorScene implements VRScene {
         if (currentStage == VRDisplay.FIRST_PERSON) {
             flag = true;
         } else {
-            flag = currentStage == VRDisplay.EYE_LEFT;
+            flag = VRClientSettings.getMirrorEye() == EyeType.LEFT ?
+                    currentStage == VRDisplay.EYE_LEFT
+                    : currentStage == VRDisplay.EYE_RIGHT;
         }
 
         if (flag) {

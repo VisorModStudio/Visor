@@ -20,6 +20,8 @@ import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -102,6 +104,13 @@ public class VRHandRenderer {
         if (!ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
             return;
         }
+        //don't render world hands in third person
+        if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
+            if(VRClientSettings.getMirrorMode() != MirrorMode.MIXED_REALITY){
+                return;
+            }
+        }
+
         RenderSystem.backupProjectionMatrix();
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);

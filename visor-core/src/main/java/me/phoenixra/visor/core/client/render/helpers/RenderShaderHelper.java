@@ -24,7 +24,7 @@ public class RenderShaderHelper {
         shader.apply();
 
         // --- Render ---
-        renderQuad(shader.getVertexFormat());
+        renderFullscreenQuad(shader.getVertexFormat());
 
 
         // --- Restore ---
@@ -42,7 +42,7 @@ public class RenderShaderHelper {
     private static final float[]  UV_U   = {  0.0F,  1.0F,  0.0F,  1.0F };
     private static final float[]  UV_V   = {  0.0F,  0.0F,  1.0F,  1.0F };
 
-    private static void renderQuad(VertexFormat format) {
+    public static void renderFullscreenQuad(VertexFormat format) {
         if(format != DefaultVertexFormat.POSITION_TEX
                 && format != DefaultVertexFormat.POSITION_TEX_COLOR){
             throw new RuntimeException("Unexpected vertex format " + format);

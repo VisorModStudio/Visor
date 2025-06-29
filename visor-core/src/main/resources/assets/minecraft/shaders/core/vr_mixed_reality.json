@@ -1,0 +1,56 @@
+{
+  "blend": {
+    "func": "add",
+    "srcrgb": "srcalpha",
+    "dstrgb": "1-srcalpha"
+  },
+  "vertex": "vr_mixed_reality",
+  "fragment": "vr_mixed_reality",
+  "attributes": ["Position", "UV0"],
+  "samplers": [
+    {
+      "name": "SamplerColor"
+    },
+    {
+      "name": "SamplerDepth"
+    }
+  ],
+  "uniforms": [
+    {
+      "name": "uInverseProjectionView",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+    },
+    {
+      "name": "uAsGrid2x2",
+      "type": "int",
+      "count": 1,
+      "values": [1]
+    },
+    {
+      "name": "uAlphaMode",
+      "type": "int",
+      "count": 1,
+      "values": [1]
+    },
+    {
+      "name": "uHmdViewPosition",
+      "type": "float",
+      "count": 3,
+      "values": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "uHmdPlaneNormal",
+      "type": "float",
+      "count": 3,
+      "values": [1.0, 1.0, 1.0]
+    },
+    {
+      "name": "uKeyColor",
+      "type": "float",
+      "count": 3,
+      "values": [1.0, 1.0, 1.0]
+    }
+  ]
+}
