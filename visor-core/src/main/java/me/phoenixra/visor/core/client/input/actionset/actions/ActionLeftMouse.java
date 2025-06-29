@@ -42,6 +42,7 @@ public class ActionLeftMouse extends VisorActionButton {
 
         // --- Cleanup Clicks ---
         if(focusedOverlay != null
+                && previousFocused == null
                 && InputHelper.isMousePressed(BUTTON_TYPE)) {
             InputHelper.releaseMouse(BUTTON_TYPE);
         }
