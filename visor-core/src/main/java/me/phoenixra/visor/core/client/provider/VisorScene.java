@@ -54,6 +54,12 @@ public class VisorScene implements VRScene {
         RenderSystem.applyModelViewMatrix();
 
 
+        profiler.push("prepare VROverlays and cursor");
+        ClientContext.overlayManager.prepareOverlaysAndCursor(
+                context.partialTicks()
+        );
+        profiler.pop();
+
         profiler.push("VROverlay texturing");
         GuiGraphics guiGraphics = new GuiGraphics(MC, MC.renderBuffers().bufferSource());
         ClientContext.overlayManager.renderOverlayTextures(
