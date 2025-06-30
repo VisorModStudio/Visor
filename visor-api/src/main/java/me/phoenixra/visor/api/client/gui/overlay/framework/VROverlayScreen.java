@@ -8,7 +8,6 @@ import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
-import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
@@ -61,6 +60,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected boolean initAgain;
 
+
+    private static long mouseDragDelay;
 
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id) {
@@ -163,8 +164,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             enabled = true;
             init(
                     Minecraft.getInstance(),
-                    guiManager.getScaledGuiWidth(),
-                    guiManager.getScaledGuiHeight()
+                    guiManager.getGuiScaledWidth(),
+                    guiManager.getGuiScaledHeight()
             );
             onEnable();
         } else {
@@ -180,6 +181,15 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         }
     }
 
+    public boolean canDragMouse(){
+        return mouseDragDelay < System.currentTimeMillis();
+    }
+    public void startDragMouse(){
+        mouseDragDelay = System.currentTimeMillis() + 100L;
+    }
+    public void finishDragMouse(){
+        mouseDragDelay = Long.MAX_VALUE;
+    }
 
     @Override
     public void updateCursorData(boolean activeCursor, float rawX, float rawY) {
@@ -210,35 +220,25 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         cursorData.setRawCursorX(rawX);
         cursorData.setRawCursorY(rawY);
 
-        float preMouseX = (float) (
-                (int) (rawX * guiManager.getScaledGuiWidth())
-        );
-        float preMouseY = (float) (
-                (int) (rawY * guiManager.getScaledGuiHeight())
-        );
 
         cursorData.setCursorX(
-                (int) (preMouseX * (double) this.width / (double) guiManager.getScaledGuiWidth())
+                (int) (rawX * (double) this.width)
         );
         cursorData.setCursorY(
-                (int) (preMouseY * (double) this.height / (double) guiManager.getScaledGuiHeight())
+                (int) (rawY * (double) this.height)
         );
 
         // ---- Move and Drag events
         mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());
 
-        if (InputHelper.canDragMouse()) {
-            for (int button : new int[]{0, 1, 2}) {
-                if (!InputHelper.isMousePressed(button)) continue;
-                int deltaX = cursorData.getCursorX() - oldMouseX;
-                int deltaY = cursorData.getCursorY() - oldMouseY;
-                mouseDragged(
-                        cursorData.getCursorX(), cursorData.getCursorY(),
-                        button,
-                        deltaX, deltaY
-                );
-                break;
-            }
+        if (canDragMouse()) {
+            int deltaX = cursorData.getCursorX() - oldMouseX;
+            int deltaY = cursorData.getCursorY() - oldMouseY;
+            mouseDragged(
+                    cursorData.getCursorX(), cursorData.getCursorY(),
+                    0,
+                    deltaX, deltaY
+            );
         }
 
     }
@@ -281,8 +281,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     @Override
-    public boolean mouseClicked(double x, double y, int buttonType) {
-        return super.mouseClicked(x, y, buttonType);
+    public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
+        return super.mouseClicked(mouseX, mouseY, buttonType);
     }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {

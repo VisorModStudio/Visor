@@ -8,6 +8,7 @@ import me.phoenixra.visor.core.client.settings.option.gui.elements.VRGuiOptionBu
 import me.phoenixra.visor.core.client.settings.option.gui.elements.VRGuiOptionElement;
 import me.phoenixra.visor.core.client.settings.option.gui.elements.VRGuiOptionSlider;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.settings.option.gui.elements.VRGuiOptionSliderValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -110,6 +111,16 @@ public class VRGuiOptionEntry {
 
     public VRGuiOptionElement asGuiElement(Screen forScreen) {
         if (guiOptionType != null) {
+            if(guiOptionType.isSpecialSlider()){
+                return new VRGuiOptionSliderValue(
+                        guiOptionType,
+                        getX(forScreen.width),
+                        getY(forScreen.height)) {
+                    public void onClick(double pMouseX, double pMouseY) {
+                        super.onClick(pMouseX, pMouseY);
+                    }
+                };
+            }
             if (guiOptionType.isSliderUsed()) {
                 return new VRGuiOptionSlider(
                         guiOptionType,

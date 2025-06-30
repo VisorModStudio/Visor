@@ -72,7 +72,7 @@ public abstract class WindowMixin implements WindowModified {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
-                            .getScaledGuiWidth()
+                            .getGuiScaledWidth()
             );
         }
     }
@@ -82,7 +82,7 @@ public abstract class WindowMixin implements WindowModified {
             cir.setReturnValue(
                     ClientContext
                             .guiManager
-                            .getScaledGuiHeight()
+                            .getGuiScaledHeight()
             );
         }
     }
@@ -129,13 +129,13 @@ public abstract class WindowMixin implements WindowModified {
     \* ************************ */
     @Override
     @Unique
-    public int visor$getActualHeight() {
+    public int visor$getActualScreenHeight() {
         return height;
     }
 
     @Override
     @Unique
-    public int visor$getActualWidth() {
+    public int visor$getActualScreenWidth() {
         return width;
     }
 }

@@ -58,26 +58,26 @@ public class ActionScrollMouse extends VisorActionVec2 {
 
     }
 
-    private void doScroll(double scroll){
+    private void doScroll(double scrollOffset){
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
         if (focusedOverlay == null) {
             return;
         }
         boolean discrete = MC.options.discreteMouseScroll().get();
         double wheelSensitivity = MC.options.mouseWheelSensitivity().get();
-        scroll = (
+        double scrollDelta = (
                 discrete
-                        ? Math.signum(scroll)
-                        : scroll
+                        ? Math.signum(scrollOffset)
+                        : scrollOffset
         ) * wheelSensitivity;
 
-        if(scroll == 0){
+        if(scrollDelta == 0){
             return;
         }
 
         focusedOverlay.mouseScrolled(
                 focusedOverlay.getMouseX(), focusedOverlay.getMouseY(),
-                scroll
+                scrollDelta
         );
     }
 

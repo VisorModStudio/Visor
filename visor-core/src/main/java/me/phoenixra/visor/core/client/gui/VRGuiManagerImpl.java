@@ -12,23 +12,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
+@Getter
 public class VRGuiManagerImpl implements VRGuiManager {
-    @Getter
     private final int guiWidth = 1280;
-    @Getter
     private final int guiHeight = 720;
 
 
 
-    @Getter
     private int scaleFactor = calculateScale(
             0, false,
             guiWidth, guiHeight
     );
-    @Getter
-    private int scaledGuiWidth;
-    @Getter
-    private int scaledGuiHeight;
+    private int guiScaledWidth;
+    private int guiScaledHeight;
 
     public VRGuiManagerImpl(){
         ClientContext.overlayManager = new VROverlayManagerImpl();
@@ -39,9 +35,6 @@ public class VRGuiManagerImpl implements VRGuiManager {
 
     public void renderGUI(PoseStack poseStack,
                           float partialTicks) {
-
-        ClientContext.cursorHandler.process();
-
         ClientContext.overlayManager.renderOverlays(
                 partialTicks,
                 poseStack
@@ -49,14 +42,14 @@ public class VRGuiManagerImpl implements VRGuiManager {
     }
     public int calculateScale(int scaleIn,
                               boolean forceUnicode,
-                              int frameBufferWidth,
-                              int frameBufferHeight) {
+                              int guiWidth,
+                              int guiHeight) {
         int scale = 1;
         for (int i = 1;
-             i < frameBufferWidth
-                     && i < frameBufferHeight
-                     && frameBufferWidth / (i + 1) >= 320
-                     && frameBufferHeight / (i + 1) >= 240;
+             i < guiWidth
+                     && i < guiHeight
+                     && guiWidth / (i + 1) >= 320
+                     && guiHeight / (i + 1) >= 240;
              i++) {
 
             if (scale < scaleIn || scaleIn == 0) {
@@ -70,8 +63,8 @@ public class VRGuiManagerImpl implements VRGuiManager {
             }
         }
 
-        scaledGuiWidth = Mth.ceil(frameBufferWidth / (float) scale);
-        scaledGuiHeight = Mth.ceil(frameBufferHeight / (float) scale);
+        guiScaledWidth = Mth.ceil(guiWidth / (float) scale);
+        guiScaledHeight = Mth.ceil(guiHeight / (float) scale);
 
         return scale;
     }

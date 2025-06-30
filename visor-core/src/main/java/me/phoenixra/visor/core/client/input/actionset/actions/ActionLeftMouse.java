@@ -7,6 +7,7 @@ import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -54,6 +55,9 @@ public class ActionLeftMouse extends VisorActionButton {
                     previousFocused.getMouseY(),
                     BUTTON_TYPE
             );
+            if(previousFocused instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
             wasPressed = false;
         }else if(focusedOverlay != null
                 && previousFocused != null
@@ -63,6 +67,9 @@ public class ActionLeftMouse extends VisorActionButton {
                     previousFocused.getMouseY(),
                     BUTTON_TYPE
             );
+            if(previousFocused instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
             wasPressed = false;
         }
         previousFocused = focusedOverlay;
@@ -224,12 +231,18 @@ public class ActionLeftMouse extends VisorActionButton {
                     overlay.getMouseX(),overlay.getMouseY(),
                     BUTTON_TYPE
             );
+            if(overlay instanceof VROverlayScreen overlayScreen){
+                overlayScreen.startDragMouse();
+            }
             wasPressed = true;
         }else if(wasPressed){
             overlay.mouseReleased(
                     overlay.getMouseX(),overlay.getMouseY(),
                     BUTTON_TYPE
             );
+            if(overlay instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
             wasPressed = false;
         }
     }

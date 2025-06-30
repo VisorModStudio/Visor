@@ -44,7 +44,7 @@ public interface VRGuiManager {
      *
      * @return width integer
      */
-    int getScaledGuiWidth();
+    int getGuiScaledWidth();
 
     /**
      * Get height that is used by all GUIs
@@ -52,7 +52,7 @@ public interface VRGuiManager {
      *
      * @return width integer
      */
-    int getScaledGuiHeight();
+    int getGuiScaledHeight();
 
     /**
      * Get aspect ratio
@@ -69,7 +69,7 @@ public interface VRGuiManager {
      * @return scaled aspect ratio
      */
     default float getScaledAspectRatio(){
-        return (float) getScaledGuiHeight() / getScaledGuiWidth();
+        return (float) getGuiScaledHeight() / getGuiScaledWidth();
     }
 
     /**

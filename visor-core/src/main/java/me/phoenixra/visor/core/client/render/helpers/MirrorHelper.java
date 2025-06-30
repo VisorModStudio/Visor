@@ -45,8 +45,8 @@ public class MirrorHelper {
     private static void drawGuiMirror(){
         RenderTarget source = ClientContext.renderer.guiTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -66,8 +66,8 @@ public class MirrorHelper {
         float xCrop = VRClientSettings.getMirrorCrop();
         float yCrop = VRClientSettings.getMirrorCrop();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
 
         blitCropped(
                 source,
@@ -85,8 +85,8 @@ public class MirrorHelper {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
         }
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -101,8 +101,8 @@ public class MirrorHelper {
     private static void drawFirstPersonMirror(){
         RenderTarget source = ClientContext.renderer.firstPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -112,8 +112,8 @@ public class MirrorHelper {
     private static void drawThirdPersonMirror(){
         RenderTarget source = ClientContext.renderer.thirdPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -126,8 +126,8 @@ public class MirrorHelper {
         RenderTarget rightEye = ClientContext.renderer
                 .getTextureRightEye().getRenderTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualWidth() / 2;
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualHeight();
+        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth() / 2;
+        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
 
         blit(
                 leftEye,
@@ -159,8 +159,8 @@ public class MirrorHelper {
 
         // 1) get the VR mirror dimensions
         var window  = (WindowModified)(Object)MC.getWindow();
-        int vrWidth = window.visor$getActualWidth();
-        int vrHeight= window.visor$getActualHeight();
+        int vrWidth = window.visor$getActualScreenWidth();
+        int vrHeight= window.visor$getActualScreenHeight();
 
         // 2) viewport + projection
         RenderSystem.viewport(0, 0, vrWidth, vrHeight);

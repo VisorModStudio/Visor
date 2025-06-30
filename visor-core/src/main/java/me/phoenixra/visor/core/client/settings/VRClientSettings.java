@@ -13,7 +13,6 @@ import me.phoenixra.visor.core.client.settings.option.enums.ShaderGUIRenderMode;
 import me.phoenixra.visor.api.client.VRPlayMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import org.joml.Quaternionf;
 
 import me.phoenixra.visor.core.client.ClientContext;
 
@@ -149,46 +148,67 @@ public class VRClientSettings {
             key = "rendering.mirror.thirdPerson.fov")
     protected static float thirdPersonFov = 40;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.fixedCamera.x")
-    protected static float fixedCameraPosX = -1.0f;
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_X,
+            key = "rendering.mirror.thirdPerson.camera.pos.x")
+    protected static float thirdPersonCameraPosX = -1.0f;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.fixedCamera.y")
-    protected static float fixedCameraPosY = 2.4f;
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_Y,
+            key = "rendering.mirror.thirdPerson.camera.pos.y")
+    protected static float thirdPersonCameraPosY = 2.4f;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.fixedCamera.z")
-    protected static float fixedCameraPosZ = 2.7f;
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_Z,
+            key = "rendering.mirror.thirdPerson.camera.pos.z")
+    protected static float thirdPersonCameraPosZ = 2.7f;
+
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.fixedCamera.rotation")
-    protected static Quaternionf fixedCameraRotation = new Quaternionf(.041f, .125f, .239f, .962f);
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_X,
+            key = "rendering.mirror.thirdPerson.camera.rotation.x"
+    )
+    protected static float thirdPersonCameraRotationX = 0;
+
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_Y,
+            key = "rendering.mirror.thirdPerson.camera.rotation.y"
+    )
+    protected static float thirdPersonCameraRotationY = 0;
+    @Getter
+    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_Z,
+            key = "rendering.mirror.thirdPerson.camera.rotation.z")
+    protected static float thirdPersonCameraRotationZ = 0;
 
 
     //----Mixed Reality Mirror
     @Getter
     @VROptionField(
+            guiOptionType = VRGuiOption.MIXED_REALITY_RENDER_HANDS,
             key = "rendering.mirror.mixedReality.renderHands"
     )
     protected static boolean mixedRealityRenderHands = false;
 
     @Getter
     @VROptionField(
+            guiOptionType = VRGuiOption.MIXED_REALITY_AS_GRID_2_X_2,
             key = "rendering.mirror.mixedReality.asGrid2x2"
     )
     protected static boolean mixedRealityAsGrid2x2 = true;
 
     @Getter
     @VROptionField(
+            guiOptionType = VRGuiOption.MIXED_REALITY_WITH_FIRST_PERSON,
             key = "rendering.mirror.mixedReality.withFirstPerson"
     )
     protected static boolean mixedRealityWithFirstPerson = true;
 
     @Getter
     @VROptionField(
+            guiOptionType = VRGuiOption.MIXED_REALITY_ALPHA_MASK,
             key = "rendering.mirror.mixedReality.alphaMask"
     )
     protected static boolean mixedRealityAlphaMask = false;
 
     @Getter
     @VROptionField(
+            guiOptionType = VRGuiOption.MIXED_REALITY_FOV,
             key = "rendering.mirror.mixedReality.fov"
     )
     protected static float mixedRealityFov = 40;

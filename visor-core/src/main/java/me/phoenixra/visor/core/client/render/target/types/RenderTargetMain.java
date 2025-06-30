@@ -36,8 +36,8 @@ public class RenderTargetMain implements RenderTargetHolder {
         var mcWindow = (WindowModified) (Object) MC.getWindow();
         this.mirrorTarget = new VRRenderTarget(
                 "Mirror",
-                mcWindow.visor$getActualWidth(),
-                mcWindow.visor$getActualHeight(),
+                mcWindow.visor$getActualScreenWidth(),
+                mcWindow.visor$getActualScreenHeight(),
                 false, () -> -1,
                 false, false
         );

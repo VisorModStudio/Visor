@@ -292,7 +292,7 @@ public class VROverlaySettings extends VROverlayScreen
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int buttonType) {
+    public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
         if(draggingByCursorHand){
             resetDragging();
 
@@ -304,7 +304,7 @@ public class VROverlaySettings extends VROverlayScreen
             return true;
         }
 
-        return super.mouseClicked(x, y, buttonType);
+        return super.mouseClicked(mouseX, mouseY, buttonType);
     }
 
     @Override

@@ -49,7 +49,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
     private VRKeyboardAccessor keyboardAccessor;
 
 
-    private List<VROverlay> preparedOverlays = new ArrayList<>();
+    private final List<VROverlay> preparedOverlays = new ArrayList<>();
     public void tick(){
         for(VROverlay overlay : overlaysRegistry.getSortedElements()){
             if(!overlay.isEnabled()) continue;
@@ -59,10 +59,37 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     }
 
+    public void prepareOverlaysAndCursor(float partialTicks){
+        preparedOverlays.clear();
+        for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
+            if(!overlay.isVisible()) continue;
+            RenderTarget target = overlay.getRenderTarget();
+
+            //make sure renderTarget exists
+            if(target == null){
+                continue;
+            }
+
+            //update pose
+            overlay.updatePose(partialTicks);
+
+            //do not render overlay if out of view distance
+            if(!overlay.isInViewDistance()){
+                continue;
+            }
+
+            //ready to be rendered
+            preparedOverlays.add(overlay);
+        }
+        ClientContext.cursorHandler.process();
+    }
+
     public void renderOverlayTextures(ProfilerFiller profiler,
                                       GuiGraphics guiGraphics,
                                       float partialTicks) {
-
+        if(preparedOverlays.isEmpty()){
+            return;
+        }
         // --- Setup ---
         Matrix4f projection = new Matrix4f();
         int prevOverlayWidth = -1;
@@ -82,24 +109,14 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 GlStateManager.DestFactor.ONE
         );
 
-        preparedOverlays.clear();
-
-        // --- Render ---
-        for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
-            if(!overlay.isVisible()) continue;
+        // --- Render  ---
+        for(var overlay : preparedOverlays){
             RenderTarget target = overlay.getRenderTarget();
             if(target == null){
-                continue;
+                //shouldn't happen at all
+                throw new RuntimeException("Tried to render overlay quad with null renderTarget: "+overlay.getId());
             }
             profiler.push("VROverlay Texture: " + overlay.getId());
-
-            //update pose before rendering texture
-            overlay.updatePose(partialTicks);
-
-            //do not render texture if out of view distance
-            if(!overlay.isInViewDistance()){
-                continue;
-            }
 
             if(overlay instanceof VROverlayScreen overlayScreen) {
                 //apply clean render target
@@ -141,7 +158,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             profiler.pop();
             GLUtils.checkGLError("post VROverlay texture: "+overlay.getId());
-            preparedOverlays.add(overlay);
         }
 
         // --- Restore ---
@@ -171,6 +187,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         for (VROverlay overlay : preparedOverlays) {
             var target = overlay.getRenderTarget();
             if(target == null){
+                //shouldn't happen at all
                 throw new RuntimeException("Tried to render overlay quad with null renderTarget: "+overlay.getId());
             }
 

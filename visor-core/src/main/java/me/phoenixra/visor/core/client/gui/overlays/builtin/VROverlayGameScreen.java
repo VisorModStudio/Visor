@@ -239,22 +239,30 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
             cursorData.setRawCursorX(-1);
             cursorData.setRawCursorY(-1);
-            cursorData.setCursorX(0);
-            cursorData.setCursorY(0);
 
+            //this will position mouse to a default spot,
+            //if any other approach will be used, the mouse dragging breaks
+            var invalidMouseX = (double) ClientContext.guiManager.getGuiWidth() / 2.0d;
+            var invalidMouseY = (double) ClientContext.guiManager.getGuiHeight() / 2.0d;
+            cursorData.setCursorX((int) invalidMouseX);
+            cursorData.setCursorY((int) invalidMouseY);
             InputHelper.setMousePos(
-                    0,
-                    0
+                    invalidMouseX,
+                    invalidMouseY
             );
+
+
             return;
         }
 
         // ---- Preparing
-        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
 
-        var mcWindow = ((WindowModified) (Object) MC.getWindow());
-        int windowWidth = mcWindow.visor$getActualWidth();
-        int windowHeight = mcWindow.visor$getActualHeight();
+        var guiManager = ClientContext.guiManager;
+        int screenWidth = guiManager.getGuiWidth();
+        int screenHeight = guiManager.getGuiHeight();
+        int screenScaledWidth = guiManager.getGuiScaledWidth();
+        int screenScaledHeight = guiManager.getGuiScaledHeight();
+
 
         VROverlayCursorData cursorData = activeCursorData;
 
@@ -262,19 +270,13 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         cursorData.setRawCursorX(rawX);
         cursorData.setRawCursorY(rawY);
 
-        float preMouseX = (float) (
-                (int) (rawX * guiManager.getScaledGuiWidth())
-        );
-        float preMouseY = (float) (
-                (int) (rawY * guiManager.getScaledGuiHeight())
-        );
+        cursorData.setCursorX((int)(rawX * (double) screenScaledWidth));
+        cursorData.setCursorY((int)(rawY * (double) screenScaledHeight));
 
-
-        cursorData.setCursorX((int)(preMouseX * (double) windowWidth / (double) guiManager.getScaledGuiWidth()));
-        cursorData.setCursorY((int)(preMouseY * (double) windowHeight / (double) guiManager.getScaledGuiHeight()));
+        //here as an input it requires NOT SCALED position
         InputHelper.setMousePos(
-                cursorData.getCursorX(),
-                cursorData.getCursorY()
+                (int)(rawX * (double) screenWidth),
+                (int)(rawY * (double) screenHeight)
         );
 
     }
@@ -286,7 +288,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         overlayScale = 1.0f;
     }
 
-    public boolean  willBeInMenuRoom(Screen newScreen) {
+    public boolean willBeInMenuRoom(Screen newScreen) {
         return MC.level == null ||
                 newScreen instanceof WinScreen ||
                 newScreen instanceof ReceivingLevelScreen ||
@@ -309,8 +311,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        InputHelper.scrollMouse(0, scrollDelta);
-        return true;
+        //InputHelper.scrollMouse(0, scrollDelta);
+        if(MC.screen != null){
+            return MC.screen.mouseScrolled(mouseX, mouseY, scrollDelta);
+        }
+        return false;
     }
 
     @Override

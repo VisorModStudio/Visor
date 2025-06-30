@@ -400,11 +400,6 @@ public abstract class MinecraftMixin implements MinecraftModified {
     }
 
 
-     /* ******************* *\
-   //--------MC SCREEN--------\\
-     \* ******************* */
-
-
 
 
 

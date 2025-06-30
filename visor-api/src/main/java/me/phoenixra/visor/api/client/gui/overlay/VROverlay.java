@@ -160,10 +160,10 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      */
     default boolean isCursorWithinBounds(boolean activeCursor,
                                          float rawX, float rawY) {
-        return rawX > 0f
-                && rawX < 1f
-                && rawY > 0f
-                && rawY < 1f;
+        return rawX >= 0f
+                && rawX <= 1f
+                && rawY >= 0f
+                && rawY <= 1f;
     }
 
 
@@ -229,13 +229,13 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      *
      * <p>Emulates the same method in minecraft screen</p>
      *
-     * @param x the mouse position X
-     * @param y the mouse position Y
+     * @param mouseX the mouse position X
+     * @param mouseY the mouse position Y
      * @param buttonType the button type (0 - left, 1 - right, 3 - scroll)
      *
      * @return if succeeded
      */
-    boolean mouseClicked(double x, double y, int buttonType);
+    boolean mouseClicked(double mouseX, double mouseY, int buttonType);
 
     /**
      * On Mouse released

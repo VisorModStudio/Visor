@@ -157,11 +157,17 @@ public class PoseDataImpl implements PoseData {
 
 
         Vector3f camPos = new Vector3f(
-                VRClientSettings.getFixedCameraPosX(),
-                VRClientSettings.getFixedCameraPosY(),
-                VRClientSettings.getFixedCameraPosZ()
+                VRClientSettings.getThirdPersonCameraPosX(),
+                VRClientSettings.getThirdPersonCameraPosY(),
+                VRClientSettings.getThirdPersonCameraPosZ()
         );
-        Matrix4fc camRot = (new Matrix4f().set(VRClientSettings.getFixedCameraRotation())).transpose();
+        Matrix4fc camRot = new Matrix4f()
+                .rotateZYX(
+                        VRClientSettings.getThirdPersonCameraRotationZ(),
+                        VRClientSettings.getThirdPersonCameraRotationY(),
+                        VRClientSettings.getThirdPersonCameraRotationX()
+                )
+                .transpose();
         Vector3f camDir = camRot.transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
                 this.origin,

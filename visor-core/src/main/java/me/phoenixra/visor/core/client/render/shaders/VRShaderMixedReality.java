@@ -52,8 +52,8 @@ public class VRShaderMixedReality implements VRShader{
     public void drawMirror(){
         var mcWindow = ((WindowModified) (Object) MC.getWindow());
         RenderSystem.viewport(0, 0,
-                mcWindow.visor$getActualWidth(),
-                mcWindow.visor$getActualHeight()
+                mcWindow.visor$getActualScreenWidth(),
+                mcWindow.visor$getActualScreenHeight()
         );
 
         // --- Prepare ---

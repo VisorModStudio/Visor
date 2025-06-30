@@ -51,7 +51,7 @@ public enum PoseAnchor {
     }
 
     public @NotNull Component getName(){
-        return Component.translatable("visor.enums.ModelViewAnchor."+name());
+        return Component.translatable("visor.enums.PoseAnchor."+name());
     }
 
     public @NotNull Vector3f anchorPos(@NotNull PoseData poseData,

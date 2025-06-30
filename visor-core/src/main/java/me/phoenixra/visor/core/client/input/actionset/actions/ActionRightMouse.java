@@ -27,7 +27,6 @@ public class ActionRightMouse extends VisorActionButton {
 
     private VROverlay previousFocused;
     private boolean wasPressed;
-    private boolean canDrag;
 
     public ActionRightMouse(VisorActionSet actionSet) {
         super(actionSet, ID);
@@ -67,22 +66,6 @@ public class ActionRightMouse extends VisorActionButton {
 
         super.preTick();
 
-        //-------DRAG-------
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)){
-            return;
-        }
-        if(focusedOverlay != null
-                && wasPressed && pressed){
-            if(!canDrag){
-                canDrag = true;
-                return;
-            }
-            focusedOverlay.mouseDragged(
-                    focusedOverlay.getMouseX(), focusedOverlay.getMouseY(),
-                    BUTTON_TYPE,
-                    0,0 //ignore it for now
-            );
-        }
 
     }
 
@@ -111,7 +94,6 @@ public class ActionRightMouse extends VisorActionButton {
         previousFocused = null;
 
         wasPressed = false;
-        canDrag = false;
     }
 
     private void process(boolean press){
@@ -138,14 +120,12 @@ public class ActionRightMouse extends VisorActionButton {
                     BUTTON_TYPE
             );
             wasPressed = true;
-            canDrag = false;
         }else if(wasPressed){
             overlay.mouseReleased(
                     overlay.getMouseX(),overlay.getMouseY(),
                     BUTTON_TYPE
             );
             wasPressed = false;
-            canDrag = false;
         }
     }
 

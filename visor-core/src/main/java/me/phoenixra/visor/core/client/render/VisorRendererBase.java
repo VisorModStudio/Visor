@@ -230,7 +230,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
         }
 
         var windowModif = (WindowModified) (Object) minecraft.getWindow();
-        long windowPixels = (long) windowModif.visor$getActualWidth() * windowModif.visor$getActualHeight();
+        long windowPixels = (long) windowModif.visor$getActualScreenWidth() * windowModif.visor$getActualScreenHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
         if (list.contains(VRDisplay.FIRST_PERSON)) {
@@ -242,7 +242,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
                 "[Visor] render targets created:" +
                 "\nEye target width: " + eyeWidth + ", height: " + eyeHeight + " [" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP]" +
                 "\nRender target width: " + eyeRenderWidth + ", height: " + eyeRenderHeight + " [Render scale: " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "%, " + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP]" +
-                "\nMain window width: " + windowModif.visor$getActualWidth() + ", height: " + windowModif.visor$getActualHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
+                "\nMain window width: " + windowModif.visor$getActualScreenWidth() + ", height: " + windowModif.visor$getActualScreenHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
                 "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)"
         );
 
@@ -333,10 +333,10 @@ public abstract class VisorRendererBase implements VisorRenderer {
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
-                windowModif.visor$getActualWidth()
+                windowModif.visor$getActualScreenWidth()
         );
         mirrorHeight = Math.max(1,
-                windowModif.visor$getActualHeight()
+                windowModif.visor$getActualScreenHeight()
         );
         if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
             mirrorWidth = mirrorWidth / 2;

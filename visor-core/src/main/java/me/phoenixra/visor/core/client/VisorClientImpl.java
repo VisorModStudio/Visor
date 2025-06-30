@@ -184,6 +184,12 @@ public class VisorClientImpl implements VisorClient {
             ClientContext.player
                     .preRender(context.partialTicks());
 
+            context.profiler().push("prepare VROverlays and cursor");
+            ClientContext.overlayManager.prepareOverlaysAndCursor(
+                    context.partialTicks()
+            );
+            context.profiler().pop();
+
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
             for (VisorTask task : tasks) {
                 if (task.isEnabledAndActive(null)) {

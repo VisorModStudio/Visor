@@ -114,8 +114,8 @@ public class VRRenderState {
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
 
-        if (windowModif.visor$getActualWidth() > 0
-                && windowModif.visor$getActualHeight() > 0) {
+        if (windowModif.visor$getActualScreenWidth() > 0
+                && windowModif.visor$getActualScreenHeight() > 0) {
             MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
                 list.add(VRDisplay.FIRST_PERSON);

@@ -450,7 +450,7 @@ public class VRClientSettingsHandler {
 
         String enumName = type.name();
 
-        return "visor.enums.option." + enumId + "." + enumName;
+        return "visor.enums." + enumId + "." + enumName;
     }
 
 

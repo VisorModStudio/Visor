@@ -27,6 +27,22 @@ public enum VRGuiOption {
             return prefix + String.format("%.0f" + "\u00b0", (float) value);
         }
     },
+    THIRD_PERSON_CAMERA_POS_X(true),
+    THIRD_PERSON_CAMERA_POS_Y(true),
+    THIRD_PERSON_CAMERA_POS_Z(true),
+    THIRD_PERSON_CAMERA_ROTATION_X(true),
+    THIRD_PERSON_CAMERA_ROTATION_Y(true),
+    THIRD_PERSON_CAMERA_ROTATION_Z(true),
+    MIXED_REALITY_FOV(0,150,1){
+        @Override
+        public String getDisplayString(String prefix, Object value) {
+            return prefix + String.format("%.0f" + "\u00b0", (float) value);
+        }
+    },
+    MIXED_REALITY_ALPHA_MASK,
+    MIXED_REALITY_WITH_FIRST_PERSON,
+    MIXED_REALITY_AS_GRID_2_X_2,
+    MIXED_REALITY_RENDER_HANDS,
     HUD_DISABLED_HOTBAR,
     SHADER_GUI_RENDER,
     GUI_SCALE(0, 6, 1){
@@ -152,6 +168,8 @@ public enum VRGuiOption {
     ROTATION_MODE;
 
 
+    @Getter
+    private final boolean specialSlider;
 
     //if less than 0, considered as percentage value
     @Getter
@@ -166,14 +184,23 @@ public enum VRGuiOption {
     @Getter
     private final float sliderValueMax;
 
+    VRGuiOption(boolean specialSlider){
+        this(
+                false,false, specialSlider,
+                0,1,0
+        );
+
+    }
     VRGuiOption(boolean showAsPercentage,
                 boolean sliderUsed,
+                boolean specialSlider,
                 float sliderStep,
                 float sliderValueMin,
                 float sliderValueMax
     ) {
         this.showAsPercentage = showAsPercentage;
         this.sliderUsed = sliderUsed;
+        this.specialSlider = specialSlider;
         this.sliderStep = sliderStep;
         this.sliderValueMin = sliderValueMin;
         this.sliderValueMax = sliderValueMax;
@@ -182,7 +209,7 @@ public enum VRGuiOption {
                 float sliderValueMax,
                 float sliderStep) {
         this(
-                false,true,
+                false,true, false,
                 sliderStep,
                 sliderValueMin,
                 sliderValueMax
@@ -190,7 +217,7 @@ public enum VRGuiOption {
     }
     VRGuiOption() {
         this(
-                false,false,
+                false,false, false,
                 0,1,0
         );
     }

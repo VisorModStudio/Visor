@@ -15,16 +15,13 @@ public class InputHelper {
 
     private static final HashMap<Character, Integer> keyCodes = new HashMap<>();
 
-    private static long mouseDragDelay = Long.MAX_VALUE;
-    public static boolean canDragMouse(){
-        return mouseDragDelay < System.currentTimeMillis();
-    }
+
     public static void pressMouse(int button, int modifiers) {
         Minecraft.getInstance().mouseHandler.onPress(
                 Minecraft.getInstance().getWindow().getWindow(),
                 button, 1, modifiers
         );
-        mouseDragDelay = System.currentTimeMillis() + 100L;
+
     }
     public static void pressMouse(int button) {
         pressMouse(button, 0);
@@ -36,7 +33,6 @@ public class InputHelper {
                 Minecraft.getInstance().getWindow().getWindow(),
                 button, 0, modifiers
         );
-        mouseDragDelay = Long.MAX_VALUE;
     }
     public static void releaseMouse(int button) {
         releaseMouse(button, 0);
