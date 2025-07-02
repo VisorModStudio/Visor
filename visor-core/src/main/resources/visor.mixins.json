@@ -40,6 +40,8 @@
     "client.render.entity.EntityRendererMixin",
     "client.render.entity.MobRendererMixin",
     "client.render.entity.RenderLayerMixin",
+    "client.render.entity.item.FishingHookRendererMixin",
+    "client.render.entity.monsters.GuardianRendererMixin",
     "client.render.entity.player.EntityPlayerRenderMixins$EntityRenderDispatcherMixin",
     "client.render.entity.player.ItemInHandRendererMixin"
   ],

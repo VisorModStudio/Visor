@@ -1,0 +1,48 @@
+package me.phoenixra.visor.core.mixin.client.render.entity.monsters;
+
+import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.render.VRRenderState;
+import net.minecraft.client.renderer.entity.GuardianRenderer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
+
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
+
+@Mixin(GuardianRenderer.class)
+public abstract class GuardianRendererMixin {
+
+    @Shadow
+    protected abstract Vec3 getPosition(LivingEntity livingEntity, double d, float f);
+
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/GuardianRenderer;getPosition(Lnet/minecraft/world/entity/LivingEntity;DF)Lnet/minecraft/world/phys/Vec3;"), method = "render(Lnet/minecraft/world/entity/monster/Guardian;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
+    public Vec3 visor$vrRenderBeam(GuardianRenderer instance,
+                               LivingEntity livingEntity,
+                               double yOffset,
+                               float partialTick) {
+        if (VRRenderState.getCurrentPhase().isVanilla()
+                || livingEntity != MC.getCameraEntity()) {
+            return this.getPosition(livingEntity, yOffset, partialTick);
+        }
+
+        float worldScale = ClientContext
+                .player
+                .getWorldScale();
+        Vector3f beamPos = ClientContext.player
+                .getPoseData(PoseDataType.RENDER)
+                .getHmd().getPosition()
+                .sub(
+                        0.0f,
+                        0.3f * worldScale,
+                        0.0f,
+                        new Vector3f()
+                );;
+        return new Vec3(beamPos);
+    }
+}
