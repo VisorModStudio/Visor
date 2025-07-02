@@ -36,7 +36,7 @@ public class VRSettingsThirdPerson extends VRGuiOptionsBaseScreen {
                 ),
                 new VRGuiOptionEntry(
                         ()->{
-                            if(VisorState.getState().isActive()){
+                            if(!VisorState.getState().isActive()){
                                 return;
                             }
                             var camOverlay = ClientContext.overlayManager.getOverlay(
