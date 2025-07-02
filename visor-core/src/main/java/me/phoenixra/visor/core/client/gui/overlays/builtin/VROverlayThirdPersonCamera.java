@@ -1,9 +1,7 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
-import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
@@ -16,6 +14,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -28,6 +27,9 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VROverlayThirdPersonCamera extends VROverlayScreen {
     public static final String ID = "third_person_camera";
 
+    private final ResourceLocation cameraImage = new ResourceLocation(
+            VisorAPI.MOD_ID, "textures/gui/camera.png"
+    );
 
     private final Vector3f posDragOffset = new Vector3f(0, 0, -0.3f);
     private final Vector3f rotationDragOffset = new Vector3f(0, 0, 0);
@@ -42,7 +44,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
     public VROverlayThirdPersonCamera(@NotNull VisorAddon owner,
                                       @NotNull String id) {
-        super(owner, id, ElementPriority.HIGHER, 1.0f);
+        super(owner, id, ElementPriority.HIGHER, 0.35f);
         setEnabled(true);
     }
 
@@ -64,14 +66,12 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
                             int mouseX, int mouseY,
                             float partialTicks) {
 
-        guiGraphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 
-        guiGraphics.drawCenteredString(
-                MC.font,
-                "Camera",
-                width/2,
-                height/2,
-                AtumColor.WHITE.toInt()
+        VROverlayHelper.renderImage(
+                guiGraphics, cameraImage,
+                width/2-256/2,height/2-256/2,
+                256,256,
+                256,256
         );
 
     }
