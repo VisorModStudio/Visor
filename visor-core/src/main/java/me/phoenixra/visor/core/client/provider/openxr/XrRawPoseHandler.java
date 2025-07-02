@@ -95,7 +95,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
         var controllerRightDevice = provider.getInputHandler().getDevice(
                 VRDeviceController.ID_RIGHT, OpenXRDeviceController.class
         );
-        controllerRightData.setTracking(controllerLeftDevice.isActive());
+        controllerRightData.setTracking(controllerRightDevice.isActive());
 
         //---Aim
         controllerRightData.getAimPoseMutable().set(
