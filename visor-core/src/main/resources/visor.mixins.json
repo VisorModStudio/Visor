@@ -49,6 +49,7 @@
   ],
   "minVersion": "0.8.4",
   "mixins": [
+    "client.world.entity.projectile.FireworkRocketEntityMixin",
     "common.MinecraftServerMixin",
     "common.accessors.ChunkMapAccessor",
     "common.accessors.TrackedEntityAccessor",
