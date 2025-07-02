@@ -63,7 +63,7 @@ public class VRShaderMixedReality implements VRShader{
         boolean withFirstPerson = VRClientSettings.isMixedRealityWithFirstPerson();
 
 
-        var roomPose = ClientContext.player.getPose(PoseDataType.ROOM);
+        var roomPose = ClientContext.player.getPoseData(PoseDataType.ROOM);
         var cameraElement = roomPose.getThirdPersonCamera();
         Vector3f cameraPos = roomPose.getHeadPivot()
                 .sub(cameraElement.getPosition(), new Vector3f());

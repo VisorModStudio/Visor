@@ -206,7 +206,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         if (player == null) {
             return;
         }
-        PoseDataImpl data = getPose(stage);
+        PoseDataImpl data = getPoseData(stage);
 
         if (player.isPassenger()) {
             //Server-side movement
@@ -343,7 +343,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     @Override
     public @NotNull PoseElement getRotationElement(@NotNull PoseDataType stage){
-        PoseData playerPose = getPose(stage);
+        PoseData playerPose = getPoseData(stage);
         return switch (VRClientSettings.getRotationMode()) {
             case CONTROLLER_MAIN -> playerPose.getController(
                     ControllerHand.MAIN
@@ -356,7 +356,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     }
 
     @Override
-    public @NotNull PoseDataImpl getPose(@NotNull PoseDataType stage) {
+    public @NotNull PoseDataImpl getPoseData(@NotNull PoseDataType stage) {
         return switch (stage){
             case PRE_TICK -> preTickPose;
             case POST_TICK -> postTickPose;

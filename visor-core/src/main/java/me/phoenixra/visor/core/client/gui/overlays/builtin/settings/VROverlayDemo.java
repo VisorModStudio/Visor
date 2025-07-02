@@ -245,7 +245,7 @@ public class VROverlayDemo extends VROverlayScreen {
     public void applyNewOffset(){
         if(!isEnabled()) return;
         PoseData renderPose = ClientContext.player
-                .getPose(PoseDataType.RENDER);
+                .getPoseData(PoseDataType.RENDER);
         emulatingModelView = true;
 
         PoseAnchor posAnchor = demoModelViewOptions.getPositionAnchor();

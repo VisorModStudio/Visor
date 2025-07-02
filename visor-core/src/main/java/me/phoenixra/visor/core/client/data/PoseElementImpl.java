@@ -79,9 +79,12 @@ public class PoseElementImpl implements PoseElement {
         this.pitch = (float) Math.toDegrees(
                 Math.asin(this.direction.y() / this.direction.length())
         );
+
+        //here rotationMatrix used instead of rotation, to calculate
+        //roll without rotationY affected
         this.roll = (float) (
-                -Math.toDegrees(Mth.atan2(this.rotation.m10(),
-                        this.rotation.m11()))
+                -Math.toDegrees(Mth.atan2(rotationMatrix.m10(),
+                        rotationMatrix.m11()))
         );
 
 

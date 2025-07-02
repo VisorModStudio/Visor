@@ -1,7 +1,7 @@
-package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets;
+package me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.widgets;
 
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenModelView;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.ModificationType;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;

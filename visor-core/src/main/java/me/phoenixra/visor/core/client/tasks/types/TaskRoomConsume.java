@@ -49,7 +49,7 @@ public class TaskRoomConsume extends VisorTask {
     @Override
     protected void onRun(LocalPlayer player) {
         PoseDataImpl roomPose = ClientContext.player
-                .getPose(PoseDataType.ROOM);
+                .getPoseData(PoseDataType.ROOM);
         Vector3fc hmdPos = roomPose.getHmd().getPosition();
         Vector3fc mouthPos = roomPose
                 .getController(ControllerHand.MAIN)

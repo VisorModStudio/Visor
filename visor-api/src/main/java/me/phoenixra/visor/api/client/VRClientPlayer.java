@@ -7,7 +7,6 @@ import me.phoenixra.visor.api.client.data.PoseDataType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 /**
  * This class handles client-specific VR data
@@ -23,7 +22,7 @@ public interface VRClientPlayer {
 
 
     @NotNull
-    PoseData getPose(@NotNull PoseDataType stage);
+    PoseData getPoseData(@NotNull PoseDataType stage);
 
     /**
      * Get ControllerHand type which is currently used

@@ -335,7 +335,7 @@ public abstract class GameRendererMixin
             return original;
         }
         PoseDataImpl renderPose = ClientContext.player
-                .getPose(PoseDataType.RENDER);
+                .getPoseData(PoseDataType.RENDER);
 
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
@@ -360,7 +360,7 @@ public abstract class GameRendererMixin
         ControllerHand activeHand = ClientContext.player.getActiveHand();
 
         return new Vec3(
-                (Vector3f) ClientContext.player.getPose(PoseDataType.RENDER)
+                (Vector3f) ClientContext.player.getPoseData(PoseDataType.RENDER)
                         .getController(activeHand).getDirection()
         );
     }
@@ -470,8 +470,8 @@ public abstract class GameRendererMixin
         }
         RenderPoseHelper.applyDisplayPose(currentDisplay, poseStack);
         poseStack.scale(sinN, sinN, sinN);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPose(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPose(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.player.getPoseData(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getYaw()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.player.getPoseData(PoseDataType.RENDER).getElementForDisplay(currentDisplay).getPitch()));
     }
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
@@ -515,7 +515,7 @@ public abstract class GameRendererMixin
     public void visor$setupCameraEntity() {
         if (this.visor$cameraEntityCached) {
             PoseElement eye = ClientContext.player
-                    .getPose(PoseDataType.RENDER)
+                    .getPoseData(PoseDataType.RENDER)
                     .getElementForDisplay(VRRenderState.getCurrentVRDisplay());
             var eyePos = eye.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
@@ -653,7 +653,7 @@ public abstract class GameRendererMixin
         }
         var cameraPos = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getCurrentVRDisplay(),
-                ClientContext.player.getPose(PoseDataType.RENDER)
+                ClientContext.player.getPoseData(PoseDataType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
                 .findNearestSolidBlock(

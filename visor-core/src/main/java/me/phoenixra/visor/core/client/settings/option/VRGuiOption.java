@@ -27,12 +27,6 @@ public enum VRGuiOption {
             return prefix + String.format("%.0f" + "\u00b0", (float) value);
         }
     },
-    THIRD_PERSON_CAMERA_POS_X(true),
-    THIRD_PERSON_CAMERA_POS_Y(true),
-    THIRD_PERSON_CAMERA_POS_Z(true),
-    THIRD_PERSON_CAMERA_ROTATION_X(true),
-    THIRD_PERSON_CAMERA_ROTATION_Y(true),
-    THIRD_PERSON_CAMERA_ROTATION_Z(true),
     MIXED_REALITY_FOV(0,150,1){
         @Override
         public String getDisplayString(String prefix, Object value) {

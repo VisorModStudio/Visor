@@ -38,7 +38,7 @@ public class TaskRoomMovement extends VisorTask {
     @Override
     protected void onRun(@Nullable LocalPlayer player) {
         PoseDataImpl preTickPose = ClientContext.player
-                .getPose(PoseDataType.PRE_TICK);
+                .getPoseData(PoseDataType.PRE_TICK);
         var roomOrigin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 

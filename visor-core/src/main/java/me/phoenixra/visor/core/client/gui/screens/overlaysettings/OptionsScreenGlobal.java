@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.gui.screens.settings.overlays;
+package me.phoenixra.visor.core.client.gui.screens.overlaysettings;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;

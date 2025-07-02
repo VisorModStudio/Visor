@@ -68,14 +68,14 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
     @Override
     public @NotNull Vector3f getControllerDir(@NotNull ControllerHand controller) {
-        return this.getControllerVectorCustom(controller, VRMathUtils.FORWARD_VECTOR);
+        return this.getControllerVectorCustom(controller, VRMathUtils.BACK_VECTOR);
     }
 
     @Override
     public @NotNull Vector3f getHmdDir() {
         if (this.playerPoseBuffer != null) {
             Vector3f vector3 = this.playerPoseBuffer.hmd().orientation()
-                    .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+                    .transform(VRMathUtils.BACK_VECTOR, new Vector3f());
             return new Vector3f(vector3.x(), vector3.y(), vector3.z());
         }
         return this.mcPlayer.getLookAngle().toVector3f();

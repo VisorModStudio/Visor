@@ -48,7 +48,7 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
     private static DevicePoseBuffer getHmdPose(VRClientPlayer clientPlayer) {
 
         PoseData postTickPose = clientPlayer
-                .getPose(PoseDataType.POST_TICK);
+                .getPoseData(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
                 .getHmd().getPosition()
                 .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
@@ -62,7 +62,7 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
                                                       ControllerHand controller
     ) {
         PoseData postTickPose = clientPlayer
-            .getPose(PoseDataType.POST_TICK);
+            .getPoseData(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
                 .getController(controller).getPosition()
                 .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());

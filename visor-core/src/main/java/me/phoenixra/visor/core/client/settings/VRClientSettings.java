@@ -15,6 +15,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.awt.*;
 
@@ -148,34 +153,21 @@ public class VRClientSettings {
             key = "rendering.mirror.thirdPerson.fov")
     protected static float thirdPersonFov = 40;
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_X,
-            key = "rendering.mirror.thirdPerson.camera.pos.x")
+    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.x")
     protected static float thirdPersonCameraPosX = -1.0f;
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_Y,
-            key = "rendering.mirror.thirdPerson.camera.pos.y")
+    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.y")
     protected static float thirdPersonCameraPosY = 2.4f;
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_POS_Z,
-            key = "rendering.mirror.thirdPerson.camera.pos.z")
-    protected static float thirdPersonCameraPosZ = 2.7f;
+    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.z")
+    protected static float thirdPersonCameraPosZ = 2.75f;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_X,
-            key = "rendering.mirror.thirdPerson.camera.rotation.x"
-    )
-    protected static float thirdPersonCameraRotationX = 0;
+    @VROptionField(key = "rendering.mirror.thirdPerson.camera.rotation")
+    protected static Quaternionfc thirdPersonCameraRotation
+            = new Quaternionf(0.2246, 0.1873, 0.0440, -0.9552);
 
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_Y,
-            key = "rendering.mirror.thirdPerson.camera.rotation.y"
-    )
-    protected static float thirdPersonCameraRotationY = 0;
-    @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_CAMERA_ROTATION_Z,
-            key = "rendering.mirror.thirdPerson.camera.rotation.z")
-    protected static float thirdPersonCameraRotationZ = 0;
-
+  //0.2246;0.1873;0.04406;-0.9552
 
     //----Mixed Reality Mirror
     @Getter
@@ -253,6 +245,18 @@ public class VRClientSettings {
                 "Changed VR Play Mode to: {}",
                 VRClientSettings.getVrPlayMode()
         );
+    }
+
+    public static void updateThirdPersonCamera(@NotNull Vector3fc position,
+                                               @NotNull Quaternionfc rotation,
+                                               boolean save){
+        thirdPersonCameraPosX = position.x();
+        thirdPersonCameraPosY = position.y();
+        thirdPersonCameraPosZ = position.z();
+        thirdPersonCameraRotation = new Quaternionf(rotation);
+        if(save) {
+            ClientContext.settingsHandler.saveOptions();
+        }
     }
 
 

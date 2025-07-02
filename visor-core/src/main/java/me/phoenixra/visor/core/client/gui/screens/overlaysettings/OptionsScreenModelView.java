@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.gui.screens.settings.overlays;
+package me.phoenixra.visor.core.client.gui.screens.overlaysettings;
 
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.utils.StringUtils;
@@ -10,8 +10,8 @@ import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets.*;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.ModificationType;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.widgets.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;

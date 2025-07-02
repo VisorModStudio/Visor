@@ -49,7 +49,7 @@ public class VROverlayHelper {
     ) {
 
         PoseData renderPose = VisorAPI.client().getPlayer()
-                .getPose(PoseDataType.RENDER);
+                .getPoseData(PoseDataType.RENDER);
 
         Vector3f newPosition = positionType.anchorPos(
                 renderPose,

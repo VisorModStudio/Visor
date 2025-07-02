@@ -128,7 +128,7 @@ public class VRClientSettingsHandler {
         }
         if(fieldType.isAssignableFrom(Quaternionf.class)
                 && fieldValue instanceof Quaternionf value){
-            return String.format("%s;%s;%s;%s", value.w, value.x, value.y, value.z);
+            return String.format("%s;%s;%s;%s", value.x, value.y, value.z, value.w);
         }
         if(fieldType.isAssignableFrom(Color.class)
                 && fieldValue instanceof Color value){
@@ -146,10 +146,10 @@ public class VRClientSettingsHandler {
         }
         if(fieldType.isAssignableFrom(Quaternionf.class)){
             String[] split = configValue.toString().split(";");
-            float w = Float.parseFloat(split[0]);
-            float x = Float.parseFloat(split[1]);
-            float y = Float.parseFloat(split[2]);
-            float z = Float.parseFloat(split[3]);
+            float w = Float.parseFloat(split[3]);
+            float x = Float.parseFloat(split[0]);
+            float y = Float.parseFloat(split[1]);
+            float z = Float.parseFloat(split[2]);
             return new Quaternionf(x, y, z, w);
         }
         if(fieldType.isAssignableFrom(Color.class)){

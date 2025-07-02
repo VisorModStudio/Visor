@@ -118,7 +118,7 @@ public class VROverlayPose {
 
     private PairRecord<Vector3f, Vector3f> calcOverlayCorners() {
 
-        PoseData pose = VisorAPI.client().getPlayer().getPose(PoseDataType.RENDER);
+        PoseData pose = VisorAPI.client().getPlayer().getPoseData(PoseDataType.RENDER);
         float worldScale = pose.getWorldScale();
 
         float effectiveScale = QUAD_SCALE * scale * worldScale;

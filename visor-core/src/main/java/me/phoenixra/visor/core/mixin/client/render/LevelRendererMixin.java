@@ -130,7 +130,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainX(double x) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().x();
+            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().x();
         }
         return x;
     }
@@ -139,7 +139,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainY(double y) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().y();
+            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().y();
         }
         return y;
     }
@@ -148,7 +148,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public double visor$rainZ(double z) {
         if (VRRenderState.getCurrentPhase().isNotVanilla()
                 && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition().z();
+            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().z();
         }
         return z;
     }

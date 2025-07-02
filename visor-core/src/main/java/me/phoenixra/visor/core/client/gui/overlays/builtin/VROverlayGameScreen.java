@@ -1,10 +1,8 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
-import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
@@ -12,7 +10,6 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
@@ -139,7 +136,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || newScreen instanceof BookEditScreen
                 || newScreen instanceof AbstractSignEditScreen) {
             PoseElement hmd = ClientContext.player
-                    .getPose(PoseDataType.ROOM)
+                    .getPoseData(PoseDataType.ROOM)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 
@@ -205,13 +202,13 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             return;
         }
         PoseData renderPose = ClientContext.player
-                .getPose(PoseDataType.RENDER);
+                .getPoseData(PoseDataType.RENDER);
 
-        Vector3f renderScreenPos = renderPose.convertPosition(
+        Vector3f renderScreenPos = renderPose.convertPositionFrom(
                 PoseDataType.ROOM,
                 roomPosition
         );
-        Matrix4f renderScreenRotation =  renderPose.convertRotation(
+        Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
                 PoseDataType.ROOM,
                 roomRotation
         );
@@ -256,7 +253,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         }
 
         // ---- Preparing
-
         var guiManager = ClientContext.guiManager;
         int screenWidth = guiManager.getGuiWidth();
         int screenHeight = guiManager.getGuiHeight();
@@ -278,7 +274,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 (int)(rawX * (double) screenWidth),
                 (int)(rawY * (double) screenHeight)
         );
-
     }
 
 
@@ -299,19 +294,23 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
+        //we need it to go through minecraft
         InputHelper.pressMouse(buttonType);
         return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        //we need it to go through minecraft
         InputHelper.releaseMouse(buttonType);
         return true;
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        //InputHelper.scrollMouse(0, scrollDelta);
+        // we use here screen directly
+        // since the scrollDelta received is already calculated
+        // and not applicable to InputHelper scroll method
         if(MC.screen != null){
             return MC.screen.mouseScrolled(mouseX, mouseY, scrollDelta);
         }

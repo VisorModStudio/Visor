@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview;
+package me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview;
 
 import net.minecraft.network.chat.Component;
 

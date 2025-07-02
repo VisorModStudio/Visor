@@ -89,7 +89,7 @@ public class RawHmd implements HmdHistory {
 
     public Vector3f getVector() {
         return this.rotation
-                .transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+                .transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
     }
 
 }

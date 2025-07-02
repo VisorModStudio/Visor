@@ -241,7 +241,7 @@ public class RenderHelper {
         Vector3f old1 = oldLights[1];
 
         // force lighting to face forward
-        Vector3f forward = (Vector3f) VRMathUtils.FORWARD_VECTOR_REVERSED;
+        Vector3f forward = (Vector3f) VRMathUtils.FORWARD_VECTOR;
         RenderSystem.setShaderLights(forward, forward);
         RenderSystem.setupShaderLights(RenderSystem.getShader());
 

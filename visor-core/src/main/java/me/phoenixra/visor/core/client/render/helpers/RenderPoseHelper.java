@@ -33,7 +33,7 @@ public class RenderPoseHelper {
                                                PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
         final Matrix4f rotationMatrix;
 
         boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
@@ -65,7 +65,7 @@ public class RenderPoseHelper {
         if (!vrDisplay.isEye()) {
             return;
         }
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
         var eyePos = renderPose.getElementForDisplay(vrDisplay).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
@@ -77,7 +77,7 @@ public class RenderPoseHelper {
 
     public static void applyControllerPose(ControllerHand hand,
                                            PoseStack poseStack) {
-        PoseDataImpl renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
+        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
 
         // move origin to controller pos relative to camera
         var controllerPos = getControllerPosition(hand);
@@ -125,7 +125,7 @@ public class RenderPoseHelper {
     public static Vector3fc getControllerPosition(ControllerHand hand) {
         return ClientContext
                 .player
-                .getPose(PoseDataType.RENDER)
+                .getPoseData(PoseDataType.RENDER)
                 .getController(hand)
                 .getPosition();
     }

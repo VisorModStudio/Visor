@@ -63,7 +63,7 @@ public class GameEffectShadow extends VRGameEffect {
         float playerLength = (float) box.getZsize();
 
         Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderDisplay,
-                ClientContext.player.getPose(PoseDataType.RENDER))
+                ClientContext.player.getPoseData(PoseDataType.RENDER))
         );
         Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
                 .visor$getCameraEntityCache()

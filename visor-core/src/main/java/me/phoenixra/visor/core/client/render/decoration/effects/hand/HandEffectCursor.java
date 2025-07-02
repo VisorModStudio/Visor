@@ -64,7 +64,7 @@ public class HandEffectCursor extends VRHandEffect {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.player
-                                    .getPose(PoseDataType.RENDER)
+                                    .getPoseData(PoseDataType.RENDER)
                                     .getHmd()
                                     .getPosition()
                             )

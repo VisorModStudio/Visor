@@ -4,6 +4,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
@@ -25,33 +26,37 @@ public class AddonCoreClient implements VisorAddon {
                 .registerElements(
                         List.of(
                                 new VROverlayGameScreen(
-                                        ClientContext.coreAddon,
+                                        this,
                                         VROverlayGameScreen.ID
                                 ),
+                                new VROverlayThirdPersonCamera(
+                                        this,
+                                        VROverlayThirdPersonCamera.ID
+                                ),
                                 new VROverlayHotBar(
-                                        ClientContext.coreAddon,
+                                        this,
                                         ControllerHand.MAIN,
                                         VROverlayHotBar.ID_MAIN
                                 ),
                                 new VROverlayHotBar(
-                                        ClientContext.coreAddon,
+                                        this,
                                         ControllerHand.OFFHAND,
                                         VROverlayHotBar.ID_OFFHAND
                                 ),
                                 new VROverlayKeyboard(
-                                        ClientContext.coreAddon,
+                                        this,
                                         VROverlayKeyboard.ID
                                 ),
                                 new VROverlaySettings(
-                                        ClientContext.coreAddon,
+                                        this,
                                         VROverlaySettings.ID
                                 ),
                                 new VROverlayOptionsMenu(
-                                        ClientContext.coreAddon,
+                                        this,
                                         VROverlayOptionsMenu.ID
                                 ),
                                 new VROverlayDemo(
-                                        ClientContext.coreAddon,
+                                        this,
                                         VROverlayDemo.ID
                                 )
                         )

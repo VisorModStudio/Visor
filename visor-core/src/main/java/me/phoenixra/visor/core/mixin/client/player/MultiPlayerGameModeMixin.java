@@ -123,7 +123,7 @@ public abstract class MultiPlayerGameModeMixin {
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
             PoseData preTickPose = ClientContext
-                    .player.getPose(PoseDataType.PRE_TICK);
+                    .player.getPoseData(PoseDataType.PRE_TICK);
             lookDirection = new Vec3(
                     (Vector3f) preTickPose.getController(controllerHand).getDirection()
             );

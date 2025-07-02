@@ -3,7 +3,6 @@ package me.phoenixra.visor.api.common.utils;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
 import me.phoenixra.atumconfig.core.AtumConfigManager;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -18,10 +17,10 @@ public class VRMathUtils {
     }
 
     public static final Vector3fc ZERO_VECTOR = new Vector3f(0,0,0);
-    public static final Vector3fc FORWARD_VECTOR = new Vector3f(0.0F, 0.0F, -1.0F);
-    public static final Vector3fc FORWARD_VECTOR_REVERSED = new Vector3f(0.0F, 0.0F, 1.0F);
+    public static final Vector3fc FORWARD_VECTOR = new Vector3f(0.0F, 0.0F, 1.0F);
+    public static final Vector3fc BACK_VECTOR = new Vector3f(0.0F, 0.0F, -1.0F);
     public static final Vector3fc UP_VECTOR = new Vector3f(0.0F, 1.0F, 0.0F);
-    public static final Vector3fc RIGHT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
+    public static final Vector3fc LEFT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
 
     public static final Matrix4fc EMPTY_MATRIX = new Matrix4f();
 

@@ -325,7 +325,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             premountPos = premountPos
                     .yRot(
                             ClientContext.player
-                                    .getPose(PoseDataType.PRE_TICK)
+                                    .getPoseData(PoseDataType.PRE_TICK)
                                     .getRotationY()
                     );
             posX = posX - premountPos.x;
@@ -354,7 +354,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.getState().isActive()
                 ? ClientContext.player
-                .getPose(PoseDataType.PRE_TICK).getBodyYaw()
+                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
                 : original;
     }
 
@@ -362,7 +362,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.getState().isActive()
                 ? ClientContext.player
-                .getPose(PoseDataType.PRE_TICK).getBodyYaw()
+                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
                 : original;
     }
 

@@ -36,7 +36,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private final CursorState offhandState = new CursorState();
 
     public void process() {
-        PoseData renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
+        PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
 
         updateCursorState(ControllerHand.MAIN, mainHandState, renderPose);
         updateCursorState(ControllerHand.OFFHAND, offhandState, renderPose);
@@ -230,7 +230,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                                                   @NotNull Matrix4fc guiRotation,
                                                   float guiScale
     ) {
-        PoseData renderPose = ClientContext.player.getPose(PoseDataType.RENDER);
+        PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = VROverlayPose.QUAD_SCALE * guiScale * worldScale;
 

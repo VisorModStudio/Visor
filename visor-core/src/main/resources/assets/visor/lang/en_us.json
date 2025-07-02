@@ -71,6 +71,7 @@
   "visor.option.SHADER_GUI_RENDER": "Shaders GUI",
   "visor.option.GUI_SCALE": "VR GUI Scale",
   "visor.option.EYE_FOV_SCALE": "Eye FOV Scale",
+  "visor.option.third_person_camera": "Reposition camera",
   "_comment13": "*--------VR OPTION TOOLTIPS--------*",
   "visor.option.MIRROR_EYE.tooltip": "Which eye to display on mirror",
   "visor.option.EYE_FOV_SCALE.tooltip": "Changes fov for both VR eyes. Useful if you have AR glasses with small eye screen",

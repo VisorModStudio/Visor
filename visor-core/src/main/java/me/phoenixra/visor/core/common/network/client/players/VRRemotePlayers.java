@@ -60,7 +60,7 @@ public class VRRemotePlayers {
                     VRMathUtils.lerpVector(
                             playerDataPrev.offhandDirection(),
                             playerData1.offhandRotation()
-                                    .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f()),
+                                    .transform(VRMathUtils.BACK_VECTOR, new Vector3f()),
                             frameTime
                     ),
                     //offhand position
@@ -75,7 +75,7 @@ public class VRRemotePlayers {
                     VRMathUtils.lerpVector(
                             playerDataPrev.mainHandDirection(),
                             playerData1.mainHandRotation()
-                                    .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f()),
+                                    .transform(VRMathUtils.BACK_VECTOR, new Vector3f()),
                             frameTime
                     ),
                     //mainHand position
@@ -90,7 +90,7 @@ public class VRRemotePlayers {
                     VRMathUtils.lerpVector(
                             playerDataPrev.hmdDirection(),
                             playerData1.hmdRotation()
-                                    .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f()),
+                                    .transform(VRMathUtils.BACK_VECTOR, new Vector3f()),
                             frameTime
                     ),
                     //HMD position
@@ -119,11 +119,11 @@ public class VRRemotePlayers {
         }
 
         Vector3f hmdDir = poseBuffer.hmd()
-                .orientation().transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
         Vector3f mainHandDir = poseBuffer.mainHand()
-                .orientation().transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
         Vector3f offhandDir = poseBuffer.offhand()
-                .orientation().transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
         //[0.5; 1.5] bounds
         heightScale = Math.max(
                 0.5f,

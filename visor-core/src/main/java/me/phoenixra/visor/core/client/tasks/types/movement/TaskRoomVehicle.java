@@ -52,7 +52,7 @@ public class TaskRoomVehicle extends VisorTask {
         if (canAutoDismount(player)) {
             Vector3fc mountPos = player.getVehicle().position().toVector3f();
             Vector3fc headPivot = ClientContext.player
-                    .getPose(PoseDataType.PRE_TICK).getHeadPivot();
+                    .getPoseData(PoseDataType.PRE_TICK).getHeadPivot();
             double distance = Math.sqrt(
                     (headPivot.x() - mountPos.x())
                             * (headPivot.x() - mountPos.x())
@@ -153,10 +153,10 @@ public class TaskRoomVehicle extends VisorTask {
     public void onStartRiding(Entity vehicle) {
         VRClientPlayerImpl vrClientPlayer = ClientContext.player;
         PoseDataImpl preTickPose = vrClientPlayer
-                .getPose(PoseDataType.PRE_TICK);
+                .getPoseData(PoseDataType.PRE_TICK);
 
         final Vector3fc headPivot = vrClientPlayer
-                .getPose(PoseDataType.ROOM)
+                .getPoseData(PoseDataType.ROOM)
                 .getHeadPivot();
         // Record the player's room position (ignoring vertical component)
         this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
@@ -251,7 +251,7 @@ public class TaskRoomVehicle extends VisorTask {
                     ? ControllerHand.MAIN
                     : ControllerHand.OFFHAND;
             final PoseElement handPose = ClientContext.player
-                    .getPose(PoseDataType.PRE_TICK)
+                    .getPoseData(PoseDataType.PRE_TICK)
                     .getController(handWithFood);
             return handPose.getDirection().normalize(new Vector3f());
         }

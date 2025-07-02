@@ -161,14 +161,9 @@ public class PoseDataImpl implements PoseData {
                 VRClientSettings.getThirdPersonCameraPosY(),
                 VRClientSettings.getThirdPersonCameraPosZ()
         );
-        Matrix4fc camRot = new Matrix4f()
-                .rotateZYX(
-                        VRClientSettings.getThirdPersonCameraRotationZ(),
-                        VRClientSettings.getThirdPersonCameraRotationY(),
-                        VRClientSettings.getThirdPersonCameraRotationX()
-                )
-                .transpose();
-        Vector3f camDir = camRot.transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
+        Matrix4fc camRot = VRClientSettings.getThirdPersonCameraRotation()
+                .get(new Matrix4f());
+        Vector3f camDir = camRot.transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
                 this.origin,
                 this.rotationY,
@@ -237,8 +232,8 @@ public class PoseDataImpl implements PoseData {
     }
 
     @Override
-    public @NotNull Vector3f convertPosition(@NotNull PoseDataType originStage,
-                                               @NotNull Vector3fc position){
+    public @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originStage,
+                                                 @NotNull Vector3fc position){
         if(originStage == type) {
             return new Vector3f(
                     position.x(),
@@ -253,7 +248,7 @@ public class PoseDataImpl implements PoseData {
         }
 
         PoseDataImpl originPose = ClientContext.player
-                .getPose(originStage);
+                .getPoseData(originStage);
 
         Vector3f roomPose = position
                 .sub(originPose.origin, new Vector3f())
@@ -271,10 +266,10 @@ public class PoseDataImpl implements PoseData {
 
 
     @Override
-    public @NotNull Matrix4f convertRotation(@NotNull PoseDataType originStage,
-                                              @NotNull Matrix4f rotationMatrix) {
+    public @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originStage,
+                                                 @NotNull Matrix4fc rotationMatrix) {
         if (originStage == this.type) {
-            return rotationMatrix;
+            return new Matrix4f(rotationMatrix);
         }
 
 
@@ -284,7 +279,7 @@ public class PoseDataImpl implements PoseData {
         }
 
 
-        PoseDataImpl originPose = ClientContext.player.getPose(originStage);
+        PoseDataImpl originPose = ClientContext.player.getPoseData(originStage);
 
         if (this.type == PoseDataType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);

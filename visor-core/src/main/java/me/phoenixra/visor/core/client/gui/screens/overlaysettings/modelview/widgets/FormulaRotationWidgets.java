@@ -1,23 +1,24 @@
-package me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.widgets;
+package me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.widgets;
+
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
 import me.phoenixra.visor.api.client.gui.widgets.WidgetsFactory;
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.OptionsScreenModelView;
-import me.phoenixra.visor.core.client.gui.screens.settings.overlays.modelview.ModificationType;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenModelView;
+import me.phoenixra.visor.core.client.gui.screens.overlaysettings.modelview.ModificationType;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class FormulaPosWidgets extends WidgetSet{
-    protected EditBox fieldPosX;
-    protected EditBox fieldPosY;
-    protected EditBox fieldPosZ;
+public class FormulaRotationWidgets extends WidgetSet{
+    protected EditBox fieldRotationX;
+    protected EditBox fieldRotationY;
+    protected EditBox fieldRotationZ;
 
-    public FormulaPosWidgets(OptionsScreenModelView owner){
-        super(ModificationType.FORMULA_POSITION, owner);
+    public FormulaRotationWidgets(OptionsScreenModelView owner){
+        super(ModificationType.FORMULA_ROTATION, owner);
     }
 
     @Override
@@ -29,54 +30,54 @@ public class FormulaPosWidgets extends WidgetSet{
 
         int middleX = edgeX + edgeWidth/2;
 
-        fieldPosX = WidgetsFactory.createFormulaEditor(
+        fieldRotationX = WidgetsFactory.createFormulaEditor(
                 middleX - 150/2, edgeY + 10,
                 150, 15,
-                Component.translatable("visor.overlaySettings.modelView.widget.formulaPosX"),
-                optionCategory.getFormulaPosX(),
+                Component.translatable("visor.overlaySettings.modelView.widget.formulaRotationX"),
+                optionCategory.getFormulaRotationX(),
                 AtumColor.WHITE,
                 (it) -> {
-                    optionCategory.setFormulaPosX(
+                    optionCategory.setFormulaRotationX(
                             it
                     );
                     optionCategory.update(true);
                 }
         );
 
-        fieldPosY = WidgetsFactory.createFormulaEditor(
+        fieldRotationY = WidgetsFactory.createFormulaEditor(
                 middleX - 150/2, edgeY + 35,
                 150, 15,
-                Component.translatable("visor.overlaySettings.modelView.widget.formulaPosY"),
-                optionCategory.getFormulaPosY(),
+                Component.translatable("visor.overlaySettings.modelView.widget.formulaRotationY"),
+                optionCategory.getFormulaRotationY(),
                 AtumColor.WHITE,
                 (it) -> {
-                    optionCategory.setFormulaPosY(
+                    optionCategory.setFormulaRotationY(
                             it
                     );
                     optionCategory.update(true);
                 }
         );
 
-        fieldPosZ = WidgetsFactory.createFormulaEditor(
+        fieldRotationZ = WidgetsFactory.createFormulaEditor(
                 middleX - 150/2, edgeY + 60,
                 150, 15,
-                Component.translatable("visor.overlaySettings.modelView.widget.formulaPosZ"),
-                optionCategory.getFormulaPosZ(),
+                Component.translatable("visor.overlaySettings.modelView.widget.formulaRotationZ"),
+                optionCategory.getFormulaRotationZ(),
                 AtumColor.WHITE,
                 (it) -> {
-                    optionCategory.setFormulaPosZ(
+                    optionCategory.setFormulaRotationZ(
                             it
                     );
                     optionCategory.update(true);
                 }
         );
 
-        return List.of(fieldPosX, fieldPosY, fieldPosZ);
+        return List.of(fieldRotationX, fieldRotationY, fieldRotationZ);
     }
 
     @Override
     public List<AbstractWidget> getWidgets() {
-        return List.of(fieldPosX, fieldPosY, fieldPosZ);
+        return List.of(fieldRotationX, fieldRotationY, fieldRotationZ);
     }
 
     @Override

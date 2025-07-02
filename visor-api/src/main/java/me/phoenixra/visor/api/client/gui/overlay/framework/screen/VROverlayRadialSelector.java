@@ -68,7 +68,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
                 .getCursorHandler()
                 .findCursorPosition2D(
                         VisorAPI.client().getPlayer()
-                                .getPose(PoseDataType.RENDER)
+                                .getPoseData(PoseDataType.RENDER)
                                 .getController(
                                         usedHand
                                 ),

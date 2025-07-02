@@ -60,9 +60,9 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             cir.setReturnValue(this.camera.rotation());
             return;
         }
-        var cameraPos = ClientContext.player.getPose(PoseDataType.RENDER).getHmd().getPosition();
+        var cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPose(PoseDataType.RENDER)
+            cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }
@@ -102,11 +102,11 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             return this.camera.rotation();
         }
         var cameraPos = ClientContext.player
-                .getPose(PoseDataType.RENDER)
+                .getPoseData(PoseDataType.RENDER)
                 .getHmd()
                 .getPosition();
         if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPose(PoseDataType.RENDER)
+            cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER)
                     .getElementForDisplay(VRDisplay.THIRD_PERSON)
                     .getPosition();
         }

@@ -69,7 +69,7 @@ public class TaskRoomRun extends VisorTask {
         }
 
         PoseDataImpl preTickPose = ClientContext.player
-                .getPose(PoseDataType.PRE_TICK);
+                .getPoseData(PoseDataType.PRE_TICK);
 
         final var mainHandDir = preTickPose
                 .getController(ControllerHand.MAIN)

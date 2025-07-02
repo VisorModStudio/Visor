@@ -5,6 +5,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -126,8 +127,8 @@ public interface PoseData {
      * @param position the position vector in the coordinate system of the specified origin stage
      * @return the converted position vector
      */
-    @NotNull Vector3f convertPosition(@NotNull PoseDataType originStage,
-                                        @NotNull Vector3fc position);
+    @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originStage,
+                                          @NotNull Vector3fc position);
 
     /**
      * Converts <code>rotationMatrix</code> from the coordinate system of <code>originStage</code>
@@ -138,8 +139,8 @@ public interface PoseData {
      * @param rotationMatrix the rotation matrix to convert
      * @return the converted rotation matrix
      */
-    @NotNull Matrix4f convertRotation(@NotNull PoseDataType originStage,
-                                      @NotNull Matrix4f rotationMatrix);
+    @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originStage,
+                                          @NotNull Matrix4fc rotationMatrix);
 
     /**
      *

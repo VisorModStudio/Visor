@@ -57,14 +57,14 @@ public class VRGameCamera extends Camera {
 
         VRDisplay display = VRRenderState.getCurrentVRDisplay();
         PoseElement eye = ClientContext.player
-                .getPose(PoseDataType.RENDER)
+                .getPoseData(PoseDataType.RENDER)
                 .getElementForDisplay(display);
 
         // Position
         this.setPosition(new Vec3(
                 (Vector3f) RenderPoseHelper.getCameraPosition(
                         display,
-                        ClientContext.player.getPose(PoseDataType.RENDER)
+                        ClientContext.player.getPoseData(PoseDataType.RENDER)
                 )
         ));
 
@@ -75,7 +75,7 @@ public class VRGameCamera extends Camera {
         // Look, Up, Left vectors
         var dir = eye.getDirection();
         var upVec = eye.getCustomVector(VRMathUtils.UP_VECTOR);
-        var leftVec = eye.getCustomVector(VRMathUtils.RIGHT_VECTOR);
+        var leftVec = eye.getCustomVector(VRMathUtils.LEFT_VECTOR);
 
         this.getLookVector().set(dir.x(), dir.y(), dir.z());
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
