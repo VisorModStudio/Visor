@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.world.entity.projectile;
+package me.phoenixra.visor.core.mixin.client.world;
 
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.ControllerHand;

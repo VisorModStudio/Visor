@@ -43,13 +43,14 @@
     "client.render.entity.item.FishingHookRendererMixin",
     "client.render.entity.monsters.GuardianRendererMixin",
     "client.render.entity.player.EntityPlayerRenderMixins$EntityRenderDispatcherMixin",
-    "client.render.entity.player.ItemInHandRendererMixin"
+    "client.render.entity.player.ItemInHandRendererMixin",
+    "client.world.FireworkRocketEntityMixin",
+    "client.world.FishingHookMixin"
   ],
   "server": [
   ],
   "minVersion": "0.8.4",
   "mixins": [
-    "client.world.entity.projectile.FireworkRocketEntityMixin",
     "common.MinecraftServerMixin",
     "common.accessors.ChunkMapAccessor",
     "common.accessors.TrackedEntityAccessor",
