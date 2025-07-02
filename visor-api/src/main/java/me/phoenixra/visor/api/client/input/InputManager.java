@@ -73,6 +73,22 @@ public interface InputManager {
      * Trigger haptic pulse on a specified hand
      *
      * @param hand the hand
+     * @param durationMicroSeconds pulse duration in micro seconds
+     */
+    default void triggerHapticPulseMicroSec(@NotNull ControllerHand hand,
+                                            int durationMicroSeconds){
+        triggerHapticPulse(
+                hand,
+                160f,
+                1f,
+                durationMicroSeconds * 1000L
+        );
+    }
+
+    /**
+     * Trigger haptic pulse on a specified hand
+     *
+     * @param hand the hand
      * @param frequency pulse frequency
      * @param amplitude pulse amplitude
      * @param durationSeconds pulse duration in seconds
@@ -86,6 +102,26 @@ public interface InputManager {
                 frequency,
                 amplitude,
                 (long) (durationSeconds * 1_000_000_000)
+        );
+    }
+
+    /**
+     * Trigger haptic pulse on a specified hand
+     *
+     * @param hand the hand
+     * @param frequency pulse frequency
+     * @param amplitude pulse amplitude
+     * @param durationMicroSeconds pulse duration in micro seconds
+     */
+    default void triggerHapticPulseMicroSec(@NotNull ControllerHand hand,
+                                            float frequency,
+                                            float amplitude,
+                                            int durationMicroSeconds){
+        triggerHapticPulse(
+                hand,
+                frequency,
+                amplitude,
+                durationMicroSeconds * 1000L
         );
     }
 
