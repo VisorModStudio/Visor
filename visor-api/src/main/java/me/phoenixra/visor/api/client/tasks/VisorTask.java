@@ -40,7 +40,7 @@ public abstract class VisorTask implements VisorElement, PrioritySupporter {
     }
 
     public final void clear(@Nullable LocalPlayer player) {
-        if(cleared) return;
+        if(!alwaysClear() && cleared) return;
         onClear(player);
         cleared = true;
     }
@@ -52,6 +52,9 @@ public abstract class VisorTask implements VisorElement, PrioritySupporter {
 
 
 
+    protected boolean alwaysClear(){
+        return false;
+    }
 
     @Override
     public @NotNull ElementPriority getPriority() {

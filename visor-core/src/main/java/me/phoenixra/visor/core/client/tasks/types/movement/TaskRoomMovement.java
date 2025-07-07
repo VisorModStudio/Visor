@@ -39,11 +39,11 @@ public class TaskRoomMovement extends VisorTask {
     protected void onRun(@Nullable LocalPlayer player) {
         PoseDataImpl preTickPose = ClientContext.player
                 .getPoseData(PoseDataType.PRE_TICK);
-        var roomOrigin = ClientContext.player.getOrigin();
+        var origin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 
         var headPivot = PoseDataHelper.getHeadPivot(
-                roomOrigin,
+                origin,
                 VRClientSettings.getWalkMultiplier(),
                 worldScale,
                 preTickPose.getRotationY()
@@ -109,7 +109,7 @@ public class TaskRoomMovement extends VisorTask {
                 player.setPosRaw(headPivot.x, collisionBox.minY, headPivot.z);
                 player.setBoundingBox(collisionBox);
 
-                var newRoomOrigin = roomOrigin.add(
+                var newRoomOrigin = origin.add(
                         0.0f, 0.1f * (i + 1), 0.0f,
                         new Vector3f()
                 );

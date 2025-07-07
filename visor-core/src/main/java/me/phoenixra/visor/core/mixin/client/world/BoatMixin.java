@@ -4,6 +4,7 @@ import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TaskRoomBoat;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -94,10 +95,32 @@ public abstract class BoatMixin extends Entity {
             momentumX = Mth.sin(-this.getYRot() * Mth.DEG_TO_RAD) * forward;
             momentumZ = Mth.cos(this.getYRot() * Mth.DEG_TO_RAD) * forward;
         } else {
-            //to reduce rotation speed for controller movement
-            //too fast rotation causes nausea
-            deltaRotation = deltaRotation * 0.7f;
-            forward = forward * 0.7f;
+
+            TaskRoomBoat trackerBoat = TaskRoomBoat.getInstance();
+            if (trackerBoat.isRowing()) {
+                this.deltaRotation += (float) (trackerBoat.getOarLeft() / 1.5);
+                this.deltaRotation -= (float) (trackerBoat.getOarRight() / 1.5);
+
+                if (deltaRotation < 0) {
+                    this.inputLeft = true;
+                }
+                if (deltaRotation > 0) {
+                    this.inputRight = true;
+                }
+
+                forward = Math.min(0.04F, 0.06f * trackerBoat.getMoveForward());
+                if (forward > 0) {
+                    this.inputUp = true;
+                }
+
+            }else {
+                //to reduce rotation speed for controller movement
+                //too fast rotation causes nausea
+                deltaRotation = deltaRotation * 0.8f;
+                forward = forward * 0.7f;
+            }
+
+
 
             momentumX = Mth.sin(-this.getYRot() * Mth.DEG_TO_RAD) * forward;
             momentumZ = Mth.cos(this.getYRot() * Mth.DEG_TO_RAD) * forward;

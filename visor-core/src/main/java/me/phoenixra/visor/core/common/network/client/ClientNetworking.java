@@ -97,13 +97,6 @@ public class ClientNetworking {
 
 
 
-    public static void updateClientPose(LocalPlayer player) {
-        ClientContext.player
-                .updatePlayerLook(
-                        player,
-                        PoseDataType.PRE_TICK
-                );
-    }
 
     public static void resetServerSettings() {
         heightLastSent = 0.0F;

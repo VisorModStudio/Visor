@@ -391,8 +391,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)){
             return;
         }
-        ClientNetworking.updateClientPose(
-                (LocalPlayer) (Object) this
+        ClientContext.player.updatePlayerLook(
+                (LocalPlayer) (Object) this,
+                PoseDataType.PRE_TICK
         );
     }
 

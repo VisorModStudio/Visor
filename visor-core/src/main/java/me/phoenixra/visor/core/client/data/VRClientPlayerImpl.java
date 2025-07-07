@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
@@ -100,7 +101,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     public void postTick() {
 
-        var hmdPosWorldScaleOld = PoseDataHelper
+        var posWithOldScale = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -108,7 +109,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                         preTickPose.getRotationY()
                 ).getPosition();
 
-        var hmdPosWorldScaleNow = PoseDataHelper
+        var posWithNewScale = PoseDataHelper
                 .createHmdPose(
                         preTickPose.getOrigin(),
                         VRClientSettings.getWalkMultiplier(),
@@ -116,8 +117,8 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                         preTickPose.getRotationY()
                 ).getPosition();
 
-        Vector3f hmdWorldScaleDiff = hmdPosWorldScaleNow.sub(hmdPosWorldScaleOld, new Vector3f());
-        this.origin = this.origin.sub(hmdWorldScaleDiff, new Vector3f());
+        Vector3f scaleDiff = posWithNewScale.sub(posWithOldScale, new Vector3f());
+        this.origin = this.origin.sub(scaleDiff, new Vector3f());
 
         Vector3f headPivot = PoseDataHelper.getHeadPivot(
                 origin,
@@ -146,13 +147,15 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     }
 
 
-    public void preRender(float partialTicks) {
-
+    public void earlyPreRender(){
         this.roomPose.update(
-                new Vector3f(0.0f, 0.0f, 0.0f),
+                VRMathUtils.ZERO_VECTOR,
                 VRClientSettings.getWalkMultiplier(),
                 1.0f, 0.0f
         );
+    }
+
+    public void preRender(float partialTicks) {
 
         //Interpolated Rotation
         float rotationPre = this.preTickPose.getRotationY();

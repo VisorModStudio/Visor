@@ -167,10 +167,11 @@ public class VisorClientImpl implements VisorClient {
     }
 
 
-    public void preRenderVR(PreRenderContext context){
+    public void earlyPreRenderVR(PreRenderContext context){
         try {
             vrProvider.preRender(context);
             ClientContext.inputManager.update();
+            ClientContext.player.earlyPreRender();
 
             if (!(MC.screen instanceof OptionsScreen)
                     && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()) {
@@ -180,9 +181,6 @@ public class VisorClientImpl implements VisorClient {
             }
 
             featuresToggle.preRender();
-
-            ClientContext.player
-                    .preRender(context.partialTicks());
 
 
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
@@ -200,6 +198,14 @@ public class VisorClientImpl implements VisorClient {
     }
 
 
+    public void preRenderVR(PreRenderContext context){
+        try{
+            ClientContext.player.preRender(context.partialTicks());
+
+        } catch (Throwable e) {
+            VisorState.destroyVRWithErrorScreen(e);
+        }
+    }
     public void renderVR(RenderContext context){
         try {
             context.profiler().push("VR render");

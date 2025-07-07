@@ -164,19 +164,32 @@ public abstract class MinecraftMixin implements MinecraftModified {
      * @param callback s
      */
      @Inject(at = @At("HEAD"), method = "runTick(Z)V")
-     public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
+     public void visor$runVR(boolean tick, CallbackInfo callback) {
          VisorState.updateState();
          if (VisorState.getState().isActive()) {
              ++VisorState.FRAME_COUNT;
 
              ClientContext.visor
-                     .preRenderVR(new PreRenderContext(
+                     .earlyPreRenderVR(new PreRenderContext(
                              profiler, tick,
                              visor$getPartialTicks()
                      ));
 
          }
      }
+
+    @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=render"))
+    public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
+        if (VisorState.getState().isActive()) {
+
+            ClientContext.visor
+                    .preRenderVR(new PreRenderContext(
+                            profiler, tick,
+                            visor$getPartialTicks()
+                    ));
+
+        }
+    }
 
     /**
      * Modifies vanilla GameRenderer.render() call
