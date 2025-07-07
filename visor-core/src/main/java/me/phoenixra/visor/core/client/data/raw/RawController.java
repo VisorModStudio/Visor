@@ -61,7 +61,7 @@ public class RawController implements ControllerHistory {
     }
 
     public Vector3f getAimVector() {
-        return  aimRotation.transformDirection(
+        return aimRotation.transformDirection(
                 VRMathUtils.BACK_VECTOR, new Vector3f()
         );
     }

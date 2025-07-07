@@ -127,5 +127,15 @@ public class XrRawPoseHandler extends RawPoseHandler {
         controllerRightData.getUpHistory().add(upVec);
 
 
+        var aimVector = controllerLeftData.getAimVector().normalize(new Vector3f());
+        var gripVector = controllerLeftData.getGripVector().normalize(new Vector3f());
+
+        this.gunAngle = (float) Math.toDegrees(
+                Math.acos(
+                        Math.abs(
+                                aimVector.dot(gripVector)
+                        )
+                )
+        );
     }
 }

@@ -13,6 +13,7 @@ import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -49,7 +51,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private ControllerHand activeHand = ControllerHand.MAIN;
 
     @Getter
-    private Input inputMovement = new Input();
+    private Vector2f inputMovement = new Vector2f();
 
     public VRClientPlayerImpl() {
         this.roomPose = new PoseDataImpl(PoseDataType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
@@ -209,8 +211,17 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         PoseDataImpl data = getPoseData(stage);
 
         if (player.isPassenger()) {
-            //Server-side movement
+            var vehicleLookDir = TaskRoomVehicle.getVehicleLookDirection(player);
 
+            if (vehicleLookDir != null) {
+                player.setXRot((float) Math.toDegrees(
+                        Math.asin(-vehicleLookDir.y() / vehicleLookDir.length()))
+                );
+                player.setYRot((float) Math.toDegrees(
+                        Mth.atan2(-vehicleLookDir.x(), vehicleLookDir.z()))
+                );
+                player.setYHeadRot(player.getYRot());
+            }
             return;
         }
         if (player.isBlocking()) {

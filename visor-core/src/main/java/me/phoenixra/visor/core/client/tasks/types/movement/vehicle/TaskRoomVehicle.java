@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement;
+package me.phoenixra.visor.core.client.tasks.types.movement.vehicle;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
@@ -12,6 +12,7 @@ import me.phoenixra.visor.api.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomSneak;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -47,7 +48,6 @@ public class TaskRoomVehicle extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        if (MC.isPaused()) return;
 
         if (canAutoDismount(player)) {
             Vector3fc mountPos = player.getVehicle().position().toVector3f();
@@ -60,7 +60,7 @@ public class TaskRoomVehicle extends VisorTask {
                             * (headPivot.z() - mountPos.z())
             );
 
-            if (distance > 0.7D
+            if (distance > 0.7
                     && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
                 TaskRoomSneak.getInstance().setSneakTimer(5);
             }
@@ -139,6 +139,9 @@ public class TaskRoomVehicle extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
+        if (MC.isPaused()) {
+            return false;
+        }
         if (p == null || MC.gameMode == null) {
             return false;
         }

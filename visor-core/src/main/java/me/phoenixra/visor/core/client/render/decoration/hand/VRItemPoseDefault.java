@@ -47,10 +47,9 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
         InteractionHand mcHand = hand == ControllerHand.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         int handDir = hand == ControllerHand.MAIN ? 1 : -1;
-        double gunAngle = ClientContext.rawPoseHandler.getGunAngle();
 
 
-        PoseParams params = computeParams(item, player, mcHand, handDir, (float) gunAngle, equipProgress, partialTicks);
+        PoseParams params = computeParams(item, player, mcHand, handDir, equipProgress, partialTicks);
 
 
         stack.mulPose(params.preRotation);
@@ -64,9 +63,9 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      AbstractClientPlayer player,
                                      InteractionHand mcHand,
                                      int handDir,
-                                     float gunAngle,
                                      float equipProgress,
                                      float partialTicks) {
+        float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
         // defaults
         float scale = 0.7f;
         float translateX = -0.05f, translateY = 0.005f, translateZ = 0f;

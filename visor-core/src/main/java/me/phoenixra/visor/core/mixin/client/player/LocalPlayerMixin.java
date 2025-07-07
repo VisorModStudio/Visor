@@ -10,7 +10,7 @@ import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.mcmodified.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomSwim;
-import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.core.common.network.client.ClientNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

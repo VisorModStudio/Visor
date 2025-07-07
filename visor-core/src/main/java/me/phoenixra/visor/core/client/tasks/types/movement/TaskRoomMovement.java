@@ -155,6 +155,6 @@ public class TaskRoomMovement extends VisorTask {
 
     @Override
     public @NotNull ElementPriority getPriority() {
-        return ElementPriority.HIGH;
+        return ElementPriority.HIGHEST;
     }
 }

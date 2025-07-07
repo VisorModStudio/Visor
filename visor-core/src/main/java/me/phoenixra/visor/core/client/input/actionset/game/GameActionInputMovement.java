@@ -39,93 +39,12 @@ public class GameActionInputMovement extends VisorActionVec2 {
         }
         Vector2f newState = getState();
 
-        Input input = ClientContext.player.getInputMovement();
+        Vector2f input = ClientContext.player.getInputMovement();
 
-        input.leftImpulse = 0.0F;
-        input.forwardImpulse = 0.0F;
+        input.x = newState.x;
+        input.y = newState.y;
 
-        float forward = 0.0F;
 
-        boolean moved = false;
-
-        if (ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOVEMENT)) {
-            moved = true;
-
-            if (newState.x == 0.0F && newState.y == 0.0F) {
-                input.forwardImpulse = 0.0F;
-                input.leftImpulse = 0.0F;
-            } else {
-                forward = newState.y;
-                input.forwardImpulse = newState.y;
-                input.leftImpulse = -newState.x;
-            }
-
-            movedLastTick = true;
-            input.up = input.forwardImpulse > 0f;
-            input.down = input.forwardImpulse < 0f;
-            input.left = input.leftImpulse > 0f;
-            input.right = input.leftImpulse < 0f;
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyUp, input.up
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyDown, input.down
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyLeft, input.left
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyRight, input.right
-            );
-
-            //Sprinting
-            if (forward >= VRClientSettings.getSprintThreshold()) {
-                MC.player.setSprinting(true);
-                this.autoSprintActive = true;
-                input.forwardImpulse = 1.0F;
-            } else if (input.forwardImpulse > 0.0F) {
-                input.forwardImpulse = input.forwardImpulse / VRClientSettings.getSprintThreshold();
-            }
-        }
-
-        //RESET STATE NEXT TICK
-        if (!moved && movedLastTick) {
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyUp, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyDown, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyLeft, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyRight, false
-            );
-        }
-        movedLastTick = moved;
-
-        //SPRINTING
-        if (this.autoSprintActive
-                && forward < VRClientSettings.getSprintThreshold()) {
-            MC.player.setSprinting(false);
-            this.autoSprintActive = false;
-        }
-
-        //JUMP
-        //LEGACY makes no sense, since game actionSet is active only when no screen
-        boolean canJump = MC.screen == null;
-
-        input.jumping = MC.options.keyJump.isDown() && canJump;
-
-        //SHIFT
-        //LEGACY makes no sense, since game actionSet is active only when no screen
-        boolean canShift = MC.screen == null;
-        input.shiftKeyDown = canShift && (
-                TaskRoomSneak.getInstance().getSneakTimer() > 0
-                        || TaskRoomSneak.getInstance().isSneaking()
-                        || MC.options.keyShift.isDown()
-        );
     }
 
     @Override
@@ -135,36 +54,10 @@ public class GameActionInputMovement extends VisorActionVec2 {
 
     @Override
     protected void onClear() {
-        Input input = ClientContext.player.getInputMovement();
+        Vector2f input = ClientContext.player.getInputMovement();
 
-        input.leftImpulse = 0.0F;
-        input.forwardImpulse = 0.0F;
-        input.up = false;
-        input.down = false;
-        input.left = false;
-        input.right = false;
-        input.jumping = false;
-        input.shiftKeyDown = false;
-
-        if (movedLastTick) {
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyUp, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyDown, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyLeft, false
-            );
-            ClientUtils.updateKeyMappingState(
-                    MC.options.keyRight, false
-            );
-            movedLastTick = false;
-        }
-        if (autoSprintActive) {
-            MC.player.setSprinting(false);
-            autoSprintActive = false;
-        }
+        input.x = 0;
+        input.y = 0;
 
     }
 

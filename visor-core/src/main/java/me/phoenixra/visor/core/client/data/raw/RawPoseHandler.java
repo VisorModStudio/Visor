@@ -17,7 +17,7 @@ public abstract class RawPoseHandler {
     protected RawController controllerRightData;
 
     @Getter
-    protected double gunAngle = 0.0D;
+    protected float gunAngle = 0.0f;
 
 
 

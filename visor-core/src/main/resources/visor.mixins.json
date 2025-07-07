@@ -45,6 +45,7 @@
     "client.render.entity.player.EntityPlayerRenderMixins$EntityRenderDispatcherMixin",
     "client.render.entity.player.ItemInHandRendererMixin",
     "client.render.particle.ItemPickupParticleMixin",
+    "client.world.BoatMixin",
     "client.world.FireworkRocketEntityMixin",
     "client.world.FishingHookMixin"
   ],
