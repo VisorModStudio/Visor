@@ -13,6 +13,8 @@ import me.phoenixra.visor.core.client.provider.openxr.render.XrRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 public class XrProvider extends OpenXRProvider {
 
     public XrProvider(@NotNull String appName, @NotNull VRLogger logger) {
@@ -54,7 +56,9 @@ public class XrProvider extends OpenXRProvider {
 
     @Override
     public void onStateChanged(XRSessionStateChange state) {
-
+        if(state == XRSessionStateChange.EXITING){
+            MC.stop();
+        }
     }
 
     @Override
