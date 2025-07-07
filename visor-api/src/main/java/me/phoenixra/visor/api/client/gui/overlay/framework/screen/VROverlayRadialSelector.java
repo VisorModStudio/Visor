@@ -110,7 +110,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
                     && selectedSliceNew != selectedSlice) {
                 VisorAPI.client().getInputManager()
                         .triggerHapticPulse(usedHand,
-                                0.001f
+                                0.0015f
                         );
                 selectedSlice = selectedSliceNew;
             }
