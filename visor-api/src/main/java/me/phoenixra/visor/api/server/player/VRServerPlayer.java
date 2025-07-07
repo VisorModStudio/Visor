@@ -5,6 +5,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -18,22 +19,22 @@ public interface VRServerPlayer {
     float getHeightScale();
     float getBowTension();
     @NotNull
-    Vector3f getHmdDir();
+    Vec3 getHmdDir();
     @NotNull
-    Vector3f getHmdPos(@NotNull Player player);
+    Vec3 getHmdPos(@NotNull Player player);
 
     @NotNull
-    default Vector3f getActiveHandPos(){
+    default Vec3 getActiveHandPos(){
         return getControllerPos(ControllerHand.MAIN);
     }
 
     @NotNull
-    default Vector3f getActiveHandDir(){
+    default Vec3 getActiveHandDir(){
         return getControllerDir(ControllerHand.MAIN);
     }
 
     @NotNull
-    default Vector3f getActiveHandVectorCustom(@NotNull Vector3f direction){
+    default Vec3 getActiveHandVectorCustom(@NotNull Vector3f direction){
         return getControllerVectorCustom(
                 ControllerHand.MAIN,
                 direction
@@ -41,13 +42,13 @@ public interface VRServerPlayer {
     }
 
     @NotNull
-    Vector3f getControllerPos(@NotNull ControllerHand controller);
+    Vec3 getControllerPos(@NotNull ControllerHand controller);
 
     @NotNull
-    Vector3f getControllerDir(@NotNull ControllerHand controller);
+    Vec3 getControllerDir(@NotNull ControllerHand controller);
 
     @NotNull
-    Vector3f getControllerVectorCustom(@NotNull ControllerHand controller,
+    Vec3 getControllerVectorCustom(@NotNull ControllerHand controller,
                                    @NotNull Vector3fc direction);
 
     boolean isVr();

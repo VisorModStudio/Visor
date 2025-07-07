@@ -57,6 +57,18 @@
     "common.accessors.ChunkMapAccessor",
     "common.accessors.TrackedEntityAccessor",
     "common.listeners.PlayerListenerMixins$PlayerListMixin",
-    "common.listeners.ServerListenerMixins$ServerListenerMixin"
+    "common.listeners.ServerListenerMixins$ServerListenerMixin",
+    "common.player.LivingEntityMixin",
+    "common.player.ServerPlayerMixin",
+    "common.world.entity.EndermanMixins$EndermanFreezeWhenLookedAtMixin",
+    "common.world.entity.EndermanMixins$EndermanMixin",
+    "common.world.entity.ProjectileMixin",
+    "common.world.entity.projectiles.AbstractArrowMixin",
+    "common.world.entity.projectiles.AbstractHurtingProjectileMixin",
+    "common.world.entity.projectiles.FishingHookMixin",
+    "common.world.entity.projectiles.ThrowableProjectileMixin",
+    "common.world.entity.projectiles.ThrownTridentMixin",
+    "common.world.item.BowItemMixin",
+    "common.world.item.CrossbowItemMixin"
   ]
 }

@@ -7,7 +7,7 @@ import me.phoenixra.visor.core.client.mcmodified.entity.EntityRenderDispatcherPl
 import me.phoenixra.visor.core.client.mcmodified.render.RenderLayerModified;
 import me.phoenixra.visor.core.client.render.player.RenderLayerType;
 import me.phoenixra.visor.core.client.render.player.VRPlayerRenderer;
-import me.phoenixra.visor.core.client.utils.ClientUtils;
+import me.phoenixra.visor.core.common.CommonUtils;
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayerData;
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import net.minecraft.client.Minecraft;
@@ -62,7 +62,7 @@ public class EntityPlayerRenderMixins {
                                             float f,
                                             CallbackInfo ci) {
             AABB headBox;
-            if ((headBox = ClientUtils.getEntityHeadHitbox(entity, 0.0)) != null) {
+            if ((headBox = CommonUtils.getEntityHeadHitBox(entity, 0.0)) != null) {
                 // raw head box
                 LevelRenderer.renderLineBox(
                         poseStack, vertexConsumer,
@@ -74,7 +74,7 @@ public class EntityPlayerRenderMixins {
                         1.0f, 1.0f, 0.0f, 1.0f
                 );
                 // inflated head box for arrows
-                AABB headBoxArrow = ClientUtils.getEntityHeadHitbox(
+                AABB headBoxArrow = CommonUtils.getEntityHeadHitBox(
                         entity, 0.3
                 );
                 LevelRenderer.renderLineBox(

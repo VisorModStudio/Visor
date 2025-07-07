@@ -27,5 +27,8 @@ public enum ControllerHand {
         if(id == 0) return MAIN;
         return OFFHAND;
     }
+    public static ControllerHand fromMcHand(InteractionHand mcHand){
+        return mcHand == InteractionHand.MAIN_HAND ? MAIN : OFFHAND;
+    }
 
 }

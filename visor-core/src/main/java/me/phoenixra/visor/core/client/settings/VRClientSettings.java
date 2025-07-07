@@ -229,7 +229,7 @@ public class VRClientSettings {
     //
     @Getter
     @VROptionField(guiOptionType = VRGuiOption.ROTATION_MODE)
-    protected static RotationMode rotationMode = RotationMode.CONTROLLER_OFFHAND;
+    protected static RotationMode rotationMode = RotationMode.HMD;
 
 
     private static final float defaultHeight = 1.52F;

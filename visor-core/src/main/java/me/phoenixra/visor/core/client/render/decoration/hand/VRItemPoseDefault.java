@@ -19,6 +19,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
@@ -66,16 +67,16 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      float equipProgress,
                                      float partialTicks) {
         float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
+        ControllerHand controllerHand = ControllerHand.fromMcHand(mcHand);
         // defaults
         float scale = 0.7f;
         float translateX = -0.05f, translateY = 0.005f, translateZ = 0f;
         Quaternionf preRotation = Axis.YP.rotationDegrees(0);
-        Quaternionf rotation = Axis.YP.rotationDegrees(0);
-        rotation.mul(Axis.XP.rotationDegrees(-110 + gunAngle));
+        Quaternionf rotation = Axis.XP.rotationDegrees(-110 + gunAngle);
 
         var transformType = getTransformType(item, player, MC.getItemRenderer());
         switch (transformType) {
-            case BLOCK_ITEM, DEFAULT:
+            case BLOCK_ITEM, DEFAULT -> {
                 if (item.getItem() instanceof ArrowItem) {
                     preRotation = Axis.ZP.rotationDegrees(-180);
                     rotation = Axis.XP.rotationDegrees(-gunAngle);
@@ -86,57 +87,70 @@ public class VRItemPoseDefault extends VRHandItemPose {
                     translateX += 0.08f;
                     translateZ -= 0.08f;
                 }
-                break;
-            case BLOCK_3D:
+            }
+            case BLOCK_3D -> {
                 scale = 0.3f;
                 translateX += 0.05f;
                 translateZ -= 0.1f;
-                break;
-            case BLOCK_STICK:
+            }
+            case BLOCK_STICK -> {
                 translateY += -0.105f + 0.06f * gunAngle / 40;
                 translateZ -= 0.1f;
                 rotation = Axis.XP.rotationDegrees(-45);
-                rotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
-                break;
-            case CONSUMABLE:
+                rotation.mul(Axis.XP.rotationDegrees(gunAngle));
+            }
+            case CONSUMABLE -> {
                 long ticks = player.getUseItemRemainingTicks();
                 rotation = Axis.ZP.rotationDegrees(180);
                 rotation.mul(Axis.XP.rotationDegrees(-135));
                 translateZ += 0.006f * Mth.sin(ticks) + 0.02f;
                 translateX += 0.08f;
                 scale = 0.4f;
-                break;
-            case MAP:
+            }
+            case MAP -> {
                 preRotation = Axis.YP.rotationDegrees(0);
                 rotation = Axis.XP.rotationDegrees(-45);
                 translateX = 0;
                 translateY = 0.16f;
                 translateZ = -0.075f;
                 scale = 0.75f;
-                break;
-            case COMPASS:
+            }
+            case COMPASS -> {
                 rotation = Axis.YP.rotationDegrees(90);
                 rotation.mul(Axis.XP.rotationDegrees(25));
                 scale = 0.4f;
-                break;
-            case FISHING_ROD:
+            }
+            case HORN -> {
+                rotation = Axis.XP.rotationDegrees(-45.0F + gunAngle);
+                translateY += -0.105F + 0.06F * gunAngle / 40.0F;
+                translateZ -= 0.1F;
+                scale = 0.3F;
+            }
+            case FISHING_ROD -> {
                 translateX += 0.05f;
                 translateY += -0.02f + gunAngle / 40 * 0.1f;
                 translateZ -= 0.15f;
                 rotation.mul(Axis.XP.rotationDegrees(40));
                 scale = 0.8f;
-                break;
-            case BOW:
+            }
+            case CROSSBOW ->{
+                rotation = Axis.YP.rotationDegrees(10.0F);
+                translateX += 0.01f;
+                translateZ -= 0.02f;
+                translateY -= 0.02f;
+                scale = 0.5f;
+            }
+            case BOW -> {
                 rotation.mul(Axis.XP.rotationDegrees(90.0F - gunAngle));
                 translateY += -0.1F;
                 translateZ += 0.1F;
-                break;
-            case SHIELD:
+            }
+            case SHIELD -> {
                 if (VRClientSettings.isLeftHanded()) handDir *= -1;
                 scale = 0.4f;
                 translateY += 0.18f;
                 translateZ += 0.1f;
-                rotation.mul(Axis.XP.rotationDegrees((float) ((handDir == 1 ? 105 : 115) - gunAngle)));
+                rotation.mul(Axis.XP.rotationDegrees((handDir == 1 ? 105 : 115) - gunAngle));
                 translateX += handDir == 1 ? 0.11f : -0.015f;
                 if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
                     rotation.mul(Axis.XP.rotationDegrees(handDir * 5));
@@ -147,30 +161,62 @@ public class VRItemPoseDefault extends VRHandItemPose {
                     rotation.mul(Axis.YP.rotationDegrees(handDir * (player.isBlocking() ? 90 : (1 - equipProgress) * 90)));
                 }
                 rotation.mul(Axis.YP.rotationDegrees((float) handDir * -90));
-                break;
-            case SPEAR:
-                rotation = Axis.XP.rotationDegrees(-65);
-                scale = 0.6f;
-                translateX -= 0.135f;
-                translateZ += 0.575f;
-                if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
-                    float duration = item.getUseDuration() - (MC.player.getUseItemRemainingTicks() - partialTicks + 1);
-                    if (duration > 10) duration = 10;
-                    if (VisorState.FRAME_COUNT % 4 == 0 && duration >= 10) {
-                        ClientContext.inputManager
-                                .triggerHapticPulse(
-                                        ControllerHand.fromInt(mcHand == InteractionHand.MAIN_HAND ? 0 : 1),
-                                        0.0002f
+            }
+            case SPEAR -> {
+                rotation.identity();
+                translateX -= 0.135F;
+                translateZ += 0.575F;
+                scale = 0.6F;
+
+                float progress = 0.0F;
+                boolean charging = false;
+                int riptideLevel = 0;
+
+                if (player.isUsingItem()
+                        && player.getUseItemRemainingTicks() > 0
+                        && player.getUsedItemHand() == mcHand) {
+                    charging = true;
+                    riptideLevel = EnchantmentHelper.getRiptide(item);
+
+                    if (riptideLevel <= 0 || player.isInWaterOrRain()) {
+                        progress =
+                                item.getUseDuration() - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
+
+                        if (progress > TridentItem.THROW_THRESHOLD_TIME) {
+                            float rotationProgress = progress - TridentItem.THROW_THRESHOLD_TIME;
+                            progress = TridentItem.THROW_THRESHOLD_TIME;
+
+                            if (riptideLevel > 0 && player.isInWaterOrRain()) {
+                                preRotation = Axis.ZP.rotationDegrees(-rotationProgress * 10.0F * riptideLevel);
+                            }
+
+                            if (VisorState.TICK_COUNT % 2 == 0) {
+                                ClientContext.inputManager.triggerHapticPulseMicroSec(
+                                        controllerHand, 200
                                 );
+                            }
+
+                            translateX += 0.003F * (float) Math.sin(Util.getMillis());
+                        }
                     }
-                    translateX += 0.003f * Mth.sin(Util.getMillis());
-                } else {
-                    translateY += 0.2f * gunAngle / 40;
-                    rotation.mul(Axis.XP.rotationDegrees((float) gunAngle));
                 }
-                break;
-            default:
-                break;
+
+                if (player.isAutoSpinAttack()) {
+                    riptideLevel = 5;
+                    translateZ -= 0.15F;
+                    preRotation = Axis.ZP.rotationDegrees(
+                            (-VisorState.TICK_COUNT * 10 * riptideLevel) % 360 - partialTicks * 10.0F * riptideLevel);
+                    charging = true;
+                }
+
+                if (!charging) {
+                    translateY += 0.2F * gunAngle / 40.0F;
+                    rotation.mul(Axis.XP.rotationDegrees(gunAngle));
+                }
+
+                rotation.mul(Axis.XP.rotationDegrees(-65.0F));
+                translateZ += -0.75F + progress / 10.0F * 0.25F;
+            }
         }
         return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
     }
