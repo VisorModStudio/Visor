@@ -52,7 +52,39 @@ public abstract class MouseHandlerMixin {
         ci.cancel();
     }
 
-
+    //here we use ActualScreenWidth, to support mouse usage in GUI mirror mode
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 2, method = {"grabMouse", "releaseMouse"})
+    public double visor$vrMouseXCenter(double x) {
+        return VisorState.getState().isActive()
+                ? (double) ((WindowModified) (Object) minecraft.getWindow())
+                .visor$getActualScreenWidth() / 2
+                : x;
+    }
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 3, method = {"grabMouse", "releaseMouse"})
+    public double visor$vrMouseYCenter(double y) {
+        return VisorState.getState().isActive()
+                ? (double) ((WindowModified) (Object) minecraft.getWindow())
+                .visor$getActualScreenHeight() / 2
+                : y;
+    }
+    @ModifyVariable(at = @At(value = "HEAD"), ordinal = 0, method = "onMove", argsOnly = true)
+    public double visor$vrMouseX(double x) {
+        if (VisorState.getState().isActive()) {
+            x *= ClientContext.guiManager.getGuiWidth()
+                    / (double) ((WindowModified) (Object) minecraft.getWindow())
+                    .visor$getActualScreenWidth();
+        }
+        return x;
+    }
+    @ModifyVariable(at = @At(value = "HEAD"), ordinal = 1, method = "onMove", argsOnly = true)
+    public double visor$vrMouseY(double y) {
+        if (VisorState.getState().isActive()) {
+            y *= (double) ClientContext.guiManager.getGuiHeight()
+                    / (double) ((WindowModified) (Object) minecraft.getWindow())
+                    .visor$getActualScreenHeight();
+        }
+        return y;
+    }
 
 
 

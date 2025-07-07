@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
+import com.mojang.blaze3d.platform.Window;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
@@ -10,6 +11,7 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.mcmodified.WindowModified;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
@@ -230,6 +232,12 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if (!isEnabled()) return;
         if(!activeCursor) return;
 
+        Window mcWindow = MC.getWindow();
+        int screenWidth = ((WindowModified) (Object) mcWindow)
+                .visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) mcWindow)
+                .visor$getActualScreenHeight();
+
         if (rawX < 0f || rawX > 1f
                 || rawY < 0f || rawY > 1f) {
             VROverlayCursorData cursorData = activeCursorData;
@@ -239,8 +247,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
             //this will position mouse to a default spot,
             //if any other approach will be used, the mouse dragging breaks
-            var invalidMouseX = (double) ClientContext.guiManager.getGuiWidth() / 2.0d;
-            var invalidMouseY = (double) ClientContext.guiManager.getGuiHeight() / 2.0d;
+            var invalidMouseX = (double) screenWidth / 2.0;
+            var invalidMouseY = (double) screenHeight / 2.0;
             cursorData.setCursorX((int) invalidMouseX);
             cursorData.setCursorY((int) invalidMouseY);
             InputHelper.setMousePos(
@@ -254,10 +262,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         // ---- Preparing
         var guiManager = ClientContext.guiManager;
-        int screenWidth = guiManager.getGuiWidth();
-        int screenHeight = guiManager.getGuiHeight();
-        int screenScaledWidth = guiManager.getGuiScaledWidth();
-        int screenScaledHeight = guiManager.getGuiScaledHeight();
+
+        int guiScaledWidth = guiManager.getGuiScaledWidth();
+        int guiScaledHeight = guiManager.getGuiScaledHeight();
 
 
         VROverlayCursorData cursorData = activeCursorData;
@@ -266,8 +273,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         cursorData.setRawCursorX(rawX);
         cursorData.setRawCursorY(rawY);
 
-        cursorData.setCursorX((int)(rawX * (double) screenScaledWidth));
-        cursorData.setCursorY((int)(rawY * (double) screenScaledHeight));
+        cursorData.setCursorX((int)(rawX * (double) guiScaledWidth));
+        cursorData.setCursorY((int)(rawY * (double) guiScaledHeight));
 
         //here as an input it requires NOT SCALED position
         InputHelper.setMousePos(
