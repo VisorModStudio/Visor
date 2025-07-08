@@ -1,5 +1,7 @@
 package me.phoenixra.visor.core.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
@@ -253,20 +255,18 @@ public abstract class MinecraftMixin implements MinecraftModified {
     }
 
     /**
-     * Disables Thread.sleep(16)
+     * Disables Thread.sleep()
      * call in vanilla when waiting for world to finish loading.
      * <p>
      * FPS has to be handled only by VR related features
      *
-     * @param constant s
-     * @return s
      */
-    @ModifyConstant(constant = @Constant(longValue = 16), method = "doWorldLoad", expect = 0)
-    private long visor$noFPSLimitOnWorldLoad(long constant) {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Ljava/lang/Thread;sleep(J)V"), method = "doWorldLoad", expect = 0)
+    private void visor$noFPSLimitOnWorldLoad(long l, Operation<Void> original) {
         if (VisorState.getState().isActive()) {
-            return 0L;
+            return;
         }
-        return constant;
+        original.call(l);
     }
 
 
