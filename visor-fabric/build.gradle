@@ -21,6 +21,7 @@ configurations {
 version = version+"-fabric"
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+    compileOnly("org.reflections:reflections:0.10.2")
 
     shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":visor-core", configuration: "transformProductionFabric")) { transitive false }
@@ -52,14 +53,13 @@ dependencies {
     include(implementation("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows"))
 
 
-    // needed for resource loading
+
     include(modImplementation(fabricApi.module("fabric-resource-loader-v0",  fabricApiVersion)))
-    // commands also needs base
+
     include(modImplementation(fabricApi.module("fabric-api-base",  fabricApiVersion)))
     include(modImplementation(fabricApi.module("fabric-command-api-v2",  fabricApiVersion)))
 
 
-    api("org.reflections:reflections:0.10.2")
 
 }
 

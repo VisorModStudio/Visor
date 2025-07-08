@@ -27,7 +27,7 @@ version = scmVersion.version
 archivesBaseName = project_name
 
 architectury {
-    minecraft = rootProject.minecraft_version
+    minecraft = libs.versions.minecraftVersion.get()
 }
 
 
