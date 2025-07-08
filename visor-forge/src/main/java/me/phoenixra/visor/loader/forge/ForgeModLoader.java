@@ -20,18 +20,31 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
+import net.minecraftforge.forgespi.language.IModFileInfo;
+import net.minecraftforge.forgespi.language.ModFileScanData;
 import net.minecraftforge.network.NetworkDirection;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 
 public class ForgeModLoader implements ModLoader {
     private File configFolder = FMLPaths.CONFIGDIR.get().toFile();
+
 
 
     @Override
@@ -91,6 +104,43 @@ public class ForgeModLoader implements ModLoader {
             }
         }
         return totalRange;
+    }
+
+    @Override
+    public @NotNull List<Class<?>> getClassesAnnotated(@NotNull Class<? extends Annotation> annotation,
+                                                       @NotNull String modId,
+                                                       @NotNull String packagePath) {
+        List<Class<?>> result = new ArrayList<>();
+        IModFileInfo info = ModList.get().getModFileById(modId);
+        if (!(info instanceof ModFileInfo modFileInfo)) {
+            return result;
+        }
+
+        ModFileScanData scanData = modFileInfo.getFile().getScanResult();
+        String annotationName = annotation.getName();
+
+        for (var annotationData : scanData.getAnnotations()) {
+            String className = annotationData.clazz().getClassName();
+
+            if (!className.startsWith(packagePath)) {
+                continue;
+            }
+            if (!annotationData.annotationType()
+                    .getClassName().equals(annotationName)) {
+                continue;
+            }
+
+            try {
+                Class<?> cls = Class.forName(className, false,
+                        Thread.currentThread().getContextClassLoader());
+                result.add(cls);
+            } catch (ClassNotFoundException e) {
+               throw new RuntimeException(e);
+            }
+        }
+
+        return result;
+
     }
 
     @Override

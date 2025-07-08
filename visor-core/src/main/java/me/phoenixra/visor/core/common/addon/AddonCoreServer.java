@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.common.addon;
 
 
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,5 +23,10 @@ public class AddonCoreServer implements VisorAddon {
     @Override
     public @NotNull String getAddonId() {
         return "core";
+    }
+
+    @Override
+    public String getModId() {
+        return VisorAPI.MOD_ID;
     }
 }

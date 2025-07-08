@@ -61,7 +61,10 @@ subprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${libs.versions.minecraftVersion.get()}"
-        mappings loom.officialMojangMappings()
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${libs.versions.minecraftVersion.get()}:${libs.versions.parchment.get()}@zip")
+        }
 
 
         compileOnly(libs.lwjgl.openxr)
@@ -82,6 +85,7 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url 'https://redempt.dev' }
+        maven { url = "https://maven.parchmentmc.org" }
 
         exclusiveContent {
             forRepository {

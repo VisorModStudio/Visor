@@ -59,6 +59,7 @@ dependencies {
     include(modImplementation(fabricApi.module("fabric-command-api-v2",  fabricApiVersion)))
 
 
+    api("org.reflections:reflections:0.10.2")
 
 }
 

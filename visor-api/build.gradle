@@ -2,12 +2,10 @@ loom{
     accessWidenerPath = file("src/main/resources/visor.accesswidener")
 }
 dependencies {
-
     // @Environment annotation and mixin extras
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    modImplementation(libs.fabric.loader)
 
     api "com.github.Phoenix-Ra:AtumConfiguration:1.0.0"
-    api("org.reflections:reflections:0.10.2")
     //api(libs.atumvr.api)
     //api(libs.atumvr.core)
 }

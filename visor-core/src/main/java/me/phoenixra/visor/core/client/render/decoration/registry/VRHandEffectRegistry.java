@@ -1,22 +1,20 @@
 package me.phoenixra.visor.core.client.render.decoration.registry;
 
 import lombok.Getter;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
+import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
-import static org.reflections.scanners.Scanners.SubTypes;
-import static org.reflections.scanners.Scanners.TypesAnnotated;
-
 public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
     private static final String REGISTRY_NAME = "VR Hand Effects";
 
@@ -33,12 +31,16 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
 
-        Reflections reflections = new Reflections(
-                addon.getAddonPackagePath(),
-                SubTypes, TypesAnnotated
+        String path = addon.getAddonPackagePath();
+        if(path == null){
+            return;
+        }
+        List<Class<?>> annotated = ModLoader.get().getClassesAnnotated(
+                RegisterVRHandEffect.class,
+                addon.getModId(),
+                path
         );
-        Set<Class<?>> annotated =
-                reflections.getTypesAnnotatedWith(RegisterVRHandEffect.class);
+
 
         LOGGER.info("Found {} {} to register in addon: '{}'",
                 annotated.size(), ELEMENT_NAME, addon.getAddonId());

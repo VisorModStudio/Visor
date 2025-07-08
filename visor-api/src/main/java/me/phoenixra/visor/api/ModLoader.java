@@ -15,6 +15,8 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 /**
  * Accessor for specific mod-loader functionality
@@ -83,6 +85,20 @@ public interface ModLoader {
     Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload);
 
 
+    /**
+     * Get all classes loaded by mod with <code>modId</code>
+     * in <code>packagePath</code>
+     * and annotated with <code>annotation</code>
+     * @param annotation the annotation class
+     * @param modId the id of a mod which classes should be checked (ignored on fabric)
+     * @param packagePath the package path to look in, e.g. 'my.path.to'
+     *
+     * @return list with classes or empty
+     */
+    @NotNull
+    List<Class<?>> getClassesAnnotated(@NotNull Class<? extends Annotation> annotation,
+                                       @NotNull String modId,
+                                       @NotNull String packagePath);
 
     @ApiStatus.Internal
     boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget);

@@ -14,8 +14,6 @@ loom {
         extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
 
         mixinConfig "visor.mixins.json"
-        mixinConfig "visor.mixins.optifine.json"
-        mixinConfig "visor.mixins.sodium.json"
         mixinConfig "visor.mixins.forge.json"
     }
 }
@@ -43,11 +41,15 @@ dependencies {
     common(project(path: ":visor-core", configuration: "namedElements")) { transitive false }
 
 
-
+    //
     String lwjglVersion = "${libs.versions.lwjgl.get()}"
     String forgeVersion = "${libs.versions.minecraftVersion.get()}-${libs.versions.forgeVersion.get()}"
 
     forge "net.minecraftforge:forge:$forgeVersion"
+    //mixin extras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"))
+    implementation(include("io.github.llamalad7:mixinextras-forge:${libs.versions.mixinExtras.get()}"))
+
 
 
     //shadowCommon(libs.atumvr.api) { transitive = false }
@@ -55,7 +57,6 @@ dependencies {
 
 
     shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")
-    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
     shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
 
 

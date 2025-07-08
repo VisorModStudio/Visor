@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[49,)"
+loaderVersion = "[46,)"
 license = "LGPLv3"
 
 [[mods]]
@@ -17,7 +17,7 @@ The VR mod that is built to support addons
 [[dependencies.visor]]
 modId = "forge"
 mandatory = true
-versionRange = "[49,)"
+versionRange = "[46,)"
 ordering = "AFTER"
 side = "BOTH"
 

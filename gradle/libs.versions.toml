@@ -11,10 +11,12 @@ minecraftVersion       = "1.20.1"
 architectury_lib       = "11.0.5"
 lwjgl                  = "3.3.6"
 atumvr                 = "5.0.0alpha"
+parchment              = "2023.09.03"
 
 #Fabric
-fabric_loader          = "0.14.8"
+fabric_loader          = "0.16.5"
 fabric_api             = "0.92.3"
+mixinExtras            = "0.4.1"
 
 #Forge
 forgeVersion           = "47.3.22"

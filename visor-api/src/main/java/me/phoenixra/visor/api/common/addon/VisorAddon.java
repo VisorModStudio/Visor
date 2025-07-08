@@ -28,4 +28,10 @@ public interface VisorAddon {
      */
     @NotNull
     String getAddonId();
+
+    /**
+     *
+     * @return ID of a mod owning this addon
+     */
+    String getModId();
 }

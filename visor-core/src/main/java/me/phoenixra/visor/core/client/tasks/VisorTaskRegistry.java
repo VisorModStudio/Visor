@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.tasks;
 
 import lombok.Getter;
+import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -9,14 +10,12 @@ import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.reflections.Reflections;
+
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
-import static org.reflections.scanners.Scanners.SubTypes;
-import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 public class VisorTaskRegistry implements VisorRegistry<VisorTask> {
 
@@ -55,12 +54,16 @@ public class VisorTaskRegistry implements VisorRegistry<VisorTask> {
 
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
-        Reflections reflections = new Reflections(
-                addon.getAddonPackagePath(),
-                SubTypes, TypesAnnotated
-        );
 
-        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(RegisterVisorTask.class);
+        String path = addon.getAddonPackagePath();
+        if(path == null){
+            return;
+        }
+        List<Class<?>> annotated = ModLoader.get().getClassesAnnotated(
+                RegisterVisorTask.class,
+                addon.getModId(),
+                path
+        );
 
         LOGGER.info("Found {} {} to register in addon: '{}'",
                 annotated.size(), ELEMENT_NAME, addon.getAddonId());

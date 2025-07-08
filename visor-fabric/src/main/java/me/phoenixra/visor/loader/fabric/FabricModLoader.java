@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
@@ -19,8 +20,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.reflections.Reflections;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Set;
+
+import static org.reflections.scanners.Scanners.SubTypes;
+import static org.reflections.scanners.Scanners.TypesAnnotated;
 
 public class FabricModLoader implements ModLoader {
     private final File configFolder = net.fabricmc.loader.api.FabricLoader.getInstance()
@@ -63,6 +71,20 @@ public class FabricModLoader implements ModLoader {
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {
         return baseRange;
+    }
+
+
+    @Override
+    public @NotNull List<Class<?>> getClassesAnnotated(@NotNull Class<? extends Annotation> annotation,
+                                                       @NotNull String modId,
+                                                       @NotNull String packagePath) {
+        Reflections reflections = new Reflections(
+                packagePath,
+                SubTypes, TypesAnnotated
+        );
+
+        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(annotation);
+        return annotated.stream().toList();
     }
 
     @Override

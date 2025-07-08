@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.common.addon;
 
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -74,5 +75,10 @@ public class AddonCoreClient implements VisorAddon {
     @Override
     public @NotNull String getAddonId() {
         return "core";
+    }
+
+    @Override
+    public String getModId() {
+        return VisorAPI.MOD_ID;
     }
 }
