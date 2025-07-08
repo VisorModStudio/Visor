@@ -10,7 +10,7 @@ import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
-import me.phoenixra.visor.core.common.addon.AddonCoreClient;
+import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 
 /**
  * Main purpose of this class is to hold instances of
@@ -22,7 +22,7 @@ public class ClientContext {
 
     public static VisorClientImpl visor;
 
-    public static AddonCoreClient coreAddon;
+    public static CoreAddonClient coreAddon;
 
     public static VRClientSettingsHandler settingsHandler;
 

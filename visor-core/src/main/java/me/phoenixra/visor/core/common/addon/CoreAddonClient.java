@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 //Core Addon for client
-public class AddonCoreClient implements VisorAddon {
-    public AddonCoreClient(){
+public class CoreAddonClient implements VisorAddon {
+    public CoreAddonClient(){
         ClientContext.coreAddon = this;
     }
     @Override

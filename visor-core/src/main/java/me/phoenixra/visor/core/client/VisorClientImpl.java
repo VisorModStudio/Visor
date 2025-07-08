@@ -27,7 +27,7 @@ import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
 import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
-import me.phoenixra.visor.core.common.addon.AddonCoreClient;
+import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 
 import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -103,7 +103,7 @@ public class VisorClientImpl implements VisorClient {
         var addonManager = new AddonManagerImpl(LOGGER);
 
         addonManager.initialize(
-                new AddonCoreClient(),
+                new CoreAddonClient(),
                 registries
         );
     }

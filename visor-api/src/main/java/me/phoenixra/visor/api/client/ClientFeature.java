@@ -6,8 +6,8 @@ public enum ClientFeature {
 
     /**
      * Movement modifiers.
-     * it is what intercepts in a movement, like climb,
-     * jump, crawl trackers
+     * it is what intercepts in a movement, like room tasks: climb,
+     * jump, crawl
      */
     MOVEMENT_MODIFIERS(false),
 
