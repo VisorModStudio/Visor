@@ -27,7 +27,6 @@ public class VRShaderPostProcessEye implements VRShader{
     @Getter
     private ShaderInstance handle;
 
-    private AbstractUniform uniformTime;
     private AbstractUniform uniformEye;
 
     private AbstractUniform uVignetteRadius;
@@ -46,7 +45,6 @@ public class VRShaderPostProcessEye implements VRShader{
         handle = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "vr_post_process_eye", DefaultVertexFormat.POSITION_TEX);
 
         uniformEye = handle.safeGetUniform("uEye");
-        uniformTime = handle.safeGetUniform("uTime");
 
         uTintRed = handle.safeGetUniform("uTintRed");
         uTintBlue = handle.safeGetUniform("uTintBlue");
@@ -153,8 +151,6 @@ public class VRShaderPostProcessEye implements VRShader{
         }
 
         // --- Finalize ---
-
-        uniformTime.set(time);
 
         //tints
         uTintRed.set(redTint);

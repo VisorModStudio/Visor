@@ -32,12 +32,6 @@
       "values": [1]
     },
     {
-      "name": "uTime",
-      "type": "float",
-      "count": 1,
-      "values": [1.0]
-    },
-    {
       "name": "uTintRed",
       "type": "float",
       "count": 1,

@@ -3,7 +3,6 @@
 uniform sampler2D Sampler0;
 
 uniform int uEye = 0;
-uniform float uTime;
 
 
 uniform float uTintRed;
