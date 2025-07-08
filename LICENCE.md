@@ -1,3 +1,8 @@
+Visor is licenced under LGPLv3.
+
+The copy of a licence is included below
+
+---
 GNU LESSER GENERAL PUBLIC LICENSE
 Version 3, 29 June 2007
 
