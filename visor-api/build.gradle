@@ -1,3 +1,7 @@
+plugins {
+    id 'maven-publish'
+}
+
 loom{
     accessWidenerPath = file("src/main/resources/visor.accesswidener")
 }
@@ -7,4 +11,13 @@ dependencies {
 
     api(libs.atumvr.api)
     api(libs.atumvr.core)
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            // This automatically includes your API's compiled JAR file
+            from components.java
+        }
+    }
 }
