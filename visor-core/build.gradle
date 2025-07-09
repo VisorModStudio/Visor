@@ -1,3 +1,7 @@
+plugins {
+    id 'maven-publish'
+}
+
 architectury {
 
     common(rootProject.enabled_platforms.split(","))
@@ -24,3 +28,11 @@ dependencies {
 
 }
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            // This automatically includes your API's compiled JAR file
+            from components.java
+        }
+    }
+}

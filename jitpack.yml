@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+
+install:
+  # Only build and publish the 'api' module
+  - ./gradlew :api:publishToMavenLocal -Pversion=$JITPACK_TAG
