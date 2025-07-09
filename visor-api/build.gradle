@@ -16,8 +16,8 @@ dependencies {
 publishing {
     publications {
         maven(MavenPublication) {
-            // This automatically includes your API's compiled JAR file
-            from components.java
+            // Replace 'from components.java' with this line
+            artifact tasks.named("remapJar")
         }
     }
 }

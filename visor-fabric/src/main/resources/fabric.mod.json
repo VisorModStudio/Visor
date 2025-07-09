@@ -13,7 +13,7 @@
   "environment": "*",
   "entrypoints": {
     "mm:early_risers": [
-      "me.phoenixra.visor.loader.fabric.VREarlyEntryOptifine"
+      "me.phoenixra.visor.loader.fabric.VisorEarlyEntry"
     ],
     "main": [
       "me.phoenixra.visor.loader.fabric.VisorMod"
