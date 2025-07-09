@@ -40,8 +40,8 @@ dependencies {
 
 
 
-    //shadowCommon(libs.atumvr.api) { transitive = false }
-    //shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.api) { transitive = false }
+    shadowCommon(libs.atumvr.core) { transitive = false }
 
     shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")
     shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }

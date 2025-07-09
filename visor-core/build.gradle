@@ -15,9 +15,8 @@ dependencies {
 
     modApi(libs.architectury.lib)
 
-    api "com.github.Phoenix-Ra:AtumConfiguration:1.0.0"
-    //api(libs.atumvr.api)
-    //api(libs.atumvr.core)
+    api(libs.atumvr.api)
+    api(libs.atumvr.core)
 
     //Other mods
     modCompileOnly(libs.mods.sodium)

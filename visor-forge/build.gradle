@@ -52,8 +52,8 @@ dependencies {
 
 
 
-    //shadowCommon(libs.atumvr.api) { transitive = false }
-    //shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.api) { transitive = false }
+    shadowCommon(libs.atumvr.core) { transitive = false }
 
 
     shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")

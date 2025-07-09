@@ -10,7 +10,7 @@ jetbrains              = "23.0.0"
 minecraftVersion       = "1.20.1"
 architectury_lib       = "11.0.5"
 lwjgl                  = "3.3.6"
-atumvr                 = "5.0.0alpha"
+atumvr                 = "5.1.0alpha"
 parchment              = "2023.09.03"
 
 #Fabric
