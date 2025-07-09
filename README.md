@@ -7,7 +7,7 @@ This is the mod for Minecraft Java forge and fabric allowing you to play VR in M
 
 It's goal is to bring new, innovative approach to VR modding and outstanding player experience.
 
-Currently, it is in a beta state, because it is not tested good enough yet and therefore
+Currently, it is in a beta state and
 can be changed significantly couple of times before releasing stable version
 
 - - - - - - -
