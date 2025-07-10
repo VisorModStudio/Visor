@@ -232,36 +232,23 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if (!isEnabled()) return;
         if(!activeCursor) return;
 
-        Window mcWindow = MC.getWindow();
-        int screenWidth = ((WindowModified) (Object) mcWindow)
-                .visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) mcWindow)
-                .visor$getActualScreenHeight();
-
         if (rawX < 0f || rawX > 1f
                 || rawY < 0f || rawY > 1f) {
-            VROverlayCursorData cursorData = activeCursorData;
-
-            cursorData.setRawCursorX(-1);
-            cursorData.setRawCursorY(-1);
-
-            //this will position mouse to a default spot,
-            //if any other approach will be used, the mouse dragging breaks
-            var invalidMouseX = (double) screenWidth / 2.0;
-            var invalidMouseY = (double) screenHeight / 2.0;
-            cursorData.setCursorX((int) invalidMouseX);
-            cursorData.setCursorY((int) invalidMouseY);
-            InputHelper.setMousePos(
-                    invalidMouseX,
-                    invalidMouseY
-            );
-
-
+            //do nothing. If we change mouse position here
+            // to emulate mouse exiting the screen, bugs appear
+            // (todo find a way to emulate without bugs)
             return;
         }
 
         // ---- Preparing
+        Window mcWindow = MC.getWindow();
         var guiManager = ClientContext.guiManager;
+
+
+        int screenWidth = ((WindowModified) (Object) mcWindow)
+                .visor$getActualScreenWidth();
+        int screenHeight = ((WindowModified) (Object) mcWindow)
+                .visor$getActualScreenHeight();
 
         int guiScaledWidth = guiManager.getGuiScaledWidth();
         int guiScaledHeight = guiManager.getGuiScaledHeight();
