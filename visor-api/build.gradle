@@ -12,12 +12,3 @@ dependencies {
     api(libs.atumvr.api)
     api(libs.atumvr.core)
 }
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            // Replace 'from components.java' with this line
-            artifact tasks.named("remapJar")
-        }
-    }
-}
