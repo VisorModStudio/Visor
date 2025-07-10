@@ -1,5 +1,9 @@
 package me.phoenixra.visor.loader.forge.mixin;
 
+import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -16,12 +20,27 @@ public abstract class ForgeIngameGuiVRMixin {
 
 
     @Inject(method = "pre", at = @At("HEAD"), remap = false, cancellable = true)
-    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics, CallbackInfoReturnable<Boolean> info) {
-        if(overlay != VanillaGuiOverlay.CHAT_PANEL.type()
-                || !(Minecraft.getInstance().screen instanceof ChatScreen)){
+    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics,
+                               CallbackInfoReturnable<Boolean> info) {
+        if(overlay == VanillaGuiOverlay.CHAT_PANEL.type()
+                && (Minecraft.getInstance().screen instanceof ChatScreen)){
+            return;
+        }
+        if(VisorState.getState().isNotActive()){
+            return;
+        }
+        if(Minecraft.getInstance().screen != null){
             info.setReturnValue(true);
             return;
         }
+        if(ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_DISABLE_HUD)){
+            if(overlay == VanillaGuiOverlay.HOTBAR.type()
+                    && !VRClientSettings.isHudDisableHotBar()){
+                return;
+            }
+            info.setReturnValue(true);
+        }
+
     }
 
 }
