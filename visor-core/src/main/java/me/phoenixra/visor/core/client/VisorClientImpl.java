@@ -49,7 +49,6 @@ public class VisorClientImpl implements VisorClient {
     public static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
 
 
-    @Getter
     private VRProvider vrProvider;
 
     private ConfigManager configManager;
@@ -92,21 +91,23 @@ public class VisorClientImpl implements VisorClient {
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
 
-        //Addon Registries
+        ClientContext.addonManager = new AddonManagerImpl(LOGGER);
+
         var registries = new ArrayList<VisorRegistry<?>>();
         registries.add(taskRegistry);
         registries.addAll(ClientContext.inputManager.getElementRegistries());
         registries.addAll(ClientContext.decorationRenderer.getElementRegistries());
         registries.addAll(ClientContext.guiManager.getElementRegistries());
 
-        //Addon init
-        var addonManager = new AddonManagerImpl(LOGGER);
-
-        addonManager.initialize(
+        ClientContext.addonManager.initialize(
                 new CoreAddonClient(),
                 registries
         );
+        ClientContext.overlayManager
+                .getConfigOverlaysAccessor()
+                .reload();
     }
+
 
 
 

@@ -23,7 +23,6 @@ public class AddonManagerImpl implements AddonManager {
     @Getter
     private VisorRegistriesImpl registries;
 
-    private boolean initialized;
     public AddonManagerImpl(Logger logger) {
         VisorAPI.Instance.setAddonManager(this);
         VisorAPI.Instance.setEventBus(new VREventBusImpl());
@@ -42,38 +41,12 @@ public class AddonManagerImpl implements AddonManager {
         addonsMap.put(coreAddon.getAddonId(), coreAddon);
         loadAddon(coreAddon);
 
-        initialized = true;
 
-        for(var addon : addonsMap.values()){
-            if(coreAddon == addon)  continue;
+        for(var addon : VisorAPI.Instance.getPreparedAddons().values()){
+            addonsMap.put(addon.getAddonId(), addon);
             loadAddon(addon);
         }
-        ClientContext.overlayManager
-                .getConfigOverlaysAccessor()
-                .reload();
 
-    }
-
-    @Override
-    public void registerAddon(@NotNull VisorAddon addon) {
-        if(initialized){
-            throw new RuntimeException(
-                    "Not allowed to register addon after Visor started"
-            );
-        }
-        if (addonsMap.containsKey(addon.getAddonId())) {
-            throw new RuntimeException(
-                    "Visor Addon with ID " + addon.getAddonId()
-                            + " is already loaded!");
-        }
-        if (addon.getAddonId().equals("core")) {
-            throw new RuntimeException(
-                    "Not allowed to register Visor Addon with ID 'core'"
-            );
-        }
-
-        logger.info("-----REGISTERED Visor Addon with ID: {}", addon.getAddonId());
-        addonsMap.put(addon.getAddonId(), addon);
     }
 
 
@@ -84,7 +57,7 @@ public class AddonManagerImpl implements AddonManager {
             }
         }
         addon.onAddonLoad();
-        logger.info("-----SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
+        logger.info("----- SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
 
     }
 

@@ -435,20 +435,6 @@ public abstract class MinecraftMixin implements MinecraftModified {
         }
     }
 
-    /**
-     * Destroy VR when mc is destroyed
-     *
-     * @param info s
-     */
-    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;delayedCrash:Ljava/util/function/Supplier;", shift = Shift.BEFORE), method = "destroy()V")
-    public void visor$onDestroy(CallbackInfo info) {
-        try {
-            LOGGER.info("DESTROY");
-            //VisorState.destroyVR();
-        } catch (Exception ignored) {
-        }
-    }
-
 
      /* ************** *\
    //--------MISC--------\\

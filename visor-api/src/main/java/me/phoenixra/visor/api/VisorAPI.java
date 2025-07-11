@@ -1,7 +1,9 @@
 package me.phoenixra.visor.api;
 
 
+import lombok.Getter;
 import me.phoenixra.visor.api.common.addon.AddonManager;
+import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.VREventBus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.*;
 
 
 /**
@@ -27,6 +30,33 @@ public interface VisorAPI {
     Path CONFIG_PATH = ModLoader.get().getConfigFolder().toPath().resolve(MOD_NAME);
 
 
+    /**
+     * Registers addon, that will be loaded later during Visor startup.
+     * <p>Use this method only during mod initialization <br>
+     * or before Visor (client/server) instance is created.</p>
+     * <p>Visor instance is created late, after all mods initialized</p>
+     * @param addon the addon
+     */
+    static void registerAddon(@NotNull VisorAddon addon){
+        if(addonManager() != null){
+            throw new RuntimeException(
+                    "Tried to register Visor addon after Visor instance is created"
+            );
+        }
+        if(Instance.getPreparedAddons().containsKey(addon.getAddonId())){
+            throw new RuntimeException(
+                    "Tried to register addon with ID '"
+                            + addon.getAddonId()
+                            + "', that is already registered");
+        }
+
+        if (addon.getAddonId().equals("core")) {
+            throw new RuntimeException(
+                    "Not allowed to register Visor Addon with ID 'core'"
+            );
+        }
+        Instance.getPreparedAddons().put(addon.getAddonId(), addon);
+    }
 
     /**
      * Get Visor client
@@ -83,6 +113,7 @@ public interface VisorAPI {
     }
 
 
+    //REGISTER ADDON
 
     @ApiStatus.Internal
     final class Instance {
@@ -102,6 +133,9 @@ public interface VisorAPI {
         private static AddonManager addonManager;
         private static VREventBus eventBus;
 
+
+        @Getter
+        private static HashMap<String,VisorAddon> preparedAddons = new LinkedHashMap<>();
 
         @ApiStatus.Internal
         @Environment(EnvType.CLIENT)

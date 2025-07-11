@@ -31,9 +31,12 @@ public class VisorServerImpl implements VisorServer {
     @Getter
     private ConfigManager configManager;
 
+    private AddonManagerImpl addonManager;
+
     public VisorServerImpl() {
         VisorAPI.Instance.setServer(this);
         INSTANCE = this;
+
 
         this.configManager = new AtumConfigManager(
                 "visor_server",
@@ -52,11 +55,12 @@ public class VisorServerImpl implements VisorServer {
         //init addons manager if on dedicated server
         if (ModLoader.get().isDedicatedServer()) {
 
-            var addonManager = new AddonManagerImpl(LOGGER);
+            addonManager = new AddonManagerImpl(LOGGER);
             addonManager.initialize(
                     new CoreAddonServer(),
                     List.of()
             );
+
         }
 
     }

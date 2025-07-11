@@ -10,6 +10,7 @@ import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
+import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 
 /**
@@ -21,6 +22,8 @@ public class ClientContext {
 
 
     public static VisorClientImpl visor;
+
+    public static AddonManagerImpl addonManager;
 
     public static CoreAddonClient coreAddon;
 

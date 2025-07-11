@@ -50,11 +50,4 @@ public interface AddonManager {
     @NotNull
     Collection<VisorAddon> getAddons();
 
-    /**
-     * Load new addon
-     * @param addon the addon instance
-     */
-    void registerAddon(@NotNull VisorAddon addon);
-
-
 }
