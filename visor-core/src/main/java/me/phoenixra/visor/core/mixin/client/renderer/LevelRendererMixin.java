@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render;
+package me.phoenixra.visor.core.mixin.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.data.PoseDataType;

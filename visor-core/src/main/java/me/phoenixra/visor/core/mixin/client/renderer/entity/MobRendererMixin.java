@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render.entity;
+package me.phoenixra.visor.core.mixin.client.renderer.entity;
 
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.render.VRRenderState;

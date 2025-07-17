@@ -15,6 +15,7 @@ import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
@@ -251,7 +252,8 @@ public class ActionLeftMouse extends VisorActionButton {
         if (press) {
             //closing the screen if clicked out of its bounds
             if(MC.level != null){
-                MC.setScreen(null);
+                InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
+                InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
             }
         }
     }

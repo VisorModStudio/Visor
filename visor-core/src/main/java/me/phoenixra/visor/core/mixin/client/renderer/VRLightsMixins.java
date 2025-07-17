@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render;
+package me.phoenixra.visor.core.mixin.client.renderer;
 
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.core.client.VisorState;

@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render.blaze3d;
+package me.phoenixra.visor.core.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;

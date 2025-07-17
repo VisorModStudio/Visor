@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render.entity.monsters;
+package me.phoenixra.visor.core.mixin.client.renderer.entity.monsters;
 
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.core.client.ClientContext;

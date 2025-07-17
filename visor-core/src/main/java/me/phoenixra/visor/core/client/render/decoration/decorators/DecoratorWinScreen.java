@@ -1,27 +1,27 @@
 package me.phoenixra.visor.core.client.render.decoration.decorators;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
-import me.phoenixra.visor.core.client.ClientContext;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
+//When player enters portal after end dragon killed
 @RegisterVRDecorator
-public class DecoratorGame extends VRDecorator {
-    public static final String ID = "game";
+public class DecoratorWinScreen extends VRDecorator {
+    public static final String ID = "win_screen";
 
 
 
-    public DecoratorGame(@NotNull VisorAddon owner) {
+    public DecoratorWinScreen(@NotNull VisorAddon owner) {
         super(owner, ID);
     }
 
@@ -42,10 +42,9 @@ public class DecoratorGame extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
-        if (insideBlock) {
-            VREffectsHelper.renderInBlockEffect();
-        }
+        //For now its only have this effect.
+        VREffectsHelper.renderInBlockEffect();
+        //planned to make it much more cool...
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 
@@ -70,11 +69,13 @@ public class DecoratorGame extends VRDecorator {
 
     @Override
     public boolean canActivate() {
-        return MC.level != null && MC.screen == null;
+        return MC.level != null
+                && MC.screen instanceof WinScreen;
     }
 
     @Override
     public @NotNull ElementPriority getPriority() {
-        return ElementPriority.LOW;
+        return ElementPriority.NORMAL;
     }
+
 }

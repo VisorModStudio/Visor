@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render.entity;
+package me.phoenixra.visor.core.mixin.client.renderer.entity;
 
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.data.PoseDataType;

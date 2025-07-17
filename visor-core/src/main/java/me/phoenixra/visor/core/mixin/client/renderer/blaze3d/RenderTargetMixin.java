@@ -1,14 +1,8 @@
-package me.phoenixra.visor.core.mixin.client.render.blaze3d;
+package me.phoenixra.visor.core.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
-import me.phoenixra.visor.core.mixin.client.accessors.RenderSystemAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
-import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;

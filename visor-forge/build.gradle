@@ -72,10 +72,10 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.property "version", parent.version
 
     filesMatching("META-INF/mods.toml") {
-        expand "version": project.version
+        expand "version": parent.version
     }
 }
 

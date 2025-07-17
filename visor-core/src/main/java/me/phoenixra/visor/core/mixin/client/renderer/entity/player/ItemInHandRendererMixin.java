@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.mixin.client.render.entity.player;
+package me.phoenixra.visor.core.mixin.client.renderer.entity.player;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
