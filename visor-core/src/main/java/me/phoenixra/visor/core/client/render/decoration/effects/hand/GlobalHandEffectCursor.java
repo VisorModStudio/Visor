@@ -26,9 +26,13 @@ import org.joml.Vector3f;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 
-@RegisterVRHandEffect
-public class HandEffectCursor extends VRHandEffect {
-    private static final String ID = "cursor";
+/**
+ * Hand effect with
+ * {@link #isGlobal()}= true
+ */
+@RegisterVRHandEffect()
+public class GlobalHandEffectCursor extends VRHandEffect {
+    public static final String ID = "cursor";
 
     private static final AtumColorImmutable DEFAULT_COLOR = new AtumColorImmutable(
             228, 228, 228,
@@ -37,7 +41,7 @@ public class HandEffectCursor extends VRHandEffect {
 
     private static final float BOX_HALF_SIZE = 0.0016f;
 
-    public HandEffectCursor(@NotNull VisorAddon owner){
+    public GlobalHandEffectCursor(@NotNull VisorAddon owner){
         super(owner);
     }
     @Override
@@ -134,6 +138,11 @@ public class HandEffectCursor extends VRHandEffect {
         return cursorHandler.getCursorHand() == hand;
     }
 
+
+    @Override
+    public boolean isGlobal() {
+        return true;
+    }
 
     @Override
     public RenderStage renderAtStage() {

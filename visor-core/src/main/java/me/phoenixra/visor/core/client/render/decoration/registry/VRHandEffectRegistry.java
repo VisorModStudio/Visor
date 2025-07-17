@@ -23,10 +23,15 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
 
     @Getter
     private final HashMap<String, VRHandEffect> elementsMap = new HashMap<>();
+    @Getter
+    private final HashMap<String, VRHandEffect> globalElementsMap = new HashMap<>();
 
     @Getter
     private final Collection<VRHandEffect> allElements =
             Collections.unmodifiableCollection(elementsMap.values());
+    @Getter
+    private final Collection<VRHandEffect> globalElements =
+            Collections.unmodifiableCollection(globalElementsMap.values());
 
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
@@ -88,14 +93,20 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
         } else {
             LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
+        if(element.isGlobal()){
+            globalElementsMap.put(element.getId(), element);
+        }
     }
 
     @Override
     public VRHandEffect unregisterElement(@NotNull String id) {
         var removed = elementsMap.remove(id);
+        globalElementsMap.remove(id);
+
         if (removed != null) {
             LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
         }
+
         return removed;
     }
 

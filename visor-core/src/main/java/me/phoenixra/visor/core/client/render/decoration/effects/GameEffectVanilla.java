@@ -16,7 +16,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVRGameEffect
 public class GameEffectVanilla extends VRGameEffect {
-    private static final String ID = "vanilla";
+    public static final String ID = "vanilla";
     public GameEffectVanilla(@NotNull VisorAddon owner) {
         super(owner);
     }
@@ -30,10 +30,7 @@ public class GameEffectVanilla extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        String decoratorId = currentDecorator.getId();
-
-        return decoratorId.equals(DecoratorGame.ID)
-                || decoratorId.equals(DecoratorGameMenu.ID);
+        return true;
     }
 
     @Override

@@ -34,7 +34,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVRGameEffect
 public class GameEffectShadow extends VRGameEffect {
-    private static final String ID = "shadow";
+    public static final String ID = "shadow";
 
     private static final AtumColorImmutable SHADOW_COLOR = new AtumColorImmutable(
             0,0,0,
@@ -141,9 +141,6 @@ public class GameEffectShadow extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
-            return false;
-        }
         if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
             return false;
         }

@@ -7,12 +7,17 @@ import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDec
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.core.client.render.decoration.effects.GameEffectOnFire;
+import me.phoenixra.visor.core.client.render.decoration.effects.GameEffectShadow;
+import me.phoenixra.visor.core.client.render.decoration.effects.GameEffectVanilla;
+import me.phoenixra.visor.core.client.render.decoration.effects.hand.HandEffectCrosshair;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
 import me.phoenixra.visor.core.client.ClientContext;
+
+import java.util.List;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVRDecorator
@@ -25,15 +30,7 @@ public class DecoratorGame extends VRDecorator {
         super(owner, ID);
     }
 
-    @Override
-    public void onStart() {
 
-    }
-
-    @Override
-    public void onExit() {
-
-    }
 
     @Override
     public void tick() {
@@ -53,6 +50,7 @@ public class DecoratorGame extends VRDecorator {
         ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
         ClientContext.handRenderer.renderHands(
+                this,
                 poseStack, partialTicks,
                 true, true,
                 ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
@@ -60,6 +58,7 @@ public class DecoratorGame extends VRDecorator {
 
 
         ClientContext.decorationRenderer.renderGameEffects(
+                this,
                 poseStack, partialTicks
         );
     }
@@ -71,6 +70,22 @@ public class DecoratorGame extends VRDecorator {
     @Override
     public boolean canActivate() {
         return MC.level != null && MC.screen == null;
+    }
+
+    @Override
+    public List<String> gameEffects() {
+        return List.of(
+                GameEffectOnFire.ID,
+                GameEffectShadow.ID,
+                GameEffectVanilla.ID
+        );
+    }
+
+    @Override
+    public List<String> handEffects() {
+        return List.of(
+                HandEffectCrosshair.ID
+        );
     }
 
     @Override

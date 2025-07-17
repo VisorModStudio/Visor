@@ -9,6 +9,8 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     @Getter
     private final VisorAddon owner;
@@ -26,9 +28,13 @@ public abstract class VRDecorator implements VisorElement, PrioritySupporter {
         this.id = id;
     }
 
-    public abstract void onStart();
+    public void init(){
 
-    public abstract void onExit();
+    }
+
+    public void clear(){
+
+    }
 
 
     public abstract void tick();
@@ -37,6 +43,20 @@ public abstract class VRDecorator implements VisorElement, PrioritySupporter {
 
 
     public abstract boolean canActivate();
+
+    /**
+     * Supported game effects(non-global)
+     *
+     * @return list of non-global game effect ids
+     */
+    public abstract List<String> gameEffects();
+
+    /**
+     * Supported hand effects(non-global)
+     *
+     * @return list of non-global hand effect ids
+     */
+    public abstract List<String> handEffects();
 
 
     public boolean isEnabledAndCanActivate() {

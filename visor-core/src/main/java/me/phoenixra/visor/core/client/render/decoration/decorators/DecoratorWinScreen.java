@@ -12,6 +12,8 @@ import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 //When player enters portal after end dragon killed
@@ -25,15 +27,6 @@ public class DecoratorWinScreen extends VRDecorator {
         super(owner, ID);
     }
 
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onExit() {
-
-    }
 
     @Override
     public void tick() {
@@ -52,6 +45,7 @@ public class DecoratorWinScreen extends VRDecorator {
         ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
         ClientContext.handRenderer.renderHands(
+                this,
                 poseStack, partialTicks,
                 true, true,
                 ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
@@ -59,18 +53,26 @@ public class DecoratorWinScreen extends VRDecorator {
 
 
         ClientContext.decorationRenderer.renderGameEffects(
+                this,
                 poseStack, partialTicks
         );
     }
-
-
-
 
 
     @Override
     public boolean canActivate() {
         return MC.level != null
                 && MC.screen instanceof WinScreen;
+    }
+
+    @Override
+    public List<String> gameEffects() {
+        return List.of();
+    }
+
+    @Override
+    public List<String> handEffects() {
+        return List.of();
     }
 
     @Override

@@ -79,24 +79,27 @@ public class VRHandRenderer {
 
     }
 
-    public void renderWorldHands(@NotNull PoseStack poseStack,
+    public void renderWorldHands(@NotNull VRDecorator decorator,
+                                 @NotNull PoseStack poseStack,
                                  float partialTicks,
                                  boolean renderMain,
                                  boolean renderOffhand
     ) {
-        renderHands(poseStack, partialTicks, renderMain, renderOffhand, false);
+        renderHands(decorator, poseStack, partialTicks, renderMain, renderOffhand, false);
     }
 
-    public void renderGuiHands(@NotNull PoseStack poseStack,
+    public void renderGuiHands(@NotNull VRDecorator decorator,
+                               @NotNull PoseStack poseStack,
                                float partialTicks,
                                boolean renderMain,
                                boolean renderOffhand
     ) {
-        renderHands(poseStack, partialTicks, renderMain, renderOffhand, true);
+        renderHands(decorator, poseStack, partialTicks, renderMain, renderOffhand, true);
     }
 
 
-    public void renderHands(@NotNull PoseStack poseStack,
+    public void renderHands(@NotNull VRDecorator decorator,
+                            @NotNull PoseStack poseStack,
                             float partialTicks,
                             boolean renderMain,
                             boolean renderOffhand,
@@ -117,7 +120,6 @@ public class VRHandRenderer {
 
         VRDisplay display = VRRenderState.getCurrentVRDisplay();
         Collection<VRHandEffect> effects = effectsRegistry.getElementsMap().values();
-        VRDecorator decorator = ClientContext.decorationRenderer.getCurrentDecorator();
 
         if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
             boolean isGuiHand = isGui || ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN);
@@ -310,6 +312,10 @@ public class VRHandRenderer {
 
         Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> map = new EnumMap<>(VRHandEffect.RenderStage.class);
         for (VRHandEffect effect : effects) {
+            if(!effect.isGlobal()
+                    && !decorator.handEffects().contains(effect.getId())){
+                continue;
+            }
             if (effect.isEnabledAndVisible(decorator, hand, isSimple)) {
                 map.computeIfAbsent(effect.renderAtStage(), k -> new java.util.ArrayList<>()).add(effect);
             }

@@ -42,6 +42,17 @@ public abstract class VRHandEffect implements VisorElement {
                                       @NotNull ControllerHand hand,
                                       boolean simpleHand);
 
+    /**
+     * If effect is allowed to be visible on all decorators.
+     *
+     * <p>When false, effect can be added
+     * to decorator only manually</p>
+     *
+     * @return trie/false
+     */
+    public boolean isGlobal(){
+        return false;
+    }
 
     public RenderStage renderAtStage(){
         return RenderStage.AFTER_HANDS;
@@ -54,6 +65,7 @@ public abstract class VRHandEffect implements VisorElement {
                                        boolean simpleHand){
         return enabled && isVisible(currentDecorator, hand, simpleHand);
     }
+
 
 
 

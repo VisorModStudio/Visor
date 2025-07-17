@@ -7,22 +7,14 @@ import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 @RegisterVRDecorator
 public class DecoratorEmpty extends VRDecorator {
     public static final String ID = "empty";
 
     public DecoratorEmpty(@NotNull VisorAddon owner) {
         super(owner, ID);
-    }
-
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onExit() {
-
     }
 
     @Override
@@ -38,6 +30,16 @@ public class DecoratorEmpty extends VRDecorator {
     @Override
     public boolean canActivate() {
         return true;
+    }
+
+    @Override
+    public List<String> gameEffects() {
+        return List.of();
+    }
+
+    @Override
+    public List<String> handEffects() {
+        return List.of();
     }
 
     @Override

@@ -68,9 +68,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private void onDecoratorChanged(@NotNull VRDecorator newScene) {
         if(currentDecorator != null) {
-            currentDecorator.onExit();
+            currentDecorator.clear();
         }
-        newScene.onStart();
+        newScene.init();
         currentDecorator = newScene;
     }
 
@@ -90,10 +90,15 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
 
-    public void renderGameEffects(PoseStack poseStack,
+    public void renderGameEffects(VRDecorator decorator,
+                                  PoseStack poseStack,
                                   float partialTick) {
         VRDecorator currentDecorator = ClientContext.decorationRenderer.getCurrentDecorator();
         for (VRGameEffect effect : effectsRegistry.getElementsMap().values()) {
+            if(!effect.isGlobal()
+                    && !decorator.gameEffects().contains(effect.getId())){
+                continue;
+            }
             if (!effect.isEnabledAndVisible(currentDecorator)) continue;
 
             effect.render(

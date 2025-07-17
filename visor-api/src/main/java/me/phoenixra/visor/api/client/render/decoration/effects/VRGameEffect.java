@@ -23,6 +23,17 @@ public abstract class VRGameEffect implements VisorElement {
 
     public abstract boolean isVisible(@NotNull VRDecorator currentDecorator);
 
+    /**
+     * If effect is allowed to be visible on all decorators.
+     *
+     * <p>When false, effect can be added
+     * to decorator only manually</p>
+     *
+     * @return trie/false
+     */
+    public boolean isGlobal(){
+        return false;
+    }
 
     public abstract void render(@NotNull VRDisplay renderDisplay,
                                 @NotNull PoseStack poseStack,

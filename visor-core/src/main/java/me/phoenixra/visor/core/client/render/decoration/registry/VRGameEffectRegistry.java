@@ -5,6 +5,7 @@ import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
+import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -26,8 +27,15 @@ public class VRGameEffectRegistry implements VisorRegistry<VRGameEffect> {
     private final HashMap<String, VRGameEffect> elementsMap = new HashMap<>();
 
     @Getter
+    private final HashMap<String, VRGameEffect> globalElementsMap = new HashMap<>();
+
+
+    @Getter
     private final Collection<VRGameEffect> allElements =
             Collections.unmodifiableCollection(elementsMap.values());
+    @Getter
+    private final Collection<VRGameEffect> globalElements =
+            Collections.unmodifiableCollection(globalElementsMap.values());
 
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
@@ -87,11 +95,15 @@ public class VRGameEffectRegistry implements VisorRegistry<VRGameEffect> {
         }else{
             LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
         }
+        if(element.isGlobal()){
+            globalElementsMap.put(element.getId(), element);
+        }
     }
 
     @Override
     public VRGameEffect unregisterElement(@NotNull String id) {
         var removed = elementsMap.remove(id);
+        globalElementsMap.remove(id);
         if(removed != null) {
             LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
         }

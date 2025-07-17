@@ -29,7 +29,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 @RegisterVRGameEffect
 public class GameEffectOnFire extends VRGameEffect {
 
-    private static final String ID = "on_fire";
+    public static final String ID = "on_fire";
 
     private static final float  FIRE_HALF_WIDTH  = 0.3f;
     private static final float  FIRE_ALPHA       = 0.9f;
@@ -116,9 +116,6 @@ public class GameEffectOnFire extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
-            return false;
-        }
         return ((GameRendererModified) MC.gameRenderer).visor$isOnFire();
     }
 

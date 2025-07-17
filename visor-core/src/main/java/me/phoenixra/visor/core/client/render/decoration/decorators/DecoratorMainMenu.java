@@ -15,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 
 import me.phoenixra.visor.core.client.ClientContext;
 
+import java.util.List;
+
 @RegisterVRDecorator
 public class DecoratorMainMenu extends VRDecorator {
     public static final String ID = "main_menu";
@@ -25,15 +27,6 @@ public class DecoratorMainMenu extends VRDecorator {
         super(owner, ID);
     }
 
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onExit() {
-
-    }
 
 
     @Override
@@ -54,11 +47,13 @@ public class DecoratorMainMenu extends VRDecorator {
         );
 
         ClientContext.handRenderer.renderGuiHands(
+                this,
                 poseStack, partialTicks,
                 true, true
         );
 
         ClientContext.decorationRenderer.renderGameEffects(
+                this,
                 poseStack, partialTicks
         );
     }
@@ -92,6 +87,16 @@ public class DecoratorMainMenu extends VRDecorator {
     @Override
     public boolean canActivate() {
         return VRRenderState.isInMainMenu();
+    }
+
+    @Override
+    public List<String> gameEffects() {
+        return List.of();
+    }
+
+    @Override
+    public List<String> handEffects() {
+        return List.of();
     }
 
     @Override

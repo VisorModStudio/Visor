@@ -38,7 +38,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVRHandEffect
 public class HandEffectCrosshair extends VRHandEffect {
-    private static final String ID = "crosshair";
+    public static final String ID = "crosshair";
 
     private static final ResourceLocation ICONS_LOC = Gui.GUI_ICONS_LOCATION;
     private static final float BASE_SCALE = 0.125f;
@@ -176,9 +176,6 @@ public class HandEffectCrosshair extends VRHandEffect {
     public boolean isVisible(@NotNull VRDecorator currentDecorator,
                              @NotNull ControllerHand hand,
                              boolean simpleHand) {
-        if(!currentDecorator.getId().equals(DecoratorGame.ID)){
-            return false;
-        }
         if(simpleHand){
             return false;
         }
