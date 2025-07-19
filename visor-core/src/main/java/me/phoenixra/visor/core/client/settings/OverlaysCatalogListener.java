@@ -47,23 +47,18 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
 
     @Override
     public void beforeLoadDefaults() {
-        ConfigManager configManager = catalog.getConfigManager();
+        var templatesRegistry = ClientContext.overlayManager
+                .getOverlayTemplatesRegistry();
         try {
-            //create default overlay templates
-            new AtumConfigFile(
-                    configManager,
-                    ConfigType.YAML,
-                    "chat",
-                    catalog.getDirectory().resolve("chat.yml"),
-                    true
-            );
-            new AtumConfigFile(
-                    configManager,
-                    ConfigType.YAML,
-                    "hud",
-                    catalog.getDirectory().resolve("hud.yml"),
-                    true
-            );
+            for(var entry : templatesRegistry.getAllElements()){
+                if(!entry.isCreateDefault()) continue;
+                //creates file with default settings
+                entry.constructor().newInstance(
+                        entry.owner(),
+                        entry.id()
+                );
+
+            }
         }catch (Throwable e){
             VisorState.destroyVRWithErrorScreen(e);
         }

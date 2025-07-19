@@ -23,7 +23,7 @@ import java.util.List;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-@RegisterVROverlayTemplate(id = VROverlayTemplateHUD.ID)
+@RegisterVROverlayTemplate(id = VROverlayTemplateHUD.ID, isCreateDefault = true)
 public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implements VREventListener {
     public static final String ID = "hud";
 

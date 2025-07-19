@@ -5,7 +5,6 @@ import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
-import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
@@ -51,8 +50,9 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
 
             try {
                 var annotation = clazz.getAnnotation(RegisterVROverlayTemplate.class);
-                var id = annotation.id();
-                var isPublic = annotation.isPublic();
+                String id = annotation.id();
+                boolean isPublic = annotation.isPublic();
+                boolean createDefault = annotation.isCreateDefault();
 
                 @SuppressWarnings("unchecked")
                 var elementClazz = (Class<? extends VROverlayTemplate>) clazz;
@@ -64,6 +64,7 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
                         addon,
                         id,
                         isPublic,
+                        createDefault,
                         elementClazz,
                         constructor
                 );

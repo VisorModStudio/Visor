@@ -39,10 +39,18 @@ public @interface RegisterVROverlayTemplate {
     String id();
 
     /**
-     * If this template is available for player (i.e. in settings)
+     * If this template is available for player
+     * to create overlay (affects on overlay settings)
      *
      * @return true/false
      */
     boolean isPublic() default true;
 
+    /**
+     * If overlay with default settings should be created
+     * when no overlays folder found
+     *
+     * @return true/false
+     */
+    boolean isCreateDefault() default false;
 }

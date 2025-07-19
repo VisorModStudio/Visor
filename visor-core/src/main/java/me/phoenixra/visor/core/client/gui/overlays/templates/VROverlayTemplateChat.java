@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-@RegisterVROverlayTemplate(id = VROverlayTemplateChat.ID)
+@RegisterVROverlayTemplate(id = VROverlayTemplateChat.ID, isCreateDefault = true)
 public class VROverlayTemplateChat extends VROverlayTemplateScreen {
     public static final String ID = "chat";
 

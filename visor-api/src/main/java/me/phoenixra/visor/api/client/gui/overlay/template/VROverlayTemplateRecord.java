@@ -11,12 +11,17 @@ import java.lang.reflect.Constructor;
  *
  * @param owner the owner
  * @param id the template id
+ * @param isPublic If this template is available for player
+ * to create overlay (affects on overlay settings)
+ * @param isCreateDefault If overlay with default settings should be created
+ * when no overlays folder found
  * @param clazz the template class
  * @param constructor the template constructor
  */
 public record VROverlayTemplateRecord(@NotNull VisorAddon owner,
                                       @NotNull String id,
                                       boolean isPublic,
+                                      boolean isCreateDefault,
                                       @NotNull Class<? extends VROverlayTemplate> clazz,
                                       @NotNull Constructor<? extends VROverlayTemplate> constructor
                             ) implements VisorElement {
