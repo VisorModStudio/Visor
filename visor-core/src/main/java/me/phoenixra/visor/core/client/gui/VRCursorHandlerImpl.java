@@ -124,9 +124,18 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         for (VROverlay overlay : ClientContext.overlayManager
                 .getOverlaysRegistry().getSortedElements()) {
-            if (!overlay.isVisible() || !overlay.supportsCursor()) {
+            if (!overlay.supportsCursor()) {
                 continue;
             }
+            if(overlay.supportsCursorIgnoreVisible()
+                    && !overlay.isEnabled()){
+                continue;
+            }
+            if(!overlay.supportsCursorIgnoreVisible()
+                    && !overlay.isVisible()){
+                continue;
+            }
+
             boolean forcedFocus = hand == cursorHand && forceFocused == overlay;
 
 
