@@ -3,10 +3,12 @@ package me.phoenixra.visor.core.client.input.actionset.actions;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
+import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
@@ -23,7 +25,8 @@ public class ActionMenu extends VisorActionButton {
     @Override
     protected void onPress() {
         if (MC.screen != null) {
-            MC.setScreen(null);
+            InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
+            InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
         } else {
             MC.setScreen(new GameMenuScreen());
         }
