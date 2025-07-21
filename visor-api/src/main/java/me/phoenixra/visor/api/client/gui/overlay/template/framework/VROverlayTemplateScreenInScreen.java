@@ -1,5 +1,6 @@
 package me.phoenixra.visor.api.client.gui.overlay.template.framework;
 
+import lombok.Getter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import net.minecraft.client.Minecraft;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class VROverlayTemplateScreenInScreen<T extends Screen> extends VROverlayTemplateScreen{
 
+    @Getter
     protected T screen;
 
     public VROverlayTemplateScreenInScreen(@NotNull VisorAddon owner, @NotNull String id) {

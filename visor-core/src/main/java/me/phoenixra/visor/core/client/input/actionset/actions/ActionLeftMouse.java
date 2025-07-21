@@ -39,42 +39,7 @@ public class ActionLeftMouse extends VisorActionButton {
 
     @Override
     public void preTick() {
-
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
-
-        // --- Cleanup Clicks ---
-        if(focusedOverlay != null
-                && previousFocused == null
-                && InputHelper.isMousePressed(BUTTON_TYPE)) {
-            InputHelper.releaseMouse(BUTTON_TYPE);
-        }
-        else if(focusedOverlay == null
-                && previousFocused != null
-                && wasPressed){
-            previousFocused.mouseReleased(
-                    previousFocused.getMouseX(),
-                    previousFocused.getMouseY(),
-                    BUTTON_TYPE
-            );
-            if(previousFocused instanceof VROverlayScreen overlayScreen){
-                overlayScreen.finishDragMouse();
-            }
-            wasPressed = false;
-        }else if(focusedOverlay != null
-                && previousFocused != null
-                && focusedOverlay != previousFocused){
-            previousFocused.mouseReleased(
-                    previousFocused.getMouseX(),
-                    previousFocused.getMouseY(),
-                    BUTTON_TYPE
-            );
-            if(previousFocused instanceof VROverlayScreen overlayScreen){
-                overlayScreen.finishDragMouse();
-            }
-            wasPressed = false;
-        }
-        previousFocused = focusedOverlay;
-
+        previousFocused =  ClientContext.cursorHandler.getFocusedOverlay();
 
         super.preTick();
 

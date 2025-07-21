@@ -122,7 +122,10 @@ public class VRHandRenderer {
         Collection<VRHandEffect> effects = effectsRegistry.getElementsMap().values();
 
         if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
-            boolean isGuiHand = isGui || ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN);
+            boolean isGuiHand = isGui
+                    || ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN)
+                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
+                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
 
             renderHand(
                     ControllerHand.MAIN,
@@ -135,7 +138,10 @@ public class VRHandRenderer {
             );
         }
         if (renderOffhand && isControllerTracking(ControllerHand.OFFHAND)) {
-            boolean isGuiHand = isGui || ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND);
+            boolean isGuiHand = isGui
+                    || ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)
+                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
+                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
 
             renderHand(
                     ControllerHand.OFFHAND,
@@ -207,7 +213,7 @@ public class VRHandRenderer {
                 TexturesHelper.getWhiteTexture()
         );
 
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
 
         AtumColorImmutable color;
 
@@ -255,6 +261,7 @@ public class VRHandRenderer {
                 -0.0125F, 0.0125F,
                 color
         );
+        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
 
     }
 

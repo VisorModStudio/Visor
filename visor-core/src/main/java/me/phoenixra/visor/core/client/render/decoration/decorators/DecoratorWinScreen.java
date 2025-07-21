@@ -44,11 +44,10 @@ public class DecoratorWinScreen extends VRDecorator {
 
         ClientContext.guiManager.renderGUI(poseStack, partialTicks);
 
-        ClientContext.handRenderer.renderHands(
+        ClientContext.handRenderer.renderWorldHands(
                 this,
                 poseStack, partialTicks,
-                true, true,
-                ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
+                true, true
         );
 
 

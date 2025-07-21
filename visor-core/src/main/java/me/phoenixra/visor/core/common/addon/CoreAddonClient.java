@@ -4,6 +4,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayDraggedItem;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
@@ -33,6 +34,10 @@ public class CoreAddonClient implements VisorAddon {
                                 new VROverlayThirdPersonCamera(
                                         this,
                                         VROverlayThirdPersonCamera.ID
+                                ),
+                                new VROverlayDraggedItem(
+                                        this,
+                                        VROverlayDraggedItem.ID
                                 ),
                                 new VROverlayHotBar(
                                         this,

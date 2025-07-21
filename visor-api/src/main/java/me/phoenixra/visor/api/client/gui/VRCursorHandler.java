@@ -1,5 +1,6 @@
 package me.phoenixra.visor.api.client.gui;
 
+import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
@@ -10,6 +11,9 @@ import org.joml.Matrix4fc;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Handler of VR GUI cursor
@@ -153,6 +157,26 @@ public interface VRCursorHandler {
     }
 
 
+    /**
+     *
+     * @param cursorPos position of a cursor on overlay
+     * @param focusedOverlay overlay that is found to be focused
+     */
+    record CursorResult(@NotNull Vector3fc cursorPos,
+                        @Nullable VROverlay focusedOverlay) { }
+
+    /**
+     *
+     * @param hand the hand to check
+     * @param poseData the pose data to use
+     * @param overlayFilter the filter for overlays that will be checked. Null for all
+     * @param checkForceFocused if {@link #getForceFocused()} should affect on a result
+     * @return result
+     */
+    @NotNull CursorResult getCursorResult(@NotNull ControllerHand hand,
+                                          @NotNull PoseData poseData,
+                                          @Nullable Function<VROverlay, Boolean> overlayFilter,
+                                          boolean checkForceFocused);
     /**
      * Get cursor line length for specified hand.<br>
      * Cursor line length is a distance from hand

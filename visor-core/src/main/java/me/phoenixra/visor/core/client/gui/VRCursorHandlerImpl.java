@@ -19,6 +19,10 @@ import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 
 public class VRCursorHandlerImpl implements VRCursorHandler {
 
@@ -50,10 +54,10 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         CursorResult result;
         if(ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)){
-            result = getCursorResult(hand, renderPose);
+            result = getCursorResult(hand, renderPose, null, true);
             if(hand == cursorHand
                     && forceFocused != null
-                    && result.focusedOverlay != forceFocused){
+                    && result.focusedOverlay() != forceFocused){
                 forceFocused = null;
             }
         }else{
@@ -63,7 +67,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
             );
             forceFocused = null;
         }
-        state.update(result.cursorPos, result.focusedOverlay);
+        state.update(result.cursorPos(), result.focusedOverlay());
 
         // Clean up previous focus
         if(previouslyFocused != null) {
@@ -108,7 +112,10 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    private CursorResult getCursorResult(@NotNull ControllerHand hand, @NotNull PoseData renderPose) {
+    public @NotNull CursorResult getCursorResult(@NotNull ControllerHand hand,
+                                                 @NotNull PoseData poseData,
+                                                 @Nullable Function<VROverlay, Boolean> overlayFilter,
+                                                 boolean checkForceFocused) {
         VROverlay collidingOverlay = null;
         Vector3fc finalCursorPos = new Vector3f(0, 0, -1);
 
@@ -118,7 +125,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         double closestDistance = Double.MAX_VALUE;
 
-        PoseElement cursorElement = renderPose.getController(hand);
+        PoseElement cursorElement = poseData.getController(hand);
 
 
 
@@ -135,8 +142,13 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     && !overlay.isVisible()){
                 continue;
             }
+            if(overlayFilter != null
+                    && !overlayFilter.apply(overlay)){
+                continue;
+            }
 
-            boolean forcedFocus = hand == cursorHand && forceFocused == overlay;
+            boolean forcedFocus = checkForceFocused
+                    && hand == cursorHand && forceFocused == overlay;
 
 
             boolean facingGui = isFacingOverlay(
@@ -282,8 +294,6 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
 
-    private record CursorResult(@NotNull Vector3fc cursorPos, @Nullable VROverlay focusedOverlay) {
-    }
 
     private static class CursorState {
         private VROverlay focusedOverlay;

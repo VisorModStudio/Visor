@@ -22,6 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11C;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -30,7 +31,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
  * Hand effect with
  * {@link #isGlobal()}= true
  */
-@RegisterVRHandEffect()
+@RegisterVRHandEffect
 public class GlobalHandEffectCursor extends VRHandEffect {
     public static final String ID = "cursor";
 
@@ -74,8 +75,8 @@ public class GlobalHandEffectCursor extends VRHandEffect {
                             )
                     )
             );
-            float minLight = ShadersHelper.shaderLight();
-            float light = Math.max(rawLight, minLight);
+
+            float light = Math.max(rawLight, ShadersHelper.shaderLight());
             float lightPercent = light / MC.level.getMaxLightLevel();
             color = new AtumColorImmutable(
                     Mth.floor(DEFAULT_COLOR.getRedInt() * lightPercent),
@@ -90,7 +91,8 @@ public class GlobalHandEffectCursor extends VRHandEffect {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
 
         // --- GL setup ---
-        RenderSystem.disableDepthTest();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         if (MC.getOverlay() == null) {
@@ -113,7 +115,7 @@ public class GlobalHandEffectCursor extends VRHandEffect {
 
 
         // --- Restore GL ---
-        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
 
     }
 

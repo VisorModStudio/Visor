@@ -4,7 +4,7 @@ package me.phoenixra.visor.compatibility;
 public class ShadersHelper {
 
     public static int shaderLight() {
-        return 4;
+        return 8;
     }
 
     public static boolean isShaderActive() {
