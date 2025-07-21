@@ -17,7 +17,6 @@
     "client.gui.TooltipMixin",
     "client.gui.TutorialToastMixin",
     "client.gui.WinScreenMixin",
-    "client.gui.screen.AbstractContainerScreenMixin",
     "client.gui.screen.ChatScreenMixin",
     "client.gui.screen.OptionsScreenVRMixin",
     "client.gui.screen.ScreenMixin",

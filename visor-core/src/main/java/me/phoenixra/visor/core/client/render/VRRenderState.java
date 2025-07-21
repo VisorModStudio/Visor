@@ -96,7 +96,6 @@ public class VRRenderState {
             return false;
         }
         return MC.level == null
-                || MC.screen instanceof WinScreen
                 || MC.screen instanceof ReceivingLevelScreen
                 || MC.screen instanceof ProgressScreen
                 || MC.screen instanceof GenericDirtMessageScreen

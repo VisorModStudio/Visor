@@ -68,7 +68,7 @@ public class DecoratorGame extends VRDecorator {
 
     @Override
     public boolean canActivate() {
-        return MC.level != null && MC.screen == null;
+        return MC.player != null && MC.level != null && MC.screen == null;
     }
 
     @Override

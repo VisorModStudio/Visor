@@ -56,23 +56,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     protected void onPreTick() {
         renderTarget = ClientContext.renderer.guiTarget.getTarget();
 
-        if (MC.screen != null
-                && roomPosition == null) {
-            //mods/addons did something
-            onScreenChanged(
-                    null, MC.screen,
-                    false
-            );
-        } else if (MC.screen == null
-                && roomPosition != null) {
-            //mods/addons did something
-            onScreenChanged(
-                    null,
-                    null,
-                    false
-            );
-        }
-
     }
 
     @Override
@@ -120,12 +103,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         orient(previousGuiScreen,newScreen);
 
-        updatePose(1);
-
     }
 
     private void orient(Screen previousGuiScreen,
-                               Screen newScreen){
+                        Screen newScreen){
         boolean mainMenu = (MC.gameRenderer == null
                 || willBeInMenuRoom(newScreen));
         if (mainMenu) {
@@ -136,7 +117,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if ((previousGuiScreen == null && newScreen != null)
                 || newScreen instanceof ChatScreen
                 || newScreen instanceof BookEditScreen
-                || newScreen instanceof AbstractSignEditScreen) {
+                || newScreen instanceof AbstractSignEditScreen
+                || roomPosition == null
+                || roomRotation == null) {
             PoseElement hmd = ClientContext.player
                     .getPoseData(PoseDataType.ROOM)
                     .getHmd();
@@ -201,7 +184,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                     null,
                     MC.screen
             );
-            return;
         }
         PoseData renderPose = ClientContext.player
                 .getPoseData(PoseDataType.RENDER);
