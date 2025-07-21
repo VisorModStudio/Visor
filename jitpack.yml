@@ -3,4 +3,4 @@ jdk:
 
 install:
   # Only build and publish the 'api' module
-  - ./gradlew clean :api:remapJar :api:publishToMavenLocal -Pversion=$JITPACK_TAG
+  - ./gradlew clean :visor-api:remapJar :visor-api:publishToMavenLocal -Pversion=$JITPACK_TAG
