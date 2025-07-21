@@ -52,4 +52,3 @@ architectury         = { id = "architectury-plugin",            version = "3.4-S
 loom                 = { id = "dev.architectury.loom",          version = "1.5-SNAPSHOT" }
 loom-quiltflower     = { id = "io.github.juuxel.loom-quiltflower", version = "1.8.0" }
 shadow               = { id = "com.github.johnrengelman.shadow",  version = "7.1.2" }
-axion-release        = { id = "pl.allegro.tech.build.axion-release", version = "1.13.6" }

@@ -1,29 +1,43 @@
 
+buildscript {
+    //-------VERSIONING-------
+    def versionPropsFile = file('version.properties')
+    Properties versionProps = new Properties()
+
+    versionProps.load(new FileInputStream(versionPropsFile))
+
+    def isSnapshot     = versionProps['version.snapshot'].toBoolean()
+    def version_stage= versionProps['version.stage'].toString()
+
+    def version_major  = versionProps['version.major'].toInteger()
+    def version_minor  = versionProps['version.minor'].toInteger()
+    def version_patch  = versionProps['version.patch'].toInteger()
+    def version_build  = versionProps['version.build'].toInteger()
+
+
+    if (isSnapshot) {
+        version = "${version_major}.${version_minor}.${version_patch}${version_stage}-snapshot#${version_build}"
+        System.out.println("VERSIONING-SNAPSHOT")
+    } else {
+        version = "${version_major}.${version_minor}.${version_patch}${version_stage}"
+        System.out.println("VERSIONING-RELEASE")
+
+    }
+
+    project.version = version
+    //-------VERSIONING END-------
+}
 
 plugins {
     id 'java'
     id 'java-library'
     id 'maven-publish'
-    alias(libs.plugins.axion.release)
     alias(libs.plugins.architectury)
     alias(libs.plugins.loom)             apply false
     alias(libs.plugins.loom.quiltflower) apply false
 }
-scmVersion {
-    tag {
-        prefix = ""
-    }
-
-
-    //versionIncrementer "incrementMajor"
-    //versionIncrementer "incrementMinor"
-    versionIncrementer "incrementPatch"
-
-
-}
 
 group = project_group
-version = scmVersion.version
 archivesBaseName = project_name
 
 architectury {
