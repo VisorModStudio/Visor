@@ -103,9 +103,6 @@ public class VisorClientImpl implements VisorClient {
                 new CoreAddonClient(),
                 registries
         );
-        ClientContext.overlayManager
-                .getConfigOverlaysAccessor()
-                .reload();
     }
 
 

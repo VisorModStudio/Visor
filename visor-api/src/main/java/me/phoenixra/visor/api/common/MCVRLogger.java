@@ -5,17 +5,24 @@ import me.phoenixra.atumvr.api.VRLogger;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-@AllArgsConstructor
 public class MCVRLogger implements VRLogger {
     private final Logger logger;
+    private boolean debug;
+
+    public MCVRLogger(@NotNull Logger logger){
+        this.logger = logger;
+    }
 
     @Override
     public void logDebug(@NotNull String msg) {
-        logger.info(msg);
+        if(debug) {
+            logger.info(msg);
+        }
     }
 
     @Override
     public @NotNull VRLogger setDebug(boolean flag) {
+        debug = flag;
         return this;
     }
 

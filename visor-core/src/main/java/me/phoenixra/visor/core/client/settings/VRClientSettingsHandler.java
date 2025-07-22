@@ -18,6 +18,7 @@ import me.phoenixra.visor.core.client.settings.option.VROptionField;
 import me.phoenixra.visor.core.client.settings.option.VROptionRecord;
 import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.settings.overlays.OverlayCatalogsManager;
 import org.joml.Quaternionf;
 
 import java.awt.*;
@@ -40,7 +41,7 @@ public class VRClientSettingsHandler {
     private final ConfigFile settings;
 
     @Getter
-    private final OverlaysCatalogListener overlaysAccessor;
+    private final OverlayCatalogsManager overlaysAccessor;
 
     private boolean wasInit;
 
@@ -65,14 +66,7 @@ public class VRClientSettingsHandler {
         //to sync config with fields
         saveOptions();
 
-        overlaysAccessor = new OverlaysCatalogListener();
-        overlaysAccessor.catalog = configManager.createCatalog(
-                ConfigType.YAML,
-                "overlays",
-                Path.of("overlays"),
-                true,
-                overlaysAccessor
-        );
+        overlaysAccessor = new OverlayCatalogsManager();
 
         PlaceholderHandler placeholderHandler = configManager.getPlaceholderHandler().get();
 

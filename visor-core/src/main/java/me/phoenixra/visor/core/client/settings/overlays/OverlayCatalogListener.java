@@ -1,52 +1,42 @@
-package me.phoenixra.visor.core.client.settings;
+package me.phoenixra.visor.core.client.settings.overlays;
 
-import me.phoenixra.atumconfig.api.ConfigManager;
-import me.phoenixra.atumconfig.api.config.Config;
+import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
-import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalogListener;
-import me.phoenixra.atumconfig.core.config.AtumConfigFile;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+public class OverlayCatalogListener implements ConfigCatalogListener {
+    private final OverlayCatalogsManager manager;
 
-
-public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCatalogListener {
-    private final HashMap<String, ConfigFile> configs;
-
-    protected ConfigCatalog catalog;
-    public OverlaysCatalogListener() {
-        configs = new HashMap<>();
+    @Setter
+    private ConfigCatalog catalog;
+    @Setter
+    private VisorAddon addon;
+    public OverlayCatalogListener(OverlayCatalogsManager manager){
+        this.manager = manager;
     }
-
 
 
     @Override
     public void onConfigLoaded(@NotNull ConfigFile config) {
-        configs.put(config.getId(), config);
+        manager.addConfig(addon, config);
     }
 
-    @Override
-    public void reload() {
-        catalog.reload();
-    }
+
 
     @Override
     public void afterReload() {
-        loadOverlays();
+        initializeOverlays();
     }
 
     @Override
-    public void beforeLoadDefaults() {
+    public void afterLoadDefaults() {
         var templatesRegistry = ClientContext.overlayManager
                 .getOverlayTemplatesRegistry();
         try {
@@ -66,47 +56,17 @@ public class OverlaysCatalogListener implements ConfigOverlaysAccessor, ConfigCa
 
     @Override
     public void onClear() {
-        configs.clear();
+        manager.onCatalogCleared(catalog);
     }
 
 
-    @Override
-    public @NotNull ConfigFile getConfigOrCreate(@NotNull String id) throws IOException {
-        ConfigFile config = configs.get(id);
-        if(config == null){
-            config = new AtumConfigFile(
-                    catalog.getConfigManager(),
-                    ConfigType.YAML,
-                    id,
-                    catalog.getDirectory().resolve(id+".yml"),
-                    false
-            );
-            configs.put(id, config);
-        }
-        return config;
-    }
-
-    @Override
-    public @Nullable ConfigFile getConfig(@NotNull String id) {
-        return configs.get(id);
-    }
-
-
-    public void removeConfig(@NotNull String id){
-        configs.remove(id);
-        catalog.getConfigFilesMap().remove(id);
-    }
-
-
-
-    private void loadOverlays(){
+    private void initializeOverlays(){
         var overlaysRegistry = ClientContext.overlayManager
                 .getOverlaysRegistry();
         var templatesRegistry = ClientContext.overlayManager
                 .getOverlayTemplatesRegistry();
-        for(Map.Entry<String,ConfigFile> entry : configs.entrySet()){
-            String id = entry.getKey();
-            Config config = entry.getValue();
+        for(ConfigFile config : manager.getAddonConfigs(addon)){
+            String id = config.getId();
 
             if(overlaysRegistry.getElement(id) != null){
                 LoggerUtils.getLogger().error(

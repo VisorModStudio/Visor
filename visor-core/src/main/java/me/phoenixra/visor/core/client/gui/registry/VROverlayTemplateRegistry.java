@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecor
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,6 +76,9 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
                 // continue registering other elements
             }
         }
+        ClientContext.overlayManager
+                .getConfigOverlaysAccessor()
+                .reload(addon);
     }
 
     @Override

@@ -60,7 +60,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
                     .getGuiManager()
                     .getOverlayManager()
                     .getConfigOverlaysAccessor()
-                    .getConfigOrCreate(id);
+                    .getConfigOrCreate(owner, id);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

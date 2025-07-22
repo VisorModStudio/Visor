@@ -62,7 +62,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
                     .getGuiManager()
                     .getOverlayManager()
                     .getConfigOverlaysAccessor()
-                    .getConfigOrCreate(id);
+                    .getConfigOrCreate(owner, id);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -51,13 +51,15 @@ public class AddonManagerImpl implements AddonManager {
 
 
     private void loadAddon(VisorAddon addon) {
+        logger.info("----- LOADING Visor Addon with ID: {}", addon.getAddonId());
+
         if(addon.getAddonPackagePath() != null) {
             for(var registry : registries.list){
                 registry.registerAddonPath(addon);
             }
         }
         addon.onAddonLoad();
-        logger.info("----- SUCCESS LOADING Visor Addon with ID: {}", addon.getAddonId());
+        logger.info("----- SUCCESS LOADING");
 
     }
 
