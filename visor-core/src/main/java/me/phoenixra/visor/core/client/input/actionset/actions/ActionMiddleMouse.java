@@ -3,16 +3,17 @@ package me.phoenixra.visor.core.client.input.actionset.actions;
 import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
-import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -26,7 +27,7 @@ public class ActionMiddleMouse extends VisorActionButton {
 
     private ControllerHand lastUsedHand = ControllerHand.MAIN;
 
-    private VROverlay previousFocused;
+    private VROverlay previousFocus;
     private boolean wasPressed;
 
 
@@ -36,7 +37,36 @@ public class ActionMiddleMouse extends VisorActionButton {
 
     @Override
     public void preTick() {
-        previousFocused =  ClientContext.cursorHandler.getFocusedOverlay();
+        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
+
+        // --- Cleanup Clicks ---
+        if(focusedOverlay == null
+                && previousFocus != null
+                && wasPressed){
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
+                    BUTTON_TYPE
+            );
+            if(previousFocus instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
+            wasPressed = false;
+        }else if(focusedOverlay != null
+                && previousFocus != null
+                && focusedOverlay != previousFocus
+                && wasPressed){
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
+                    BUTTON_TYPE
+            );
+            if(previousFocus instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
+            wasPressed = false;
+        }
+        previousFocus = focusedOverlay;
 
         super.preTick();
 
@@ -60,16 +90,16 @@ public class ActionMiddleMouse extends VisorActionButton {
     @Override
     protected void onClear() {
         InputHelper.releaseMouse(BUTTON_TYPE);
-        if(previousFocused != null
+        if(previousFocus != null
                 && wasPressed){
-            previousFocused.mouseReleased(
-                    previousFocused.getMouseX(),
-                    previousFocused.getMouseY(),
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
                     BUTTON_TYPE
             );
 
         }
-        previousFocused = null;
+        previousFocus = null;
 
         wasPressed = false;
 

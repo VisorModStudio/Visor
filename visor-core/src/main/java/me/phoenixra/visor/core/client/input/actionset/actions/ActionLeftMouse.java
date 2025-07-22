@@ -14,6 +14,7 @@ import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -28,7 +29,7 @@ public class ActionLeftMouse extends VisorActionButton {
 
     private ControllerHand lastUsedHand = ControllerHand.MAIN;
 
-    private VROverlay previousFocused;
+    private VROverlay previousFocus;
 
     private boolean wasPressed;
     private boolean ignoreSingleClick;
@@ -39,7 +40,36 @@ public class ActionLeftMouse extends VisorActionButton {
 
     @Override
     public void preTick() {
-        previousFocused =  ClientContext.cursorHandler.getFocusedOverlay();
+        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
+
+        // --- Cleanup Clicks ---
+        if(focusedOverlay == null
+                && previousFocus != null
+                && wasPressed){
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
+                    BUTTON_TYPE
+            );
+            if(previousFocus instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
+            wasPressed = false;
+        }else if(focusedOverlay != null
+                && previousFocus != null
+                && focusedOverlay != previousFocus
+                && wasPressed){
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
+                    BUTTON_TYPE
+            );
+            if(previousFocus instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
+            wasPressed = false;
+        }
+        previousFocus = focusedOverlay;
 
         super.preTick();
 
@@ -72,16 +102,16 @@ public class ActionLeftMouse extends VisorActionButton {
     @Override
     protected void onClear() {
         InputHelper.releaseMouse(BUTTON_TYPE);
-        if(previousFocused != null
+        if(previousFocus != null
                 && wasPressed){
-            previousFocused.mouseReleased(
-                    previousFocused.getMouseX(),
-                    previousFocused.getMouseY(),
+            previousFocus.mouseReleased(
+                    previousFocus.getMouseX(),
+                    previousFocus.getMouseY(),
                     BUTTON_TYPE
             );
 
         }
-        previousFocused = null;
+        previousFocus = null;
 
         wasPressed = false;
         ignoreSingleClick = false;
