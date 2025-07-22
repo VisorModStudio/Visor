@@ -50,7 +50,9 @@ subprojects {
     apply plugin: "java"
     apply plugin: "java-library"
 
-    apply plugin: libs.plugins.architectury.get().pluginId
+    if (project.name != 'visor-api') {
+        apply plugin: libs.plugins.architectury.get().pluginId
+    }
     apply plugin: libs.plugins.loom.asProvider().get().pluginId
     apply plugin: libs.plugins.loom.quiltflower.get().pluginId
 

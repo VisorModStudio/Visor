@@ -7,19 +7,15 @@ loom{
 }
 dependencies {
     // @Environment annotation and mixin extras
-    modImplementation(libs.fabric.loader)
+    compileOnly(libs.fabric.loader)
 
     api(libs.atumvr.api)
     api(libs.atumvr.core)
 }
 publishing {
     publications {
-        // replace the “components.java” publication with a remapped jar
-        remappedApi(MavenPublication) {
-            artifact(tasks.remapJar) {
-                classifier = ""
-            }
-            artifact(tasks.sourcesJar)
+        mavenJava(MavenPublication) {
+            from components.java
         }
     }
 }
