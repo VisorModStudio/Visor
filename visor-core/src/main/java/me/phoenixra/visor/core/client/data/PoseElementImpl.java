@@ -102,6 +102,7 @@ public class PoseElementImpl implements PoseElement {
                         new Vector3f()
                 );
 
+        originCached = origin;
     }
 
     @Override

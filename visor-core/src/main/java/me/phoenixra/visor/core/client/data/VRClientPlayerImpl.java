@@ -324,11 +324,12 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     public void setOrigin(float x, float y, float z,
                           boolean reset) {
-        if (reset && this.preTickPose != null) {
-            this.preTickPose.resetOrigin(new Vector3f(x, y, z));
+        var newOrigin = new Vector3f(x, y, z);
+        if (reset) {
+            this.preTickPose.resetOrigin(newOrigin);
         }
 
-        this.origin = new Vector3f(x, y, z);
+        this.origin = newOrigin;
     }
 
 

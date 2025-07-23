@@ -426,12 +426,18 @@ public abstract class MinecraftMixin implements MinecraftModified {
      * @param pLevelClient s
      * @param info s
      */
-    @Inject(at = @At("HEAD"), method = "setLevel(Lnet/minecraft/client/multiplayer/ClientLevel;)V")
+    @Inject(at = @At("TAIL"), method = "setLevel")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
         if (VisorState.getState().isActive()) {
-            ClientContext.player.setOrigin(
-                    0.0f, 0.0f, 0.0f, true
-            );
+            if(player != null){
+                ClientContext.player.recenterOrigin(
+                        player, false
+                );
+            }else {
+                ClientContext.player.setOrigin(
+                        0.0f, 0.0f, 0.0f, true
+                );
+            }
         }
     }
 
