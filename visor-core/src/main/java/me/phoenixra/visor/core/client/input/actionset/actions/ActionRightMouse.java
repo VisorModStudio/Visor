@@ -38,7 +38,13 @@ public class ActionRightMouse extends VisorActionButton {
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
 
         // --- Cleanup Clicks ---
-        if(focusedOverlay == null
+
+        if(focusedOverlay != null
+                && previousFocus == null
+                && InputHelper.isMousePressed(BUTTON_TYPE)){
+            InputHelper.releaseMouse(BUTTON_TYPE);
+        }
+        else if(focusedOverlay == null
                 && previousFocus != null
                 && wasPressed){
             previousFocus.mouseReleased(
