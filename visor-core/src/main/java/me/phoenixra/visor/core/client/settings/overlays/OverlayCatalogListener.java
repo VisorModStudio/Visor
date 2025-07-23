@@ -11,6 +11,10 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class OverlayCatalogListener implements ConfigCatalogListener {
     private final OverlayCatalogsManager manager;
 
@@ -40,7 +44,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
         var templatesRegistry = ClientContext.overlayManager
                 .getOverlayTemplatesRegistry();
         try {
-            for(var entry : templatesRegistry.getAllElements()){
+            for(var entry : templatesRegistry.getAddonElements(addon)){
                 if(!entry.isCreateDefault()) continue;
                 //creates file with default settings
                 entry.constructor().newInstance(
@@ -51,6 +55,17 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
             }
         }catch (Throwable e){
             VisorState.destroyVRWithErrorScreen(e);
+        }
+
+        //@TODO replace with newer AtumConfiguration
+        Path baseDir = catalog.getConfigManager()
+                .getDirectory().resolve(catalog.getDirectory());
+        if (Files.notExists(baseDir)) {
+            try {
+                Files.createDirectory(baseDir);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
