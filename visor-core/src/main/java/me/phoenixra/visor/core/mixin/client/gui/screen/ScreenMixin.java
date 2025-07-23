@@ -5,6 +5,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,8 +20,13 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
 
     @Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
     public void visor$noBackground(GuiGraphics guiGraphics, CallbackInfo ci) {
+        if((Object)this instanceof CreateWorldScreen){
+            return;
+        }
+
         if (VisorState.getState().isActive()) {
             ci.cancel();
         }
+
     }
 }
