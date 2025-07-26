@@ -117,4 +117,13 @@ allprojects {
     compileJava {
         dependsOn(clean)
     }
+
+}
+
+tasks.withType(PublishToMavenLocal) {
+    enabled = false
+}
+
+tasks.withType(PublishToMavenRepository) {
+    enabled = false
 }
