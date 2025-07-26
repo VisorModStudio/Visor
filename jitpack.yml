@@ -1,9 +1,0 @@
-jdk:
-  - openjdk17
-
-before_install:
-  - chmod +x gradlew
-
-install:
-  # Build and publish all modules (api, fabric, forge, core) with sources
-  - ./gradlew clean build publishToMavenLocal -Pversion=$JITPACK_TAG --no-daemon --stacktrace
