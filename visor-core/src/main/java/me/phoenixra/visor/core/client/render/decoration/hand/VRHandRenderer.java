@@ -13,7 +13,7 @@ import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.compatibility.ShadersHelper;
-import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;

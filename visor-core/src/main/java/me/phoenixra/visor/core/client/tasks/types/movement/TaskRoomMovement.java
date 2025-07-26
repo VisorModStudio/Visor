@@ -11,7 +11,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
 import me.phoenixra.visor.core.client.data.PoseDataHelper;
-import me.phoenixra.visor.core.client.mcmodified.entity.LocalPlayerModified;
+import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

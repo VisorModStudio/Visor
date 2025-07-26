@@ -23,7 +23,7 @@ import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayTemplateRegistry;
 import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenGlobal;
 import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenModelView;
-import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderGuiHelper;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;

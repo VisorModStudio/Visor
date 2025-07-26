@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "me.phoenixra.visor.loader.forge.mixin",
-  "plugin": "me.phoenixra.visor.core.mixin.MixinConfig",
+  "plugin": "me.phoenixra.visor.mixin.MixinConfig",
   "compatibilityLevel": "JAVA_17",
   "client": [
     "ForgeGameRendererVRMixin",

@@ -1,13 +1,11 @@
 package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.helpers.VREffectsHelper;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;

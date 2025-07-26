@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import me.phoenixra.visor.api.ModLoader;
-import me.phoenixra.visor.core.client.mcmodified.render.RenderTargetModified;
+import me.phoenixra.visor.modified.client.render.RenderTargetModified;
 import net.minecraft.client.Minecraft;
 
 import java.util.function.Supplier;

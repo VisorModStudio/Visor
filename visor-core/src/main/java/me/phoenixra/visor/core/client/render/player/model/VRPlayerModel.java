@@ -2,8 +2,8 @@ package me.phoenixra.visor.core.client.render.player.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayerData;
-import me.phoenixra.visor.core.common.network.client.players.VRRemotePlayers;
+import me.phoenixra.visor.core.client.network.players.VRRemotePlayerData;
+import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;

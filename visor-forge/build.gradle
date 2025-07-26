@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    alias(libs.plugins.shadow)
 }
 
 architectury {
@@ -90,7 +90,7 @@ shadowJar {
             project.configurations.shadowCommon,
             project.configurations.bundle
     ]
-    archiveClassifier.set("dev-shadow")
+    archiveClassifier.set("dev")
 
     relocate("org.yaml","me.phoenixra.libs.org.yaml")
     relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
@@ -114,8 +114,10 @@ remapJar {
 
 sourcesJar {
     def commonSources = project(":visor-core").sourcesJar
-    dependsOn commonSources
+    def apiSources = project(":visor-api").sourcesJar
+    dependsOn commonSources, apiSources
     from commonSources.archiveFile.map { zipTree(it) }
+    from apiSources.archiveFile.map { zipTree(it) }
 }
 
 

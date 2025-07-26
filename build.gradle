@@ -33,8 +33,8 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     alias(libs.plugins.architectury)
-    alias(libs.plugins.loom)             apply false
-    alias(libs.plugins.loom.quiltflower) apply false
+    alias(libs.plugins.architectury.loom)  apply false
+    alias(libs.plugins.loom.quiltflower)   apply false
 }
 
 group = project_group
@@ -50,9 +50,9 @@ subprojects {
     apply plugin: "java"
     apply plugin: "java-library"
 
-    apply plugin: libs.plugins.architectury.get().pluginId
+    apply plugin: libs.plugins.architectury.asProvider().get().pluginId
 
-    apply plugin: libs.plugins.loom.asProvider().get().pluginId
+    apply plugin: libs.plugins.architectury.loom.get().pluginId
     apply plugin: libs.plugins.loom.quiltflower.get().pluginId
 
 

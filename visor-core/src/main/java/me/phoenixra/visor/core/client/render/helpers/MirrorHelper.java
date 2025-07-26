@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.core.client.mcmodified.WindowModified;
+import me.phoenixra.visor.modified.client.WindowModified;
 import me.phoenixra.visor.core.client.render.VRShaders;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.utils.ClientUtils;

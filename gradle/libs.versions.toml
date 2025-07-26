@@ -1,6 +1,12 @@
 
 
 [versions]
+#Gradle Addons
+shadow              = "8.1.1"
+architectury        = "3.4-SNAPSHOT"
+architectury-loom   = "1.7-SNAPSHOT"
+loom-quiltflower    = "1.8.0"
+
 
 #Annotations
 lombok                 = "1.18.30"
@@ -8,21 +14,29 @@ jetbrains              = "23.0.0"
 
 #Core
 minecraftVersion       = "1.20.1"
-architectury_lib       = "11.0.5"
+architectury-lib       = "11.0.5"
 lwjgl                  = "3.3.6"
 atumvr                 = "5.1.0alpha"
 parchment              = "2023.09.03"
 
 #Fabric
-fabric_loader          = "0.16.5"
+fabric-loader          = "0.16.5"
 fabric_api             = "0.92.3"
 mixinExtras            = "0.4.1"
 
 #Forge
-forgeVersion           = "47.3.22"
+forgeVersion           = "47.4.0"
 
 #Other mods
 mods_sodium                 = "mc1.20.1-0.5.8"
+
+
+[plugins]
+architectury         = { id = "architectury-plugin",            version.ref = "architectury" }
+architectury-loom    = { id = "dev.architectury.loom",          version.ref = "architectury-loom" }
+loom-quiltflower     = { id = "io.github.juuxel.loom-quiltflower", version.ref = "loom-quiltflower" }
+shadow               = { id = "com.github.johnrengelman.shadow",  version.ref = "shadow" }
+
 
 [libraries]
 
@@ -31,7 +45,7 @@ lombok           = { module = "org.projectlombok:lombok",           version.ref 
 jetbrains        = { module = "org.jetbrains:annotations",         version.ref = "jetbrains" }
 
 # Core
-architectury-lib   = {module = "dev.architectury:architectury-fabric", version.ref = "architectury_lib"}
+architectury-lib   = {module = "dev.architectury:architectury-fabric", version.ref = "architectury-lib"}
 lwjgl-openxr       = { module = "org.lwjgl:lwjgl-openxr",           version.ref = "lwjgl" }
 atumvr-api         = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-api",     version.ref = "atumvr"}
 atumvr-core        = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-core",    version.ref = "atumvr"}
@@ -40,15 +54,9 @@ atumvr-core        = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-core",    v
 fabric-loader      = { module = "net.fabricmc:fabric-loader",        version.ref = "fabric_loader" }
 
 #Other Mods
-mods_sodium        = { module = "maven.modrinth:sodium",           version.ref = "mods_sodium"}
+mod-sodium = { module = "maven.modrinth:sodium",  version.ref = "mods_sodium"}
 
 [bundles]
 annotations        = [ "lombok", "jetbrains" ]
 
 
-
-[plugins]
-architectury         = { id = "architectury-plugin",            version = "3.4-SNAPSHOT" }
-loom                 = { id = "dev.architectury.loom",          version = "1.5-SNAPSHOT" }
-loom-quiltflower     = { id = "io.github.juuxel.loom-quiltflower", version = "1.8.0" }
-shadow               = { id = "com.github.johnrengelman.shadow",  version = "7.1.2" }

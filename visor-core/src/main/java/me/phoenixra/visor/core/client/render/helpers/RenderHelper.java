@@ -5,7 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.core.mixin.client.accessors.RenderSystemAccessor;
+import me.phoenixra.visor.mixin.client.accessors.RenderSystemAccessor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;

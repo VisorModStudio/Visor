@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
 import me.phoenixra.visor.compatibility.ShadersHelper;
-import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
+import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.option.enums.ShaderGUIRenderMode;

@@ -19,7 +19,7 @@ dependencies {
     api(libs.atumvr.core)
 
     //Other mods
-    modCompileOnly(libs.mods.sodium)
+    modCompileOnly(libs.mod.sodium)
 
 
 }

@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRIte
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.compatibility.ItemClassifier;
+import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.Util;

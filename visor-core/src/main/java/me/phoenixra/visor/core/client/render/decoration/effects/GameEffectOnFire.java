@@ -11,8 +11,7 @@ import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGam
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.mcmodified.render.GameRendererModified;
-import me.phoenixra.visor.core.client.render.decoration.decorators.DecoratorGame;
+import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

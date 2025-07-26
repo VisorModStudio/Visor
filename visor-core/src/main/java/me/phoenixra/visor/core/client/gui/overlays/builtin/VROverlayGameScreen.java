@@ -11,7 +11,7 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.mcmodified.WindowModified;
+import me.phoenixra.visor.modified.client.WindowModified;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
