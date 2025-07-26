@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * This class handles client-specific VR data
- * and in-game staff for player
+ * and in-game stuff for player
  * <br><br>
  * It is not bound to a world, like MC player.
  * So, once VR initialized, an instance

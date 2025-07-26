@@ -14,7 +14,7 @@ public enum VREventPriority {
     HIGHEST,
 
     /**
-     * At this phase event cannot be modified
+     * At this phase, the event cannot be modified
      */
     MONITOR;
 

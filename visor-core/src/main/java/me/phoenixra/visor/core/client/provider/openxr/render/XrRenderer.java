@@ -6,12 +6,9 @@ import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
 import me.phoenixra.atumvr.api.rendering.IRenderContext;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
-import me.phoenixra.visor.api.client.VRStateMode;
-import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.provider.VisorScene;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
-import me.phoenixra.visor.core.client.render.VisorRendererBase;
-import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.render.VRRendererBase;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.PointerBuffer;
@@ -20,7 +17,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
-public class XrRenderer extends VisorRendererBase {
+public class XrRenderer extends VRRendererBase {
     @Getter
     private final XrProvider vrProvider;
 

@@ -4,7 +4,8 @@ import net.minecraft.client.Minecraft;
 
 
 /**
- * Defines whether the VR session is initialized and when VR is active
+ * Defines whether the VR session
+ * is initialized and when VR is active.
  *
  */
 public enum VRPlayMode {

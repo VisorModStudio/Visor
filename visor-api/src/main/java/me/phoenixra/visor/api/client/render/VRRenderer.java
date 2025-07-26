@@ -1,11 +1,10 @@
 package me.phoenixra.visor.api.client.render;
 
-import me.phoenixra.atumvr.api.rendering.VRRenderer;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-public interface VisorRenderer extends VRRenderer {
+public interface VRRenderer extends me.phoenixra.atumvr.api.rendering.VRRenderer {
 
     VREyeTexture getTextureRightEye();
 

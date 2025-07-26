@@ -63,22 +63,24 @@ public interface PoseData {
     PoseElement getControllerOffhand();
 
     /**
-     * Get the main hand element.<br>
+     * Get the main hand element.
+     * <p>
      * Difference from {@link #getControllerMain()}
      * is that this element uses grip pose, which is better
-     * representing hand
-     *
+     * for representing hand
+     *</p>
      * @return the main hand element
      */
     @NotNull
     PoseElement getHandMain();
 
     /**
-     * Get the offhand element.<br>
+     * Get the offhand element.
+     * <p>
      * Difference from {@link #getControllerOffhand()}
      * is that this element uses grip pose, which is better
-     * representing hand
-     *
+     * for representing hand
+     * </p>
      * @return the offhand element
      */
     @NotNull

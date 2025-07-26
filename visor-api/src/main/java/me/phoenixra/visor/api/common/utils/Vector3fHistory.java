@@ -51,7 +51,7 @@ public class Vector3fHistory {
     }
 
     /**
-     * @return total path‐length traveled over the last `seconds`
+     * @return total path-length traveled over the last `seconds`
      */
     public synchronized float totalMovement(float seconds) {
         List<Entry> recent = getRecent(seconds);

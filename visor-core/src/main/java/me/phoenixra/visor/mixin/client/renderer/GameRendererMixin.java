@@ -368,7 +368,7 @@ public abstract class GameRendererMixin
 
 
     /* ******************************* *\
-      //--------DISABLE VANILLA STAFF--------\\
+      //--------DISABLE VANILLA STUFF--------\\
         \* ******************************* */
     @Redirect(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;effectActive:Z"), method = "render")
     public boolean visor$noPostEffectOnThirdPerson(GameRenderer instance) {

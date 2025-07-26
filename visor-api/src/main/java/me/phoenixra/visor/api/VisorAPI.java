@@ -31,7 +31,7 @@ public interface VisorAPI {
 
 
     /**
-     * Registers addon, that will be loaded later during Visor startup.
+     * Registers an addon, that will be loaded later during Visor startup.
      * <p>Use this method only during mod initialization <br>
      * or before Visor (client/server) instance is created.</p>
      * <p>Visor instance is created late, after all mods initialized</p>
@@ -93,9 +93,9 @@ public interface VisorAPI {
 
 
     /**
-     * Get Visor Addon manager.
+     * Get the Visor Addon manager.
      *
-     * @return addons manager
+     * @return the addon manager
      */
     @NotNull
     static AddonManager addonManager(){
@@ -103,9 +103,9 @@ public interface VisorAPI {
     }
 
     /**
-     * Get Event Bus
+     * Get the Event Bus
      *
-     * @return event bus
+     * @return the event bus
      */
     @NotNull
     static VREventBus eventBus(){

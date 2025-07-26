@@ -47,7 +47,7 @@ public enum VRStateMode {
 
     /**
      * Opposite of {@link #isInitialized()}
-     * @return true when DISABLED
+     * @return true when the mode is DISABLED
      */
     public boolean isNotInitialized(){
         return !isInitialized();

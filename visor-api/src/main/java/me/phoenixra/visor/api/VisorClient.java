@@ -6,7 +6,7 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
-import me.phoenixra.visor.api.client.render.VisorRenderer;
+import me.phoenixra.visor.api.client.render.VRRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -19,16 +19,16 @@ public interface VisorClient {
     /**
      * If specified client feature is enabled
      *
-     * @param feature the feature
-     * @return if enabled
+     * @param feature the client feature to check
+     * @return true if enabled; false otherwise
      */
     boolean isFeatureEnabled(@NotNull ClientFeature feature);
 
     /**
      * If specified client feature is disabled
      *
-     * @param feature the feature
-     * @return if enabled
+     * @param feature the client feature to check
+     * @return true if disabled; false otherwise
      */
     default boolean isFeatureDisabled(@NotNull ClientFeature feature){
         return !isFeatureEnabled(feature);
@@ -58,7 +58,7 @@ public interface VisorClient {
      * @return VisorRenderer instance
      */
     @NotNull
-    VisorRenderer getRenderer();
+    VRRenderer getRenderer();
 
 
     /**

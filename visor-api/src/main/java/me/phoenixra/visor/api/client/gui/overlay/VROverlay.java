@@ -51,7 +51,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     /**
      * If overlay is within view distance
      *
-     * <p>If not in view distance, rendering will be aborted,
+     * <p>If the overlay is not within view distance,
      * but {@link #isVisible()} won't be affected by that.</p>
      *
      * @return true/false

@@ -19,9 +19,10 @@ public interface VisorServer {
     /**
      * Returns true if specified player is registered
      * in server core, i.e. has VR mod
-     * <br><br>
+     * <p>
      * Registering happens when mod receives VR-packet
      * from player when he logs in
+     * </p>
      *
      * @return If player has VR mod
      */
@@ -31,9 +32,10 @@ public interface VisorServer {
      * Returns VRServerPlayer instance if specified player
      * is registered in server core, i.e. has VR mod.
      * Otherwise, NULL is returned
-     * <br><br>
+     * <p>
      * Registering happens when mod receives VR-packet
      * from player when he logs in
+     * </p>
      *
      * @return VR server player instance
      * or NULL if player don't have VR mod

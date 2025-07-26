@@ -22,8 +22,8 @@ public enum VRDisplay {
 
 
     /**
-     * Display that renders the VR world first and has to be used to update
-     * render staff to not update same for other displays
+     * Display that renders the VR world first and should to be used to update
+     * render stuff to not update same for other displays
      * @return render display
      */
     public static VRDisplay worldUpdater(){

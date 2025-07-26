@@ -21,7 +21,7 @@ import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
-import me.phoenixra.visor.core.client.render.VisorRendererBase;
+import me.phoenixra.visor.core.client.render.VRRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
@@ -236,7 +236,7 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public @NotNull VisorRendererBase getRenderer() {
+    public @NotNull VRRendererBase getRenderer() {
         return ClientContext.renderer;
     }
 

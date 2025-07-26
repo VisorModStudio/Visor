@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.api.client.render.VisorRenderer;
+import me.phoenixra.visor.api.client.render.VRRenderer;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.VisorState;
@@ -35,7 +35,7 @@ import java.util.Map;
 import me.phoenixra.visor.core.client.ClientContext;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public abstract class VisorRendererBase implements VisorRenderer {
+public abstract class VRRendererBase implements VRRenderer {
     public RenderTargetMain mainTarget;
 
     public RenderTargetGUI guiTarget;
@@ -73,7 +73,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
 
-    public VisorRendererBase() {
+    public VRRendererBase() {
         hiddenArea.put(EyeType.LEFT, new float[0]);
         hiddenArea.put(EyeType.RIGHT, new float[0]);
         ClientContext.renderer = this;
