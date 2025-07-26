@@ -126,3 +126,14 @@ components.java {
         skip()
     }
 }
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact remapJar
+
+            artifact sourcesJar
+        }
+    }
+}

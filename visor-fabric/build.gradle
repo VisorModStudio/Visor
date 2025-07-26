@@ -115,3 +115,14 @@ components.java {
     }
 }
 
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+
+            artifact remapJar
+
+            artifact sourcesJar
+        }
+    }
+}
