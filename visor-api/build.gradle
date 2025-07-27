@@ -38,7 +38,7 @@ shadowJar {
     configurations = [
             project.configurations.shadowCommon
     ]
-    archiveClassifier.set("dev")
+    archiveClassifier.set("")
 
     relocate("org.yaml","me.phoenixra.libs.org.yaml")
     relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
@@ -58,7 +58,7 @@ remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set('')
+    archiveClassifier.set('obfuscated')
 }
 
 components.java {
@@ -71,14 +71,7 @@ components.java {
 publishing {
     publications {
         maven(MavenPublication) {
-            // Publish the shadowJar (dev/unobfuscated) as the main artifact
-            artifact shadowJar
-
-            // Also publish the remapped (obfuscated) version with classifier
-            artifact remapJar
-
-            // Publish sources if available
-            artifact sourcesJar
+            from components.java
         }
     }
 }
