@@ -71,6 +71,9 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            
+            // Publish the dev (unobfuscated) artifact alongside the default remapped artifact
+            artifact shadowJar
         }
     }
 }
