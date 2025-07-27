@@ -67,10 +67,18 @@ components.java {
     }
 }
 
+
 publishing {
     publications {
         maven(MavenPublication) {
-            from components.java
+            // Publish the shadowJar (dev/unobfuscated) as the main artifact
+            artifact shadowJar
+
+            // Also publish the remapped (obfuscated) version with classifier
+            artifact remapJar
+
+            // Publish sources if available
+            artifact sourcesJar
         }
     }
 }
