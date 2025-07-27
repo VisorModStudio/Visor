@@ -42,8 +42,8 @@ dependencies {
 
     shadowCommon(libs.atumvr.api) { transitive = false }
     shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.config)
 
-    shadowCommon("com.github.Phoenix-Ra:AtumConfiguration:1.0.0")
     shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
     shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
 
@@ -112,17 +112,5 @@ sourcesJar {
 components.java {
     withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
         skip()
-    }
-}
-
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-
-            artifact remapJar
-
-            artifact sourcesJar
-        }
     }
 }
