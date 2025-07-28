@@ -8,10 +8,7 @@ loom{
 }
 
 configurations {
-    common
-    shadowCommon
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
+    shadow
 }
 dependencies {
     // @Environment annotation and mixin extras
@@ -19,11 +16,6 @@ dependencies {
 
     api(libs.atumvr.api)
     api(libs.atumvr.core)
-
-
-    shadowCommon(libs.atumvr.api) { transitive = false }
-    shadowCommon(libs.atumvr.core) { transitive = false }
-    shadowCommon(libs.atumvr.config)
 }
 
 
@@ -35,20 +27,9 @@ shadowJar {
     exclude "org.slf4j"
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     configurations = [
-            project.configurations.shadowCommon,
+            project.configurations.shadow,
     ]
     archiveClassifier.set("")
-
-    relocate("org.yaml","me.phoenixra.libs.org.yaml")
-    relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
-    relocate("org.checkerframework","me.phoenixra.libs.org.checkerframework")
-    relocate("org.antlr","me.phoenixra.libs.org.antlr")
-
-    relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
-    relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
-
-    relocate("org.reflections","me.phoenixra.libs.org.reflections")
-
 
 
 }
