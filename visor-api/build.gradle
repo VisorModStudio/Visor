@@ -18,7 +18,6 @@ dependencies {
     api(libs.atumvr.core)
 }
 
-
 shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
@@ -29,20 +28,18 @@ shadowJar {
     configurations = [
             project.configurations.shadow,
     ]
-    archiveClassifier.set("")
+    archiveClassifier.set("dev")
 
 
+    dependsOn(sourcesJar)
 }
 
 remapJar {
-    enabled = false
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set('obf')
+    archiveClassifier.set('')
 }
-
-
 
 publishing {
     publications {
