@@ -119,11 +119,3 @@ allprojects {
     }
 
 }
-
-tasks.withType(PublishToMavenLocal) {
-    enabled = false
-}
-
-tasks.withType(PublishToMavenRepository) {
-    enabled = false
-}

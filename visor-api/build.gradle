@@ -28,7 +28,6 @@ dependencies {
 
 
 shadowJar {
-
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
     exclude "org.joml"
@@ -36,7 +35,7 @@ shadowJar {
     exclude "org.slf4j"
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     configurations = [
-            project.configurations.shadowCommon
+            project.configurations.shadowCommon,
     ]
     archiveClassifier.set("")
 
@@ -58,14 +57,9 @@ remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set('obfuscated')
+    archiveClassifier.set('obf')
 }
 
-components.java {
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
-}
 
 
 publishing {
