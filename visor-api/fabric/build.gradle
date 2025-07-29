@@ -22,7 +22,6 @@ configurations {
 version = version+"-fabric"
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
-    compileOnly("org.reflections:reflections:0.10.2")
 
     shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
     common(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
@@ -35,14 +34,6 @@ dependencies {
 
     modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
 
-
-
-    shadowCommon(libs.atumvr.api) { transitive = false }
-    shadowCommon(libs.atumvr.core) { transitive = false }
-    shadowCommon(libs.atumvr.config)
-
-    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
-    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
 
 
 }
