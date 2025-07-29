@@ -1,9 +1,7 @@
 package me.phoenixra.visor.api.client;
 
+import me.phoenixra.visor.api.client.data.*;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +21,12 @@ public interface VRClientPlayer {
 
     @NotNull
     PoseData getPoseData(@NotNull PoseDataType stage);
+
+    @NotNull
+    ControllerRaw getControllerRaw(@NotNull ControllerHand hand);
+
+    @NotNull
+    HmdRaw getHmdRaw();
 
     /**
      * Get ControllerHand type which is currently used

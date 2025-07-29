@@ -3,11 +3,9 @@ package me.phoenixra.visor.core.client.data;
 import lombok.Getter;
 
 import me.phoenixra.visor.api.client.VRClientPlayer;
+import me.phoenixra.visor.api.client.data.*;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
@@ -377,6 +375,16 @@ public class VRClientPlayerImpl implements VRClientPlayer {
             case RENDER -> renderPose;
             default -> roomPose;
         };
+    }
+
+    @Override
+    public @NotNull ControllerRaw getControllerRaw(@NotNull ControllerHand hand) {
+        return ClientContext.rawPoseHandler.getControllerData(hand);
+    }
+
+    @Override
+    public @NotNull HmdRaw getHmdRaw() {
+        return ClientContext.rawPoseHandler.getHmdData();
     }
 
     public String toString() {
