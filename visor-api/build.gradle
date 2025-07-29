@@ -1,14 +1,9 @@
-plugins {
-    id 'maven-publish'
-    alias(libs.plugins.shadow)
-}
+architectury {
 
+    common(rootProject.enabled_platforms.split(","))
+}
 loom{
     accessWidenerPath = file("src/main/resources/visor.accesswidener")
-}
-
-configurations {
-    shadow
 }
 dependencies {
     // @Environment annotation and mixin extras
@@ -16,35 +11,4 @@ dependencies {
 
     api(libs.atumvr.api)
     api(libs.atumvr.core)
-}
-
-shadowJar {
-    exclude "fabric.mod.json"
-    exclude "architectury.common.json"
-    exclude "org.joml"
-    exclude "org.lwjgl"
-    exclude "org.slf4j"
-    duplicatesStrategy DuplicatesStrategy.EXCLUDE
-    configurations = [
-            project.configurations.shadow,
-    ]
-    archiveClassifier.set("dev")
-
-
-    dependsOn(sourcesJar)
-}
-
-remapJar {
-    injectAccessWidener = true
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
-    archiveClassifier.set('')
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from components.java
-        }
-    }
 }

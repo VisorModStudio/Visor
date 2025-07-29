@@ -1,0 +1,101 @@
+plugins {
+    id 'maven-publish'
+    alias(libs.plugins.shadow)
+}
+
+architectury {
+    platformSetupLoomIde()
+    fabric()
+}
+
+loom {
+    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
+}
+version = version+"-fabric"
+dependencies {
+    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+    compileOnly("org.reflections:reflections:0.10.2")
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
+    common(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
+
+
+
+
+    modImplementation(libs.fabric.loader)
+
+
+    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
+
+
+
+    shadowCommon(libs.atumvr.api) { transitive = false }
+    shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.config)
+
+    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
+    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
+
+
+}
+
+processResources {
+    inputs.property "version", parent.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": parent.version
+    }
+}
+
+
+shadowJar {
+    exclude "architectury.common.json"
+    exclude "org.joml"
+    exclude "org.lwjgl"
+    exclude "org.slf4j"
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    configurations = [
+            project.configurations.shadowCommon
+    ]
+    archiveClassifier.set("dev")
+
+    relocate("org.yaml","me.phoenixra.libs.org.yaml")
+    relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
+    relocate("org.checkerframework","me.phoenixra.libs.org.checkerframework")
+    relocate("org.antlr","me.phoenixra.libs.org.antlr")
+
+    relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
+    relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
+
+    relocate("org.reflections","me.phoenixra.libs.org.reflections")
+}
+
+remapJar {
+    injectAccessWidener = true
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    def commonSources = project(":visor-api").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
