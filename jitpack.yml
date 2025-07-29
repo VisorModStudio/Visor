@@ -3,4 +3,4 @@ jdk:
 
 install:
   # Only build and publish the 'api' module
-  - ./gradlew :visor-api:fabric:publishToMavenLocal -Pversion=$JITPACK_TAG
+  - ./gradlew :publishToMavenLocal -Pversion=$JITPACK_TAG

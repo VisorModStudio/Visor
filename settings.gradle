@@ -25,4 +25,6 @@ rootProject.name = 'Visor'
 include 'visor-core','visor-forge','visor-fabric','visor-api'
 include 'visor-api:fabric'
 findProject(':visor-api:fabric')?.name = 'fabric'
+include 'visor-api:forge'
+findProject(':visor-api:forge')?.name = 'forge'
 

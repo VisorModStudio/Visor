@@ -4,35 +4,48 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    fabric()
+    forge()
 }
-
 loom {
     accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+
+    forge {
+        convertAccessWideners = true
+        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+
+        mixinConfig "visor.mixins.json"
+        mixinConfig "visor.mixins.forge.json"
+    }
 }
 
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    bundle {
+        // bundle command, to copy jar contents with the shadow plugin
+        canBeResolved = true
+        canBeConsumed = false
+    }
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
+    developmentForge.extendsFrom common
 }
-version = version+"-api_fabric"
-dependencies {
-    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
-    compileOnly("org.reflections:reflections:0.10.2")
 
-    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
+version = version+"-api_forge"
+
+dependencies {
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive = false }
     common(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
 
 
+    //
+    String forgeVersion = "${libs.versions.minecraftVersion.get()}-${libs.versions.forgeVersion.get()}"
 
-
-    modImplementation(libs.fabric.loader)
-
-
-    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
+    forge "net.minecraftforge:forge:$forgeVersion"
+    //mixin extras
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"))
+    implementation(include("io.github.llamalad7:mixinextras-forge:${libs.versions.mixinExtras.get()}"))
 
 
 
@@ -40,29 +53,28 @@ dependencies {
     shadowCommon(libs.atumvr.core) { transitive = false }
     shadowCommon(libs.atumvr.config)
 
-    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
     shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
-
 
 }
 
 processResources {
     inputs.property "version", parent.version
 
-    filesMatching("fabric.mod.json") {
+    filesMatching("META-INF/mods.toml") {
         expand "version": parent.version
     }
 }
 
-
 shadowJar {
+    exclude "fabric.mod.json"
     exclude "architectury.common.json"
     exclude "org.joml"
     exclude "org.lwjgl"
     exclude "org.slf4j"
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     configurations = [
-            project.configurations.shadowCommon
+            project.configurations.shadowCommon,
+            project.configurations.bundle
     ]
     archiveClassifier.set("dev")
 
@@ -75,19 +87,21 @@ shadowJar {
     relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
 
     relocate("org.reflections","me.phoenixra.libs.org.reflections")
+
+
+
 }
 
 remapJar {
-    injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set('')
 }
 
 sourcesJar {
-    def commonSources = project(":visor-api").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
+    def apiSources = project(":visor-api").sourcesJar
+    dependsOn apiSources
+    from apiSources.archiveFile.map { zipTree(it) }
 }
 
 publishing {

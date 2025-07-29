@@ -1,0 +1,15 @@
+modLoader = "javafml"
+loaderVersion = "[46,)"
+license = "LGPLv3"
+
+[[mods]]
+modId = "visor"
+version = "${version}"
+displayName = "Visor"
+authors = "PhoenixRa"
+displayTest = "NONE"
+description = '''
+The Visor API. Not a mod!
+Use only in a development as a dependency.
+
+'''
