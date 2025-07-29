@@ -18,6 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+/**
+ * {@link VROverlay} that is rendered
+ * as a minecraft {@link Screen}
+ */
 public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     @Getter @NotNull

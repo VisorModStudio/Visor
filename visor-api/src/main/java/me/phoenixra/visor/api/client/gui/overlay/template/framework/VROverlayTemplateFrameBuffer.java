@@ -26,6 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Abstract class for {@link VROverlayFrameBuffer} templates
+ */
 public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer implements VROverlayTemplate {
     @Getter
     private final String templateId;

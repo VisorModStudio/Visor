@@ -1,6 +1,7 @@
 package me.phoenixra.visor.api.client.gui.overlay.template.framework;
 
 import lombok.Getter;
+import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import net.minecraft.client.Minecraft;
@@ -8,6 +9,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 
+
+/**
+ * Abstract class for {@link VROverlayScreen} templates,
+ * that render specified {@link Screen}.
+ */
 public abstract class VROverlayTemplateScreenInScreen<T extends Screen> extends VROverlayTemplateScreen{
 
     @Getter

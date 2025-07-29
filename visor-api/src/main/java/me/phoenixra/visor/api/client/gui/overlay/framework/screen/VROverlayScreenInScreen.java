@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The overlay that renders other mc screen.
+ * The {@link VROverlayScreen} that renders other {@link Screen}
  */
 @Getter
 public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverlayScreen {

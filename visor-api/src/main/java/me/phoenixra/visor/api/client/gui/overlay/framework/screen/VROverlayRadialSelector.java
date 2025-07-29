@@ -10,6 +10,7 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -18,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * The overlay with selection boxes.
+ * The {@link VROverlayScreen}, that has selection boxes
  */
 public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected final int radialMenuSize;

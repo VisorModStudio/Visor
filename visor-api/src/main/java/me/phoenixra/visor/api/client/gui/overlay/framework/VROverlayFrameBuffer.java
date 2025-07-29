@@ -12,6 +12,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * {@link VROverlay} that renders
+ * frame buffer from specified {@link RenderTarget}
+ */
 public abstract class VROverlayFrameBuffer implements VROverlay {
     @Getter @NotNull
     private final String id;
