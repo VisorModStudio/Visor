@@ -31,6 +31,7 @@ buildscript {
 plugins {
     id 'java'
     id 'java-library'
+    id 'maven-publish'
     alias(libs.plugins.architectury)
     alias(libs.plugins.architectury.loom)  apply false
     alias(libs.plugins.loom.quiltflower)   apply false
@@ -122,3 +123,4 @@ allprojects {
     }
 
 }
+

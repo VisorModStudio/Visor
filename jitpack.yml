@@ -1,4 +1,4 @@
 jdk:
   - openjdk17
 install:
-  - ./gradlew clean :visor-api:fabric:publishToMavenLocal :visor-api:forge:publishToMavenLocal -Pversion=$JITPACK_TAG
+  - ./gradlew publishToMavenLocal -Pversion=$JITPACK_TAG
