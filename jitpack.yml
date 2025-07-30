@@ -1,4 +1,4 @@
 jdk:
   - openjdk17
 install:
-  - ./gradlew :visor-api-fabric:publishToMavenLocal :visor-api-forge:publishToMavenLocal -Pgroup=com.github.VisorMod
+  - ./gradlew clean :visor-api:fabric:publishToMavenLocal :visor-api:forge:publishToMavenLocal Pversion=$JITPACK_TAG
