@@ -21,7 +21,6 @@ configurations {
 version = version+"-fabric"
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
-    compileOnly("org.reflections:reflections:0.10.2")
 
     shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":visor-core", configuration: "transformProductionFabric")) { transitive false }
@@ -44,8 +43,6 @@ dependencies {
     shadowCommon(libs.atumvr.core) { transitive = false }
     shadowCommon(libs.atumvr.config)
 
-    shadowCommon("org.reflections:reflections:0.10.2") { transitive = false }
-    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
 
 
     include(implementation(libs.lwjgl.openxr.get()))
@@ -58,7 +55,6 @@ dependencies {
 
     include(modImplementation(fabricApi.module("fabric-api-base",  fabricApiVersion)))
     include(modImplementation(fabricApi.module("fabric-command-api-v2",  fabricApiVersion)))
-
 
 
 }
@@ -77,6 +73,7 @@ shadowJar {
     exclude "org.joml"
     exclude "org.lwjgl"
     exclude "org.slf4j"
+
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     configurations = [
             project.configurations.shadowCommon
@@ -91,7 +88,6 @@ shadowJar {
     relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
     relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
 
-    relocate("org.reflections","me.phoenixra.libs.org.reflections")
 }
 
 remapJar {

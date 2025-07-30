@@ -11,6 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
@@ -19,15 +20,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.reflections.Reflections;
+import org.objectweb.asm.*;
+
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static org.reflections.scanners.Scanners.SubTypes;
-import static org.reflections.scanners.Scanners.TypesAnnotated;
+import java.util.stream.Stream;
 
 public class FabricModLoader implements ModLoader {
     private final File configFolder = net.fabricmc.loader.api.FabricLoader.getInstance()
@@ -73,18 +81,73 @@ public class FabricModLoader implements ModLoader {
     }
 
 
-    @Override
-    public @NotNull List<Class<?>> getClassesAnnotated(@NotNull Class<? extends Annotation> annotation,
-                                                       @NotNull String modId,
-                                                       @NotNull String packagePath) {
-        Reflections reflections = new Reflections(
-                packagePath,
-                SubTypes, TypesAnnotated
-        );
+    public @NotNull List<Class<?>> getClassesAnnotated(
+            @NotNull Class<? extends Annotation> annotation,
+            @NotNull String modId,
+            @NotNull String packagePath
+    ) {
+        try {
+            List<Class<?>> result = new ArrayList<>();
 
-        Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(annotation);
-        return annotated.stream().toList();
+            // Locate our mod container
+            ModContainer container = FabricLoader.getInstance()
+                    .getModContainer(modId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unknown mod: " + modId));
+
+            // Convert package to path form
+            String pkgPath = packagePath.replace('.', '/');
+
+            // Iterate every root (jar or folder)
+            for (Path root : container.getRootPaths()) {
+                // resolve into each root
+                Path pkgRoot = root.resolve(pkgPath);
+                if (!Files.exists(pkgRoot)) continue;
+
+                try (Stream<Path> stream = Files.walk(pkgRoot)) {
+                    stream
+                            .filter(p -> p.getFileName().toString().endsWith(".class"))
+                            .forEach(classFile -> {
+                                try (InputStream in = Files.newInputStream(classFile)) {
+                                    ClassReader reader = new ClassReader(in);
+                                    reader.accept(new ClassVisitor(Opcodes.ASM9) {
+                                        @Override
+                                        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+                                            String found = Type.getType(desc).getClassName();
+                                            if (found.equals(annotation.getName())) {
+                                                // reconstruct FQCN from path
+                                                Path rel = pkgRoot.relativize(classFile);
+                                                String className = packagePath + "."
+                                                        + rel.toString()
+                                                        .replace('/', '.')
+                                                        .replace('\\', '.')
+                                                        .replaceAll("\\.class$", "");
+                                                try {
+                                                    result.add(
+                                                            Class.forName(
+                                                                    className,
+                                                                    false,
+                                                                    Thread.currentThread().getContextClassLoader()
+                                                            )
+                                                    );
+                                                } catch (ClassNotFoundException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+                                            }
+                                            return super.visitAnnotation(desc, visible);
+                                        }
+                                    }, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+                                } catch (IOException e) {
+                                    throw new UncheckedIOException(e);
+                                }
+                            });
+                }
+            }
+            return result;
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
     }
+
 
     @Override
     public @NotNull Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload) {

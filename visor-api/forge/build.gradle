@@ -54,7 +54,6 @@ dependencies {
     shadowCommon(libs.atumvr.core) { transitive = false }
     shadowCommon(libs.atumvr.config)
 
-    shadowCommon("org.javassist:javassist:3.28.0-GA") { transitive = false }
 
 }
 
@@ -86,8 +85,6 @@ shadowJar {
 
     relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
     relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
-
-    relocate("org.reflections","me.phoenixra.libs.org.reflections")
 
 
 
