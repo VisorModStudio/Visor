@@ -2,6 +2,10 @@ package me.phoenixra.visor.api;
 
 
 import lombok.Getter;
+import me.phoenixra.visor.api.client.VRPlayMode;
+import me.phoenixra.visor.api.client.VRStateMode;
+import me.phoenixra.visor.api.client.render.RenderPhase;
+import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.VREventBus;
@@ -9,6 +13,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -70,8 +75,10 @@ public interface VisorAPI {
     }
 
     /**
-     * Get Visor client state
-     *
+     * Get Visor client state.
+     * <p>
+     *     Always not null, even before Visor initialized)
+     * </p>
      * @return visor client state
      */
     @NotNull
@@ -124,8 +131,18 @@ public interface VisorAPI {
         @Environment(EnvType.CLIENT)
         private static VisorClient client;
 
+        //empty implementation, before Visor initialized
         @Environment(EnvType.CLIENT)
-        private static VisorClientState clientState;
+        private static VisorClientState clientState = new VisorClientState() {
+            @Override
+            public @NotNull VRPlayMode playMode() {return VRPlayMode.DISABLED;}
+            @Override
+            public @NotNull VRStateMode stateMode() {return VRStateMode.OFF;}
+            @Override
+            public @NotNull RenderPhase renderPhase() {return RenderPhase.VANILLA;}
+            @Override
+            public @Nullable("Not rendering VR display") VRDisplay renderingDisplay() {return null;}
+        };
 
 
         private static VisorServer server;
