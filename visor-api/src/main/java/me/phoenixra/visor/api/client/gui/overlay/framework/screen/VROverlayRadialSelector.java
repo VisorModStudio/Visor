@@ -75,7 +75,8 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
                                 ),
                         getPose().getPosition(),
                         getPose().getRotation(),
-                        getPose().getScale()
+                        getPose().getScale(),
+                        getAspectRatio()
                 );
         boolean cursorValid;
         if (cursor.x == -1 && cursor.y == -1) {
@@ -88,17 +89,14 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
         //update selected box if cursor is valid
         if (cursorValid) {
-            VRGuiManager guiManager = VisorAPI.client().getGuiManager();
             //used to find selected slice are based
             // on origin in the center of the menu
             //and without coords bounds
             int specialMouseX = (int) (
-                    ((getRawMouseX() - 0.5) * guiManager.getGuiWidth())
-                            * (double) this.width / (double) guiManager.getGuiWidth()
+                    ((getRawMouseX() - 0.5) * width)
             );
             int specialMouseY = (int) (
-                    ((getRawMouseY() - 0.5) * guiManager.getGuiHeight())
-                            * (double) this.height / (double) guiManager.getGuiHeight()
+                    ((getRawMouseY() - 0.5) * height)
             );
             int selectedSliceNew = getSliceFromPos(
                     new Vector2f(

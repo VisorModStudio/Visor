@@ -2,15 +2,21 @@ package me.phoenixra.visor.api.client.gui.overlay.framework;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
+import lombok.Setter;
+import me.phoenixra.atumconfig.api.config.ConfigFile;
+import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.overlay.*;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * {@link VROverlay} that renders
@@ -22,9 +28,30 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Getter @NotNull
     private final VisorAddon owner;
 
+    @Getter
+    private final ElementPriority priority;
+
+    @Getter
+    private final VROverlayPose pose;
+
+    @Getter @Setter
+    private @Nullable PoseAnchor forcedAnchor;
+
 
     @Getter
     protected RenderTarget renderTarget;
+
+
+
+    protected final Map<String, OverlayOptionGroup<?>> optionsMap;
+
+    @Getter
+    private final @NotNull Collection<OverlayOptionGroup<?>> options;
+
+    @Getter
+    protected final ConfigFile optionsConfig;
+
+
 
     @Getter
     protected final VROverlayCursorData activeCursorData = new VROverlayCursorData();
@@ -32,12 +59,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     protected final VROverlayCursorData inactiveCursorData = new VROverlayCursorData();
 
 
-    @Getter
-    private final VROverlayPose pose;
 
-
-    @Getter
-    private final ElementPriority priority;
 
     @Getter
     private boolean enabled = false;
@@ -67,7 +89,29 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         this.renderTarget = renderTarget;
         this.priority = priority;
 
-        this.pose = new VROverlayPose(overlayScale);
+        this.pose = new VROverlayPose(this, overlayScale);
+
+        optionsMap = new LinkedHashMap<>();
+        List<OverlayOptionGroup<?>> preOptions = createOptions();
+        preOptions.forEach(it->{
+            optionsMap.put(it.getId(),it);
+        });
+        options = Collections.unmodifiableCollection(optionsMap.values());
+
+        if(!optionsMap.isEmpty()){
+            try {
+                this.optionsConfig = VisorAPI.client()
+                        .getGuiManager()
+                        .getOverlayManager()
+                        .getConfigOverlaysAccessor()
+                        .getConfigOrCreate(this);
+                initOptions();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            this.optionsConfig = null;
+        }
 
     }
 
@@ -81,6 +125,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     protected void onRender(float partialTicks) {}
 
+    protected abstract void onUpdatePose(float partialTicks);
+
 
     protected abstract boolean updateVisibility();
 
@@ -88,21 +134,59 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     protected void onDisable() {}
 
+    /**
+     * Create options for overlay.
+     * If no options required, return empty list.
+     *
+     * <p>
+     *     If method returns non-empty list, the optionsConfig is created
+     * </p>
+     * <p>If overlay is a {@link VROverlayTemplate}, the method has to return non-empty list</p>
+     * @return options
+     */
+    @NotNull
+    protected List<OverlayOptionGroup<?>> createOptions() {
+        return List.of();
+    }
+
+    protected void initOptions(){
+        for(var option : options){
+            option.init();
+        }
+    }
+
     @Override
     public final void tick(){
         onPreTick();
-
-
         visible = enabled && updateVisibility() && renderTarget != null;
-
         onTick();
     }
 
     public void render(float partialTick){
+        if(supportsVisibilityUpdateOnRender()) {
+            visible = enabled && updateVisibility() && renderTarget != null;
+            if(!visible) return;
+        }
         onPreRender(partialTick);
         onRender(partialTick);
     }
 
+    @Override
+    public final void updatePose(float partialTicks) {
+        if(forcedAnchor != null) {
+            VROverlayHelper.applyPose(
+                    this,
+                    forcedAnchor,
+                    forcedAnchor,
+                    getPose().getScale(),
+                    false,
+                    new Vector3f(0,0,-0.3f),
+                    new Vector3f(0,0,0)
+            );
+            return;
+        }
+        onUpdatePose(partialTicks);
+    }
 
 
 
@@ -119,6 +203,10 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         }
     }
 
+    @Override
+    public @Nullable OverlayOptionGroup<?> getOption(@NotNull String id) {
+        return optionsMap.get(id);
+    }
 
     @Override
     public boolean supportsCursor() {

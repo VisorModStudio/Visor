@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.render.VRDisplay;
@@ -14,6 +15,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -22,13 +24,13 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 
-import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
-
 public class VROverlayThirdPersonCamera extends VROverlayScreen {
     public static final String ID = "third_person_camera";
 
-    private final ResourceLocation cameraImage = new ResourceLocation(
-            VisorAPI.MOD_ID, "textures/gui/camera.png"
+    private final GuiTexture cameraTexture = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID, "textures/gui/overlays/camera.png"
+            )
     );
 
     private final Vector3f posDragOffset = new Vector3f(0, 0, -0.3f);
@@ -66,18 +68,16 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
                             int mouseX, int mouseY,
                             float partialTicks) {
 
-
-        VROverlayHelper.renderImage(
-                guiGraphics, cameraImage,
+        cameraTexture.blit(
+                guiGraphics,
                 width/2-256/2,height/2-256/2,
-                256,256,
                 256,256
         );
 
     }
 
     @Override
-    public void updatePose(float partialTicks) {
+    public void onUpdatePose(float partialTicks) {
         if(changingPosition){
             PoseAnchor anchor = ClientContext.cursorHandler
                     .getCursorHand() == ControllerHand.MAIN ?
@@ -181,7 +181,15 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
 
 
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
 
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
+    }
 
 
 }

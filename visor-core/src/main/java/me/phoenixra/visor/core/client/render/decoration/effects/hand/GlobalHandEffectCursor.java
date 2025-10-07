@@ -15,7 +15,7 @@ import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.VRCursorHandlerImpl;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
-import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
+import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;

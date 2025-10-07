@@ -51,7 +51,7 @@ public enum PoseAnchor {
     }
 
     public @NotNull Component getName(){
-        return Component.translatable("visor.enums.PoseAnchor."+name());
+        return Component.translatable("visor.options.enums.PoseAnchor."+name());
     }
 
     public @NotNull Vector3f anchorPos(@NotNull PoseData poseData,
@@ -122,13 +122,13 @@ public enum PoseAnchor {
     }
 
 
-    public @NotNull Vector3f reverseAnchoredRotation(@NotNull Matrix4fc elementRotation,
+    public @NotNull Vector3f reverseAnchoredRotation(@NotNull Matrix4fc anchorRotation,
                                                      @NotNull Matrix4fc objRotation) {
 
-        Matrix4f invController = elementRotation.invert(new Matrix4f());
+        Matrix4f invRotation = objRotation.invert(new Matrix4f());
 
 
-        Matrix4f matrix4f = invController.mul(objRotation);
+        Matrix4f matrix4f = invRotation.mul(anchorRotation);
 
         float offsetY = (float) Math.asin(-matrix4f.m20());
         float offsetZ = (float) Mth.atan2(matrix4f.m10(), matrix4f.m00());

@@ -10,19 +10,23 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
+import me.phoenixra.visor.api.client.gui.overlay.OverlayConfigsAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsIdentity;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsProperties;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayTemplateRegistry;
-import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenGlobal;
-import me.phoenixra.visor.core.client.gui.screens.overlaysettings.OptionsScreenModelView;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenGlobal;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenIdentity;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenPose;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenProperties;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderGuiHelper;
@@ -150,7 +154,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
             }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
                 // rendering is fully handled by VROverlayFrameBuffer,
                 // so, just call render(),
-                // to let it do the rest
+                // and let it do the rest
                 overlayFrameBuffer.render(partialTicks);
             }else{
                 throw new RuntimeException("Tried to render overlay of unsupported abstract class: "+overlay.getId());
@@ -185,6 +189,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
         GLUtils.checkGLError("before overlays");
         // --- Render ---
         for (VROverlay overlay : preparedOverlays) {
+            if(!overlay.isVisible()){
+                continue;
+            }
             var target = overlay.getRenderTarget();
             if(target == null){
                 //shouldn't happen at all
@@ -192,11 +199,12 @@ public class VROverlayManagerImpl implements VROverlayManager {
             }
 
             RenderGuiHelper.renderOverlayQuad(
-                    target,
+                    overlay,
                     poseStack,
                     overlay.getPose().getPosition(),
                     overlay.getPose().getRotation(),
                     !overlay.supportsDepth(),
+                    overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
             GLUtils.checkGLError("post VROverlay quad: "+overlay.getId());
@@ -215,17 +223,24 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
 
     @Override
-    public @NotNull ConfigOverlaysAccessor getConfigOverlaysAccessor() {
-        return ClientContext.settingsHandler.getOverlaysAccessor();
+    public @NotNull OverlayConfigsAccessor getConfigOverlaysAccessor() {
+        return ClientContext.settingsHandler.getOverlayConfigsAccessor();
     }
 
     @Override
-    public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptions category, float mainMenuWidth, float mainMenuHeight) {
-        if(category instanceof OverlayOptionsGlobal category1){
-            return new OptionsScreenGlobal(category1,mainMenuWidth,mainMenuHeight);
-        }else if(category instanceof OverlayOptionsLocation category1){
-            return new OptionsScreenModelView(category1, mainMenuWidth, mainMenuHeight);
+    public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionGroup<?> category) {
+        if(category instanceof OverlayOptionsGlobal type){
+            return new OptionsScreenGlobal(type);
         }
-        return null; // tsss, secret
+        else if(category instanceof OverlayOptionsPose type){
+            return new OptionsScreenPose(type);
+        }
+        else if(category instanceof OverlayOptionsIdentity type){
+            return new OptionsScreenIdentity(type);
+        }
+        else if(category instanceof OverlayOptionsProperties type){
+            return new OptionsScreenProperties(type);
+        }
+        return null;
     }
 }

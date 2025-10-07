@@ -10,6 +10,7 @@ import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayRadialSelector;
 import me.phoenixra.visor.api.client.render.VRDisplay;
@@ -23,6 +24,7 @@ import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -33,23 +35,32 @@ import org.joml.Vector3f;
 public class VROverlayHotBar extends VROverlayRadialSelector
         implements VREventListener {
 
-    public static final String ID_MAIN = "hotbar-mainhand";
-    public static final String ID_OFFHAND = "hotbar-offhand";
+    public static final String ID_MAIN = "hotbar_mainhand";
+    public static final String ID_OFFHAND = "hotbar_offhand";
 
 
-    private ResourceLocation hotbarSelectedMain0 = new ResourceLocation(
-            "visor:textures/gui/hotbar/hotbar_main_selected0.png"
+    private GuiTexture hotbarSelectedMain0Tex = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected0.png"
+            )
     );
-    private ResourceLocation hotbarSelectedMain1 = new ResourceLocation(
-            "visor:textures/gui/hotbar/hotbar_main_selected1.png"
+    private GuiTexture hotbarSelectedMain1Tex = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected1.png"
+            )
     );
 
-    private ResourceLocation hotbarSelectedOffhand0 = new ResourceLocation(
-            "visor:textures/gui/hotbar/hotbar_offhand_selected0.png"
+    private GuiTexture hotbarSelectedOffhand0Tex = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected0.png"
+            )
     );
-    private ResourceLocation hotbarSelectedOffhand1 = new ResourceLocation(
-            "visor:textures/gui/hotbar/hotbar_offhand_selected1.png"
+    private GuiTexture hotbarSelectedOffhand1Tex = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected1.png"
+            )
     );
+
     private final Vector3f orientPosOffset = new Vector3f(0, 0, -0.6f);
     private final Vector3f orientRotationOffset = new Vector3f(0, 0, 0);
 
@@ -205,13 +216,13 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     ) {
 
         //----Main image
-        VROverlayHelper.renderImage(
-                guiGraphics,
-                HotBarSlice.fromSlot(selectedSlice).getImage(),
-                x, y,
-                size, size,
-                size, size
-        );
+        HotBarSlice.fromSlot(selectedSlice)
+                .getBackground()
+                .blit(
+                        guiGraphics,
+                        x, y,
+                        size, size
+                );
 
 
         //----Items
@@ -248,17 +259,21 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         int itemX = selectionBox.getItemX();
         int itemY = selectionBox.getItemY();
 
-        VROverlayHelper.renderImage(
-                guiGraphics,
-                slice.slot != 0
-                        ? hotbarSelectedMain0
-                        : hotbarSelectedMain1,
-                x + itemX - 5,
-                y + itemY - 5,
-                26, 26,
-                26, 26
-
-        );
+        if(slice.slot != 0) {
+            hotbarSelectedMain0Tex.blit(
+                    guiGraphics,
+                    x + itemX - 5,
+                    y + itemY - 5,
+                    26, 26
+            );
+        }else{
+            hotbarSelectedMain1Tex.blit(
+                    guiGraphics,
+                    x + itemX - 5,
+                    y + itemY - 5,
+                    26, 26
+            );
+        }
 
         slice = TaskHotBar.getCurrentStateOffhand();
         if (slice == HotBarSlice.NOT_SELECTED) return;
@@ -266,17 +281,21 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         itemX = selectionBox.getItemX();
         itemY = selectionBox.getItemY();
 
-        VROverlayHelper.renderImage(
-                guiGraphics,
-                slice.slot != 0
-                        ? hotbarSelectedOffhand0
-                        : hotbarSelectedOffhand1,
-                x + itemX - 5,
-                y + itemY - 5,
-                26, 26,
-                26, 26
-
-        );
+        if(slice.slot != 0) {
+            hotbarSelectedOffhand0Tex.blit(
+                    guiGraphics,
+                    x + itemX - 5,
+                    y + itemY - 5,
+                    26, 26
+            );
+        }else{
+            hotbarSelectedOffhand1Tex.blit(
+                    guiGraphics,
+                    x + itemX - 5,
+                    y + itemY - 5,
+                    26, 26
+            );
+        }
 
 
     }
@@ -292,7 +311,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     }
 
     @Override
-    public void updatePose(float partialTicks) {
+    public void onUpdatePose(float partialTicks) {
         var camPos = RenderPoseHelper.getCameraPosition(
                 VRDisplay.GUI,
                 ClientContext.player.getPoseData(PoseDataType.RENDER)
@@ -379,4 +398,15 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         }
     }
 
+
+
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
+
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
+    }
 }

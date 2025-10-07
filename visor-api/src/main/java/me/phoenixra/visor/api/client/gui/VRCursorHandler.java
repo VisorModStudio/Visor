@@ -238,13 +238,15 @@ public interface VRCursorHandler {
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
+     * @param guiAspectRatio the aspect ratio between width and height of the gui
      *
      * @return Vector where x,y are cursor coordinates and z is cursor length
      */
     @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
                                            @NotNull Vector3fc guiPosition,
                                            @NotNull Matrix4fc guiRotation,
-                                           float guiScale);
+                                           float guiScale,
+                                           float guiAspectRatio);
 
     /**
      * Computes the cursor’s position in GUI for the given
@@ -254,17 +256,20 @@ public interface VRCursorHandler {
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
+     * @param guiAspectRatio the aspect ratio between width and height of the gui
      *
      * @return Vector where x,y are cursor coordinates
      */
     default @NotNull Vector2f findCursorPosition2D(@NotNull PoseElement element,
                                                    @NotNull Vector3fc guiPosition,
                                                    @NotNull Matrix4fc guiRotation,
-                                                   float guiScale) {
+                                                   float guiScale,
+                                                   float guiAspectRatio) {
         var vec3 = findCursorPosition3D(
                 element,
                 guiPosition, guiRotation,
-                guiScale
+                guiScale,
+                guiAspectRatio
         );
         return new Vector2f(vec3.x, vec3.y);
     }

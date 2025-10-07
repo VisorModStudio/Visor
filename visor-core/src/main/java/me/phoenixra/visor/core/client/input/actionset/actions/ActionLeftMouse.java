@@ -114,6 +114,9 @@ public class ActionLeftMouse extends VisorActionButton {
                     previousFocus.getMouseY(),
                     BUTTON_TYPE
             );
+            if(previousFocus instanceof VROverlayScreen overlayScreen){
+                overlayScreen.finishDragMouse();
+            }
 
         }
         previousFocus = null;

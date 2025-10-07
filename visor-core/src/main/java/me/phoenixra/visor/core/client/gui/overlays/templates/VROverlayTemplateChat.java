@@ -4,11 +4,11 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
 
-import me.phoenixra.visor.api.client.gui.overlay.template.framework.VROverlayTemplateScreen;
+import me.phoenixra.visor.api.client.gui.overlay.framework.template.VROverlayTemplateScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -19,9 +19,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 
-@RegisterVROverlayTemplate(id = VROverlayTemplateChat.ID, isCreateDefault = true)
+@RegisterVROverlayTemplate(
+        id = VROverlayTemplateChat.ID,
+        name = VROverlayTemplateChat.NAME,
+        description = VROverlayTemplateChat.DESCRIPTION,
+        isCreateDefault = true
+)
 public class VROverlayTemplateChat extends VROverlayTemplateScreen {
     public static final String ID = "chat";
+    public static final String NAME = "visor.overlay.template."+ID+".name";
+    public static final String DESCRIPTION = "visor.overlay.template."+ID+".description";
 
     public VROverlayTemplateChat(@NotNull VisorAddon owner,
                                  @NotNull String id) {
@@ -60,18 +67,21 @@ public class VROverlayTemplateChat extends VROverlayTemplateScreen {
         return false;
     }
 
+    @Override
+    public boolean supportsDepth() {
+        return true;
+    }
 
     @Override
-    protected @NotNull List<OverlayOptions> createOptions() {
+    protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
         return List.of(
                 new OverlayOptionsGlobal(
                         this,
                         it->{
-                            it.setUpdateOptionsType(OverlayOptionsGlobal.UpdateOptionsType.TICK);
-                            it.setFormulaOverlayScale("0.5");
+                            it.setOptionsUpdaterType(OverlayOptionsGlobal.OptionsUpdaterType.TICK);
                         }
                 ),
-                new OverlayOptionsLocation(
+                new OverlayOptionsPose(
                         this,
                         it->{
                             it.setTickModelView(true);
@@ -85,6 +95,7 @@ public class VROverlayTemplateChat extends VROverlayTemplateScreen {
                             it.setFormulaRotationX("-pi/2 * %main_hand%");
                             it.setFormulaRotationY("pi/2 * %main_hand%");
                             it.setFormulaRotationZ("pi * %left_handed%");
+                            it.setFormulaScale("0.5");
                         }
 
                 )

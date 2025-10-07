@@ -4,10 +4,6 @@ import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;

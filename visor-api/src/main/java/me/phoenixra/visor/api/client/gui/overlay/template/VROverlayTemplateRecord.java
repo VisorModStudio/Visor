@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.client.gui.overlay.template;
 
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Constructor;
@@ -20,7 +21,8 @@ import java.lang.reflect.Constructor;
  */
 public record VROverlayTemplateRecord(@NotNull VisorAddon owner,
                                       @NotNull String id,
-                                      boolean isPublic,
+                                      @NotNull Component name,
+                                      @NotNull Component description,
                                       boolean isCreateDefault,
                                       @NotNull Class<? extends VROverlayTemplate> clazz,
                                       @NotNull Constructor<? extends VROverlayTemplate> constructor

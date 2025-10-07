@@ -1,62 +1,63 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 
 @Getter
 public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptionsScreen<?>> {
     public static final String ID = "options_menu";
 
-    private VROverlaySettings settingsMenu;
+    private VROverlaySettings overlaySettings;
 
-    private OverlayOptions category;
+    @Getter
+    private OverlayOptionGroup<?> optionsGroup;
+
     public VROverlayOptionsMenu(@NotNull VisorAddon owner,
                                 @NotNull String id) {
         super(owner, id, null);
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
-        cursorEdgeX = screen.getMouseEdgeX();
-        cursorEdgeY = screen.getMouseEdgeY();
+        cursorBoundsX = screen.getCursorBoundsX();
+        cursorBoundsY = screen.getCursorBoundsY();
 
-        cursorEdgeWidth = screen.getMouseEdgeWidth();
-        cursorEdgeHeight = screen.getMouseEdgeHeight();
+        cursorBoundsWidth = screen.getCursorBoundsWidth();
+        cursorBoundsHeight = screen.getCursorBoundsHeight();
     }
 
     @Override
-    public void updatePose(float partialTicks) {
+    public void onUpdatePose(float partialTicks) {
         if(screen == null) return;
+        getPose().updateOnlyScale(overlaySettings.getPose().getScale());
+        VROverlayHelper.anchorWithOverlay(
+                this,
+                0,1,
+                true,
+                overlaySettings,
+                0,-1,
+                true,
+                new Vector3f(0,0,0),
+                new Vector3f((float) Math.toRadians(-30),0,0)
 
-        var newPos = PoseAnchor.getAnchorPos(
-                settingsMenu.getPose().getPosition(),
-                settingsMenu.getPose().getRotation(),
-                screen.getPositionOffset()
-        );
-
-        var newRotation = PoseAnchor.getAnchorRotation(
-                settingsMenu.getPose().getRotation(),
-                screen.getRotationOffset()
-        );
-        getPose().update(
-                newPos, newRotation,
-                settingsMenu.getPose().getScale()
         );
     }
 
 
     @Override
     public void setEnabled(boolean flag) {
-        if(settingsMenu == null && flag){
+        if(overlaySettings == null && flag){
             return;
         }
         super.setEnabled(flag);
@@ -70,18 +71,13 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
     @Override
     public void onDisable() {
 
-        if(ClientContext.overlayManager
-                .getOverlay(category.getOwner().getId()) != null) {
-            //save category to file if overlay wasn't removed from registry
-            category.save();
-        }
         if(screen != null){
             screen.removed();
         }
 
-        settingsMenu = null;
+        overlaySettings = null;
         screen = null;
-        category = null;
+        optionsGroup = null;
     }
 
     @Override
@@ -91,20 +87,17 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
 
 
     public void openMenu(@NotNull VROverlaySettings settingsMenu,
-                         @NotNull OverlayOptions optionCategory){
+                         @NotNull OverlayOptionGroup optionCategory){
         if(isEnabled()
-                && (this.settingsMenu == settingsMenu
-                && this.category == optionCategory)){
+                && (this.overlaySettings == settingsMenu
+                && this.optionsGroup == optionCategory)){
             //already opened
             return;
         }
         setEnabled(false);
-        this.settingsMenu = settingsMenu;
-        this.category = optionCategory;
-        this.screen = optionCategory.getScreen(
-                2.084f * settingsMenu.getPose().getScale(),
-                1.7f * settingsMenu.getPose().getScale()
-        );
+        this.overlaySettings = settingsMenu;
+        this.optionsGroup = optionCategory;
+        this.screen = optionCategory.getScreen();
 
         setEnabled(true);
         updatePose(1);
@@ -123,6 +116,16 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, buttonType);
+    }
+
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
+
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
 
 }

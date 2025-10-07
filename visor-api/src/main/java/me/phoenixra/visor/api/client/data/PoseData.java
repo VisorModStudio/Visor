@@ -121,27 +121,27 @@ public interface PoseData {
     float getBodyYaw();
 
     /**
-     * Converts <code>position</code> from the coordinate system of <code>originStage</code>
-     * to the coordinate system of {@link #getType() this pose data instance}.
+     * Converts <code>position</code> from the coordinate system of <code>originType</code>
+     * to the coordinate system of this object.
      *
      *
-     * @param originStage the stage from which the position is defined
+     * @param originType the stage from which the position is defined
      * @param position the position vector in the coordinate system of the specified origin stage
      * @return the converted position vector
      */
-    @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originStage,
+    @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originType,
                                           @NotNull Vector3fc position);
 
     /**
-     * Converts <code>rotationMatrix</code> from the coordinate system of <code>originStage</code>
-     * to the coordinate system of {@link #getType() this pose data instance}.
+     * Converts <code>rotationMatrix</code> from the coordinate system of <code>originType</code>
+     * to the coordinate system of this object.
      *
      *
-     * @param originStage the stage from which the rotation matrix is defined
+     * @param originType the stage from which the rotation matrix is defined
      * @param rotationMatrix the rotation matrix to convert
      * @return the converted rotation matrix
      */
-    @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originStage,
+    @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originType,
                                           @NotNull Matrix4fc rotationMatrix);
 
     /**

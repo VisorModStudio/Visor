@@ -1,10 +1,9 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.ConfigOverlaysAccessor;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptionsScreen;
-import net.minecraft.client.gui.screens.Screen;
+import me.phoenixra.visor.api.client.gui.overlay.OverlayConfigsAccessor;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,13 +65,11 @@ public interface VROverlayManager {
      * @return the accessor
      */
     @NotNull
-    ConfigOverlaysAccessor getConfigOverlaysAccessor();
+    OverlayConfigsAccessor getConfigOverlaysAccessor();
 
 
 
 
     @ApiStatus.Internal
-    @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptions category,
-                                                         float mainMenuWidth,
-                                                         float mainMenuHeight);
+    @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionGroup<?> category);
 }

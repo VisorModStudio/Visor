@@ -1,22 +1,15 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering;
 
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
+import me.phoenixra.visor.core.client.settings.VROptionCategory;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class VRSettingsEyeEffectsScreen extends VRGuiOptionsBaseScreen {
+public class VRSettingsEyeEffectsScreen extends VROptionsBaseScreen {
 
     public VRSettingsEyeEffectsScreen(Screen previousScreen) {
-        super(previousScreen,
-                Component.translatable("visor.option.screen.rendering.eyeEffects")
-        );
+        super(VROptionCategory.RENDERING_EYE_EFFECTS, previousScreen);
     }
 
     @Override
@@ -26,19 +19,15 @@ public class VRSettingsEyeEffectsScreen extends VRGuiOptionsBaseScreen {
     }
 
     @Override
-    protected VRGuiOption[] getOptionTypes() {
+    protected VROptionWidgetType[] getOptionTypes() {
 
-        return new VRGuiOption[]{
-                VRGuiOption.LOW_HEALTH_INDICATOR,
-                VRGuiOption.HIT_INDICATOR,
-                VRGuiOption.FREEZE_EFFECT,
-                VRGuiOption.PUMPKIN_EFFECT
-        };
+        return VROptionCategory.RENDERING_EYE_EFFECTS.types()
+                .toArray(new VROptionWidgetType[0]);
     }
 
     @Override
-    protected VRGuiOptionEntry[] getOptionEntries() {
-        return new VRGuiOptionEntry[0];
+    protected OptionWidgetEntry[] getOptionEntries() {
+        return new OptionWidgetEntry[0];
     }
 
 

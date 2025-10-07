@@ -85,7 +85,7 @@ public class BindingPathScreen extends Screen {
         int listBottom = this.height - 50;
 
         // ─── Mode-switch buttons ─────────────────────
-        Button pickBtn = Button.builder(Component.translatable("visor.actionBinds.pickPath"), b -> {
+        Button pickBtn = Button.builder(Component.translatable("visor.action_binds.pick_path"), b -> {
                     mode = Mode.PICK_PATH;
                     init();
                 })
@@ -94,7 +94,7 @@ public class BindingPathScreen extends Screen {
         pickBtn.active = (mode != Mode.PICK_PATH);
         this.addRenderableWidget(pickBtn);
 
-        Button capBtn = Button.builder(Component.translatable("visor.actionBinds.captureInput"), b -> {
+        Button capBtn = Button.builder(Component.translatable("visor.action_binds.capture_input"), b -> {
                     mode = Mode.CAPTURE_INPUT;
                     init();
                 })
@@ -119,7 +119,7 @@ public class BindingPathScreen extends Screen {
             int y  = listTop + (listBottom - listTop) / 2 - (btnH / 2);
             this.addRenderableWidget(
                     Button.builder(
-                                    Component.translatable(capturing ? "visor.actionBinds.captureInput.listening" : "visor.button.start"),
+                                    Component.translatable(capturing ? "visor.action_binds.capture_input.listening" : "visor.button.start"),
                                     b -> {
                                         capturing = true;
                                         captureStart = System.currentTimeMillis();
@@ -153,8 +153,8 @@ public class BindingPathScreen extends Screen {
         int gap = 20;
 
         // measure text widths
-        Component touchLabel = Component.translatable("visor.actionBinds.touchFilter");
-        Component forceLabel = Component.translatable("visor.actionBinds.forceFilter");
+        Component touchLabel = Component.translatable("visor.action_binds.touch_filter");
+        Component forceLabel = Component.translatable("visor.action_binds.force_filter");
         int touchTextW = this.font.width(touchLabel);
         int forceTextW = this.font.width(forceLabel);
 
@@ -239,7 +239,7 @@ public class BindingPathScreen extends Screen {
             int y  = listTop + (listBottom - listTop) / 2 - (btnH / 2) - 40;
             gui.drawCenteredString(
                     this.font,
-                    Component.translatable("visor.actionBinds.captureInput.guide"),
+                    Component.translatable("visor.action_binds.capture_input.guide"),
                     this.width / 2,
                     y,
                     0xFFFFFF
@@ -249,7 +249,7 @@ public class BindingPathScreen extends Screen {
         // “Selected path”
         gui.drawCenteredString(
                 this.font,
-                Component.translatable("visor.actionBinds.selectedPath", selectedPath),
+                Component.translatable("visor.action_binds.selected_path", selectedPath),
                 this.width / 2,
                 this.height - 40, 0xAAAAAA
         );

@@ -23,6 +23,37 @@ public class VROverlayHelper {
     }
 
     /**
+     * Convenient if you want to calculate render position
+     * once and then just use its room representation,
+     * so, to have it relative to room [TODO REWRITE THIS SILLY JAVADOC]
+     * @param overlay
+     * @param overlayScale
+     * @param roomPosition
+     * @param roomRotation
+     */
+    public static void applyRoomPose(@NotNull VROverlay overlay,
+                                     float overlayScale,
+                                     @NotNull Vector3fc roomPosition,
+                                     @NotNull Matrix4f roomRotation){
+        PoseData renderPose = VisorAPI.client().getPlayer()
+                .getPoseData(PoseDataType.RENDER);
+
+        Vector3f renderScreenPos = renderPose.convertPositionFrom(
+                PoseDataType.ROOM,
+                roomPosition
+        );
+        Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
+                PoseDataType.ROOM,
+                roomRotation
+        );
+
+        overlay.getPose().update(
+                renderScreenPos,
+                renderScreenRotation,
+                overlayScale
+        );
+    }
+    /**
      * Apply new pose to an overlay with specified pose Anchors
      *
      * <p>You can also adjust offsets for position and rotation</p>
@@ -101,31 +132,85 @@ public class VROverlayHelper {
         );
     }
 
-
     /**
-     * Render image
+     * Anchors one overlay’s chosen point onto another overlay’s chosen point,
+     * with optional positional and rotational offsets.
      *
-     * @param guiGraphics the gfx
-     * @param textureLocation the image location
-     * @param posX the position X
-     * @param posY the position Y
-     * @param width the width
-     * @param height the height
-     * @param textureWidth the texture width
-     * @param textureHeight the texture height
+     * @param targetOverlay the overlay to update
+     * @param targetNormalX normalized X on the target quad(–1=left, +1=right)
+     * @param targetNormalY normalized Y on the target quad(–1=bottom, +1=top)
+     * @param targetUseCursorBounds whether to use the target’s cursor bounds
+     * @param anchorOverlay the overlay to anchor to
+     * @param anchorNormalX normalized X on the anchor quad(–1=left, +1=right)
+     * @param anchorNormalY normalized Y on the anchor quad(–1=bottom, +1=top)
+     * @param anchorUseCursorBounds whether to use the anchor’s cursor bounds
+     * @param positionOffset extra translation in anchor’s local axes
+     * @param rotationOffset extra Euler‐angle rotation after anchoring
      */
-    public static void renderImage(GuiGraphics guiGraphics,
-                                   ResourceLocation textureLocation,
-                                   int posX, int posY,
-                                   int width, int height,
-                                   int textureWidth, int textureHeight) {
-        guiGraphics.blit(
-                textureLocation,
-                posX, posY,         // screen x, y
-                0,                  // z-depth
-                0.0F, 0.0F,         // texture u, v
-                width, height,      // area to draw (width, height in pixels)
-                textureWidth, textureHeight  // full texture size
+    public static void anchorWithOverlay(@NotNull VROverlay targetOverlay,
+                                         float  targetNormalX,
+                                         float  targetNormalY,
+                                         boolean targetUseCursorBounds,
+                                         @NotNull VROverlay anchorOverlay,
+                                         float  anchorNormalX,
+                                         float  anchorNormalY,
+                                         boolean anchorUseCursorBounds,
+                                         @NotNull Vector3fc positionOffset,
+                                         @NotNull Vector3fc rotationOffset) {
+        VROverlayPose targetPose = targetOverlay.getPose();
+        VROverlayPose anchorPose = anchorOverlay.getPose();
+        PoseData renderPose  = VisorAPI.client()
+                .getPlayer()
+                .getPoseData(PoseDataType.RENDER);
+        float worldScale = renderPose.getWorldScale();
+
+        Vector3f anchorPointWorld =
+                anchorPose.getPositionAt(
+                        anchorNormalX,
+                        anchorNormalY,
+                        anchorUseCursorBounds,
+                        PoseDataType.RENDER
+                );
+
+        Vector3f originWorld     = new Vector3f(targetPose.getPosition());
+        Vector3f targetPointWorld =
+                targetPose.getPositionAt(
+                        targetNormalX,
+                        targetNormalY,
+                        targetUseCursorBounds,
+                        PoseDataType.RENDER
+                );
+        Vector3f worldOffsetOld = new Vector3f(targetPointWorld)
+                .sub(originWorld);
+
+        Matrix4f invTargetRot = new Matrix4f(targetPose.getRotation()).invert();
+        Vector3f localOffset  = invTargetRot.transformDirection(worldOffsetOld, new Vector3f());
+
+        Matrix4f newRot = new Matrix4f(anchorPose.getRotation())
+                .mul(
+                        new Matrix4f()
+                                .rotationZYX(
+                                        rotationOffset.z(),
+                                        rotationOffset.y(),
+                                        rotationOffset.x()
+                                ),
+                        new Matrix4f()
+                );
+
+        Vector3f worldOffsetNew = new Vector3f(localOffset).mul(worldScale);
+        newRot.transformDirection(worldOffsetNew);
+
+        Vector3f posOffScaled = new Vector3f(positionOffset).mul(worldScale);
+        Vector3f posOffWorld  = new Vector3f(posOffScaled);
+        anchorPose.getRotation().transformDirection(posOffWorld);
+
+        Vector3f newOrigin = new Vector3f(anchorPointWorld)
+                .add(posOffWorld)
+                .sub(worldOffsetNew);
+
+        targetPose.updateOnlyPosAndRotation(
+                newOrigin,
+                newRot
         );
     }
 

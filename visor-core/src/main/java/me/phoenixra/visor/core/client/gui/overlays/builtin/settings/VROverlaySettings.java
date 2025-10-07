@@ -1,86 +1,152 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
-
+import lombok.Getter;
+import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
+import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
+import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
+import me.phoenixra.visor.api.client.gui.widgets.sets.FilterListBinaryWidgetSet;
 import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.CreateOverlayWidgetSet;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.OverlaysWidgetSet;
+import me.phoenixra.visor.api.client.gui.widgets.sets.WidgetSet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
-
+import org.joml.Vector3fc;
 
 public class VROverlaySettings extends VROverlayScreen
         implements VREventListener {
-    private static final ResourceLocation BACKGROUND = new ResourceLocation(
-            "visor:textures/gui/overlays_settings.png"
-    );
-
     public static final String ID = "settings";
 
+    public static final AtumColor TEXT_COLOR = AtumColor.WHITE.blend(AtumColor.BLACK, 0.2f);
 
-    private final int BACKGROUND_WIDTH = 164;
-    private final int BACKGROUND_HEIGHT = 246;
+    public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.find");
+
+    private static final ResourceLocation BACKGROUND_OVERLAYS = new ResourceLocation(
+            "visor:textures/gui/overlays/settings/background_1.png"
+    );
+    private static final ResourceLocation BACKGROUND_CREATE = new ResourceLocation(
+            "visor:textures/gui/overlays/settings/background_2.png"
+    );
+
+    private static final ResourceLocation BACKGROUND_EXTRA = new ResourceLocation(
+            "visor:textures/gui/overlays/settings/background_extra_1.png"
+    );
+    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = new ResourceLocation(
+            "visor:textures/gui/overlays/settings/background_extra_2.png"
+    );
+
+    private static final int BACKGROUND_WIDTH = 256;
+    private static final int BACKGROUND_HEIGHT = 256;
+
+
+    private static final Component TITLE_CREATE_OVERLAY
+            = Component.translatable("visor.overlay.options.main.create_overlay");
+    private static final Component TITLE_OVERLAYS
+            = Component.translatable("visor.overlay.options.main.overlays");
+
 
     private final Vector3f posOffset = new Vector3f(0, 0, -0.75f);
-
-    private final Vector3f posMovingOffset = new Vector3f(0, 0, -0.3f);
     private final Vector3f rotationOffset = new Vector3f(0, 0, 0);
 
+    private Vector3fc roomPosition = null;
+    private Matrix4f roomRotation = null;
 
-    private State currentState = State.NOT_SELECTED;
-
+    @Getter
+    private SettingsTab settingsTab = SettingsTab.OVERLAYS;
+    @Getter
     private WidgetSet widgetSet;
 
-    private boolean addedWidgetSet;
+    @Getter
+    @Setter
+    private boolean backgroundExtended = false;
 
-    private boolean draggingByCursorHand;
 
-    protected VROverlayTemplate selectedOverlay;
-    private int selectedOverlayIndex = -1;
+    @Getter
+    private int menuEdgeX, menuEdgeY, menuEdgeWidth, menuEdgeHeight;
 
-    private DropDownListWidget selectOverlayWidget;
-    private List<VROverlayTemplate> selectableOverlays;
+    @Getter
+    @Setter
+    private int cursorEdgeOffsetX, cursorEdgeOffsetY,
+            cursorEdgeOffsetWidth, cursorEdgeOffsetHeight;
+
+    private ImageButton tabButton;
+    private ImageButton closeButton;
+    private ImageButton dragButton;
+
+
+    private final OverlaysWidgetSet overlaysWidgetSet;
+    private final CreateOverlayWidgetSet createOverlayWidgetSet;
 
     public VROverlaySettings(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id, ElementPriority.NORMAL,0.55f);
-        VisorAPI.eventBus().registerListener(owner,this);
+        super(owner, id, ElementPriority.NORMAL, 0.55f);
+        VisorAPI.eventBus().registerListener(owner, this);
+        overlaysWidgetSet = new OverlaysWidgetSet(
+                this, this::repopulateWidgets
+        );
+        createOverlayWidgetSet = new CreateOverlayWidgetSet(
+                this, this::repopulateWidgets
+        );
     }
 
+    public enum SettingsTab {
+        OVERLAYS,
+        CREATE_OVERLAY;
+
+        public WidgetSet widgetSet(VROverlaySettings settings) {
+            return this == OVERLAYS
+                    ? settings.overlaysWidgetSet
+                    : settings.createOverlayWidgetSet;
+        }
+
+        private ResourceLocation background() {
+            return this == OVERLAYS ? BACKGROUND_OVERLAYS : BACKGROUND_CREATE;
+        }
+
+        private ResourceLocation backgroundExtra(VROverlaySettings settings) {
+            return this == OVERLAYS ? BACKGROUND_EXTRA
+                    : settings.isBackgroundExtended()
+                    ? BACKGROUND_EXTRA_EXTENDED
+                    : BACKGROUND_EXTRA;
+        }
+
+        private void changeTab(VROverlaySettings settings) {
+            settings.settingsTab = this == OVERLAYS
+                    ? CREATE_OVERLAY
+                    : OVERLAYS;
+            settings.init();
+        }
+    }
+
+
     @VREventHandler
-    public void disableWorldHands(AllowClientFeatureVREvent event){
-        if(event.getFeature() == ClientFeature.VR_WORLD_HANDS
+    public void disableWorldHands(AllowClientFeatureVREvent event) {
+        if (event.getFeature() == ClientFeature.VR_WORLD_HANDS
                 || event.getFeature() == ClientFeature.AIM_EFFECTS
                 || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
-            if(isVisible()){
+            if (isVisible()) {
                 event.setCanceled(true);
             }
         }
@@ -89,179 +155,203 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     protected void init() {
         clearWidgets();
+        setDragged(false);
+        backgroundExtended = false;
 
-        addedWidgetSet = false;
-        resetDragging();
+        menuEdgeX = (width - BACKGROUND_WIDTH + 10) / 2;
+        menuEdgeY = (height - BACKGROUND_HEIGHT) / 2;
 
-        cursorEdgeX = width / 2 - BACKGROUND_WIDTH / 2;
-        cursorEdgeY = height / 2 - BACKGROUND_HEIGHT / 2;
+        menuEdgeWidth = BACKGROUND_WIDTH + 10;
+        menuEdgeHeight = BACKGROUND_HEIGHT;
 
-        cursorEdgeWidth = (width / 2 + BACKGROUND_WIDTH / 2) - cursorEdgeX;
-        cursorEdgeHeight = (height / 2 + BACKGROUND_HEIGHT / 2) - cursorEdgeY;
+        updateCursorEdges();
 
-        selectableOverlays = ClientContext.overlayManager
-                .getOverlaysRegistry().getSortedElements().stream()
-                .map(VROverlay::asTemplate)
-                .filter(it ->
-                        it != null && !it.getTemplateOptions().isEmpty()
-                ).toList();
+        //TAB BUTTON
+        var tabTexture = settingsTab == SettingsTab.OVERLAYS
+                ? SettingsTextures.BUTTON_TAB_RIGHT
+                : SettingsTextures.BUTTON_TAB_LEFT;
+        WidgetInfoButton tabInfo = new WidgetInfoButton(
+                tabTexture,
+                tabTexture,
+                menuEdgeX
+                        + (settingsTab == SettingsTab.OVERLAYS ? 115 : 0),
+                menuEdgeY + 6,
+                115, 23
+        ).setTextColor(TEXT_COLOR)
+                .setText(settingsTab == SettingsTab.OVERLAYS
+                        ? TITLE_CREATE_OVERLAY
+                        : TITLE_OVERLAYS
+                );
+
+        tabButton = new ImageButton(
+                tabInfo,
+                (it) -> {
+                    settingsTab.changeTab(this);
+                }
+        );
         this.addRenderableWidget(
-                Button.builder(
-                                Component.literal("§cx"),
-                                (p) ->
-                                {
-                                    setEnabled(false);
-                                }
-                        )
-                        .pos(
-                                cursorEdgeX + cursorEdgeWidth - 20,
-                                cursorEdgeY
-                        )
-                        .size(20, 20)
-                        .build()
+                tabButton
+        );
+
+        //CLOSE BUTTON
+        closeButton = new ImageButton(
+                new WidgetInfoButton(
+                        SettingsTextures.BUTTON_CLOSE,
+                        SettingsTextures.BUTTON_CLOSE_HOVERED,
+                        menuEdgeX + 235,
+                        menuEdgeY + 12,
+                        19, 19
+                ),
+                (it) -> setEnabled(false)
+        );
+        this.addRenderableWidget(
+                closeButton
+        );
+
+        //DRAG BUTTON
+        dragButton = new ImageButton(
+                new WidgetInfoButton(
+                        SettingsTextures.BUTTON_DRAG,
+                        SettingsTextures.BUTTON_DRAG_HOVERED,
+                        menuEdgeX + 235,
+                        menuEdgeY + 35,
+                        19, 19
+                ).setTextureSelected(SettingsTextures.BUTTON_DRAG_SELECTED),
+                (it) -> setDragged(true)
         );
 
         this.addRenderableWidget(
-                Button.builder(
-                                Component.literal("§a<->"),
-                                (p) ->
-                                {
-                                    ClientContext.cursorHandler.setForceFocused(
-                                            this
-                                    );
-                                    draggingByCursorHand = true;
-                                }
-                        )
-                        .pos(
-                                cursorEdgeX,
-                                cursorEdgeY
-                        )
-                        .size(20, 20)
-                        .build()
+                dragButton
         );
 
-        List<Component> elements = new ArrayList<>();
-        elements.add(Component.translatable("visor.button.create_new"));
-        for(var overlay : selectableOverlays){
-            elements.add(overlay.getOverlayName());
-        }
-        selectOverlayWidget = DropDownListWidget.builder(elements)
-                .pos(cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2), cursorEdgeY + 50)
-                .size(95,25)
-                .setMessage(Component.translatable("visor.overlaySettings.main.widget.choose_overlay"))
-                .setStartIndex(selectedOverlayIndex)
-                .setResponder(
-                        selectedIndex ->{
-                            selectedOverlayIndex = selectedIndex;
+        widgetSet = settingsTab.widgetSet(this);
+        widgetSet.initWidgets()
+                .forEach(this::addRenderableWidget);
 
-                            VROverlayOptionsMenu optionsMenu = (VROverlayOptionsMenu) ClientContext.overlayManager
-                                    .getOverlay(VROverlayOptionsMenu.ID);
-                            assert optionsMenu != null;
-
-                            if(selectedIndex < 0){
-                                currentState = State.NOT_SELECTED;
-                                optionsMenu.setEnabled(false);
-                                selectedOverlay = null;
-                                init();
-                                return;
-                            }
-                            if(selectedIndex == 0){
-                                currentState = State.CREATE_NEW;
-                                optionsMenu.setEnabled(false);
-                                selectedOverlay = null;
-                                init();
-                                return;
-                            }
-                            currentState = State.SETUP_EXISTING;
-                            selectedOverlay = selectableOverlays.get(selectedIndex-1);
-                            optionsMenu.setEnabled(false);
-                            init();
-                        }
-                )
-                .build();
-        addRenderableWidget(selectOverlayWidget);
-
-        switch (currentState){
-            case CREATE_NEW -> {
-                widgetSet = new NewOverlayWidgets();
-            }
-            case SETUP_EXISTING -> {
-                widgetSet = new WidgetSetSetupExisting();
-            }
-            case NOT_SELECTED -> {
-                widgetSet = null;
-            }
-        }
-        if(widgetSet != null){
-            widgetSet.initWidgets()
-                    .forEach(this::addRenderableWidget);
-            addedWidgetSet = true;
-
-        }
-
+        VROverlayOptionsMenu optionsMenu = (VROverlayOptionsMenu) ClientContext.overlayManager
+                .getOverlay(VROverlayOptionsMenu.ID);
+        assert optionsMenu != null;
+        optionsMenu.setEnabled(false);
     }
 
     @Override
     public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
-        VROverlayHelper.renderImage(
-                guiGraphics,
-                BACKGROUND,
-                cursorEdgeX, cursorEdgeY,
-                BACKGROUND_WIDTH, BACKGROUND_HEIGHT,
-                BACKGROUND_WIDTH, BACKGROUND_HEIGHT
+        //MAIN BACKGROUND
+        guiGraphics.blit(
+                settingsTab.background(),
+                menuEdgeX, menuEdgeY,
+                0, 0,
+                256, 256
         );
-        if(widgetSet != null) {
-            boolean widgetSetDisabled = selectOverlayWidget.isExpanded();
-            if (widgetSetDisabled && addedWidgetSet) {
-                widgetSet.getWidgets().forEach(this::removeWidget);
-                addedWidgetSet = false;
-            }else if(!widgetSetDisabled && !addedWidgetSet){
-                widgetSet.getWidgets().forEach(this::addRenderableWidget);
-                addedWidgetSet = true;
-            }
-            widgetSet.onRender();
-        }
+        //EXTRA BACKGROUND
+        guiGraphics.blit(
+                settingsTab.backgroundExtra(this),
+                menuEdgeX + 230, menuEdgeY + 6,
+                0, 0,
+                backgroundExtended ? 128 : 27, 245,
+                backgroundExtended ? 128 : 27, 245
+        );
 
+        //WIDGET SET TITLE
+        Font font = Minecraft.getInstance().font;
+        Component text = settingsTab == SettingsTab.OVERLAYS
+                ? TITLE_OVERLAYS
+                : TITLE_CREATE_OVERLAY;
+        GuiHelper.renderScalableText(
+                guiGraphics,
+                font,
+                text.getString(),
+                TEXT_COLOR.toInt(),
+                menuEdgeX
+                        + (settingsTab == SettingsTab.OVERLAYS ? 0 : 115),
+                menuEdgeY + 6,
+                115, 23,
+                true
+        );
+
+        widgetSet.onPreRender(guiGraphics, pMouseX, pMouseY, partialTicks);
+
+        updateCursorEdges();
     }
 
+    private void updateCursorEdges() {
+        cursorBoundsX = menuEdgeX + cursorEdgeOffsetX;
+        cursorBoundsY = menuEdgeY + cursorEdgeOffsetY;
+        cursorBoundsWidth = menuEdgeWidth + cursorEdgeOffsetWidth;
+        cursorBoundsHeight = menuEdgeHeight + cursorEdgeOffsetHeight;
+        if (backgroundExtended) {
+            cursorBoundsWidth += 100;
+        }
+    }
+
+    public void repopulateWidgets() {
+        clearWidgets();
+        addRenderableWidget(tabButton);
+        addRenderableWidget(closeButton);
+        addRenderableWidget(dragButton);
+        widgetSet.getWidgets().forEach(this::addRenderableWidget);
+    }
+
+    public void setSettingsTab(SettingsTab settingsTab) {
+        this.settingsTab = settingsTab;
+        init();
+    }
+
+    public void setOverlaysTab(@NotNull VROverlay select) {
+        this.settingsTab = SettingsTab.OVERLAYS;
+        init();
+        var overlayListWidget = ((OverlaysWidgetSet) widgetSet).getOverlaysList();
+        var overlaysList = overlayListWidget.getList();
+
+
+        var filtersWidget = (FilterListBinaryWidgetSet<String>) overlayListWidget.getFilterWidgetSet();
+        //main filters
+        filtersWidget.getFiltersWidgetFirst().getList()
+                .changeSelectedAll(false);
+        filtersWidget.getFiltersWidgetFirst().getList()
+                .setSelected("has_options");
+        //addon filters
+        filtersWidget.getFiltersWidgetSecond().getList()
+                .changeSelectedAll(true);
+        var overlayEntry = overlaysList.getEntry(select.getId());
+        if (overlayEntry != null) {
+            overlaysList.setSelected(overlayEntry);
+            overlaysList.scrollTo(overlayEntry);
+        }
+    }
 
     @Override
     protected void onPreTick() {
-        if(!isInViewDistance()){
+        if (!isInViewDistance()) {
             setEnabled(false);
         }
     }
 
     @Override
     protected void onTick() {
-        if(widgetSet != null) {
-            widgetSet.onTick();
-        }
+        widgetSet.onTick();
+    }
+
+
+    @Override
+    protected void onUpdatePose(float partialTicks) {
+        VROverlayHelper.applyRoomPose(
+                this,
+                getPose().getScale(),
+                roomPosition,
+                roomRotation
+        );
     }
 
     @Override
-    public void updatePose(float partialTicks) {
-        if(draggingByCursorHand){
-            PoseAnchor anchor = ClientContext.cursorHandler
-                    .getCursorHand() == ControllerHand.MAIN ?
-                    PoseAnchor.MAIN_HAND : PoseAnchor.OFFHAND;
-            VROverlayHelper.applyPose(
-                    this,
-                    anchor,
-                    anchor,
-                    getPose().getScale(),
-                    true,
-                    posMovingOffset,
-                    rotationOffset
-            );
-        }
-    }
-
-    @Override
-    public boolean updateVisibility() {
+    protected boolean updateVisibility() {
         return true;
     }
 
+    @Override
+    public boolean supportsLight() {
+        return false;
+    }
 
     @Override
     public void onEnable() {
@@ -273,8 +363,11 @@ public class VROverlaySettings extends VROverlayScreen
                 true,
                 posOffset,
                 rotationOffset
-
         );
+        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
+        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
     }
 
     @Override
@@ -283,24 +376,21 @@ public class VROverlaySettings extends VROverlayScreen
                 .getOverlay(VROverlayOptionsMenu.ID);
         assert optionsMenu != null;
         optionsMenu.setEnabled(false);
-
-        selectedOverlayIndex = -1;
-        selectedOverlay = null;
-        currentState = State.NOT_SELECTED;
-        resetDragging();
+        setDragged(false);
+        settingsTab = SettingsTab.OVERLAYS;
 
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
-        if(draggingByCursorHand){
-            resetDragging();
-
+        if (getForcedAnchor() != null) {
+            setDragged(false);
             return true;
         }
+
         VROverlayDemo demo = (VROverlayDemo) ClientContext.overlayManager
                 .getOverlay(VROverlayDemo.ID);
-        if(demo != null && demo.getMovingByAnchor() != null){
+        if (demo != null && demo.getMovingByAnchor() != null) {
             return true;
         }
 
@@ -309,294 +399,54 @@ public class VROverlaySettings extends VROverlayScreen
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
-        if(draggingByCursorHand){
-            resetDragging();
+        if (getForcedAnchor() != null) {
+            setDragged(false);
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, buttonType);
     }
 
-
-
-    private void resetDragging(){
-        if(draggingByCursorHand){
-            if(ClientContext.cursorHandler.getForceFocused() == this) {
+    private void setDragged(boolean flag) {
+        if (dragButton != null) {
+            dragButton.setSelected(flag);
+        }
+        if (!flag && getForcedAnchor() != null) {
+            if (ClientContext.cursorHandler.getForceFocused() == this) {
                 ClientContext.cursorHandler.setForceFocused(
                         null
                 );
             }
-            draggingByCursorHand = false;
-        }
-    }
-
-    private enum State{
-        NOT_SELECTED,
-        CREATE_NEW,
-        SETUP_EXISTING
-    }
-
-
-
-
-    private abstract class WidgetSet{
-        protected final State state;
-
-        
-
-        public WidgetSet(State state){
-            this.state = state;
-        }
-
-        public abstract List<AbstractWidget> getWidgets();
-        public abstract List<AbstractWidget> initWidgets();
-
-        public abstract void onRender();
-        public abstract void onTick();
-
-    }
-
-    private class NewOverlayWidgets extends WidgetSet{
-        protected DropDownListWidget overlayTemplateWidget;
-        protected List<VROverlayTemplateRecord> selectableOverlayTemplates;
-
-        protected EditBox overlayIdField;
-
-        private Button confirmButton;
-
-        public NewOverlayWidgets() {
-            super(State.CREATE_NEW);
-        }
-
-        @Override
-        public List<AbstractWidget> initWidgets() {
-            selectableOverlayTemplates = ClientContext.overlayManager
-                    .getOverlayTemplatesRegistry()
-                    .getAllElements().stream()
-                    .filter(VROverlayTemplateRecord::isPublic).toList();
-
-            List<Component> elements = new ArrayList<>();
-            for(var overlayTemplate : selectableOverlayTemplates){
-                elements.add(Component.literal(overlayTemplate.id()));
-            }
-            overlayTemplateWidget =  new DropDownListWidget(
-                    cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
-                    cursorEdgeY + 80,
-                    95,25,
-                    Component.translatable("visor.overlaySettings.main.widget.choose_overlay_type"),
-                    elements
-
+            setForcedAnchor(null);
+        } else if (flag) {
+            ClientContext.cursorHandler.setForceFocused(
+                    this
             );
-
-            overlayIdField = new EditBox(
-                    MC.font,
-                    cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
-                    cursorEdgeY + 110,
-                    95,20,
-                    Component.empty()
-            );
-            overlayIdField.setMaxLength(25);
-            overlayIdField.setBordered(true);
-            overlayIdField.setVisible(true);
-            overlayIdField.setTextColor(AtumColor.WHITE.toInt());
-            overlayIdField.setResponder(
-                    it->{
-                        if(it.isBlank()){
-                            overlayIdField.setTextColor(AtumColor.RED.toInt());
-                            return;
-                        }
-                        VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-                        if(registry.getElement(it) != null) {
-                            overlayIdField.setTextColor(AtumColor.RED.toInt());
-                        }else{
-                            overlayIdField.setTextColor(16777215);
-                        }
-                    }
-            );
-            overlayIdField.setTooltip(
-                    Tooltip.create(
-                            Component.translatable("visor.overlaySettings.main.widget.edit_overlay_id"),
-                            null
-                    )
-            );
-
-            confirmButton = Button.builder(
-                            Component.translatable("visor.button.confirm"),
-                            (p) ->
-                            {
-                                int index = overlayTemplateWidget.getSelectedIndex();
-                                if(index<0) return;
-                                if(index >= selectableOverlayTemplates.size()) return;
-
-                                String id = overlayIdField.getValue();
-                                VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-                                if(id.isBlank() || registry.getElement(id) != null) {
-                                    return;
-                                }
-
-                                VROverlayTemplateRecord templateRecord = selectableOverlayTemplates.get(index);
-                                try {
-                                    VROverlay overlay = templateRecord.constructor().newInstance(
-                                            ClientContext.coreAddon,
-                                            id
-                                    );
-                                    ClientContext.overlayManager.getOverlaysRegistry()
-                                            .registerElement(overlay);
-
-                                    init();
-                                    selectOverlayWidget.setSelectedIndex(
-                                            selectableOverlays.indexOf(overlay) + 1,
-                                            true
-                                    );
-                                }catch (Exception e){
-                                    VisorState.destroyVRWithErrorScreen(e);
-                                }
-                            }
-                    )
-                    .pos(
-                            cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
-                            cursorEdgeY + 150
-                    )
-                    .size(95, 20)
-                    .build();
-            return List.of(overlayTemplateWidget, overlayIdField, confirmButton);
-        }
-
-        @Override
-        public List<AbstractWidget> getWidgets() {
-            return List.of(overlayTemplateWidget, overlayIdField, confirmButton);
-        }
-
-        public void onRender(){
-            overlayIdField.setVisible(!overlayTemplateWidget.isExpanded());
-            confirmButton.visible = !overlayTemplateWidget.isExpanded();
-        }
-
-        @Override
-        public void onTick() {
-            overlayIdField.tick();
+            PoseAnchor anchor = ClientContext.cursorHandler
+                    .getCursorHand() == ControllerHand.MAIN
+                    ? PoseAnchor.MAIN_HAND
+                    : PoseAnchor.OFFHAND;
+            setForcedAnchor(anchor);
         }
     }
 
-    private class WidgetSetSetupExisting extends WidgetSet{
-        protected Button removeOverlayButton;
-        protected DropDownListWidget optionCategoryWidget;
-        protected List<OverlayOptions> selectableOptionCategories;
-
-        protected Button loadDefaultsButton;
-
-        public WidgetSetSetupExisting() {
-            super(State.SETUP_EXISTING);
+    @Override
+    public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
+        if(getForcedAnchor() != null && forcedAnchor == null){
+            roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                    .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
+            roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                    .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
         }
-
-
-        @Override
-        public List<AbstractWidget> initWidgets() {
-            removeOverlayButton = Button.builder(
-                    Component.translatable("visor.overlaySettings.modelView.remove"),
-                            (p) ->
-                            {
-                                if(selectedOverlay == null){
-                                    return;
-                                }
-                                ClientContext.overlayManager.getOverlaysRegistry()
-                                        .unregisterElement(selectedOverlay.getId());
-                                selectedOverlayIndex = -1;
-                                selectedOverlay = null;
-                                currentState = State.NOT_SELECTED;
-                                init();
-                            }
-                    )
-                    .pos(
-                            cursorEdgeX + ((cursorEdgeWidth)/2 + 95/2) + 5,
-                            cursorEdgeY + 50
-                    )
-                    .size(25, 25)
-                    .tooltip(Tooltip.create(Component.translatable("visor.overlaySettings.modelView.remove.tooltip")))
-                    .build();
-            loadDefaultsButton = Button.builder(
-                            Component.translatable("visor.button.load_defaults"),
-                            (p) ->
-                            {
-                                if(selectedOverlay == null){
-                                    return;
-                                }
-                                int categoryIndex = optionCategoryWidget.getSelectedIndex();
-
-                                if(categoryIndex < 0
-                                        || categoryIndex >= selectableOptionCategories.size()){
-
-                                    return;
-                                }
-
-                                OverlayOptions currentCategory =
-                                        selectableOptionCategories.get(categoryIndex);
-                                currentCategory.saveDefaults();
-
-                                var optionsMenu = (VROverlayOptionsMenu) ClientContext.overlayManager.getOverlay(VROverlayOptionsMenu.ID);
-                                assert optionsMenu != null;
-                                optionsMenu.init();
-                            }
-                    )
-                    .pos(
-                            cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2),
-                            cursorEdgeY + 120
-                    )
-                    .size(95, 25)
-                    .build();
-
-            selectableOptionCategories = selectedOverlay.getTemplateOptions().stream().toList();
-            List<Component> elements = new ArrayList<>();
-            for(OverlayOptions optionCategory : selectableOptionCategories){
-                elements.add(optionCategory.getDisplayName());
-            }
-            optionCategoryWidget =  DropDownListWidget.builder(elements)
-                    .pos(cursorEdgeX + ((cursorEdgeWidth)/2 - 95/2), cursorEdgeY + 80)
-                    .size(95,25)
-                    .setMessage(Component.translatable("visor.overlaySettings.main.widget.choose_option_category"))
-                    .setResponder(
-                            selectedIndex->{
-                                /// ///
-                                VROverlayOptionsMenu optionsMenu = (VROverlayOptionsMenu) ClientContext.overlayManager
-                                        .getOverlay(VROverlayOptionsMenu.ID);
-                                assert optionsMenu != null;
-
-
-                                if(selectedIndex < 0
-                                        || selectedIndex >= selectableOptionCategories.size()){
-                                    optionsMenu.setEnabled(false);
-                                    return;
-                                }
-
-                                OverlayOptions currentCategory =
-                                        selectableOptionCategories.get(selectedIndex);
-                                optionsMenu.openMenu(
-                                        VROverlaySettings.this,
-                                        currentCategory
-                                );
-                                /// //
-                            }
-                    )
-                    .build();
-
-            return List.of(removeOverlayButton, optionCategoryWidget, loadDefaultsButton);
-        }
-
-        @Override
-        public List<AbstractWidget> getWidgets() {
-            return List.of(removeOverlayButton, optionCategoryWidget, loadDefaultsButton);
-        }
-
-        @Override
-        public void onRender() {
-            loadDefaultsButton.visible = !optionCategoryWidget.isExpanded()
-                    && optionCategoryWidget.getSelectedIndex() >= 0;
-        }
-
-        @Override
-        public void onTick() {
-
-        }
+        super.setForcedAnchor(forcedAnchor);
     }
 
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
 
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
+    }
 }

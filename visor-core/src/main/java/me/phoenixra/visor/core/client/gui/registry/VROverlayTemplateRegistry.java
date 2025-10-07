@@ -9,6 +9,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,7 +53,6 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
             try {
                 var annotation = clazz.getAnnotation(RegisterVROverlayTemplate.class);
                 String id = annotation.id();
-                boolean isPublic = annotation.isPublic();
                 boolean createDefault = annotation.isCreateDefault();
 
                 @SuppressWarnings("unchecked")
@@ -64,7 +64,8 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
                 var element = new VROverlayTemplateRecord(
                         addon,
                         id,
-                        isPublic,
+                        Component.translatable(annotation.name()),
+                        Component.translatable(annotation.description()),
                         createDefault,
                         elementClazz,
                         constructor

@@ -48,7 +48,8 @@ public class RenderTargetGUI implements RenderTargetHolder {
                 }
                 VRRenderTarget renderTarget = new VRRenderTarget(
                         "Overlay " + overlayScreen.getId(),
-                        width, height,
+                        overlayScreen.getRequestedWidth(),
+                        overlayScreen.getRequestedHeight(),
                         true,
                         () -> -1,
                         true, false
@@ -70,12 +71,15 @@ public class RenderTargetGUI implements RenderTargetHolder {
                 width, height,
                 Minecraft.ON_OSX
         );
-        for(VRRenderTarget target : overlayTargets.values()) {
+        for(var entry : overlayTargets.entrySet()) {
             if(target==null) continue;
-            target.resize(
-                    width, height,
+            var overlay = entry.getKey();
+            entry.getValue().resize(
+                    overlay.getRequestedWidth(),
+                    overlay.getRequestedHeight(),
                     Minecraft.ON_OSX
             );
+            overlay.updateSize();
         }
         if (MC.screen != null) {
             int screenWidth = MC.getWindow().getGuiScaledWidth();
@@ -107,7 +111,8 @@ public class RenderTargetGUI implements RenderTargetHolder {
         if(renderTarget == null && visible){
             renderTarget = new VRRenderTarget(
                     "Overlay " + overlayScreen.getId(),
-                    savedWidth, savedHeight,
+                    overlayScreen.getRequestedWidth(),
+                    overlayScreen.getRequestedHeight(),
                     true,
                     () -> -1,
                     true, false

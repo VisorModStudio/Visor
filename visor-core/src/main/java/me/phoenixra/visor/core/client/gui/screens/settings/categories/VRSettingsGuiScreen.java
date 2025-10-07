@@ -1,31 +1,26 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
+import me.phoenixra.visor.core.client.settings.VROptionCategory;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
-public class VRSettingsGuiScreen extends VRGuiOptionsBaseScreen {
+public class VRSettingsGuiScreen extends VROptionsBaseScreen {
 
     public VRSettingsGuiScreen(Screen previousScreen) {
-        super(previousScreen,
-                Component.translatable("visor.option.screen.gui")
-        );
+        super(VROptionCategory.GUI, previousScreen);
     }
     @Override
-    protected VRGuiOption[] getOptionTypes() {
-        return new VRGuiOption[]{
-                VRGuiOption.GUI_SCALE,
-                VRGuiOption.SHADER_GUI_RENDER,
-                VRGuiOption.HUD_DISABLED_HOTBAR
-        };
+    protected VROptionWidgetType[] getOptionTypes() {
+        return VROptionCategory.GUI.types()
+                .toArray(new VROptionWidgetType[0]);
     }
 
     @Override
-    protected VRGuiOptionEntry[] getOptionEntries() {
-        return new VRGuiOptionEntry[0];
+    protected OptionWidgetEntry[] getOptionEntries() {
+        return new OptionWidgetEntry[0];
     }
 
     @Override

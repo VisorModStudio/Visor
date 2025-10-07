@@ -55,26 +55,20 @@ public interface VRGuiManager {
     int getGuiScaledHeight();
 
     /**
-     * Get aspect ratio
-     *
-     * @return aspect ratio
-     */
-    default float getAspectRatio(){
-        return (float) getGuiHeight() / getGuiWidth();
-    }
-
-    /**
-     * Get scaled aspect ratio
-     *
-     * @return scaled aspect ratio
-     */
-    default float getScaledAspectRatio(){
-        return (float) getGuiScaledHeight() / getGuiScaledWidth();
-    }
-
-    /**
      *
      * @return scaleFactor integer
      */
     int getScaleFactor();
+
+    /**
+     * Calculate gui scale from given parameters and return the result.
+     *
+     * @param scaleIn the initial scale
+     * @param guiWidth the gui width
+     * @param guiHeight the gui height
+     * @return gui scale
+     */
+    int calculateScale(int scaleIn,
+                       int guiWidth,
+                       int guiHeight);
 }

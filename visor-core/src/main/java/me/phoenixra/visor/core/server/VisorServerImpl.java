@@ -33,11 +33,16 @@ public class VisorServerImpl implements VisorServer {
 
     private AddonManagerImpl addonManager;
 
-    public VisorServerImpl() {
+    private VisorServerImpl() {}
+
+    public static void create(){
+        INSTANCE = new VisorServerImpl();
+        INSTANCE.init();
+        LOGGER.info("VR Server Core initialized");
+    }
+
+    private void init(){
         VisorAPI.Instance.setServer(this);
-        INSTANCE = this;
-
-
         this.configManager = new AtumConfigManager(
                 "visor_server",
                 VisorAPI.CONFIG_PATH,
@@ -62,7 +67,6 @@ public class VisorServerImpl implements VisorServer {
             );
 
         }
-
     }
 
     public void tickVR() {
@@ -113,4 +117,6 @@ public class VisorServerImpl implements VisorServer {
     public @NotNull Logger getLogger() {
         return LOGGER;
     }
+
+
 }

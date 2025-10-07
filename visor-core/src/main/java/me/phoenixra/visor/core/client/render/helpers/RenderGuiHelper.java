@@ -7,12 +7,13 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.ShaderGUIRenderMode;
+import me.phoenixra.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -37,11 +38,12 @@ public class RenderGuiHelper {
 
 
 
-    public static void renderOverlayQuad(RenderTarget renderTarget,
+    public static void renderOverlayQuad(VROverlay overlay,
                                          PoseStack poseStack,
                                          Vector3fc position,
                                          Matrix4fc orientation,
                                          boolean depthAlways,
+                                         boolean useLight,
                                          float scale
     ) {
         // --- Prepare variables ---
@@ -59,6 +61,9 @@ public class RenderGuiHelper {
         var color = AtumColor.WHITE.asMutable();
 
         // --- Setup GL ---
+        var renderTarget = overlay.getRenderTarget();
+        assert renderTarget != null;
+
         renderTarget.bindRead();
 
         RenderSystem.disableCull();
@@ -107,7 +112,7 @@ public class RenderGuiHelper {
 
 
         // --- Render ---
-        if (MC.level != null) {
+        if (MC.level != null && useLight) {
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F) {
                 position = ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition();
@@ -122,8 +127,8 @@ public class RenderGuiHelper {
             RenderHelper.renderDisplayQuadWithLight(
                     poseStack.last().pose(),
                     color,
-                    (float) MC.getWindow().getGuiScaledWidth(),
-                    (float) MC.getWindow().getGuiScaledHeight(),
+                    (float) overlay.getWidth(),
+                    (float) overlay.getHeight(),
                     VROverlayPose.QUAD_SCALE,
                     light,
                     false
@@ -132,8 +137,8 @@ public class RenderGuiHelper {
             RenderHelper.renderDisplayQuad(
                     poseStack.last().pose(),
                     color,
-                    (float) MC.getWindow().getGuiScaledWidth(),
-                    (float) MC.getWindow().getGuiScaledHeight(),
+                    (float) overlay.getWidth(),
+                    (float) overlay.getHeight(),
                     VROverlayPose.QUAD_SCALE
             );
         }

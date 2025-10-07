@@ -4,6 +4,7 @@ package me.phoenixra.visor.api;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.common.addon.AddonManager;
@@ -11,6 +12,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.VREventBus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,12 +36,20 @@ public interface VisorAPI {
     /** Base path for Visor configuration files (relative to game directory). */
     Path CONFIG_PATH = ModLoader.get().getConfigFolder().toPath().resolve(MOD_NAME);
 
+    /**Visor mod icon**/
+    GuiTexture NOD_ICON = new GuiTexture(
+            new ResourceLocation(VisorAPI.MOD_ID, "icon.png")
+    );
 
     /**
      * Registers an addon, that will be loaded later during Visor startup.
-     * <p>Use this method only during mod initialization <br>
-     * or before Visor (client/server) instance is created.</p>
-     * <p>Visor instance is created late, after all mods initialized</p>
+     * <p>
+     *     Use this method only
+     *     before Visor instance is created.
+     * </p>
+     * <p>
+     *     Visor instance is created late, after all mods initialized
+     * </p>
      * @param addon the addon
      */
     static void registerAddon(@NotNull VisorAddon addon){

@@ -2,30 +2,27 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.controls.VRActionSetsScreen;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffectsScreen;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsMixedReality;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsThirdPerson;
+import me.phoenixra.visor.core.client.settings.VROptionCategory;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionPosition;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
-import me.phoenixra.visor.core.client.settings.option.gui.elements.VRGuiOptionElement;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
+import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetPosition;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
+public class VRSettingsRenderingScreen extends VROptionsBaseScreen {
 
     public VRSettingsRenderingScreen(Screen previousScreen) {
-        super(previousScreen,
-                Component.translatable("visor.option.screen.rendering")
-        );
+        super(VROptionCategory.RENDERING, previousScreen);
     }
 
     @Override
@@ -35,28 +32,28 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
     }
 
     @Override
-    protected VRGuiOption[] getOptionTypes() {
+    protected VROptionWidgetType[] getOptionTypes() {
 
-        return new VRGuiOption[0];
+        return new VROptionWidgetType[0];
     }
 
     @Override
-    protected VRGuiOptionEntry[] getOptionEntries() {
-        List<VRGuiOptionEntry> options = new ArrayList<>();
+    protected OptionWidgetEntry[] getOptionEntries() {
+        List<OptionWidgetEntry> options = new ArrayList<>();
         options.add(
-                new VRGuiOptionEntry(
-                        VRGuiOption.MIRROR_DISPLAY,
-                        VRGuiOptionPosition.LEFT,
+                new OptionWidgetEntry(
+                        VROptionWidgetType.MIRROR_MODE,
+                        OptionWidgetPosition.LEFT,
                         1,
                         null
                 )
         );
         options.add(
-                new VRGuiOptionEntry(
+                new OptionWidgetEntry(
                         VRSettingsEyeEffectsScreen.class,
-                        VRGuiOptionPosition.RIGHT,
+                        OptionWidgetPosition.RIGHT,
                         1,
-                        "visor.option.screen.rendering.eyeEffects.button"
+                        "visor.options.rendering.eye_effects.button"
                 )
         );
 
@@ -65,35 +62,35 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
         if(mirrorMode == MirrorMode.CROPPED
                 || mirrorMode == MirrorMode.SINGLE){
             options.add(
-                    new VRGuiOptionEntry(
-                            VRGuiOption.MIRROR_EYE,
-                            VRGuiOptionPosition.LEFT,
+                    new OptionWidgetEntry(
+                            VROptionWidgetType.MIRROR_EYE,
+                            OptionWidgetPosition.LEFT,
                             2,
                             null
                     )
             );
         } else if(mirrorMode == MirrorMode.THIRD_PERSON){
             options.add(
-                    new VRGuiOptionEntry(
+                    new OptionWidgetEntry(
                             VRSettingsThirdPerson.class,
-                            VRGuiOptionPosition.LEFT,
+                            OptionWidgetPosition.LEFT,
                             2,
-                            "visor.option.screen.third_person.button"
+                            "visor.options.rendering.third_person.button"
                     )
             );
         }else if(mirrorMode == MirrorMode.MIXED_REALITY){
             options.add(
-                    new VRGuiOptionEntry(
+                    new OptionWidgetEntry(
                             VRSettingsMixedReality.class,
-                            VRGuiOptionPosition.LEFT,
+                            OptionWidgetPosition.LEFT,
                             2,
-                            "visor.option.screen.mixed_reality.button"
+                            "visor.options.rendering.mixed_reality.button"
                     )
             );
         }
 
 
-        return options.toArray(new VRGuiOptionEntry[0]);
+        return options.toArray(new OptionWidgetEntry[0]);
     }
 
 
@@ -109,8 +106,10 @@ public class VRSettingsRenderingScreen extends VRGuiOptionsBaseScreen {
     @Override
     public boolean mouseClicked(double d, double e, int i) {
        boolean success =  super.mouseClicked(d, e, i);
-       if(success && getFocused() instanceof VRGuiOptionElement option){
-           if(option.getGuiOptionType() == VRGuiOption.MIRROR_DISPLAY){
+       if(success && getFocused() instanceof AbstractWidget clicked){
+           var clickedOption = getTypeFromWidget(clicked);
+           if(clickedOption == null) return success;
+           if(clickedOption == VROptionWidgetType.MIRROR_MODE){
                this.init();
            }
        }

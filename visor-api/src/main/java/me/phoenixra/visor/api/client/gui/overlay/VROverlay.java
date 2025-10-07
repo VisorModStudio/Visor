@@ -1,13 +1,20 @@
 package me.phoenixra.visor.api.client.gui.overlay;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 /**
  * Basic interface for all VR overlays.
@@ -73,11 +80,162 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      */
     boolean isVisible();
 
+    /**
+     * If this overlay is custom,
+     * i.e. created from template
+     *
+     * @return true/false
+     */
+    default boolean isCustom(){
+        return asTemplate() != null;
+    }
+
 
     /**
-     * Get this object as overlay type
+     * Get overlay name
      *
-     * @return overlay type or null if not an instance of {@link VROverlayTemplate}
+     * @return the overlay name
+     */
+    @NotNull
+    default Component getName(){
+        return Component.literal(getId());
+    }
+
+    /**
+     * Get overlay description
+     *
+     * @return the overlay description
+     */
+    @NotNull
+    default Component getDescription(){
+        return Component.literal("No description");
+    }
+
+    /**
+     * Get overlay icon
+     * @return resource texture
+     */
+    default @NotNull GuiTexture getIcon(){
+        return getOwner().getAddonIcon();
+    }
+
+
+    /**
+     * Get collection of overlay options
+     *
+     * <p>
+     *     If not empty, the config is created where options will be saved
+     * </p>
+     *
+     * @return the options
+     */
+    @NotNull
+    Collection<OverlayOptionGroup<?>> getOptions();
+
+
+    /**
+     * Get option from id
+     *
+     * <p>
+     *     You can create your own option class,
+     *     or use already existing one from {@link me.phoenixra.visor.api.client.gui.overlay.options.types this package}
+     * </p>
+     *
+     * @param id the option id
+     *
+     * @return option instance or null
+     */
+    @Nullable
+    OverlayOptionGroup<?> getOption(@NotNull String id);
+
+    /**
+     * Get option from id
+     *
+     * <p>
+     *     You can create your own option class,
+     *     or use already existing one from {@link me.phoenixra.visor.api.client.gui.overlay.options.types this package}
+     * </p>
+     *
+     * @param id the option id
+     * @param type the option type
+     *
+     * @return option instance or null
+     */
+    @Nullable
+    default <T extends OverlayOptionGroup<?>> T getOption(@NotNull String id,
+                                                       @NotNull Class<T> type){
+        var optionGroup = getOption(id);
+        if(type.isInstance(optionGroup)){
+            return type.cast(optionGroup);
+        }
+        return null;
+    }
+
+    /**
+     * Get config holding
+     * saved options of this overlay
+     *
+     * <p>
+     *     if {@link #getOptions()} returns empty list,
+     *     the config is not created
+     * </p>
+     *
+     * @return the config file or null
+     */
+    @Nullable
+    ConfigFile getOptionsConfig();
+
+    /**
+     * Reloads options from config file
+     */
+    default void reloadOptions(){
+        boolean reloadFile = true;
+        for(var option : getOptions()){
+            option.loadFromFile(reloadFile);
+            reloadFile = false;
+        }
+    }
+
+    /**
+     * Reloads option group of specified id
+     * from config file
+     */
+    default void reloadOption(@NotNull String id){
+        var option = getOption(id);
+        if(option == null) return;
+        option.loadFromFile(true);
+    }
+
+
+
+
+    /**
+     * Get the forced anchor
+     *
+     * <p>The anchor that is forced and replaces {@link #updatePose(float)}</p>
+     *
+     * <p>Used in demo overlay</p>
+     *
+     * @return the forced anchor or null
+     */
+    @Nullable PoseAnchor getForcedAnchor();
+
+    /**
+     * Set the forced anchor
+     *
+     * <p>The anchor that is forced and replaces {@link #updatePose(float)}</p>
+     *
+     * <p>Used in demo overlay</p>
+     *
+     * @param anchor the anchor or null
+     */
+    void setForcedAnchor(@Nullable PoseAnchor anchor);
+
+
+    /**
+     * Get this overlay as template
+     *
+     * @return overlay template or null if not an instance of {@link VROverlayTemplate}
      */
     default @Nullable VROverlayTemplate asTemplate(){
         if(this instanceof VROverlayTemplate overlayTemplate){
@@ -89,6 +247,14 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
 
 
     /**
+     * If supports update of visibility each render call, instead of tick()
+     * @return true/false
+     */
+    default boolean supportsVisibilityUpdateOnRender(){
+        return false;
+    }
+
+    /**
      * If overlay visibility is affected
      * by solid blocks, entity models etc
      *
@@ -98,6 +264,16 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      */
     default boolean supportsDepth(){
         return false;
+    }
+
+    /**
+     * If overlay is affected by world light level
+     *
+     *
+     * @return true/false
+     */
+    default boolean supportsLight(){
+        return true;
     }
 
     /**
@@ -113,8 +289,10 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      * If cursor handling when overlay
      * is not visible but enabled is supported
      *
-     * <p>Useful in case you want to make
-     * overlay visible only when cursor is focused</p>
+     * <p>
+     *     Useful in case you want to make
+     *     overlay visible only when cursor is focused
+     * </p>
      * @return true/false
      */
     default boolean supportsCursorIgnoreVisible() {
@@ -152,6 +330,96 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
 
 
     /**
+     * Get width of an overlay in pixels.
+     *
+     * @return the width in pixels
+     */
+    default int getWidth(){
+        return VisorAPI.client().getGuiManager().getGuiScaledWidth();
+    }
+
+    /**
+     * Get height of an overlay in pixels.
+     * @return the height in pixels
+     */
+    default int getHeight(){
+        return VisorAPI.client().getGuiManager().getGuiScaledHeight();
+    }
+
+    /**
+     * Get aspect ratio between {@link #getHeight()} and {@link #getWidth()}
+     * <p>
+     *     It is a helper method added for convenience
+     * </p>
+     * @return the aspect ratio
+     */
+    default float getAspectRatio(){
+        return (float) getHeight() / getWidth();
+    }
+
+    /**
+     * Returns top-left corner X coordinate (in pixels)
+     * of the cursor bounds rectangle
+     * <p>
+     * A return value of {@code -1} indicates that
+     * no specific cursor bounds have been set,
+     * and the cursor is considered valid across
+     * the entire overlay bounds
+     * </p>
+     *
+     * @return the X of the cursor bounds, or {@code -1}
+     */
+    default int getCursorBoundsX() {
+        return -1;
+    }
+
+    /**
+     * Returns top-left corner Y coordinate (in pixels)
+     * of the cursor bounds rectangle
+     * <p>
+     * A return value of {@code -1} indicates that
+     * no specific cursor bounds have been set,
+     * and the cursor is considered valid across
+     * the entire overlay bounds
+     * </p>
+     *
+     * @return the Y of the cursor bounds, or {@code -1}
+     */
+    default int getCursorBoundsY() {
+        return -1;
+    }
+
+    /**
+     * Returns the width of the cursor bounds rectangle
+     * <p>
+     * A return value of {@code -1} indicates that
+     * no specific cursor bounds have been set,
+     * and the cursor is considered valid across
+     * the entire overlay bounds
+     * </p>
+     *
+     * @return the width of the cursor bounds, or {@code -1}
+     */
+    default int getCursorBoundsWidth() {
+        return -1;
+    }
+
+    /**
+     * Returns the height of the cursor bounds rectangle
+     * <p>
+     * A return value of {@code -1} indicates that
+     * no specific cursor bounds have been set,
+     * and the cursor is considered valid across
+     * the entire overlay bounds
+     * </p>
+     *
+     * @return the height of the cursor bounds, or {@code -1}
+     */
+    default int getCursorBoundsHeight() {
+        return -1;
+    }
+
+    /**
      * Update cursor data
      *
      * @param activeCursor if active or inactive cursor
@@ -164,18 +432,35 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
     /**
      * If specified cursor raw data is within overlay bounds
      *
-     * @param activeCursor if active or inactive cursor
      * @param rawX the raw cursor X position relative to overlay bounds
      * @param rawY the raw cursor Y position relative to overlay bounds
      *
      * @return true/false
      */
-    default boolean isCursorWithinBounds(boolean activeCursor,
-                                         float rawX, float rawY) {
-        return rawX >= 0f
-                && rawX <= 1f
-                && rawY >= 0f
-                && rawY <= 1f;
+    default boolean isWithinCursorBounds(float rawX, float rawY) {
+        if(rawX < 0f
+                || rawX > 1f
+                || rawY < 0f
+                || rawY > 1f){
+            return false;
+        }
+        int edgeX = getCursorBoundsX();
+        int edgeY = getCursorBoundsY();
+        int edgeWidth = getCursorBoundsWidth();
+        int edgeHeight = getCursorBoundsHeight();
+        int width = getWidth();
+        int height = getHeight();
+        if (width > 0 && height > 0
+                && edgeX >= 0 && edgeY >= 0
+                && edgeWidth >= 0 && edgeHeight >= 0) {
+            int px = (int)(rawX * width);
+            int py = (int)(rawY * height);
+            return px >= edgeX
+                    && px <= edgeX + edgeWidth
+                    && py >= edgeY
+                    && py <= edgeY + edgeHeight;
+        }
+        return true;
     }
 
 

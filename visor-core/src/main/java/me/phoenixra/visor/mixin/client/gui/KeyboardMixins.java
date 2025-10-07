@@ -96,25 +96,21 @@ public class KeyboardMixins {
                 return;
             }
 
-            var keyboardAccessor = VisorAPI.client().getGuiManager()
-                    .getOverlayManager()
+            var keyboardAccessor = ClientContext.overlayManager
                     .getKeyboardAccessor();
-            if (!ClientContext.cursorHandler.isCursorHandFocused()) {
-                keyboardAccessor.setVisible(true);
-                return;
+            var cursorHandler = ClientContext.cursorHandler;
+            if (cursorHandler.isCursorHandFocused()) {
+                VROverlayScreen overlayBase = null;
+                if (cursorHandler.getFocusedOverlay() instanceof VROverlayScreen overlayScreen) {
+                    overlayBase = overlayScreen;
+                }
+                Screen screenFocused = overlayBase == null
+                        ? Minecraft.getInstance().screen
+                        : overlayBase;
+                keyboardAccessor.showKeyboard(
+                        screenFocused
+                );
             }
-
-            VROverlayScreen overlayBase = null;
-            if(ClientContext.cursorHandler
-                    .getFocusedOverlay() instanceof VROverlayScreen overlayScreen){
-                overlayBase = overlayScreen;
-            }
-            Screen screenFocused = overlayBase == null
-                    ? Minecraft.getInstance().screen
-                    : overlayBase;
-            keyboardAccessor.showKeyboard(
-                    screenFocused
-            );
         }
     }
 
