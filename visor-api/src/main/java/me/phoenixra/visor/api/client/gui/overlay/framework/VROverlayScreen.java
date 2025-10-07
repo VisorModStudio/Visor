@@ -3,20 +3,26 @@ package me.phoenixra.visor.api.client.gui.overlay.framework;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
+import me.phoenixra.visor.api.client.gui.overlay.*;
+import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * {@link VROverlay} that is rendered
@@ -36,9 +42,23 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Getter
     private final VROverlayPose pose;
 
+    @Getter @Setter
+    private @Nullable PoseAnchor forcedAnchor;
+
 
     @Getter @Setter
     private RenderTarget renderTarget;
+
+
+
+
+    protected final Map<String, OverlayOptionGroup<?>> optionsMap;
+
+    @Getter
+    private final @NotNull Collection<OverlayOptionGroup<?>> options;
+
+    @Getter
+    protected final ConfigFile optionsConfig;
 
 
     @Getter
@@ -46,15 +66,18 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Getter
     private final VROverlayCursorData inactiveCursorData = new VROverlayCursorData();
 
-    //screen edges to consider valid for cursor
+
     @Getter
-    protected int cursorEdgeX = -1;
+    protected int scaleFactor = 0;
+
     @Getter
-    protected int cursorEdgeY = -1;
+    protected int cursorBoundsX = -1;
     @Getter
-    protected int cursorEdgeWidth = -1;
+    protected int cursorBoundsY = -1;
     @Getter
-    protected int cursorEdgeHeight = -1;
+    protected int cursorBoundsWidth = -1;
+    @Getter
+    protected int cursorBoundsHeight = -1;
 
 
     @Getter
@@ -66,6 +89,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     private static long mouseDragDelay;
+
+
 
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id) {
@@ -87,9 +112,32 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         this.owner = owner;
         this.id = id;
         this.priority = priority;
-        this.pose = new VROverlayPose(overlayScale);
+        this.pose = new VROverlayPose(this, overlayScale);
 
         this.minecraft = Minecraft.getInstance();
+
+        optionsMap = new LinkedHashMap<>();
+        List<OverlayOptionGroup<?>> preOptions = createOptions();
+        preOptions.forEach(it->{
+            optionsMap.put(it.getId(),it);
+        });
+        options = Collections.unmodifiableCollection(optionsMap.values());
+
+        if(!optionsMap.isEmpty()){
+            try {
+                this.optionsConfig = VisorAPI.client()
+                        .getGuiManager()
+                        .getOverlayManager()
+                        .getConfigOverlaysAccessor()
+                        .getConfigOrCreate(this);
+                initOptions();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            this.optionsConfig = null;
+        }
+
 
     }
 
@@ -106,6 +154,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                             int mouseX, int mouseY,
                             float partialTicks) {}
 
+    protected abstract void onUpdatePose(float partialTicks);
+
 
     protected abstract boolean updateVisibility();
 
@@ -113,30 +163,70 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected void onDisable() {};
 
+    public int getRequestedWidth(){
+        return VisorAPI.client().getGuiManager().getGuiWidth();
+    }
+    public int getRequestedHeight(){
+        return VisorAPI.client().getGuiManager().getGuiHeight();
+    }
+    public final int getRequestedWidthScaled(){
+        return Mth.ceil(getRequestedWidth() / (float) scaleFactor);
+    }
+    public final int getRequestedHeightScaled(){
+        return Mth.ceil(getRequestedHeight() / (float) scaleFactor);
+    }
+
+    /**
+     * Create options for overlay.
+     * If no options required, return empty list.
+     *
+     * <p>
+     *     If method returns non-empty list, the optionsConfig is created
+     * </p>
+     * <p>If overlay is a {@link VROverlayTemplate}, the method has to return non-empty list</p>
+     * @return options
+     */
+    @NotNull
+    protected List<OverlayOptionGroup<?>> createOptions() {
+        return List.of();
+    }
+
+    protected void initOptions(){
+        for(var option : options){
+            option.init();
+        }
+    }
 
     @Override
     public final void tick() {
         onPreTick();
-
         visible = enabled && updateVisibility();
         VisorAPI.client().getRenderer().updateOverlayTarget(
                 this
         );
         //making sure there is a render target to draw on
         visible = visible && renderTarget != null;
-
         onTick();
     }
 
 
     @Override
-    public final void render(GuiGraphics guiGraphics,
+    public final void render(@NotNull GuiGraphics guiGraphics,
                              int pMouseX, int pMouseY,
                              float partialTicks
     ) {
         if (initAgain) {
             init();
             initAgain = false;
+        }
+        if(supportsVisibilityUpdateOnRender()) {
+            visible = enabled && updateVisibility();
+            VisorAPI.client().getRenderer().updateOverlayTarget(
+                    this
+            );
+            //making sure there is a render target to draw on
+            visible = visible && renderTarget != null;
+            if(!visible) return;
         }
 
         onPreRender(
@@ -155,6 +245,24 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     }
 
     @Override
+    public final void updatePose(float partialTicks) {
+        if(forcedAnchor != null) {
+            VROverlayHelper.applyPose(
+                    this,
+                    forcedAnchor,
+                    forcedAnchor,
+                    getPose().getScale(),
+                    false,
+                    new Vector3f(0,0,-0.3f),
+                    new Vector3f(0,0,0)
+            );
+            return;
+        }
+        onUpdatePose(partialTicks);
+    }
+
+
+    @Override
     public void renderBackground(@NotNull GuiGraphics guiGraphics) {
         //empty
     }
@@ -162,15 +270,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public void setEnabled(boolean flag) {
         if (flag == enabled) return;
-        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
-
         if (flag) {
             enabled = true;
-            init(
-                    Minecraft.getInstance(),
-                    guiManager.getGuiScaledWidth(),
-                    guiManager.getGuiScaledHeight()
-            );
+            updateSize();
             onEnable();
         } else {
             enabled = false;
@@ -194,26 +296,28 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     public void finishDragMouse(){
         mouseDragDelay = Long.MAX_VALUE;
     }
+    public void updateSize(){
+        scaleFactor = VisorAPI.client().getGuiManager().calculateScale(
+                0,
+                getRequestedWidth(),
+                getRequestedHeight()
+        );
+        init(
+                Minecraft.getInstance(),
+                getRequestedWidthScaled(),
+                getRequestedHeightScaled()
+        );
+    }
 
     @Override
     public void updateCursorData(boolean activeCursor, float rawX, float rawY) {
         if (!enabled) return;
         if (rawX < 0f || rawX > 1f
                 || rawY < 0f || rawY > 1f) {
-            VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
-
-            cursorData.setRawCursorX(-1);
-            cursorData.setRawCursorY(-1);
-
-            cursorData.setCursorX(0);
-            cursorData.setCursorY(0);
-            mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());
-            return;
+             return;
         }
 
         // ---- Preparing
-        VRGuiManager guiManager = VisorAPI.client().getGuiManager();
-
         VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
 
 
@@ -247,34 +351,6 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     }
 
-    @Override
-    public boolean isCursorWithinBounds(boolean activeCursor,
-                                        float rawX, float rawY) {
-        if (rawX < 0f || rawX > 1f
-                || rawY < 0f || rawY > 1f) return false;
-
-        if (cursorEdgeX == -1 || cursorEdgeY == -1
-                || cursorEdgeWidth == -1 || cursorEdgeHeight == -1) return true;
-
-        VROverlayCursorData cursorData = activeCursor ? activeCursorData : inactiveCursorData;
-
-        float originRawCursorX = cursorData.getRawCursorX();
-        float originRawCursorY = cursorData.getRawCursorY();
-        int originCursorX = cursorData.getCursorX();
-        int originCursorY = cursorData.getCursorY();
-
-        updateCursorData(activeCursor, rawX, rawY);
-        boolean result = cursorData.getCursorX() >= cursorEdgeX
-                && cursorData.getCursorY() >= cursorEdgeY
-                && cursorData.getCursorX() <= cursorEdgeWidth + cursorEdgeX
-                && cursorData.getCursorY() <= cursorEdgeHeight + cursorEdgeY;
-
-        cursorData.setRawCursorX(originRawCursorX);
-        cursorData.setRawCursorY(originRawCursorY);
-        cursorData.setCursorX(originCursorX);
-        cursorData.setCursorY(originCursorY);
-        return result;
-    }
 
 
 
@@ -282,6 +358,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return visible && enabled;
     }
 
+    @Override
+    public @Nullable OverlayOptionGroup<?> getOption(@NotNull String id) {
+        return optionsMap.get(id);
+    }
 
 
     @Override
@@ -317,5 +397,13 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return super.charTyped(chr, modifiers);
     }
 
+    @Override
+    public int getWidth() {
+        return width;
+    }
 
+    @Override
+    public int getHeight() {
+        return height;
+    }
 }

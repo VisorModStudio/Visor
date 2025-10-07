@@ -18,10 +18,10 @@ import me.phoenixra.visor.core.client.render.decoration.registry.VRHandEffectReg
 import me.phoenixra.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
+import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;

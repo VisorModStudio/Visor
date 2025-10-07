@@ -21,7 +21,7 @@ import me.phoenixra.visor.core.client.render.target.types.RenderTargetGUI;
 import me.phoenixra.visor.core.client.render.target.types.RenderTargetMain;
 import me.phoenixra.visor.core.client.render.target.types.RenderTargetThird;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;

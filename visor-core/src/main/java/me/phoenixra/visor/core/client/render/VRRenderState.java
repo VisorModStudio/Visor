@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.render.RenderPhase;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.modified.client.WindowModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;

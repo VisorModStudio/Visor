@@ -83,7 +83,7 @@ public abstract class VisorActionSet implements VisorElement, PrioritySupporter 
     }
 
     public Component getName() {
-        return Component.translatable("visor.actionSet."+getId());
+        return Component.translatable("visor.action_sets."+getId());
     }
 
     public void preTick(){

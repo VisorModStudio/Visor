@@ -2,49 +2,47 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.controls.VRActionSetsScreen;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionPosition;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
+import me.phoenixra.visor.core.client.settings.VROptionCategory;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetPosition;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
-public class VRSettingsControlsScreen extends VRGuiOptionsBaseScreen {
+public class VRSettingsControlsScreen extends VROptionsBaseScreen {
 
     public VRSettingsControlsScreen(Screen previousScreen) {
-        super(previousScreen,
-                Component.translatable("visor.option.screen.controls")
-        );
+        super(VROptionCategory.CONTROLS, previousScreen);
     }
     @Override
-    protected VRGuiOption[] getOptionTypes() {
-        return new VRGuiOption[0];
+    protected VROptionWidgetType[] getOptionTypes() {
+        return new VROptionWidgetType[0];
     }
 
 
     @Override
-    protected VRGuiOptionEntry[] getOptionEntries() {
+    protected OptionWidgetEntry[] getOptionEntries() {
         if(VisorState.getState().isInitialized()){
-            return new VRGuiOptionEntry[]{
-                    new VRGuiOptionEntry(
-                            VRGuiOption.LEFT_HANDED,
-                            VRGuiOptionPosition.LEFT,
+            return new OptionWidgetEntry[]{
+                    new OptionWidgetEntry(
+                            VROptionWidgetType.LEFT_HANDED,
+                            OptionWidgetPosition.LEFT,
                             1,
                             null
                     ),
-                    new VRGuiOptionEntry(
+                    new OptionWidgetEntry(
                             VRActionSetsScreen.class,
-                            VRGuiOptionPosition.RIGHT,
+                            OptionWidgetPosition.RIGHT,
                             1,
-                            "visor.option.screen.actionSets.button"
+                            "visor.options.controls.action_sets.button"
                     ),
 
             };
         }else{
-            return new VRGuiOptionEntry[]{
-                    new VRGuiOptionEntry(
-                            VRGuiOption.LEFT_HANDED,
-                            VRGuiOptionPosition.LEFT,
+            return new OptionWidgetEntry[]{
+                    new OptionWidgetEntry(
+                            VROptionWidgetType.LEFT_HANDED,
+                            OptionWidgetPosition.LEFT,
                             1,
                             null
                     )

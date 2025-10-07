@@ -357,7 +357,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     public @NotNull PoseElement getRotationElement(@NotNull PoseDataType stage){
         PoseData playerPose = getPoseData(stage);
         return switch (VRClientSettings.getRotationMode()) {
-            case CONTROLLER_MAIN -> playerPose.getController(
+            case MAIN_HAND -> playerPose.getController(
                     ControllerHand.MAIN
             );
             case HMD ->  playerPose.getHmd();

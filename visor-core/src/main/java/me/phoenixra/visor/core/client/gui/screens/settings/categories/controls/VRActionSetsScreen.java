@@ -23,7 +23,7 @@ public class VRActionSetsScreen extends Screen {
     private ActionSetsList list;
 
     public VRActionSetsScreen(Screen previous) {
-        super(Component.translatable("visor.option.screen.actionSets"));
+        super(Component.translatable("visor.options.controls.action_sets"));
         this.previousScreen = previous;
     }
 

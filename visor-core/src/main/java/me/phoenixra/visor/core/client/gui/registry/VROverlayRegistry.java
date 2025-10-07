@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 
@@ -32,6 +33,14 @@ public class VROverlayRegistry implements VisorRegistry<VROverlay> {
         return Collections.unmodifiableList(sortedElements);
     }
 
+    public List<VROverlay> getSortedByName() {
+        return elementsMap.values().stream()
+                .sorted(Comparator.comparing(
+                        (it)->it.getName().getString(),
+                        String.CASE_INSENSITIVE_ORDER
+                ))
+                .collect(Collectors.toList());
+    }
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
         //empty, registered only manually
@@ -67,8 +76,8 @@ public class VROverlayRegistry implements VisorRegistry<VROverlay> {
             Collections.sort(sortedElements);
             var template = removed.asTemplate();
             if(template != null){
-                template.getConfig().getFile().delete();
-                ClientContext.settingsHandler.getOverlaysAccessor()
+                template.getOptionsConfig().getFile().delete();
+                ClientContext.settingsHandler.getOverlayConfigsAccessor()
                         .removeConfig(removed.getId());
             }
             LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());

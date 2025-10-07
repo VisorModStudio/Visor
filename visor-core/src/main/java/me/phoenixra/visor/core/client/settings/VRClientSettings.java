@@ -3,14 +3,14 @@ package me.phoenixra.visor.core.client.settings;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
+import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.core.client.VisorClientImpl;
-import me.phoenixra.visor.core.client.settings.lang.LangHandler;
-import me.phoenixra.visor.core.client.settings.option.VROptionField;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.client.settings.option.enums.MirrorMode;
-import me.phoenixra.visor.core.client.settings.option.enums.RotationMode;
-import me.phoenixra.visor.core.client.settings.option.enums.ShaderGUIRenderMode;
+import me.phoenixra.visor.core.client.settings.options.VROptionField;
+import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.RotationMode;
+import me.phoenixra.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
 import me.phoenixra.visor.api.client.VRPlayMode;
+import me.phoenixra.visor.core.client.utils.LangHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
@@ -18,10 +18,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
-
-import java.awt.*;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
@@ -33,13 +30,9 @@ public class VRClientSettings {
     protected static VRPlayMode vrPlayMode = VRPlayMode.ENABLED;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.LEFT_HANDED)
+    @VROptionField(widgetType = VROptionWidgetType.LEFT_HANDED, key = "left_handed")
     protected static boolean leftHanded = false;
 
-
-    @Getter
-    @VROptionField
-    protected static boolean customInputSettings = false;
 
     //----Keyboard
     @Getter
@@ -53,13 +46,12 @@ public class VRClientSettings {
 
     //----World
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.WORLD_SCALE,
-            key = "world.scale")
+    @VROptionField(key = "world_scale", category = VROptionCategory.RENDERING)
     protected static float worldScale = 1.0f;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.WORLD_ROTATION_INCREMENT,
-            key = "world.rotationIncrement")
+    @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
+            key = "world_rotation_increment")
     protected static float worldRotationIncrement = 45f; //Rotation with thumbstick
 
     //---
@@ -70,26 +62,21 @@ public class VRClientSettings {
 
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.ROOM_MOVEMENT_MULTIPLIER,
-            key = "player.walkMultiplier")
+    @VROptionField(key = "player.walkMultiplier")
     protected static float walkMultiplier = 1;
 
 
     //----Rendering
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.MIRROR_DISPLAY,
-            key = "rendering.mirror.mode")
+    @VROptionField(widgetType = VROptionWidgetType.MIRROR_MODE, key = "mirror_mode")
     protected static MirrorMode mirrorMode = MirrorMode.CROPPED;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.MIRROR_EYE,
-            key = "rendering.mirror.eye")
+    @VROptionField(widgetType = VROptionWidgetType.MIRROR_EYE, key = "mirror_eye")
     protected static EyeType mirrorEye = EyeType.LEFT;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.EYE_FOV_SCALE,
-            key = "rendering.eyes.fovScale")
     protected static float eyesFovScale = 1f;
 
     //FOV changes detection, to apply properly
@@ -108,39 +95,32 @@ public class VRClientSettings {
 
     //----Eye Effects
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.LOW_HEALTH_INDICATOR,
-            key = "rendering.eyeEffect.lowHealthIndicator")
+    @VROptionField(widgetType = VROptionWidgetType.LOW_HEALTH_INDICATOR, key = "low_health_indicator")
     protected static boolean lowHealthIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.HIT_INDICATOR,
-            key = "rendering.eyeEffect.hitIndicator")
+    @VROptionField(widgetType = VROptionWidgetType.HIT_INDICATOR, key = "hit_indicator")
     protected static boolean hitIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.FREEZE_EFFECT,
-            key = "rendering.eyeEffect.freeze")
+    @VROptionField(widgetType = VROptionWidgetType.FREEZE_EFFECT, key = "freeze")
     protected static boolean freezeEffectEnabled = true;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.PUMPKIN_EFFECT,
-            key = "rendering.eyeEffect.pumpkin")
+    @VROptionField(widgetType = VROptionWidgetType.PUMPKIN_EFFECT, key = "pumpkin")
     protected static boolean pumpkinEffectEnabled = true;
 
 
     //----GUI && HUD
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.SHADER_GUI_RENDER,
-            key = "gui.shaderMode")
+    @VROptionField(widgetType = VROptionWidgetType.SHADER_GUI_RENDER, key = "shader_gui_render")
     protected static ShaderGUIRenderMode shaderGUIRender = ShaderGUIRenderMode.AFTER_SHADER;
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.GUI_SCALE,
-            key = "gui.scale")
+    @VROptionField(key = "gui.scale")
     protected static float guiScale = 0;
 
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.HUD_DISABLED_HOTBAR,
-            key = "gui.hud.disabled_hotbar")
+    @VROptionField(widgetType = VROptionWidgetType.HUD_DISABLED_HOTBAR, key = "hud_disabled_hotbar")
     protected static boolean hudDisableHotBar = true;
 
 
@@ -149,68 +129,66 @@ public class VRClientSettings {
 
     //----Third Person Mirror
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.THIRD_PERSON_FOV,
-            key = "rendering.mirror.thirdPerson.fov")
+    @VROptionField(widgetType = VROptionWidgetType.THIRD_PERSON_FOV, key = "fov")
     protected static float thirdPersonFov = 40;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.x")
+    @VROptionField(key = "camera.pos.x", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosX = -1.0f;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.y")
+    @VROptionField(key = "camera.pos.y", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosY = 2.4f;
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.camera.pos.z")
+    @VROptionField(key = "camera.pos.z", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosZ = 2.75f;
 
     @Getter
-    @VROptionField(key = "rendering.mirror.thirdPerson.camera.rotation")
+    @VROptionField(key = "camera.rotation", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static Quaternionfc thirdPersonCameraRotation
             = new Quaternionf(0.2246, 0.1873, 0.0440, -0.9552);
 
-  //0.2246;0.1873;0.04406;-0.9552
 
     //----Mixed Reality Mirror
     @Getter
     @VROptionField(
-            guiOptionType = VRGuiOption.MIXED_REALITY_RENDER_HANDS,
-            key = "rendering.mirror.mixedReality.renderHands"
+            widgetType = VROptionWidgetType.MIXED_REALITY_RENDER_HANDS,
+            key = "render_hands"
     )
     protected static boolean mixedRealityRenderHands = false;
 
     @Getter
     @VROptionField(
-            guiOptionType = VRGuiOption.MIXED_REALITY_AS_GRID_2_X_2,
-            key = "rendering.mirror.mixedReality.asGrid2x2"
+            widgetType = VROptionWidgetType.MIXED_REALITY_AS_GRID_2_X_2,
+            key = "as_grid_2_x_2"
     )
     protected static boolean mixedRealityAsGrid2x2 = true;
 
     @Getter
     @VROptionField(
-            guiOptionType = VRGuiOption.MIXED_REALITY_WITH_FIRST_PERSON,
-            key = "rendering.mirror.mixedReality.withFirstPerson"
+            widgetType = VROptionWidgetType.MIXED_REALITY_WITH_FIRST_PERSON,
+            key = "with_first_person"
     )
     protected static boolean mixedRealityWithFirstPerson = true;
 
     @Getter
     @VROptionField(
-            guiOptionType = VRGuiOption.MIXED_REALITY_ALPHA_MASK,
-            key = "rendering.mirror.mixedReality.alphaMask"
+            widgetType = VROptionWidgetType.MIXED_REALITY_ALPHA_MASK,
+            key = "alpha_mask"
     )
     protected static boolean mixedRealityAlphaMask = false;
 
     @Getter
     @VROptionField(
-            guiOptionType = VRGuiOption.MIXED_REALITY_FOV,
-            key = "rendering.mirror.mixedReality.fov"
+            widgetType = VROptionWidgetType.MIXED_REALITY_FOV,
+            key = "fov"
     )
     protected static float mixedRealityFov = 40;
 
     @Getter
-    @VROptionField(key = "rendering.mirror.mixedReality.keyColor")
-    protected static Color mixedRealityKeyColor = new Color(0, 0, 0);
+    @VROptionField(key = "keyColor", category = VROptionCategory.RENDERING_MIXED_REALITY)
+    protected static AtumColor mixedRealityKeyColor = AtumColor.immutable(0, 0, 0, 255);
 
     @Getter
-    @VROptionField(key = "rendering.mirror.mixedReality.aspectRatio")
+    @VROptionField(key = "aspectRatio", category = VROptionCategory.RENDERING_MIXED_REALITY)
     protected static float mixedRealityAspectRatio = 16F / 9F;
     //
 
@@ -228,7 +206,7 @@ public class VRClientSettings {
 
     //
     @Getter
-    @VROptionField(guiOptionType = VRGuiOption.ROTATION_MODE)
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE, key = "rotation_mode")
     protected static RotationMode rotationMode = RotationMode.HMD;
 
 
@@ -292,7 +270,7 @@ public class VRClientSettings {
         Minecraft.getInstance().gui.getChat()
                 .addMessage(
                         Component.literal(
-                                LangHandler.getText(
+                                LangHelper.getText(
                                         "visor.messages.height_set",
                                         i
                                 )

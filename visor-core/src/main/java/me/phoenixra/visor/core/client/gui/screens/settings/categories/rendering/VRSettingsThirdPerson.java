@@ -3,38 +3,36 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionEntry;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionPosition;
-import me.phoenixra.visor.core.client.settings.option.gui.VRGuiOptionsBaseScreen;
+import me.phoenixra.visor.core.client.settings.VROptionCategory;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetPosition;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
 import java.util.Objects;
 
-public class VRSettingsThirdPerson extends VRGuiOptionsBaseScreen {
+public class VRSettingsThirdPerson extends VROptionsBaseScreen {
 
-    public VRSettingsThirdPerson(Screen guiScreen) {
-        super(guiScreen,
-                Component.translatable("visor.option.screen.third_person")
-        );
+    public VRSettingsThirdPerson(Screen previousScreen) {
+        super(VROptionCategory.RENDERING_THIRD_PERSON, previousScreen);
     }
     @Override
-    protected VRGuiOption[] getOptionTypes() {
-        return new VRGuiOption[0];
+    protected VROptionWidgetType[] getOptionTypes() {
+        return new VROptionWidgetType[0];
     }
 
     @Override
-    protected VRGuiOptionEntry[] getOptionEntries() {
+    protected OptionWidgetEntry[] getOptionEntries() {
 
-        return new VRGuiOptionEntry[]{
-                new VRGuiOptionEntry(
-                        VRGuiOption.THIRD_PERSON_FOV,
-                        VRGuiOptionPosition.LEFT,
+        return new OptionWidgetEntry[]{
+                new OptionWidgetEntry(
+                        VROptionWidgetType.THIRD_PERSON_FOV,
+                        OptionWidgetPosition.LEFT,
                         1,
                         null
                 ),
-                new VRGuiOptionEntry(
+                new OptionWidgetEntry(
                         ()->{
                             if(!VisorState.getState().isActive()){
                                 return;
@@ -47,9 +45,9 @@ public class VRSettingsThirdPerson extends VRGuiOptionsBaseScreen {
 
                             camOverlay.setChangingPosition(true);
                         },
-                        VRGuiOptionPosition.RIGHT,
+                        OptionWidgetPosition.RIGHT,
                         1,
-                        "visor.option.third_person_camera"
+                        "visor.options.rendering.third_person.reposition_camera"
                 )
         };
     }

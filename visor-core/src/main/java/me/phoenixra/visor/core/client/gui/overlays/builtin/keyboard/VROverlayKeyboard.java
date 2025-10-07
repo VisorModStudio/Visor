@@ -5,6 +5,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
@@ -20,7 +21,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 
 public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
@@ -29,6 +32,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     private final Vector3f posOffset = new Vector3f(0,-0.5f,-0.6f);
     private final Vector3f rotationOffset = new Vector3f(0,0,0);
+
+    private Vector3fc roomPosition = null;
+    private Matrix4f roomRotation = null;
 
     @Getter
     private boolean shiftPressed = false;
@@ -39,6 +45,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     @Getter
     private boolean shown;
+
     public VROverlayKeyboard(@NotNull VisorAddon owner,
                              @NotNull String id) {
         super(owner, id, ElementPriority.HIGHER,0.5f,
@@ -83,7 +90,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 posOffset,
                 rotationOffset
         );
-
+        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
+        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
     }
 
     @Override
@@ -103,8 +113,13 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
 
     @Override
-    public void updatePose(float partialTicks) {
-
+    public void onUpdatePose(float partialTicks) {
+        VROverlayHelper.applyRoomPose(
+                this,
+                getPose().getScale(),
+                roomPosition,
+                roomRotation
+        );
     }
 
 
@@ -154,10 +169,17 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 posOffset,
                 rotationOffset
         );
-
     }
 
 
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
 
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
+    }
 
 }

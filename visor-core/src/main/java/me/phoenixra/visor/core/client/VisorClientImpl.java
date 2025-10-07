@@ -80,7 +80,7 @@ public class VisorClientImpl implements VisorClient {
         configManager.setPlaceholderHandler(
                 new AtumPlaceholderHandler(vrProvider.getLogger())
         );
-        VRClientSettingsHandler.init();
+        ClientContext.settingsHandler = new VRClientSettingsHandler();
 
         //-------Main client classes-------
         ClientContext.inputManager = new InputManagerImpl();

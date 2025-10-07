@@ -18,7 +18,7 @@ import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.render.helpers.TexturesHelper;
+import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;

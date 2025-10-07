@@ -43,14 +43,15 @@ public abstract class TitleScreenMixin extends Screen {
     @Unique
     private void visor$addVRModeButton() {
 
-        visor$vrModeButton = new Button.Builder(
+        Component text =  Component.translatable(
+                "visor.options.common.vr_play_mode",
                 Component.translatable(
-                        "visor.button.playMode",
-                                Component.translatable(
-                                        "visor.enums.playMode."+
-                                        VRClientSettings.getVrPlayMode().name()
-                                )
-                ),
+                        "visor.options.enums.VRPlayMode."+
+                                VRClientSettings.getVrPlayMode().name()
+                )
+        );
+        visor$vrModeButton = new Button.Builder(
+                text,
                 (button) -> {
                     var playMode = VRClientSettings.getVrPlayMode();
                     VRClientSettings.setVrPlayMode(
@@ -58,13 +59,7 @@ public abstract class TitleScreenMixin extends Screen {
                     );
                     ClientContext.settingsHandler.saveOptions();
                     button.setMessage(
-                            Component.translatable(
-                            "visor.button.playMode",
-                                    Component.translatable(
-                                            "visor.enums.playMode."+
-                                                    VRClientSettings.getVrPlayMode().name()
-                                    )
-                            )
+                            text
                     );
                 })
                 .size(76, 20)
@@ -82,7 +77,7 @@ public abstract class TitleScreenMixin extends Screen {
             guiGraphics.renderTooltip(
                     font,
                     font.split(
-                            Component.translatable("visor.option.VR_PLAY_MODE.tooltip"),
+                            Component.translatable("visor.options.common.vr_play_mode.tooltip"),
                             Math.max(width / 2 - 43, 170)
                     ),
                     i, j

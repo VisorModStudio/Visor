@@ -27,7 +27,8 @@ public abstract class MinecraftServerMixin {
     @Inject(at = @At("TAIL"), method = "<init>")
     public void visor$initServer(Thread thread, LevelStorageSource.LevelStorageAccess levelStorageAccess, PackRepository packRepository, WorldStem worldStem, Proxy proxy, DataFixer dataFixer, Services services, ChunkProgressListenerFactory chunkProgressListenerFactory,
                                 CallbackInfo callbackInfo){
-        new VisorServerImpl();
+        VisorServerImpl.create();
+
     }
     @Inject(at = @At("TAIL"), method = "stopServer")
     public void visor$stopServer(CallbackInfo callbackInfo){

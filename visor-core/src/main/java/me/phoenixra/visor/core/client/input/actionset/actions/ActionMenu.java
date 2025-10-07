@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
@@ -28,6 +29,10 @@ public class ActionMenu extends VisorActionButton {
             InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
             InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
         } else {
+            if(MC.level == null){
+                MC.setScreen(new TitleScreen());
+                return;
+            }
             MC.setScreen(new GameMenuScreen());
         }
     }

@@ -2,7 +2,9 @@ package me.phoenixra.visor.core.common.addon;
 
 
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,10 +23,18 @@ public class CoreAddonServer implements VisorAddon {
     }
 
     @Override
+    public @NotNull Component getAddonName() {
+        return Component.literal("Core");
+    }
+    @Override
     public @NotNull String getAddonId() {
         return "core";
     }
 
+    @Override
+    public GuiTexture getAddonIcon() {
+        return VisorAPI.NOD_ICON;
+    }
     @Override
     public String getModId() {
         return VisorAPI.MOD_ID;

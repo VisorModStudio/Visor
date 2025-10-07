@@ -90,9 +90,9 @@ public class VRShaderMixedReality implements VRShader{
         if (!alphaMask) {
             var color = VRClientSettings.getMixedRealityKeyColor();
             uKeyColor.set(
-                    (float) color.getRed() / 255.0F,
-                    (float) color.getGreen() / 255.0F,
-                    (float) color.getBlue() / 255.0F
+                    color.getRed(),
+                    color.getGreen(),
+                    color.getBlue()
             );
         } else {
             uKeyColor.set(0F, 0F, 0F);

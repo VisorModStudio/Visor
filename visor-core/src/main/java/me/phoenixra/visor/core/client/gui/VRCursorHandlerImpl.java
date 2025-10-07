@@ -19,9 +19,7 @@ import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 
 public class VRCursorHandlerImpl implements VRCursorHandler {
@@ -164,7 +162,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     cursorElement,
                     overlay.getPose().getPosition(),
                     overlay.getPose().getRotation(),
-                    overlay.getPose().getScale()
+                    overlay.getPose().getScale(),
+                    overlay.getAspectRatio()
             );
 
             //can focus cursor if distance within [0;5] bounds
@@ -177,8 +176,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                 continue;
             }
 
-            boolean withinBounds = overlay.isCursorWithinBounds(
-                    true,
+            boolean withinBounds = overlay.isWithinCursorBounds(
                     cursorPos.x(),
                     cursorPos.y()
             );
@@ -249,7 +247,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     public @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
                                                   @NotNull Vector3fc guiPosition,
                                                   @NotNull Matrix4fc guiRotation,
-                                                  float guiScale
+                                                  float guiScale,
+                                                  float guiAspectRatio
     ) {
         PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
         float worldScale = renderPose.getWorldScale();
@@ -284,9 +283,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         float rawU = local.dot(planeRight);
         float rawV = local.dot(planeUp);
 
-        float aspect = ClientContext.guiManager.getScaledAspectRatio();
         float xPos = (rawU - 0.5f) / (effectiveScale) + 0.5f;
-        float yPos = 1f - ((rawV - 0.5f) / (effectiveScale * aspect) + 0.5f);
+        float yPos = 1f - ((rawV - 0.5f) / (effectiveScale * guiAspectRatio) + 0.5f);
 
         return new Vector3f(xPos, yPos, t / worldScale);
     }

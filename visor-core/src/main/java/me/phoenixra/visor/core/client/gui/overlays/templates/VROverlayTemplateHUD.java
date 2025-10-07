@@ -7,11 +7,11 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.OverlayOptions;
-import me.phoenixra.visor.api.client.gui.overlay.template.options.types.OverlayOptionsLocation;
+import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.template.framework.VROverlayTemplateFrameBuffer;
+import me.phoenixra.visor.api.client.gui.overlay.framework.template.VROverlayTemplateFrameBuffer;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
@@ -23,9 +23,17 @@ import java.util.List;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-@RegisterVROverlayTemplate(id = VROverlayTemplateHUD.ID, isCreateDefault = true)
+@RegisterVROverlayTemplate(
+        id = VROverlayTemplateHUD.ID,
+        name = VROverlayTemplateHUD.NAME,
+        description = VROverlayTemplateHUD.DESCRIPTION,
+        isCreateDefault = true
+)
 public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implements VREventListener {
     public static final String ID = "hud";
+    public static final String NAME = "visor.overlay.template."+ID+".name";
+    public static final String DESCRIPTION = "visor.overlay.template."+ID+".description";
+
 
     public VROverlayTemplateHUD(@NotNull VisorAddon owner,
                                 @NotNull String id) {
@@ -62,9 +70,14 @@ public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implement
     }
 
     @Override
-    protected @NotNull List<OverlayOptions> createOptions() {
+    public boolean supportsVisibilityUpdateOnRender() {
+        return true;
+    }
+
+    @Override
+    protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
         return List.of(
-                new OverlayOptionsLocation(
+                new OverlayOptionsPose(
                         this,
                         it->{
                             it.setTickModelView(true);
@@ -77,6 +90,7 @@ public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implement
                             it.setFormulaRotationX(null);
                             it.setFormulaRotationY(null);
                             it.setFormulaRotationZ(null);
+                            it.setFormulaScale("1.0");
                         }
 
                 )

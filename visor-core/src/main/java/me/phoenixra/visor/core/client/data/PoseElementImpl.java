@@ -2,7 +2,6 @@ package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.core.client.render.helpers.RenderHelper;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -19,6 +18,8 @@ public class PoseElementImpl implements PoseElement {
 
     private Matrix4fc rotation;
 
+    private Matrix4fc invertedRotation;
+
     private float yaw, pitch, roll;
 
 
@@ -30,6 +31,7 @@ public class PoseElementImpl implements PoseElement {
         position = new Vector3f(0,0,0);
         direction = new Vector3f(0,0,0);
         rotation = new Matrix4f();
+        invertedRotation = new Matrix4f();
 
         originCached = new Vector3f(0,0,0);
 
@@ -62,6 +64,7 @@ public class PoseElementImpl implements PoseElement {
                 rotationMatrix,
                 new Matrix4f()
         );
+        this.invertedRotation = this.rotation.invert(new Matrix4f());
 
 
         this.position = position
@@ -117,7 +120,7 @@ public class PoseElementImpl implements PoseElement {
     @Override
     public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc vec) {
 
-        return this.rotation.invert(new Matrix4f())
+        return this.invertedRotation
                 .transformDirection(
                         vec.x(), vec.y(), vec.z(),
                         new Vector3f()

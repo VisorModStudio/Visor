@@ -14,22 +14,27 @@ import java.util.List;
 
 @Getter
 public class VRGuiManagerImpl implements VRGuiManager {
-    private final int guiWidth = 1280;
-    private final int guiHeight = 720;
+    private final int guiWidth = 1920;
+    private final int guiHeight = 1080;
 
 
 
     //TODO Rework scaling.  make it changeable on each overlay maybe?
-    private int scaleFactor = calculateScale(
-            0, false,
-            guiWidth, guiHeight
-    );
+    private int scaleFactor;
     private int guiScaledWidth;
     private int guiScaledHeight;
 
     public VRGuiManagerImpl(){
+        scaleFactor = calculateScale(
+                0,
+                guiWidth, guiHeight
+        );
+        guiScaledWidth = Mth.ceil(guiWidth / (float) scaleFactor);
+        guiScaledHeight = Mth.ceil(guiHeight / (float) scaleFactor);
+
         ClientContext.overlayManager = new VROverlayManagerImpl();
         ClientContext.cursorHandler = new VRCursorHandlerImpl();
+
     }
 
 
@@ -42,7 +47,6 @@ public class VRGuiManagerImpl implements VRGuiManager {
         );
     }
     public int calculateScale(int scaleIn,
-                              boolean forceUnicode,
                               int guiWidth,
                               int guiHeight) {
         int scale = 1;
@@ -58,14 +62,12 @@ public class VRGuiManagerImpl implements VRGuiManager {
             }
         }
 
-        if (forceUnicode) {
+        //TODO needed?
+        /*if (forceUnicode) {
             if (scale % 2 != 0) {
                 scale++;
             }
-        }
-
-        guiScaledWidth = Mth.ceil(guiWidth / (float) scale);
-        guiScaledHeight = Mth.ceil(guiHeight / (float) scale);
+        }*/
 
         return scale;
     }
@@ -75,10 +77,11 @@ public class VRGuiManagerImpl implements VRGuiManager {
         int oldGuiScale = scaleFactor;
         scaleFactor = calculateScale(
                 (int) Math.ceil(((int) VRClientSettings.getGuiScale()) * 0.5f),
-            false,
                 guiWidth,
                 guiHeight
         );
+        guiScaledWidth = Mth.ceil(guiWidth / (float) scaleFactor);
+        guiScaledHeight = Mth.ceil(guiHeight / (float) scaleFactor);
         if (oldWidth != guiWidth) {
             return true;
         } else {

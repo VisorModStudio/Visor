@@ -8,7 +8,7 @@
   "authors": [
     "PhoenixRa"
   ],
-  "icon": "visor_icon.png",
+  "icon": "assets/visor/icon.png",
   "license": "LGPLv3",
   "environment": "*",
   "entrypoints": {

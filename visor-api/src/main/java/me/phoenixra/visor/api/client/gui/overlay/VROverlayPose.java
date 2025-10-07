@@ -17,7 +17,7 @@ import org.joml.Vector3fc;
  * Holder of overlay pose data,
  * relative to world render coordinates. {@link PoseDataType#RENDER}
  */
-@Getter @EqualsAndHashCode @ToString
+@EqualsAndHashCode @ToString
 public class VROverlayPose {
 
     /**
@@ -25,36 +25,39 @@ public class VROverlayPose {
      */
     public static final float QUAD_SCALE = 1.5f;
 
+    @Getter
+    private final VROverlay owner;
+
     /**
      * Get Overlay position of {@link PoseDataType#RENDER} type
      */
+    @Getter
     private Vector3fc position = new Vector3f(0f, 0f, 0f);
 
     /**
      * Get Overlay rotation of {@link PoseDataType#RENDER} type
      */
+    @Getter
     private Matrix4fc rotation = new Matrix4f();
 
     /**
      * Get Overlay scale
      */
+    @Getter
     private float scale;
 
-    /**
-     * Get Overlay top-left corner position of {@link PoseDataType#RENDER} type
-     */
-    private Vector3fc topLeftCorner = new Vector3f(0f, 0f, 0f);
 
-    /**
-     * Get Overlay bottom-right corner position of {@link PoseDataType#RENDER} type
-     */
-    private Vector3fc bottomRightCorner = new Vector3f(0f, 0f, 0f);
+    private final Vector3f rightDir = new Vector3f();
+    private final Vector3f upDir = new Vector3f();
+    private float halfWidth;
+    private float halfHeight;
 
     /**
      *
      * @param overlayScale the overlay scale
      */
-    public VROverlayPose(float overlayScale){
+    public VROverlayPose(@NotNull VROverlay owner, float overlayScale){
+        this.owner = owner;
         this.scale = overlayScale;
     }
 
@@ -76,9 +79,30 @@ public class VROverlayPose {
         this.rotation = rotation;
         this.scale = overlayScale;
 
-        var corners = calcOverlayCorners();
-        this.topLeftCorner = corners.first();
-        this.bottomRightCorner = corners.second();
+
+        PoseData renderPose = VisorAPI.client().getPlayer().getPoseData(PoseDataType.RENDER);
+        float worldScale = renderPose.getWorldScale();
+        float effectiveScale = QUAD_SCALE * scale * worldScale;
+        float aspect = owner.getAspectRatio();
+
+        this.halfWidth  = effectiveScale * 0.5f;
+        this.halfHeight = effectiveScale * aspect * 0.5f;
+        this.rightDir.set(VRMathUtils.extractRightDir(rotation, true));
+        this.upDir.set(VRMathUtils.extractUpDir   (rotation, true));
+
+    }
+
+    /**
+     * Update only position and rotation.
+     *
+     * <p>Shorter version of {@link #update(Vector3fc, Matrix4fc, float)}</p>
+     *
+     * @param position the new overlay position
+     * @param rotation the new overlay rotation
+     */
+    public void updateOnlyPosAndRotation(@NotNull Vector3fc position,
+                                              @NotNull Matrix4fc rotation) {
+        update(position, rotation, scale);
     }
 
     /**
@@ -115,36 +139,49 @@ public class VROverlayPose {
     }
 
 
+    /**
+     * Returns a point on the overlay quad
+     * from normalized coordinates
+     * <p>
+     *     The returned result
+     *     is of specified {@link PoseDataType pose type}
+     * </p>
+     *
+     * @param returnType the PoseDataType in whose coordinate system to express the result
+     * @param useCursorBounds if to use cursor bounds as edges of quad
+     * @param xNorm      -1.0 (left) to +1.0 (right)
+     * @param yNorm      -1.0 (bottom) to +1.0 (top)
+     * @return position in the specified coordinate system
+     */
+    public Vector3f getPositionAt(float xNorm, float yNorm,
+                                  boolean useCursorBounds,
+                                  @NotNull PoseDataType returnType) {
+        if(useCursorBounds){
+            int w = owner.getWidth();
+            int h = owner.getHeight();
+            int edgeX  = owner.getCursorBoundsX();
+            int edgeY  = owner.getCursorBoundsY();
+            int edgeW  = owner.getCursorBoundsWidth();
+            int edgeH  = owner.getCursorBoundsHeight();
+            if (w > 0 && h > 0
+                    && edgeX >= 0 && edgeY >= 0
+                    && edgeW >  0 && edgeH >  0) {
+                float localX = (xNorm + 1f) * 0.5f;
+                float localY = (yNorm + 1f) * 0.5f;
 
-    private PairRecord<Vector3f, Vector3f> calcOverlayCorners() {
+                float pixelX = edgeX + localX * edgeW;
+                float pixelY = edgeY + (1f - localY) * edgeH;
 
-        PoseData pose = VisorAPI.client().getPlayer().getPoseData(PoseDataType.RENDER);
-        float worldScale = pose.getWorldScale();
-
-        float effectiveScale = QUAD_SCALE * scale * worldScale;
-
-        float aspect = VisorAPI.client().getGuiManager().getScaledAspectRatio();
-
-        Vector3fc right = new Vector3f(
-                VRMathUtils.extractRightDir(rotation, true)
-        );
-        Vector3fc up    = new Vector3f(
-                VRMathUtils.extractUpDir(rotation, true)
-        );
-
-        float halfW = effectiveScale * 0.5f;
-        float halfH = effectiveScale * aspect * 0.5f;
-
-        Vector3fc center = new Vector3f(position);
-
-        Vector3f topLeft = new Vector3f(center)
-                .sub(right.mul(halfW, new Vector3f()))
-                .add(up.mul(halfH, new Vector3f()));
-
-        Vector3f bottomRight = new Vector3f(center)
-                .add(right.mul(halfW, new Vector3f()))
-                .sub(up.mul(halfH, new Vector3f()));
-
-        return new PairRecord<>(topLeft, bottomRight);
+                xNorm = (pixelX / w) * 2f - 1f;
+                yNorm = 1f - (pixelY / h) * 2f;
+            }
+        }
+        Vector3f pointInRender = new Vector3f(position)
+                .add(new Vector3f(rightDir).mul(halfWidth  * xNorm,
+                        new Vector3f()))
+                .add(new Vector3f(upDir).mul(halfHeight * yNorm,
+                        new Vector3f()));
+        PoseData targetPose = VisorAPI.client().getPlayer().getPoseData(returnType);
+        return targetPose.convertPositionFrom(PoseDataType.RENDER, pointInRender);
     }
 }

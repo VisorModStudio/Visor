@@ -232,23 +232,23 @@ public class PoseDataImpl implements PoseData {
     }
 
     @Override
-    public @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originStage,
+    public @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originType,
                                                  @NotNull Vector3fc position){
-        if(originStage == type) {
+        if(originType == type) {
             return new Vector3f(
                     position.x(),
                     position.y(),
                     position.z()
             );
         }
-        if (originStage == PoseDataType.ROOM) {
+        if (originType == PoseDataType.ROOM) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
         }
 
         PoseDataImpl originPose = ClientContext.player
-                .getPoseData(originStage);
+                .getPoseData(originType);
 
         Vector3f roomPose = position
                 .sub(originPose.origin, new Vector3f())
@@ -266,20 +266,20 @@ public class PoseDataImpl implements PoseData {
 
 
     @Override
-    public @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originStage,
+    public @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originType,
                                                  @NotNull Matrix4fc rotationMatrix) {
-        if (originStage == this.type) {
+        if (originType == this.type) {
             return new Matrix4f(rotationMatrix);
         }
 
 
 
-        if (originStage == PoseDataType.ROOM) {
+        if (originType == PoseDataType.ROOM) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
-        PoseDataImpl originPose = ClientContext.player.getPoseData(originStage);
+        PoseDataImpl originPose = ClientContext.player.getPoseData(originType);
 
         if (this.type == PoseDataType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);

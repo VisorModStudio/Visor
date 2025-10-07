@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.gui.screen;
 
-import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsMainScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -30,10 +30,10 @@ public class OptionsScreenVRMixin extends Screen {
     private void visor$addVRSettingsButton(CallbackInfo ci,
                                           GridLayout gridLayout,
                                           GridLayout.RowHelper rowHelper) {
-        rowHelper.addChild(new Button.Builder(Component.translatable("visor.option.screen.main.button"), (p) ->
+        rowHelper.addChild(new Button.Builder(Component.translatable("visor.options.main.button"), (p) ->
         {
             Minecraft.getInstance().options.save();
-            Minecraft.getInstance().setScreen(new VRSettingsScreen(this));
+            Minecraft.getInstance().setScreen(new VRSettingsMainScreen(this));
         }).build());
     }
 

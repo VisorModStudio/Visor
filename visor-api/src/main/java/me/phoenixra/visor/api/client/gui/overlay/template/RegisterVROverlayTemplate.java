@@ -2,6 +2,8 @@ package me.phoenixra.visor.api.client.gui.overlay.template;
 
 
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -37,13 +39,28 @@ public @interface RegisterVROverlayTemplate {
     @NotNull
     String id();
 
+
     /**
-     * If this template is available for player
-     * to create overlay (affects on overlay settings)
-     *
-     * @return true/false
+     * Get template name.
+     * <p>
+     *     This value is used as parameter
+     *     for {@link Component#translatable(String)}
+     * </p>
+     * @return the name
      */
-    boolean isPublic() default true;
+    @NotNull
+    String name();
+
+    /**
+     * Get template description.
+     * <p>
+     *     This value is used as parameter
+     *     for {@link Component#translatable(String)}
+     * </p>
+     * @return the description.
+     */
+    @NotNull
+    String description();
 
     /**
      * If overlay with default settings should be created

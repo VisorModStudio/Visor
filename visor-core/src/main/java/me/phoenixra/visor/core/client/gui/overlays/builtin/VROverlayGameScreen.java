@@ -1,11 +1,11 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
-import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlay.VROverlayCursorData;
+import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
@@ -16,6 +16,7 @@ import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -177,7 +178,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public void updatePose(float partialTicks) {
+    public void onUpdatePose(float partialTicks) {
 
         if (roomPosition == null || roomRotation == null) {
             orient(
@@ -185,24 +186,12 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                     MC.screen
             );
         }
-        PoseData renderPose = ClientContext.player
-                .getPoseData(PoseDataType.RENDER);
 
-        Vector3f renderScreenPos = renderPose.convertPositionFrom(
-                PoseDataType.ROOM,
-                roomPosition
-        );
-        Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
-                PoseDataType.ROOM,
+        VROverlayHelper.applyRoomPose(
+                this,
+                overlayScale,
+                roomPosition,
                 roomRotation
-        );
-
-        //applying
-
-        getPose().update(
-                renderScreenPos,
-                renderScreenRotation,
-                overlayScale
         );
 
     }
@@ -296,6 +285,17 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     @Override
     public boolean supportsCursor() {
         return true;
+    }
+
+
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.overlay.%s.name".formatted(getId()));
+    }
+
+    @Override
+    public @NotNull Component getDescription() {
+        return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
 
 }

@@ -12,7 +12,7 @@ import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import me.phoenixra.visor.modified.client.MinecraftModified;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
+import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.*;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Overlay;
@@ -301,6 +301,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
                 .getOverlay(VROverlayGameScreen.ID, VROverlayGameScreen.class)
                 .onScreenChanged(this.screen, this.screen, true);
     }
+
     /**
      * Ticks VR overlays right after mc ticked screen
      * @param ci s
@@ -329,8 +330,8 @@ public abstract class MinecraftMixin implements MinecraftModified {
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;setCameraType(Lnet/minecraft/client/CameraType;)V"), method = "handleKeybinds")
     public void visor$toggleMirrorButton(Options instance, CameraType cameraType) {
         if (VisorState.getState().isActive()) {
-            ClientContext.settingsHandler.updateGuiOptionValue(
-                    VRGuiOption.MIRROR_DISPLAY
+            ClientContext.settingsHandler.nextOptionValue(
+                    VROptionWidgetType.MIRROR_MODE.getKey()
             );
         } else {
             instance.setCameraType(cameraType);

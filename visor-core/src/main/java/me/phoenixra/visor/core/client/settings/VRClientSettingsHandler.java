@@ -11,20 +11,20 @@ import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
 import me.phoenixra.atumconfig.api.placeholders.types.StaticPlaceholder;
+import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.VisorClientImpl;
-import me.phoenixra.visor.core.client.settings.lang.LangHandler;
-import me.phoenixra.visor.core.client.settings.option.VROptionField;
-import me.phoenixra.visor.core.client.settings.option.VROptionRecord;
-import me.phoenixra.visor.core.client.settings.option.VRGuiOption;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
-import me.phoenixra.visor.core.client.settings.overlays.OverlayCatalogsManager;
+import me.phoenixra.visor.core.client.settings.options.VROptionField;
+import me.phoenixra.visor.core.client.settings.options.VROptionRecord;
+import me.phoenixra.visor.core.client.settings.overlays.OverlayConfigsManager;
+import me.phoenixra.visor.core.client.utils.LangHelper;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
-import java.awt.*;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,39 +34,42 @@ import me.phoenixra.visor.core.client.ClientContext;
 public class VRClientSettingsHandler {
     public static VRClientSettingsHandler instance;
 
-    private final Map<VRGuiOption, VROptionRecord> guiOptions = new EnumMap<>(VRGuiOption.class);
     private final Map<String, VROptionRecord> allOptions = new HashMap<>();
+    private final Map<String, VROptionWidgetType> optionWidgets = new HashMap<>();
 
-    private Config defaultSettings;
     private final ConfigFile settings;
+    private Config defaultSettings;
 
     @Getter
-    private final OverlayCatalogsManager overlaysAccessor;
+    private final OverlayConfigsManager overlayConfigsAccessor;
 
     private boolean wasInit;
 
-    public VRClientSettingsHandler() throws Throwable{
+    public VRClientSettingsHandler() {
         instance = this;
 
         ConfigManager configManager = ClientContext.visor.getConfigManager();
-        settings = ClientContext.visor.getConfigManager().createConfigFile(
-                ConfigType.YAML,
-                "settings",
-                Path.of("settings.yml"),
-                false
-        );
-
+        try {
+            settings = configManager.createConfigFile(
+                    ConfigType.YAML,
+                    "settings",
+                    Path.of("settings.yml"),
+                    false
+            );
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
 
         initOptionFields();
 
-        saveDefaultOptions();
+        updateDefaultOptions();
 
         loadOptions();
 
         //to sync config with fields
         saveOptions();
 
-        overlaysAccessor = new OverlayCatalogsManager();
+        overlayConfigsAccessor = new OverlayConfigsManager();
 
         PlaceholderHandler placeholderHandler = configManager.getPlaceholderHandler().get();
 
@@ -106,84 +109,8 @@ public class VRClientSettingsHandler {
         wasInit = true;
     }
 
-
-    public static void init() {
-        try {
-            ClientContext.settingsHandler = new VRClientSettingsHandler();
-        }catch (Throwable e){
-            LoggerUtils.printError(e);
-        }
-    }
-
-    private Object prepareValueForSave(Object fieldValue,
-                                       Class<?> fieldType){
-        if(fieldType.isEnum()){
-            return fieldValue.toString();
-        }
-        if(fieldType.isAssignableFrom(Quaternionf.class)
-                && fieldValue instanceof Quaternionf value){
-            return String.format("%s;%s;%s;%s", value.x, value.y, value.z, value.w);
-        }
-        if(fieldType.isAssignableFrom(Color.class)
-                && fieldValue instanceof Color value){
-            return value.getRed()+";"+value.getGreen()+";"+value.getBlue()+";"+value.getAlpha();
-        }
-        return fieldValue;
-    }
-
-    private Object prepareValueForLoad(Object configValue,
-                                       Class<?> fieldType){
-        if(fieldType.isEnum()){
-            Class<? extends Enum> enumType = (Class<? extends Enum>)
-                    fieldType;
-            return Enum.valueOf(enumType, configValue.toString().toUpperCase());
-        }
-        if(fieldType.isAssignableFrom(Quaternionf.class)){
-            String[] split = configValue.toString().split(";");
-            float w = Float.parseFloat(split[3]);
-            float x = Float.parseFloat(split[0]);
-            float y = Float.parseFloat(split[1]);
-            float z = Float.parseFloat(split[2]);
-            return new Quaternionf(x, y, z, w);
-        }
-        if(fieldType.isAssignableFrom(Color.class)){
-            String[] split = configValue.toString().split(";");
-            int red = Integer.parseInt(split[0]);
-            int green = Integer.parseInt(split[1]);
-            int blue = Integer.parseInt(split[2]);
-            int alpha = Integer.parseInt(split[3]);
-            return new Color(red, green, blue, alpha);
-        }
-        if(fieldType.isAssignableFrom(Byte.class)
-                || fieldType.isAssignableFrom(byte.class)){
-            return ((Number)configValue).byteValue();
-        }
-        if(fieldType.isAssignableFrom(Short.class)
-                || fieldType.isAssignableFrom(short.class)){
-            return ((Number)configValue).shortValue();
-        }
-        if(fieldType.isAssignableFrom(Integer.class)
-                || fieldType.isAssignableFrom(int.class)){
-            return ((Number)configValue).intValue();
-        }
-        if(fieldType.isAssignableFrom(Long.class)
-                || fieldType.isAssignableFrom(long.class)){
-            return ((Number)configValue).longValue();
-        }
-        if(fieldType.isAssignableFrom(Float.class)
-                || fieldType.isAssignableFrom(float.class)){
-            return ((Number)configValue).floatValue();
-        }
-        if(fieldType.isAssignableFrom(Double.class)
-                || fieldType.isAssignableFrom(double.class)){
-            return ((Number)configValue).doubleValue();
-        }
-        return configValue;
-
-    }
-
     public void saveOptions() {
-        saveOptions(settings);
+        applyOptionsTo(settings);
         try {
             settings.save();
         } catch (Exception exception) {
@@ -194,14 +121,19 @@ public class VRClientSettingsHandler {
         }
     }
 
-    private void saveDefaultOptions() {
+    public void loadOptions() {
+        loadOptionsFrom(settings);
+    }
+
+
+    public void updateDefaultOptions() {
         defaultSettings = ClientContext.visor.getConfigManager()
                 .createConfig(ConfigType.YAML,null);
 
-        saveOptions(defaultSettings);
+        applyOptionsTo(defaultSettings);
     }
 
-    private void saveOptions(Config config) {
+    public void applyOptionsTo(@NotNull Config config) {
         try {
             for (Map.Entry<String, VROptionRecord> entry : allOptions.entrySet()) {
                 String optionKey = entry.getKey();
@@ -229,10 +161,7 @@ public class VRClientSettingsHandler {
         }
     }
 
-    public void loadOptions() {
-        loadOptions(settings);
-    }
-    private void loadOptions(Config config) {
+    public void loadOptionsFrom(@NotNull Config config) {
         try {
             for(Map.Entry<String, VROptionRecord> entry
                     : allOptions.entrySet()){
@@ -263,9 +192,81 @@ public class VRClientSettingsHandler {
     }
 
 
-    public void loadDefaultGuiOption(VRGuiOption option) {
+    public void setOptionValue(@NotNull String key,
+                               @NotNull Object value) {
         try {
-            VROptionRecord optionRecord = guiOptions.get(option);
+            VROptionRecord optionRecord = allOptions.get(key);
+            if (optionRecord == null) {
+                return;
+            }
+            var optionWidget = optionWidgets.get(key);
+            optionRecord.field().set(null, value);
+            if(optionWidget != null) {
+                optionWidget.getBehaviour().onChanged();
+            }
+            this.saveOptions();
+        } catch (Exception exception) {
+            System.out.println("Failed to set VR option field: " + key);
+            LoggerUtils.printError(exception);
+        }
+    }
+
+    public Object getOptionValue(@NotNull String key) {
+        try {
+            VROptionRecord optionRecord = allOptions.get(key);
+            if (optionRecord == null) {
+                return null;
+            }
+            return optionRecord.field().get(null);
+
+        } catch (Exception exception) {
+            System.out.println("Failed to get VR option field: " + key);
+            LoggerUtils.printError(exception);
+        }
+        return null;
+    }
+
+    public void nextOptionValue(@NotNull String key) {
+        try {
+            VROptionRecord optionRecord = allOptions.get(key);
+            if (optionRecord == null) {
+                return;
+            }
+            Field field = optionRecord.field();
+            Class<?> fieldType = field.getType();
+
+            var optionWidget = optionWidgets.get(key);
+            Object newValue = optionWidget != null ?
+                    optionWidget.getBehaviour().nextValue(field.get(null))
+                    : null;
+            if (newValue == null) {
+                if (fieldType == Boolean.TYPE) {
+                    newValue = !(boolean) field.get(null);
+                } else if (fieldType.isEnum()) {
+                    Object[] enumConstants = ((Class<? extends Enum<?>>) fieldType)
+                            .getEnumConstants();
+                    int currentIndex = ((Enum<?>) field.get(null)).ordinal();
+                    newValue = enumConstants[
+                            (currentIndex + 1) % enumConstants.length
+                            ];
+                } else {
+                    VisorClientImpl.LOGGER.info("Failed to find next VR option value"
+                            + optionRecord.key() + " with type "
+                            + fieldType.getSimpleName()
+                    );
+                    return;
+                }
+            }
+            setOptionValue(key, newValue);
+        } catch (Exception exception) {
+            System.out.println("Failed to find next VR option value: " + key);
+            LoggerUtils.printError(exception);
+        }
+    }
+
+    public void loadDefaultOptionValue(@NotNull String key) {
+        try {
+            VROptionRecord optionRecord = allOptions.get(key);
             if (optionRecord == null) {
                 return;
             }
@@ -285,98 +286,20 @@ public class VRClientSettingsHandler {
             field.set(null, result);
 
         } catch (Exception ex) {
-            VisorClientImpl.LOGGER.info("Failed to load default VR option: " + option);
+            VisorClientImpl.LOGGER.info("Failed to load default VR option: " + key);
             LoggerUtils.printError(ex);
         }
     }
 
-    public void updateGuiOptionValue(VRGuiOption optionType) {
-        try {
-            VROptionRecord optionRecord = guiOptions.get(optionType);
-            if (optionRecord == null) {
-                return;
-            }
-            Field field = optionRecord.field();
-            Class<?> fieldType = field.getType();
 
-            Object newValue = optionType.updateValue(field.get(null));
-            if (newValue == null) {
-                if (fieldType == Boolean.TYPE) {
-                    newValue = !(boolean) field.get(null);
-                } else if (fieldType.isEnum()) {
-                    Object[] enumConstants = ((Class<? extends Enum<?>>) fieldType)
-                            .getEnumConstants();
-                    int currentIndex = ((Enum<?>) field.get(null)).ordinal();
-                    newValue = enumConstants[
-                            (currentIndex + 1) % enumConstants.length
-                            ];
-                } else {
-                    VisorClientImpl.LOGGER.info("Failed to set VR option "
-                            + optionRecord.key() + " with type "
-                            + fieldType.getSimpleName()
-                    );
-                    return;
-                }
-            }
-
-            field.set(null, newValue);
-            optionType.onChanged();
-            this.saveOptions();
-        } catch (Exception exception) {
-            System.out.println("Failed to set VR option: " + optionType);
-            LoggerUtils.printError(exception);
-        }
-    }
-    public void setGuiOptionValue(VRGuiOption optionType,
-                                  Object value) {
-        try {
-            VROptionRecord optionRecord = guiOptions.get(optionType);
-            if (optionRecord == null) {
-                return;
-            }
-
-            Object newValue = Objects.requireNonNullElse(
-                    optionType.setValue(value),
-                    value
-            );
-            optionRecord.field().set(null, newValue);
-
-            optionType.onChanged();
-            this.saveOptions();
-        } catch (Exception exception) {
-            System.out.println("Failed to set VR option: " + optionType);
-            LoggerUtils.printError(exception);
-        }
+    public String getOptionButtonName(VROptionWidgetType optionWidget) {
+        return getOptionButtonName(optionWidget, false);
     }
 
-    public float getGuiOptionSliderValue(VRGuiOption option) {
-        try {
-            VROptionRecord optionRecord = guiOptions.get(option);
-            if (optionRecord == null) {
-                return 0;
-            }
-            Field field = optionRecord.field();
-
-            float value = ((Number) field.get(null)).floatValue();
-            return Objects.requireNonNullElse(
-                    option.getSliderValue(value),
-                    value
-            );
-        } catch (Exception exception) {
-            System.out.println("Failed to get VR option float value: " + option);
-            LoggerUtils.printError(exception);
-        }
-
-        return 0.0f;
-    }
-
-    public String getButtonDisplayString(VRGuiOption guiOptionType) {
-        return getButtonDisplayString(guiOptionType, false);
-    }
-    public String getButtonDisplayString(VRGuiOption guiOptionType,
-                                         boolean valueOnly) {
-        String lang = LangHandler.getText(
-                "visor.option." + guiOptionType.name()
+    public String getOptionButtonName(VROptionWidgetType optionWidget,
+                                      boolean valueOnly) {
+        String lang = LangHelper.getText(
+                "visor.options." + optionWidget.getKey()
         );
         String text = lang + ": ";
         if (valueOnly) {
@@ -384,7 +307,7 @@ public class VRClientSettingsHandler {
         }
 
         try {
-            VROptionRecord optionRecord = guiOptions.get(guiOptionType);
+            VROptionRecord optionRecord = allOptions.get(optionWidget.getKey());
             if (optionRecord == null) {
                 return lang;
             }
@@ -393,46 +316,42 @@ public class VRClientSettingsHandler {
 
             Object currentValue = field.get(null);
 
-            String optionString = guiOptionType.getDisplayString(text, currentValue);
+            String optionString = optionWidget.getBehaviour().getDisplayString(text, currentValue);
             if (optionString != null) {
                 return optionString;
             }
 
             if (fieldType == Boolean.TYPE) {
                 return (boolean) currentValue
-                        ? text + LangHandler.getOn()
-                        : text + LangHandler.getOff();
+                        ? text + LangHelper.getOn()
+                        : text + LangHelper.getOff();
             }
             if (fieldType == Float.TYPE || fieldType == Double.TYPE) {
-                if (guiOptionType.isShowAsPercentage()) {
-                    return text + Math.round(
-                            ((Number) currentValue).floatValue() * 100
-                    ) + "%";
-                }
                 return text + String.format(
                         "%.2f", ((Number) currentValue).floatValue()
                 );
             }
             if (currentValue instanceof Enum<?> enumValue) {
-                return text + LangHandler.getText(
+                return text + LangHelper.getText(
                         getEnumOptionLangKey(enumValue)
                 );
             }
             return text + currentValue.toString();
         } catch (Exception exception) {
             System.out.println("Failed to get VR option display " +
-                    "string for button: " + guiOptionType);
+                    "string for button: " + optionWidget);
             LoggerUtils.printError(exception);
         }
 
         return "ERROR OCCURRED";
     }
+
     private String getEnumOptionLangKey(Enum<?> type) {
         switch (type.name().toLowerCase()) {
             case "on":
-                return LangHandler.ON_KEY;
+                return LangHelper.ON_KEY;
             case "off":
-                return LangHandler.OFF_KEY;
+                return LangHelper.OFF_KEY;
         }
 
         Class<?> clazz = type.getClass();
@@ -444,7 +363,7 @@ public class VRClientSettingsHandler {
 
         String enumName = type.name();
 
-        return "visor.enums." + enumId + "." + enumName;
+        return "visor.options.enums." + enumId + "." + enumName;
     }
 
 
@@ -463,24 +382,35 @@ public class VRClientSettingsHandler {
 
                 String optionKey = annotation.key().isEmpty()
                         ? field.getName() : annotation.key();
+                var category = annotation.category();
+                if(category == VROptionCategory.EMPTY){
+                    category = annotation.widgetType()
+                            .getCategory();
+                }
+                if(category != VROptionCategory.EMPTY){
+                    optionKey = category.getKey()
+                            + "."
+                            + optionKey;
+                }
+
+
                 VROptionRecord optionRecord = new VROptionRecord(
                         field,
-                        annotation.guiOptionType(),
+                        annotation.widgetType(),
                         optionKey
                 );
 
-                //GUI OPTIONS
-                if (annotation.guiOptionType() != VRGuiOption.NONE) {
-                    if (guiOptions.containsKey(annotation.guiOptionType())) {
+                if (annotation.widgetType() != VROptionWidgetType.EMPTY) {
+                    if (optionWidgets.containsValue(annotation.widgetType())) {
                         throw new RuntimeException(
-                                "duplicate gui option in client settings " +
-                                        "field: " + annotation.guiOptionType()
+                                "duplicate option widget in client settings! " +
+                                        "field: " + annotation.widgetType()
                         );
                     }
-                    guiOptions.put(annotation.guiOptionType(), optionRecord);
+                    annotation.widgetType().setKey(optionKey);
+                    optionWidgets.put(optionKey, annotation.widgetType());
                 }
 
-                //ALL
                 allOptions.put(optionKey, optionRecord);
             }
         } catch (Exception ex) {
@@ -488,6 +418,74 @@ public class VRClientSettingsHandler {
         }
     }
 
+    private Object prepareValueForSave(Object fieldValue,
+                                       Class<?> fieldType){
+        if(fieldType.isEnum()){
+            return fieldValue.toString();
+        }
+        if(fieldType.isAssignableFrom(Quaternionf.class)
+                && fieldValue instanceof Quaternionf value){
+            return String.format("%s;%s;%s;%s", value.x, value.y, value.z, value.w);
+        }
+        if(fieldType.isAssignableFrom(AtumColor.class)
+                && fieldValue instanceof AtumColor value){
+            return value.getRedInt()+";"+value.getGreenInt()+";"+value.getBlueInt()+";"+value.getAlphaInt();
+        }
+        return fieldValue;
+    }
 
+    private Object prepareValueForLoad(Object configValue,
+                                       Class<?> fieldType){
+        if(fieldType.isEnum()){
+            Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
+            return Enum.valueOf(enumType, configValue.toString().toUpperCase());
+        }
+        if(fieldType.isAssignableFrom(Quaternionf.class)){
+            String[] split = configValue.toString().split(";");
+            float w = Float.parseFloat(split[3]);
+            float x = Float.parseFloat(split[0]);
+            float y = Float.parseFloat(split[1]);
+            float z = Float.parseFloat(split[2]);
+            return new Quaternionf(x, y, z, w);
+        }
+        if(fieldType.isAssignableFrom(AtumColor.class)){
+            String[] split = configValue.toString().split(";");
+            int red = Integer.parseInt(split[0]);
+            int green = Integer.parseInt(split[1]);
+            int blue = Integer.parseInt(split[2]);
+            int alpha = Integer.parseInt(split[3]);
+            if(fieldType.isAssignableFrom(AtumColorMutable.class)){
+                return AtumColor.mutable(red, green, blue, alpha);
+            }else {
+                return AtumColor.immutable(red, green, blue, alpha);
+            }
+        }
+        if(fieldType.isAssignableFrom(Byte.class)
+                || fieldType.isAssignableFrom(byte.class)){
+            return ((Number)configValue).byteValue();
+        }
+        if(fieldType.isAssignableFrom(Short.class)
+                || fieldType.isAssignableFrom(short.class)){
+            return ((Number)configValue).shortValue();
+        }
+        if(fieldType.isAssignableFrom(Integer.class)
+                || fieldType.isAssignableFrom(int.class)){
+            return ((Number)configValue).intValue();
+        }
+        if(fieldType.isAssignableFrom(Long.class)
+                || fieldType.isAssignableFrom(long.class)){
+            return ((Number)configValue).longValue();
+        }
+        if(fieldType.isAssignableFrom(Float.class)
+                || fieldType.isAssignableFrom(float.class)){
+            return ((Number)configValue).floatValue();
+        }
+        if(fieldType.isAssignableFrom(Double.class)
+                || fieldType.isAssignableFrom(double.class)){
+            return ((Number)configValue).doubleValue();
+        }
+        return configValue;
+
+    }
 }
 

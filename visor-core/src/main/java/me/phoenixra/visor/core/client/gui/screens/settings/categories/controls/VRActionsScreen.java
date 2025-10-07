@@ -223,11 +223,11 @@ public class VRActionsScreen extends Screen {
         int actionColumn = (int)(listWidth * ACTION_RATIO);
         int bindColumn = (int)(listWidth * BIND_RATIO);
         int headerTextY = headerY + (HEADER_H - font.lineHeight) / 2;
-        guiGraphics.drawString(font, Component.translatable("visor.text.action"),
+        guiGraphics.drawString(font, Component.translatable("visor.options.controls.action"),
                 listLeft + GAP, headerTextY, AtumColor.GRAY.toInt());
-        guiGraphics.drawString(font, Component.translatable("visor.text.leftHanded"),
+        guiGraphics.drawString(font, Component.translatable("visor.options.controls.left_handed"),
                 listLeft + actionColumn + GAP, headerTextY,  !leftHanded ? AtumColor.GRAY.toInt() : activeColor.toInt());
-        guiGraphics.drawString(font, Component.translatable("visor.text.rightHanded"),
+        guiGraphics.drawString(font, Component.translatable("visor.options.controls.right_handed"),
                 listLeft + actionColumn + bindColumn + GAP, headerTextY, !leftHanded ? activeColor.toInt() : AtumColor.GRAY.toInt());
 
         // 5) all other widgets

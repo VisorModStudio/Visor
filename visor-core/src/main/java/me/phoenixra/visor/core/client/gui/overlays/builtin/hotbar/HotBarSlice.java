@@ -1,46 +1,47 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.hotbar;
 
 import lombok.Getter;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import net.minecraft.resources.ResourceLocation;
 
 public enum HotBarSlice {
-    CENTER(0, new ResourceLocation(
-            "visor:textures/gui/hotbar/default.png"
-    )),
-    TOP(1,new ResourceLocation(
-            "visor:textures/gui/hotbar/top.png"
-    )),
-    TOP_RIGHT(2,new ResourceLocation(
-            "visor:textures/gui/hotbar/top_right.png"
-    )),
-    RIGHT(3,new ResourceLocation(
-            "visor:textures/gui/hotbar/right.png"
-    )),
-    BOTTOM_RIGHT(4,new ResourceLocation(
-            "visor:textures/gui/hotbar/bottom_right.png"
-    )),
-    BOTTOM(5,new ResourceLocation(
-            "visor:textures/gui/hotbar/bottom.png"
-    )),
-    BOTTOM_LEFT(6,new ResourceLocation(
-            "visor:textures/gui/hotbar/bottom_left.png"
-    )),
-    LEFT(7,new ResourceLocation(
-            "visor:textures/gui/hotbar/left.png"
-    )),
-    TOP_LEFT(8,new ResourceLocation(
-            "visor:textures/gui/hotbar/top_left.png"
-    )),
-    NOT_SELECTED(-1,new ResourceLocation(
-            "visor:textures/gui/hotbar/default.png"
-    ));
+    CENTER(0, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/default.png"
+    ))),
+    TOP(1, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/top.png"
+    ))),
+    TOP_RIGHT(2, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/top_right.png"
+    ))),
+    RIGHT(3, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/right.png"
+    ))),
+    BOTTOM_RIGHT(4, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/bottom_right.png"
+    ))),
+    BOTTOM(5, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/bottom.png"
+    ))),
+    BOTTOM_LEFT(6, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/bottom_left.png"
+    ))),
+    LEFT(7, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/left.png"
+    ))),
+    TOP_LEFT(8, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/top_left.png"
+    ))),
+    NOT_SELECTED(-1, GuiTexture.of(new ResourceLocation(
+            "visor:textures/gui/overlays/hotbar/default.png"
+    )));
     @Getter
     final int slot;
     @Getter
-    final ResourceLocation image;
-    HotBarSlice(int slot, ResourceLocation hotbarImage){
+    final GuiTexture background;
+    HotBarSlice(int slot, GuiTexture background){
         this.slot = slot;
-        this.image = hotbarImage;
+        this.background = background;
     }
 
     public static HotBarSlice fromSlot(int slot){
