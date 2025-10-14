@@ -208,33 +208,50 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
     public boolean isFacingOverlay(@NotNull PoseElement element,
                                    @NotNull VROverlay overlay,
-                                   boolean checkUpsideDown,
-                                   double threshold
-    ) {
-        Vector3f elementForward = VRMathUtils.extractForwardDir(
-                element.getRotation(), true
-        );
-        Vector3f overlayForward = VRMathUtils.extractForwardDir(
-                overlay.getPose().getRotation(), true
-        );
+                                   boolean checkUpsideDown) {
+        // -- basis
+        var overlayRot = overlay.getPose().getRotation();
 
-        Vector3f toOverlayDir = new Vector3f(overlay.getPose().getPosition())
-                .sub(element.getPosition()).normalize();
+        Vector3f elementForward = VRMathUtils.extractForwardDir(element.getRotation(), true);
 
-        //  - Element must face Overlay.
-        //  - Overlay must face Element.
+        Vector3f overlayForward = VRMathUtils.extractForwardDir(overlayRot, true);
+        Vector3f overlayUp = VRMathUtils.extractUpDir(overlayRot, true);
+        Vector3f overlayRight = VRMathUtils.extractRightDir(overlayRot, true);
+
+        var elementPos = element.getPosition();
+        var overlayCenter = overlay.getPose().getPosition();
+
+
+        var halfWidth = overlay.getPose().getHalfWidth();
+        var halfHeight = overlay.getPose().getHalfHeight();
+
+        // -- closest point on overlay (plane -> clamp to rect if size known)
+        Vector3f dir = new Vector3f(elementPos).sub(overlayCenter);
+        float x = dir.dot(overlayRight);
+        float y = dir.dot(overlayUp);
+        float px = Math.max(-halfWidth, Math.min(halfWidth, x));
+        float py = Math.max(-halfHeight, Math.min(halfHeight, y));
+        Vector3f closest = new Vector3f(overlayCenter).fma(px, overlayRight).fma(py, overlayUp);
+
+        // -- direction & facing tests
+        Vector3f toOverlayDir = new Vector3f(closest).sub(elementPos);
+        float len = toOverlayDir.length();
+        if (len < 1e-6f) {
+            return false;
+        }
+        //normalizing
+        toOverlayDir.div(len);
+
         float elementDot = elementForward.dot(toOverlayDir);
-        float overlayDot = overlayForward.dot(toOverlayDir.negate());
-        if (elementDot <= threshold || overlayDot >= -threshold) {
+        float overlayDot = overlayForward.dot(new Vector3f(toOverlayDir).negate());
+        if (elementDot <= 0.2f || overlayDot >= -0.2f) {
             return false;
         }
 
+        // -- upside-down test
         if (!checkUpsideDown) return true;
-
-        //Ensure is not upside down
-        Vector3f overlayUp = VRMathUtils.extractUpDir(overlay.getPose().getRotation(), true);
         float upDot = overlayUp.dot(VRMathUtils.UP_VECTOR);
-        return upDot > 0.2;
+        return upDot > 0.2f;
     }
 
 
