@@ -6,27 +6,27 @@ import net.minecraft.resources.ResourceLocation;
 public interface SettingsTextures {
 
     ResourceLocation RESOURCE = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/general.png"
+            "visor:textures/gui/overlays/settings/main.png"
     );
-    int TEX_WIDTH = 256;
+    int TEX_WIDTH = 179;
     int TEX_HEIGHT = 188;
 
     GuiTexture FILTER_BACKGROUND = new GuiTexture(
             new ResourceLocation(
-                    "visor:textures/gui/overlays/settings/background_filters.png"
+                    "visor:textures/gui/overlays/settings/bg_main_filters.png"
             )
     );
 
 
     GuiTexture BUTTON_LOAD = new GuiTexture(
             RESOURCE,
-            35, 152,
+            0, 152,
             34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture BUTTON_LOAD_HOVERED = new GuiTexture(
             RESOURCE,
-            0, 152,
+            35, 152,
             34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
@@ -34,232 +34,209 @@ public interface SettingsTextures {
 
     GuiTexture BUTTON_CLOSE = new GuiTexture(
             RESOURCE,
-            118, 18,
-            17, 17,
+            110, 112,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture BUTTON_CLOSE_HOVERED = new GuiTexture(
             RESOURCE,
-            118, 0,
-            17, 17,
+            145, 112,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
 
 
     GuiTexture BUTTON_DRAG = new GuiTexture(
             RESOURCE,
-            64, 18,
-            17, 17,
+            75, 152,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture BUTTON_DRAG_HOVERED = new GuiTexture(
             RESOURCE,
-            64, 0,
-            17, 17,
+            110, 152,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture BUTTON_DRAG_SELECTED = new GuiTexture(
             RESOURCE,
-            64, 36,
-            17, 17,
+            145, 152,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
 
 
     GuiTexture BUTTON_TAB_LEFT = new GuiTexture(
             RESOURCE,
-            139, 24,
+            64, 24,
             115, 23,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture BUTTON_TAB_RIGHT = new GuiTexture(
             RESOURCE,
-            139, 0,
+            64, 0,
             115, 23,
-            TEX_WIDTH, TEX_HEIGHT
-    );
-
-
-    GuiTexture LIST_ENTRY = new GuiTexture(
-            RESOURCE,
-            0, 68,
-            99, 18,
-            TEX_WIDTH, TEX_HEIGHT
-    );
-    GuiTexture LIST_ENTRY_HOVERED = new GuiTexture(
-            RESOURCE,
-            0, 106,
-            99, 18,
-            TEX_WIDTH, TEX_HEIGHT
-    );
-    GuiTexture LIST_ENTRY_SELECTED = new GuiTexture(
-            RESOURCE,
-            0, 87,
-            99, 18,
             TEX_WIDTH, TEX_HEIGHT
     );
 
 
     GuiTexture FILTER_BLACK_BUTTON = new GuiTexture(
             RESOURCE,
-            0, 16,
+            132, 54,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture FILTER_BLACK_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            0, 0,
+            148, 54,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture FILTER_BLACK_BUTTON_SELECTED = new GuiTexture(
             RESOURCE,
-            0, 32,
+            164, 54,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
 
     GuiTexture FILTER_GRAY_BUTTON = new GuiTexture(
             RESOURCE,
-            32, 16,
+            132, 70,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture FILTER_GRAY_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            32, 0,
+            148, 70,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture FILTER_GRAY_BUTTON_SELECTED = new GuiTexture(
             RESOURCE,
-            32, 32,
+            164, 70,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
 
 
-    GuiTexture CHECKBOX_ALL_BUTTON = new GuiTexture(
+    GuiTexture CHECKBOX_BUTTON = new GuiTexture(
             RESOURCE,
-            242, 110,
-            12, 14,
+            75, 112,
+            12, 12,
             TEX_WIDTH, TEX_HEIGHT
     );
-    GuiTexture CHECKBOX_ALL_BUTTON_HOVERED = new GuiTexture(
+    GuiTexture CHECKBOX_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            229, 110,
-            12, 14,
+            75, 125,
+            12, 12,
             TEX_WIDTH, TEX_HEIGHT
     );
-    GuiTexture CHECKBOX_ALL_BUTTON_SELECTED = new GuiTexture(
+    GuiTexture CHECKBOX_BUTTON_SELECTED = new GuiTexture(
             RESOURCE,
-            216, 110,
-            12, 14,
+            88, 112,
+            12, 12,
             TEX_WIDTH, TEX_HEIGHT
     );
-    GuiTexture CHECKBOX_ALL_BUTTON_HOVERED_SELECTED = new GuiTexture(
+    GuiTexture CHECKBOX_BUTTON_HOVERED_SELECTED = new GuiTexture(
             RESOURCE,
-            203, 110,
-            12, 14,
+            88, 125,
+            12, 12,
             TEX_WIDTH, TEX_HEIGHT
     );
 
-
-
-    GuiTexture CREATE_BUTTON_WARNING = new GuiTexture(
-            RESOURCE,
-            0, 136,
-            102, 15,
-            TEX_WIDTH, TEX_HEIGHT
-    );
 
     GuiTexture REMOVE_BUTTON = new GuiTexture(
             RESOURCE,
-            16, 16,
+            0, 91,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture REMOVE_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            16, 0,
+            16, 91,
             15, 15,
             TEX_WIDTH, TEX_HEIGHT
     );
 
     GuiTexture CANCEL_BUTTON = new GuiTexture(
             RESOURCE,
-            48, 16,
-            15, 15,
+            0, 112,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture CANCEL_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            48, 0,
-            15, 15,
+            35, 112,
+            34, 34,
             TEX_WIDTH, TEX_HEIGHT
     );
 
     GuiTexture COPY_BUTTON = new GuiTexture(
             RESOURCE,
-            82, 18,
+            0, 0,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture COPY_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            82, 0,
+            18, 0,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture COPY_BUTTON_INACTIVE = new GuiTexture(
             RESOURCE,
-            82, 36,
+            36, 0,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
 
     GuiTexture PASTE_BUTTON = new GuiTexture(
             RESOURCE,
-            100, 18,
+            0, 18,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture PASTE_BUTTON_HOVERED = new GuiTexture(
             RESOURCE,
-            100, 0,
+            18, 18,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture PASTE_BUTTON_INACTIVE = new GuiTexture(
             RESOURCE,
-            100, 36,
+            36, 18,
             17, 17,
             TEX_WIDTH, TEX_HEIGHT
     );
 
-    GuiTexture BUTTON_SAVE_WARNING = new GuiTexture(
-            RESOURCE,
-            171, 152,
-            83, 15,
-            TEX_WIDTH, TEX_HEIGHT
-    );
-    GuiTexture BUTTON_SAVE_WARNING_HOVERED = new GuiTexture(
-            RESOURCE,
-            171, 136,
-            83, 15,
-            TEX_WIDTH, TEX_HEIGHT
-    );
 
     GuiTexture LABEL_BUILT_IN = new GuiTexture(
             RESOURCE,
-            244, 79,
+            88, 65,
             10, 10,
             TEX_WIDTH, TEX_HEIGHT
     );
     GuiTexture LABEL_CUSTOM = new GuiTexture(
             RESOURCE,
-            244, 68,
+            88, 54,
             10, 10,
             TEX_WIDTH, TEX_HEIGHT
     );
+
+
+
+    GuiTexture BUTTON_SAVE_WARNING = new GuiTexture(
+            RESOURCE,
+            0, 54,
+            83, 15,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+
+    GuiTexture CREATE_BUTTON_WARNING = new GuiTexture(
+            RESOURCE,
+            77, 91,
+            102, 15,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+
 }

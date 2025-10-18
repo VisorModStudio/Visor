@@ -1,14 +1,13 @@
 package me.phoenixra.visor.core.client.render.helpers;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayPose;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayPose;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;

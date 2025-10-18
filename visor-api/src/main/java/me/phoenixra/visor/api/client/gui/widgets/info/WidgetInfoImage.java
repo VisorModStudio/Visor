@@ -9,15 +9,24 @@ import org.jetbrains.annotations.NotNull;
 public class WidgetInfoImage extends WidgetInfo {
     @Getter @Setter @Accessors(chain = true)
     private GuiTexture texture;
-    public WidgetInfoImage(@NotNull GuiTexture texture,
-                           int x, int y, int width, int height) {
-        super(x, y, width, height);
-        this.texture = texture;
-    }
-    public WidgetInfoImage(@NotNull WidgetInfoImage copyFrom,
-                           int x, int y, int width, int height) {
-        super(x, y, width, height);
+
+
+    public WidgetInfoImage(@NotNull WidgetInfoImage copyFrom) {
+        super(copyFrom);
         this.texture = copyFrom.texture;
     }
 
+    public WidgetInfoImage() {
+
+    }
+
+    @Override
+    public WidgetInfoImage pos(int x, int y) {
+        return (WidgetInfoImage) super.pos(x, y);
+    }
+
+    @Override
+    public WidgetInfoImage size(int width, int height) {
+        return (WidgetInfoImage) super.size(width, height);
+    }
 }

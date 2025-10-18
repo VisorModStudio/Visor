@@ -2,8 +2,8 @@ package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,6 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * Handler of VR GUI cursor
@@ -190,27 +189,10 @@ public interface VRCursorHandler {
     double getCursorLineLength(@NotNull ControllerHand hand);
 
 
-    /**
-     * If {@code element} is considered to be facing {@code overlay}
-     *
-     * @param element   the pose element
-     * @param overlay   overlay that should be faced
-     *
-     * @param checkUpsideDown  if {@code true}, rejects 180°-flipped orientations
-     *
-     * @param threshold    the alignment threshold in the range {@code (0.0, 1.0]}; smaller
-     *                     values are more permissive, larger values are stricter
-     *
-     * @return If facing
-     */
-    boolean isFacingOverlay(@NotNull PoseElement element,
-                            @NotNull VROverlay overlay,
-                            boolean checkUpsideDown,
-                            double threshold);
+
 
     /**
-     * Same as {@link #isFacingOverlay(PoseElement, VROverlay, boolean, double)}
-     * with a default {@code threshold} of {@code 0.2}.
+     * If {@code element} is considered to be facing {@code overlay}
      *
      * @param element  the pose element
      * @param overlay  overlay that should be faced
@@ -220,14 +202,9 @@ public interface VRCursorHandler {
      * @return If facing
      *
      */
-    default boolean isFacingOverlay(@NotNull PoseElement element,
+    boolean isFacingOverlay(@NotNull PoseElement element,
                                     @NotNull VROverlay overlay,
-                                    boolean checkUpsideDown) {
-        return isFacingOverlay(
-                element, overlay,
-                checkUpsideDown,0.2
-        );
-    }
+                                    boolean checkUpsideDown);
 
 
     /**

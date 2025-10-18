@@ -1,21 +1,25 @@
 package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsProperties;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsProperties;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
 
-public class OptionsScreenProperties  extends OverlayOptionsScreen<OverlayOptionsProperties> {
+public class OptionsScreenProperties  extends OptionsScreen<OverlayOptionsProperties> {
 
 
 
     public OptionsScreenProperties(@NotNull OverlayOptionsProperties optionCategory) {
-        super(optionCategory);
+        super(optionCategory, Background.VERTICAL_WIDER);
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    protected void onInit() {
+
+    }
+
+    @Override
+    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+
     }
 }

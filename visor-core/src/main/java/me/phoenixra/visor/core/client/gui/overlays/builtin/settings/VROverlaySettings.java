@@ -9,11 +9,11 @@ import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
-import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FilterListBinaryWidgetSet;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -44,17 +44,17 @@ public class VROverlaySettings extends VROverlayScreen
     public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.find");
 
     private static final ResourceLocation BACKGROUND_OVERLAYS = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/background_1.png"
+            "visor:textures/gui/overlays/settings/bg_main_1.png"
     );
     private static final ResourceLocation BACKGROUND_CREATE = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/background_2.png"
+            "visor:textures/gui/overlays/settings/bg_main_2.png"
     );
 
     private static final ResourceLocation BACKGROUND_EXTRA = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/background_extra_1.png"
+            "visor:textures/gui/overlays/settings/bg_main_extra_1.png"
     );
     private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/background_extra_2.png"
+            "visor:textures/gui/overlays/settings/bg_main_extra_2.png"
     );
 
     private static final int BACKGROUND_WIDTH = 256;
@@ -84,16 +84,16 @@ public class VROverlaySettings extends VROverlayScreen
 
 
     @Getter
-    private int menuEdgeX, menuEdgeY, menuEdgeWidth, menuEdgeHeight;
+    private int menuBoundsX, menuBoundsY, menuBoundsWidth, menuBoundsHeight;
 
     @Getter
     @Setter
-    private int cursorEdgeOffsetX, cursorEdgeOffsetY,
-            cursorEdgeOffsetWidth, cursorEdgeOffsetHeight;
+    private int cursorBoundsOffsetX, cursorBoundsOffsetY,
+            cursorBoundsOffsetWidth, cursorBoundsOffsetHeight;
 
-    private ImageButton tabButton;
-    private ImageButton closeButton;
-    private ImageButton dragButton;
+    private ButtonImaged tabButton;
+    private ButtonImaged closeButton;
+    private ButtonImaged dragButton;
 
 
     private final OverlaysWidgetSet overlaysWidgetSet;
@@ -101,7 +101,7 @@ public class VROverlaySettings extends VROverlayScreen
 
     public VROverlaySettings(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id, ElementPriority.NORMAL, 0.55f);
+        super(owner, id, ElementPriority.NORMAL, 0.6f);
         VisorAPI.eventBus().registerListener(owner, this);
         overlaysWidgetSet = new OverlaysWidgetSet(
                 this, this::repopulateWidgets
@@ -111,34 +111,6 @@ public class VROverlaySettings extends VROverlayScreen
         );
     }
 
-    public enum SettingsTab {
-        OVERLAYS,
-        CREATE_OVERLAY;
-
-        public WidgetSet widgetSet(VROverlaySettings settings) {
-            return this == OVERLAYS
-                    ? settings.overlaysWidgetSet
-                    : settings.createOverlayWidgetSet;
-        }
-
-        private ResourceLocation background() {
-            return this == OVERLAYS ? BACKGROUND_OVERLAYS : BACKGROUND_CREATE;
-        }
-
-        private ResourceLocation backgroundExtra(VROverlaySettings settings) {
-            return this == OVERLAYS ? BACKGROUND_EXTRA
-                    : settings.isBackgroundExtended()
-                    ? BACKGROUND_EXTRA_EXTENDED
-                    : BACKGROUND_EXTRA;
-        }
-
-        private void changeTab(VROverlaySettings settings) {
-            settings.settingsTab = this == OVERLAYS
-                    ? CREATE_OVERLAY
-                    : OVERLAYS;
-            settings.init();
-        }
-    }
 
 
     @VREventHandler
@@ -158,11 +130,11 @@ public class VROverlaySettings extends VROverlayScreen
         setDragged(false);
         backgroundExtended = false;
 
-        menuEdgeX = (width - BACKGROUND_WIDTH + 10) / 2;
-        menuEdgeY = (height - BACKGROUND_HEIGHT) / 2;
+        menuBoundsX = (width - BACKGROUND_WIDTH + 10) / 2;
+        menuBoundsY = (height - BACKGROUND_HEIGHT) / 2;
 
-        menuEdgeWidth = BACKGROUND_WIDTH + 10;
-        menuEdgeHeight = BACKGROUND_HEIGHT;
+        menuBoundsWidth = BACKGROUND_WIDTH + 10;
+        menuBoundsHeight = BACKGROUND_HEIGHT;
 
         updateCursorEdges();
 
@@ -170,20 +142,17 @@ public class VROverlaySettings extends VROverlayScreen
         var tabTexture = settingsTab == SettingsTab.OVERLAYS
                 ? SettingsTextures.BUTTON_TAB_RIGHT
                 : SettingsTextures.BUTTON_TAB_LEFT;
-        WidgetInfoButton tabInfo = new WidgetInfoButton(
-                tabTexture,
-                tabTexture,
-                menuEdgeX
-                        + (settingsTab == SettingsTab.OVERLAYS ? 115 : 0),
-                menuEdgeY + 6,
-                115, 23
-        ).setTextColor(TEXT_COLOR)
+        WidgetInfoButtonImaged tabInfo = new WidgetInfoButtonImaged()
+                .pos(menuBoundsX + (settingsTab == SettingsTab.OVERLAYS ? 115 : 0), menuBoundsY + 6)
+                .size(115, 23)
+                .setTexture(tabTexture)
+                .setTextColor(TEXT_COLOR)
                 .setText(settingsTab == SettingsTab.OVERLAYS
                         ? TITLE_CREATE_OVERLAY
                         : TITLE_OVERLAYS
                 );
 
-        tabButton = new ImageButton(
+        tabButton = new ButtonImaged(
                 tabInfo,
                 (it) -> {
                     settingsTab.changeTab(this);
@@ -194,14 +163,12 @@ public class VROverlaySettings extends VROverlayScreen
         );
 
         //CLOSE BUTTON
-        closeButton = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.BUTTON_CLOSE,
-                        SettingsTextures.BUTTON_CLOSE_HOVERED,
-                        menuEdgeX + 235,
-                        menuEdgeY + 12,
-                        19, 19
-                ),
+        closeButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(menuBoundsX + 235, menuBoundsY + 12)
+                        .size(19, 19)
+                        .setTexture(SettingsTextures.BUTTON_CLOSE)
+                        .setTextureHovered(SettingsTextures.BUTTON_CLOSE_HOVERED),
                 (it) -> setEnabled(false)
         );
         this.addRenderableWidget(
@@ -209,14 +176,13 @@ public class VROverlaySettings extends VROverlayScreen
         );
 
         //DRAG BUTTON
-        dragButton = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.BUTTON_DRAG,
-                        SettingsTextures.BUTTON_DRAG_HOVERED,
-                        menuEdgeX + 235,
-                        menuEdgeY + 35,
-                        19, 19
-                ).setTextureSelected(SettingsTextures.BUTTON_DRAG_SELECTED),
+        dragButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(menuBoundsX + 235, menuBoundsY + 35)
+                        .size(19, 19)
+                        .setTexture(SettingsTextures.BUTTON_DRAG)
+                        .setTextureHovered(SettingsTextures.BUTTON_DRAG_HOVERED)
+                        .setTextureSelected(SettingsTextures.BUTTON_DRAG_SELECTED),
                 (it) -> setDragged(true)
         );
 
@@ -239,14 +205,14 @@ public class VROverlaySettings extends VROverlayScreen
         //MAIN BACKGROUND
         guiGraphics.blit(
                 settingsTab.background(),
-                menuEdgeX, menuEdgeY,
+                menuBoundsX, menuBoundsY,
                 0, 0,
                 256, 256
         );
         //EXTRA BACKGROUND
         guiGraphics.blit(
                 settingsTab.backgroundExtra(this),
-                menuEdgeX + 230, menuEdgeY + 6,
+                menuBoundsX + 230, menuBoundsY + 6,
                 0, 0,
                 backgroundExtended ? 128 : 27, 245,
                 backgroundExtended ? 128 : 27, 245
@@ -262,9 +228,9 @@ public class VROverlaySettings extends VROverlayScreen
                 font,
                 text.getString(),
                 TEXT_COLOR.toInt(),
-                menuEdgeX
+                menuBoundsX
                         + (settingsTab == SettingsTab.OVERLAYS ? 0 : 115),
-                menuEdgeY + 6,
+                menuBoundsY + 6,
                 115, 23,
                 true
         );
@@ -275,10 +241,10 @@ public class VROverlaySettings extends VROverlayScreen
     }
 
     private void updateCursorEdges() {
-        cursorBoundsX = menuEdgeX + cursorEdgeOffsetX;
-        cursorBoundsY = menuEdgeY + cursorEdgeOffsetY;
-        cursorBoundsWidth = menuEdgeWidth + cursorEdgeOffsetWidth;
-        cursorBoundsHeight = menuEdgeHeight + cursorEdgeOffsetHeight;
+        cursorBoundsX = menuBoundsX + cursorBoundsOffsetX;
+        cursorBoundsY = menuBoundsY + cursorBoundsOffsetY;
+        cursorBoundsWidth = menuBoundsWidth + cursorBoundsOffsetWidth;
+        cursorBoundsHeight = menuBoundsHeight + cursorBoundsOffsetHeight;
         if (backgroundExtended) {
             cursorBoundsWidth += 100;
         }
@@ -406,6 +372,17 @@ public class VROverlaySettings extends VROverlayScreen
         return super.mouseReleased(mouseX, mouseY, buttonType);
     }
 
+    @Override
+    public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
+        if(getForcedAnchor() != null && forcedAnchor == null){
+            roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                    .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
+            roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                    .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
+        }
+        super.setForcedAnchor(forcedAnchor);
+    }
+
     private void setDragged(boolean flag) {
         if (dragButton != null) {
             dragButton.setSelected(flag);
@@ -429,16 +406,7 @@ public class VROverlaySettings extends VROverlayScreen
         }
     }
 
-    @Override
-    public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
-        if(getForcedAnchor() != null && forcedAnchor == null){
-            roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                    .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
-            roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                    .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
-        }
-        super.setForcedAnchor(forcedAnchor);
-    }
+
 
     @Override
     public @NotNull Component getName() {
@@ -448,5 +416,34 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public @NotNull Component getDescription() {
         return Component.translatable("visor.overlay.%s.description".formatted(getId()));
+    }
+
+    public enum SettingsTab {
+        OVERLAYS,
+        CREATE_OVERLAY;
+
+        public WidgetSet widgetSet(VROverlaySettings settings) {
+            return this == OVERLAYS
+                    ? settings.overlaysWidgetSet
+                    : settings.createOverlayWidgetSet;
+        }
+
+        private ResourceLocation background() {
+            return this == OVERLAYS ? BACKGROUND_OVERLAYS : BACKGROUND_CREATE;
+        }
+
+        private ResourceLocation backgroundExtra(VROverlaySettings settings) {
+            return this == OVERLAYS ? BACKGROUND_EXTRA
+                    : settings.isBackgroundExtended()
+                    ? BACKGROUND_EXTRA_EXTENDED
+                    : BACKGROUND_EXTRA;
+        }
+
+        private void changeTab(VROverlaySettings settings) {
+            settings.settingsTab = this == OVERLAYS
+                    ? CREATE_OVERLAY
+                    : OVERLAYS;
+            settings.init();
+        }
     }
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -37,6 +37,8 @@ public class TextBoxEditable extends AbstractWidget {
     private static final int CURSOR_INSERT_COLOR = -3092272;
     private static final int LINE_PADDING = 2;
 
+    private static final Pattern TOKEN_SPLIT = Pattern.compile("\\s+|\\S+");
+
     protected final GuiTexture background;
     protected final GuiTexture textureScrollBar;
     protected final GuiTexture textureScrollBarActive;
@@ -49,7 +51,6 @@ public class TextBoxEditable extends AbstractWidget {
     protected final int paddingX;
     protected final int paddingY;
     protected final int scrollBarWidth;
-
 
     @Getter
     private String value = "";
@@ -64,8 +65,8 @@ public class TextBoxEditable extends AbstractWidget {
     @Setter
     private Predicate<String> filter;
 
-    private boolean isEditable = true;
-
+    @Getter
+    private boolean readOnly = false;
 
     private final List<String> textLines = new ArrayList<>();
     private final List<Integer> lineStartIndices = new ArrayList<>();
@@ -77,18 +78,18 @@ public class TextBoxEditable extends AbstractWidget {
     protected boolean recalculateLines = true;
 
     @Getter
-    protected int scrollOffset = 0;
-    protected int maxScrollOffset = 0;
+    protected int scrollOffset = 0; // Unscaled units (line height space)
+    protected int maxScrollOffset = 0; // Unscaled units
     protected long lastScrollingCall = -1;
     protected boolean scrolling = false;
 
+    // New: when dragging the thumb, remember where inside the thumb we grabbed
+    private int thumbGrabOffset = -1;
 
     private boolean shiftPressed;
-
+    private boolean followCaret = true; // auto-scroll to caret when caret moves
 
     private int frame;
-
-
 
     public TextBoxEditable(@NotNull WidgetInfoTextBoxEditable widgetInfo) {
         super(widgetInfo.getX(),
@@ -106,7 +107,7 @@ public class TextBoxEditable extends AbstractWidget {
         this.textColor = widgetInfo.getTextColor().toInt();
         this.textHintColor = widgetInfo.getTextHintColor().toInt();
         this.highlightColor = widgetInfo.getHighlightColor().toInt();
-        this.textScale = widgetInfo.getTextScale();
+        this.textScale = widgetInfo.getTextScale() <= 0f ? 1.0f : widgetInfo.getTextScale();
         this.paddingX = 4;
         this.paddingY = 4;
         this.scrollBarWidth = widgetInfo.getScrollBarWidth();
@@ -124,19 +125,21 @@ public class TextBoxEditable extends AbstractWidget {
         ++this.frame;
     }
 
+    private boolean caretVisible() {
+        return this.isFocused() && !this.readOnly;
+    }
+
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         calculateLines();
         if (scrolling && lastScrollingCall + 200 < System.currentTimeMillis()) {
             scrolling = false;
             lastScrollingCall = -1;
+            thumbGrabOffset = -1;
         }
 
-        if(background != null){
-            background.blit(
-                    guiGraphics,
-                    getX(), getY(), width, height
-            );
+        if (background != null) {
+            background.blit(guiGraphics, getX(), getY(), width, height);
         }
 
         int textX = getX() + paddingX;
@@ -157,7 +160,7 @@ public class TextBoxEditable extends AbstractWidget {
         if (this.value.isEmpty()) {
             if (this.hint != null && !this.isFocused()) {
                 guiGraphics.drawString(this.font, this.hint, 0, lineY, textHintColor);
-            } else if (this.isFocused() && (this.frame / 6) % 2 == 0) {
+            } else if (caretVisible() && (this.frame / 6) % 2 == 0) {
                 guiGraphics.drawString(this.font, "_", 0, lineY, this.textColor);
             }
         } else {
@@ -165,22 +168,24 @@ public class TextBoxEditable extends AbstractWidget {
                 updateCursorCoordinates();
             }
 
+            int visibleHeightUnscaled = (int) ((textMaxY - textY) / textScale);
+
             for (int i = 0; i < textLines.size(); i++) {
-                if (lineY + lineHeight >= 0 && lineY <= (textMaxY - textY) / textScale) {
+                if (lineY + lineHeight >= 0 && lineY <= visibleHeightUnscaled) {
                     String lineText = textLines.get(i);
                     FormattedCharSequence line = FormattedCharSequence.forward(lineText, Style.EMPTY);
 
                     guiGraphics.drawString(this.font, line, 0, lineY, this.textColor);
 
-                    if (isLineSelected(i)) {
+                    if (!readOnly && isLineSelected(i)) {
                         renderSelectionHighlight(guiGraphics, i, lineY, lineHeight);
                     }
 
-                    if (this.isFocused() && (this.frame / 6) % 2 == 0 && i == cursorLine) {
+                    if (caretVisible() && (this.frame / 6) % 2 == 0 && i == cursorLine) {
                         int cursorX = getCursorPosX();
-                        int lineEndIndex = getLineEndIndex(i);
+                        int lineVisualEnd = getLineVisualEndIndex(i);
 
-                        boolean isCursorAtLineEnd = cursorPos == lineEndIndex;
+                        boolean isCursorAtLineEnd = cursorPos == lineVisualEnd;
 
                         if (isCursorAtLineEnd) {
                             guiGraphics.drawString(this.font, "_", cursorX, lineY, this.textColor);
@@ -207,27 +212,38 @@ public class TextBoxEditable extends AbstractWidget {
         renderScrollBar(guiGraphics);
     }
 
-    protected void renderScrollBar(@NotNull GuiGraphics guiGraphics){
-        if (maxScrollOffset > 0) {
-            int visibleHeight = this.height;
-            int contentHeight = (int) ((this.textLines.size() * (getLineHeight())) * textScale);
+    protected void renderScrollBar(@NotNull GuiGraphics guiGraphics) {
+        if (maxScrollOffset <= 0) return;
 
-            int thumbHeight = Math.max(32, (visibleHeight * visibleHeight) / contentHeight);
-            thumbHeight = Math.min(thumbHeight, visibleHeight);
+        int trackX = getScrollbarX();
+        int trackY = this.getY() + paddingY;
+        int trackHeight = this.height - paddingY * 2;
 
-            int thumbY = this.getY() + (int)((visibleHeight - thumbHeight) * (double)this.scrollOffset / this.maxScrollOffset);
+        int contentHeightUnscaled = this.textLines.size() * getLineHeight();
+        int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
 
-            GuiTexture scrollBarTex = scrolling
-                    ? textureScrollBarActive
-                    : textureScrollBar;
+        if (contentHeightUnscaled <= 0 || trackHeight <= 0) return;
 
-            if (scrollBarTex != null) {
-                scrollBarTex.blit(
-                        guiGraphics,
-                        getScrollbarX(), thumbY,
-                        scrollBarWidth, thumbHeight
-                );
-            }
+        int thumbHeight = Math.max(
+                16,
+                Math.min(
+                        trackHeight,
+                        (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
+                )
+        );
+
+        int thumbY = trackY;
+        if (this.maxScrollOffset > 0) {
+            double ratio = (double) this.scrollOffset / (double) this.maxScrollOffset;
+            thumbY = trackY + (int) Math.round((trackHeight - thumbHeight) * ratio);
+        }
+
+        GuiTexture scrollBarTex = scrolling ? textureScrollBarActive : textureScrollBar;
+
+        if (scrollBarTex != null) {
+            scrollBarTex.blit(guiGraphics, trackX, thumbY, scrollBarWidth, thumbHeight);
+        } else {
+            guiGraphics.fill(RenderType.guiOverlay(), trackX, thumbY, trackX + scrollBarWidth, thumbY + thumbHeight, 0x80000000);
         }
     }
 
@@ -236,47 +252,38 @@ public class TextBoxEditable extends AbstractWidget {
         int maxCursor = Math.max(cursorPos, selectionAnchor);
 
         int lineStart = getLineStartIndex(lineIndex);
-        int lineEnd   = getLineEndIndex(lineIndex);
+        int lineEnd = getLineEndIndex(lineIndex);
 
         if (maxCursor <= lineStart || minCursor >= lineEnd) return;
 
         int selStart = Math.max(minCursor, lineStart) - lineStart;
-        int selEnd   = Math.min(maxCursor, lineEnd)   - lineStart;
+        int selEnd = Math.min(maxCursor, lineEnd) - lineStart;
 
         String lineText = textLines.get(lineIndex);
-        int textLen     = lineText.length();
+        int textLen = lineText.length();
 
         selStart = Mth.clamp(selStart, 0, textLen);
-        selEnd   = Mth.clamp(selEnd,   0, textLen);
+        selEnd = Mth.clamp(selEnd, 0, textLen);
 
-        int startX, endX;
-        if (textLen == 0) {
-            int spaceWidth = this.font.width(" ");
-            startX = 0;
-            endX   = spaceWidth;
-        } else {
-            startX = this.font.width(lineText.substring(0, selStart));
-            endX   = this.font.width(lineText.substring(0, selEnd));
-        }
+        int startX = textLen == 0 ? 0 : this.font.width(lineText.substring(0, selStart));
+        int endX = textLen == 0 ? this.font.width(" ") : this.font.width(lineText.substring(0, selEnd));
 
-        var halfPadding = LINE_PADDING/2;
+        var halfPadding = LINE_PADDING / 2;
         guiGraphics.fill(
                 RenderType.guiTextHighlight(),
-                startX,              // x0
-                lineY - halfPadding , // y0
-                endX,                 // x1
-                lineY + halfPadding + font.lineHeight,  // y1
+                startX,
+                lineY - halfPadding,
+                endX,
+                lineY + halfPadding + font.lineHeight,
                 highlightColor
         );
     }
-
 
     protected void calculateLines() {
         if (!recalculateLines) return;
 
         textLines.clear();
         lineStartIndices.clear();
-
 
         int textWidth = (int) ((this.width - (paddingX * 2) - scrollBarWidth) / textScale);
         if (textWidth <= 0) {
@@ -290,7 +297,7 @@ public class TextBoxEditable extends AbstractWidget {
             recalculateLines = false;
             updateCursorCoordinates = true;
             this.maxScrollOffset = 0;
-            this.scrollOffset    = 0;
+            this.scrollOffset = 0;
             return;
         }
 
@@ -301,7 +308,7 @@ public class TextBoxEditable extends AbstractWidget {
             String explicitLine = explicitLines[i];
 
             if (i > 0) {
-                currentPos++;
+                currentPos++; // account for newline char
             }
             if (explicitLine.isEmpty()) {
                 textLines.add("");
@@ -310,10 +317,8 @@ public class TextBoxEditable extends AbstractWidget {
             }
 
             List<String> tokens = new ArrayList<>();
-            Matcher m = Pattern.compile("\\s+|\\S+").matcher(explicitLine);
-            while (m.find()) {
-                tokens.add(m.group());
-            }
+            Matcher m = TOKEN_SPLIT.matcher(explicitLine);
+            while (m.find()) tokens.add(m.group());
 
             int tokenIdx = 0;
             while (tokenIdx < tokens.size()) {
@@ -333,9 +338,16 @@ public class TextBoxEditable extends AbstractWidget {
                     } else {
                         if (lineW == 0) {
                             String fit = font.plainSubstrByWidth(tok, textWidth);
-                            sb.append(fit);
-                            currentPos += fit.length();
-                            tokens.set(tokenIdx, tok.substring(fit.length()));
+                            if (!fit.isEmpty()) {
+                                sb.append(fit);
+                                currentPos += fit.length();
+                                tokens.set(tokenIdx, tok.substring(fit.length()));
+                            } else {
+                                // Safety
+                                tokens.set(tokenIdx, tok.substring(1));
+                                currentPos += 1;
+                                sb.append(tok.charAt(0));
+                            }
                         }
                         break;
                     }
@@ -346,8 +358,8 @@ public class TextBoxEditable extends AbstractWidget {
         }
 
         int scaledVisibleHeight = (int) ((this.height - (paddingY * 2)) / textScale);
-        int totalTextHeight = this.textLines.size() * getLineHeight();
-        this.maxScrollOffset = Math.max(0, totalTextHeight - scaledVisibleHeight);
+        int totalTextHeightUnscaled = this.textLines.size() * getLineHeight();
+        this.maxScrollOffset = Math.max(0, totalTextHeightUnscaled - scaledVisibleHeight);
         this.scrollOffset = Mth.clamp(this.scrollOffset, 0, this.maxScrollOffset);
 
         recalculateLines = false;
@@ -380,29 +392,27 @@ public class TextBoxEditable extends AbstractWidget {
             cursorColumn = cursorPos - lineStartIndices.get(cursorLine);
         }
 
-        ensureCursorVisible();
+        if (!readOnly && followCaret) {
+            ensureCursorVisible();
+        }
         updateCursorCoordinates = false;
     }
 
     private void ensureCursorVisible() {
-        if(isTextSelected()){
-            return;
-        }
         int lineHeight = getLineHeight();
         int cursorY = cursorLine * lineHeight;
 
         int visibleTop = scrollOffset;
-        int visibleBottom = scrollOffset + (int)((height - (paddingY * 2)) / textScale);
+        int visibleBottom = scrollOffset + (int) ((height - (paddingY * 2)) / textScale);
 
         if (cursorY < visibleTop) {
             scrollOffset = cursorY;
         } else if (cursorY + lineHeight > visibleBottom) {
-            scrollOffset = cursorY - (int)((height - (paddingY * 2)) / textScale) + lineHeight;
+            scrollOffset = cursorY - (int) ((height - (paddingY * 2)) / textScale) + lineHeight;
         }
 
         scrollOffset = Mth.clamp(scrollOffset, 0, maxScrollOffset);
     }
-
 
     public void setValue(String text) {
         if (this.filter.test(text)) {
@@ -414,11 +424,13 @@ public class TextBoxEditable extends AbstractWidget {
 
             this.moveCursorToEnd();
             this.setSelectionAnchor(this.cursorPos);
-            this.onValueChange(text);
+            this.onValueChange(this.value);
         }
     }
 
     public void insertText(String textToWrite) {
+        if (readOnly) return;
+
         int i = Math.min(this.cursorPos, this.selectionAnchor);
         int j = Math.max(this.cursorPos, this.selectionAnchor);
         int k = this.maxLength - this.value.length() - (i - j);
@@ -439,6 +451,8 @@ public class TextBoxEditable extends AbstractWidget {
     }
 
     private void deleteText(int count) {
+        if (readOnly) return;
+
         if (Screen.hasControlDown()) {
             this.deleteWords(count);
         } else {
@@ -447,6 +461,8 @@ public class TextBoxEditable extends AbstractWidget {
     }
 
     public void deleteWords(int num) {
+        if (readOnly) return;
+
         if (!this.value.isEmpty()) {
             if (this.selectionAnchor != this.cursorPos) {
                 this.insertText("");
@@ -457,6 +473,8 @@ public class TextBoxEditable extends AbstractWidget {
     }
 
     public void deleteChars(int num) {
+        if (readOnly) return;
+
         if (!this.value.isEmpty()) {
             if (this.selectionAnchor != this.cursorPos) {
                 this.insertText("");
@@ -469,7 +487,7 @@ public class TextBoxEditable extends AbstractWidget {
                     if (this.filter.test(string)) {
                         this.value = string;
                         this.moveCursorTo(j);
-                        this.onValueChange(value);
+                        this.onValueChange(this.value);
                     }
                 }
             }
@@ -483,16 +501,13 @@ public class TextBoxEditable extends AbstractWidget {
         }
     }
 
-
-
     public void setCursorPosition(int pos) {
-
         this.cursorPos = Mth.clamp(pos, 0, this.value.length());
+        followCaret = !readOnly; // only auto-follow when not read-only
         updateCursorCoordinates = true;
     }
 
     public void moveCursorTo(int pos) {
-
         this.setCursorPosition(pos);
         if (!this.shiftPressed) {
             this.setSelectionAnchor(this.cursorPos);
@@ -517,11 +532,9 @@ public class TextBoxEditable extends AbstractWidget {
             int targetColumn = font.plainSubstrByWidth(targetLineText, cursorX).length();
             int newPos = lineStartIndices.get(targetLine) + targetColumn;
 
-
             this.moveCursorTo(newPos);
         }
     }
-
 
     public void moveCursorToStart() {
         this.moveCursorTo(0);
@@ -556,40 +569,46 @@ public class TextBoxEditable extends AbstractWidget {
         return this.getWordPosition(numWords, this.getCursorPosition());
     }
 
-    private int getWordPosition(int n, int pos) {
-        return this.getWordPosition(n, pos, true);
+    private static boolean isWordChar(char c) {
+        return Character.isLetterOrDigit(c) || c == '_';
     }
 
-    private int getWordPosition(int n, int pos, boolean skipWs) {
-        int i = pos;
-        boolean bl = n < 0;
-        int j = Math.abs(n);
-
-        for(int k = 0; k < j; ++k) {
-            if (!bl) {
-                int l = this.value.length();
-                i = this.value.indexOf(32, i);
-                if (i == -1) {
-                    i = l;
-                } else {
-                    while(skipWs && i < l && this.value.charAt(i) == ' ') {
-                        ++i;
-                    }
-                }
-            } else {
-                while(skipWs && i > 0 && this.value.charAt(i - 1) == ' ') {
-                    --i;
-                }
-
-                while(i > 0 && this.value.charAt(i - 1) != ' ') {
-                    --i;
-                }
-            }
+    private int nextWordBoundary(int pos) {
+        int i = Mth.clamp(pos, 0, value.length());
+        int len = value.length();
+        while (i < len && Character.isWhitespace(value.charAt(i))) i++;
+        if (i >= len) return len;
+        if (isWordChar(value.charAt(i))) {
+            while (i < len && isWordChar(value.charAt(i))) i++;
+        } else {
+            while (i < len && !Character.isWhitespace(value.charAt(i)) && !isWordChar(value.charAt(i))) i++;
         }
-
         return i;
     }
 
+    private int prevWordBoundary(int pos) {
+        int i = Mth.clamp(pos, 0, value.length());
+        while (i > 0 && Character.isWhitespace(value.charAt(i - 1))) i--;
+        if (i <= 0) return 0;
+        if (isWordChar(value.charAt(i - 1))) {
+            while (i > 0 && isWordChar(value.charAt(i - 1))) i--;
+        } else {
+            while (i > 0 && !Character.isWhitespace(value.charAt(i - 1)) && !isWordChar(value.charAt(i - 1))) i--;
+        }
+        return i;
+    }
+
+    private int getWordPosition(int n, int pos) {
+        int i = pos;
+        if (n == 0) return i;
+
+        int steps = Math.abs(n);
+        boolean backward = n < 0;
+        for (int k = 0; k < steps; k++) {
+            i = backward ? prevWordBoundary(i) : nextWordBoundary(i);
+        }
+        return i;
+    }
 
     private int getLineStartIndex(int lineIndex) {
         if (lineIndex < 0 || lineIndex >= lineStartIndices.size()) return 0;
@@ -605,10 +624,15 @@ public class TextBoxEditable extends AbstractWidget {
         return lineStartIndices.get(lineIndex + 1);
     }
 
+    private int getLineVisualEndIndex(int lineIndex) {
+        int start = getLineStartIndex(lineIndex);
+        String lineText = (lineIndex >= 0 && lineIndex < textLines.size()) ? textLines.get(lineIndex) : "";
+        return start + lineText.length();
+    }
+
     private boolean isLineSelected(int lineIndex) {
         int minCursor = Math.min(cursorPos, selectionAnchor);
         int maxCursor = Math.max(cursorPos, selectionAnchor);
-
         if (minCursor == maxCursor) return false;
 
         int lineStart = getLineStartIndex(lineIndex);
@@ -623,62 +647,91 @@ public class TextBoxEditable extends AbstractWidget {
         return this.value.substring(i, j);
     }
 
-
+    // Only depends on focus/visibility
     public boolean canConsumeInput() {
-        return this.visible && this.isFocused() && this.isEditable;
+        return this.visible && this.isFocused();
     }
-
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!this.canConsumeInput()) {
-            return false;
-        }
+        if (!this.canConsumeInput()) return false;
 
         this.shiftPressed = Screen.hasShiftDown();
 
-        if (Screen.isSelectAll(keyCode)) {
-            this.moveCursorToEnd();
-            this.setSelectionAnchor(0);
-            return true;
-        } else if (Screen.isCopy(keyCode)) {
+        if (Screen.isCopy(keyCode)) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
             return true;
+        } else if (Screen.isSelectAll(keyCode)) {
+            this.setSelectionAnchor(0);
+            this.moveCursorToEnd();
+            return true;
         } else if (Screen.isPaste(keyCode)) {
-            if (this.isEditable) {
+            if (!readOnly) {
                 this.insertText(Minecraft.getInstance().keyboardHandler.getClipboard());
             }
             return true;
         } else if (Screen.isCut(keyCode)) {
             Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
-            if (this.isEditable) {
+            if (!readOnly) {
                 this.insertText("");
             }
             return true;
         }
 
-        return switch (keyCode) {
+        if (readOnly) {
+            switch (keyCode) {
+                case GLFW.GLFW_KEY_PAGE_UP -> {
+                    setScrollAmount(getScrollAmount() - getLineHeightScaled() * 4);
+                    return true;
+                }
+                case GLFW.GLFW_KEY_PAGE_DOWN -> {
+                    setScrollAmount(getScrollAmount() + getLineHeightScaled() * 4);
+                    return true;
+                }
+                case GLFW.GLFW_KEY_UP -> {
+                    setScrollAmount(getScrollAmount() - getLineHeightScaled());
+                    return true;
+                }
+                case GLFW.GLFW_KEY_DOWN -> {
+                    setScrollAmount(getScrollAmount() + getLineHeightScaled());
+                    return true;
+                }
+                case GLFW.GLFW_KEY_HOME -> {
+                    setScrollAmount(0);
+                    return true;
+                }
+                case GLFW.GLFW_KEY_END -> {
+                    setScrollAmount(this.maxScrollOffset);
+                    return true;
+                }
+                default -> {
+                    return false;
+                }
+            }
+        }
+
+        switch (keyCode) {
             case GLFW.GLFW_KEY_ENTER, 335 -> {
-                if (this.isEditable) {
+                if (!readOnly) {
                     this.insertText("\n");
                 }
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_BACKSPACE -> {
-                if (this.isEditable) {
+                if (!readOnly) {
                     this.shiftPressed = false;
                     this.deleteText(-1);
                     this.shiftPressed = Screen.hasShiftDown();
                 }
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_DELETE -> {
-                if (this.isEditable) {
+                if (!readOnly) {
                     this.shiftPressed = false;
                     this.deleteText(1);
                     this.shiftPressed = Screen.hasShiftDown();
                 }
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_RIGHT -> {
                 if (Screen.hasControlDown()) {
@@ -686,7 +739,7 @@ public class TextBoxEditable extends AbstractWidget {
                 } else {
                     this.moveCursor(1);
                 }
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_LEFT -> {
                 if (Screen.hasControlDown()) {
@@ -694,38 +747,51 @@ public class TextBoxEditable extends AbstractWidget {
                 } else {
                     this.moveCursor(-1);
                 }
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_DOWN -> {
                 this.moveCursorVertical(1);
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_UP -> {
                 this.moveCursorVertical(-1);
-                yield true;
+                return true;
             }
             case GLFW.GLFW_KEY_HOME -> {
-                this.moveCursorToStart();
-                yield true;
+                if (Screen.hasControlDown()) {
+                    this.moveCursorToStart();
+                } else {
+                    calculateLines();
+                    updateCursorCoordinates();
+                    int start = getLineStartIndex(cursorLine);
+                    this.moveCursorTo(start);
+                }
+                return true;
             }
             case GLFW.GLFW_KEY_END -> {
-                this.moveCursorToEnd();
-                yield true;
+                if (Screen.hasControlDown()) {
+                    this.moveCursorToEnd();
+                } else {
+                    calculateLines();
+                    updateCursorCoordinates();
+                    int end = getLineVisualEndIndex(cursorLine);
+                    this.moveCursorTo(end);
+                }
+                return true;
             }
-            default -> false;
-        };
+            default -> {
+                return false;
+            }
+        }
     }
 
     @Override
     public void playDownSound(SoundManager handler) {
-
+        // No click sound
     }
 
     @Override
     public void setFocused(boolean focused) {
-        if(!isEditable){
-            return;
-        }
         super.setFocused(focused);
         if (!focused) {
             this.selectionAnchor = this.cursorPos;
@@ -735,48 +801,73 @@ public class TextBoxEditable extends AbstractWidget {
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        if (!this.canConsumeInput()) {
-            return false;
-        } else if (SharedConstants.isAllowedChatCharacter(codePoint)) {
-            if (this.isEditable) {
+        if (!this.canConsumeInput()) return false;
+        if (SharedConstants.isAllowedChatCharacter(codePoint)) {
+            if (!readOnly) {
                 this.insertText(Character.toString(codePoint));
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
-
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!this.active
-                || !this.visible
-                || !this.isValidClickButton(button)) return false;
+        if (!this.active || !this.visible || !this.isValidClickButton(button)) return false;
 
         if (isScrollbarHovered(mouseX, mouseY)) {
+            // Capture drag by letting superclass register the click
+            boolean consumed = super.mouseClicked(mouseX, mouseY, button);
             this.scrolling = true;
-            lastScrollingCall = System.currentTimeMillis();
+            this.followCaret = false; // manual scroll
+            this.lastScrollingCall = System.currentTimeMillis();
+
+            // Determine grab offset so the thumb doesn't jump
+            int trackY = this.getY() + paddingY;
+            int trackHeight = this.height - paddingY * 2;
+            int contentHeightUnscaled = this.textLines.size() * getLineHeight();
+            int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
+            int thumbHeight = Math.max(
+                    16,
+                    Math.min(
+                            trackHeight,
+                            (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
+                    )
+            );
+            int currentThumbY;
+            if (this.maxScrollOffset > 0) {
+                double ratio = (double) this.scrollOffset / (double) this.maxScrollOffset;
+                currentThumbY = trackY + (int) Math.round((trackHeight - thumbHeight) * ratio);
+            } else {
+                currentThumbY = trackY;
+            }
+            int offset = (int) Math.round(mouseY) - currentThumbY;
+            // Clamp within thumb
+            this.thumbGrabOffset = Mth.clamp(offset, 0, thumbHeight);
+
             return true;
         }
 
-        if(isEditable) {
-            this.shiftPressed = Screen.hasShiftDown();
-            if (!this.shiftPressed) {
-                this.setSelectionAnchor(this.cursorPos);
-            }
+        // Focus the widget so wheel works; avoid selection change in read-only
+        this.shiftPressed = readOnly ? false : Screen.hasShiftDown();
+        if (!readOnly && !this.shiftPressed) {
+            this.setSelectionAnchor(this.cursorPos);
         }
 
-        return isEditable && super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public void onClick(double mouseX, double mouseY) {
+        // Only handle caret positioning when not read-only
+        if (readOnly) {
+            return;
+        }
 
         if (mouseX >= this.getX() + paddingX && mouseX < this.getX() + this.width - paddingX - scrollBarWidth &&
                 mouseY >= this.getY() + paddingY && mouseY < this.getY() + this.height - paddingY) {
 
-            //---VR keyboard
+            //---VR keyboard (only when not read-only)
             if (VisorAPI.clientState().stateMode().isActive()) {
                 var keyboardAccessor = VisorAPI.client().getGuiManager()
                         .getOverlayManager()
@@ -790,11 +881,12 @@ public class TextBoxEditable extends AbstractWidget {
                     Screen screenFocused = overlayBase == null
                             ? Minecraft.getInstance().screen
                             : overlayBase;
-                    keyboardAccessor.showKeyboard(
-                            screenFocused
-                    );
+                    keyboardAccessor.showKeyboard(screenFocused);
                 }
             }
+
+            // Click positions caret; follow caret here
+            followCaret = true;
 
             //---Click logic
             calculateLines();
@@ -822,7 +914,11 @@ public class TextBoxEditable extends AbstractWidget {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (button == 0 && !this.scrolling && isEditable) {
+        // Any mouse drag is a manual scroll/selection gesture: do not auto-follow caret
+        followCaret = false;
+
+        // Text selection drag (only when not read-only and not on scrollbar)
+        if (button == 0 && !this.scrolling && !readOnly) {
             calculateLines();
 
             if (mouseY < this.getY() + paddingY) {
@@ -836,67 +932,71 @@ public class TextBoxEditable extends AbstractWidget {
             int lineIndex = Mth.floor(relativeY / getLineHeight());
 
             if (lineIndex < 0) {
-                this.setSelectionAnchor(0);
+                this.setCursorPositionKeepAnchor(0);
             } else if (lineIndex >= textLines.size()) {
-                this.setSelectionAnchor(value.length());
+                this.setCursorPositionKeepAnchor(value.length());
             } else {
                 String lineText = textLines.get(lineIndex);
                 int lineStart = lineStartIndices.get(lineIndex);
                 if (lineText.isEmpty() || lineText.trim().isEmpty()) {
-                    this.setSelectionAnchor(lineStart);
+                    this.setCursorPositionKeepAnchor(lineStart);
                 } else {
                     int charPos = findClosestCharPosition(lineText, relativeX);
-                    this.setSelectionAnchor(lineStart + charPos);
+                    this.setCursorPositionKeepAnchor(lineStart + charPos);
                 }
             }
             return true;
         }
 
-        if (button == 0) {
+        // Scrollbar drag: only when drag started on scrollbar
+        if (button == 0 && this.scrolling) {
             lastScrollingCall = System.currentTimeMillis();
 
-            if (mouseY < this.getY()) {
-                this.setScrollAmount(0);
-            } else if (mouseY > this.getY() + this.height) {
-                this.setScrollAmount(this.maxScrollOffset);
-            } else {
-                double visibleHeight = this.height - (paddingY * 2);
-                int thumbHeight = (int)Math.max(
-                        32,
-                        visibleHeight * visibleHeight / (this.textLines.size() * getLineHeightScaled())
-                );
-                double scrollFactor = Math.max(
-                        1.0,
-                        (double)this.maxScrollOffset / (double)(this.height - thumbHeight)
-                );
-                this.setScrollAmount(this.getScrollAmount() + dragY * scrollFactor);
-            }
+            int trackY = this.getY() + paddingY;
+            int trackHeight = this.height - paddingY * 2;
+
+            int contentHeightUnscaled = this.textLines.size() * getLineHeight();
+            int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
+
+            int thumbHeight = Math.max(
+                    16,
+                    Math.min(
+                            trackHeight,
+                            (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
+                    )
+            );
+
+            double thumbTravel = Math.max(0.0, trackHeight - thumbHeight);
+            double grab = (thumbGrabOffset >= 0) ? thumbGrabOffset : (thumbHeight / 2.0);
+            double thumbPos = Mth.clamp(mouseY - trackY - grab, 0.0, thumbTravel);
+            double ratio = (thumbTravel <= 0.0) ? 0.0 : (thumbPos / thumbTravel);
+            this.setScrollAmount(ratio * this.maxScrollOffset);
+
             return true;
         }
 
         return false;
     }
 
-
-
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
         if (this.isHoveredOrFocused() && this.visible) {
+            // Manual scroll -> stop following caret
+            followCaret = false;
             this.setScrollAmount(this.getScrollAmount() - scrollDelta * (double) getLineHeightScaled() / 2.0);
             return true;
         }
         return false;
     }
 
-
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0) {
             this.scrolling = false;
+            this.thumbGrabOffset = -1;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
-
 
     private int findClosestCharPosition(String text, double relativeX) {
         if (text.isEmpty()) return 0;
@@ -939,12 +1039,13 @@ public class TextBoxEditable extends AbstractWidget {
     }
 
     protected int getScrollbarX() {
-        return this.getX() + this.width - scrollBarWidth - 1;
+        return this.getX() + this.width - scrollBarWidth;
     }
 
     protected int getLineHeightScaled() {
-        return (int)(getLineHeight() * textScale);
+        return (int) (getLineHeight() * textScale);
     }
+
     protected int getLineHeight() {
         return font.lineHeight + LINE_PADDING;
     }
@@ -955,23 +1056,28 @@ public class TextBoxEditable extends AbstractWidget {
 
     public void setScrollAmount(double amount) {
         calculateLines();
-        this.scrollOffset = (int)Mth.clamp(amount, 0.0D, this.maxScrollOffset);
+        this.scrollOffset = (int) Mth.clamp(amount, 0.0D, this.maxScrollOffset);
     }
 
     public void setSelectionAnchor(int position) {
         this.selectionAnchor = Mth.clamp(position, 0, this.value.length());
         updateCursorCoordinates = true;
     }
-    public boolean isTextSelected(){
+    private void setCursorPositionKeepAnchor(int pos) {
+        this.cursorPos = Mth.clamp(pos, 0, this.value.length());
+        this.updateCursorCoordinates = true;
+    }
+
+    public boolean isTextSelected() {
         return selectionAnchor != cursorPos;
     }
 
-    public void setEditable(boolean enabled) {
-        this.isEditable = enabled;
-    }
-
-    public boolean isEditable() {
-        return this.isEditable;
+    public void setReadOnly(boolean readOnly) {
+        this.readOnly = readOnly;
+        if (readOnly) {
+            followCaret = false;
+            this.selectionAnchor = this.cursorPos;
+        }
     }
 
     public void setMaxLength(int length) {

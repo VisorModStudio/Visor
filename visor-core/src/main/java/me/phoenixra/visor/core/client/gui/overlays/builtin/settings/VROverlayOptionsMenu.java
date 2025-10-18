@@ -1,10 +1,10 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.network.chat.Component;
@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 
 
 @Getter
-public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptionsScreen<?>> {
+public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OptionsScreen<?>> {
     public static final String ID = "options_menu";
 
     private VROverlaySettings overlaySettings;
@@ -41,13 +41,30 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
     public void onUpdatePose(float partialTicks) {
         if(screen == null) return;
         getPose().updateOnlyScale(overlaySettings.getPose().getScale());
+        int[] boundsTarget = new int[4];
+        int[] boundsAnchor = new int[4];
+
+        boundsTarget[0] = cursorBoundsX;
+        boundsTarget[1] = cursorBoundsY;
+        boundsTarget[2] = cursorBoundsWidth;
+        boundsTarget[3] = cursorBoundsHeight;
+
+        boundsAnchor[0] = overlaySettings.getCursorBoundsX()
+                - overlaySettings.getCursorBoundsOffsetX();
+        boundsAnchor[1] = overlaySettings.getCursorBoundsY()
+                - overlaySettings.getCursorBoundsOffsetY();
+        boundsAnchor[2] = overlaySettings.getCursorBoundsWidth()
+                - overlaySettings.getCursorBoundsOffsetWidth();
+        boundsAnchor[3] = overlaySettings.getCursorBoundsHeight()
+                - overlaySettings.getCursorBoundsOffsetHeight();
+
         VROverlayHelper.anchorWithOverlay(
                 this,
                 0,1,
-                true,
+                boundsTarget,
                 overlaySettings,
                 0,-1,
-                true,
+                boundsAnchor,
                 new Vector3f(0,0,0),
                 new Vector3f((float) Math.toRadians(-30),0,0)
 
@@ -103,7 +120,7 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OverlayOptions
         updatePose(1);
     }
 
-    public OverlayOptionsScreen<?> getOptionsScreen(){
+    public OptionsScreen<?> getOptionsScreen(){
         return this.screen;
     }
 

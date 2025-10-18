@@ -5,71 +5,60 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
-@Getter
-public class WidgetInfoCheckboxList extends WidgetInfo{
+@Getter @Setter
+public class WidgetInfoCheckboxList extends WidgetInfo {
 
-    private final GuiTexture textureEntry;
-    private final GuiTexture textureCheckbox;
-    private final GuiTexture textureCheckboxHovered;
-    private final GuiTexture textureCheckboxSelected;
+    @Accessors(chain = true)
+    private GuiTexture textureEntry;
+    @Accessors(chain = true)
+    private GuiTexture textureCheckbox;
+    @Accessors(chain = true)
+    private GuiTexture textureCheckboxHovered;
+    @Accessors(chain = true)
+    private GuiTexture textureCheckboxSelected;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private GuiTexture textureCheckboxHoveredSelected;
 
-    @Setter @Accessors(chain = true)
-    private GuiTexture textureScrollBar = OverlayOptionTextures.SCROLL_BAR;
-    @Setter @Accessors(chain = true)
-    private GuiTexture textureScrollBarActive = OverlayOptionTextures.SCROLL_BAR_ACTIVE;
+    @Accessors(chain = true)
+    private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
+    @Accessors(chain = true)
+    private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
 
-    @Setter
+
     @Accessors(chain = true)
     private AtumColor textColor = AtumColor.WHITE;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int itemHeight = 15;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int paddingTop = 3;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int paddingLeft = 4;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int paddingCheckbox = 5;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int scrollBarWidth = 4;
 
     /**
      * [element id -> tooltip[
      */
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private Function<String, Component> tooltip;
 
-    public WidgetInfoCheckboxList(@NotNull GuiTexture textureEntry,
-                                  @NotNull GuiTexture textureCheckbox,
-                                  @NotNull GuiTexture textureCheckboxHovered,
-                                  @NotNull GuiTexture textureCheckboxSelected,
-                                  int x, int y, int width, int height) {
-        super(x, y, width, height);
-        this.textureEntry = textureEntry;
-        this.textureCheckbox = textureCheckbox;
-        this.textureCheckboxHovered = textureCheckboxHovered;
-        this.textureCheckboxSelected = textureCheckboxSelected;
-        this.textureCheckboxHoveredSelected = textureCheckboxSelected;
 
-
-    }
-
-    public WidgetInfoCheckboxList(@NotNull WidgetInfoCheckboxList copyFrom,
-                                  int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public WidgetInfoCheckboxList(@NotNull WidgetInfoCheckboxList copyFrom) {
+        super(copyFrom);
         textureEntry = copyFrom.textureEntry;
         textureCheckbox = copyFrom.textureCheckbox;
         textureCheckboxHovered = copyFrom.textureCheckboxHovered;
@@ -84,5 +73,36 @@ public class WidgetInfoCheckboxList extends WidgetInfo{
         paddingCheckbox = copyFrom.paddingCheckbox;
         scrollBarWidth = copyFrom.scrollBarWidth;
         tooltip = copyFrom.tooltip;
+    }
+
+    public WidgetInfoCheckboxList() {
+
+    }
+
+    public WidgetInfoCheckboxList textures(GuiTexture textureEntry,
+                                           GuiTexture textureCheckbox,
+                                           GuiTexture textureCheckboxHovered,
+                                           GuiTexture textureCheckboxSelected,
+                                           GuiTexture textureCheckboxHoveredSelected){
+        return setTextureEntry(textureEntry)
+                .setTextureCheckbox(textureCheckbox)
+                .setTextureCheckboxHovered(textureCheckboxHovered)
+                .setTextureCheckboxSelected(textureCheckboxSelected)
+                .setTextureCheckboxHoveredSelected(textureCheckboxHoveredSelected);
+    }
+    public WidgetInfoCheckboxList scrollBarTextures(GuiTexture textureScrollBar,
+                                                     GuiTexture textureScrollBarActive){
+        return setTextureScrollBar(textureScrollBar)
+                .setTextureScrollBarActive(textureScrollBarActive);
+    }
+
+    @Override
+    public WidgetInfoCheckboxList pos(int x, int y) {
+        return (WidgetInfoCheckboxList) super.pos(x, y);
+    }
+
+    @Override
+    public WidgetInfoCheckboxList size(int width, int height) {
+        return (WidgetInfoCheckboxList) super.size(width, height);
     }
 }

@@ -6,12 +6,12 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.framework.template.VROverlayTemplateFrameBuffer;
+import me.phoenixra.visor.api.client.gui.overlays.framework.template.VROverlayTemplateFrameBuffer;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;

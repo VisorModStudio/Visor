@@ -1,10 +1,10 @@
 package me.phoenixra.visor.api.client.gui.widgets.sets;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
-import me.phoenixra.visor.api.client.gui.widgets.TexturedEditBox;
-import me.phoenixra.visor.api.client.gui.widgets.TexturedSelectionList;
-import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.lists.TexturedSelectionList;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSelectionList;
 import net.minecraft.client.Minecraft;
@@ -26,7 +26,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
 
 
     private final WidgetInfoSelectionList listInfo;
-    private final WidgetInfoButton filterInfo;
+    private final WidgetInfoButtonImaged filterInfo;
     private final WidgetInfoEditBox searchBoxInfo;
 
     @Getter
@@ -37,9 +37,9 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
     private final Consumer<TexturedSelectionList.TexturedEntry> onSelected;
 
     @Getter
-    private ImageButton filterButton;
+    private ButtonImaged filterButton;
     @Getter
-    private TexturedEditBox searchBox;
+    private EditBoxImage searchBox;
     @Getter
     private TexturedSelectionList list;
 
@@ -85,7 +85,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
             & NarratableEntry> List<T>  initWidgets() {
 
         if(filterInfo != null) {
-            filterButton = new ImageButton(
+            filterButton = new ButtonImaged(
                     filterInfo,
                     (it)->{
                         it.setSelected(!it.isSelected());
@@ -109,7 +109,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
         }
 
         if(searchBoxInfo != null) {
-            searchBox = new TexturedEditBox(
+            searchBox = new EditBoxImage(
                     searchBoxInfo
             );
             searchBox.setResponder(this::applyFilter);
@@ -185,7 +185,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
         private final  Map<String, String> rawEntries;
         private final Consumer<TexturedSelectionList.TexturedEntry> onSelected;
 
-        private WidgetInfoButton filterInfo;
+        private WidgetInfoButtonImaged filterInfo;
         private FilterListWidgetSet<String> filterWidgetSet;
 
         private WidgetInfoEditBox searchBoxInfo;
@@ -200,7 +200,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
             this.onWidgetsChanged = onWidgetsChanged;
         }
 
-        public Builder filterButton(@NotNull WidgetInfoButton filterInfo,
+        public Builder filterButton(@NotNull WidgetInfoButtonImaged filterInfo,
                                     FilterListWidgetSet<String> filterWidgetSet) {
             this.filterInfo = filterInfo;
             this.filterWidgetSet = filterWidgetSet;

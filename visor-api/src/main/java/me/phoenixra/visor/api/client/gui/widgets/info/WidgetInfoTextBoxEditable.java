@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -21,9 +21,9 @@ public class WidgetInfoTextBoxEditable extends WidgetInfo {
     private GuiTexture background;
 
     @Accessors(chain = true)
-    private GuiTexture textureScrollBar = OverlayOptionTextures.SCROLL_BAR;
+    private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
     @Accessors(chain = true)
-    private GuiTexture textureScrollBarActive = OverlayOptionTextures.SCROLL_BAR_ACTIVE;
+    private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
 
 
     @Accessors(chain = true)
@@ -53,13 +53,8 @@ public class WidgetInfoTextBoxEditable extends WidgetInfo {
     @Setter @Accessors(chain = true)
     private Supplier<Component> tooltip;
 
-    public WidgetInfoTextBoxEditable(int x, int y,
-                                     int width, int height) {
-        super(x, y, width, height);
-    }
-    public WidgetInfoTextBoxEditable(@NotNull WidgetInfoTextBoxEditable copyFrom,
-                                     int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public WidgetInfoTextBoxEditable(@NotNull WidgetInfoTextBoxEditable copyFrom) {
+        super(copyFrom);
         background = copyFrom.background;
         textureScrollBar = copyFrom.textureScrollBar;
         textureScrollBarActive = copyFrom.textureScrollBarActive;
@@ -75,4 +70,17 @@ public class WidgetInfoTextBoxEditable extends WidgetInfo {
         tooltip = copyFrom.tooltip;
     }
 
+    public WidgetInfoTextBoxEditable() {
+
+    }
+
+    @Override
+    public WidgetInfoTextBoxEditable pos(int x, int y) {
+        return (WidgetInfoTextBoxEditable) super.pos(x, y);
+    }
+
+    @Override
+    public WidgetInfoTextBoxEditable size(int width, int height) {
+        return (WidgetInfoTextBoxEditable) super.size(width, height);
+    }
 }

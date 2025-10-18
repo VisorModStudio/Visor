@@ -8,8 +8,8 @@ import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlay.framework.screen.VROverlayScreenInScreen;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
+import me.phoenixra.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
@@ -169,6 +169,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 posOffset,
                 rotationOffset
         );
+        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
+        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
+                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
     }
 
 

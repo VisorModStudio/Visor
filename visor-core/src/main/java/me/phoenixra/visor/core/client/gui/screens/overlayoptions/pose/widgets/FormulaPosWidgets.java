@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.widgets;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.widgets.WidgetsFactory;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenPose;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.ModificationType;

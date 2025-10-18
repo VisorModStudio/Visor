@@ -3,14 +3,12 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets;
 import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsIdentity;
-import me.phoenixra.visor.api.client.gui.widgets.FilterListType;
-import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
-import me.phoenixra.visor.api.client.gui.widgets.TextBoxEditable;
-import me.phoenixra.visor.api.client.gui.widgets.TexturedEditBox;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
+import me.phoenixra.visor.api.client.gui.widgets.lists.FilterListType;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.*;
 import me.phoenixra.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FiltersListWidgetSet;
@@ -19,6 +17,7 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.SettingsTextures;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.identity.SetupIdentityWidgetSet;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -37,16 +36,11 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
     @Getter
     private final VROverlaySettings owner;
 
-
-    private TexturedEditBox idWidget;
-    private TexturedEditBox nameWidget;
-    private TextBoxEditable descriptionWidget;
-
-    private SetupIconWidgetSet setupIconWidget;
+    private SetupIdentityWidgetSet setupIdentity;
 
     private SearchableListWidgetSet templatesWidget;
 
-    private ImageButton createButton;
+    private ButtonImaged createButton;
 
     private final Map<String, String> addonFiltersName = new LinkedHashMap<>();
     private final Map<String, Function<String, Boolean>> addonFiltersFunc = new LinkedHashMap<>();
@@ -104,50 +98,23 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                         }
                 );
 
-        idWidget = new TexturedEditBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.DARK_GRAY_TEXTURE,
-                        owner.getMenuEdgeX() + 14,
-                        owner.getMenuEdgeY() + 43,
-                        92, 13
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_id"))
-        );
-        nameWidget = new TexturedEditBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.DARK_GRAY_TEXTURE,
-                        owner.getMenuEdgeX() + 14,
-                        owner.getMenuEdgeY() + 66,
-                        92, 13
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_name"))
-        );
-        descriptionWidget = new TextBoxEditable(
-                new WidgetInfoTextBoxEditable(
-                        owner.getMenuEdgeX() + 14,
-                        owner.getMenuEdgeY() + 89,
-                        92, 54
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setTextHintColor(VROverlaySettings.TEXT_COLOR)
-                        .setTextScale(0.6f)
-                        .setBackground(OverlayOptionTextures.DARK_GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_description"))
+        setupIdentity = new SetupIdentityWidgetSet(
+                owner.getMenuBoundsX(), owner.getMenuBoundsY(),
+                true
         );
 
-        setupIconWidget = new SetupIconWidgetSet(
-                this,
-                owner.getMenuEdgeX() + 6,
-                owner.getMenuEdgeY() + 151
-        );
-
-        createButton = new ImageButton(
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() + 122,
-                        owner.getMenuEdgeY() + 230,
-                        102, 15
-                ).setTextureInactive(SettingsTextures.CREATE_BUTTON_WARNING)
+        createButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() + 122, owner.getMenuBoundsY() + 230)
+                        .size(102, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .setTextureInactive(SettingsTextures.CREATE_BUTTON_WARNING)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT,
+                                0.65f
+                        )
                         .setText(Component.translatable("visor.overlay.options.main.create_overlay.create"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 (button)->{
@@ -156,58 +123,62 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                 }
         );
 
-        filterStartX = owner.getMenuEdgeX() + 234;
-        filterStartY = owner.getMenuEdgeY() + 57;
+        filterStartX = owner.getMenuBoundsX() + 234;
+        filterStartY = owner.getMenuBoundsY() + 57;
         var filterWidget = new FiltersListWidgetSet.Builder<>(
                 FilterListType.AT_LEAST_ONE,
-                new WidgetInfoCheckboxList(
-                        OverlayOptionTextures.BLACK_TEXTURE,
-                        OverlayOptionTextures.CHECKBOX_BUTTON,
-                        OverlayOptionTextures.CHECKBOX_BUTTON_HOVERED,
-                        OverlayOptionTextures.CHECKBOX_BUTTON_SELECTED,
-                        filterStartX + 7,
-                        filterStartY + 51,
-                        103, 133
-
-                ).setTextureCheckboxHoveredSelected(OverlayOptionTextures.CHECKBOX_BUTTON_HOVERED_SELECTED)
+                new WidgetInfoCheckboxList()
+                        .pos(filterStartX + 7,filterStartY + 51)
+                        .size(103, 133)
+                        .textures(
+                                OptionTextures.BLACK_TEXTURE,
+                                SettingsTextures.CHECKBOX_BUTTON,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED,
+                                SettingsTextures.CHECKBOX_BUTTON_SELECTED,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED_SELECTED
+                        )
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 addonFiltersName,
                 addonFiltersFunc,
                 () -> filtersAddons
         ).background(
-                 new WidgetInfoImage(
-                        SettingsTextures.FILTER_BACKGROUND,
-                         filterStartX,
-                         filterStartY,
-                        114, 188
-                )
+                 new WidgetInfoImage()
+                         .pos(filterStartX, filterStartY)
+                         .size(114, 188)
+                         .setTexture(SettingsTextures.FILTER_BACKGROUND)
         ).checkboxAll(
-                new WidgetInfoButton(
-                        SettingsTextures.CHECKBOX_ALL_BUTTON,
-                        SettingsTextures.CHECKBOX_ALL_BUTTON_HOVERED,
-                        filterStartX + 6,
-                        filterStartY + 33,
-                        12, 14
-                ).setTextureSelected(SettingsTextures.CHECKBOX_ALL_BUTTON_SELECTED)
-                        .setTextureHoveredSelected(SettingsTextures.CHECKBOX_ALL_BUTTON_HOVERED_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(filterStartX + 6, filterStartY + 33)
+                        .size(12, 14)
+                        .textures(
+                                SettingsTextures.CHECKBOX_BUTTON,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED,
+                                SettingsTextures.CHECKBOX_BUTTON_SELECTED,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED_SELECTED,
+                                null
+                        )
                         .setInactiveOnSelected(false)
         ).searchBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.BLACK_TEXTURE,
-                        filterStartX + 22,
-                        filterStartY + 33,
-                        86,14
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+                new WidgetInfoEditBox()
+                        .pos(filterStartX + 22, filterStartY + 33)
+                        .size(86,14)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setHint(VROverlaySettings.TEXT_FIND)
         ).build();
         templatesWidget = new SearchableListWidgetSet.Builder(
-                new WidgetInfoSelectionList(SettingsTextures.LIST_ENTRY,
-                        SettingsTextures.LIST_ENTRY_HOVERED,
-                        SettingsTextures.LIST_ENTRY_SELECTED,
-                        owner.getMenuEdgeX() + 125,
-                        owner.getMenuEdgeY() + 68,
-                        96, 154
-                ).setTooltip((id)->{
+                new WidgetInfoSelectionList()
+                        .pos(owner.getMenuBoundsX() + 125, owner.getMenuBoundsY() + 68)
+                        .size(96, 154)
+                        .setEntryButton(
+                                new WidgetInfoButtonImaged()
+                                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                                        .highlight(
+                                                OptionTextures.HOVERED_HIGHLIGHT,
+                                                OptionTextures.SELECTED_HIGHLIGHT
+                                        )
+                        )
+                        .setTooltip((id)->{
                     var registry = ClientContext.overlayManager.getOverlayTemplatesRegistry();
                     var template = registry.getElement(id);
                     if(template == null) return Component.empty();
@@ -226,26 +197,26 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                 onWidgetsChanged
 
         ).searchBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.DARK_GRAY_TEXTURE,
-                        owner.getMenuEdgeX() + 125,
-                        owner.getMenuEdgeY() + 50,
-                        77, 15
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+                new WidgetInfoEditBox()
+                        .pos(owner.getMenuBoundsX() + 125, owner.getMenuBoundsY() + 50)
+                        .size(77, 15)
+                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setHint(VROverlaySettings.TEXT_FIND)
         ).filterButton(
-                new WidgetInfoButton(
-                        SettingsTextures.FILTER_GRAY_BUTTON,
-                        SettingsTextures.FILTER_GRAY_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() + 206,
-                        owner.getMenuEdgeY() + 50,
-                        15, 15
-                ).setTextureSelected(SettingsTextures.FILTER_GRAY_BUTTON_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() + 206, owner.getMenuBoundsY() + 50)
+                        .size(15, 15)
+                        .textures(
+                                SettingsTextures.FILTER_GRAY_BUTTON,
+                                SettingsTextures.FILTER_GRAY_BUTTON_HOVERED,
+                                SettingsTextures.FILTER_GRAY_BUTTON_SELECTED
+                        )
                         .setInactiveOnSelected(false),
                 filterWidget
         ).build();
 
-        setupIconWidget.initWidgets();
+        setupIdentity.initWidgets();
         templatesWidget.initWidgets();
 
         return getWidgets();
@@ -256,10 +227,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             & Renderable
             & NarratableEntry> List<T> getWidgets() {
         List<T> list = new ArrayList<>();
-        list.add((T) idWidget);
-        list.add((T) nameWidget);
-        list.add((T) descriptionWidget);
-        list.addAll(setupIconWidget.getWidgets());
+        list.addAll(setupIdentity.getWidgets());
         list.addAll(templatesWidget.getWidgets());
         list.add((T)createButton);
         return list;
@@ -286,7 +254,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         owner.setBackgroundExtended(
                 filterSelected
         );
-        setupIconWidget.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
+        setupIdentity.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
         templatesWidget.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
 
         GuiHelper.renderScalableText(
@@ -294,8 +262,8 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                 font,
                 Component.translatable("visor.overlay.options.main.create_overlay.select_template").getString(),
                 textColor,
-                getOwner().getMenuEdgeX() + 129,
-                getOwner().getMenuEdgeY() + 38,
+                getOwner().getMenuBoundsX() + 129,
+                getOwner().getMenuBoundsY() + 38,
                 88, 8,
                 true
         );
@@ -316,22 +284,21 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
 
     @Override
     public void onTick() {
-        descriptionWidget.tick();
-        setupIconWidget.onTick();
+        setupIdentity.onTick();
         templatesWidget.onTick();
     }
 
 
     private Component isReadyToCreate(){
-        if(idWidget.getValue().isBlank()){
+        if(setupIdentity.getIdWidget().getValue().isBlank()){
             return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id");
         }
         VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-        if(registry.getElement(idWidget.getValue()) != null) {
+        if(registry.getElement(setupIdentity.getIdWidget().getValue()) != null) {
             return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id.exists");
         }
 
-        if(nameWidget.getValue().isBlank()){
+        if(setupIdentity.getNameWidget().getValue().isBlank()){
             return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.name");
         }
 
@@ -343,9 +310,9 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
     }
 
     private void create(){
-        String id = idWidget.getValue();
-        String name = nameWidget.getValue();
-        String description = descriptionWidget.getValue();
+        String id = setupIdentity.getIdWidget().getValue();
+        String name = setupIdentity.getNameWidget().getValue();
+        String description = setupIdentity.getDescriptionWidget().getValue();
         if(description.isBlank()){
             description = null;
         }
@@ -365,7 +332,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             identity.setName(name);
             identity.setDescription(description);
 
-            var iconResource = setupIconWidget.getIcon().getResourceLocation();
+            var iconResource = setupIdentity.getSetupIconWidget().getIcon().getResourceLocation();
             String iconPath = iconResource.getNamespace() + ":" + iconResource.getPath();
             identity.setIcon(iconPath);
 
@@ -379,4 +346,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             VisorState.destroyVRWithErrorScreen(e);
         }
     }
+
+
+
 }

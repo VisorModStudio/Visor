@@ -3,10 +3,10 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.widgets.FilterListType;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.widgets.lists.FilterListType;
 import me.phoenixra.visor.api.client.gui.widgets.info.*;
 import me.phoenixra.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FilterListBinaryWidgetSet;
@@ -155,35 +155,34 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                         }
                 );
 
-        var filterBackgroundInfo = new WidgetInfoImage(
-                SettingsTextures.FILTER_BACKGROUND,
-                owner.getMenuEdgeX() - 117,
-                owner.getMenuEdgeY() + 31,
-                114, 220
-        );
+        var filterBackgroundInfo = new WidgetInfoImage()
+                .pos(owner.getMenuBoundsX() - 117, owner.getMenuBoundsY() + 31)
+                .size(114, 220)
+                .setTexture(SettingsTextures.FILTER_BACKGROUND);
         var filterWidgetSet = new FilterListBinaryWidgetSet.Builder<String>(
-                new WidgetInfoCheckboxList(
-                        OverlayOptionTextures.BLACK_TEXTURE,
-                        OverlayOptionTextures.CHECKBOX_BUTTON,
-                        OverlayOptionTextures.CHECKBOX_BUTTON_HOVERED,
-                        OverlayOptionTextures.CHECKBOX_BUTTON_SELECTED,
-                        owner.getMenuEdgeX() - 117,
-                        owner.getMenuEdgeY() + 76,
-                        114, 167
-
-                ).setTextureCheckboxHoveredSelected(OverlayOptionTextures.CHECKBOX_BUTTON_HOVERED_SELECTED)
+                new WidgetInfoCheckboxList()
+                        .pos(owner.getMenuBoundsX() - 117,owner.getMenuBoundsY() + 76)
+                        .size(114, 167)
+                        .textures(
+                                OptionTextures.BLACK_TEXTURE,
+                                SettingsTextures.CHECKBOX_BUTTON,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED,
+                                SettingsTextures.CHECKBOX_BUTTON_SELECTED,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED_SELECTED
+                        )
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 onWidgetsChanged
         ).first( //Main
                 FilterListType.ALL,
                 filterBackgroundInfo,
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() - 114,
-                        owner.getMenuEdgeY() + 35,
-                        52, 15
-                ).setTextureSelected(OverlayOptionTextures.GENERAL_BUTTON_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() - 114, owner.getMenuBoundsY() + 35)
+                        .size(52, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        )
                         .setText(Component.translatable("visor.overlay.options.main.overlays.filters.main"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 mainFiltersName,
@@ -192,47 +191,53 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         ).second( //addons
                 FilterListType.AT_LEAST_ONE,
                 filterBackgroundInfo,
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() - 58,
-                        owner.getMenuEdgeY() + 35,
-                        52, 15
-                ).setTextureSelected(OverlayOptionTextures.GENERAL_BUTTON_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() - 58,owner.getMenuBoundsY() + 35)
+                        .size(52, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        )
                         .setText(Component.translatable("visor.overlay.options.main.overlays.filters.addons"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 addonFiltersName,
                 addonFiltersFunc,
                 ()->filtersAddons
         ).checkboxAll(
-                new WidgetInfoButton(
-                        SettingsTextures.CHECKBOX_ALL_BUTTON,
-                        SettingsTextures.CHECKBOX_ALL_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() - 111,
-                        owner.getMenuEdgeY() + 62,
-                        12, 14
-                ).setTextureSelected(SettingsTextures.CHECKBOX_ALL_BUTTON_SELECTED)
-                        .setTextureHoveredSelected(SettingsTextures.CHECKBOX_ALL_BUTTON_HOVERED_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() - 111,owner.getMenuBoundsY() + 62)
+                        .size(12, 14)
+                        .textures(
+                                SettingsTextures.CHECKBOX_BUTTON,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED,
+                                SettingsTextures.CHECKBOX_BUTTON_SELECTED,
+                                SettingsTextures.CHECKBOX_BUTTON_HOVERED_SELECTED,
+                                null
+                        )
                         .setInactiveOnSelected(false)
         ).searchBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.BLACK_TEXTURE,
-                        owner.getMenuEdgeX() - 95,
-                        owner.getMenuEdgeY() + 62,
-                        86,14
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+                new WidgetInfoEditBox()
+                        .pos(owner.getMenuBoundsX() - 95,owner.getMenuBoundsY() + 62)
+                        .size(86,14)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setHint(VROverlaySettings.TEXT_FIND)
         ).build();
 
         overlaysList = new SearchableListWidgetSet.Builder(
-                new WidgetInfoSelectionList(
-                        SettingsTextures.LIST_ENTRY,
-                        SettingsTextures.LIST_ENTRY_HOVERED,
-                        SettingsTextures.LIST_ENTRY_SELECTED,
-                        owner.getMenuEdgeX() + 6,
-                        owner.getMenuEdgeY() + 54,
-                        111, 191
-                ).setTextureScrollBarActive(OverlayOptionTextures.SCROLL_BAR_ACTIVE)
+                new WidgetInfoSelectionList()
+                        .pos(owner.getMenuBoundsX() + 6,owner.getMenuBoundsY() + 54)
+                        .size(111, 191)
+                        .setEntryButton(
+                                new WidgetInfoButtonImaged()
+                                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                                        .highlight(
+                                                OptionTextures.HOVERED_HIGHLIGHT,
+                                                OptionTextures.SELECTED_HIGHLIGHT
+                                        )
+                        )
+                        .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE)
                         .setItemHeight(21)
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 overlaysMap,
@@ -247,23 +252,23 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                 onWidgetsChanged
 
         ).filterButton(
-                new WidgetInfoButton(
-                        SettingsTextures.FILTER_BLACK_BUTTON,
-                        SettingsTextures.FILTER_BLACK_BUTTON_HOVERED,
-                        owner.getMenuEdgeX() + 5,
-                        owner.getMenuEdgeY() + 34,
-                        17, 17
-                ).setTextureSelected(SettingsTextures.FILTER_BLACK_BUTTON_SELECTED)
+                new WidgetInfoButtonImaged()
+                        .pos(owner.getMenuBoundsX() + 5,owner.getMenuBoundsY() + 34)
+                        .size(17, 17)
+                        .textures(
+                                SettingsTextures.FILTER_BLACK_BUTTON,
+                                SettingsTextures.FILTER_BLACK_BUTTON_HOVERED,
+                                SettingsTextures.FILTER_BLACK_BUTTON_SELECTED
+                        )
                         .setInactiveOnSelected(false),
                 filterWidgetSet
 
         ).searchBox(
-                new WidgetInfoEditBox(
-                        OverlayOptionTextures.BLACK_TEXTURE,
-                        owner.getMenuEdgeX() + 25,
-                        owner.getMenuEdgeY() + 35,
-                        92, 15
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+                new WidgetInfoEditBox()
+                        .pos(owner.getMenuBoundsX() + 25,owner.getMenuBoundsY() + 35)
+                        .size(92, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setHint(VROverlaySettings.TEXT_FIND)
         ).build();
 
@@ -291,15 +296,15 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                             float partialTicks) {
         overlaysList.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
         if(overlaysList.getFilterButton().isSelected()){
-            owner.setCursorEdgeOffsetX(-owner.getMenuEdgeX());
-            owner.setCursorEdgeOffsetY(-owner.getMenuEdgeY());
-            owner.setCursorEdgeOffsetWidth(owner.getMenuEdgeX());
-            owner.setCursorEdgeOffsetHeight(owner.getMenuEdgeY());
+            owner.setCursorBoundsOffsetX(-owner.getMenuBoundsX());
+            owner.setCursorBoundsOffsetY(-owner.getMenuBoundsY());
+            owner.setCursorBoundsOffsetWidth(owner.getMenuBoundsX());
+            owner.setCursorBoundsOffsetHeight(owner.getMenuBoundsY());
         }else{
-            owner.setCursorEdgeOffsetX(0);
-            owner.setCursorEdgeOffsetY(0);
-            owner.setCursorEdgeOffsetWidth(0);
-            owner.setCursorEdgeOffsetHeight(0);
+            owner.setCursorBoundsOffsetX(0);
+            owner.setCursorBoundsOffsetY(0);
+            owner.setCursorBoundsOffsetWidth(0);
+            owner.setCursorBoundsOffsetHeight(0);
         }
         if(overlaySetup != null){
             overlaySetup.onPreRender(
@@ -316,6 +321,20 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         if(overlaySetup != null){
             overlaySetup.onTick();
         }
+
+        //silly way to auto rename overlay entry when identity is modified
+        var selected = overlaysList.getList().getSelected();
+        if(selected == null){
+            return;
+        }
+        var selectedOverlay = ClientContext.overlayManager.getOverlay(selected.getId());
+        if(selectedOverlay == null){
+            return;
+        }
+        overlaysList.getList().renameEntry(
+                selected.getId(), selectedOverlay.getName()
+        );
+
     }
 
     public void setOptionsMenu(@Nullable OverlayOptionGroup menu){
@@ -354,8 +373,8 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                 this,
                 overlay,
                 onWidgetsChanged,
-                owner.getMenuEdgeX() + 122,
-                owner.getMenuEdgeY() + 35
+                owner.getMenuBoundsX() + 122,
+                owner.getMenuBoundsY() + 35
         );
         overlaySetup.initWidgets();
         widgetsChanged();

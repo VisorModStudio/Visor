@@ -2,14 +2,14 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets;
 
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.TextBoxEditable;
-import me.phoenixra.visor.api.client.gui.widgets.TexturedSelectionList;
-import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
+import me.phoenixra.visor.api.client.gui.widgets.lists.TexturedSelectionList;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSelectionList;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
 import me.phoenixra.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
@@ -42,18 +42,18 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
     private TextBoxEditable descriptionWidget;
 
     private TexturedSelectionList optionsListWidget;
-    private ImageButton loadDefaultsWidget;
-    private ImageButton saveButtonWidget;
-    private ImageButton removeButtonWidget;
+    private ButtonImaged loadDefaultsWidget;
+    private ButtonImaged saveButtonWidget;
+    private ButtonImaged removeButtonWidget;
 
     private boolean confirmRemove;
-    private ImageButton confirmRemoveWidget;
-    private ImageButton cancelRemoveWidget;
+    private ButtonImaged confirmRemoveWidget;
+    private ButtonImaged cancelRemoveWidget;
 
 
-    private ImageButton copyButtonWidget;
-    private ImageButton pasteButtonWidget;
-    private ImageButton loadFromFileButtonWidget;
+    private ButtonImaged copyButtonWidget;
+    private ButtonImaged pasteButtonWidget;
+    private ButtonImaged loadFromFileButtonWidget;
 
     private HashMap<String, OverlayOptionGroup<?>> optionsMap;
 
@@ -78,29 +78,30 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
             & Renderable
             & NarratableEntry> List<T> initWidgets() {
         descriptionWidget = new TextBoxEditable(
-                new WidgetInfoTextBoxEditable(
-                        startX + 5,
-                        startY + 39,
-                        92, 54
-                ).setText(overlay.getDescription())
+                new WidgetInfoTextBoxEditable()
+                        .pos(startX + 5,startY + 39)
+                        .size(92, 54)
+                        .setText(overlay.getDescription())
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setTextScale(0.6f)
-                        .setBackground(OverlayOptionTextures.DARK_GRAY_TEXTURE)
+                        .setBackground(OptionTextures.GRAY_TEXTURE)
 
         );
-        descriptionWidget.setEditable(false);
+        descriptionWidget.setReadOnly(true);
 
         if (!hasSettings) {
             return getWidgets();
         }
-        copyButtonWidget = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.COPY_BUTTON,
-                        SettingsTextures.COPY_BUTTON_HOVERED,
-                        startX + 112,
-                        startY + 99,
-                        17, 17
-                ).setTextureInactive(SettingsTextures.COPY_BUTTON_INACTIVE)
+        copyButtonWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX + 112,startY + 99)
+                        .size(17, 17)
+                        .textures(
+                                SettingsTextures.COPY_BUTTON,
+                                SettingsTextures.COPY_BUTTON_HOVERED,
+                                null,null,
+                                SettingsTextures.COPY_BUTTON_INACTIVE
+                        )
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.copy_options.tooltip"))),
                 (button)->{
                     var selectedEntry = optionsListWidget.getSelected();
@@ -111,15 +112,23 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                     widgetsChanged();
                 }
         );
-        pasteButtonWidget = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.PASTE_BUTTON,
-                        SettingsTextures.PASTE_BUTTON_HOVERED,
-                        startX + 112,
-                        startY + 124,
-                        17, 17
-                ).setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.paste_options.tooltip")))
-                        .setTextureInactive(SettingsTextures.PASTE_BUTTON_INACTIVE),
+        pasteButtonWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX + 112, startY + 124)
+                        .size(17, 17)
+                        .textures(
+                                SettingsTextures.PASTE_BUTTON,
+                                SettingsTextures.PASTE_BUTTON_HOVERED,
+                                null,null,
+                                SettingsTextures.PASTE_BUTTON_INACTIVE
+                        )
+                        .setTooltip(
+                                Tooltip.create(
+                                        Component.translatable(
+                                                "visor.overlay.options.main.overlays.paste_options.tooltip"
+                                        )
+                                )
+                        ),
                 (button)->{
                     var optionsToCopy = owner.getCopiedOptionGroup();
                     var selectedEntry = optionsListWidget.getSelected();
@@ -138,14 +147,13 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 }
         );
 
-        loadFromFileButtonWidget = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.BUTTON_LOAD,
-                        SettingsTextures.BUTTON_LOAD_HOVERED,
-                        startX + 112,
-                        startY + 156,
-                        17, 17
-                ).setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.load.tooltip"))),
+        loadFromFileButtonWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX + 112,startY + 156)
+                        .size(17, 17)
+                        .setTexture(SettingsTextures.BUTTON_LOAD)
+                        .setTextureHovered(SettingsTextures.BUTTON_LOAD_HOVERED)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.load.tooltip"))),
                 button -> {
                     overlay.reloadOptions();
                 }
@@ -157,13 +165,18 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
             optionsMap.put(entry.getId(), entry);
         }
         optionsListWidget = new TexturedSelectionList(
-                new WidgetInfoSelectionList(
-                        SettingsTextures.LIST_ENTRY,
-                        SettingsTextures.LIST_ENTRY_HOVERED,
-                        SettingsTextures.LIST_ENTRY_SELECTED,
-                        startX + 5, startY + 110,
-                        93, 58
-                ).setTextureScrollBarActive(OverlayOptionTextures.SCROLL_BAR_ACTIVE)
+                new WidgetInfoSelectionList()
+                        .pos(startX + 5, startY + 110)
+                        .size(93, 58)
+                        .setEntryButton(
+                                new WidgetInfoButtonImaged()
+                                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                                        .highlight(
+                                                OptionTextures.HOVERED_HIGHLIGHT,
+                                                OptionTextures.SELECTED_HIGHLIGHT
+                                        )
+                        )
+                        .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE)
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setSupportDeselection(true),
                 rawEntries,
@@ -178,27 +191,31 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 }
         );
 
-        loadDefaultsWidget = new ImageButton(
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        startX,
-                        startY + 176,
-                        102, 15
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+        loadDefaultsWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX,startY + 176)
+                        .size(102, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        )
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setText(Component.translatable("visor.overlay.options.main.overlays.load_defaults")),
                 (it) -> {
                     loadDefaults();
                 }
         );
-        saveButtonWidget = new ImageButton(
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        this.isCustom ? startX : startX + 19,
-                        startY + 195,
-                        83, 15
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+        saveButtonWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(this.isCustom ? startX : startX + 19,startY + 195)
+                        .size(83, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        )
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setText(Component.translatable("visor.overlay.options.main.overlays.save")),
                 (it) -> {
                     saveChanges();
@@ -209,42 +226,40 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         }
 
         //CUSTOM ONLY
-        removeButtonWidget = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.REMOVE_BUTTON,
-                        SettingsTextures.REMOVE_BUTTON_HOVERED,
-                        startX + 87,
-                        startY + 195,
-                        15, 15
-                ),
+        removeButtonWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX + 87,startY + 195)
+                        .size(15, 15)
+                        .setTexture(SettingsTextures.REMOVE_BUTTON)
+                        .setTextureHovered(SettingsTextures.REMOVE_BUTTON_HOVERED),
                 (it) -> {
                     confirmRemove = true;
                     widgetsChanged();
                 }
         );
 
-        confirmRemoveWidget = new ImageButton(
-                new WidgetInfoButton(
-                        OverlayOptionTextures.GENERAL_BUTTON,
-                        OverlayOptionTextures.GENERAL_BUTTON_HOVERED,
-                        startX,
-                        startY + 195,
-                        83, 15
-                ).setTextColor(VROverlaySettings.TEXT_COLOR)
+        confirmRemoveWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX,startY + 195)
+                        .size(83, 15)
+                        .setTexture(OptionTextures.BLACK_TEXTURE)
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        )
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setText(Component.translatable("visor.overlay.options.main.overlays.confirm_remove")),
                 (it) -> {
                     confirmRemove = false;
                     owner.removeOverlay(overlay);
                 }
         );
-        cancelRemoveWidget = new ImageButton(
-                new WidgetInfoButton(
-                        SettingsTextures.CANCEL_BUTTON,
-                        SettingsTextures.CANCEL_BUTTON_HOVERED,
-                        startX + 87,
-                        startY + 195,
-                        15, 15
-                ),
+        cancelRemoveWidget = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX + 87, startY + 195)
+                        .size(15, 15)
+                        .setTexture(SettingsTextures.CANCEL_BUTTON)
+                        .setTextureHovered(SettingsTextures.CANCEL_BUTTON_HOVERED),
                 (it) -> {
                     confirmRemove = false;
                     widgetsChanged();
@@ -312,21 +327,15 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 var widgetInfo = saveButtonWidget.getWidgetInfo();
                 if(changesNotSaved) {
                     widgetInfo.getTextPosOffset().x = 13;
-                    widgetInfo.getTextScaleOffset().x = -26;
+                    widgetInfo.getTextSizeOffset().x = -26;
                     widgetInfo.setTexture(
                             SettingsTextures.BUTTON_SAVE_WARNING
                     );
-                    widgetInfo.setTextureHovered(
-                            SettingsTextures.BUTTON_SAVE_WARNING_HOVERED
-                    );
                 }else{
-                    widgetInfo.getTextScaleOffset().x = 0;
+                    widgetInfo.getTextSizeOffset().x = 0;
                     widgetInfo.getTextPosOffset().x = 0;
                     widgetInfo.setTexture(
-                            OverlayOptionTextures.GENERAL_BUTTON
-                    );
-                    widgetInfo.setTextureHovered(
-                            OverlayOptionTextures.GENERAL_BUTTON_HOVERED
+                            OptionTextures.BLACK_TEXTURE
                     );
                 }
             }
@@ -383,6 +392,9 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 false
         );
 
+        //overlay description
+        descriptionWidget.setValue(overlay.getDescription().getString());
+
         //Overlay label
         labelTexture.blit(
                 guiGraphics,
@@ -394,7 +406,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         if (this.isCustom) {
             Component templateText = Component.translatable("visor.overlay.options.main.overlays.template", asTemplate.getTemplateName().getString());
 
-            OverlayOptionTextures.DARK_GRAY_TEXTURE.blit(
+            OptionTextures.GRAY_TEXTURE.blit(
                     guiGraphics,
                     startX + 24,
                     startY + 25,
@@ -413,7 +425,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         }
         //Settings background
         if (!hasSettings) {
-            OverlayOptionTextures.BLACK_TEXTURE.blit(
+            OptionTextures.BLACK_TEXTURE.blit(
                     guiGraphics,
                     startX,
                     startY + 99,
@@ -431,7 +443,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                     true
             );
         } else {
-            OverlayOptionTextures.BLACK_TEXTURE.blit(
+            OptionTextures.BLACK_TEXTURE.blit(
                     guiGraphics,
                     startX,
                     startY + 99,

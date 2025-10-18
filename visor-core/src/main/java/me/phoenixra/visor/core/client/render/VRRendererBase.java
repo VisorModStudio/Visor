@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.render.VRDisplay;
 import me.phoenixra.visor.api.client.render.VRRenderer;
 import me.phoenixra.visor.core.client.render.context.RenderContext;

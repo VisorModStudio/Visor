@@ -2,9 +2,9 @@ package me.phoenixra.visor.api.client.gui.widgets.sets;
 
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.tuples.PairRecord;
-import me.phoenixra.visor.api.client.gui.widgets.FilterListType;
-import me.phoenixra.visor.api.client.gui.widgets.ImageButton;
-import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
+import me.phoenixra.visor.api.client.gui.widgets.lists.FilterListType;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoCheckboxList;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoImage;
@@ -30,7 +30,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
 
 
     private final WidgetInfoEditBox searchBoxInfo;
-    private final WidgetInfoButton checkboxAllInfo;
+    private final WidgetInfoButtonImaged checkboxAllInfo;
 
     private final WidgetInfoCheckboxList listInfo;
 
@@ -40,10 +40,10 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
     private final FilterListType typeSecond;
 
     private final WidgetInfoImage backgroundInfoFirst;
-    private final WidgetInfoButton buttonInfoFirst;
+    private final WidgetInfoButtonImaged buttonInfoFirst;
 
     private final WidgetInfoImage backgroundInfoSecond;
-    private final WidgetInfoButton buttonInfoSecond;
+    private final WidgetInfoButtonImaged buttonInfoSecond;
 
 
     //[entry id, value]
@@ -65,8 +65,8 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
     private FiltersListWidgetSet<T> filtersWidgetFirst;
     @Getter
     private FiltersListWidgetSet<T> filtersWidgetSecond;
-    private ImageButton buttonFirst;
-    private ImageButton buttonSecond;
+    private ButtonImaged buttonFirst;
+    private ButtonImaged buttonSecond;
 
 
     private FilterListBinaryWidgetSet(Builder<T> builder) {
@@ -121,7 +121,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
                 .searchBox(searchBoxInfo)
                 .build();
 
-        buttonFirst = new ImageButton(
+        buttonFirst = new ButtonImaged(
                 buttonInfoFirst,
                 (it)-> changeActiveFilterList(true)
         );
@@ -135,7 +135,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
                 .checkboxAll(checkboxAllInfo)
                 .searchBox(searchBoxInfo)
                 .build();
-        buttonSecond = new ImageButton(
+        buttonSecond = new ButtonImaged(
                 buttonInfoSecond,
                 (it)-> changeActiveFilterList(false)
         );
@@ -231,21 +231,21 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
 
 
         private WidgetInfoEditBox searchBoxInfo;
-        private WidgetInfoButton checkboxAllInfo;
+        private WidgetInfoButtonImaged checkboxAllInfo;
         private final WidgetInfoCheckboxList listInfo;
 
         private final Runnable onWidgetsChanged;
 
         private FilterListType typeFirst;
         private WidgetInfoImage backgroundInfoFirst;
-        private WidgetInfoButton buttonInfoFirst;
+        private WidgetInfoButtonImaged buttonInfoFirst;
         private Map<String, String> rawEntriesFirst;
         private Map<String, Function<T, Boolean>> filtersMapFirst;
         private Supplier<List<String>> selectedSupplierFirst;
 
         private FilterListType typeSecond;
         private WidgetInfoImage backgroundInfoSecond;
-        private WidgetInfoButton buttonInfoSecond;
+        private WidgetInfoButtonImaged buttonInfoSecond;
         private Map<String, String> rawEntriesSecond;
         private Map<String, Function<T, Boolean>> filtersMapSecond;
         private Supplier<List<String>> selectedSupplierSecond;
@@ -259,7 +259,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
 
         public Builder<T> first(@NotNull FilterListType type,
                                 @Nullable WidgetInfoImage backgroundInfo,
-                                @NotNull WidgetInfoButton buttonInfo,
+                                @NotNull WidgetInfoButtonImaged buttonInfo,
                                 @NotNull Map<String, String> rawEntries,
                                 @NotNull Map<String, Function<T, Boolean>> filtersMap,
                                 @NotNull Supplier<List<String>> selectedSupplier) {
@@ -273,7 +273,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
         }
         public Builder<T> second(@NotNull FilterListType type,
                                  @Nullable WidgetInfoImage backgroundInfo,
-                                 @NotNull WidgetInfoButton buttonInfo,
+                                 @NotNull WidgetInfoButtonImaged buttonInfo,
                                  @NotNull Map<String, String> rawEntries,
                                  @NotNull Map<String, Function<T, Boolean>> filtersMap,
                                  @NotNull Supplier<List<String>> selectedSupplier) {
@@ -292,7 +292,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
             return this;
         }
 
-        public Builder<T> checkboxAll(@Nullable WidgetInfoButton checkboxAllInfo) {
+        public Builder<T> checkboxAll(@Nullable WidgetInfoButtonImaged checkboxAllInfo) {
             this.checkboxAllInfo = checkboxAllInfo;
             return this;
         }

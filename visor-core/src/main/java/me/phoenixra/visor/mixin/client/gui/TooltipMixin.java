@@ -1,7 +1,7 @@
 package me.phoenixra.visor.mixin.client.gui;
 
 
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.Minecraft;

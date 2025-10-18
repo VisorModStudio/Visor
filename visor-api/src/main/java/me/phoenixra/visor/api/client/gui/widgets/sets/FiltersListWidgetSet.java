@@ -5,10 +5,12 @@ import lombok.Setter;
 import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.widgets.*;
-import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButton;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoCheckboxList;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoImage;
+import me.phoenixra.visor.api.client.gui.widgets.lists.CheckboxList;
+import me.phoenixra.visor.api.client.gui.widgets.lists.FilterListType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -32,7 +34,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
     private final WidgetInfoImage backgroundInfo;
 
     private final WidgetInfoEditBox searchBoxInfo;
-    private final WidgetInfoButton checkboxAllInfo;
+    private final WidgetInfoButtonImaged checkboxAllInfo;
 
     private final WidgetInfoCheckboxList listInfo;
 
@@ -49,8 +51,8 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
     private Consumer<PairRecord<String, Boolean>> onFilterChanged;
 
 
-    private TexturedEditBox searchBox;
-    private ImageButton checkboxAll;
+    private EditBoxImage searchBox;
+    private ButtonImaged checkboxAll;
     @Getter
     private CheckboxList list;
 
@@ -101,7 +103,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
             & Renderable
             & NarratableEntry> List<W> initWidgets() {
         if(checkboxAllInfo != null) {
-            checkboxAll = new ImageButton(
+            checkboxAll = new ButtonImaged(
                     checkboxAllInfo,
                     (button) -> {
                         button.setSelected(!button.isSelected());
@@ -111,7 +113,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
         }
 
         if(searchBoxInfo != null) {
-            searchBox = new TexturedEditBox(
+            searchBox = new EditBoxImage(
                     searchBoxInfo
             );
             searchBox.setResponder(this::applySearchFilter);
@@ -226,7 +228,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
         private WidgetInfoImage backgroundInfo;
 
         private WidgetInfoEditBox searchBoxInfo;
-        private WidgetInfoButton checkboxAllInfo;
+        private WidgetInfoButtonImaged checkboxAllInfo;
 
 
         private WidgetInfoCheckboxList listInfo;
@@ -257,7 +259,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
             return this;
         }
 
-        public FiltersListWidgetSet.Builder<T> checkboxAll(@Nullable WidgetInfoButton checkboxAllInfo) {
+        public FiltersListWidgetSet.Builder<T> checkboxAll(@Nullable WidgetInfoButtonImaged checkboxAllInfo) {
             this.checkboxAllInfo = checkboxAllInfo;
             return this;
         }

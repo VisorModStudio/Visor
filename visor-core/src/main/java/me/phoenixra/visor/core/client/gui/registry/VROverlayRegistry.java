@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.gui.registry;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.core.client.ClientContext;

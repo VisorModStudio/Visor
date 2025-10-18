@@ -3,12 +3,12 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 
 import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 
-import me.phoenixra.visor.api.client.gui.overlay.framework.template.VROverlayTemplateScreen;
+import me.phoenixra.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;

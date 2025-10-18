@@ -2,12 +2,10 @@ package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.utils.StringUtils;
-import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
-import me.phoenixra.visor.api.client.gui.widgets.DropDownListWidget;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.widgets.lists.DropDownListWidget;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
@@ -17,7 +15,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -27,12 +24,7 @@ import java.util.List;
 
 
 @Getter
-public class OptionsScreenPose extends OverlayOptionsScreen<OverlayOptionsPose> {
-    private static final GuiTexture BACKGROUND = GuiTexture.of(new ResourceLocation(
-            VisorAPI.MOD_ID,"textures/gui/overlays/settings/background_1.png"
-    ));
-    private final int BACKGROUND_WIDTH = 164;
-    private final int BACKGROUND_HEIGHT = 246;
+public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
 
 
 
@@ -56,22 +48,17 @@ public class OptionsScreenPose extends OverlayOptionsScreen<OverlayOptionsPose> 
     private boolean emulateModelViewCache;
 
     public OptionsScreenPose(@NotNull OverlayOptionsPose optionCategory) {
-        super(optionCategory);
+        super(optionCategory, Background.VERTICAL_WIDER);
     }
 
     @Override
-    protected void init() {
+    protected void onInit() {
         clearWidgets();
 
         demoOverlay = ClientContext.overlayManager.getOverlay(
                 VROverlayDemo.ID,
                 VROverlayDemo.class
         );
-        cursorBoundsX = width - BACKGROUND_WIDTH;
-        cursorBoundsY = height - BACKGROUND_HEIGHT;
-
-        cursorBoundsWidth = width - cursorBoundsX;
-        cursorBoundsHeight = height - cursorBoundsY;
 
         int width = cursorBoundsWidth;
         int height = cursorBoundsHeight;
@@ -315,7 +302,7 @@ public class OptionsScreenPose extends OverlayOptionsScreen<OverlayOptionsPose> 
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
+    public void onRender(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
         renderBackground(guiGraphics);
 
         boolean modifyTypeDisabled = (posTypeWidget.isExpanded()
@@ -344,7 +331,6 @@ public class OptionsScreenPose extends OverlayOptionsScreen<OverlayOptionsPose> 
             );
             addedWidgetSet = true;
         }
-        super.render(guiGraphics, i, j, f);
 
     }
 

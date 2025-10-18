@@ -5,77 +5,61 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionTextures;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
-@Getter
-public class WidgetInfoSelectionList extends WidgetInfo{
+@Getter @Setter
+public class WidgetInfoSelectionList extends WidgetInfo {
 
 
-    private final GuiTexture textureEntry;
-    private final GuiTexture textureEntryHovered;
-    private final GuiTexture textureEntrySelected;
-
-    @Setter @Accessors(chain = true)
-    private GuiTexture textureEntryHoveredSelected;
-
-    @Setter @Accessors(chain = true)
-    private GuiTexture textureScrollBar = OverlayOptionTextures.SCROLL_BAR;
-    @Setter @Accessors(chain = true)
-    private GuiTexture textureScrollBarActive = OverlayOptionTextures.SCROLL_BAR_ACTIVE;
+    /**
+     * Info for entry buttons, only textures and highlight options used
+     */
+    @Accessors(chain = true)
+    private WidgetInfoButtonImaged entryButton;
 
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
+    private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
+    @Accessors(chain = true)
+    private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
+
+
+    @Accessors(chain = true)
     private AtumColor textColor = AtumColor.WHITE;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int itemHeight = 15;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int paddingTop = 3;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int paddingLeft = 4;
 
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private int scrollBarWidth = 4;
 
     /**
      * If supported, can deselect entry
      * and run callback with null value
      */
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private boolean supportDeselection = false;
 
     /**
      * [element id -> tooltip[
      */
-    @Setter @Accessors(chain = true)
+    @Accessors(chain = true)
     private Function<String, Component> tooltip;
 
-    public WidgetInfoSelectionList(@NotNull GuiTexture textureEntry,
-                                   @NotNull GuiTexture textureEntryHovered,
-                                   @NotNull GuiTexture textureEntrySelected,
-                                   int x, int y, int width, int height) {
-        super(x, y, width, height);
 
-
-        this.textureEntry = textureEntry;
-        this.textureEntryHovered = textureEntryHovered;
-        this.textureEntrySelected = textureEntrySelected;
-        this.textureEntryHoveredSelected = textureEntrySelected;
-        this.textureScrollBarActive = textureScrollBar;
-    }
-    public WidgetInfoSelectionList(@NotNull WidgetInfoSelectionList copyFrom,
-                                  int x, int y, int width, int height) {
-        super(x, y, width, height);
-        textureEntry = copyFrom.textureEntry;
-        textureEntryHovered = copyFrom.textureEntryHovered;
-        textureEntrySelected = copyFrom.textureEntrySelected;
-        textureEntryHoveredSelected = copyFrom.textureEntryHoveredSelected;
+    public WidgetInfoSelectionList(@NotNull WidgetInfoSelectionList copyFrom) {
+        super(copyFrom);
+        entryButton = copyFrom.entryButton;
         textureScrollBar = copyFrom.textureScrollBar;
         textureScrollBarActive = copyFrom.textureScrollBarActive;
         textColor = copyFrom.textColor;
@@ -85,5 +69,24 @@ public class WidgetInfoSelectionList extends WidgetInfo{
         scrollBarWidth = copyFrom.scrollBarWidth;
         supportDeselection = copyFrom.supportDeselection;
         tooltip = copyFrom.tooltip;
+    }
+    public WidgetInfoSelectionList() {
+
+    }
+
+    public WidgetInfoSelectionList scrollBarTextures(GuiTexture textureScrollBar,
+                                                     GuiTexture textureScrollBarActive){
+        return setTextureScrollBar(textureScrollBar)
+                .setTextureScrollBarActive(textureScrollBarActive);
+    }
+
+    @Override
+    public WidgetInfoSelectionList size(int width, int height) {
+        return (WidgetInfoSelectionList) super.size(width, height);
+    }
+
+    @Override
+    public WidgetInfoSelectionList pos(int x, int y) {
+        return (WidgetInfoSelectionList) super.pos(x, y);
     }
 }

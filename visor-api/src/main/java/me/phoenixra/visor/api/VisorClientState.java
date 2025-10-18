@@ -44,6 +44,6 @@ public interface VisorClientState {
      *
      * @return the current {@link VRDisplay} or null
      */
-    @Nullable("Not rendering VR display")
+    @Nullable
     VRDisplay renderingDisplay();
 }

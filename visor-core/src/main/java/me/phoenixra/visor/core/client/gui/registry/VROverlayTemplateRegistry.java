@@ -2,9 +2,9 @@ package me.phoenixra.visor.core.client.gui.registry;
 
 
 import me.phoenixra.visor.api.ModLoader;
-import me.phoenixra.visor.api.client.gui.overlay.template.RegisterVROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplate;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;

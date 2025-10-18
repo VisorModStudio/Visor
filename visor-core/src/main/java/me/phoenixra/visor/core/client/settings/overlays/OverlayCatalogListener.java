@@ -5,7 +5,7 @@ import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalogListener;
-import me.phoenixra.visor.api.client.gui.overlay.template.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;

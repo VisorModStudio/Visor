@@ -10,16 +10,16 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
-import me.phoenixra.visor.api.client.gui.overlay.OverlayConfigsAccessor;
-import me.phoenixra.visor.api.client.gui.overlay.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlay.options.OverlayOptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsGlobal;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsIdentity;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsPose;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayFrameBuffer;
-import me.phoenixra.visor.api.client.gui.overlay.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.overlay.options.types.OverlayOptionsProperties;
+import me.phoenixra.visor.api.client.gui.overlays.OverlayConfigsAccessor;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
+import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsProperties;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayTemplateRegistry;
@@ -228,7 +228,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
     }
 
     @Override
-    public @NotNull OverlayOptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionGroup<?> category) {
+    public @NotNull OptionsScreen<?> getOptionsScreenFor(@NotNull OverlayOptionGroup<?> category) {
         if(category instanceof OverlayOptionsGlobal type){
             return new OptionsScreenGlobal(type);
         }

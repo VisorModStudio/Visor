@@ -12,19 +12,34 @@ import org.jetbrains.annotations.NotNull;
 
 @Setter
 @Getter
-public class WidgetInfoEditBox extends WidgetInfoButton{
+public class WidgetInfoEditBox extends WidgetInfoButtonImaged {
 
     @Accessors(chain = true)
     private Component hint;
 
-    public WidgetInfoEditBox(@NotNull GuiTexture texture,
-                             int x, int y, int width, int height) {
-        super(texture, x, y, width, height);
-    }
-    public WidgetInfoEditBox(@NotNull WidgetInfoEditBox copyFrom,
-                             int x, int y, int width, int height) {
-        super(copyFrom, x, y, width, height);
+
+    public WidgetInfoEditBox(@NotNull WidgetInfoEditBox copyFrom) {
+        super(copyFrom);
         hint = copyFrom.hint;
+    }
+
+    public WidgetInfoEditBox() {
+
+    }
+
+    @Override
+    public WidgetInfoEditBox pos(int x, int y) {
+        return (WidgetInfoEditBox) super.pos(x, y);
+    }
+
+    @Override
+    public WidgetInfoEditBox size(int width, int height) {
+        return (WidgetInfoEditBox) super.size(width, height);
+    }
+
+    @Override
+    public WidgetInfoEditBox setTexture(GuiTexture texture) {
+        return (WidgetInfoEditBox) super.setTexture(texture);
     }
 
     @Override
