@@ -39,32 +39,11 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Shadow
     private Minecraft minecraft;
 
-    @Shadow
-    private boolean needsFullRenderChunkUpdate;
-
-    @Shadow
-    @Final
-    private AtomicBoolean needsFrustumUpdate;
-
-
 
     @Unique
     private Entity visor$capturedEntity;
     @Unique
     private Entity visor$renderedEntity;
-
-    //---
-
-
-    @Inject(method = "setupRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;needsFullRenderChunkUpdate:Z", ordinal = 1, shift = At.Shift.AFTER))
-    private void visor$alwaysUpdateCull(CallbackInfo ci) {
-        //@TODO Disable for sodium
-        if (VisorState.getState().isActive()) {
-            // fixes chunks cull frustum between displays
-            this.needsFullRenderChunkUpdate = true;
-            this.needsFrustumUpdate.set(true);
-        }
-    }
 
 
     /* ****************** *\

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "me.phoenixra.visor.mixin",
-  "plugin": "me.phoenixra.visor.mixin.MixinConfig",
+  "plugin": "me.phoenixra.visor.MixinConfig",
   "compatibilityLevel": "JAVA_17",
   "client": [
     "client.MinecraftMixin",
@@ -29,6 +29,7 @@
     "client.player.PlayerMixin",
     "client.renderer.GameRendererMixin",
     "client.renderer.LevelRendererMixin",
+    "client.renderer.NoSodiumLevelRendererMixin",
     "client.renderer.PostChainMixin",
     "client.renderer.VRLightsMixins$ClientLevelMixin",
     "client.renderer.VRLightsMixins$LevelLightEngineMixin",

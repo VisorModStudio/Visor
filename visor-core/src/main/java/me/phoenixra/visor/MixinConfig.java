@@ -1,8 +1,9 @@
-package me.phoenixra.visor.mixin;
+package me.phoenixra.visor;
 
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
 
+import me.phoenixra.visor.compatibility.sodium.SodiumHelper;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -62,10 +63,15 @@ public class MixinConfig implements IMixinConfigPlugin {
             } catch (ClassNotFoundException | IOException e) {
                 return false;
             }
-            String mod = mixinClassName.split("\\.")[3];
+            String mod = mixinClassName.split("\\.")[4];
             if (appliedModFixes.add(mod)) {
                 VisorClientImpl.LOGGER.info("Visor: applying '{}' compatibility patch", mod);
             }
+        }
+
+        if(mixinClassName.contains("NoSodium")
+                && SodiumHelper.isLoaded()){
+            return false;
         }
 
 

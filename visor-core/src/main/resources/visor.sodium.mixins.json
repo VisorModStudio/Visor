@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "me.phoenixra.visor.compatibility.sodium.mixin",
+  "plugin": "me.phoenixra.visor.MixinConfig",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "SodiumWorldRendererMixin"
+  ],
+  "server": [
+  ],
+  "minVersion": "0.8.4",
+  "mixins": [
+
+  ]
+}
