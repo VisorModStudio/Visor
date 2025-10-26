@@ -1,9 +1,7 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets;
 
-import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
@@ -109,7 +107,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                     var selectedEntry = optionsListWidget.getSelected();
                     OverlayOptionGroup<?> options = optionsMap.get(selectedEntry.getId());
                     if (options == null) return;
-                    if(!options.supportsCopying()) return;
+                    if(!options.canCopy()) return;
                     owner.setCopiedOptionGroup(options);
                     widgetsChanged();
                 }
@@ -314,7 +312,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
 
             copyButtonWidget.visible = options != null;
             copyButtonWidget.active = options != null
-                    && options.supportsCopying();
+                    && options.canCopy();
 
             if(owner.getCopiedOptionGroup() != null) {
                 pasteButtonWidget.active = options != null

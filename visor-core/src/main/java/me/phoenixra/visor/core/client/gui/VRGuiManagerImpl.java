@@ -19,7 +19,6 @@ public class VRGuiManagerImpl implements VRGuiManager {
 
 
 
-    //TODO Rework scaling.  make it changeable on each overlay maybe?
     private int scaleFactor;
     private int guiScaledWidth;
     private int guiScaledHeight;

@@ -308,7 +308,6 @@ public class VROverlayDemo extends VROverlayScreen {
 
     }
 
-
     private String format(float value){
         String formatResult = String.format("%.3f", value);
         //fixes weird issue in some cases
@@ -335,6 +334,30 @@ public class VROverlayDemo extends VROverlayScreen {
         return true;
     }
 
+
+    @Override
+    public int getRequestedWidth() {
+        if(target == null){
+            return super.getRequestedWidth();
+        }
+        var renderTarget = target.getRenderTarget();
+        if(renderTarget == null){
+            return super.getRequestedWidth();
+        }
+        return renderTarget.width;
+    }
+
+    @Override
+    public int getRequestedHeight() {
+        if(target == null){
+            return super.getRequestedHeight();
+        }
+        var renderTarget = target.getRenderTarget();
+        if(renderTarget == null){
+            return super.getRequestedHeight();
+        }
+        return renderTarget.height;
+    }
 
     @Override
     public @NotNull Component getName() {

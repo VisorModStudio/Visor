@@ -10,6 +10,7 @@ extendable method net/minecraft/client/gui/components/AbstractSelectionList getE
 
 extendable method net/minecraft/client/gui/components/EditBox isBordered ()Z
 
+accessible field net/minecraft/client/gui/components/EditBox responder Ljava/util/function/Consumer;
 
 
 accessible method net/minecraft/world/entity/LivingEntity spawnItemParticles (Lnet/minecraft/world/item/ItemStack;I)V

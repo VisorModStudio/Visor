@@ -73,11 +73,16 @@ public class OverlayOptionsIdentity extends OverlayOptionGroup<OverlayOptionsIde
      * @param rawValue the value, that is valid in config file
      */
     public void setName(@Nullable String rawValue) {
+        String oldValue = rawName;
         this.rawName = rawValue;
         this.name = rawValue != null
                 ? Component.translatable(rawValue)
                 : Component.literal(owner.getId());
-        onChanged();
+        if((oldValue == null && rawValue != null)
+                || (oldValue != null && !oldValue.equals(rawValue))){
+            onChanged();
+        }
+
     }
 
     /**
@@ -86,11 +91,15 @@ public class OverlayOptionsIdentity extends OverlayOptionGroup<OverlayOptionsIde
      * @param rawValue the value, that is valid in config file
      */
     public void setDescription(@Nullable String rawValue) {
+        String oldValue = rawDescription;
         this.rawDescription = rawValue;
         this.description = rawValue != null
                 ? Component.translatable(rawValue)
                 : Component.literal("No description");
-        onChanged();
+        if((oldValue == null && rawValue != null)
+                || (oldValue != null && !oldValue.equals(rawValue))){
+            onChanged();
+        }
     }
 
     /**
@@ -99,6 +108,8 @@ public class OverlayOptionsIdentity extends OverlayOptionGroup<OverlayOptionsIde
      * @param rawValue the value, that is valid in config file
      */
     public void setIcon(@Nullable String rawValue) {
+        String oldValue = rawIcon;
+
         this.rawIcon = rawValue;
 
         try {
@@ -127,7 +138,10 @@ public class OverlayOptionsIdentity extends OverlayOptionGroup<OverlayOptionsIde
                 ? new GuiTexture(new ResourceLocation(this.rawIcon))
                 : VisorAddon.MISSING_ICON;
 
-        onChanged();
+        if((oldValue == null && rawValue != null)
+                || (oldValue != null && !oldValue.equals(rawValue))){
+            onChanged();
+        }
     }
 
 

@@ -55,7 +55,7 @@ public class PropertyEnum <E extends Enum<E>> extends Property<E> {
     }
 
     @Override
-    public AbstractWidget createWidget() {
+    public ButtonImaged createWidget() {
         WidgetInfoButtonImaged widgetInfo
                 = new WidgetInfoButtonImaged(this.widgetInfo);
 

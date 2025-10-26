@@ -214,6 +214,15 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
 
+    @Override
+    public int getWidth() {
+        return renderTarget != null ? renderTarget.width : 1;
+    }
+
+    @Override
+    public int getHeight() {
+        return renderTarget != null ? renderTarget.height : 1;
+    }
 
     @Override
     public void updateCursorData(boolean activeCursor, float rawX, float rawY) {

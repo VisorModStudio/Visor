@@ -40,7 +40,7 @@ public class PropertyDouble extends Property<Double> {
     }
 
     @Override
-    public AbstractWidget createWidget() {
+    public EditBoxImage createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
         );

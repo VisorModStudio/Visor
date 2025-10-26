@@ -70,7 +70,7 @@ public class PropertySlider<T> extends Property<T> {
     }
 
     @Override
-    public AbstractWidget createWidget() {
+    public SliderWidget<T> createWidget() {
         WidgetInfoSlider info = new WidgetInfoSlider(this.widgetInfo);
 
         var slider = new SliderWidget<>(

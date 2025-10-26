@@ -82,8 +82,6 @@ public class SetupIconWidgetSet implements WidgetSet {
 
     @Override
     public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-
-        GuiTexture oldIcon = icon;
         boolean iconUpdate = false;
         try {
             if(preIcon != null){

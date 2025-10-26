@@ -34,7 +34,7 @@ public class PropertyBool extends Property<Boolean> {
     }
 
     @Override
-    public AbstractWidget createWidget() {
+    public ButtonImaged createWidget() {
         WidgetInfoButtonImaged widgetInfo
                 = new WidgetInfoButtonImaged(this.widgetInfo);
         widgetInfo.setInactiveOnSelected(false);

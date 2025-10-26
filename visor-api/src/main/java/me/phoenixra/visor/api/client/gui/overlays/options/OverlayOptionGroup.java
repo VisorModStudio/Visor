@@ -75,7 +75,7 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
      * @param other the other instance
      */
     public final void loadFromOther(@NotNull OverlayOptionGroup<?> other) {
-        if(!supportsCopying()){
+        if(!canCopy()){
             throw new RuntimeException("This option group does not support direct copying");
         }
         if(!canCopyFrom(other)){
@@ -167,7 +167,18 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
      *
      * @return true/false
      */
-    public abstract boolean supportsCopying();
+    protected abstract boolean supportsCopying();
+
+
+    /**
+     * If supports copying data from other instance.
+     *
+     * @return true/false
+     */
+    public final boolean canCopy(){
+        return supportsCopying() && !changesNotSaved;
+    }
+
 
     /**
      * If data can be copied from other instance.
@@ -179,7 +190,7 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
         if (!getClass().isAssignableFrom(other.getClass())) {
             return false;
         }
-        return other.supportsCopying() && supportsCopying();
+        return other.canCopy() && canCopy();
     }
 
     /**

@@ -194,6 +194,12 @@
 
   "visor.overlay.options.identity": "Identity",
 
+  "visor.overlay.options.screen_region": "Screen region",
+  "visor.overlay.options.screen_region.x": "region x",
+  "visor.overlay.options.screen_region.y": "region y",
+  "visor.overlay.options.screen_region.width": "region width",
+  "visor.overlay.options.screen_region.height": "region height",
+
   "visor.overlay.options.general": "General",
 
   "visor.overlay.options.misc": "Miscellaneous",

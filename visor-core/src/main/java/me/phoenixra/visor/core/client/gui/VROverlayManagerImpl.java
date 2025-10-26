@@ -14,19 +14,13 @@ import me.phoenixra.visor.api.client.gui.OverlayConfigAccessor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.*;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayRegistry;
 import me.phoenixra.visor.core.client.gui.registry.VROverlayTemplateRegistry;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenMisc;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenIdentity;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenPose;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenGeneral;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.*;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderGuiHelper;
@@ -240,6 +234,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
         }
         else if(category instanceof OverlayOptionsGeneral type){
             return new OptionsScreenGeneral(type);
+        }
+        else if(category instanceof OverlayOptionsScreenRegion type){
+            return new OptionsScreenRegion(type);
         }
         return null;
     }
