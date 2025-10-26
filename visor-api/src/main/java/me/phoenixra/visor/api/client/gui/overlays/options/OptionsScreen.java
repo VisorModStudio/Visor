@@ -23,8 +23,8 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends Scr
         super(Component.empty());
         this.optionCategory = optionGroup;
         this.background = background;
-
     }
+
     protected abstract void onInit();
 
     protected abstract void onRender(GuiGraphics guiGraphics,
@@ -40,6 +40,7 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends Scr
             cursorBoundsWidth = background.texture.getWidth();
             cursorBoundsHeight = background.texture.getHeight();
         }
+        clearWidgets();
         onInit();
     }
 

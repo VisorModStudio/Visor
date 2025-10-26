@@ -12,10 +12,6 @@ public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity>
 
     private SetupIdentityWidgetSet widgetSet;
 
-    private String newName;
-    private String newDescription;
-    private String newIcon;
-
     public OptionsScreenIdentity(@NotNull OverlayOptionsIdentity optionCategory) {
         super(optionCategory, Background.VERTICAL);
     }

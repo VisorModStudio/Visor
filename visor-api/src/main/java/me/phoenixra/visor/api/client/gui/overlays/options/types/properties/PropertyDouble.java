@@ -40,10 +40,10 @@ public class PropertyDouble extends Property<Double> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y, int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
-        ).pos(x,y).size(width,height);
+        );
         var widget = new EditBoxImage(widgetInfo);
 
         widget.setValue(formatDouble(getValue()));
@@ -63,6 +63,7 @@ public class PropertyDouble extends Property<Double> {
                 double v = Double.parseDouble(s);
                 if (Double.isFinite(v) && v >= minValue && v <= maxValue) {
                     setValue(v);
+                    onValueChanged();
                 }
             } catch (NumberFormatException ignored) {
 
@@ -72,6 +73,8 @@ public class PropertyDouble extends Property<Double> {
         int intPartWidth = Math.max(intPartWidth(minValue), intPartWidth(maxValue));
         int maxLen = intPartWidth + 1 /* '.' */ + 15 /* decimals */ + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(Math.max(maxLen, 8));
+
+        widget.moveCursorToStart();
 
         return widget;
     }

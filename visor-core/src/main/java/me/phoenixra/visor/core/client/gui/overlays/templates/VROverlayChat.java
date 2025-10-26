@@ -5,7 +5,7 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 
 import me.phoenixra.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
@@ -20,18 +20,18 @@ import java.util.List;
 
 
 @RegisterVROverlayTemplate(
-        id = VROverlayTemplateChat.ID,
-        name = VROverlayTemplateChat.NAME,
-        description = VROverlayTemplateChat.DESCRIPTION,
+        id = VROverlayChat.ID,
+        name = VROverlayChat.NAME,
+        description = VROverlayChat.DESCRIPTION,
         isCreateDefault = true
 )
-public class VROverlayTemplateChat extends VROverlayTemplateScreen {
+public class VROverlayChat extends VROverlayTemplateScreen {
     public static final String ID = "chat";
     public static final String NAME = "visor.overlay.template."+ID+".name";
     public static final String DESCRIPTION = "visor.overlay.template."+ID+".description";
 
-    public VROverlayTemplateChat(@NotNull VisorAddon owner,
-                                 @NotNull String id) {
+    public VROverlayChat(@NotNull VisorAddon owner,
+                         @NotNull String id) {
         super(owner, id);
         setEnabled(true);
     }
@@ -75,10 +75,10 @@ public class VROverlayTemplateChat extends VROverlayTemplateScreen {
     @Override
     protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
         return List.of(
-                new OverlayOptionsGlobal(
+                new OverlayOptionsMisc(
                         this,
                         it->{
-                            it.setOptionsUpdaterType(OverlayOptionsGlobal.OptionsUpdaterType.TICK);
+                            it.setOptionsUpdaterType(OverlayOptionsMisc.OptionsUpdaterType.TICK);
                         }
                 ),
                 new OverlayOptionsPose(

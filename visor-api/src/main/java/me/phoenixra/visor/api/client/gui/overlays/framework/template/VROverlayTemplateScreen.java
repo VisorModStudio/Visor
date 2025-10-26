@@ -7,7 +7,7 @@ import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
@@ -46,7 +46,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     private GuiTexture icon;
 
     protected final OverlayOptionsIdentity optionsIdentity;
-    protected final OverlayOptionsGlobal optionsGlobal;
+    protected final OverlayOptionsMisc optionsGlobal;
     protected final OverlayOptionsPose optionsPose;
 
     protected boolean initializedPose;
@@ -78,7 +78,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
         }
 
         optionsIdentity = getOption(OverlayOptionsIdentity.ID, OverlayOptionsIdentity.class);
-        optionsGlobal = getOption(OverlayOptionsGlobal.ID, OverlayOptionsGlobal.class);
+        optionsGlobal = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
         optionsPose = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
 
         Objects.requireNonNull(optionsIdentity);
@@ -121,7 +121,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     protected void onPreTick() {
 
         if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsGlobal.OptionsUpdaterType.TICK) {
+                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
             optionsMap.forEach(
                     (key,value)
                             ->
@@ -138,7 +138,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     @Override
     protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsGlobal.OptionsUpdaterType.FRAME) {
+                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             optionsMap.forEach(
                     (key,value)
                             ->

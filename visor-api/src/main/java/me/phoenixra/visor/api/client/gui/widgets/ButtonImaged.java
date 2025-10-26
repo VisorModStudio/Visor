@@ -39,6 +39,7 @@ public class ButtonImaged extends AbstractButton {
                 || !selected;
     }
 
+
     @Override
     public void onPress() {
         if (this.onPress != null) {
@@ -70,6 +71,10 @@ public class ButtonImaged extends AbstractButton {
         if(texture == null){
             texture = widgetInfo.getTexture();
         }
+
+        widgetInfo
+                .pos(getX(), getY())
+                .size(getWidth(), getHeight());
 
         texture.blit(
                 guiGraphics,

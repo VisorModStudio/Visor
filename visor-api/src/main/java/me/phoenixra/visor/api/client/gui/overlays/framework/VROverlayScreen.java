@@ -67,7 +67,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     @Getter
-    protected int scaleFactor = 0;
+    protected int guiScaleFactor = 0;
 
     @Getter
     protected int cursorBoundsX = -1;
@@ -127,7 +127,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 this.optionsConfig = VisorAPI.client()
                         .getGuiManager()
                         .getOverlayManager()
-                        .getConfigOverlaysAccessor()
+                        .getOverlayConfigAccessor()
                         .getConfigOrCreate(this);
                 initOptions();
             } catch (IOException e) {
@@ -169,10 +169,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return VisorAPI.client().getGuiManager().getGuiHeight();
     }
     public final int getRequestedWidthScaled(){
-        return Mth.ceil(getRequestedWidth() / (float) scaleFactor);
+        return Mth.ceil(getRequestedWidth() / (float) guiScaleFactor);
     }
     public final int getRequestedHeightScaled(){
-        return Mth.ceil(getRequestedHeight() / (float) scaleFactor);
+        return Mth.ceil(getRequestedHeight() / (float) guiScaleFactor);
     }
 
     /**
@@ -182,8 +182,11 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
      * <p>
      *     If method returns non-empty list, the optionsConfig is created
      * </p>
-     * <p>If overlay is a {@link VROverlayTemplate}, the method has to return non-empty list</p>
-     * @return options
+     * <p>
+     *     If overlay is the {@link VROverlayTemplate},
+     *     the method always return non-empty list
+     * </p>
+     * @return options list
      */
     @NotNull
     protected List<OverlayOptionGroup<?>> createOptions() {
@@ -296,7 +299,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         mouseDragDelay = Long.MAX_VALUE;
     }
     public void updateSize(){
-        scaleFactor = VisorAPI.client().getGuiManager().calculateScale(
+        guiScaleFactor = VisorAPI.client().getGuiManager().calculateScale(
                 0,
                 getRequestedWidth(),
                 getRequestedHeight()
@@ -334,6 +337,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         cursorData.setCursorY(
                 (int) (rawY * (double) this.height)
         );
+
+        if(!activeCursor){
+            return;
+        }
 
         // ---- Move and Drag events
         mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());

@@ -72,12 +72,15 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     private Vector2i textSizeOffset = new Vector2i(-4,-4);
 
     /**
-     * If Scale text to fit its bounds.
+     * If text should be scaled to fit its bounds.
      */
     @Setter @Getter
     @Accessors(chain = true)
     private boolean scaleText = false;
 
+    /**
+     * If button becomes inactive once selected
+     */
     @Setter @Getter
     @Accessors(chain = true)
     private boolean inactiveOnSelected = true;
@@ -102,17 +105,26 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         textureHoveredSelected = copyFrom.textureHoveredSelected;
         textureInactive = copyFrom.textureInactive;
         highlightEnabled = copyFrom.highlightEnabled;
+        highlightCorners = copyFrom.highlightCorners;
         highlightHovered = copyFrom.highlightHovered;
         highlightSelected = copyFrom.highlightSelected;
         highlightHoveredSelected = copyFrom.highlightHoveredSelected;
         highlightThickness = copyFrom.highlightThickness;
+        highlightHoveredInt = copyFrom.highlightHoveredInt;
+        highlightSelectedInt = copyFrom.highlightSelectedInt;
+        highlightHoveredSelectedInt = copyFrom.highlightHoveredSelectedInt;
+        highlightCornerHoveredInt = copyFrom.highlightCornerHoveredInt;
+        highlightCornerSelectedInt = copyFrom.highlightCornerSelectedInt;
+        highlightCornerHoveredSelectedInt = copyFrom.highlightCornerHoveredSelectedInt;
         textFont = copyFrom.textFont;
         text = copyFrom.text;
         textColor = copyFrom.textColor;
         textPosOffset = copyFrom.textPosOffset;
         textSizeOffset = copyFrom.textSizeOffset;
         inactiveOnSelected = copyFrom.inactiveOnSelected;
+        scaleText = copyFrom.scaleText;
         tooltip = copyFrom.tooltip;
+
     }
 
     public WidgetInfoButtonImaged() {

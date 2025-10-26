@@ -23,11 +23,11 @@ public class VROverlayHelper {
     /**
      * Convenient if you want to calculate render position
      * once and then just use its room representation,
-     * so, to have it relative to room [TODO REWRITE THIS SILLY JAVADOC]
-     * @param overlay
-     * @param overlayScale
-     * @param roomPosition
-     * @param roomRotation
+     * to be relative to room
+     * @param overlay the overlay
+     * @param overlayScale the new overlay scale
+     * @param roomPosition the new position relative to room
+     * @param roomRotation the new rotation relative to room
      */
     public static void applyRoomPose(@NotNull VROverlay overlay,
                                      float overlayScale,
@@ -51,6 +51,7 @@ public class VROverlayHelper {
                 overlayScale
         );
     }
+
     /**
      * Apply new pose to an overlay with specified pose Anchors
      *

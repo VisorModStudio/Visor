@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.widgets;
+package me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose;
 
 import lombok.Getter;
 import lombok.Setter;

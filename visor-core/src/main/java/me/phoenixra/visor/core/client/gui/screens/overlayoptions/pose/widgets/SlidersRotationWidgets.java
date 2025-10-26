@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.widgets;
 
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
-import me.phoenixra.visor.api.client.gui.widgets.SliderValueWidget;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.SliderValueWidget;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenPose;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.ModificationType;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 import java.util.List;
 import java.util.Objects;
 
-public class SlidersRotationWidgets extends WidgetSet {
+public class SlidersRotationWidgets extends PoseWidgetSet {
 
     private String formulaX;
     private String formulaY;

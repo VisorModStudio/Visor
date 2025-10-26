@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class ByOffsetWidgets extends WidgetSet{
+public class ByOffsetWidgets extends PoseWidgetSet {
 
     private Button applyOffsetButton;
     public ByOffsetWidgets(OptionsScreenPose owner) {

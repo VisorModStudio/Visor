@@ -103,7 +103,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
                 this.optionsConfig = VisorAPI.client()
                         .getGuiManager()
                         .getOverlayManager()
-                        .getConfigOverlaysAccessor()
+                        .getOverlayConfigAccessor()
                         .getConfigOrCreate(this);
                 initOptions();
             } catch (IOException e) {

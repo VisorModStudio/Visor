@@ -3,16 +3,16 @@ package me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.widgets;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
-import me.phoenixra.visor.api.client.gui.widgets.WidgetsFactory;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenPose;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.ModificationType;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.PoseWidgetsHelper;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class FormulaRotationWidgets extends WidgetSet{
+public class FormulaRotationWidgets extends PoseWidgetSet {
     protected EditBox fieldRotationX;
     protected EditBox fieldRotationY;
     protected EditBox fieldRotationZ;
@@ -30,7 +30,7 @@ public class FormulaRotationWidgets extends WidgetSet{
 
         int middleX = edgeX + edgeWidth/2;
 
-        fieldRotationX = WidgetsFactory.createFormulaEditor(
+        fieldRotationX = PoseWidgetsHelper.createFormulaEditor(
                 middleX - 150/2, edgeY + 10,
                 150, 15,
                 Component.translatable("visor.overlay.options.pose.formula_rotation_x"),
@@ -44,7 +44,7 @@ public class FormulaRotationWidgets extends WidgetSet{
                 }
         );
 
-        fieldRotationY = WidgetsFactory.createFormulaEditor(
+        fieldRotationY = PoseWidgetsHelper.createFormulaEditor(
                 middleX - 150/2, edgeY + 35,
                 150, 15,
                 Component.translatable("visor.overlay.options.pose.formula_rotation_y"),
@@ -58,7 +58,7 @@ public class FormulaRotationWidgets extends WidgetSet{
                 }
         );
 
-        fieldRotationZ = WidgetsFactory.createFormulaEditor(
+        fieldRotationZ = PoseWidgetsHelper.createFormulaEditor(
                 middleX - 150/2, edgeY + 60,
                 150, 15,
                 Component.translatable("visor.overlay.options.pose.formula_rotation_z"),

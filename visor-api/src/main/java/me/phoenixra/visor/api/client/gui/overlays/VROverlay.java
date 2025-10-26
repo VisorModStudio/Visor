@@ -89,6 +89,16 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
         return asTemplate() != null;
     }
 
+    /**
+     * If this overlay is built-in
+     * i.e. created from code, no template used
+     *
+     * @return true/false
+     */
+    default boolean isBuiltIn(){
+        return asTemplate() == null;
+    }
+
 
     /**
      * Get overlay name

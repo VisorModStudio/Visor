@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
-public class ByHandWidgets extends WidgetSet{
+public class ByHandWidgets extends PoseWidgetSet {
 
     private Button startMovingButton;
 

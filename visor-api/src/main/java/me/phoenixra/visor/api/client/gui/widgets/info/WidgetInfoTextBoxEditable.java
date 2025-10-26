@@ -24,11 +24,11 @@ public class WidgetInfoTextBoxEditable extends WidgetInfo {
     private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
     @Accessors(chain = true)
     private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
-
+    @Accessors(chain = true)
+    private int scrollBarWidth = 4;
 
     @Accessors(chain = true)
     private Font textFont = Minecraft.getInstance().font;
-
     @Accessors(chain = true)
     private Component text = Component.empty();
     @Accessors(chain = true)
@@ -37,12 +37,10 @@ public class WidgetInfoTextBoxEditable extends WidgetInfo {
     private AtumColor textHintColor = AtumColor.immutable(119,119,119,255);
     @Accessors
     private AtumColor highlightColor = AtumColor.immutable(0,0,255,255);
-
     @Accessors(chain = true)
     private float textScale = 1.0f;
 
-    @Accessors(chain = true)
-    private int scrollBarWidth = 4;
+
 
     @Accessors(chain = true)
     private int maxLength = 200;

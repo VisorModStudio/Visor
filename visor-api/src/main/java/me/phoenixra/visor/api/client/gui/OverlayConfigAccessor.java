@@ -1,7 +1,8 @@
-package me.phoenixra.visor.api.client.gui.overlays;
+package me.phoenixra.visor.api.client.gui;
 
 
 import me.phoenixra.atumconfig.api.config.ConfigFile;
+import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -9,9 +10,9 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 
 /**
- * Accessor to configs of an overlays
+ * Accessor to overlay config
  */
-public interface OverlayConfigsAccessor {
+public interface OverlayConfigAccessor {
 
     /**
      * Reload overlays catalog for addon

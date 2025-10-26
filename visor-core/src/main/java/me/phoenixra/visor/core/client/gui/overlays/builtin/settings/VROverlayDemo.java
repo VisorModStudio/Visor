@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -35,7 +35,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
     private VROverlay target;
     private OverlayOptionsPose targetPoseOptions;
-    private OverlayOptionsGlobal targetOptionsGlobal;
+    private OverlayOptionsMisc targetOptionsGlobal;
 
     private boolean appliedPose;
 
@@ -125,7 +125,7 @@ public class VROverlayDemo extends VROverlayScreen {
     public void onUpdatePose(float partialTicks) {
         if(!target.isVisible()
                 && targetOptionsGlobal != null
-                && targetOptionsGlobal.getOptionsUpdaterType() == OverlayOptionsGlobal.OptionsUpdaterType.FRAME) {
+                && targetOptionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             //since demonstrating overlay is not visible
             //its options are not handled on render tick
             //So, we have to do that ourselves to ensure modelView is valid
@@ -184,7 +184,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
         target = overlay;
         targetPoseOptions = target.getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
-        targetOptionsGlobal = target.getOption(OverlayOptionsGlobal.ID, OverlayOptionsGlobal.class);
+        targetOptionsGlobal = target.getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
 
         overlayScale = target.getPose().getScale();
 

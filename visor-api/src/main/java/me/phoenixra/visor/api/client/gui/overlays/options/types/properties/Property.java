@@ -3,6 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlays.options.types.properties;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.Config;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Property<T>{
     protected final String key;
     protected final T defaultValue;
+
+    @Setter
+    private Runnable responder;
+
     @Setter
     private T value;
     public Property(@NotNull String key, @NotNull T defaultValue){
@@ -18,6 +23,11 @@ public abstract class Property<T>{
         this.value = defaultValue;
     }
 
+    protected final void onValueChanged(){
+        if(responder != null) {
+            responder.run();
+        }
+    }
     public void update(){
 
     }
@@ -27,6 +37,5 @@ public abstract class Property<T>{
     public abstract void onLoad(@NotNull Config config);
     public abstract void onSave(@NotNull Config config);
 
-    public abstract AbstractWidget createWidget(int x, int y,
-                                                int width, int height);
+    public abstract AbstractWidget createWidget();
 }

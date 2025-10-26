@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
@@ -13,20 +13,19 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class OptionsScreenGlobal extends OptionsScreen<OverlayOptionsGlobal> {
+public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
 
 
 
-    public OptionsScreenGlobal(@NotNull OverlayOptionsGlobal optionCategory) {
+    public OptionsScreenMisc(@NotNull OverlayOptionsMisc optionCategory) {
         super(optionCategory, Background.VERTICAL);
     }
 
     @Override
     protected void onInit() {
-        clearWidgets();
 
         var text = Component.translatable(
-                "visor.overlay.options.global.update_options",
+                "visor.overlay.options.misc.update_options",
                 optionCategory.getOptionsUpdaterType().getName().getString()
         );
         var button = new ButtonImaged(
@@ -41,14 +40,14 @@ public class OptionsScreenGlobal extends OptionsScreen<OverlayOptionsGlobal> {
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setText(text)
                         .setScaleText(true)
-                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.global.update_options.tooltip"))),
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.misc.update_options.tooltip"))),
                 (it) -> {
                     optionCategory.setOptionsUpdaterType(
                             optionCategory.getOptionsUpdaterType().next()
                     );
                     it.setMessage(
                             Component.translatable(
-                                    "visor.overlay.options.global.update_options",
+                                    "visor.overlay.options.misc.update_options",
                                     optionCategory.getOptionsUpdaterType().getName().getString()
                             )
                     );

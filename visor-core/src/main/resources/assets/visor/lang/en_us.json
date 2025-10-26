@@ -194,10 +194,13 @@
 
   "visor.overlay.options.identity": "Identity",
 
-  "visor.overlay.options.global": "Global",
-  "visor.overlay.options.global.overlay_scale": "Specify Overlay Scale",
-  "visor.overlay.options.global.update_options": "Update Options: %s",
-  "visor.overlay.options.global.update_options.tooltip": "If should update options data. Use it if your overlay requires to update state of options, for example position/location formulas that have placeholders ",
+  "visor.overlay.options.general": "General",
+
+  "visor.overlay.options.misc": "Miscellaneous",
+  "visor.overlay.options.misc.overlay_scale": "Specify Overlay Scale",
+  "visor.overlay.options.misc.update_options": "Update Options: %s",
+  "visor.overlay.options.misc.update_options.tooltip": "If should update options data. Use it if your overlay requires to update state of options, for example position/location formulas that have placeholders ",
+
 
   "visor.overlay.options.pose": "Pose",
   "visor.overlay.options.pose.enum.ModificationType.FORMULA_POSITION": "Formulas (Position)",

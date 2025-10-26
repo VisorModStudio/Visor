@@ -14,8 +14,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class OverlayOptionsProperties extends OverlayOptionGroup<OverlayOptionsProperties> {
-    public static final String ID = "properties";
+public class OverlayOptionsGeneral extends OverlayOptionGroup<OverlayOptionsGeneral> {
+    public static final String ID = "general";
     private static final Component NAME = Component.translatable("visor.overlay.options."+ID);
 
 
@@ -24,8 +24,8 @@ public class OverlayOptionsProperties extends OverlayOptionGroup<OverlayOptionsP
     @Getter
     private final Collection<Property<?>> propertyList;
 
-    public OverlayOptionsProperties(@NotNull VROverlay owner,
-                                    @NotNull List<Property<?>> properties){
+    public OverlayOptionsGeneral(@NotNull VROverlay owner,
+                                 @NotNull List<Property<?>> properties){
         super(owner,
                 (it)-> {
                     it.propertyMap.forEach(
@@ -35,8 +35,12 @@ public class OverlayOptionsProperties extends OverlayOptionGroup<OverlayOptionsP
                 }
         );
         propertyMap = new LinkedHashMap<>();
+        Runnable responder = ()->{
+            changesNotSaved = true;
+        };
         for(var property : properties){
             propertyMap.put(property.getKey(), property);
+            property.setResponder(responder);
         }
         propertyList = Collections.unmodifiableCollection(propertyMap.values());
     }

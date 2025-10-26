@@ -21,6 +21,8 @@ public class VROverlayPose {
      */
     public static final float QUAD_SCALE = 1.5f;
 
+
+
     @Getter
     private final VROverlay owner;
 

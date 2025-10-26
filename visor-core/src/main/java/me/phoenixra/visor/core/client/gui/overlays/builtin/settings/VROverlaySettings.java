@@ -115,12 +115,13 @@ public class VROverlaySettings extends VROverlayScreen
 
     @VREventHandler
     public void disableWorldHands(AllowClientFeatureVREvent event) {
+        if (!isVisible()) {
+            return;
+        }
         if (event.getFeature() == ClientFeature.VR_WORLD_HANDS
                 || event.getFeature() == ClientFeature.AIM_EFFECTS
                 || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
-            if (isVisible()) {
-                event.setCanceled(true);
-            }
+            event.setCanceled(true);
         }
     }
 

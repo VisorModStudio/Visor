@@ -1,7 +1,9 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets;
 
+import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
+import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
@@ -208,7 +210,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         );
         saveButtonWidget = new ButtonImaged(
                 new WidgetInfoButtonImaged()
-                        .pos(this.isCustom ? startX : startX + 19,startY + 195)
+                        .pos(this.isCustom ? startX : startX + 9,startY + 195)
                         .size(83, 15)
                         .setTexture(OptionTextures.BLACK_TEXTURE)
                         .highlight(
@@ -294,6 +296,8 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 list.add((T) removeButtonWidget);
                 list.add((T) saveButtonWidget);
             }
+        }else{
+            list.add((T) saveButtonWidget);
         }
         return list;
     }
@@ -316,7 +320,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 pasteButtonWidget.active = options != null
                         && options.canCopyFrom(owner.getCopiedOptionGroup());
             }
-            if(isCustom && !confirmRemove){
+            if(!confirmRemove){
                 boolean changesNotSaved = false;
                 for(var optionGroup : optionsMap.values()){
                     if(optionGroup.isChangesNotSaved()){

@@ -21,18 +21,22 @@ public class WidgetInfoSelectionList extends WidgetInfo {
     @Accessors(chain = true)
     private WidgetInfoButtonImaged entryButton;
 
-
-    @Accessors(chain = true)
-    private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
-    @Accessors(chain = true)
-    private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
-
-
     @Accessors(chain = true)
     private AtumColor textColor = AtumColor.WHITE;
 
+
     @Accessors(chain = true)
-    private int itemHeight = 15;
+    private GuiTexture textureScrollBar = OptionTextures.SCROLL_BAR;
+
+    @Accessors(chain = true)
+    private GuiTexture textureScrollBarActive = OptionTextures.SCROLL_BAR_ACTIVE;
+
+    @Accessors(chain = true)
+    private int scrollBarWidth = 4;
+
+
+    @Accessors(chain = true)
+    private int entryHeight = 15;
 
     @Accessors(chain = true)
     private int paddingTop = 3;
@@ -40,8 +44,6 @@ public class WidgetInfoSelectionList extends WidgetInfo {
     @Accessors(chain = true)
     private int paddingLeft = 4;
 
-    @Accessors(chain = true)
-    private int scrollBarWidth = 4;
 
     /**
      * If supported, can deselect entry
@@ -63,7 +65,7 @@ public class WidgetInfoSelectionList extends WidgetInfo {
         textureScrollBar = copyFrom.textureScrollBar;
         textureScrollBarActive = copyFrom.textureScrollBarActive;
         textColor = copyFrom.textColor;
-        itemHeight = copyFrom.itemHeight;
+        entryHeight = copyFrom.entryHeight;
         paddingTop = copyFrom.paddingTop;
         paddingLeft = copyFrom.paddingLeft;
         scrollBarWidth = copyFrom.scrollBarWidth;

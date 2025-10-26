@@ -11,38 +11,51 @@ import org.jetbrains.annotations.NotNull;
 public class EditBoxImage extends EditBox {
     private final GuiTexture texture;
 
-    private final int imageX;
-    private final int imageY;
-    private final int imageWidth;
-    private final int imageHeight;
     public EditBoxImage(@NotNull WidgetInfoEditBox widgetInfo) {
         super(widgetInfo.getTextFont(),
-                widgetInfo.getX() + 4,
-                widgetInfo.getY() + (widgetInfo.getHeight() - 8) / 2,
-                widgetInfo.getWidth() - 8,
+                widgetInfo.getX(),
+                widgetInfo.getY(),
+                widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
                 Component.empty()
         );
         this.texture = widgetInfo.getTexture();
-        imageX = widgetInfo.getX();
-        imageY = widgetInfo.getY();
-        imageWidth = widgetInfo.getWidth();
-        imageHeight = widgetInfo.getHeight();
-        setBordered(false);
         setTextColor(widgetInfo.getTextColor().toInt());
         setHint(widgetInfo.getHint());
+        setMaxLength(widgetInfo.getTextMaxLength());
+
+        setFilter(widgetInfo.getFilter());
+
         setTooltip(widgetInfo.getTooltip());
+
+        setBordered(true);
     }
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        texture.blit(
-                guiGraphics,
-                imageX, imageY,
-                imageWidth, imageHeight
-        );
+        if(visible) {
+            texture.blit(
+                    guiGraphics,
+                    getX(), getY(),
+                    getWidth(), getHeight()
+            );
+        }
+
         // draw text, cursor, selection
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
+
+
+    //---------
+    //silly way to make no border drawing, but have the small padding for text
+
+    @Override
+    public boolean isBordered() {
+        return false;
+    }
+
+    public int getInnerWidth() {
+        return this.width - 8;
+    }
 }

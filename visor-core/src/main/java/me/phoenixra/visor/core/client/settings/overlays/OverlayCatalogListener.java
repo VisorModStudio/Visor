@@ -96,9 +96,6 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
             String id = config.getId();
             var overlay = overlaysRegistry.getElement(id);
             if(overlay == null){
-                LoggerUtils.getLogger().error(
-                        "The overlay with id {} not found!", id
-                );
                 continue;
             }
             overlay.reloadOptions();

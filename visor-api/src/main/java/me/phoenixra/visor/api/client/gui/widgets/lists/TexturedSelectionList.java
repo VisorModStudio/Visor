@@ -69,7 +69,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
                 widgetInfo.getHeight(),
                 widgetInfo.getY(),
                 widgetInfo.getY()+widgetInfo.getHeight(),
-                widgetInfo.getItemHeight()
+                widgetInfo.getEntryHeight()
         );
 
         this.widgetInfo = widgetInfo;

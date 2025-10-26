@@ -1,7 +1,6 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlays.OverlayConfigsAccessor;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.jetbrains.annotations.ApiStatus;
@@ -65,7 +64,7 @@ public interface VROverlayManager {
      * @return the accessor
      */
     @NotNull
-    OverlayConfigsAccessor getConfigOverlaysAccessor();
+    OverlayConfigAccessor getOverlayConfigAccessor();
 
 
 

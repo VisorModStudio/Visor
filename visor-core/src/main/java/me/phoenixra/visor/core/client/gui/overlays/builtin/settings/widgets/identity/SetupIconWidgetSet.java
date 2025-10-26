@@ -84,6 +84,7 @@ public class SetupIconWidgetSet implements WidgetSet {
     public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 
         GuiTexture oldIcon = icon;
+        boolean iconUpdate = false;
         try {
             if(preIcon != null){
                 preIcon.blit(
@@ -100,6 +101,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 );
                 icon = preIcon;
                 preIcon = null;
+                iconUpdate = true;
             }
         } catch (Exception e) {
             icon = VisorAddon.MISSING_ICON;
@@ -130,7 +132,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 true
         );
 
-        if(oldIcon != icon){
+        if(iconUpdate){
             responder.accept(editorTexturePath.getValue());
         }
     }

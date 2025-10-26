@@ -14,16 +14,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Consumer;
 
 @Getter @Setter
-public class OverlayOptionsGlobal extends OverlayOptionGroup<OverlayOptionsGlobal> {
-    public static final String ID = "global";
+public class OverlayOptionsMisc extends OverlayOptionGroup<OverlayOptionsMisc> {
+    public static final String ID = "misc";
     private static final Component NAME = Component.translatable("visor.overlay.options."+ID);
 
     private OptionsUpdaterType optionsUpdaterType;
 
 
 
-    public OverlayOptionsGlobal(@NotNull VROverlay owner,
-                                @NotNull Consumer<OverlayOptionsGlobal> defaultSettings){
+    public OverlayOptionsMisc(@NotNull VROverlay owner,
+                              @NotNull Consumer<OverlayOptionsMisc> defaultSettings){
         super(owner, defaultSettings);
     }
 

@@ -14,11 +14,13 @@ public class PropertyBool extends Property<Boolean> {
 
     public PropertyBool(@NotNull String key,
                         @NotNull Boolean defaultValue,
+                        @NotNull Component trueLabel,
+                        @NotNull Component falseLabel,
                         @NotNull WidgetInfoButtonImaged widgetInfo) {
         super(key, defaultValue);
         this.widgetInfo = new WidgetInfoButtonImaged(widgetInfo);
-        this.trueLabel  = Component.translatable("options.on");
-        this.falseLabel = Component.translatable("options.off");
+        this.trueLabel  = trueLabel;
+        this.falseLabel = falseLabel;
     }
 
     @Override
@@ -32,17 +34,17 @@ public class PropertyBool extends Property<Boolean> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y, int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoButtonImaged widgetInfo
-                = new WidgetInfoButtonImaged(this.widgetInfo)
-                .pos(x,y)
-                .size(width, height);
+                = new WidgetInfoButtonImaged(this.widgetInfo);
+        widgetInfo.setInactiveOnSelected(false);
 
-        var button = new ButtonImaged(widgetInfo, imgBtn -> {
+        var button = new ButtonImaged(widgetInfo, it -> {
             boolean newVal = !getValue();
             setValue(newVal);
-            imgBtn.setSelected(newVal);
-            imgBtn.setMessage(newVal ? trueLabel : falseLabel);
+            onValueChanged();
+            it.setSelected(newVal);
+            it.setMessage(newVal ? trueLabel : falseLabel);
         });
 
         boolean v = getValue();

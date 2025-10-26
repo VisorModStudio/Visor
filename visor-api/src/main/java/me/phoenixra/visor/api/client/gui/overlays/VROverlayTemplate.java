@@ -1,6 +1,7 @@
 package me.phoenixra.visor.api.client.gui.overlays;
 
 
+import me.phoenixra.visor.api.client.gui.OverlayConfigAccessor;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
 import net.minecraft.network.chat.Component;
@@ -11,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * <p>An {@code OverlayTemplate} is <em>not</em> an overlay itself;<br>
  * it is the blueprint from which one or more overlays<br>
- * (held by {@link OverlayConfigsAccessor}) are instantiated.</p>
+ * (held by {@link OverlayConfigAccessor}) are instantiated.</p>
  *
  * <p>
  * Templates define:

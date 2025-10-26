@@ -5,22 +5,46 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 @Setter
 @Getter
-public class WidgetInfoEditBox extends WidgetInfoButtonImaged {
+public class WidgetInfoEditBox extends WidgetInfoImage {
 
     @Accessors(chain = true)
     private Component hint;
+
+    @Accessors(chain = true)
+    private Font textFont = Minecraft.getInstance().font;
+    @Accessors(chain = true)
+    private AtumColor textColor = AtumColor.WHITE;
+    @Accessors(chain = true)
+    private int textMaxLength = 35;
+
+    @Accessors(chain = true)
+    private Predicate<String> filter = Objects::nonNull;
+
+
+    @Accessors(chain = true)
+    private Tooltip tooltip;
 
 
     public WidgetInfoEditBox(@NotNull WidgetInfoEditBox copyFrom) {
         super(copyFrom);
         hint = copyFrom.hint;
+        textFont = copyFrom.textFont;
+        textColor = copyFrom.textColor;
+        textMaxLength = copyFrom.textMaxLength;
+        filter = copyFrom.filter;
+        tooltip = copyFrom.tooltip;
     }
 
     public WidgetInfoEditBox() {
@@ -42,43 +66,5 @@ public class WidgetInfoEditBox extends WidgetInfoButtonImaged {
         return (WidgetInfoEditBox) super.setTexture(texture);
     }
 
-    @Override
-    public WidgetInfoEditBox setText(Component text) {
-        return (WidgetInfoEditBox) super.setText(text);
-    }
 
-    @Override
-    public WidgetInfoEditBox setInactiveOnSelected(boolean inactiveOnSelected) {
-        return (WidgetInfoEditBox) super.setInactiveOnSelected(inactiveOnSelected);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTextColor(AtumColor textColor) {
-        return (WidgetInfoEditBox) super.setTextColor(textColor);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTextFont(Font textFont) {
-        return (WidgetInfoEditBox) super.setTextFont(textFont);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTextureHovered(GuiTexture textureHovered) {
-        return (WidgetInfoEditBox) super.setTextureHovered(textureHovered);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTextureHoveredSelected(GuiTexture textureHoveredSelected) {
-        return (WidgetInfoEditBox) super.setTextureHoveredSelected(textureHoveredSelected);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTextureSelected(GuiTexture textureSelected) {
-        return (WidgetInfoEditBox) super.setTextureSelected(textureSelected);
-    }
-
-    @Override
-    public WidgetInfoEditBox setTooltip(Tooltip tooltip) {
-        return (WidgetInfoEditBox) super.setTooltip(tooltip);
-    }
 }

@@ -6,14 +6,14 @@ import net.minecraft.client.gui.components.AbstractWidget;
 
 import java.util.List;
 
-public abstract class WidgetSet {
+public abstract class PoseWidgetSet {
 
     protected final ModificationType type;
 
     protected final OptionsScreenPose owner;
 
-    public WidgetSet(ModificationType type,
-                     OptionsScreenPose owner){
+    public PoseWidgetSet(ModificationType type,
+                         OptionsScreenPose owner){
         this.type = type;
         this.owner = owner;
     }

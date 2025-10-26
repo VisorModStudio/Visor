@@ -24,19 +24,19 @@ import java.util.List;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVROverlayTemplate(
-        id = VROverlayTemplateHUD.ID,
-        name = VROverlayTemplateHUD.NAME,
-        description = VROverlayTemplateHUD.DESCRIPTION,
+        id = VROverlayHUD.ID,
+        name = VROverlayHUD.NAME,
+        description = VROverlayHUD.DESCRIPTION,
         isCreateDefault = true
 )
-public class VROverlayTemplateHUD extends VROverlayTemplateFrameBuffer implements VREventListener {
+public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREventListener {
     public static final String ID = "hud";
     public static final String NAME = "visor.overlay.template."+ID+".name";
     public static final String DESCRIPTION = "visor.overlay.template."+ID+".description";
 
 
-    public VROverlayTemplateHUD(@NotNull VisorAddon owner,
-                                @NotNull String id) {
+    public VROverlayHUD(@NotNull VisorAddon owner,
+                        @NotNull String id) {
         super(owner, id);
         setEnabled(true);
         VisorAPI.eventBus().registerListener(owner,this);

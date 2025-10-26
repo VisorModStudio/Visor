@@ -42,10 +42,10 @@ public class PropertyString extends Property<String> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y, int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
-        ).pos(x,y).size(width,height);
+        );
         var widget = new EditBoxImage(widgetInfo);
 
         widget.setValue(getValue());
@@ -56,8 +56,11 @@ public class PropertyString extends Property<String> {
         widget.setResponder(s -> {
             if (isValid(s)) {
                 setValue(s);
+                onValueChanged();
             }
         });
+
+        widget.moveCursorToStart();
 
         return widget;
     }

@@ -40,10 +40,10 @@ public class PropertyFloat extends Property<Float> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y, int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
-        ).pos(x,y).size(width,height);
+        );
         var widget = new EditBoxImage(widgetInfo);
 
         widget.setValue(formatFloat(getValue()));
@@ -66,6 +66,7 @@ public class PropertyFloat extends Property<Float> {
                 float v = Float.parseFloat(s);
                 if (Float.isFinite(v) && v >= minValue && v <= maxValue) {
                     setValue(v);
+                    onValueChanged();
                 }
             } catch (NumberFormatException ignored) {
 
@@ -78,6 +79,8 @@ public class PropertyFloat extends Property<Float> {
         );
         int maxLen = intPartWidth + 1 /* '.' */ + 8 /* decimals */ + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(Math.max(maxLen, 6));
+
+        widget.moveCursorToStart();
 
         return widget;
     }

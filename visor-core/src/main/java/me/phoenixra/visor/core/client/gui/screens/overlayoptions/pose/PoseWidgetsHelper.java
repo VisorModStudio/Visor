@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.gui.widgets;
+package me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose;
 
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
@@ -11,7 +11,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Consumer;
 
-public class WidgetsFactory {
+public class PoseWidgetsHelper {
 
     public static EditBox createFormulaEditor(int x, int y,
                                               int width, int height,

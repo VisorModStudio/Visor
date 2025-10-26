@@ -41,13 +41,14 @@ public interface OptionTextures {
             128, 256
     );
 
-    GuiTexture BLACK_TEXTURE = new GuiTexture(
-            TexturesHelper.getSolidColorTexture(AtumColor.immutable(13,13,13,255)),
-            0, 0, 1, 1
+    GuiTexture BLACK_TEXTURE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(13,13,13,255)
     );
-    GuiTexture GRAY_TEXTURE = new GuiTexture(
-            TexturesHelper.getSolidColorTexture(AtumColor.immutable(34,34,34,255)),
-            0, 0, 1, 1
+    GuiTexture LIGHT_GRAY_TEXTURE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(150, 150, 150, 255)
+    );
+    GuiTexture GRAY_TEXTURE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(34,34,34,255)
     );
 
 
@@ -56,15 +57,11 @@ public interface OptionTextures {
     AtumColor SELECTED_HIGHLIGHT = AtumColor.immutable(107,107,107,255);
 
 
-    GuiTexture SCROLL_BAR = new GuiTexture(
-            TexturesHelper.getSolidColorTexture(AtumColor.immutable(150,150,150,255)),
-            0, 0,
-            1, 1
+    GuiTexture SCROLL_BAR = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(150,150,150,255)
     );
-    GuiTexture SCROLL_BAR_ACTIVE = new GuiTexture(
-            TexturesHelper.getSolidColorTexture(AtumColor.immutable(190,190,190,255)),
-            0, 0,
-            1, 1
+    GuiTexture SCROLL_BAR_ACTIVE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(190,190,190,255)
     );
 
 

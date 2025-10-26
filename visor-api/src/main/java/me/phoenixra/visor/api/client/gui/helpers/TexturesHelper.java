@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.client.gui.helpers;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +17,7 @@ public class TexturesHelper {
     }
 
     private static final Map<AtumColor, ResourceLocation> CACHE = new ConcurrentHashMap<>();
+    private static final Map<AtumColor, GuiTexture> CACHE_GUI = new ConcurrentHashMap<>();
 
     private static final AtumColor WHITE_COLOR = AtumColor.WHITE;
     private static final AtumColor BLACK_COLOR = AtumColor.BLACK;
@@ -23,16 +25,25 @@ public class TexturesHelper {
 
 
     public static ResourceLocation getWhiteTexture() {
-        return getSolidColorTexture(WHITE_COLOR);
+        return getColorTexture(WHITE_COLOR);
     }
 
     public static ResourceLocation getBlackTexture() {
-        return getSolidColorTexture(BLACK_COLOR);
+        return getColorTexture(BLACK_COLOR);
     }
 
 
-    public static ResourceLocation getSolidColorTexture(AtumColor color) {
+    public static ResourceLocation getColorTexture(AtumColor color) {
         return CACHE.computeIfAbsent(color, TexturesHelper::createAndRegister);
+    }
+
+    public static GuiTexture getColorGuiTexture(AtumColor color) {
+        return CACHE_GUI.computeIfAbsent(color,
+                it-> new GuiTexture(
+                        getColorTexture(color),
+                        0, 0, 1, 1
+                )
+        );
     }
 
     private static ResourceLocation createAndRegister(AtumColor color) {

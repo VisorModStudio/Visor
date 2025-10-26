@@ -78,7 +78,7 @@ public class VROverlayTemplateRegistry implements VisorRegistry<VROverlayTemplat
             }
         }
         ClientContext.overlayManager
-                .getConfigOverlaysAccessor()
+                .getOverlayConfigAccessor()
                 .reload(addon);
     }
 

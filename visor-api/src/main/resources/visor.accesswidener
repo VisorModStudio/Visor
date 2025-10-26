@@ -1,9 +1,14 @@
 accessWidener	v1	named
 
+
+accessible field net/minecraft/client/gui/components/AbstractWidget height I
+
+
 accessible field net/minecraft/client/gui/components/AbstractSelectionList scrolling Z
 accessible field net/minecraft/client/gui/components/AbstractSelectionList hovered Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 
+extendable method net/minecraft/client/gui/components/EditBox isBordered ()Z
 
 
 

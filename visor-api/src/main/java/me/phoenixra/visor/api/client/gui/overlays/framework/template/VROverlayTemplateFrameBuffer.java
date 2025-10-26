@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsGlobal;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsIdentity;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
@@ -47,7 +47,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
     private GuiTexture icon;
 
     protected final OverlayOptionsIdentity optionsIdentity;
-    protected final OverlayOptionsGlobal optionsGlobal;
+    protected final OverlayOptionsMisc optionsGlobal;
     protected final OverlayOptionsPose optionsPose;
 
 
@@ -83,7 +83,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
 
 
         optionsIdentity = getOption(OverlayOptionsIdentity.ID, OverlayOptionsIdentity.class);
-        optionsGlobal = getOption(OverlayOptionsGlobal.ID, OverlayOptionsGlobal.class);
+        optionsGlobal = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
         optionsPose = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
 
         //NULL POINTER EXCEPTION
@@ -127,7 +127,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
     protected void onPreTick() {
 
         if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsGlobal.OptionsUpdaterType.TICK) {
+                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
             optionsMap.forEach(
                     (key,value)
                             ->
@@ -144,7 +144,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
     @Override
     protected void onPreRender(float partialTicks) {
         if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsGlobal.OptionsUpdaterType.FRAME) {
+                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             optionsMap.forEach(
                     (key,value)
                             ->

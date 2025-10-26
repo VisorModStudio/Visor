@@ -41,11 +41,10 @@ public class PropertyInt extends Property<Integer> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y,
-                                       int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
-        ).pos(x,y).size(width, height);
+        );
         var widget = new EditBoxImage(widgetInfo);
 
 
@@ -65,6 +64,7 @@ public class PropertyInt extends Property<Integer> {
             if (s.isEmpty() || s.equals("-")) return;
             try {
                 setValue(Integer.parseInt(s));
+                onValueChanged();
             } catch (NumberFormatException ignored) { }
         });
 
@@ -73,6 +73,8 @@ public class PropertyInt extends Property<Integer> {
                 Integer.toString(Math.abs(maxValue)).length()
         ) + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(maxDigits);
+
+        widget.moveCursorToStart();
 
         return widget;
     }

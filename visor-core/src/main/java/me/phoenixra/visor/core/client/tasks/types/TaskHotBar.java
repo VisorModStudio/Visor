@@ -2,6 +2,8 @@ package me.phoenixra.visor.core.client.tasks.types;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -68,113 +70,136 @@ public class TaskHotBar extends VisorTask {
         VROverlayHotBar hotBarMainHand = (VROverlayHotBar)
                 ClientContext.overlayManager
                 .getOverlay(VROverlayHotBar.ID_MAIN);
-        //left
-        if (inputPressedOffhand && !pressedOffhand) {
-            ClientContext.inputManager
-                    .triggerHapticPulse(
-                            ControllerHand.OFFHAND, 0.002f
-                    );
+
+        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)){
+            hotBarMainHand.setEnabled(
+                    false
+            );
             hotBarOffhand.setEnabled(
-                    true
+                    false
             );
-            pressedOffhand = true;
-
+            return;
         }
-
-        if (pressedOffhand) {
-            currentStateOffhand = HotBarSlice.fromSlot(
-                    hotBarOffhand.getSelectedSlice()
+        //offhand
+        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND)){
+            hotBarOffhand.setEnabled(
+                    false
             );
-            int slot = currentStateOffhand.getSlot();
-            if(slot != -1) {
 
-                //if selected item in main hand
-                if(previousStateMain != null
-                        && slot != previousStateMain.getSlot()){
-                    currentStateMain = previousStateMain;
-                    player.getInventory().selected = currentStateMain.getSlot();
-                    previousStateMain = null;
-                } else if(slot == currentStateMain.getSlot()){
-                    previousStateMain = currentStateMain;
-                    player.getInventory().selected = slot == 8 ? 0 : slot+1;
-                    currentStateMain = HotBarSlice.fromSlot(
-                            player.getInventory().selected
-                    );
-                }
-
-            }
-            if(!inputPressedOffhand) {
+        }else {
+            if (inputPressedOffhand && !pressedOffhand) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
-                                ControllerHand.OFFHAND, 0.003f
+                                ControllerHand.OFFHAND, 0.002f
                         );
                 hotBarOffhand.setEnabled(
-                        false
+                        true
                 );
-                pressedOffhand = false;
-                previousStateOffhand = null;
-                previousStateMain = null;
+                pressedOffhand = true;
 
-                if(previousStateOffhand != currentStateOffhand){
+            }
 
+            if (pressedOffhand) {
+                currentStateOffhand = HotBarSlice.fromSlot(
+                        hotBarOffhand.getSelectedSlice()
+                );
+                int slot = currentStateOffhand.getSlot();
+                if (slot != -1) {
+
+                    //if selected item in main hand
+                    if (previousStateMain != null
+                            && slot != previousStateMain.getSlot()) {
+                        currentStateMain = previousStateMain;
+                        player.getInventory().selected = currentStateMain.getSlot();
+                        previousStateMain = null;
+                    } else if (slot == currentStateMain.getSlot()) {
+                        previousStateMain = currentStateMain;
+                        player.getInventory().selected = slot == 8 ? 0 : slot + 1;
+                        currentStateMain = HotBarSlice.fromSlot(
+                                player.getInventory().selected
+                        );
+                    }
 
                 }
-            }
-        }
-
-        //right
-
-        if (inputPressedMain && !pressedMain) {
-            ClientContext.inputManager
-                    .triggerHapticPulse(
-                            ControllerHand.MAIN, 0.002f
+                if (!inputPressedOffhand) {
+                    ClientContext.inputManager
+                            .triggerHapticPulse(
+                                    ControllerHand.OFFHAND, 0.003f
+                            );
+                    hotBarOffhand.setEnabled(
+                            false
                     );
-            hotBarMainHand.setEnabled(
-                    true
-            );
-            pressedMain = true;
-        }
-
-        if (pressedMain) {
-
-            currentStateMain = HotBarSlice.fromSlot(
-                    hotBarMainHand.getSelectedSlice()
-            );
-
-            int slot = currentStateMain.getSlot();
-            if(slot != -1) {
-                player.getInventory().selected = slot;
-
-                //if selected item in offhand
-                if(previousStateOffhand != null
-                        && slot != previousStateOffhand.getSlot()){
-                    currentStateOffhand = previousStateOffhand;
+                    pressedOffhand = false;
                     previousStateOffhand = null;
-                }else if(slot == currentStateOffhand.getSlot()){
-                    previousStateOffhand = currentStateOffhand;
-                    currentStateOffhand = HotBarSlice.NOT_SELECTED;
+                    previousStateMain = null;
+
+                    if (previousStateOffhand != currentStateOffhand) {
+
+
+                    }
                 }
             }
-            if(!inputPressedMain) { //isNotDown
+        }
+        //mainhand
+        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN)){
+            hotBarMainHand.setEnabled(
+                    false
+            );
+
+        }else {
+            if (inputPressedMain && !pressedMain) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
-                                ControllerHand.MAIN, 0.003f
+                                ControllerHand.MAIN, 0.002f
                         );
                 hotBarMainHand.setEnabled(
-                        false
+                        true
                 );
-                pressedMain = false;
-                previousStateOffhand = null;
-                previousStateMain = null;
+                pressedMain = true;
+            }
 
-                if(previousStateOffhand != currentStateOffhand){
+            if (pressedMain) {
 
+                currentStateMain = HotBarSlice.fromSlot(
+                        hotBarMainHand.getSelectedSlice()
+                );
+
+                int slot = currentStateMain.getSlot();
+                if (slot != -1) {
+                    player.getInventory().selected = slot;
+
+                    //if selected item in offhand
+                    if (previousStateOffhand != null
+                            && slot != previousStateOffhand.getSlot()) {
+                        currentStateOffhand = previousStateOffhand;
+                        previousStateOffhand = null;
+                    } else if (slot == currentStateOffhand.getSlot()) {
+                        previousStateOffhand = currentStateOffhand;
+                        currentStateOffhand = HotBarSlice.NOT_SELECTED;
+                    }
+                }
+                if (!inputPressedMain) { //isNotDown
+                    ClientContext.inputManager
+                            .triggerHapticPulse(
+                                    ControllerHand.MAIN, 0.003f
+                            );
+                    hotBarMainHand.setEnabled(
+                            false
+                    );
+                    pressedMain = false;
+                    previousStateOffhand = null;
+                    previousStateMain = null;
+
+                    if (previousStateOffhand != currentStateOffhand) {
+
+                    }
                 }
             }
         }
         if(currentStateOffhand.getSlot() == currentStateMain.getSlot()){
             currentStateOffhand = HotBarSlice.NOT_SELECTED;
         }
+
 
 
 

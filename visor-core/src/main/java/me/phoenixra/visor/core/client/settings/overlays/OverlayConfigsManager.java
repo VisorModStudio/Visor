@@ -5,7 +5,7 @@ import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.core.config.AtumConfigFile;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlays.OverlayConfigsAccessor;
+import me.phoenixra.visor.api.client.gui.OverlayConfigAccessor;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class OverlayConfigsManager implements OverlayConfigsAccessor {
+public class OverlayConfigsManager implements OverlayConfigAccessor {
 
     protected final Map<String, ConfigFile> configs;
     protected final Map<ConfigFile, ConfigCatalog> configCatalogMap;
@@ -52,7 +52,7 @@ public class OverlayConfigsManager implements OverlayConfigsAccessor {
 
         String id = overlay.getId();
         VisorAddon addon = overlay.getOwner();
-        boolean builtIn = overlay.asTemplate() == null;
+        boolean builtIn = overlay.isBuiltIn();
 
         return configs.computeIfAbsent(id, key -> {
             var catalog = getCatalogOrCreate(addon, builtIn);
@@ -129,7 +129,8 @@ public class OverlayConfigsManager implements OverlayConfigsAccessor {
 
 
 
-    private ConfigCatalog getCatalogOrCreate(@NotNull VisorAddon addon, boolean builtIn){
+    private ConfigCatalog getCatalogOrCreate(@NotNull VisorAddon addon,
+                                             boolean builtIn){
         Map<VisorAddon, ConfigCatalog> catalogs = builtIn
                 ? catalogsBuiltIn
                 : catalogsCustom;

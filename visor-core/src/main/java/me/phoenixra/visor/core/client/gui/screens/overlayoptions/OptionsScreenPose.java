@@ -39,7 +39,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     private DropDownListWidget rotationTypeWidget;
     private DropDownListWidget modifyTypeWidget;
 
-    private WidgetSet widgetSet;
+    private PoseWidgetSet widgetSet;
 
     private boolean addedWidgetSet;
 
@@ -53,7 +53,6 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
 
     @Override
     protected void onInit() {
-        clearWidgets();
 
         demoOverlay = ClientContext.overlayManager.getOverlay(
                 VROverlayDemo.ID,

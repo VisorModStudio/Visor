@@ -73,7 +73,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
             if(overlay == null){
                 return false;
             }
-            return !overlay.isCustom();
+            return overlay.isBuiltIn();
         });
         //FILTER: Has options
         id = "has_options";
@@ -238,7 +238,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                                         )
                         )
                         .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE)
-                        .setItemHeight(21)
+                        .setEntryHeight(21)
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 overlaysMap,
                 (selected) -> {
@@ -356,7 +356,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         optionsMenu.setEnabled(false);
     }
     public void removeOverlay(@NotNull VROverlay overlay){
-        if(!overlay.isCustom()){
+        if(overlay.isBuiltIn()){
             throw new IllegalArgumentException("Not allowed to remove built-in overlays in settings");
         }
         ClientContext.overlayManager.getOverlaysRegistry()

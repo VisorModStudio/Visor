@@ -55,16 +55,15 @@ public class PropertyEnum <E extends Enum<E>> extends Property<E> {
     }
 
     @Override
-    public AbstractWidget createWidget(int x, int y, int width, int height) {
+    public AbstractWidget createWidget() {
         WidgetInfoButtonImaged widgetInfo
-                = new WidgetInfoButtonImaged(this.widgetInfo)
-                .pos(x,y)
-                .size(width, height);
+                = new WidgetInfoButtonImaged(this.widgetInfo);
 
         var button = new ButtonImaged(widgetInfo, imgBtn -> {
             int i = Math.max(0, values.indexOf(getValue()));
             E next = values.get((i + 1) % values.size());
             setValue(next);
+            onValueChanged();
             imgBtn.setMessage(labeler.apply(next));
             imgBtn.setSelected(false);
         });

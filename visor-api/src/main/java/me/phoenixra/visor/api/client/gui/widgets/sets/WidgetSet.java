@@ -24,6 +24,11 @@ public interface WidgetSet {
                      float partialTicks);
     void onTick();
 
+    default void onPostRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
 
+    }
+    default boolean mouseScrolled(double mouseX, double mouseY, double delta){
+        return true;
+    }
 
 }
