@@ -111,6 +111,31 @@ public class VRClientSettings {
     protected static boolean pumpkinEffectEnabled = true;
 
 
+    //----Main menu panorama
+    @Getter
+    @VROptionField(key = "main_menu.panorama.front")
+    protected static String panoramaFront = "visor:textures/mainmenu/panorama_front.png";
+    @Getter
+    @VROptionField(key = "main_menu.panorama.back")
+    protected static String panoramaBack = "visor:textures/mainmenu/panorama_back.png";
+    @Getter
+    @VROptionField(key = "main_menu.panorama.right")
+    protected static String panoramaRight = "visor:textures/mainmenu/panorama_right.png";
+    @Getter
+    @VROptionField(key = "main_menu.panorama.left")
+    protected static String panoramaLeft = "visor:textures/mainmenu/panorama_left.png";
+    @Getter
+    @VROptionField(key = "main_menu.panorama.up")
+    protected static String panoramaUp = "visor:textures/mainmenu/panorama_up.png";
+    @Getter
+    @VROptionField(key = "main_menu.panorama.below")
+    protected static String panoramaBelow = "visor:textures/mainmenu/panorama_below.png";
+
+    @Getter
+    @VROptionField(key = "main_menu.floor")
+    protected static String mainMenuFloor = "minecraft:textures/block/moss_block.png";
+
+
     //----GUI && HUD
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.SHADER_GUI_RENDER, key = "shader_gui_render")

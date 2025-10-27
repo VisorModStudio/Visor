@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -11,14 +12,14 @@ import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11C;
 
 public class VRMenuPanorama {
-    private static final ResourceLocation cubeFront = new ResourceLocation("visor:textures/mainmenu/panorama_front.png");
-    private static final ResourceLocation cubeBack = new ResourceLocation("visor:textures/mainmenu/panorama_back.png");
-    private static final ResourceLocation cubeRight = new ResourceLocation("visor:textures/mainmenu/panorama_right.png");
-    private static final ResourceLocation cubeLeft = new ResourceLocation("visor:textures/mainmenu/panorama_left.png");
-    private static final ResourceLocation cubeUp = new ResourceLocation("visor:textures/mainmenu/panorama_up.png");
-    private static final ResourceLocation cubeBelow = new ResourceLocation("visor:textures/mainmenu/panorama_below.png");
+    private static final ResourceLocation cubeFront = new ResourceLocation(VRClientSettings.getPanoramaFront());
+    private static final ResourceLocation cubeBack = new ResourceLocation(VRClientSettings.getPanoramaBack());
+    private static final ResourceLocation cubeRight = new ResourceLocation(VRClientSettings.getPanoramaRight());
+    private static final ResourceLocation cubeLeft = new ResourceLocation(VRClientSettings.getPanoramaLeft());
+    private static final ResourceLocation cubeUp = new ResourceLocation(VRClientSettings.getPanoramaUp());
+    private static final ResourceLocation cubeBelow = new ResourceLocation(VRClientSettings.getPanoramaBelow());
 
-    private static final ResourceLocation mossTexture = new ResourceLocation("minecraft:textures/block/moss_block.png");
+    private static final ResourceLocation floorTexture = new ResourceLocation(VRClientSettings.getMainMenuFloor());
 
     public static void renderMenuPanorama(PoseStack poseStack) {
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
@@ -127,7 +128,7 @@ public class VRMenuPanorama {
 
             int r, g, b;
 
-            RenderSystem.setShaderTexture(0, mossTexture);
+            RenderSystem.setShaderTexture(0, floorTexture);
             r = g = b = 128;
 
             Matrix4f matrix4f = poseStack.last().pose();
