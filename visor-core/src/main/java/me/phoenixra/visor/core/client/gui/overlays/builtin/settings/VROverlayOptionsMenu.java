@@ -102,6 +102,10 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OptionsScreen<
         return true;
     }
 
+    @Override
+    public boolean supportsLight() {
+        return false;
+    }
 
     public void openMenu(@NotNull VROverlaySettings settingsMenu,
                          @NotNull OverlayOptionGroup optionCategory){
