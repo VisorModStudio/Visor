@@ -46,7 +46,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     private GuiTexture icon;
 
     protected final OverlayOptionsIdentity optionsIdentity;
-    protected final OverlayOptionsMisc optionsGlobal;
+    protected final OverlayOptionsMisc optionsMisc;
     protected final OverlayOptionsPose optionsPose;
 
     protected boolean initializedPose;
@@ -78,7 +78,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
         }
 
         optionsIdentity = getOption(OverlayOptionsIdentity.ID, OverlayOptionsIdentity.class);
-        optionsGlobal = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
+        optionsMisc = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
         optionsPose = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
 
         Objects.requireNonNull(optionsIdentity);
@@ -120,8 +120,8 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     @Override
     protected void onPreTick() {
 
-        if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
+        if(optionsMisc != null
+                && optionsMisc.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
             optionsMap.forEach(
                     (key,value)
                             ->
@@ -137,8 +137,8 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
 
     @Override
     protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
+        if(optionsMisc != null
+                && optionsMisc.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             optionsMap.forEach(
                     (key,value)
                             ->

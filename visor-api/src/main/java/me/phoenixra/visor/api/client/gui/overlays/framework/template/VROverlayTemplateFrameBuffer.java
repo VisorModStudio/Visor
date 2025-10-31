@@ -47,7 +47,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
     private GuiTexture icon;
 
     protected final OverlayOptionsIdentity optionsIdentity;
-    protected final OverlayOptionsMisc optionsGlobal;
+    protected final OverlayOptionsMisc optionsMisc;
     protected final OverlayOptionsPose optionsPose;
 
 
@@ -83,7 +83,7 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
 
 
         optionsIdentity = getOption(OverlayOptionsIdentity.ID, OverlayOptionsIdentity.class);
-        optionsGlobal = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
+        optionsMisc = getOption(OverlayOptionsMisc.ID, OverlayOptionsMisc.class);
         optionsPose = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
 
         //NULL POINTER EXCEPTION
@@ -126,8 +126,8 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
     @Override
     protected void onPreTick() {
 
-        if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
+        if(optionsMisc != null
+                && optionsMisc.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.TICK) {
             optionsMap.forEach(
                     (key,value)
                             ->
@@ -143,8 +143,8 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
 
     @Override
     protected void onPreRender(float partialTicks) {
-        if(optionsGlobal != null
-                && optionsGlobal.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
+        if(optionsMisc != null
+                && optionsMisc.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             optionsMap.forEach(
                     (key,value)
                             ->

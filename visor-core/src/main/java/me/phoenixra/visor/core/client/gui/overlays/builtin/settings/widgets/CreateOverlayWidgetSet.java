@@ -55,6 +55,12 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         super(onWidgetsChanged);
         this.owner = owner;
 
+    }
+
+    @Override
+    public <T extends GuiEventListener
+            & Renderable
+            & NarratableEntry> List<T> initWidgets() {
         for(var addon : VisorAPI.addonManager().getAddons()){
             String filterId = "addon_"+addon.getAddonId();
             addonFiltersName.put(
@@ -74,13 +80,6 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                     }
             );
         }
-    }
-
-    @Override
-    public <T extends GuiEventListener
-            & Renderable
-            & NarratableEntry> List<T> initWidgets() {
-
         List<String> filtersAddons = new ArrayList<>(addonFiltersName.keySet().stream().toList());
         if(templatesWidget != null){
             var filter = (FiltersListWidgetSet<String>)templatesWidget.getFilterWidgetSet();

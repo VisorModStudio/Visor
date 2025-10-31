@@ -53,6 +53,14 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         super(onWidgetsChanged);
         this.owner = owner;
 
+
+
+    }
+
+    @Override
+    public <T extends GuiEventListener
+            & Renderable
+            & NarratableEntry> List<T> initWidgets() {
         //FILTER: CUSTOM ONLY
         String id = "custom_only";
         Component name = Component.translatable("visor.overlay.options.main.overlays.filters.main."+id);
@@ -118,13 +126,6 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                     }
             );
         }
-
-    }
-
-    @Override
-    public <T extends GuiEventListener
-            & Renderable
-            & NarratableEntry> List<T> initWidgets() {
         //clear cache
         overlaySetup = null;
         setOptionsMenu(null);

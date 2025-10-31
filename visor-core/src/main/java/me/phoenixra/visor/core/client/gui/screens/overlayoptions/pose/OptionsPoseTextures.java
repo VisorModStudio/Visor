@@ -8,8 +8,8 @@ public interface OptionsPoseTextures {
     ResourceLocation RESOURCE_2 = new ResourceLocation(
             "visor:textures/gui/overlays/settings/general_2.png"
     );
-    int TEX_WIDTH_2 = 124;
-    int TEX_HEIGHT_2 = 168;
+    int TEX_WIDTH_2 = 119;
+    int TEX_HEIGHT_2 = 153;
 
     GuiTexture BUTTON_DEMO = new GuiTexture(
             RESOURCE_2,

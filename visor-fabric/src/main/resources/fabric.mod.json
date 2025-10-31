@@ -21,6 +21,7 @@
   },
   "mixins": [
     "visor.mixins.json",
+    "visor.sodium.mixins.json",
     "visor.mixins.fabric.json"
   ],
   "depends": {
