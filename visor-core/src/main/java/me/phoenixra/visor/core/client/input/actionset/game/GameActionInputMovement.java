@@ -23,8 +23,6 @@ public class GameActionInputMovement extends VisorActionVec2 {
     public static final String ID = "input_movement";
 
 
-    private boolean movedLastTick, autoSprintActive;
-
 
     public GameActionInputMovement(VisorActionSet actionSet) {
         super(actionSet, ID);
@@ -33,10 +31,13 @@ public class GameActionInputMovement extends VisorActionVec2 {
     @Override
     public void preTick() {
         super.preTick();
+
+        //@TODO
         if(ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
             onClear();
             return;
         }
+
         Vector2f newState = getState();
 
         Vector2f input = ClientContext.player.getInputMovement();

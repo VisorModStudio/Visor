@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 public interface SettingsTextures {
 
     ResourceLocation RESOURCE = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/main.png"
+            "visor:textures/gui/overlays/settings/general_1.png"
     );
     int TEX_WIDTH = 179;
     int TEX_HEIGHT = 188;

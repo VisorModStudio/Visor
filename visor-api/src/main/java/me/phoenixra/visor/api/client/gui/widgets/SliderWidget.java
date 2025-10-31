@@ -31,7 +31,7 @@ public class SliderWidget<T> extends AbstractWidget {
     private int knobX, knobY, knobWidth, knobHeight;
 
     @Getter @Setter
-    private Component label;
+    private Component text;
 
     @Getter
     private int index = -1;
@@ -178,8 +178,8 @@ public class SliderWidget<T> extends AbstractWidget {
     }
 
     private String resolveDisplayText() {
-        if (label != null && !label.getString().isEmpty()) {
-            return label.getString();
+        if (text != null && !text.getString().isEmpty()) {
+            return text.getString();
         }
         if (selected == null) return "";
         String s = String.valueOf(selected);

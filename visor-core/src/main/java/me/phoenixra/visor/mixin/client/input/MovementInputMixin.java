@@ -58,20 +58,18 @@ public class MovementInputMixin extends Input {
 
         //analog movement
         if (MC.screen == null
-                && !ClientContext.overlayManager
-                .getKeyboardAccessor().isVisible()
                 && ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOVEMENT)) {
             moved = true;
 
-            Vector2f strafeVec = ClientContext.player.getInputMovement();
+            Vector2f input = ClientContext.player.getInputMovement();
 
-            if (strafeVec.x == 0.0F && strafeVec.y == 0.0F) {
+            if (input.x == 0.0F && input.y == 0.0F) {
                 this.forwardImpulse = 0.0F;
                 this.leftImpulse = 0.0F;
             } else {
-                forward = strafeVec.y;
-                this.forwardImpulse = strafeVec.y;
-                this.leftImpulse = -strafeVec.x;
+                forward = input.y;
+                this.forwardImpulse = input.y;
+                this.leftImpulse = -input.x;
             }
 
             this.visor$movedLastTick = true;

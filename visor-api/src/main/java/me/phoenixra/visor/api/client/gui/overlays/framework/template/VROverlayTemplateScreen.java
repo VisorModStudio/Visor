@@ -130,7 +130,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
         }
 
         if(optionsPose != null
-                && optionsPose.isTickModelView()){
+                && optionsPose.isTickPose()){
             updatePose(1);
         }
     }
@@ -150,18 +150,15 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     @Override
     public void onUpdatePose(float partialTicks) {
         if(optionsPose == null) return;
-        float scale = optionsGlobal == null
-                ? getPose().getScale()
-                : optionsPose.getScale();
-        if(!initializedPose || optionsPose.isTickModelView()) {
+        if(!initializedPose || optionsPose.isTickPose()) {
             VROverlayHelper.applyPose(
                     this,
                     optionsPose.getPositionAnchor(),
                     optionsPose.getRotationAnchor(),
-                    scale,
-                    optionsPose.isAimRotation(),
-                    optionsPose.getPosOffset(),
-                    optionsPose.getRotationOffsetVec()
+                    optionsPose.getScale(),
+                    optionsPose.isAimedRotation(),
+                    optionsPose.getPositionOffset(),
+                    optionsPose.getRotationOffset()
             );
             initializedPose = true;
         }

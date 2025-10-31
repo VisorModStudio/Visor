@@ -4,7 +4,7 @@ import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
@@ -37,7 +37,7 @@ public class PropertyInt extends Property<Integer> {
 
     @Override
     public void setValue(Integer value) {
-        super.setValue(Math.max(minValue, Math.min(maxValue, value)));
+        super.setValue(Mth.clamp(value, minValue, maxValue));
     }
 
     @Override

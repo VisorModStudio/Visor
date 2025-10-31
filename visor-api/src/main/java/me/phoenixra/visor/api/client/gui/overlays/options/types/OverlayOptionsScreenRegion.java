@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -89,7 +90,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
 
     public void setRegionX(int value){
         int oldValue = regionX;
-        regionX = Math.max(0, Math.min(screenWidth, value));
+        regionX = Mth.clamp(value, 0, screenWidth);
         if(oldValue != regionX){
             changesNotSaved = true;
         }
@@ -97,7 +98,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
 
     public void setRegionY(int value) {
         int oldValue = regionY;
-        regionY = Math.max(0, Math.min(screenHeight, value));
+        regionY = Mth.clamp(value, 0, screenHeight);
         if(oldValue != regionY){
             changesNotSaved = true;
         }
@@ -105,7 +106,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
 
     public void setRegionWidth(int value) {
         int oldValue = regionWidth;
-        regionWidth = Math.max(1, Math.min(screenWidth, value));
+        regionWidth = Mth.clamp(value, 1, screenWidth);
         if(oldValue != regionWidth){
             changesNotSaved = true;
         }
@@ -113,7 +114,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
 
     public void setRegionHeight(int value) {
         int oldValue = regionHeight;
-        regionHeight = Math.max(1, Math.min(screenHeight, value));
+        regionHeight = Mth.clamp(value,1, screenHeight);
         if(oldValue != regionHeight){
             changesNotSaved = true;
         }

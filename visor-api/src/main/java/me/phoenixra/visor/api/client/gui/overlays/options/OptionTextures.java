@@ -6,11 +6,11 @@ import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import net.minecraft.resources.ResourceLocation;
 
 public interface OptionTextures {
-    ResourceLocation RESOURCE = new ResourceLocation(
-            "visor:textures/gui/overlays/settings/general.png"
+    ResourceLocation RESOURCE_2 = new ResourceLocation(
+            "visor:textures/gui/overlays/settings/general_2.png"
     );
-    int TEX_WIDTH_2 = 179;
-    int TEX_HEIGHT_2 = 188;
+    int TEX_WIDTH_2 = 124;
+    int TEX_HEIGHT_2 = 168;
 
     GuiTexture BACKGROUND_256x256 = new GuiTexture(
             new ResourceLocation(
@@ -62,6 +62,20 @@ public interface OptionTextures {
     );
     GuiTexture SCROLL_BAR_ACTIVE = TexturesHelper.getColorGuiTexture(
             AtumColor.immutable(190,190,190,255)
+    );
+
+    GuiTexture ARROW_BUTTON_LEFT = new GuiTexture(
+            RESOURCE_2,
+            0, 140,
+            13, 13,
+            TEX_WIDTH_2, TEX_HEIGHT_2
+    );
+
+    GuiTexture ARROW_BUTTON_RIGHT = new GuiTexture(
+            RESOURCE_2,
+            15, 140,
+            13, 13,
+            TEX_WIDTH_2, TEX_HEIGHT_2
     );
 
 

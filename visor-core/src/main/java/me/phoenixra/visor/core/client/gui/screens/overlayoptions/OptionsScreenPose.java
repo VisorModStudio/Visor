@@ -1,26 +1,24 @@
 package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 
+import com.google.common.collect.Lists;
 import lombok.Getter;
-import me.phoenixra.atumconfig.api.utils.StringUtils;
 import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
-import me.phoenixra.visor.api.client.gui.widgets.lists.DropDownListWidget;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.SliderWidget;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.ModificationType;
-import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.widgets.*;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.OptionsPoseTextures;
+import me.phoenixra.visor.core.client.gui.screens.overlayoptions.pose.PoseEditorWidgetSet;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 
 
 @Getter
@@ -31,21 +29,27 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     @Getter
     private VROverlayDemo demoOverlay = null;
 
-    private ModificationType modificationType = null;
-    private Button emulationButton = null;
-    private Button teleportButton = null;
 
-    private DropDownListWidget posTypeWidget;
-    private DropDownListWidget rotationTypeWidget;
-    private DropDownListWidget modifyTypeWidget;
 
-    private PoseWidgetSet widgetSet;
+    private ButtonImaged demoButton;
+    private ButtonImaged emulateButton;
+    private ButtonImaged aimButton;
 
-    private boolean addedWidgetSet;
+
+    private ButtonImaged applyOffsetButton;
+    private ButtonImaged teleportButton;
+    private ButtonImaged dragButton;
+
+    private SliderWidget<PoseAnchor> positionAnchorSlider;
+    private SliderWidget<PoseAnchor> rotationAnchorSlider;
+
+
+    private PoseEditorWidgetSet poseEditorWidgetSet;
 
     private boolean demoDisplayed;
 
-    private boolean emulateModelViewCache;
+    private boolean emulateCache;
+    private boolean dragCache;
 
     public OptionsScreenPose(@NotNull OverlayOptionsPose optionCategory) {
         super(optionCategory, Background.VERTICAL_WIDER);
@@ -53,284 +57,181 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
 
     @Override
     protected void onInit() {
+        clearWidgets();
 
         demoOverlay = ClientContext.overlayManager.getOverlay(
                 VROverlayDemo.ID,
                 VROverlayDemo.class
         );
 
-        int width = cursorBoundsWidth;
-        int height = cursorBoundsHeight;
 
-        int middleX = cursorBoundsX + width/2;
-
-        Component demoName = Component.translatable("visor.overlay.options.pose.demo");
-        this.addRenderableWidget(
-                Button.builder(
-                                Component.literal(
-                                                StringUtils.formatColorCodes(
-                                                        (demoDisplayed? "&a" :"&c") +demoName.getString()
-                                                )
-                                ),
-                                (p) ->
-                                {
-                                    demoDisplayed = !demoDisplayed;
-                                    emulationButton.visible = demoDisplayed;
-                                    teleportButton.visible = demoDisplayed && !demoOverlay.isEmulatingPose();
-                                    p.setMessage(
-                                            Component.literal(
-                                                    StringUtils.formatColorCodes(
-                                                            (demoDisplayed? "&a" :"&c") +demoName.getString()
-                                                    )
-                                            )
-                                    );
-
-                                }
-                        )
-                        .pos(
-                                middleX - 150/2,
-                                cursorBoundsY + 10
-                        )
-                        .tooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.demo.tooltip")))
-                        .size(40,10)
-                        .build()
+        // ----- Top buttons
+        demoButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+14, cursorBoundsY+14)
+                        .size(40,40)
+                        .setTexture(OptionsPoseTextures.BUTTON_DEMO)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.demo.tooltip"))),
+                (p) ->
+                        setDemonstrating(!demoDisplayed)
         );
 
-        teleportButton = Button.builder(
-                        Component.translatable("visor.overlay.options.pose.teleport"),
-                        (p) ->
-                        {
-                            demoOverlay.teleportToHMD();
-
-                        }
-                )
-                .pos(
-                        middleX -10,
-                        cursorBoundsY + 10
-                )
-                .tooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.teleport.tooltip")))
-                .size(20,10)
-                .build();
-        this.addRenderableWidget(
-                teleportButton
+        emulateButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+121, cursorBoundsY+14)
+                        .size(40,40)
+                        .setTexture(OptionsPoseTextures.BUTTON_EMULATE)
+                        .setTextureInactive(OptionsPoseTextures.BUTTON_EMULATE_INACTIVE)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.emulation.tooltip"))),
+                (p) ->
+                        setEmulating(!demoOverlay.isEmulatingPose())
         );
 
-        Component emuName = Component.translatable("visor.overlay.options.pose.emulation");
-        emulationButton = Button.builder(
-                        Component.literal(
-                                StringUtils.formatColorCodes(
-                                        (demoOverlay.isEmulatingPose()? "&a" :"&c") +emuName.getString()
-                                )
-                        ),
-                        (p) ->
-                        {
-                            demoOverlay.setEmulatingPose(!demoOverlay.isEmulatingPose());
-
-                        }
-                )
-                .pos(
-                        middleX + 35,
-                        cursorBoundsY + 10
-                )
-                .tooltip(Tooltip.create(
-                        Component.translatable("visor.overlay.options.pose.emulation.tooltip")
-                        )
-                )
-                .size(40,10)
-                .build();
-        this.addRenderableWidget(
-                emulationButton
-        );
-
-        emulationButton.visible = demoDisplayed;
-        teleportButton.visible = demoDisplayed && !demoOverlay.isEmulatingPose();
-        demoOverlay.setEnabled(false);
-
-        this.addRenderableWidget(
-                Button.builder(
-                                Component.translatable(
-                                        "visor.overlay.options.pose.tick",
-                                        String.valueOf(optionCategory.isTickModelView())
-                                ),
-                                (p) ->
-                                {
-                                    optionCategory.setTickModelView(!optionCategory.isTickModelView());
-                                    p.setMessage(Component.translatable(
-                                            "visor.overlay.options.pose.tick",
-                                            String.valueOf(optionCategory.isTickModelView())
-                                    ));
-                                }
-                        )
-                        .pos(
-                                middleX - 150/2,
-                                cursorBoundsY + 30
-                        )
-                        .size(70,15)
-                        .tooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.tick.tooltip")))
-                        .build()
-        );
-        this.addRenderableWidget(
-                Button.builder(
-                                Component.translatable(
-                                        "visor.overlay.options.pose.aimed",
-                                        String.valueOf(optionCategory.isAimRotation())
-                                ),
-                                (p) ->
-                                {
-                                    optionCategory.setAimRotation(!optionCategory.isAimRotation());
-                                    p.setMessage(
-                                            Component.translatable(
-                                                    "visor.overlay.options.pose.aimed",
-                                                    String.valueOf(optionCategory.isAimRotation())
-                                            )
-                                    );
-                                }
-                        )
-                        .pos(
-                                middleX + 5,
-                                cursorBoundsY + 30
-                        )
-                        .size(70,15)
-                        .tooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.aimed.tooltip")))
-                        .build()
+        aimButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+70, cursorBoundsY+27)
+                        .size(35,35)
+                        .setTexture(OptionsPoseTextures.BUTTON_AIM)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.aimed.tooltip"))),
+                (p) ->
+                        setAimed(!optionCategory.isAimedRotation())
         );
 
 
-        List<Component> elements = new ArrayList<>();
-        List<PoseAnchor> anchorList = Arrays.stream(PoseAnchor.values()).toList();
-        for(PoseAnchor anchor : anchorList){
-            elements.add(anchor.getName());
-        }
+        // ----- Bottom buttons
 
-        posTypeWidget = DropDownListWidget.builder(elements)
-                .pos(middleX - 150/2, cursorBoundsY + 50)
-                .size(70,15)
-                .setStartIndex(
-                        anchorList.indexOf(
-                                optionCategory.getPositionAnchor()
-                        )
-                )
-                .setMessage(Component.translatable("visor.overlay.options.pose.posType"))
-                .setResponder(it->{
-                    optionCategory.setPositionAnchor(
-                            anchorList.get(it)
+        applyOffsetButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+14, cursorBoundsY+218)
+                        .size(24,24)
+                        .setTexture(OptionsPoseTextures.BUTTON_APPLY_OFFSET)
+                        .setTextureInactive(OptionsPoseTextures.BUTTON_APPLY_OFFSET_INACTIVE)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.apply_offset.tooltip"))),
+                (p) ->
+                        applyOffset()
+        );
+
+        teleportButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+75, cursorBoundsY+218)
+                        .size(24,24)
+                        .setTexture(OptionsPoseTextures.BUTTON_TELEPORT)
+                        .setTextureInactive(OptionsPoseTextures.BUTTON_TELEPORT_INACTIVE)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.teleport.tooltip"))),
+                (p) ->
+                        teleport()
+        );
+
+        dragButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(cursorBoundsX+137, cursorBoundsY+218)
+                        .size(24,24)
+                        .setTexture(OptionsPoseTextures.BUTTON_DRAG)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.drag.tooltip"))),
+                (p) ->
+                        setHandDragging(true)
+        );
+
+
+
+        // ---- Anchor selection
+
+        positionAnchorSlider = new SliderWidget<>(
+                new WidgetInfoSlider()
+                        .pos(cursorBoundsX+14,cursorBoundsY+79)
+                        .size(60,15)
+                        .setBackgroundTexture(OptionTextures.GRAY_TEXTURE)
+                        .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.position_anchor.tooltip")))
+                        .setScaleText(true),
+                Lists.newArrayList(PoseAnchor.values()),
+                (it)->{
+                    optionCategory.setPositionAnchor(it.getSelected());
+                    it.setText(
+                            Component.translatable(
+                                    "visor.overlay.options.pose.position_anchor",
+                                    optionCategory.getPositionAnchor()
+                            )
                     );
-                }).build();
-        this.addRenderableWidget(
-                posTypeWidget
+                }
+        );
+        positionAnchorSlider.setSelected(
+                optionCategory.getPositionAnchor(),
+                true
         );
 
-        rotationTypeWidget = DropDownListWidget.builder(elements)
-                .pos(middleX + 5, cursorBoundsY + 50)
-                .size(70,15)
-                .setStartIndex(
-                        anchorList.indexOf(
-                                optionCategory.getRotationAnchor()
-                        )
-                )
-                .setMessage(Component.translatable("visor.overlay.options.pose.rotation_type"))
-                .setResponder(it->{
-                    optionCategory.setRotationAnchor(
-                            anchorList.get(it)
+        rotationAnchorSlider = new SliderWidget<>(
+                new WidgetInfoSlider()
+                        .pos(cursorBoundsX+99,cursorBoundsY+79)
+                        .size(60,15)
+                        .setBackgroundTexture(OptionTextures.GRAY_TEXTURE)
+                        .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.rotation_anchor.tooltip")))
+                        .setScaleText(true),
+                Lists.newArrayList(PoseAnchor.values()),
+                (it)->{
+                    optionCategory.setRotationAnchor(it.getSelected());
+                    it.setText(
+                            Component.translatable(
+                                    "visor.overlay.options.pose.rotation_anchor",
+                                    optionCategory.getRotationAnchor()
+                            )
                     );
-                }).build();
-        this.addRenderableWidget(
-                rotationTypeWidget
+                }
+        );
+        rotationAnchorSlider.setSelected(
+                optionCategory.getRotationAnchor(),
+                true
         );
 
 
-        List<ModificationType> modificationsList = Arrays.stream(ModificationType.values()).toList();
-        elements = new ArrayList<>();
-        for(ModificationType entry : modificationsList){
-            elements.add(entry.getName());
-        }
-
-        modifyTypeWidget =  DropDownListWidget.builder(elements)
-                .pos(middleX - 150/2, cursorBoundsY + 70)
-                .size(150,15)
-                .setVisibleItems(7)
-                .setStartIndex(
-                        modificationType == null
-                                ? -1
-                                : modificationsList.indexOf(modificationType)
-                )
-                .setMessage(Component.translatable("visor.overlay.options.pose.howModify"))
-
-                .setResponder(it->{
-                    modificationType =  modificationsList.get(it);
-                    init();
-                }).build();
-        this.addRenderableWidget(
-                modifyTypeWidget
+        poseEditorWidgetSet = new PoseEditorWidgetSet(
+                cursorBoundsX + 14, cursorBoundsY + 106,
+                optionCategory,
+                this::repopulateWidgets
         );
 
+        addRenderableWidget(demoButton);
+        addRenderableWidget(aimButton);
+        addRenderableWidget(emulateButton);
 
-        if(modificationType == null) return;
-        switch (modificationType){
-            case FORMULA_POSITION -> {
-                widgetSet = new FormulaPosWidgets(this);
-            }
-            case FORMULA_ROTATION -> {
-                widgetSet = new FormulaRotationWidgets(this);
-            }
-            case SLIDERS_POSITION -> {
-                widgetSet = new SlidersPositionWidgets(this);
-            }
-            case SLIDERS_ROTATION -> {
-                widgetSet = new SlidersRotationWidgets(this);
-            }
-            case BY_OFFSET -> {
-                widgetSet = new ByOffsetWidgets(this);
-            }
-            case BY_HAND -> {
-                widgetSet = new ByHandWidgets(this);
-            }
-        }
-        if(widgetSet != null) {
-            widgetSet.initWidgets(
-                    cursorBoundsX,
-                    cursorBoundsY + 90,
-                    width,
-                    height - 65
-            ).forEach(this::addRenderableWidget);
-            addedWidgetSet = true;
-        }
+        addRenderableWidget(applyOffsetButton);
+        addRenderableWidget(teleportButton);
+        addRenderableWidget(dragButton);
+
+        addRenderableWidget(positionAnchorSlider);
+        addRenderableWidget(rotationAnchorSlider);
+
+        poseEditorWidgetSet.initWidgets().forEach(this::addRenderableWidget);
+
+
+        setAimed(optionCategory.isAimedRotation());
+        setDemonstrating(true);
+        setEmulating(true);
 
 
 
     }
 
     @Override
-    public void onRender(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
+    public void onRender(@NotNull GuiGraphics guiGraphics,
+                         int mouseX, int mouseY, float partialTicks) {
         renderBackground(guiGraphics);
-
-        boolean modifyTypeDisabled = (posTypeWidget.isExpanded()
-                || rotationTypeWidget.isExpanded());
-        if(modifyTypeWidget.visible
-                && modifyTypeDisabled){
-            modifyTypeWidget.visible = false;
-            removeWidget(modifyTypeWidget);
-        }else if(!modifyTypeWidget.visible && !modifyTypeDisabled){
-            modifyTypeWidget.visible = true;
-            addRenderableWidget(modifyTypeWidget);
-        }
-        boolean widgetSetDisabled = (modifyTypeWidget.isExpanded()
-                || posTypeWidget.isExpanded()
-                || rotationTypeWidget.isExpanded());
-        if(addedWidgetSet
-                && widgetSetDisabled){
-            widgetSet.getWidgets().forEach(
-                    this::removeWidget
-            );
-            addedWidgetSet = false;
-        } else if (!addedWidgetSet
-                && widgetSet != null && !widgetSetDisabled) {
-            widgetSet.getWidgets().forEach(
-                    this::addRenderableWidget
-            );
-            addedWidgetSet = true;
-        }
-
+        poseEditorWidgetSet.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
     }
 
 
@@ -342,30 +243,141 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
         }else if(!demoDisplayed && demoOverlay.isEnabled()){
             demoOverlay.setEnabled(false);
         }
-        if(emulateModelViewCache != demoOverlay.isEmulatingPose()){
-            emulateModelViewCache = !emulateModelViewCache;
-            onEmulationUpdate(emulateModelViewCache);
+        if(emulateCache != demoOverlay.isEmulatingPose()){
+            setEmulating(demoOverlay.isEmulatingPose());
         }
+        if(dragCache != demoOverlay.isMovingByAnchor()){
+            setHandDragging(demoOverlay.isMovingByAnchor());
+        }
+        updateEditors();
+        poseEditorWidgetSet.onTick();
         super.tick();
     }
+
+
+
 
     @Override
     public void removed() {
         demoOverlay.setEnabled(false);
     }
 
+    private void updateEditors(){
+        var posOffset = optionCategory.getPositionOffset();
+        var rotOffset = optionCategory.getRotationOffset();
+        var scale = optionCategory.getScale();
 
-    public void onEmulationUpdate(boolean emulationActive){
-        teleportButton.visible = demoDisplayed && !emulationActive;
+        var xPosEditor = poseEditorWidgetSet.getXPositionEditor();
+        var yPosEditor = poseEditorWidgetSet.getYPositionEditor();
+        var zPosEditor = poseEditorWidgetSet.getZPositionEditor();
 
-        Component emuName = Component.translatable("visor.overlay.options.pose.emulation");
-        emulationButton.setMessage(
-                Component.literal(
-                        StringUtils.formatColorCodes(
-                                (emulationActive? "&a" :"&c") +emuName.getString()
-                        )
-                )
+        var xRotEditor = poseEditorWidgetSet.getXRotationEditor();
+        var yRotEditor = poseEditorWidgetSet.getYRotationEditor();
+        var zRotEditor = poseEditorWidgetSet.getZRotationEditor();
+
+        var scaleEditor = poseEditorWidgetSet.getScaleEditor();
+
+        if(xPosEditor.getValue() != posOffset.x){
+            xPosEditor.setValue(posOffset.x, true);
+        }
+        if(yPosEditor.getValue() != posOffset.y){
+            yPosEditor.setValue(posOffset.y, true);
+        }
+        if(zPosEditor.getValue() != posOffset.z){
+            zPosEditor.setValue(posOffset.z, true);
+        }
+
+        if(xRotEditor.getValue() != rotOffset.x){
+            xRotEditor.setValue(rotOffset.x, true);
+        }
+        if(yRotEditor.getValue() != rotOffset.y){
+            yRotEditor.setValue(rotOffset.y, true);
+        }
+        if(zRotEditor.getValue() != rotOffset.z){
+            zRotEditor.setValue(rotOffset.z, true);
+        }
+
+        if(scaleEditor.getValue() != scale){
+            scaleEditor.setValue(scale, true);
+        }
+    }
+    public void repopulateWidgets() {
+        clearWidgets();
+        addRenderableWidget(demoButton);
+        addRenderableWidget(emulateButton);
+        addRenderableWidget(aimButton);
+        addRenderableWidget(applyOffsetButton);
+        addRenderableWidget(teleportButton);
+        addRenderableWidget(dragButton);
+        addRenderableWidget(rotationAnchorSlider);
+        addRenderableWidget(positionAnchorSlider);
+        poseEditorWidgetSet.getWidgets().forEach(this::addRenderableWidget);
+    }
+
+
+    public void setEmulating(boolean flag){
+        boolean emulate = flag;
+        emulateCache = emulate;
+        demoOverlay.setEmulatingPose(emulate);
+        emulateButton.getWidgetInfo().setTexture(
+                emulate
+                        ? OptionsPoseTextures.BUTTON_EMULATE_ACTIVE
+                        : OptionsPoseTextures.BUTTON_EMULATE
+        );
+        teleportButton.active = !emulateCache;
+        applyOffsetButton.active = !emulateCache;
+    }
+    public void setDemonstrating(boolean flag){
+        demoDisplayed = flag;
+        demoButton.getWidgetInfo().setTexture(
+                demoDisplayed
+                        ? OptionsPoseTextures.BUTTON_DEMO_ACTIVE
+                        : OptionsPoseTextures.BUTTON_DEMO
+        );
+        emulateButton.active = demoDisplayed;
+        if(!demoDisplayed) {
+            setEmulating(false);
+        }
+    }
+    public void setAimed(boolean flag){
+        boolean aimed = flag;
+        optionCategory.setAimedRotation(aimed);
+        aimButton.getWidgetInfo().setTexture(
+                aimed
+                        ? OptionsPoseTextures.BUTTON_AIM_ACTIVE
+                        : OptionsPoseTextures.BUTTON_AIM
         );
     }
+    public void setHandDragging(boolean flag){
+        if(!demoDisplayed) {
+            return;
+        }
+        if(flag) {
+            demoOverlay.startMovingByAnchor();
+        }else{
+            demoOverlay.stopMovingByAnchor();
+        }
+        dragCache = flag;
+        dragButton.getWidgetInfo().setTexture(
+                dragCache
+                        ? OptionsPoseTextures.BUTTON_DRAG_ACTIVE
+                        : OptionsPoseTextures.BUTTON_DRAG
+        );
+    }
+    public void applyOffset(){
+        if(!demoDisplayed
+                || demoOverlay.isEmulatingPose()) {
+            return;
+        }
+        demoOverlay.applyNewOffset();
+    }
+    public void teleport(){
+        if(!demoOverlay.isEmulatingPose()) {
+            demoOverlay.teleportToHMD();
+        }
+    }
+
+
+
 
 }

@@ -64,11 +64,11 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             addonFiltersFunc.put(
                     filterId,
                     (it)->{
-                        var overlay = ClientContext.overlayManager.getOverlay(it);
-                        if(overlay == null){
+                        var templateRecord = ClientContext.overlayManager.getOverlayTemplatesRegistry().getElement(it);
+                        if(templateRecord == null){
                             return false;
                         }
-                        return overlay.getOwner()
+                        return templateRecord.getOwner()
                                 .getAddonId()
                                 .equals(addon.getAddonId());
                     }
@@ -83,10 +83,10 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
 
         List<String> filtersAddons = new ArrayList<>(addonFiltersName.keySet().stream().toList());
         if(templatesWidget != null){
-            var binaryFilter = (FiltersListWidgetSet<String>)templatesWidget.getFilterWidgetSet();
+            var filter = (FiltersListWidgetSet<String>)templatesWidget.getFilterWidgetSet();
             filtersAddons.clear();
             filtersAddons.addAll(
-                    binaryFilter.getActiveFilterIds()
+                    filter.getActiveFilterIds()
             );
         }
 

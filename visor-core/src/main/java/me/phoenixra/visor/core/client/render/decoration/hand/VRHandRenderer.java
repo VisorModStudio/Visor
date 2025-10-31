@@ -114,6 +114,7 @@ public class VRHandRenderer {
             }
         }
 
+        var cursorHandler = ClientContext.cursorHandler;
         RenderSystem.backupProjectionMatrix();
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
@@ -122,8 +123,11 @@ public class VRHandRenderer {
         Collection<VRHandEffect> effects = effectsRegistry.getElementsMap().values();
 
         if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
+            boolean isCursorHand = cursorHandler.isHandFocused(ControllerHand.MAIN)
+                    && (cursorHandler.getCursorHand() == ControllerHand.MAIN
+                    || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = isGui
-                    || ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN)
+                    || isCursorHand
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
 
@@ -138,8 +142,11 @@ public class VRHandRenderer {
             );
         }
         if (renderOffhand && isControllerTracking(ControllerHand.OFFHAND)) {
+            boolean isCursorHand = cursorHandler.isHandFocused(ControllerHand.OFFHAND)
+                    && (cursorHandler.getCursorHand() == ControllerHand.OFFHAND
+                    || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = isGui
-                    || ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)
+                    || isCursorHand
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
 

@@ -130,7 +130,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 true
         );
 
-        if(iconUpdate){
+        if(iconUpdate && responder != null){
             responder.accept(editorTexturePath.getValue());
         }
     }

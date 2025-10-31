@@ -145,7 +145,7 @@ public class OverlayOptionsIdentity extends OverlayOptionGroup<OverlayOptionsIde
     }
 
 
-    public void onChanged(){
+    private void onChanged(){
         if(owner instanceof VROverlayTemplate template){
             template.updateIdentity();
         }

@@ -84,6 +84,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                         .setText(overlay.getDescription())
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setTextScale(0.6f)
+
                         .setBackground(OptionTextures.GRAY_TEXTURE)
 
         );

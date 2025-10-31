@@ -16,7 +16,6 @@ import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 
 import java.util.List;
@@ -152,17 +151,17 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
                 new OverlayOptionsPose(
                         this,
                         it->{
-                            it.setTickModelView(true);
-                            it.setAimRotation(false);
+                            it.setTickPose(true);
+                            it.setAimedRotation(false);
                             it.setPositionAnchor(PoseAnchor.HMD);
-                            it.setFormulaPosX(null);
-                            it.setFormulaPosY("-0.1");
-                            it.setFormulaPosZ("-1.2");
+                            it.setPositionOffset(
+                                    0,-0.1f, -1.2f
+                            );
                             it.setRotationAnchor(PoseAnchor.HMD);
-                            it.setFormulaRotationX(null);
-                            it.setFormulaRotationY(null);
-                            it.setFormulaRotationZ(null);
-                            it.setFormulaScale("1.0");
+                            it.setRotationOffset(
+                                    0,0,0
+                            );
+                            it.setScale(1.0f);
                         }
                 ),
                 optionsScreenRegion

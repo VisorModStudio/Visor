@@ -3,7 +3,6 @@ package me.phoenixra.visor.api.client.gui.overlays.options.types.properties;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.visor.api.client.gui.widgets.SliderWidget;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSlider;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -81,7 +80,7 @@ public class PropertySlider<T> extends Property<T> {
                     T v = it.getSelected();
                     setValue(v);
                     onValueChanged();
-                    it.setLabel(labeler.apply(v));
+                    it.setText(labeler.apply(v));
                 }
         );
 
@@ -89,7 +88,7 @@ public class PropertySlider<T> extends Property<T> {
         T current = entries.contains(getValue()) ? getValue() : entries.get(0);
         setValue(current);
         slider.setSelected(current, false);
-        slider.setLabel(labeler.apply(current));
+        slider.setText(labeler.apply(current));
 
         return slider;
     }

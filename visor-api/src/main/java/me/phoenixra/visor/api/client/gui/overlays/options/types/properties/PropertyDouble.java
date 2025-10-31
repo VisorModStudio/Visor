@@ -4,6 +4,7 @@ import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class PropertyDouble extends Property<Double> {
@@ -35,7 +36,7 @@ public class PropertyDouble extends Property<Double> {
     @Override
     public void setValue(Double value) {
         super.setValue(
-                Math.max(minValue, Math.min(maxValue, value))
+                Mth.clamp(value, minValue, maxValue)
         );
     }
 

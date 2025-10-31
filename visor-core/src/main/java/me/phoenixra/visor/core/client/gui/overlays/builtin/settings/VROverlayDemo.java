@@ -40,7 +40,7 @@ public class VROverlayDemo extends VROverlayScreen {
     private boolean appliedPose;
 
     @Getter @Setter
-    public boolean emulatingPose;
+    private boolean emulatingPose;
 
     @Nullable @Getter
     private PoseAnchor movingByAnchor;
@@ -133,42 +133,41 @@ public class VROverlayDemo extends VROverlayScreen {
                     it->it.update(false)
             );
         }
-        if(target != null){
-            if(movingByAnchor != null){
-                VROverlayHelper.applyPose(
-                        this,
-                        movingByAnchor,
-                        movingByAnchor,
-                        overlayScale,
-                        false,
-                        movingPosOffset,
-                        movingRotationOffset
-                );
-            }else if(targetPoseOptions.isTickModelView()) {
+        overlayScale = targetPoseOptions.getScale();
+        if(movingByAnchor != null){
+            VROverlayHelper.applyPose(
+                    this,
+                    movingByAnchor,
+                    movingByAnchor,
+                    overlayScale,
+                    false,
+                    movingPosOffset,
+                    movingRotationOffset
+            );
+        }else if(targetPoseOptions.isTickPose()) {
 
-                if(!emulatingPose) return;
+            if(!emulatingPose) return;
 
-                VROverlayHelper.applyPose(
-                        this,
-                        targetPoseOptions.getPositionAnchor(),
-                        targetPoseOptions.getRotationAnchor(),
-                        overlayScale,
-                        targetPoseOptions.isAimRotation(),
-                        targetPoseOptions.getPosOffset(),
-                        targetPoseOptions.getRotationOffsetVec()
-                );
-            }else if(!appliedPose){
-                VROverlayHelper.applyPose(
-                        this,
-                        targetPoseOptions.getPositionAnchor(),
-                        targetPoseOptions.getRotationAnchor(),
-                        overlayScale,
-                        targetPoseOptions.isAimRotation(),
-                        targetPoseOptions.getPosOffset(),
-                        targetPoseOptions.getRotationOffsetVec()
-                );
-                appliedPose = true;
-            }
+            VROverlayHelper.applyPose(
+                    this,
+                    targetPoseOptions.getPositionAnchor(),
+                    targetPoseOptions.getRotationAnchor(),
+                    targetPoseOptions.getScale(),
+                    targetPoseOptions.isAimedRotation(),
+                    targetPoseOptions.getPositionOffset(),
+                    targetPoseOptions.getRotationOffset()
+            );
+        }else if(!appliedPose){
+            VROverlayHelper.applyPose(
+                    this,
+                    targetPoseOptions.getPositionAnchor(),
+                    targetPoseOptions.getRotationAnchor(),
+                    targetPoseOptions.getScale(),
+                    targetPoseOptions.isAimedRotation(),
+                    targetPoseOptions.getPositionOffset(),
+                    targetPoseOptions.getRotationOffset()
+            );
+            appliedPose = true;
         }
     }
 
@@ -219,6 +218,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
     public void startMovingByAnchor(){
         if(!isEnabled()) return;
+        if(movingByAnchor != null) return;
 
         PoseAnchor posAnchor = targetPoseOptions.getPositionAnchor();
         emulatingPose = false;
@@ -233,8 +233,9 @@ public class VROverlayDemo extends VROverlayScreen {
         );
     }
 
-    public void stopAnchorMoving(){
+    public void stopMovingByAnchor(){
         if(!isEnabled()) return;
+        if(movingByAnchor == null) return;
 
         applyNewOffset();
 
@@ -262,22 +263,17 @@ public class VROverlayDemo extends VROverlayScreen {
                         renderPose.getWorldScale()
                 );
 
-        targetPoseOptions.setFormulaPosX(
-                format(offsetPos.x)
-        );
-        targetPoseOptions.setFormulaPosY(
-                format(offsetPos.y)
-        );
-        targetPoseOptions.setFormulaPosZ(
-                format(offsetPos.z)
+        targetPoseOptions.setPositionOffset(
+                offsetPos
         );
 
-        if(targetPoseOptions.isAimRotation()){
+        if(targetPoseOptions.isAimedRotation()){
             //applying any other rotation for aimed is awkward
             //in that case
-            targetPoseOptions.setFormulaRotationX("0");
-            targetPoseOptions.setFormulaRotationY("0");
-            targetPoseOptions.setFormulaRotationZ("0");
+            targetPoseOptions.setRotationOffset(
+                    0,0,0
+            );
+
             targetPoseOptions.update(true);
             return;
         }
@@ -294,29 +290,18 @@ public class VROverlayDemo extends VROverlayScreen {
 
         );
 
-        targetPoseOptions.setFormulaRotationX(
-                format(rotationOffset.x)
-        );
-        targetPoseOptions.setFormulaRotationY(
-                format(rotationOffset.y)
-        );
-        targetPoseOptions.setFormulaRotationZ(
-                format(rotationOffset.z)
+        targetPoseOptions.setRotationOffset(
+                rotationOffset
         );
 
         targetPoseOptions.update(true);
 
     }
 
-    private String format(float value){
-        String formatResult = String.format("%.3f", value);
-        //fixes weird issue in some cases
-        formatResult = formatResult.replace(",",".");
 
-        return formatResult.endsWith("000") ? String.valueOf((int) value) : formatResult;
+    public boolean isMovingByAnchor(){
+        return movingByAnchor != null;
     }
-
-
     @Override
     public boolean supportsCursor() {
         return movingByAnchor != null;
@@ -330,7 +315,7 @@ public class VROverlayDemo extends VROverlayScreen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
         if(movingByAnchor == null) return true;
-        stopAnchorMoving();
+        stopMovingByAnchor();
         return true;
     }
 

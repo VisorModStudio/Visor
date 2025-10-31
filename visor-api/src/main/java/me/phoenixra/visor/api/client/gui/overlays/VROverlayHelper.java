@@ -62,16 +62,16 @@ public class VROverlayHelper {
      * Otherwise, applies same rotation as anchor<p/>
      *
      * @param overlay        The overlay
-     * @param positionType   The position anchor
-     * @param rotationType   The rotation anchor
+     * @param positionAnchor   The position anchor
+     * @param rotationAnchor   The rotation anchor
      * @param overlayScale   The scale of an overlay quad
      * @param aimRotation    If aim overlay at rotation anchor
      * @param positionOffset The position offset
      * @param rotationOffset The rotation offset
      */
     public static void applyPose(@NotNull VROverlay overlay,
-                                 @NotNull PoseAnchor positionType,
-                                 @NotNull PoseAnchor rotationType,
+                                 @NotNull PoseAnchor positionAnchor,
+                                 @NotNull PoseAnchor rotationAnchor,
                                  float overlayScale,
                                  boolean aimRotation,
                                  @NotNull Vector3fc positionOffset,
@@ -81,19 +81,19 @@ public class VROverlayHelper {
         PoseData renderPose = VisorAPI.client().getPlayer()
                 .getPoseData(PoseDataType.RENDER);
 
-        Vector3f newPosition = positionType.anchorPos(
+        Vector3f newPosition = positionAnchor.anchorPos(
                 renderPose,
                 positionOffset
         );
         Matrix4f newRotation;
         if(aimRotation){
-            newRotation = rotationType.anchorRotationAim(
+            newRotation = rotationAnchor.anchorRotationAim(
                     renderPose,
                     rotationOffset,
                     newPosition
             );
-        }else {
-            newRotation = rotationType.anchorRotation(
+        } else {
+            newRotation = rotationAnchor.anchorRotation(
                     renderPose,
                     rotationOffset
             );
@@ -109,21 +109,21 @@ public class VROverlayHelper {
      * Shorter version of {@link #applyPose(VROverlay, PoseAnchor, PoseAnchor, float, boolean, Vector3fc, Vector3fc)}
      *
      * @param overlay        The overlay
-     * @param positionType   The position anchor
-     * @param rotationType   The rotation anchor
+     * @param positionAnchor   The position anchor
+     * @param rotationAnchor   The rotation anchor
      * @param overlayScale   The scale of an overlay quad
      * @param aimRotation    If aim overlay at rotation anchor
      */
     public static void applyPose(@NotNull VROverlay overlay,
-                                 @NotNull PoseAnchor positionType,
-                                 @NotNull PoseAnchor rotationType,
+                                 @NotNull PoseAnchor positionAnchor,
+                                 @NotNull PoseAnchor rotationAnchor,
                                  float overlayScale,
                                  boolean aimRotation
     ){
         applyPose(
                 overlay,
-                positionType,
-                rotationType,
+                positionAnchor,
+                rotationAnchor,
                 overlayScale,
                 aimRotation,
                 VRMathUtils.ZERO_VECTOR,

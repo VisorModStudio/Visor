@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-@Getter @Setter
+@Getter
 public class OverlayOptionsMisc extends OverlayOptionGroup<OverlayOptionsMisc> {
     public static final String ID = "misc";
     private static final Component NAME = Component.translatable("visor.overlay.options."+ID);
@@ -27,6 +27,13 @@ public class OverlayOptionsMisc extends OverlayOptionGroup<OverlayOptionsMisc> {
         super(owner, defaultSettings);
     }
 
+    public void setOptionsUpdaterType(OptionsUpdaterType newValue) {
+        if(this.optionsUpdaterType == newValue){
+            return;
+        }
+        this.optionsUpdaterType = newValue;
+        changesNotSaved = true;
+    }
 
     @Override
     public void update(boolean force) {

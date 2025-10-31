@@ -6,10 +6,11 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsScreenRegion;
-import me.phoenixra.visor.api.client.gui.overlays.options.types.properties.PropertyInt;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
+import me.phoenixra.visor.api.client.gui.widgets.sets.ValueEditorInt;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -19,21 +20,28 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     private static final int FIELD_HEIGHT = 15;
     private static final int ROW2_Y = 60;
 
-    private static final int PREVIEW_MARGIN = 8; // margin inside background
+    // Layout gaps
+    private static final int IN_GROUP_GAP = 4;
+    private static final int BETWEEN_GROUPS_GAP = 20;
 
-    private static final int KNOB_SIZE = 8; // visual size in pixels
+    private static final int PREVIEW_MARGIN = 8;
+
+    private static final int KNOB_SIZE = 8;
     private static final int KNOB_HALF = KNOB_SIZE / 2;
 
+
+    private static final int EDGE_GRAB_SLOP = 4;
+
+    private static final int MIN_INNER_MOVE_PX = KNOB_SIZE;
+
     private enum DragHandle {
-        NONE, TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+        NONE,
+        TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT,
+        TOP, BOTTOM, LEFT, RIGHT,
+        MOVE_WHOLE
     }
 
 
-    private PropertyInt propertyRegionX;
-    private PropertyInt propertyRegionY;
-
-    private PropertyInt propertyRegionWidth;
-    private PropertyInt propertyRegionHeight;
 
     // Preview layout state
     private int previewX;
@@ -53,112 +61,130 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     private int startRegionH;
 
 
-    private EditBoxImage widgetRegionX;
-    private EditBoxImage widgetRegionY;
-    private EditBoxImage widgetRegionWidth;
-    private EditBoxImage widgetRegionHeight;
+    private ValueEditorInt editorRegionX;
+    private ValueEditorInt editorRegionY;
+    private ValueEditorInt editorRegionWidth;
+    private ValueEditorInt editorRegionHeight;
+
     public OptionsScreenRegion(@NotNull OverlayOptionsScreenRegion optionCategory) {
         super(optionCategory, Background.VERTICAL_WIDER);
     }
 
     @Override
     protected void onInit() {
-        // Row 1: X (left), Y (right)
-        this.propertyRegionX = new PropertyInt(
-                "regionX",
+
+        int fieldWidth = (cursorBoundsWidth - 30) / 2;
+        int fieldX = cursorBoundsX + (cursorBoundsWidth - fieldWidth) / 2;
+
+        int yStart = cursorBoundsY + 15;
+        int yRegionY = yStart + FIELD_HEIGHT + IN_GROUP_GAP;
+        int yRegionWidth = yRegionY + FIELD_HEIGHT + BETWEEN_GROUPS_GAP;
+        int yRegionHeight = yRegionWidth + FIELD_HEIGHT + IN_GROUP_GAP;
+
+        this.editorRegionX = new ValueEditorInt.Builder(
                 optionCategory.getRegionX(),
-                0,
-                optionCategory.getScreenWidth(),
-                new WidgetInfoEditBox()
-                        .pos(cursorBoundsX+15, cursorBoundsY+30)
-                        .size((cursorBoundsWidth - 30)/2 - 2, 15)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("visor.overlay.options.screen_region.x")))
-        );
-        this.propertyRegionY = new PropertyInt(
-                "regionY",
+                fieldX,
+                yStart,
+                fieldWidth,
+                FIELD_HEIGHT
+        ).range(
+                        0, optionCategory.getScreenWidth()
+                ).editBox(
+                        new WidgetInfoEditBox()
+                                .setTexture(OptionTextures.GRAY_TEXTURE)
+                                .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.x")))
+                ).leftArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).rightArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder(optionCategory::setRegionX)
+                .build();
+
+        this.editorRegionY = new ValueEditorInt.Builder(
                 optionCategory.getRegionY(),
-                0,
-                optionCategory.getScreenHeight(),
-                new WidgetInfoEditBox()
-                        .pos((cursorBoundsX+15) + (cursorBoundsWidth - 30)/2 + 2, cursorBoundsY+30)
-                        .size((cursorBoundsWidth - 30)/2 - 4, 15)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("visor.overlay.options.screen_region.y")))
-        );
+                fieldX,
+                yRegionY,
+                fieldWidth,
+                FIELD_HEIGHT
+        ).range(
+                        0, optionCategory.getScreenHeight()
+                ).editBox(
+                        new WidgetInfoEditBox()
+                                .setTexture(OptionTextures.GRAY_TEXTURE)
+                                .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.y")))
+                ).leftArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).rightArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder(optionCategory::setRegionY)
+                .build();
 
-        // Row 2: Width (left), Height (right)
-        this.propertyRegionWidth = new PropertyInt(
-                "regionWidth",
+        this.editorRegionWidth = new ValueEditorInt.Builder(
                 optionCategory.getRegionWidth(),
-                1,
-                optionCategory.getScreenWidth(),
-                new WidgetInfoEditBox()
-                        .pos(cursorBoundsX+15, cursorBoundsY+45 + 4)
-                        .size((cursorBoundsWidth - 30)/2 - 2, 15)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("visor.overlay.options.screen_region.width")))
-        );
-        this.propertyRegionHeight = new PropertyInt(
-                "regionHeight",
+                fieldX,
+                yRegionWidth,
+                fieldWidth,
+                FIELD_HEIGHT
+        ).range(
+                        0, optionCategory.getScreenWidth()
+                ).editBox(
+                        new WidgetInfoEditBox()
+                                .setTexture(OptionTextures.GRAY_TEXTURE)
+                                .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.width")))
+                ).leftArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).rightArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder(optionCategory::setRegionWidth)
+                .build();
+
+        this.editorRegionHeight = new ValueEditorInt.Builder(
                 optionCategory.getRegionHeight(),
-                1,
-                optionCategory.getScreenHeight(),
-                new WidgetInfoEditBox()
-                        .pos((cursorBoundsX+15) + (cursorBoundsWidth - 30)/2 + 2, cursorBoundsY+45 + 4)
-                        .size((cursorBoundsWidth - 30)/2 - 4, 15)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("visor.overlay.options.screen_region.height")))
-        );
+                fieldX,
+                yRegionHeight,
+                fieldWidth,
+                FIELD_HEIGHT
+        ).range(
+                        0, optionCategory.getScreenHeight()
+                ).editBox(
+                        new WidgetInfoEditBox()
+                                .setTexture(OptionTextures.GRAY_TEXTURE)
+                                .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.height")))
+                ).leftArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).rightArrow(
+                        new WidgetInfoValueDrag()
+                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder(optionCategory::setRegionHeight)
+                .build();
 
-        widgetRegionX = propertyRegionX.createWidget();
-        var responderX = widgetRegionX.responder;
-        widgetRegionX.setResponder(
-                (it)->{
-                    responderX.accept(it);
-                    optionCategory.setRegionX(propertyRegionX.getValue());
-                }
-        );
-
-        widgetRegionY = propertyRegionY.createWidget();
-        var responderY = widgetRegionY.responder;
-        widgetRegionY.setResponder(
-                (it)->{
-                    responderY.accept(it);
-                    optionCategory.setRegionY(propertyRegionY.getValue());
-                }
-        );
-
-        widgetRegionWidth = propertyRegionWidth.createWidget();
-        var responderWidth = widgetRegionWidth.responder;
-        widgetRegionWidth.setResponder(
-                (it)->{
-                    responderWidth.accept(it);
-                    optionCategory.setRegionWidth(propertyRegionWidth.getValue());
-                }
-        );
-
-        widgetRegionHeight = propertyRegionHeight.createWidget();
-        var responderHeight = widgetRegionHeight.responder;
-        widgetRegionHeight.setResponder(
-                (it)->{
-                    responderHeight.accept(it);
-                    optionCategory.setRegionHeight(propertyRegionHeight.getValue());
-                }
-        );
-
-        this.addRenderableWidget(widgetRegionX);
-        this.addRenderableWidget(widgetRegionY);
-        this.addRenderableWidget(widgetRegionWidth);
-        this.addRenderableWidget(widgetRegionHeight);
+        editorRegionX.initWidgets().forEach(this::addRenderableWidget);
+        editorRegionY.initWidgets().forEach(this::addRenderableWidget);
+        editorRegionWidth.initWidgets().forEach(this::addRenderableWidget);
+        editorRegionHeight.initWidgets().forEach(this::addRenderableWidget);
     }
 
     @Override
     public void tick() {
-        widgetRegionX.tick();
-        widgetRegionY.tick();
-        widgetRegionWidth.tick();
-        widgetRegionHeight.tick();
+        editorRegionX.onTick();
+        editorRegionY.onTick();
+        editorRegionWidth.onTick();
+        editorRegionHeight.onTick();
     }
 
     @Override
@@ -325,10 +351,23 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         int brx = rx + rw;
         int bry = ry + rh;
 
+        // Corner knobs first
         if (inKnob(mouseX, mouseY, tlx, tly)) return DragHandle.TOP_LEFT;
         if (inKnob(mouseX, mouseY, trx, try_)) return DragHandle.TOP_RIGHT;
         if (inKnob(mouseX, mouseY, blx, bly)) return DragHandle.BOTTOM_LEFT;
         if (inKnob(mouseX, mouseY, brx, bry)) return DragHandle.BOTTOM_RIGHT;
+
+        // Then edges (lines between knobs)
+        if (inHorizontalEdge(mouseX, mouseY, rx, rx + rw, ry)) return DragHandle.TOP;
+        if (inHorizontalEdge(mouseX, mouseY, rx, rx + rw, ry + rh)) return DragHandle.BOTTOM;
+        if (inVerticalEdge(mouseX, mouseY, ry, ry + rh, rx)) return DragHandle.LEFT;
+        if (inVerticalEdge(mouseX, mouseY, ry, ry + rh, rx + rw)) return DragHandle.RIGHT;
+
+        // Finally, inner area -> move whole region (only if it's not too small and has space inside)
+        if (canMoveRegion(rw, rh) && inInnerArea(mouseX, mouseY, rx, ry, rw, rh)) {
+            return DragHandle.MOVE_WHOLE;
+        }
+
         return DragHandle.NONE;
     }
 
@@ -340,27 +379,49 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         return mx >= x1 && mx <= x2 && my >= y1 && my <= y2;
     }
 
+    private boolean inHorizontalEdge(int mx, int my, int x1, int x2, int y) {
+        // Within horizontal span and close enough vertically
+        return mx >= (x1 - EDGE_GRAB_SLOP) && mx <= (x2 + EDGE_GRAB_SLOP)
+                && Math.abs(my - y) <= EDGE_GRAB_SLOP;
+    }
+
+    private boolean inVerticalEdge(int mx, int my, int y1, int y2, int x) {
+        // Within vertical span and close enough horizontally
+        return my >= (y1 - EDGE_GRAB_SLOP) && my <= (y2 + EDGE_GRAB_SLOP)
+                && Math.abs(mx - x) <= EDGE_GRAB_SLOP;
+    }
+
+    private boolean inInnerArea(int mx, int my, int rx, int ry, int rw, int rh) {
+        // Click inside the rectangle but away from the edges by EDGE_GRAB_SLOP
+        return mx > rx + EDGE_GRAB_SLOP && mx < rx + rw - EDGE_GRAB_SLOP
+                && my > ry + EDGE_GRAB_SLOP && my < ry + rh - EDGE_GRAB_SLOP;
+    }
+
+    private boolean canMoveRegion(int rw, int rh) {
+        // Require some inner space so move doesn't collide with edges
+        int innerW = rw - 2 * EDGE_GRAB_SLOP;
+        int innerH = rh - 2 * EDGE_GRAB_SLOP;
+        return innerW >= MIN_INNER_MOVE_PX && innerH >= MIN_INNER_MOVE_PX;
+    }
+
     private boolean inPreview(int mx, int my) {
         return mx >= previewX && mx <= previewX + previewW
                 && my >= previewY && my <= previewY + previewH;
     }
 
-    // Region update helper: update PropertyInt values, then normal onRender flow syncs to optionCategory
     private void setRegionProperties(int x, int y, int w, int h) {
-        int sw = optionCategory.getScreenWidth();
-        int sh = optionCategory.getScreenHeight();
+        int screenWidth = optionCategory.getScreenWidth();
+        int screenHeight = optionCategory.getScreenHeight();
 
-        int nx = Math.max(0, Math.min(sw, x));
-        int ny = Math.max(0, Math.min(sh, y));
-        int nw = Math.max(1, Math.min(sw - nx, w));
-        int nh = Math.max(1, Math.min(sh - ny, h));
+        int newX = Math.max(0, Math.min(screenWidth, x));
+        int newY = Math.max(0, Math.min(screenHeight, y));
+        int newWidth = Math.max(1, Math.min(screenWidth - newX, w));
+        int newHeight = Math.max(1, Math.min(screenHeight - newY, h));
 
-        // Assuming PropertyInt supports setValue(int)
-
-        widgetRegionX.setValue(String.valueOf(nx));
-        widgetRegionY.setValue(String.valueOf(ny));
-        widgetRegionWidth.setValue(String.valueOf(nw));
-        widgetRegionHeight.setValue(String.valueOf(nh));
+        editorRegionX.setValue(newX, true);
+        editorRegionY.setValue(newY, true);
+        editorRegionWidth.setValue(newWidth, true);
+        editorRegionHeight.setValue(newHeight, true);
     }
 
     @Override
@@ -427,6 +488,39 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
             case BOTTOM_RIGHT: {
                 newW = startRegionW + dxPx;
                 newH = startRegionH + dyPx;
+                break;
+            }
+            case TOP: {
+                newY = startRegionY + dyPx;
+                newH = startRegionH - (newY - startRegionY);
+                break;
+            }
+            case BOTTOM: {
+                newH = startRegionH + dyPx;
+                break;
+            }
+            case LEFT: {
+                newX = startRegionX + dxPx;
+                newW = startRegionW - (newX - startRegionX);
+                break;
+            }
+            case RIGHT: {
+                newW = startRegionW + dxPx;
+                break;
+            }
+            case MOVE_WHOLE: {
+                // Move the entire region while keeping its size; clamp so size doesn't shrink at edges
+                int sw = optionCategory.getScreenWidth();
+                int sh = optionCategory.getScreenHeight();
+                int targetX = startRegionX + dxPx;
+                int targetY = startRegionY + dyPx;
+                // clamp to keep full region inside bounds
+                targetX = Math.max(0, Math.min(sw - startRegionW, targetX));
+                targetY = Math.max(0, Math.min(sh - startRegionH, targetY));
+                newX = targetX;
+                newY = targetY;
+                newW = startRegionW;
+                newH = startRegionH;
                 break;
             }
             case NONE:

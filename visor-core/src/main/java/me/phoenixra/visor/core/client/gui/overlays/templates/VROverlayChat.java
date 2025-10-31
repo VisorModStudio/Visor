@@ -84,18 +84,22 @@ public class VROverlayChat extends VROverlayTemplateScreen {
                 new OverlayOptionsPose(
                         this,
                         it->{
-                            it.setTickModelView(true);
-                            it.setAimRotation(false);
+                            it.setTickPose(true);
+                            it.setAimedRotation(false);
 
                             it.setPositionAnchor(PoseAnchor.OFFHAND);
-                            it.setFormulaPosX("-0.15 * %main_hand%");
-                            it.setFormulaPosY("0.06");
-                            it.setFormulaPosZ("-0.13 * %main_hand% + (0.06 * %right_handed%)");
+                            it.setPositionOffset(
+                                    -0.15f,
+                                    0.06f,
+                                    -0.13f + 0.06f
+                            );
                             it.setRotationAnchor(PoseAnchor.OFFHAND);
-                            it.setFormulaRotationX("-pi/2 * %main_hand%");
-                            it.setFormulaRotationY("pi/2 * %main_hand%");
-                            it.setFormulaRotationZ("pi * %left_handed%");
-                            it.setFormulaScale("0.5");
+                            it.setRotationOffset(
+                                    (float) (-Math.PI / 2),
+                                    (float) (Math.PI / 2),
+                                    0
+                            );
+                            it.setScale(0.5f);
                         }
 
                 )
