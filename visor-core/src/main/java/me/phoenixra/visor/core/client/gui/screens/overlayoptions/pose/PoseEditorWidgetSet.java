@@ -124,13 +124,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setPositionOffsetX).build();
         xPositionEditor.initWidgets();
@@ -145,13 +145,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setPositionOffsetY).build();
         yPositionEditor.initWidgets();
@@ -166,13 +166,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setPositionOffsetZ).build();
         zPositionEditor.initWidgets();
@@ -188,13 +188,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setRotationOffsetX).build();
         xRotationEditor.initWidgets();
@@ -209,13 +209,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setRotationOffsetY).build();
         yRotationEditor.initWidgets();
@@ -230,13 +230,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setRotationOffsetZ).build();
         zRotationEditor.initWidgets();
@@ -253,13 +253,13 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.BLACK_TEXTURE)
         ).leftArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_LEFT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).rightArrow(
                 new WidgetInfoValueDrag()
-                        .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                        .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
+                        .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
         ).setResponder(optionsPose::setScale).build();
         scaleEditor.initWidgets();
@@ -305,27 +305,27 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "X",
-                    AtumColor.WHITE.toInt(),
-                    startX + 24, startY + 22,
-                    93, 9,
+                    AtumColor.LIGHT_GRAY.toInt(),
+                    startX + 24, startY + 23,
+                    93, 8,
                     true
             );
             GuiHelper.renderScalableText(
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "Y",
-                    AtumColor.WHITE.toInt(),
-                    startX + 24, startY + 46,
-                    93, 9,
+                    AtumColor.LIGHT_GRAY.toInt(),
+                    startX + 24, startY + 47,
+                    93, 8,
                     true
             );
             GuiHelper.renderScalableText(
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "Z",
-                    AtumColor.WHITE.toInt(),
-                    startX + 24, startY + 70,
-                    93, 9,
+                    AtumColor.LIGHT_GRAY.toInt(),
+                    startX + 24, startY + 71,
+                    93, 8,
                     true
             );
         }

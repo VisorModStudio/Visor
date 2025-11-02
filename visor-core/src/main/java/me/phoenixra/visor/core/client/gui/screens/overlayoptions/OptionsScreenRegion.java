@@ -3,16 +3,21 @@ package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsScreenRegion;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
 import me.phoenixra.visor.api.client.gui.widgets.sets.ValueEditorInt;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
@@ -21,7 +26,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     private static final int ROW2_Y = 60;
 
     // Layout gaps
-    private static final int IN_GROUP_GAP = 4;
+    private static final int IN_GROUP_GAP = 10;
     private static final int BETWEEN_GROUPS_GAP = 20;
 
     private static final int PREVIEW_MARGIN = 8;
@@ -60,11 +65,18 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     private int startRegionW;
     private int startRegionH;
 
+    private int previewRegionStartY;
 
     private ValueEditorInt editorRegionX;
     private ValueEditorInt editorRegionY;
     private ValueEditorInt editorRegionWidth;
     private ValueEditorInt editorRegionHeight;
+
+
+    private int lastX = 0;
+    private int lastY = 0;
+    private int lastWidth = 0;
+    private int lastHeight = 0;
 
     public OptionsScreenRegion(@NotNull OverlayOptionsScreenRegion optionCategory) {
         super(optionCategory, Background.VERTICAL_WIDER);
@@ -76,10 +88,12 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         int fieldWidth = (cursorBoundsWidth - 30) / 2;
         int fieldX = cursorBoundsX + (cursorBoundsWidth - fieldWidth) / 2;
 
-        int yStart = cursorBoundsY + 15;
+        int yStart = cursorBoundsY + 20;
         int yRegionY = yStart + FIELD_HEIGHT + IN_GROUP_GAP;
         int yRegionWidth = yRegionY + FIELD_HEIGHT + BETWEEN_GROUPS_GAP;
         int yRegionHeight = yRegionWidth + FIELD_HEIGHT + IN_GROUP_GAP;
+
+        this.previewRegionStartY = yRegionHeight + FIELD_HEIGHT;
 
         this.editorRegionX = new ValueEditorInt.Builder(
                 optionCategory.getRegionX(),
@@ -95,13 +109,27 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.x")))
                 ).leftArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                                .setTexture(OptionTextures.ARROW_GRAY_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).rightArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
-                ).setResponder(optionCategory::setRegionX)
+                                .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder((newRegionX)->{
+                    int maxWidth = optionCategory.getScreenWidth();
+                    int currentWidth = optionCategory.getRegionWidth();
+                    int clamped = Mth.clamp(
+                            currentWidth,
+                            0,
+                            maxWidth - newRegionX
+                    );
+
+                    if (clamped != currentWidth) {
+                        editorRegionWidth.setValue(clamped, true);
+                        optionCategory.setRegionWidth(clamped);
+                    }
+                    optionCategory.setRegionX(newRegionX);
+                })
                 .build();
 
         this.editorRegionY = new ValueEditorInt.Builder(
@@ -118,13 +146,27 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.y")))
                 ).leftArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                                .setTexture(OptionTextures.ARROW_GRAY_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).rightArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
-                ).setResponder(optionCategory::setRegionY)
+                                .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder((newRegionY)->{
+                    int maxHeight = optionCategory.getScreenHeight();
+                    int currentHeight = optionCategory.getRegionHeight();
+                    int clamped = Mth.clamp(
+                            currentHeight,
+                            0,
+                            maxHeight - newRegionY
+                    );
+
+                    if (clamped != currentHeight) {
+                        editorRegionHeight.setValue(clamped, true);
+                        optionCategory.setRegionHeight(clamped);
+                    }
+                    optionCategory.setRegionY(newRegionY);
+                })
                 .build();
 
         this.editorRegionWidth = new ValueEditorInt.Builder(
@@ -141,13 +183,26 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.width")))
                 ).leftArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                                .setTexture(OptionTextures.ARROW_GRAY_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).rightArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
-                ).setResponder(optionCategory::setRegionWidth)
+                                .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder((newRegionWidth)->{
+                    int maxWidth = optionCategory.getScreenWidth();
+                    int regionX = optionCategory.getRegionX();
+                    int clamped = Mth.clamp(
+                            newRegionWidth,
+                            1,
+                            maxWidth - regionX
+                    );
+
+                    if (clamped != newRegionWidth) {
+                        editorRegionWidth.setValue(clamped, true);
+                    }
+                    optionCategory.setRegionWidth(clamped);
+                })
                 .build();
 
         this.editorRegionHeight = new ValueEditorInt.Builder(
@@ -157,22 +212,39 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 fieldWidth,
                 FIELD_HEIGHT
         ).range(
-                        0, optionCategory.getScreenHeight()
+                0, optionCategory.getScreenHeight()
                 ).editBox(
                         new WidgetInfoEditBox()
                                 .setTexture(OptionTextures.GRAY_TEXTURE)
                                 .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.screen_region.height")))
                 ).leftArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_LEFT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
+                                .setTexture(OptionTextures.ARROW_GRAY_LEFT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).rightArrow(
                         new WidgetInfoValueDrag()
-                                .setTexture(OptionTextures.ARROW_BUTTON_RIGHT)
-                                .highlight(OptionTextures.HOVERED_HIGHLIGHT)
-                ).setResponder(optionCategory::setRegionHeight)
+                                .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
+                                .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
+                ).setResponder((newRegionHeight)->{
+                    int maxHeight = optionCategory.getScreenHeight();
+                    int regionY = optionCategory.getRegionY();
+                    int clamped = Mth.clamp(
+                            newRegionHeight,
+                            1,
+                            maxHeight - regionY
+                    );
+
+                    if (clamped != newRegionHeight) {
+                        editorRegionHeight.setValue(clamped, true);
+                    }
+                    optionCategory.setRegionHeight(clamped);
+                })
                 .build();
 
+        lastX = optionCategory.getRegionX();
+        lastY = optionCategory.getRegionY();
+        lastWidth = optionCategory.getRegionWidth();
+        lastHeight = optionCategory.getRegionHeight();
         editorRegionX.initWidgets().forEach(this::addRenderableWidget);
         editorRegionY.initWidgets().forEach(this::addRenderableWidget);
         editorRegionWidth.initWidgets().forEach(this::addRenderableWidget);
@@ -181,6 +253,30 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
     @Override
     public void tick() {
+        int regionX = editorRegionX.getValue();
+        int regionY = editorRegionY.getValue();
+        int regionWidth = editorRegionWidth.getValue();
+        int regionHeight = editorRegionHeight.getValue();
+        if(lastX != regionX
+                || lastY != regionY
+                || lastWidth != regionWidth
+                || lastHeight != regionHeight){
+            var pose = optionCategory.getOwner().getOption(
+                    OverlayOptionsPose.ID, OverlayOptionsPose.class
+            );
+            if(pose != null){
+                float factor = (float) Math.sqrt(
+                        (regionWidth/(double)lastWidth)
+                                * (regionHeight/(double)lastHeight)
+                );
+                pose.setScale(pose.getScale() * factor);
+            }
+            lastX = optionCategory.getRegionX();
+            lastY = optionCategory.getRegionY();
+            lastWidth = optionCategory.getRegionWidth();
+            lastHeight = optionCategory.getRegionHeight();
+
+        }
         editorRegionX.onTick();
         editorRegionY.onTick();
         editorRegionWidth.onTick();
@@ -189,7 +285,55 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
     @Override
     protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        int editBoxWidth = (cursorBoundsWidth - 30) / 2;
+        int startPosX = cursorBoundsX + (cursorBoundsWidth - editBoxWidth) / 2;
 
+        int textHeight = 8;
+        int fieldWidth = (cursorBoundsWidth - 30) / 2;
+
+        int xFieldPosY = cursorBoundsY + 12;
+        int yFieldPosY = xFieldPosY + FIELD_HEIGHT + IN_GROUP_GAP;
+
+        int widthFieldPosY = yFieldPosY + FIELD_HEIGHT + BETWEEN_GROUPS_GAP;
+        int heightFieldPosY = widthFieldPosY + FIELD_HEIGHT + IN_GROUP_GAP;
+
+        GuiHelper.renderScalableText(
+                guiGraphics,
+                Minecraft.getInstance().font,
+                "x",
+                AtumColor.LIGHT_GRAY.toInt(),
+                startPosX, xFieldPosY,
+                fieldWidth, textHeight,
+                true
+        );
+        GuiHelper.renderScalableText(
+                guiGraphics,
+                Minecraft.getInstance().font,
+                "y",
+                AtumColor.LIGHT_GRAY.toInt(),
+                startPosX, yFieldPosY,
+                fieldWidth, textHeight,
+                true
+        );
+
+        GuiHelper.renderScalableText(
+                guiGraphics,
+                Minecraft.getInstance().font,
+                "w",
+                AtumColor.LIGHT_GRAY.toInt(),
+                startPosX, widthFieldPosY,
+                fieldWidth, textHeight,
+                true
+        );
+        GuiHelper.renderScalableText(
+                guiGraphics,
+                Minecraft.getInstance().font,
+                "h",
+                AtumColor.LIGHT_GRAY.toInt(),
+                startPosX, heightFieldPosY,
+                fieldWidth, textHeight,
+                true
+        );
     }
 
     @Override
@@ -210,11 +354,11 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 : width - PREVIEW_MARGIN;
 
         // Make sure preview top is below the input rows
-        int fieldsBottom = ROW2_Y + FIELD_HEIGHT;
+
         int bgTop = (background != Background.EMPTY && background.getTexture() != null)
                 ? cursorBoundsY + PREVIEW_MARGIN
                 : PREVIEW_MARGIN;
-        int top = Math.max(bgTop, fieldsBottom + PREVIEW_MARGIN);
+        int top = Math.max(bgTop, previewRegionStartY + PREVIEW_MARGIN);
 
         int bottom = (background != Background.EMPTY && background.getTexture() != null)
                 ? cursorBoundsY + cursorBoundsHeight - PREVIEW_MARGIN

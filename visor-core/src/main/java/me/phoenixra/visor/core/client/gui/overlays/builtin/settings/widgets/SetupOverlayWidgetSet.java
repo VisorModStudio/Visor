@@ -334,12 +334,36 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                     widgetInfo.setTexture(
                             SettingsTextures.BUTTON_SAVE_WARNING
                     );
+                    saveButtonWidget.setTooltip(
+                            Tooltip.create(
+                                    Component.translatable(
+                                            "visor.overlay.options.main.overlays.save.tooltip_not_saved"
+                                    )
+                            )
+                    );
+                    copyButtonWidget.setTooltip(
+                            Tooltip.create(
+                                    Component.translatable(
+                                            "visor.overlay.options.main.overlays.copy.tooltip_not_saved"
+                                    )
+                            )
+                    );
+                    pasteButtonWidget.setTooltip(
+                            Tooltip.create(
+                                    Component.translatable(
+                                            "visor.overlay.options.main.overlays.paste.tooltip_not_saved"
+                                    )
+                            )
+                    );
                 }else{
                     widgetInfo.getTextSizeOffset().x = 0;
                     widgetInfo.getTextPosOffset().x = 0;
                     widgetInfo.setTexture(
                             OptionTextures.BLACK_TEXTURE
                     );
+                    saveButtonWidget.setTooltip(null);
+                    copyButtonWidget.setTooltip(null);
+                    pasteButtonWidget.setTooltip(null);
                 }
             }
         }

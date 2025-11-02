@@ -124,31 +124,22 @@
   "_comment15": "*--------OVERLAYS--------*",
   "visor.overlay.game_screen.name": "Game Screen",
   "visor.overlay.game_screen.description": "Minecraft screen as overlay",
-
   "visor.overlay.hotbar_mainhand.name": "Hotbar Main",
   "visor.overlay.hotbar_mainhand.description": "Hotbar for the main hand",
-
   "visor.overlay.hotbar_offhand.name": "Hotbar Offhand",
   "visor.overlay.hotbar_offhand.description": "Hotbar for the offhand",
-
   "visor.overlay.keyboard.name": "Keyboard",
   "visor.overlay.keyboard.description": "VR keyboard",
-
   "visor.overlay.third_person_camera.name": "Third Person Camera",
   "visor.overlay.third_person_camera.description": "Simple image positioned at third person camera location",
-
   "visor.overlay.demo.name": "Demo overlay",
   "visor.overlay.demo.description": "Displays demo version of an overlay. Used in some overlay options",
-
   "visor.overlay.options_menu.name": "Options menu",
   "visor.overlay.options_menu.description": "Options menu for overlay settings",
-
   "visor.overlay.settings.name": "Overlay Settings",
   "visor.overlay.settings.description": "Create and setup overlays",
-
   "visor.overlay.template.hud.name": "HUD",
   "visor.overlay.template.hud.description": "Vanilla HUD",
-
   "visor.overlay.template.chat.name": "Chat",
   "visor.overlay.template.chat.description": "Vanilla chat",
 
@@ -163,9 +154,12 @@
   "visor.overlay.options.main.overlays.options_not_found": "Options not found",
   "visor.overlay.options.main.overlays.select_options": "Select options",
   "visor.overlay.options.main.overlays.save": "Save",
+  "visor.overlay.options.main.overlays.save.tooltip_not_saved": "§eChanges not saved",
   "visor.overlay.options.main.overlays.copy_options.tooltip": "Copy options",
   "visor.overlay.options.main.overlays.paste_options.tooltip": "Paste options",
   "visor.overlay.options.main.overlays.load.tooltip": "Load options from file",
+  "visor.overlay.options.main.overlays.copy.tooltip_not_saved": "§cChanges not saved",
+  "visor.overlay.options.main.overlays.paste.tooltip_not_saved": "§cChanges not saved",
   "visor.overlay.options.main.overlays.filters.addons": "Addons",
   "visor.overlay.options.main.overlays.filters.main": "Main",
   "visor.overlay.options.main.overlays.filters.main.custom_only": "Custom only",
@@ -200,7 +194,6 @@
   "visor.overlay.options.screen_region.width": "region width",
   "visor.overlay.options.screen_region.height": "region height",
 
-  "visor.overlay.options.general": "General",
 
   "visor.overlay.options.misc": "Miscellaneous",
   "visor.overlay.options.misc.overlay_scale": "Specify Overlay Scale",
@@ -208,7 +201,7 @@
   "visor.overlay.options.misc.update_options.tooltip": "If should update options data. Use it if your overlay requires to update state of options, for example position/location formulas that have placeholders ",
 
 
-  "visor.overlay.options.pose": "Pose",
+  "visor.overlay.options.pose": "Pose & Scale",
   "visor.overlay.options.pose.demo.tooltip": "Demo overlay on/off",
   "visor.overlay.options.pose.teleport.tooltip": "Teleport demo overlay near your HMD",
   "visor.overlay.options.pose.emulation.tooltip": "Emulation on/off\n§7Emulate pose on demo overlay",

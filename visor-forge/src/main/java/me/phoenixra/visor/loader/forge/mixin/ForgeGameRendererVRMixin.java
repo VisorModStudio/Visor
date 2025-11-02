@@ -18,7 +18,8 @@ public class ForgeGameRendererVRMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setAnglesInternal(FF)V", remap = false), method = "renderLevel")
     public void removeAnglesInternal(Camera camera, float yaw, float pitch) {
-        if (!VRRenderState.getCurrentVRDisplay().isEye()) {
+        if (VRRenderState.getCurrentPhase().isVanilla()
+                || !VRRenderState.getCurrentVRDisplay().isEye()) {
             camera.setAnglesInternal(yaw, pitch);
         }
 
@@ -26,7 +27,8 @@ public class ForgeGameRendererVRMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2), method = "renderLevel")
     public void removeMulPosXRotation(PoseStack poseStack, Quaternionf quaternion) {
-        if (!VRRenderState.getCurrentVRDisplay().isEye()) {
+        if (VRRenderState.getCurrentPhase().isVanilla()
+                || !VRRenderState.getCurrentVRDisplay().isEye()) {
             poseStack.mulPose(quaternion);
         }
     }

@@ -34,6 +34,9 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
     @Getter
     @Accessors(chain = true)
     private AtumColor highlightHovered = AtumColor.WHITE;
+    @Getter
+    @Accessors(chain = true)
+    private AtumColor highlightDragged = AtumColor.WHITE;
 
     @Setter @Getter
     @Accessors(chain = true)
@@ -60,8 +63,10 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
 
 
     private int highlightHoveredInt = AtumColor.WHITE.toInt();
+    private int highlightDraggedInt = AtumColor.WHITE.toInt();
 
     private int highlightCornerHoveredInt = AtumColor.WHITE.toInt();
+    private int highlightCornerDraggedInt = AtumColor.WHITE.toInt();
 
     public WidgetInfoValueDrag(@NotNull WidgetInfoValueDrag copyFrom) {
         super(copyFrom);
@@ -94,14 +99,18 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
 
 
     public WidgetInfoValueDrag highlight(AtumColor hovered,
-                                      float thickness){
+                                         AtumColor dragged,
+                                         float thickness){
         return setHighlightEnabled(true)
                 .setHighlightHovered(hovered)
+                .setHighlightDragged(dragged)
                 .setHighlightThickness(thickness);
     }
-    public WidgetInfoValueDrag highlight(AtumColor hovered){
+    public WidgetInfoValueDrag highlight(AtumColor hovered,
+                                         AtumColor dragged){
         return setHighlightEnabled(true)
-                .setHighlightHovered(hovered);
+                .setHighlightHovered(hovered)
+                .setHighlightDragged(dragged);
     }
 
     public WidgetInfoValueDrag setHighlightHovered(AtumColor color) {
@@ -110,20 +119,32 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
         this.highlightCornerHoveredInt = color.lighten(0.25f).toInt();
         return this;
     }
+    public WidgetInfoValueDrag setHighlightDragged(AtumColor color) {
+        this.highlightDragged = color;
+        this.highlightDraggedInt = color.toInt();
+        this.highlightCornerDraggedInt = color.lighten(0.25f).toInt();
+        return this;
+    }
 
     public void drawHighlight(GuiGraphics guiGraphics,
                               int x, int y, int width, int height,
                               boolean active,
-                              boolean hovered) {
+                              boolean hovered,
+                              boolean dragged) {
         if (!highlightEnabled) return;
-        if (!hovered || !active) return;
+        if (!active) return;
+        if(!hovered && !dragged) return;
 
         // Choose base color based on state
         int baseColor;
         int cornerColor;
 
-        baseColor = highlightHoveredInt;
-        cornerColor = highlightCornerHoveredInt;
+        baseColor = hovered
+                ? highlightHoveredInt
+                : highlightDraggedInt;
+        cornerColor = hovered
+                ? highlightCornerHoveredInt
+                : highlightCornerDraggedInt;
 
 
 

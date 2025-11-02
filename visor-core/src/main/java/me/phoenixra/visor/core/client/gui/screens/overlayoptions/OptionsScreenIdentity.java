@@ -7,6 +7,8 @@ import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.iden
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Consumer;
+
 @Getter
 public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity> {
 
@@ -31,6 +33,10 @@ public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity>
         widgetSet.getDescriptionWidget().setValue(optionCategory.getRawDescription());
         widgetSet.getDescriptionWidget().setResponder(optionCategory::setDescription);
 
+        Consumer<String> responder = (text) -> {
+
+        };
+        responder.accept("newText");
         widgetSet.getSetupIconWidget().setIconPath(optionCategory.getRawIcon());
         widgetSet.getSetupIconWidget().setResponder(optionCategory::setIcon);
 

@@ -46,10 +46,10 @@ public class VROverlayDemo extends VROverlayScreen {
     private PoseAnchor movingByAnchor;
 
     private float overlayScale = 1.0f;
+
     public VROverlayDemo(@NotNull VisorAddon owner,
                          @NotNull String id) {
         super(owner, id, ElementPriority.HIGHEST, 1.0f);
-
     }
 
 
@@ -87,39 +87,25 @@ public class VROverlayDemo extends VROverlayScreen {
 
 
     }
-    private void renderOutline(GuiGraphics guiGraphics,
-                               int x, int y,
-                               int width, int height,
-                               int color){
-        int endX = x+width;
-        int endY = y+height;
-        // Top edge
-        guiGraphics.fill(
-                x, y,
-                endX, y+EDGE_LINE_SIZE,
-                color
-        );
-        // Bottom edge
-        guiGraphics.fill(
-                x, endY - EDGE_LINE_SIZE,
-                endX, endY,
-                color
-        );
-        // Left edge
-        guiGraphics.fill(
-                x, y+EDGE_LINE_SIZE,
-                x+EDGE_LINE_SIZE, endY - EDGE_LINE_SIZE,
-                color
-        );
-        // Right edge
-        guiGraphics.fill(
-                endX - EDGE_LINE_SIZE, y+EDGE_LINE_SIZE,
-                endX, endY - EDGE_LINE_SIZE,
-                color
-        );
+
+
+    @Override
+    protected void onTick() {
+        if(target == null){
+            return;
+        }
+        if(target instanceof VROverlayScreen overlayScreen){
+            cursorBoundsX = overlayScreen.getCursorBoundsX();
+            cursorBoundsY = overlayScreen.getCursorBoundsY();
+            cursorBoundsWidth = overlayScreen.getCursorBoundsWidth();
+            cursorBoundsHeight = overlayScreen.getCursorBoundsHeight();
+        }else{
+            cursorBoundsX = -1;
+            cursorBoundsY = -1;
+            cursorBoundsWidth = -1;
+            cursorBoundsHeight = -1;
+        }
     }
-
-
 
     @Override
     public void onUpdatePose(float partialTicks) {
@@ -178,6 +164,8 @@ public class VROverlayDemo extends VROverlayScreen {
         appliedPose = false;
     }
 
+
+
     public void showDemo(@NotNull VROverlay overlay){
         setEnabled(false);
 
@@ -187,20 +175,10 @@ public class VROverlayDemo extends VROverlayScreen {
 
         overlayScale = target.getPose().getScale();
 
-        if(target instanceof VROverlayScreen overlayScreen){
-            cursorBoundsX = overlayScreen.getCursorBoundsX();
-            cursorBoundsY = overlayScreen.getCursorBoundsY();
-            cursorBoundsWidth = overlayScreen.getCursorBoundsWidth();
-            cursorBoundsHeight = overlayScreen.getCursorBoundsHeight();
-        }else{
-            cursorBoundsX = -1;
-            cursorBoundsY = -1;
-            cursorBoundsWidth = -1;
-            cursorBoundsHeight = -1;
-        }
 
         setEnabled(targetPoseOptions != null);
     }
+
 
     public void teleportToHMD(){
         if(!isEnabled()) return;
@@ -297,6 +275,39 @@ public class VROverlayDemo extends VROverlayScreen {
         targetPoseOptions.update(true);
 
     }
+
+    private void renderOutline(GuiGraphics guiGraphics,
+                               int x, int y,
+                               int width, int height,
+                               int color){
+        int endX = x+width;
+        int endY = y+height;
+        // Top edge
+        guiGraphics.fill(
+                x, y,
+                endX, y+EDGE_LINE_SIZE,
+                color
+        );
+        // Bottom edge
+        guiGraphics.fill(
+                x, endY - EDGE_LINE_SIZE,
+                endX, endY,
+                color
+        );
+        // Left edge
+        guiGraphics.fill(
+                x, y+EDGE_LINE_SIZE,
+                x+EDGE_LINE_SIZE, endY - EDGE_LINE_SIZE,
+                color
+        );
+        // Right edge
+        guiGraphics.fill(
+                endX - EDGE_LINE_SIZE, y+EDGE_LINE_SIZE,
+                endX, endY - EDGE_LINE_SIZE,
+                color
+        );
+    }
+
 
 
     public boolean isMovingByAnchor(){

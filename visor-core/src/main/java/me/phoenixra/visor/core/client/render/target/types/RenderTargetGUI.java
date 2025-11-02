@@ -122,6 +122,19 @@ public class RenderTargetGUI implements RenderTargetHolder {
         }else if(renderTarget != null && !visible){
             renderTarget.destroyBuffers();
             overlayTargets.put(overlayScreen, null);
+        }else if(renderTarget != null){
+            int neededWidth = overlayScreen.getRequestedWidth();
+            int neededHeight = overlayScreen.getRequestedHeight();
+            if(neededWidth != renderTarget.width
+                    || neededHeight != renderTarget.height){
+                renderTarget.destroyBuffers();
+                renderTarget.resize(
+                        neededWidth,
+                        neededHeight,
+                        Minecraft.ON_OSX
+                );
+                overlayScreen.updateSize();
+            }
         }
         overlayScreen.setRenderTarget(
                 overlayTargets.get(overlayScreen)

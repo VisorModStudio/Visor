@@ -64,20 +64,33 @@ public interface OptionTextures {
             AtumColor.immutable(190,190,190,255)
     );
 
-    GuiTexture ARROW_BUTTON_LEFT = new GuiTexture(
+    GuiTexture ARROW_BLACK_LEFT = new GuiTexture(
             RESOURCE_2,
             0, 140,
             13, 13,
             TEX_WIDTH_2, TEX_HEIGHT_2
     );
 
-    GuiTexture ARROW_BUTTON_RIGHT = new GuiTexture(
+    GuiTexture ARROW_BLACK_RIGHT = new GuiTexture(
             RESOURCE_2,
             15, 140,
             13, 13,
             TEX_WIDTH_2, TEX_HEIGHT_2
     );
 
+    GuiTexture ARROW_GRAY_LEFT = new GuiTexture(
+            RESOURCE_2,
+            30, 140,
+            13, 13,
+            TEX_WIDTH_2, TEX_HEIGHT_2
+    );
+
+    GuiTexture ARROW_GRAY_RIGHT = new GuiTexture(
+            RESOURCE_2,
+            45, 140,
+            13, 13,
+            TEX_WIDTH_2, TEX_HEIGHT_2
+    );
 
 
 }

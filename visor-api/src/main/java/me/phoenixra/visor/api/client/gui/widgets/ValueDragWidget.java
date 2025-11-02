@@ -3,6 +3,7 @@ package me.phoenixra.visor.api.client.gui.widgets;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
+import me.phoenixra.visor.api.client.input.InputHelper;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
@@ -13,10 +14,11 @@ public class ValueDragWidget extends AbstractWidget {
     @Getter
     private final WidgetInfoValueDrag widgetInfo;
 
-    private boolean dragging = false;
     private double dragStartMouseX = 0.0;
     private double startValue = 0.0;
 
+    private long lastDragCall = -1;
+    private boolean dragging = false;
     public ValueDragWidget(WidgetInfoValueDrag widgetInfo) {
         super(widgetInfo.getX(),
                 widgetInfo.getY(),
@@ -30,6 +32,7 @@ public class ValueDragWidget extends AbstractWidget {
     @Override
     public void onClick(double mouseX, double mouseY) {
         this.dragging = true;
+        this.lastDragCall = System.currentTimeMillis();
         this.dragStartMouseX = mouseX;
         this.startValue = widgetInfo.getAdapter().get();
     }
@@ -42,6 +45,8 @@ public class ValueDragWidget extends AbstractWidget {
     @Override
     protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
         if (!dragging) return;
+
+        lastDragCall = System.currentTimeMillis();
 
         double dx = mouseX - dragStartMouseX;
         double delta = dx * widgetInfo.getSensitivity();
@@ -65,6 +70,9 @@ public class ValueDragWidget extends AbstractWidget {
     protected void renderWidget(GuiGraphics guiGraphics,
                                 int mouseX, int mouseY,
                                 float partialTick) {
+        if(dragging && lastDragCall + 150 < System.currentTimeMillis()){
+            dragging = false;
+        }
         GuiTexture texture;
         if(!active){
 
@@ -96,7 +104,8 @@ public class ValueDragWidget extends AbstractWidget {
                 guiGraphics,
                 getX(), getY(),
                 getWidth(), getHeight(),
-                active, isHovered
+                active, isHovered,
+                dragging
         );
 
 

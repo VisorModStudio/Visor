@@ -92,6 +92,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
         int oldValue = regionX;
         regionX = Mth.clamp(value, 0, screenWidth);
         if(oldValue != regionX){
+            regionWidth = Mth.clamp(regionWidth, 1, screenWidth - regionX);
             changesNotSaved = true;
         }
     }
@@ -100,13 +101,14 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
         int oldValue = regionY;
         regionY = Mth.clamp(value, 0, screenHeight);
         if(oldValue != regionY){
+            regionHeight = Mth.clamp(regionHeight,1, screenHeight - regionY);
             changesNotSaved = true;
         }
     }
 
     public void setRegionWidth(int value) {
         int oldValue = regionWidth;
-        regionWidth = Mth.clamp(value, 1, screenWidth);
+        regionWidth = Mth.clamp(value, 1, screenWidth - regionX);
         if(oldValue != regionWidth){
             changesNotSaved = true;
         }
@@ -114,7 +116,7 @@ public class OverlayOptionsScreenRegion extends OverlayOptionGroup<OverlayOption
 
     public void setRegionHeight(int value) {
         int oldValue = regionHeight;
-        regionHeight = Mth.clamp(value,1, screenHeight);
+        regionHeight = Mth.clamp(value,1, screenHeight - regionY);
         if(oldValue != regionHeight){
             changesNotSaved = true;
         }
