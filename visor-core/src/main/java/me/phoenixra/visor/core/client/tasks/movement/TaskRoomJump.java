@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement;
+package me.phoenixra.visor.core.client.tasks.movement;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.ClientFeature;

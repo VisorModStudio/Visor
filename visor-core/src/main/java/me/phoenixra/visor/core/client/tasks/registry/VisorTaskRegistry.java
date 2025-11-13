@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks;
+package me.phoenixra.visor.core.client.tasks.registry;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.ModLoader;

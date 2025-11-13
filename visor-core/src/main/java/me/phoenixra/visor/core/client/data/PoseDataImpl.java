@@ -176,6 +176,25 @@ public class PoseDataImpl implements PoseData {
         this.headPivot = calcHeadPivot();
     }
 
+    public Vector3f createNewHeadPivot(Vector3fc newOrigin, float newWorldScale) {
+        Vector3f hmdPosition = this.hmd.getPosition()
+                .add(
+                        newOrigin.x() - this.origin.x(),
+                        newOrigin.y() - this.origin.y(),
+                        newOrigin.z() - this.origin.z(),
+                        new Vector3f()
+                );
+        Vector3f headPivotOffset = this.hmd.getRotation()
+                .transformPosition(
+                        new Vector3f(
+                                0.0F,
+                                -0.1F * newWorldScale,
+                                0.1F * newWorldScale
+                        )
+                );
+        return hmdPosition.add(headPivotOffset);
+    }
+
     private float calcBodyYaw() {
         Vector3f bodyPos = this.controllerOffhand.getPosition()
                 .sub(this.controllerMain.getPosition(), new Vector3f())
@@ -194,7 +213,7 @@ public class PoseDataImpl implements PoseData {
     private Vector3f calcHeadPivot() {
         var hmdPosition = this.hmd.getPosition();
         Vector3f transform = this.hmd.getRotation()
-                .transformDirection(
+                .transformPosition(
                         new Vector3f(
                                 0.0F,
                                 -0.1F * worldScale,
@@ -208,11 +227,14 @@ public class PoseDataImpl implements PoseData {
         );
     }
 
+
     protected void resetOrigin(Vector3fc newOrigin){
         this.origin = newOrigin;
         elements.forEach(
                 it->it.onOriginChanged(this.origin)
         );
+        this.headPivot = calcHeadPivot();
+        this.bodyYaw = calcBodyYaw();
     }
 
 
@@ -289,6 +311,8 @@ public class PoseDataImpl implements PoseData {
                 .mul(rotationMatrix);
 
     }
+
+
 
 
     @Override

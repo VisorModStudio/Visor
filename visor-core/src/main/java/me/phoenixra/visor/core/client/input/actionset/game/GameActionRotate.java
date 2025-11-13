@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.types.movement.TaskInputRotation;
+import me.phoenixra.visor.core.client.tasks.movement.TaskInputRotation;
 import org.joml.Vector2f;
 
 import java.util.Map;

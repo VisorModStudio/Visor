@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends Screen {
-    protected final T optionCategory;
+    protected final T optionsGroup;
     protected Background background;
 
 
@@ -18,10 +18,10 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends Scr
     protected int cursorBoundsWidth = -1;
     protected int cursorBoundsHeight = -1;
 
-    protected OptionsScreen(@NotNull T optionGroup,
+    protected OptionsScreen(@NotNull T optionsGroup,
                             @NotNull Background background) {
         super(Component.empty());
-        this.optionCategory = optionGroup;
+        this.optionsGroup = optionsGroup;
         this.background = background;
     }
 

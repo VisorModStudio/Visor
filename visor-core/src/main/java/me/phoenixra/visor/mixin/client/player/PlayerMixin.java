@@ -27,7 +27,8 @@ public abstract class PlayerMixin extends LivingEntity {
      * @param z s
      * @return s
      */
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"), method = "maybeBackOffFromEdge")
+    @Redirect( method = "maybeBackOffFromEdge",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"))
     private AABB visor$moveSidewaysExtendDown(AABB instance,
                                              double x,
                                              double y,

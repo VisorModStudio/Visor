@@ -7,92 +7,85 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
-import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
-import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class TextBoxEditable extends AbstractWidget {
     private static final int CURSOR_INSERT_COLOR = -3092272;
-    private static final int LINE_PADDING = 2;
-
-    private static final Pattern TOKEN_SPLIT = Pattern.compile("\\s+|\\S+");
-
-    protected final GuiTexture background;
-    protected final GuiTexture textureScrollBar;
-    protected final GuiTexture textureScrollBarActive;
-
-    protected final Font font;
-    protected final int textColor;
-    protected final int textHintColor;
-    protected final int highlightColor;
-    protected final float textScale;
-    protected final int paddingX;
-    protected final int paddingY;
-    protected final int scrollBarWidth;
-
-    @Getter
-    private String value = "";
-    private int maxLength;
+    private static final int SELECTION_COLOR = 0x803F6EFF;
 
     @Setter
-    @Nullable
-    private Component hint;
+    @Getter
+    private boolean readOnly = false;
     @Setter
     @Nullable
     private Consumer<String> responder;
-    @Setter
-    private Predicate<String> filter;
 
-    @Getter
-    private boolean readOnly = false;
+    private int frame = 0;
 
-    private final List<String> textLines = new ArrayList<>();
-    private final List<Integer> lineStartIndices = new ArrayList<>();
+    protected final GuiTexture background;
+    protected final Font font;
+    protected final int textColor;
+    protected final float textScale;
+    protected final int paddingX = 4;
+    protected final int paddingY = 4;
+
+    private List<String> lines = new ArrayList<>(Collections.singletonList(""));
+
+    private List<VisualLine> visualLines = new ArrayList<>();
+
     private int cursorLine = 0;
     private int cursorColumn = 0;
-    private int cursorPos;
-    private int selectionAnchor;
-    private boolean updateCursorCoordinates = true;
-    protected boolean recalculateLines = true;
+    private int anchorLine = 0;
+    private int anchorColumn = 0;
 
-    @Getter
-    protected int scrollOffset = 0; // Unscaled units (line height space)
-    protected int maxScrollOffset = 0; // Unscaled units
-    protected long lastScrollingCall = -1;
-    protected boolean scrolling = false;
+    private int cachedVisualLineIndex = 0;
 
-    // New: when dragging the thumb, remember where inside the thumb we grabbed
-    private int thumbGrabOffset = -1;
+    private int scrollOffset = 0;
 
-    private boolean shiftPressed;
-    private boolean followCaret = true; // auto-scroll to caret when caret moves
+    private int scrollBarWidth = 6;
+    private static final int SCROLLBAR_PADDING = 2;
+    private static final int SCROLLBAR_COLOR = 0xFF8B8B8B;
+    private static final int SCROLLBAR_HOVER_COLOR = 0xFFA0A0A0;
+    private static final int SCROLLBAR_DRAG_COLOR = 0xFFB8B8B8;
+    private static final int SCROLLBAR_BACKGROUND_COLOR = 0xFF3C3C3C;
 
-    private int frame;
+    private boolean isDraggingScrollbar = false;
+    private double dragStartY = 0;
+    private int dragStartOffset = 0;
+    private boolean scrollbarClicked = false;
+
+    private static class VisualLine {
+        final int logicalLineIndex;
+        final int startColumn;
+        final int endColumn;
+        final String text;
+
+        VisualLine(int logicalLineIndex, int startColumn, int endColumn, String text) {
+            this.logicalLineIndex = logicalLineIndex;
+            this.startColumn = startColumn;
+            this.endColumn = endColumn;
+            this.text = text;
+        }
+    }
 
     public TextBoxEditable(@NotNull WidgetInfoTextBoxEditable widgetInfo) {
-        super(widgetInfo.getX(),
+        super(
+                widgetInfo.getX(),
                 widgetInfo.getY(),
                 widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
@@ -100,51 +93,30 @@ public class TextBoxEditable extends AbstractWidget {
         );
 
         this.background = widgetInfo.getBackground();
-        this.textureScrollBar = widgetInfo.getTextureScrollBar();
-        this.textureScrollBarActive = widgetInfo.getTextureScrollBarActive();
-
         this.font = widgetInfo.getTextFont();
         this.textColor = widgetInfo.getTextColor().toInt();
-        this.textHintColor = widgetInfo.getTextHintColor().toInt();
-        this.highlightColor = widgetInfo.getHighlightColor().toInt();
         this.textScale = widgetInfo.getTextScale() <= 0f ? 1.0f : widgetInfo.getTextScale();
-        this.paddingX = 4;
-        this.paddingY = 4;
         this.scrollBarWidth = widgetInfo.getScrollBarWidth();
 
-        this.maxLength = widgetInfo.getMaxLength() > 0 ? widgetInfo.getMaxLength() : 32;
-        this.value = widgetInfo.getText() != null ? widgetInfo.getText().getString() : "";
-        this.hint = widgetInfo.getHint();
-        this.filter = Objects::nonNull;
-
-        this.cursorPos = 0;
-        this.selectionAnchor = this.cursorPos;
-    }
-
-    public void tick() {
-        ++this.frame;
-    }
-
-    private boolean caretVisible() {
-        return this.isFocused() && !this.readOnly;
+        if (widgetInfo.getText() != null) {
+            String text = widgetInfo.getText().getString();
+            this.lines = new ArrayList<>(Arrays.asList(text.split("\n")));
+            if (this.lines.isEmpty()) {
+                this.lines.add("");
+            }
+        }
+        rebuildLines();
     }
 
     @Override
     protected void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        calculateLines();
-        if (scrolling && lastScrollingCall + 200 < System.currentTimeMillis()) {
-            scrolling = false;
-            lastScrollingCall = -1;
-            thumbGrabOffset = -1;
-        }
-
         if (background != null) {
             background.blit(guiGraphics, getX(), getY(), width, height);
         }
 
         int textX = getX() + paddingX;
         int textY = getY() + paddingY;
-        int textMaxX = getX() + width - paddingX - scrollBarWidth;
+        int textMaxX = getX() + width - paddingX;
         int textMaxY = getY() + height - paddingY;
 
         guiGraphics.enableScissor(textX, textY, textMaxX, textMaxY);
@@ -154,836 +126,766 @@ public class TextBoxEditable extends AbstractWidget {
         poseStack.translate(textX, textY, 0);
         poseStack.scale(textScale, textScale, 1.0f);
 
-        int lineHeight = getLineHeight();
-        int lineY = -scrollOffset;
+        if (this.anchorLine != this.cursorLine || this.anchorColumn != this.cursorColumn) {
+            renderSelection(guiGraphics);
+        }
 
-        if (this.value.isEmpty()) {
-            if (this.hint != null && !this.isFocused()) {
-                guiGraphics.drawString(this.font, this.hint, 0, lineY, textHintColor);
-            } else if (caretVisible() && (this.frame / 6) % 2 == 0) {
-                guiGraphics.drawString(this.font, "_", 0, lineY, this.textColor);
-            }
-        } else {
-            if (updateCursorCoordinates) {
-                updateCursorCoordinates();
-            }
+        int lineHeight = this.font.lineHeight + 2;
 
-            int visibleHeightUnscaled = (int) ((textMaxY - textY) / textScale);
+        int visibleHeight = (int)((textMaxY - textY) / textScale);
+        int maxVisibleLines = visibleHeight / lineHeight;
+        int startLine = Math.max(0, scrollOffset);
+        int endLine = Math.min(visualLines.size(), scrollOffset + maxVisibleLines + 1);
 
-            for (int i = 0; i < textLines.size(); i++) {
-                if (lineY + lineHeight >= 0 && lineY <= visibleHeightUnscaled) {
-                    String lineText = textLines.get(i);
-                    FormattedCharSequence line = FormattedCharSequence.forward(lineText, Style.EMPTY);
+        for (int i = startLine; i < endLine; i++) {
+            VisualLine vLine = visualLines.get(i);
+            int yOffset = (i - scrollOffset) * lineHeight;
+            guiGraphics.drawString(this.font, vLine.text, 0, yOffset, textColor);
+        }
 
-                    guiGraphics.drawString(this.font, line, 0, lineY, this.textColor);
-
-                    if (!readOnly && isLineSelected(i)) {
-                        renderSelectionHighlight(guiGraphics, i, lineY, lineHeight);
-                    }
-
-                    if (caretVisible() && (this.frame / 6) % 2 == 0 && i == cursorLine) {
-                        int cursorX = getCursorPosX();
-                        int lineVisualEnd = getLineVisualEndIndex(i);
-
-                        boolean isCursorAtLineEnd = cursorPos == lineVisualEnd;
-
-                        if (isCursorAtLineEnd) {
-                            guiGraphics.drawString(this.font, "_", cursorX, lineY, this.textColor);
-                        } else {
-                            guiGraphics.fill(
-                                    RenderType.guiOverlay(),
-                                    cursorX,
-                                    lineY + LINE_PADDING,
-                                    cursorX + 1,
-                                    lineY + font.lineHeight + LINE_PADDING,
-                                    CURSOR_INSERT_COLOR
-                            );
-                        }
-                    }
-                }
-
-                lineY += lineHeight;
-            }
+        if (this.isFocused() && !this.readOnly && (this.frame / 10) % 2 == 0) {
+            renderCursor(guiGraphics);
         }
 
         poseStack.popPose();
         guiGraphics.disableScissor();
 
-        renderScrollBar(guiGraphics);
+        renderScrollbar(guiGraphics, mouseX, mouseY);
     }
 
-    protected void renderScrollBar(@NotNull GuiGraphics guiGraphics) {
-        if (maxScrollOffset <= 0) return;
+    private void renderSelection(GuiGraphics guiGraphics) {
+        int startLine = Math.min(anchorLine, cursorLine);
+        int endLine = Math.max(anchorLine, cursorLine);
+        int startColumn = (anchorLine < cursorLine || (anchorLine == cursorLine && anchorColumn < cursorColumn))
+                ? anchorColumn : cursorColumn;
+        int endColumn = (anchorLine < cursorLine || (anchorLine == cursorLine && anchorColumn < cursorColumn))
+                ? cursorColumn : anchorColumn;
 
-        int trackX = getScrollbarX();
-        int trackY = this.getY() + paddingY;
-        int trackHeight = this.height - paddingY * 2;
+        int lineHeight = this.font.lineHeight + 2;
 
-        int contentHeightUnscaled = this.textLines.size() * getLineHeight();
-        int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
+        for (int i = 0; i < visualLines.size(); i++) {
+            VisualLine vLine = visualLines.get(i);
 
-        if (contentHeightUnscaled <= 0 || trackHeight <= 0) return;
-
-        int thumbHeight = Math.max(
-                16,
-                Math.min(
-                        trackHeight,
-                        (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
-                )
-        );
-
-        int thumbY = trackY;
-        if (this.maxScrollOffset > 0) {
-            double ratio = (double) this.scrollOffset / (double) this.maxScrollOffset;
-            thumbY = trackY + (int) Math.round((trackHeight - thumbHeight) * ratio);
-        }
-
-        GuiTexture scrollBarTex = scrolling ? textureScrollBarActive : textureScrollBar;
-
-        if (scrollBarTex != null) {
-            scrollBarTex.blit(guiGraphics, trackX, thumbY, scrollBarWidth, thumbHeight);
-        } else {
-            guiGraphics.fill(RenderType.guiOverlay(), trackX, thumbY, trackX + scrollBarWidth, thumbY + thumbHeight, 0x80000000);
-        }
-    }
-
-    private void renderSelectionHighlight(GuiGraphics guiGraphics, int lineIndex, int lineY, int lineHeight) {
-        int minCursor = Math.min(cursorPos, selectionAnchor);
-        int maxCursor = Math.max(cursorPos, selectionAnchor);
-
-        int lineStart = getLineStartIndex(lineIndex);
-        int lineEnd = getLineEndIndex(lineIndex);
-
-        if (maxCursor <= lineStart || minCursor >= lineEnd) return;
-
-        int selStart = Math.max(minCursor, lineStart) - lineStart;
-        int selEnd = Math.min(maxCursor, lineEnd) - lineStart;
-
-        String lineText = textLines.get(lineIndex);
-        int textLen = lineText.length();
-
-        selStart = Mth.clamp(selStart, 0, textLen);
-        selEnd = Mth.clamp(selEnd, 0, textLen);
-
-        int startX = textLen == 0 ? 0 : this.font.width(lineText.substring(0, selStart));
-        int endX = textLen == 0 ? this.font.width(" ") : this.font.width(lineText.substring(0, selEnd));
-
-        var halfPadding = LINE_PADDING / 2;
-        guiGraphics.fill(
-                RenderType.guiTextHighlight(),
-                startX,
-                lineY - halfPadding,
-                endX,
-                lineY + halfPadding + font.lineHeight,
-                highlightColor
-        );
-    }
-
-    protected void calculateLines() {
-        if (!recalculateLines) return;
-
-        textLines.clear();
-        lineStartIndices.clear();
-
-        int textWidth = (int) ((this.width - (paddingX * 2) - scrollBarWidth) / textScale);
-        if (textWidth <= 0) {
-            recalculateLines = false;
-            return;
-        }
-
-        if (value.isEmpty()) {
-            lineStartIndices.add(0);
-            textLines.add("");
-            recalculateLines = false;
-            updateCursorCoordinates = true;
-            this.maxScrollOffset = 0;
-            this.scrollOffset = 0;
-            return;
-        }
-
-        String[] explicitLines = value.split("\n", -1);
-        int currentPos = 0;
-
-        for (int i = 0; i < explicitLines.length; i++) {
-            String explicitLine = explicitLines[i];
-
-            if (i > 0) {
-                currentPos++; // account for newline char
-            }
-            if (explicitLine.isEmpty()) {
-                textLines.add("");
-                lineStartIndices.add(currentPos);
+            if (vLine.logicalLineIndex < startLine || vLine.logicalLineIndex > endLine) {
                 continue;
             }
 
-            List<String> tokens = new ArrayList<>();
-            Matcher m = TOKEN_SPLIT.matcher(explicitLine);
-            while (m.find()) tokens.add(m.group());
+            int y = (i - scrollOffset) * lineHeight;
+            int selStartCol = 0;
+            int selEndCol = vLine.text.length();
 
-            int tokenIdx = 0;
-            while (tokenIdx < tokens.size()) {
-                lineStartIndices.add(currentPos);
-                StringBuilder sb = new StringBuilder();
-                int lineW = 0;
-
-                while (tokenIdx < tokens.size()) {
-                    String tok = tokens.get(tokenIdx);
-                    int w = font.width(tok);
-
-                    if (lineW + w <= textWidth) {
-                        sb.append(tok);
-                        lineW += w;
-                        currentPos += tok.length();
-                        tokenIdx++;
-                    } else {
-                        if (lineW == 0) {
-                            String fit = font.plainSubstrByWidth(tok, textWidth);
-                            if (!fit.isEmpty()) {
-                                sb.append(fit);
-                                currentPos += fit.length();
-                                tokens.set(tokenIdx, tok.substring(fit.length()));
-                            } else {
-                                // Safety
-                                tokens.set(tokenIdx, tok.substring(1));
-                                currentPos += 1;
-                                sb.append(tok.charAt(0));
-                            }
-                        }
-                        break;
-                    }
+            if (vLine.logicalLineIndex == startLine) {
+                if (startColumn >= vLine.startColumn && startColumn <= vLine.endColumn) {
+                    selStartCol = startColumn - vLine.startColumn;
+                } else if (startColumn > vLine.endColumn) {
+                    continue;
                 }
-
-                textLines.add(sb.toString());
             }
+
+            if (vLine.logicalLineIndex == endLine) {
+                if (endColumn >= vLine.startColumn && endColumn <= vLine.endColumn) {
+                    selEndCol = endColumn - vLine.startColumn;
+                } else if (endColumn < vLine.startColumn) {
+                    continue;
+                }
+            }
+
+            int x1 = this.font.width(vLine.text.substring(0, selStartCol));
+            int x2 = this.font.width(vLine.text.substring(0, selEndCol));
+            guiGraphics.fill(x1, y, x2, y + this.font.lineHeight, SELECTION_COLOR);
         }
-
-        int scaledVisibleHeight = (int) ((this.height - (paddingY * 2)) / textScale);
-        int totalTextHeightUnscaled = this.textLines.size() * getLineHeight();
-        this.maxScrollOffset = Math.max(0, totalTextHeightUnscaled - scaledVisibleHeight);
-        this.scrollOffset = Mth.clamp(this.scrollOffset, 0, this.maxScrollOffset);
-
-        recalculateLines = false;
-        updateCursorCoordinates = true;
     }
 
-    private void updateCursorCoordinates() {
-        if (textLines.isEmpty()) {
-            cursorLine = 0;
-            cursorColumn = 0;
+    private void renderCursor(GuiGraphics guiGraphics) {
+        int lineHeight = this.font.lineHeight + 2;
+
+        int visualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+        if (visualLineIndex < 0) return;
+
+        VisualLine vLine = visualLines.get(visualLineIndex);
+        int columnInVisualLine = cursorColumn - vLine.startColumn;
+
+        int cursorY = (visualLineIndex - scrollOffset) * lineHeight;
+        int cursorX = this.font.width(vLine.text.substring(0, columnInVisualLine));
+
+        guiGraphics.fill(cursorX, cursorY - 1, cursorX + 1, cursorY + this.font.lineHeight, CURSOR_INSERT_COLOR);
+    }
+
+    private void renderScrollbar(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int textY = getY() + paddingY;
+        int textMaxY = getY() + height - paddingY;
+        int lineHeight = this.font.lineHeight + 2;
+        int visibleHeight = (int)((textMaxY - textY) / textScale);
+        int maxVisibleLines = visibleHeight / lineHeight;
+
+        if (visualLines.size() <= maxVisibleLines) {
             return;
         }
 
-        cursorLine = -1;
-        for (int i = 0; i < lineStartIndices.size(); i++) {
-            int start = lineStartIndices.get(i);
-            int end = (i < lineStartIndices.size() - 1)
-                    ? lineStartIndices.get(i + 1)
-                    : value.length();
+        int scrollbarX = getX() + width - scrollBarWidth - SCROLLBAR_PADDING;
+        int scrollbarY = getY() + SCROLLBAR_PADDING;
+        int scrollbarHeight = height - SCROLLBAR_PADDING * 2;
 
-            if (cursorPos >= start && cursorPos < end) {
-                cursorLine = i;
-                cursorColumn = cursorPos - start;
-                break;
+        guiGraphics.fill(scrollbarX, scrollbarY, scrollbarX + scrollBarWidth, scrollbarY + scrollbarHeight, SCROLLBAR_BACKGROUND_COLOR);
+
+        float contentRatio = (float) maxVisibleLines / visualLines.size();
+        int minThumbHeight = 10;
+        int thumbHeight = Math.max(minThumbHeight, (int)(scrollbarHeight * contentRatio));
+
+        float scrollRatio = visualLines.size() > maxVisibleLines
+                ? (float) scrollOffset / (visualLines.size() - maxVisibleLines)
+                : 0;
+        int thumbY = scrollbarY + (int)((scrollbarHeight - thumbHeight) * scrollRatio);
+
+        int thumbColor = SCROLLBAR_COLOR;
+        if (isDraggingScrollbar) {
+            thumbColor = SCROLLBAR_DRAG_COLOR;
+        } else if (isMouseOverScrollbarThumb(mouseX, mouseY, scrollbarX, thumbY, thumbHeight)) {
+            thumbColor = SCROLLBAR_HOVER_COLOR;
+        }
+
+        guiGraphics.fill(scrollbarX, thumbY, scrollbarX + scrollBarWidth, thumbY + thumbHeight, thumbColor);
+    }
+
+    private boolean isMouseOverScrollbarThumb(int mouseX, int mouseY, int scrollbarX, int thumbY, int thumbHeight) {
+        return mouseX >= scrollbarX && mouseX <= scrollbarX + scrollBarWidth &&
+                mouseY >= thumbY && mouseY <= thumbY + thumbHeight;
+    }
+
+    private boolean isMouseOverScrollbar(int mouseX, int mouseY) {
+        int scrollbarX = getX() + width - scrollBarWidth - SCROLLBAR_PADDING;
+        int scrollbarY = getY() + SCROLLBAR_PADDING;
+        int scrollbarHeight = height - SCROLLBAR_PADDING * 2;
+
+        return mouseX >= scrollbarX && mouseX <= scrollbarX + scrollBarWidth &&
+                mouseY >= scrollbarY && mouseY <= scrollbarY + scrollbarHeight;
+    }
+
+    private int getVisualLineIndex(int logicalLine, int column) {
+        if (visualLines.isEmpty()) return -1;
+
+        if (cachedVisualLineIndex >= 0 && cachedVisualLineIndex < visualLines.size()) {
+            VisualLine cachedLine = visualLines.get(cachedVisualLineIndex);
+            if (cachedLine.logicalLineIndex == logicalLine &&
+                    column >= cachedLine.startColumn && column <= cachedLine.endColumn) {
+                return cachedVisualLineIndex;
             }
-        }
 
-        if (cursorLine == -1) {
-            cursorLine = lineStartIndices.size() - 1;
-            cursorColumn = cursorPos - lineStartIndices.get(cursorLine);
-        }
-
-        if (!readOnly && followCaret) {
-            ensureCursorVisible();
-        }
-        updateCursorCoordinates = false;
-    }
-
-    private void ensureCursorVisible() {
-        int lineHeight = getLineHeight();
-        int cursorY = cursorLine * lineHeight;
-
-        int visibleTop = scrollOffset;
-        int visibleBottom = scrollOffset + (int) ((height - (paddingY * 2)) / textScale);
-
-        if (cursorY < visibleTop) {
-            scrollOffset = cursorY;
-        } else if (cursorY + lineHeight > visibleBottom) {
-            scrollOffset = cursorY - (int) ((height - (paddingY * 2)) / textScale) + lineHeight;
-        }
-
-        scrollOffset = Mth.clamp(scrollOffset, 0, maxScrollOffset);
-    }
-
-    public void setValue(String text) {
-        if (this.filter.test(text)) {
-            if (text.length() > this.maxLength) {
-                this.value = text.substring(0, this.maxLength);
-            } else {
-                this.value = text;
+            if (cachedVisualLineIndex > 0) {
+                VisualLine prevLine = visualLines.get(cachedVisualLineIndex - 1);
+                if (prevLine.logicalLineIndex == logicalLine &&
+                        column >= prevLine.startColumn && column <= prevLine.endColumn) {
+                    cachedVisualLineIndex--;
+                    return cachedVisualLineIndex;
+                }
             }
-
-            this.moveCursorToEnd();
-            this.setSelectionAnchor(this.cursorPos);
-            this.onValueChange(this.value);
-        }
-    }
-
-    public void insertText(String textToWrite) {
-        if (readOnly) return;
-
-        int i = Math.min(this.cursorPos, this.selectionAnchor);
-        int j = Math.max(this.cursorPos, this.selectionAnchor);
-        int k = this.maxLength - this.value.length() - (i - j);
-        if (k <= 0) return;
-
-        String string = SharedConstants.filterText(textToWrite, true);
-        if (string.length() > k) string = string.substring(0, k);
-
-        String string2 = new StringBuilder(this.value)
-                .replace(i, j, string)
-                .toString();
-        if (this.filter.test(string2)) {
-            this.value = string2;
-            this.setCursorPosition(i + string.length());
-            this.setSelectionAnchor(this.cursorPos);
-            this.onValueChange(this.value);
-        }
-    }
-
-    private void deleteText(int count) {
-        if (readOnly) return;
-
-        if (Screen.hasControlDown()) {
-            this.deleteWords(count);
-        } else {
-            this.deleteChars(count);
-        }
-    }
-
-    public void deleteWords(int num) {
-        if (readOnly) return;
-
-        if (!this.value.isEmpty()) {
-            if (this.selectionAnchor != this.cursorPos) {
-                this.insertText("");
-            } else {
-                this.deleteChars(this.getWordPosition(num) - this.cursorPos);
-            }
-        }
-    }
-
-    public void deleteChars(int num) {
-        if (readOnly) return;
-
-        if (!this.value.isEmpty()) {
-            if (this.selectionAnchor != this.cursorPos) {
-                this.insertText("");
-            } else {
-                int i = this.getCursorPos(num);
-                int j = Math.min(i, this.cursorPos);
-                int k = Math.max(i, this.cursorPos);
-                if (j != k) {
-                    String string = (new StringBuilder(this.value)).delete(j, k).toString();
-                    if (this.filter.test(string)) {
-                        this.value = string;
-                        this.moveCursorTo(j);
-                        this.onValueChange(this.value);
-                    }
+            if (cachedVisualLineIndex < visualLines.size() - 1) {
+                VisualLine nextLine = visualLines.get(cachedVisualLineIndex + 1);
+                if (nextLine.logicalLineIndex == logicalLine &&
+                        column >= nextLine.startColumn && column <= nextLine.endColumn) {
+                    cachedVisualLineIndex++;
+                    return cachedVisualLineIndex;
                 }
             }
         }
-    }
 
-    private void onValueChange(String newText) {
-        recalculateLines = true;
-        if (this.responder != null) {
-            this.responder.accept(newText);
+        for (int i = 0; i < visualLines.size(); i++) {
+            VisualLine vLine = visualLines.get(i);
+            if (vLine.logicalLineIndex < logicalLine) continue;
+            if (vLine.logicalLineIndex > logicalLine) break;
+
+            if (column >= vLine.startColumn && column <= vLine.endColumn) {
+                cachedVisualLineIndex = i;
+                return i;
+            }
         }
+        return -1;
     }
 
-    public void setCursorPosition(int pos) {
-        this.cursorPos = Mth.clamp(pos, 0, this.value.length());
-        followCaret = !readOnly; // only auto-follow when not read-only
-        updateCursorCoordinates = true;
-    }
+    @Override
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {}
 
-    public void moveCursorTo(int pos) {
-        this.setCursorPosition(pos);
-        if (!this.shiftPressed) {
-            this.setSelectionAnchor(this.cursorPos);
-        }
-    }
+    public void insertText(String text) {
+        if (readOnly) return;
 
-    public void moveCursor(int delta) {
-        this.moveCursorTo(this.getCursorPos(delta));
-    }
+        deleteSelection();
 
-    private void moveCursorVertical(int lines) {
-        if (textLines.isEmpty()) return;
+        if (text.contains("\n")) {
+            String[] textLines = text.split("\n", -1);
 
-        updateCursorCoordinates();
+            String currentLine = lines.get(cursorLine);
+            String beforeCursor = currentLine.substring(0, cursorColumn);
+            String afterCursor = currentLine.substring(cursorColumn);
 
-        int targetLine = Mth.clamp(cursorLine + lines, 0, textLines.size() - 1);
+            lines.set(cursorLine, beforeCursor + textLines[0]);
 
-        if (targetLine != cursorLine) {
-            String targetLineText = textLines.get(targetLine);
-            String currentLineText = textLines.get(cursorLine);
-            int cursorX = font.width(currentLineText.substring(0, Math.min(cursorColumn, currentLineText.length())));
-            int targetColumn = font.plainSubstrByWidth(targetLineText, cursorX).length();
-            int newPos = lineStartIndices.get(targetLine) + targetColumn;
+            for (int i = 1; i < textLines.length - 1; i++) {
+                lines.add(cursorLine + i, textLines[i]);
+            }
 
-            this.moveCursorTo(newPos);
-        }
-    }
-
-    public void moveCursorToStart() {
-        this.moveCursorTo(0);
-    }
-
-    public void moveCursorToEnd() {
-        this.moveCursorTo(this.value.length());
-    }
-
-    private int getCursorPosX() {
-        if (cursorLine < 0 || cursorLine >= textLines.size()) return 0;
-
-        String lineText = textLines.get(cursorLine);
-        int lineStart = getLineStartIndex(cursorLine);
-        int relativePos = cursorPos - lineStart;
-
-        if (relativePos < 0) relativePos = 0;
-        if (relativePos > lineText.length()) relativePos = lineText.length();
-
-        return font.width(lineText.substring(0, relativePos));
-    }
-
-    private int getCursorPos(int delta) {
-        return Util.offsetByCodepoints(this.value, this.cursorPos, delta);
-    }
-
-    public int getCursorPosition() {
-        return this.cursorPos;
-    }
-
-    public int getWordPosition(int numWords) {
-        return this.getWordPosition(numWords, this.getCursorPosition());
-    }
-
-    private static boolean isWordChar(char c) {
-        return Character.isLetterOrDigit(c) || c == '_';
-    }
-
-    private int nextWordBoundary(int pos) {
-        int i = Mth.clamp(pos, 0, value.length());
-        int len = value.length();
-        while (i < len && Character.isWhitespace(value.charAt(i))) i++;
-        if (i >= len) return len;
-        if (isWordChar(value.charAt(i))) {
-            while (i < len && isWordChar(value.charAt(i))) i++;
+            if (textLines.length > 1) {
+                lines.add(cursorLine + textLines.length - 1, textLines[textLines.length - 1] + afterCursor);
+                cursorLine += textLines.length - 1;
+                cursorColumn = textLines[textLines.length - 1].length();
+            } else {
+                cursorColumn += textLines[0].length();
+            }
         } else {
-            while (i < len && !Character.isWhitespace(value.charAt(i)) && !isWordChar(value.charAt(i))) i++;
+            String currentLine = lines.get(cursorLine);
+            String newLine = currentLine.substring(0, cursorColumn) + text + currentLine.substring(cursorColumn);
+            lines.set(cursorLine, newLine);
+            cursorColumn += text.length();
+            int maxWidth = (int)((width - paddingX * 2) / textScale);
+            if (font.width(newLine) > maxWidth * textScale) {
+                rebuildLines();
+                anchorLine = cursorLine;
+                anchorColumn = cursorColumn;
+                scrollToCursor();
+                onValueChange();
+                return;
+            }
         }
-        return i;
+
+        rebuildLines();
+        anchorLine = cursorLine;
+        anchorColumn = cursorColumn;
+        scrollToCursor();
+        onValueChange();
     }
 
-    private int prevWordBoundary(int pos) {
-        int i = Mth.clamp(pos, 0, value.length());
-        while (i > 0 && Character.isWhitespace(value.charAt(i - 1))) i--;
-        if (i <= 0) return 0;
-        if (isWordChar(value.charAt(i - 1))) {
-            while (i > 0 && isWordChar(value.charAt(i - 1))) i--;
+    private void deleteSelection() {
+        if (anchorLine == cursorLine && anchorColumn == cursorColumn) return;
+
+        int startLine = Math.min(anchorLine, cursorLine);
+        int endLine = Math.max(anchorLine, cursorLine);
+
+        int startColumn, endColumn;
+        if (anchorLine < cursorLine || (anchorLine == cursorLine && anchorColumn < cursorColumn)) {
+            startColumn = anchorColumn;
+            endColumn = cursorColumn;
         } else {
-            while (i > 0 && !Character.isWhitespace(value.charAt(i - 1)) && !isWordChar(value.charAt(i - 1))) i--;
+            startColumn = cursorColumn;
+            endColumn = anchorColumn;
         }
-        return i;
-    }
 
-    private int getWordPosition(int n, int pos) {
-        int i = pos;
-        if (n == 0) return i;
+        if (startLine == endLine) {
+            String line = lines.get(startLine);
+            String newLine = line.substring(0, startColumn) + line.substring(endColumn);
+            lines.set(startLine, newLine);
+        } else {
+            String firstPart = lines.get(startLine).substring(0, startColumn);
+            String lastPart = lines.get(endLine).substring(endColumn);
 
-        int steps = Math.abs(n);
-        boolean backward = n < 0;
-        for (int k = 0; k < steps; k++) {
-            i = backward ? prevWordBoundary(i) : nextWordBoundary(i);
+            lines.set(startLine, firstPart + lastPart);
+
+            for (int i = endLine; i > startLine; i--) {
+                lines.remove(i);
+            }
         }
-        return i;
+
+        cursorLine = startLine;
+        cursorColumn = startColumn;
+        anchorLine = startLine;
+        anchorColumn = startColumn;
+
+        rebuildLines();
+        onValueChange();
     }
 
-    private int getLineStartIndex(int lineIndex) {
-        if (lineIndex < 0 || lineIndex >= lineStartIndices.size()) return 0;
-        return lineStartIndices.get(lineIndex);
-    }
+    private void rebuildLines() {
+        visualLines.clear();
+        cachedVisualLineIndex = 0;
 
-    private int getLineEndIndex(int lineIndex) {
-        if (lineIndex < 0 || lineIndex >= lineStartIndices.size()) return 0;
+        int maxWidth = (int)((width - paddingX * 2) / textScale);
 
-        if (lineIndex == lineStartIndices.size() - 1) {
-            return value.length();
+        for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+            String line = lines.get(lineIndex);
+
+            if (line.isEmpty()) {
+                visualLines.add(new VisualLine(lineIndex, 0, 0, ""));
+                continue;
+            }
+
+            int startCol = 0;
+            while (startCol < line.length()) {
+                String remaining = line.substring(startCol);
+                int fitLength = remaining.length();
+
+                if (font.width(remaining) > maxWidth) {
+                    fitLength = 0;
+                    int testLength = 1;
+
+                    while (testLength <= remaining.length()) {
+                        String testStr = remaining.substring(0, testLength);
+                        if (font.width(testStr) > maxWidth) {
+                            break;
+                        }
+                        fitLength = testLength;
+                        testLength++;
+                    }
+
+                    if (fitLength == 0) {
+                        fitLength = 1;
+                    }
+                }
+
+                int endCol = startCol + fitLength;
+                String visualText = line.substring(startCol, endCol);
+                visualLines.add(new VisualLine(lineIndex, startCol, endCol, visualText));
+
+                startCol = endCol;
+            }
         }
-        return lineStartIndices.get(lineIndex + 1);
-    }
-
-    private int getLineVisualEndIndex(int lineIndex) {
-        int start = getLineStartIndex(lineIndex);
-        String lineText = (lineIndex >= 0 && lineIndex < textLines.size()) ? textLines.get(lineIndex) : "";
-        return start + lineText.length();
-    }
-
-    private boolean isLineSelected(int lineIndex) {
-        int minCursor = Math.min(cursorPos, selectionAnchor);
-        int maxCursor = Math.max(cursorPos, selectionAnchor);
-        if (minCursor == maxCursor) return false;
-
-        int lineStart = getLineStartIndex(lineIndex);
-        int lineEnd = getLineEndIndex(lineIndex);
-
-        return minCursor < lineEnd && maxCursor > lineStart;
-    }
-
-    public String getHighlighted() {
-        int i = Math.min(this.cursorPos, this.selectionAnchor);
-        int j = Math.max(this.cursorPos, this.selectionAnchor);
-        return this.value.substring(i, j);
-    }
-
-    // Only depends on focus/visibility
-    public boolean canConsumeInput() {
-        return this.visible && this.isFocused();
     }
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (!this.canConsumeInput()) return false;
-
-        this.shiftPressed = Screen.hasShiftDown();
+        if (!canConsumeInput() || readOnly) return false;
 
         if (Screen.isCopy(keyCode)) {
-            Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
+            Minecraft.getInstance().keyboardHandler.setClipboard(getHighlightedText());
             return true;
-        } else if (Screen.isSelectAll(keyCode)) {
-            this.setSelectionAnchor(0);
-            this.moveCursorToEnd();
+        }
+        else if (Screen.isPaste(keyCode)) {
+            insertText(Minecraft.getInstance().keyboardHandler.getClipboard());
             return true;
-        } else if (Screen.isPaste(keyCode)) {
-            if (!readOnly) {
-                this.insertText(Minecraft.getInstance().keyboardHandler.getClipboard());
-            }
+        }
+        else if (Screen.isCut(keyCode)) {
+            Minecraft.getInstance().keyboardHandler.setClipboard(getHighlightedText());
+            insertText("");
             return true;
-        } else if (Screen.isCut(keyCode)) {
-            Minecraft.getInstance().keyboardHandler.setClipboard(this.getHighlighted());
-            if (!readOnly) {
-                this.insertText("");
+        }
+        else if (Screen.isSelectAll(keyCode)) {
+            anchorLine = 0;
+            anchorColumn = 0;
+            cursorLine = lines.size() - 1;
+            cursorColumn = lines.get(cursorLine).length();
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+            if (!this.lines.isEmpty()) {
+                int startLine = Math.min(this.cursorLine, this.anchorLine);
+                int endLine = Math.max(this.cursorLine, this.anchorLine);
+                int startColumn = Math.min(this.cursorColumn, this.anchorColumn);
+                int endColumn = Math.max(this.cursorColumn, this.anchorColumn);
+
+                if (startLine == endLine && startColumn == endColumn) {
+                    if (this.cursorColumn > 0) {
+                        startColumn--;
+                    } else if (this.cursorLine > 0) {
+                        startLine--;
+                        startColumn = lines.get(startLine).length();
+                    } else {
+                        return true;
+                    }
+                }
+
+                if (startLine == endLine) {
+                    String line = lines.get(startLine);
+                    String newLine = line.substring(0, startColumn) + line.substring(endColumn);
+                    lines.set(startLine, newLine);
+                } else {
+                    String firstPart = lines.get(startLine).substring(0, startColumn);
+                    String lastPart = lines.get(endLine).substring(endColumn);
+
+                    lines.set(startLine, firstPart + lastPart);
+
+                    for (int i = endLine; i > startLine; i--) {
+                        lines.remove(i);
+                    }
+                }
+
+                this.cursorLine = startLine;
+                this.cursorColumn = startColumn;
+                this.anchorLine = this.cursorLine;
+                this.anchorColumn = this.cursorColumn;
+                rebuildLines();
+                scrollToCursor();
+                onValueChange();
             }
             return true;
         }
+        else if (keyCode == GLFW.GLFW_KEY_DELETE) {
+            if (!this.lines.isEmpty() && this.cursorLine < this.lines.size()) {
+                int startLine = Math.min(this.cursorLine, this.anchorLine);
+                int endLine = Math.max(this.cursorLine, this.anchorLine);
+                int startColumn = Math.min(this.cursorColumn, this.anchorColumn);
+                int endColumn = Math.max(this.cursorColumn, this.anchorColumn);
 
-        if (readOnly) {
-            switch (keyCode) {
-                case GLFW.GLFW_KEY_PAGE_UP -> {
-                    setScrollAmount(getScrollAmount() - getLineHeightScaled() * 4);
-                    return true;
+                if (startLine == endLine && startColumn == endColumn) {
+                    if (this.cursorColumn < lines.get(this.cursorLine).length()) {
+                        endColumn++;
+                    } else if (this.cursorLine < lines.size() - 1) {
+                        endLine++;
+                        endColumn = 0;
+                    }
                 }
-                case GLFW.GLFW_KEY_PAGE_DOWN -> {
-                    setScrollAmount(getScrollAmount() + getLineHeightScaled() * 4);
-                    return true;
+
+                if (startLine == endLine) {
+                    String line = lines.get(startLine);
+                    String newLine = line.substring(0, startColumn) + line.substring(endColumn);
+                    lines.set(startLine, newLine);
+                } else {
+                    String firstPart = lines.get(startLine).substring(0, startColumn);
+                    String lastPart = lines.get(endLine).substring(endColumn);
+
+                    lines.set(startLine, firstPart + lastPart);
+
+                    for (int i = endLine; i > startLine; i--) {
+                        lines.remove(i);
+                    }
                 }
-                case GLFW.GLFW_KEY_UP -> {
-                    setScrollAmount(getScrollAmount() - getLineHeightScaled());
-                    return true;
-                }
-                case GLFW.GLFW_KEY_DOWN -> {
-                    setScrollAmount(getScrollAmount() + getLineHeightScaled());
-                    return true;
-                }
-                case GLFW.GLFW_KEY_HOME -> {
-                    setScrollAmount(0);
-                    return true;
-                }
-                case GLFW.GLFW_KEY_END -> {
-                    setScrollAmount(this.maxScrollOffset);
-                    return true;
-                }
-                default -> {
-                    return false;
-                }
+
+                this.cursorLine = startLine;
+                this.cursorColumn = startColumn;
+                this.anchorLine = this.cursorLine;
+                this.anchorColumn = this.cursorColumn;
+                rebuildLines();
+                scrollToCursor();
+                onValueChange();
             }
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_LEFT) {
+            if (this.cursorLine > 0 || this.cursorColumn > 0) {
+                if (this.cursorColumn > 0) {
+                    this.cursorColumn--;
+                    if (cachedVisualLineIndex >= 0 && cachedVisualLineIndex < visualLines.size()) {
+                        VisualLine cached = visualLines.get(cachedVisualLineIndex);
+                        if (cached.logicalLineIndex != cursorLine ||
+                                cursorColumn < cached.startColumn) {
+                            cachedVisualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+                        }
+                    }
+                } else {
+                    this.cursorLine--;
+                    this.cursorColumn = lines.get(this.cursorLine).length();
+                    cachedVisualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+                }
+                if (!Screen.hasShiftDown()) {
+                    this.anchorLine = this.cursorLine;
+                    this.anchorColumn = this.cursorColumn;
+                }
+                scrollToCursor();
+            }
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_RIGHT) {
+            if (this.cursorLine < lines.size() - 1 || this.cursorColumn < lines.get(this.cursorLine).length()) {
+                if (this.cursorColumn < lines.get(this.cursorLine).length()) {
+                    this.cursorColumn++;
+                    if (cachedVisualLineIndex >= 0 && cachedVisualLineIndex < visualLines.size()) {
+                        VisualLine cached = visualLines.get(cachedVisualLineIndex);
+                        if (cached.logicalLineIndex != cursorLine ||
+                                cursorColumn > cached.endColumn) {
+                            cachedVisualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+                        }
+                    }
+                } else {
+                    this.cursorLine++;
+                    this.cursorColumn = 0;
+                    cachedVisualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+                }
+                if (!Screen.hasShiftDown()) {
+                    this.anchorLine = this.cursorLine;
+                    this.anchorColumn = this.cursorColumn;
+                }
+                scrollToCursor();
+            }
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_ENTER) {
+            deleteSelection();
+
+            String currentLine = lines.get(cursorLine);
+            String beforeCursor = currentLine.substring(0, cursorColumn);
+            String afterCursor = currentLine.substring(cursorColumn);
+
+            lines.set(cursorLine, beforeCursor);
+            lines.add(cursorLine + 1, afterCursor);
+
+            cursorLine++;
+            cursorColumn = 0;
+            anchorLine = cursorLine;
+            anchorColumn = cursorColumn;
+            rebuildLines();
+            scrollToCursor();
+            onValueChange();
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_UP) {
+            int currentVisualLine = cachedVisualLineIndex;
+            VisualLine currentVLine = visualLines.get(currentVisualLine);
+
+            if (currentVLine.logicalLineIndex != cursorLine ||
+                    cursorColumn < currentVLine.startColumn ||
+                    cursorColumn > currentVLine.endColumn) {
+                currentVisualLine = getVisualLineIndex(cursorLine, cursorColumn);
+            }
+
+            if (currentVisualLine > 0) {
+                VisualLine currentLine = visualLines.get(currentVisualLine);
+                VisualLine prevVLine = visualLines.get(currentVisualLine - 1);
+
+                int currentColumnInVisual = cursorColumn - currentLine.startColumn;
+                int newColumnInVisual = Math.min(currentColumnInVisual, prevVLine.text.length());
+
+                cursorLine = prevVLine.logicalLineIndex;
+                cursorColumn = prevVLine.startColumn + newColumnInVisual;
+                cachedVisualLineIndex = currentVisualLine - 1;
+            }
+
+            if (!Screen.hasShiftDown()) {
+                this.anchorLine = this.cursorLine;
+                this.anchorColumn = this.cursorColumn;
+            }
+            scrollToCursor();
+            return true;
+        }
+        else if (keyCode == GLFW.GLFW_KEY_DOWN) {
+            int currentVisualLine = cachedVisualLineIndex;
+            VisualLine currentVLine = visualLines.get(currentVisualLine);
+
+            if (currentVLine.logicalLineIndex != cursorLine ||
+                    cursorColumn < currentVLine.startColumn ||
+                    cursorColumn > currentVLine.endColumn) {
+                currentVisualLine = getVisualLineIndex(cursorLine, cursorColumn);
+            }
+
+            if (currentVisualLine >= 0 && currentVisualLine < visualLines.size() - 1) {
+                VisualLine currentLine = visualLines.get(currentVisualLine);
+                VisualLine nextVLine = visualLines.get(currentVisualLine + 1);
+
+                int currentColumnInVisual = cursorColumn - currentLine.startColumn;
+                int newColumnInVisual = Math.min(currentColumnInVisual, nextVLine.text.length());
+
+                cursorLine = nextVLine.logicalLineIndex;
+                cursorColumn = nextVLine.startColumn + newColumnInVisual;
+                cachedVisualLineIndex = currentVisualLine + 1;
+            }
+
+            if (!Screen.hasShiftDown()) {
+                this.anchorLine = this.cursorLine;
+                this.anchorColumn = this.cursorColumn;
+            }
+            scrollToCursor();
+            return true;
         }
 
-        switch (keyCode) {
-            case GLFW.GLFW_KEY_ENTER, 335 -> {
-                if (!readOnly) {
-                    this.insertText("\n");
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_BACKSPACE -> {
-                if (!readOnly) {
-                    this.shiftPressed = false;
-                    this.deleteText(-1);
-                    this.shiftPressed = Screen.hasShiftDown();
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_DELETE -> {
-                if (!readOnly) {
-                    this.shiftPressed = false;
-                    this.deleteText(1);
-                    this.shiftPressed = Screen.hasShiftDown();
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_RIGHT -> {
-                if (Screen.hasControlDown()) {
-                    this.moveCursorTo(this.getWordPosition(1));
-                } else {
-                    this.moveCursor(1);
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_LEFT -> {
-                if (Screen.hasControlDown()) {
-                    this.moveCursorTo(this.getWordPosition(-1));
-                } else {
-                    this.moveCursor(-1);
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_DOWN -> {
-                this.moveCursorVertical(1);
-                return true;
-            }
-            case GLFW.GLFW_KEY_UP -> {
-                this.moveCursorVertical(-1);
-                return true;
-            }
-            case GLFW.GLFW_KEY_HOME -> {
-                if (Screen.hasControlDown()) {
-                    this.moveCursorToStart();
-                } else {
-                    calculateLines();
-                    updateCursorCoordinates();
-                    int start = getLineStartIndex(cursorLine);
-                    this.moveCursorTo(start);
-                }
-                return true;
-            }
-            case GLFW.GLFW_KEY_END -> {
-                if (Screen.hasControlDown()) {
-                    this.moveCursorToEnd();
-                } else {
-                    calculateLines();
-                    updateCursorCoordinates();
-                    int end = getLineVisualEndIndex(cursorLine);
-                    this.moveCursorTo(end);
-                }
-                return true;
-            }
-            default -> {
-                return false;
-            }
-        }
-    }
-
-    @Override
-    public void playDownSound(SoundManager handler) {
-        // No click sound
-    }
-
-    @Override
-    public void setFocused(boolean focused) {
-        super.setFocused(focused);
-        if (!focused) {
-            this.selectionAnchor = this.cursorPos;
-            this.shiftPressed = false;
-        }
+        return false;
     }
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
-        if (!this.canConsumeInput()) return false;
-        if (SharedConstants.isAllowedChatCharacter(codePoint)) {
-            if (!readOnly) {
-                this.insertText(Character.toString(codePoint));
-            }
-            return true;
+        if (!canConsumeInput() || readOnly) return false;
+
+        if (codePoint == '\u0000' || Character.isISOControl(codePoint)) return false;
+
+        insertText(String.valueOf(codePoint));
+        return true;
+    }
+
+    private boolean canConsumeInput() {
+        return this.active && this.visible;
+    }
+
+    private String getHighlightedText() {
+        if (anchorLine == cursorLine && anchorColumn == cursorColumn) {
+            return "";
         }
-        return false;
+
+        int startLine = Math.min(anchorLine, cursorLine);
+        int endLine = Math.max(anchorLine, cursorLine);
+        int startColumn = (anchorLine < cursorLine || (anchorLine == cursorLine && anchorColumn < cursorColumn))
+                ? anchorColumn : cursorColumn;
+        int endColumn = (anchorLine < cursorLine || (anchorLine == cursorLine && anchorColumn < cursorColumn))
+                ? cursorColumn : anchorColumn;
+
+        StringBuilder highlightedText = new StringBuilder();
+
+        if (startLine == endLine) {
+            String line = lines.get(startLine);
+            if (startColumn < line.length() && endColumn <= line.length()) {
+                highlightedText.append(line, startColumn, endColumn);
+            }
+        } else {
+            String firstLine = lines.get(startLine);
+            if (startColumn < firstLine.length()) {
+                highlightedText.append(firstLine.substring(startColumn)).append('\n');
+            }
+
+            for (int i = startLine + 1; i < endLine; i++) {
+                highlightedText.append(lines.get(i)).append('\n');
+            }
+
+            String lastLine = lines.get(endLine);
+            if (endColumn <= lastLine.length()) {
+                highlightedText.append(lastLine.substring(0, endColumn));
+            }
+        }
+
+        return highlightedText.toString();
+    }
+
+    public void tick() {
+        ++this.frame;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!this.active || !this.visible || !this.isValidClickButton(button)) return false;
+        if (!canConsumeInput()) return false;
 
-        if (isScrollbarHovered(mouseX, mouseY)) {
-            // Capture drag by letting superclass register the click
-            boolean consumed = super.mouseClicked(mouseX, mouseY, button);
-            this.scrolling = true;
-            this.followCaret = false; // manual scroll
-            this.lastScrollingCall = System.currentTimeMillis();
+        boolean clicked = this.isMouseOver(mouseX, mouseY);
+        if (clicked && button == 0) {
+            if (isMouseOverScrollbar((int)mouseX, (int)mouseY)) {
+                scrollbarClicked = true;
+                isDraggingScrollbar = true;
+                dragStartY = mouseY;
+                dragStartOffset = scrollOffset;
 
-            // Determine grab offset so the thumb doesn't jump
-            int trackY = this.getY() + paddingY;
-            int trackHeight = this.height - paddingY * 2;
-            int contentHeightUnscaled = this.textLines.size() * getLineHeight();
-            int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
-            int thumbHeight = Math.max(
-                    16,
-                    Math.min(
-                            trackHeight,
-                            (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
-                    )
-            );
-            int currentThumbY;
-            if (this.maxScrollOffset > 0) {
-                double ratio = (double) this.scrollOffset / (double) this.maxScrollOffset;
-                currentThumbY = trackY + (int) Math.round((trackHeight - thumbHeight) * ratio);
-            } else {
-                currentThumbY = trackY;
+                int textY = getY() + paddingY;
+                int textMaxY = getY() + height - paddingY;
+                int lineHeight = this.font.lineHeight + 2;
+                int visibleHeight = (int)((textMaxY - textY) / textScale);
+                int maxVisibleLines = visibleHeight / lineHeight;
+
+                int scrollbarY = getY() + SCROLLBAR_PADDING;
+                int scrollbarHeight = height - SCROLLBAR_PADDING * 2;
+                float contentRatio = (float) maxVisibleLines / visualLines.size();
+                int minThumbHeight = 15;
+                int thumbHeight = Math.max(minThumbHeight, (int)(scrollbarHeight * contentRatio));
+                float scrollRatio = visualLines.size() > maxVisibleLines
+                        ? (float) scrollOffset / (visualLines.size() - maxVisibleLines)
+                        : 0;
+                int thumbY = scrollbarY + (int)((scrollbarHeight - thumbHeight) * scrollRatio);
+
+                if (!isMouseOverScrollbarThumb((int)mouseX, (int)mouseY,
+                        getX() + width - scrollBarWidth - SCROLLBAR_PADDING, thumbY, thumbHeight)) {
+
+                    float clickPos = (float)(mouseY - scrollbarY - thumbHeight / 2.0);
+                    float availableTrack = scrollbarHeight - thumbHeight;
+                    float clickRatio = Math.max(0, Math.min(1, clickPos / availableTrack));
+                    int maxScroll = Math.max(0, visualLines.size() - maxVisibleLines);
+                    scrollOffset = (int)(clickRatio * maxScroll);
+                    clampScrollOffset();
+                }
+
+                return true;
             }
-            int offset = (int) Math.round(mouseY) - currentThumbY;
-            // Clamp within thumb
-            this.thumbGrabOffset = Mth.clamp(offset, 0, thumbHeight);
 
-            return true;
-        }
+            if (readOnly) return false;
 
-        // Focus the widget so wheel works; avoid selection change in read-only
-        this.shiftPressed = readOnly ? false : Screen.hasShiftDown();
-        if (!readOnly && !this.shiftPressed) {
-            this.setSelectionAnchor(this.cursorPos);
-        }
+            int textX = getX() + paddingX;
+            int textY = getY() + paddingY;
 
-        return super.mouseClicked(mouseX, mouseY, button);
-    }
+            int relativeX = (int) ((mouseX - textX) / this.textScale);
+            int relativeY = (int) ((mouseY - textY) / this.textScale);
 
-    @Override
-    public void onClick(double mouseX, double mouseY) {
-        // Only handle caret positioning when not read-only
-        if (readOnly) {
-            return;
-        }
+            int lineHeight = this.font.lineHeight + 2;
+            int visualLineIndex = relativeY / lineHeight + scrollOffset;
+            if (visualLineIndex < 0) visualLineIndex = 0;
+            if (visualLineIndex >= visualLines.size()) visualLineIndex = visualLines.size() - 1;
 
-        if (mouseX >= this.getX() + paddingX && mouseX < this.getX() + this.width - paddingX - scrollBarWidth &&
-                mouseY >= this.getY() + paddingY && mouseY < this.getY() + this.height - paddingY) {
+            VisualLine vLine = visualLines.get(visualLineIndex);
 
-            //---VR keyboard (only when not read-only)
-            if (VisorAPI.clientState().stateMode().isActive()) {
-                var keyboardAccessor = VisorAPI.client().getGuiManager()
-                        .getOverlayManager()
-                        .getKeyboardAccessor();
-                var cursorHandler = VisorAPI.client().getGuiManager().getCursorHandler();
-                if (cursorHandler.isCursorHandFocused()) {
-                    VROverlayScreen overlayBase = null;
-                    if (cursorHandler.getFocusedOverlay() instanceof VROverlayScreen overlayScreen) {
-                        overlayBase = overlayScreen;
+            int colInVisualLine = 0;
+            for (int i = 0; i <= vLine.text.length(); i++) {
+                String substr = vLine.text.substring(0, i);
+                int charWidth = this.font.width(substr);
+
+                if (i < vLine.text.length()) {
+                    String nextSubstr = vLine.text.substring(0, i + 1);
+                    int nextCharWidth = this.font.width(nextSubstr);
+                    int midPoint = (charWidth + nextCharWidth) / 2;
+
+                    if (relativeX < midPoint) {
+                        colInVisualLine = i;
+                        break;
                     }
-                    Screen screenFocused = overlayBase == null
-                            ? Minecraft.getInstance().screen
-                            : overlayBase;
-                    keyboardAccessor.showKeyboard(screenFocused);
-                }
-            }
-
-            // Click positions caret; follow caret here
-            followCaret = true;
-
-            //---Click logic
-            calculateLines();
-
-            double relativeX = (mouseX - (getX() + paddingX)) / textScale;
-            double relativeY = (mouseY - (getY() + paddingY)) / textScale + scrollOffset;
-            int lineIndex = Mth.floor(relativeY / getLineHeight());
-
-            if (lineIndex >= 0 && lineIndex < textLines.size()) {
-                String lineText = textLines.get(lineIndex);
-                int lineStart = lineStartIndices.get(lineIndex);
-
-                if (lineText.isEmpty() || lineText.trim().isEmpty()) {
-                    moveCursorTo(lineStart);
                 } else {
-                    int charPos = findClosestCharPosition(lineText, relativeX);
-                    int newCursorPos = lineStart + charPos;
-                    moveCursorTo(newCursorPos);
+                    colInVisualLine = i;
+                    break;
                 }
-            } else if (lineIndex >= textLines.size()) {
-                moveCursorToEnd();
             }
+
+            if (colInVisualLine > vLine.text.length()) colInVisualLine = vLine.text.length();
+
+            this.cursorLine = vLine.logicalLineIndex;
+            this.cursorColumn = vLine.startColumn + colInVisualLine;
+            this.anchorLine = this.cursorLine;
+            this.anchorColumn = this.cursorColumn;
+            this.cachedVisualLineIndex = visualLineIndex;
         }
+        return clicked;
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        // Any mouse drag is a manual scroll/selection gesture: do not auto-follow caret
-        followCaret = false;
+        if (!canConsumeInput()) return false;
 
-        // Text selection drag (only when not read-only and not on scrollbar)
-        if (button == 0 && !this.scrolling && !readOnly) {
-            calculateLines();
+        if (button == 0) {
+            if (isDraggingScrollbar) {
+                int textY = getY() + paddingY;
+                int textMaxY = getY() + height - paddingY;
+                int lineHeight = this.font.lineHeight + 2;
+                int visibleHeight = (int)((textMaxY - textY) / textScale);
+                int maxVisibleLines = visibleHeight / lineHeight;
 
-            if (mouseY < this.getY() + paddingY) {
-                setScrollAmount(getScrollAmount() - getLineHeightScaled());
-            } else if (mouseY > this.getY() + this.height - paddingY) {
-                setScrollAmount(getScrollAmount() + getLineHeightScaled());
+                int scrollbarHeight = height - SCROLLBAR_PADDING * 2;
+
+                double deltaY = mouseY - dragStartY;
+                int maxScroll = Math.max(0, visualLines.size() - maxVisibleLines);
+
+                if (maxScroll > 0) {
+                    float scrollbarRatio = (float)deltaY / scrollbarHeight;
+                    int scrollDelta = (int)(scrollbarRatio * maxScroll);
+                    scrollOffset = dragStartOffset + scrollDelta;
+                    clampScrollOffset();
+                }
+
+                return true;
             }
 
-            double relativeX = (mouseX - (this.getX() + paddingX)) / textScale;
-            double relativeY = (mouseY - (this.getY() + paddingY)) / textScale + scrollOffset;
-            int lineIndex = Mth.floor(relativeY / getLineHeight());
+            if (readOnly) return false;
 
-            if (lineIndex < 0) {
-                this.setCursorPositionKeepAnchor(0);
-            } else if (lineIndex >= textLines.size()) {
-                this.setCursorPositionKeepAnchor(value.length());
-            } else {
-                String lineText = textLines.get(lineIndex);
-                int lineStart = lineStartIndices.get(lineIndex);
-                if (lineText.isEmpty() || lineText.trim().isEmpty()) {
-                    this.setCursorPositionKeepAnchor(lineStart);
+            int textX = getX() + paddingX;
+            int textY = getY() + paddingY;
+
+            int relativeX = (int) ((mouseX - textX) / this.textScale);
+            int relativeY = (int) ((mouseY - textY) / this.textScale);
+
+            int lineHeight = this.font.lineHeight + 2;
+            int visualLineIndex = relativeY / lineHeight + scrollOffset;
+            if (visualLineIndex < 0) visualLineIndex = 0;
+            if (visualLineIndex >= visualLines.size()) visualLineIndex = visualLines.size() - 1;
+
+            VisualLine vLine = visualLines.get(visualLineIndex);
+
+            int colInVisualLine = 0;
+            for (int i = 0; i <= vLine.text.length(); i++) {
+                String substr = vLine.text.substring(0, i);
+                int charWidth = this.font.width(substr);
+
+                if (i < vLine.text.length()) {
+                    String nextSubstr = vLine.text.substring(0, i + 1);
+                    int nextCharWidth = this.font.width(nextSubstr);
+                    int midPoint = (charWidth + nextCharWidth) / 2;
+
+                    if (relativeX < midPoint) {
+                        colInVisualLine = i;
+                        break;
+                    }
                 } else {
-                    int charPos = findClosestCharPosition(lineText, relativeX);
-                    this.setCursorPositionKeepAnchor(lineStart + charPos);
+                    colInVisualLine = i;
+                    break;
                 }
             }
-            return true;
-        }
 
-        // Scrollbar drag: only when drag started on scrollbar
-        if (button == 0 && this.scrolling) {
-            lastScrollingCall = System.currentTimeMillis();
+            if (colInVisualLine > vLine.text.length()) colInVisualLine = vLine.text.length();
 
-            int trackY = this.getY() + paddingY;
-            int trackHeight = this.height - paddingY * 2;
-
-            int contentHeightUnscaled = this.textLines.size() * getLineHeight();
-            int visibleHeightUnscaled = (int) ((this.height - (paddingY * 2)) / textScale);
-
-            int thumbHeight = Math.max(
-                    16,
-                    Math.min(
-                            trackHeight,
-                            (int) Math.round((double) visibleHeightUnscaled / (double) contentHeightUnscaled * trackHeight)
-                    )
-            );
-
-            double thumbTravel = Math.max(0.0, trackHeight - thumbHeight);
-            double grab = (thumbGrabOffset >= 0) ? thumbGrabOffset : (thumbHeight / 2.0);
-            double thumbPos = Mth.clamp(mouseY - trackY - grab, 0.0, thumbTravel);
-            double ratio = (thumbTravel <= 0.0) ? 0.0 : (thumbPos / thumbTravel);
-            this.setScrollAmount(ratio * this.maxScrollOffset);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        if (this.isHoveredOrFocused() && this.visible) {
-            // Manual scroll -> stop following caret
-            followCaret = false;
-            this.setScrollAmount(this.getScrollAmount() - scrollDelta * (double) getLineHeightScaled() / 2.0);
+            this.cursorLine = vLine.logicalLineIndex;
+            this.cursorColumn = vLine.startColumn + colInVisualLine;
+            this.cachedVisualLineIndex = visualLineIndex;
             return true;
         }
         return false;
@@ -991,103 +893,103 @@ public class TextBoxEditable extends AbstractWidget {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            this.scrolling = false;
-            this.thumbGrabOffset = -1;
+        if (button == 0 && isDraggingScrollbar) {
+            isDraggingScrollbar = false;
+            scrollbarClicked = false;
+            return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    private int findClosestCharPosition(String text, double relativeX) {
-        if (text.isEmpty()) return 0;
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+        if (!this.isMouseOver(mouseX, mouseY)) {
+            return false;
+        }
 
-        int clickX = (int) relativeX;
+        int scrollAmount = (int) -scrollDelta * 3;
+        scrollOffset += scrollAmount;
+        clampScrollOffset();
+        return true;
+    }
 
-        if (clickX <= 0) return 0;
-        if (clickX >= font.width(text)) return text.length();
+    private void clampScrollOffset() {
+        int textMaxY = getY() + height - paddingY;
+        int textY = getY() + paddingY;
+        int lineHeight = this.font.lineHeight + 2;
+        int visibleHeight = (int)((textMaxY - textY) / textScale);
+        int maxVisibleLines = visibleHeight / lineHeight;
 
-        int low = 0;
-        int high = text.length();
+        int maxScroll = Math.max(0, visualLines.size() - maxVisibleLines);
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+    }
 
-        while (low < high) {
-            int mid = (low + high) / 2;
-            int width = font.width(text.substring(0, mid));
+    private void scrollToCursor() {
+        int visualLineIndex = getVisualLineIndex(cursorLine, cursorColumn);
+        if (visualLineIndex < 0) return;
 
-            if (width < clickX) {
-                low = mid + 1;
-            } else {
-                high = mid;
+        int textMaxY = getY() + height - paddingY;
+        int textY = getY() + paddingY;
+        int lineHeight = this.font.lineHeight + 2;
+        int visibleHeight = (int)((textMaxY - textY) / textScale);
+        int maxVisibleLines = visibleHeight / lineHeight;
+
+        if (visualLineIndex >= scrollOffset + maxVisibleLines) {
+            scrollOffset = visualLineIndex - maxVisibleLines + 1;
+        }
+
+        if (visualLineIndex < scrollOffset) {
+            scrollOffset = visualLineIndex;
+        }
+
+        clampScrollOffset();
+    }
+
+    public void setValue (String value) {
+        this.lines = new ArrayList<>(Arrays.asList(value.split("\n", -1)));
+        this.cursorLine = lines.size() - 1;
+        this.cursorColumn = lines.get(cursorLine).length();
+        this.anchorLine = cursorLine;
+        this.anchorColumn = cursorColumn;
+        rebuildLines();
+        scrollToCursor();
+        onValueChange();
+    }
+
+    public String getValue() {
+        return String.join("\n", lines);
+    }
+
+    private void onValueChange() {
+        if (this.responder != null) {
+            this.responder.accept(getValue());
+        }
+    }
+
+    private void showKeyboard(){
+        if (VisorAPI.clientState().stateMode().isActive()) {
+            var keyboardAccessor = VisorAPI.client().getGuiManager()
+                    .getOverlayManager()
+                    .getKeyboardAccessor();
+            var cursorHandler = VisorAPI.client().getGuiManager().getCursorHandler();
+            if (cursorHandler.isCursorHandFocused()) {
+                VROverlayScreen overlayBase = null;
+                if (cursorHandler.getFocusedOverlay() instanceof VROverlayScreen overlayScreen) {
+                    overlayBase = overlayScreen;
+                }
+                Screen screenFocused = overlayBase == null
+                        ? Minecraft.getInstance().screen
+                        : overlayBase;
+                keyboardAccessor.showKeyboard(screenFocused);
             }
-        }
-
-        if (low > 0) {
-            int beforeWidth = font.width(text.substring(0, low - 1));
-            int atWidth = font.width(text.substring(0, low));
-
-            if (clickX - beforeWidth < atWidth - clickX) {
-                return low - 1;
-            }
-        }
-
-        return low;
-    }
-
-    protected boolean isScrollbarHovered(double mouseX, double mouseY) {
-        int scrollbarX = getScrollbarX();
-        return mouseX >= scrollbarX && mouseX < scrollbarX + scrollBarWidth &&
-                mouseY >= this.getY() && mouseY < this.getY() + this.height;
-    }
-
-    protected int getScrollbarX() {
-        return this.getX() + this.width - scrollBarWidth;
-    }
-
-    protected int getLineHeightScaled() {
-        return (int) (getLineHeight() * textScale);
-    }
-
-    protected int getLineHeight() {
-        return font.lineHeight + LINE_PADDING;
-    }
-
-    public double getScrollAmount() {
-        return this.scrollOffset;
-    }
-
-    public void setScrollAmount(double amount) {
-        calculateLines();
-        this.scrollOffset = (int) Mth.clamp(amount, 0.0D, this.maxScrollOffset);
-    }
-
-    public void setSelectionAnchor(int position) {
-        this.selectionAnchor = Mth.clamp(position, 0, this.value.length());
-        updateCursorCoordinates = true;
-    }
-    private void setCursorPositionKeepAnchor(int pos) {
-        this.cursorPos = Mth.clamp(pos, 0, this.value.length());
-        this.updateCursorCoordinates = true;
-    }
-
-    public boolean isTextSelected() {
-        return selectionAnchor != cursorPos;
-    }
-
-    public void setReadOnly(boolean readOnly) {
-        this.readOnly = readOnly;
-        if (readOnly) {
-            followCaret = false;
-            this.selectionAnchor = this.cursorPos;
-        }
-    }
-
-    public void setMaxLength(int length) {
-        this.maxLength = length;
-        if (this.value.length() > length) {
-            this.setValue(this.value.substring(0, length));
         }
     }
 
     @Override
-    protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+        if (focused && !this.readOnly && !scrollbarClicked) {
+            showKeyboard();
+        }
     }
 }

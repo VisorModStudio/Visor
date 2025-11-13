@@ -215,7 +215,7 @@ public interface VRCursorHandler {
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
-     * @param guiAspectRatio the aspect ratio between width and height of the gui
+     * @param guiAspectRatio the aspect ratio between height and width of the gui
      *
      * @return Vector where x,y are cursor coordinates and z is cursor length
      */
@@ -233,7 +233,7 @@ public interface VRCursorHandler {
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
-     * @param guiAspectRatio the aspect ratio between width and height of the gui
+     * @param guiAspectRatio the aspect ratio between height and width of the gui
      *
      * @return Vector where x,y are cursor coordinates
      */

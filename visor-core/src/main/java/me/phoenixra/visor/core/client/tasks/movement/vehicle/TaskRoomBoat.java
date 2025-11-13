@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement.vehicle;
+package me.phoenixra.visor.core.client.tasks.movement.vehicle;
 
 
 import lombok.Getter;
@@ -8,7 +8,6 @@ import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.vehicle.Boat;

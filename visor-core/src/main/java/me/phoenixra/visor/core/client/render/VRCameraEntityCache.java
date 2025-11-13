@@ -23,7 +23,7 @@ public class VRCameraEntityCache {
 
     private float height;
 
-    public void apply(LivingEntity entity){
+    public void apply(Entity entity){
         entity.setPosRaw(
                 x,y,z
         );
@@ -37,8 +37,10 @@ public class VRCameraEntityCache {
         entity.setXRot(pitch);
         entity.yRotO = lastYaw;
         entity.xRotO = lastPitch;
-        entity.yHeadRot =yaw;
-        entity.yHeadRotO = lastYaw;
+        if (entity instanceof LivingEntity livingEntity) {
+            livingEntity.yHeadRot = yaw;
+            livingEntity.yHeadRotO = lastYaw;
+        }
         entity.eyeHeight = height;
     }
 

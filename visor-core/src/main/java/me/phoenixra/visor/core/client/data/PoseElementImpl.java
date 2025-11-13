@@ -96,16 +96,16 @@ public class PoseElementImpl implements PoseElement {
 
 
 
-    protected void onOriginChanged(Vector3fc origin){
+    protected void onOriginChanged(Vector3fc newOrigin){
         this.position = this.position
                 .add(
-                        origin.x() - originCached.x(),
-                        origin.y() - originCached.y(),
-                        origin.z() - originCached.z(),
+                        newOrigin.x() - originCached.x(),
+                        newOrigin.y() - originCached.y(),
+                        newOrigin.z() - originCached.z(),
                         new Vector3f()
                 );
 
-        originCached = origin;
+        originCached = newOrigin;
     }
 
     @Override
@@ -126,6 +126,16 @@ public class PoseElementImpl implements PoseElement {
                         new Vector3f()
                 );
     }
+
+
+    public Vector3f getScalePosOffset(float rotaionY, float oldWorldScale, float newWorldScale) {
+        Vector3f oldPos = position.mul(oldWorldScale, new Vector3f())
+                .rotateY(rotaionY);
+        Vector3f newPos = position.mul(newWorldScale, new Vector3f())
+                .rotateY(rotaionY);
+        return newPos.sub(oldPos);
+    }
+
 
 
     @Override

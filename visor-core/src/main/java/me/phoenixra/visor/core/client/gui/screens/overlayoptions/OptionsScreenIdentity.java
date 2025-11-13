@@ -14,8 +14,8 @@ public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity>
 
     private SetupIdentityWidgetSet widgetSet;
 
-    public OptionsScreenIdentity(@NotNull OverlayOptionsIdentity optionCategory) {
-        super(optionCategory, Background.VERTICAL);
+    public OptionsScreenIdentity(@NotNull OverlayOptionsIdentity optionsGroup) {
+        super(optionsGroup, Background.VERTICAL);
     }
 
     @Override
@@ -27,18 +27,18 @@ public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity>
         );
         widgetSet.initWidgets();
 
-        widgetSet.getNameWidget().setValue(optionCategory.getRawName());
-        widgetSet.getNameWidget().setResponder(optionCategory::setName);
+        widgetSet.getNameWidget().setValue(optionsGroup.getRawName());
+        widgetSet.getNameWidget().setResponder(optionsGroup::setName);
 
-        widgetSet.getDescriptionWidget().setValue(optionCategory.getRawDescription());
-        widgetSet.getDescriptionWidget().setResponder(optionCategory::setDescription);
+        widgetSet.getDescriptionWidget().setValue(optionsGroup.getRawDescription());
+        widgetSet.getDescriptionWidget().setResponder(optionsGroup::setDescription);
 
         Consumer<String> responder = (text) -> {
 
         };
         responder.accept("newText");
-        widgetSet.getSetupIconWidget().setIconPath(optionCategory.getRawIcon());
-        widgetSet.getSetupIconWidget().setResponder(optionCategory::setIcon);
+        widgetSet.getSetupIconWidget().setIconPath(optionsGroup.getRawIcon());
+        widgetSet.getSetupIconWidget().setResponder(optionsGroup::setIcon);
 
         widgetSet.getWidgets().forEach(this::addRenderableWidget);
 

@@ -1,6 +1,11 @@
 package me.phoenixra.visor.modified.client.render;
 
+import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
+import me.phoenixra.visor.core.client.render.VRRenderState;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -13,11 +18,19 @@ public interface GameRendererModified {
     void visor$setVRGuiVisible(boolean flag);
 
 
-    void visor$setupCameraEntity();
+    void visor$setupCameraEntity(PoseElement poseElement);
 
-    void visor$cacheCameraEntity(LivingEntity e);
+    default void visor$setupCameraEntityDisplay(){
+        visor$setupCameraEntity(
+                ClientContext.player
+                .getPoseData(PoseDataType.RENDER)
+                .getElementForDisplay(VRRenderState.getCurrentVRDisplay())
+        );
+    }
 
-    void visor$restoreCameraEntity(LivingEntity e);
+    void visor$cacheCameraEntity(Entity e);
+
+    void visor$restoreCameraEntity(Entity e);
 
 
     void visor$setupClipPlanes();

@@ -41,7 +41,7 @@ public class GameActionSet extends VisorActionSet {
 
     @Override
     public boolean canActivate() {
-        return MC.screen == null;
+        return MC.screen == null && MC.player != null;
     }
 
     @Override

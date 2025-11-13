@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement.vehicle;
+package me.phoenixra.visor.core.client.tasks.movement.vehicle;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseElement;
@@ -12,7 +12,7 @@ import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
-import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomSneak;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneak;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;

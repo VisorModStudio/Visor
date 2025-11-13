@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types;
+package me.phoenixra.visor.core.client.tasks;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.data.PoseDataType;

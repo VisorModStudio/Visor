@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement;
+package me.phoenixra.visor.core.client.tasks.movement;
 
 
 import lombok.Getter;
@@ -10,7 +10,6 @@ import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.data.PoseDataImpl;
-import me.phoenixra.visor.core.client.data.PoseDataHelper;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
@@ -23,12 +22,14 @@ import org.joml.Vector3f;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-
+//Task for movement of player in room
 @RegisterVisorTask
 public class TaskRoomMovement extends VisorTask {
     private static final String ID = "room_movement";
     @Getter
     private static TaskRoomMovement instance;
+
+    private int freezeMovementTimer;
 
     public TaskRoomMovement(@NotNull VisorAddon owner) {
         super(owner);
@@ -37,19 +38,24 @@ public class TaskRoomMovement extends VisorTask {
 
     @Override
     protected void onRun(@Nullable LocalPlayer player) {
+        if (this.freezeMovementTimer > 0) {
+            this.freezeMovementTimer--;
+            return;
+        }
+
+        //@TODO maybe block this logic when player moves via input?
+
         PoseDataImpl preTickPose = ClientContext.player
                 .getPoseData(PoseDataType.PRE_TICK);
         var origin = ClientContext.player.getOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 
-        var headPivot = PoseDataHelper.getHeadPivot(
+        var headPivot = preTickPose.createNewHeadPivot(
                 origin,
-                VRClientSettings.getWalkMultiplier(),
-                worldScale,
-                preTickPose.getRotationY()
+                worldScale
         );
 
-        float playerHalfWidth = player.getBbWidth() / 2.0F;
+        float playerHalfWidth = player.getBbWidth() / 2f;
         float playerHeight = player.getBbHeight();
         double playerPosY = player.getY();
 
@@ -67,8 +73,8 @@ public class TaskRoomMovement extends VisorTask {
         // If there is no collision at the destination,
         // update the player's position
         if (MC.level.noCollision(player, collisionBox)) {
-            double posY = player.getY();
-            player.setPosRaw(headPivot.x, posY, headPivot.z);
+            //avoid using player.setPos() since it is overridden by Visor
+            player.setPosRaw(headPivot.x, player.getY(), headPivot.z);
             player.setBoundingBox(collisionBox);
             player.fallDistance = 0.0F;
             return;
@@ -99,33 +105,37 @@ public class TaskRoomMovement extends VisorTask {
 
 
             // Attempt to move upward in small increments until a collision-free space is found.
-            for (int i = 0; i <= 16; ++i) {
+            for (int i = 0; i <= 10; ++i) {
                 collisionBox = collisionBox.move(0.0D, 0.1D, 0.0D);
-                if (!MC.level.noCollision(player, collisionBox)) {
-                    continue;
+
+                if (MC.level.noCollision(player, collisionBox)) {
+                    player.setPosRaw(
+                            headPivot.x,
+                            collisionBox.minY,
+                            headPivot.z
+                    );
+                    player.setBoundingBox(collisionBox);
+
+                    var newRoomOrigin = origin.add(
+                            0.0f, 0.1f * (i + 1), 0.0f,
+                            new Vector3f()
+                    );
+                    ClientContext.player.setOrigin(
+                            newRoomOrigin.x,
+                            newRoomOrigin.y,
+                            newRoomOrigin.z,
+                            false
+                    );
+
+                    player.fallDistance = 0.0F;
+                    ((LocalPlayerModified) MC.player).visor$stepSound(
+                            BlockPos.containing(player.position()),
+                            player.position()
+                    );
+                    break;
                 }
 
-                // Update player's position and bounding box.
-                player.setPosRaw(headPivot.x, collisionBox.minY, headPivot.z);
-                player.setBoundingBox(collisionBox);
 
-                var newRoomOrigin = origin.add(
-                        0.0f, 0.1f * (i + 1), 0.0f,
-                        new Vector3f()
-                );
-                ClientContext.player.setOrigin(
-                        newRoomOrigin.x,
-                        newRoomOrigin.y,
-                        newRoomOrigin.z,
-                        false
-                );
-
-                player.fallDistance = 0.0F;
-                ((LocalPlayerModified) MC.player).visor$stepSound(
-                        BlockPos.containing(player.position()),
-                        player.position()
-                );
-                break;
             }
         }
     }
@@ -140,7 +150,8 @@ public class TaskRoomMovement extends VisorTask {
         return player != null
                 && !player.isShiftKeyDown()
                 && !player.isSleeping()
-                && player.isAlive();
+                && player.isAlive()
+                && !ClientContext.player.isMoving();
     }
 
     @Override

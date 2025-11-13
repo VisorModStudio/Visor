@@ -51,8 +51,8 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     private boolean emulateCache;
     private boolean dragCache;
 
-    public OptionsScreenPose(@NotNull OverlayOptionsPose optionCategory) {
-        super(optionCategory, Background.VERTICAL_WIDER);
+    public OptionsScreenPose(@NotNull OverlayOptionsPose optionsGroup) {
+        super(optionsGroup, Background.VERTICAL_WIDER);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
                                 OptionTextures.HOVERED_HIGHLIGHT)
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.aimed.tooltip"))),
                 (p) ->
-                        setAimed(!optionCategory.isAimedRotation())
+                        setAimed(!optionsGroup.isAimedRotation())
         );
 
 
@@ -159,17 +159,17 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
                         .setScaleText(true),
                 Lists.newArrayList(PoseAnchor.values()),
                 (it)->{
-                    optionCategory.setPositionAnchor(it.getSelected());
+                    optionsGroup.setPositionAnchor(it.getSelected());
                     it.setText(
                             Component.translatable(
                                     "visor.overlay.options.pose.position_anchor",
-                                    optionCategory.getPositionAnchor()
+                                    optionsGroup.getPositionAnchor()
                             )
                     );
                 }
         );
         positionAnchorSlider.setSelected(
-                optionCategory.getPositionAnchor(),
+                optionsGroup.getPositionAnchor(),
                 true
         );
 
@@ -184,24 +184,24 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
                         .setScaleText(true),
                 Lists.newArrayList(PoseAnchor.values()),
                 (it)->{
-                    optionCategory.setRotationAnchor(it.getSelected());
+                    optionsGroup.setRotationAnchor(it.getSelected());
                     it.setText(
                             Component.translatable(
                                     "visor.overlay.options.pose.rotation_anchor",
-                                    optionCategory.getRotationAnchor()
+                                    optionsGroup.getRotationAnchor()
                             )
                     );
                 }
         );
         rotationAnchorSlider.setSelected(
-                optionCategory.getRotationAnchor(),
+                optionsGroup.getRotationAnchor(),
                 true
         );
 
 
         poseEditorWidgetSet = new PoseEditorWidgetSet(
                 cursorBoundsX + 14, cursorBoundsY + 106,
-                optionCategory,
+                optionsGroup,
                 this::repopulateWidgets
         );
 
@@ -219,7 +219,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
         poseEditorWidgetSet.initWidgets().forEach(this::addRenderableWidget);
 
 
-        setAimed(optionCategory.isAimedRotation());
+        setAimed(optionsGroup.isAimedRotation());
         setDemonstrating(true);
         setEmulating(true);
 
@@ -239,7 +239,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     @Override
     public void tick() {
         if(demoDisplayed && !demoOverlay.isEnabled()){
-            demoOverlay.showDemo(optionCategory.getOwner());
+            demoOverlay.showDemo(optionsGroup.getOwner());
         }else if(!demoDisplayed && demoOverlay.isEnabled()){
             demoOverlay.setEnabled(false);
         }
@@ -263,9 +263,9 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     }
 
     private void updateEditors(){
-        var posOffset = optionCategory.getPositionOffset();
-        var rotOffset = optionCategory.getRotationOffset();
-        var scale = optionCategory.getScale();
+        var posOffset = optionsGroup.getPositionOffset();
+        var rotOffset = optionsGroup.getRotationOffset();
+        var scale = optionsGroup.getScale();
 
         var xPosEditor = poseEditorWidgetSet.getXPositionEditor();
         var yPosEditor = poseEditorWidgetSet.getYPositionEditor();
@@ -341,7 +341,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     }
     public void setAimed(boolean flag){
         boolean aimed = flag;
-        optionCategory.setAimedRotation(aimed);
+        optionsGroup.setAimedRotation(aimed);
         aimButton.getWidgetInfo().setTexture(
                 aimed
                         ? OptionsPoseTextures.BUTTON_AIM_ACTIVE

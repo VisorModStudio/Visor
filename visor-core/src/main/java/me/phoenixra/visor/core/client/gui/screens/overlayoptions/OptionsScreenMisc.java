@@ -17,8 +17,8 @@ public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
 
 
 
-    public OptionsScreenMisc(@NotNull OverlayOptionsMisc optionCategory) {
-        super(optionCategory, Background.VERTICAL);
+    public OptionsScreenMisc(@NotNull OverlayOptionsMisc optionsGroup) {
+        super(optionsGroup, Background.VERTICAL);
     }
 
     @Override
@@ -26,7 +26,7 @@ public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
 
         var text = Component.translatable(
                 "visor.overlay.options.misc.update_options",
-                optionCategory.getOptionsUpdaterType().getName().getString()
+                optionsGroup.getOptionsUpdaterType().getName().getString()
         );
         var button = new ButtonImaged(
                 new WidgetInfoButtonImaged()
@@ -42,13 +42,13 @@ public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
                         .setScaleText(true)
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.misc.update_options.tooltip"))),
                 (it) -> {
-                    optionCategory.setOptionsUpdaterType(
-                            optionCategory.getOptionsUpdaterType().next()
+                    optionsGroup.setOptionsUpdaterType(
+                            optionsGroup.getOptionsUpdaterType().next()
                     );
                     it.setMessage(
                             Component.translatable(
                                     "visor.overlay.options.misc.update_options",
-                                    optionCategory.getOptionsUpdaterType().getName().getString()
+                                    optionsGroup.getOptionsUpdaterType().getName().getString()
                             )
                     );
                 }

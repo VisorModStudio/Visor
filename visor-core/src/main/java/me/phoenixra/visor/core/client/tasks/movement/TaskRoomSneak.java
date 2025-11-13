@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.tasks.types.movement;
+package me.phoenixra.visor.core.client.tasks.movement;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class TaskRoomSneak extends VisorTask {
     @Override
     protected void onRun(LocalPlayer player) {
         if (!MC.isPaused() && sneakTimer > 0) {
-            --sneakTimer;
+            sneakTimer--;
         }
 
         final double playerHeight = VRClientSettings.getPlayerHeight();
@@ -53,17 +53,19 @@ public class TaskRoomSneak extends VisorTask {
     }
 
     @Override
-    public boolean isActive(LocalPlayer p) {
-        if(!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)){
+    public boolean isActive(LocalPlayer player) {
+        if(ClientContext.visor
+                .isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
-        }
-        if (MC.gameMode == null) {
+        } else if (MC.gameMode == null) {
             return false;
+        } else if (player == null
+                || !player.isAlive()
+                || !player.onGround()) {
+            return false;
+        } else {
+            return !player.isPassenger();
         }
-        if (p != null && p.isAlive() && p.onGround()) {
-            return !p.isPassenger();
-        }
-        return false;
     }
 
     @Override

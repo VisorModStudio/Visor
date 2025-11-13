@@ -1,5 +1,8 @@
 package me.phoenixra.visor.mixin.client.renderer;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -41,8 +44,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 
     @Unique
-    private Entity visor$capturedEntity;
-    @Unique
     private Entity visor$renderedEntity;
 
 
@@ -66,27 +67,29 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 
     @Inject(at = @At("HEAD"), method = "renderEntity")
-    public void visor$captureEntityRestoreLoc(Entity entity, double d, double e, double f, float g, PoseStack poseStack,
-                                              MultiBufferSource multiBufferSource, CallbackInfo ci
+    public void visor$captureEntityRestore(CallbackInfo ci,
+                                              @Local(argsOnly = true) Entity entity,
+                                              @Share("capturedEntity") LocalRef<Entity> capturedEntity
     ) {
-        this.visor$capturedEntity = entity;
         if (VRRenderState.getCurrentPhase().isNotVanilla()
-                && visor$capturedEntity == minecraft.getCameraEntity()) {
-            ((GameRendererModified) minecraft.gameRenderer).visor$restoreCameraEntity((LivingEntity) visor$capturedEntity);
+                && entity == minecraft.getCameraEntity()) {
+            capturedEntity.set(entity);
+            ((GameRendererModified) minecraft.gameRenderer)
+                    .visor$restoreCameraEntity(entity);
         }
-        this.visor$renderedEntity = visor$capturedEntity;
+        this.visor$renderedEntity = entity;
     }
 
     @Inject(at = @At("TAIL"), method = "renderEntity")
-    public void visor$restoreLoc2(Entity entity, double d, double e, double f, float g, PoseStack poseStack,
-                                  MultiBufferSource multiBufferSource, CallbackInfo ci
+    public void visor$captureEntitySetup(CallbackInfo ci,
+                                  @Local(argsOnly = true) Entity entity,
+                                  @Share("capturedEntity") LocalRef<Entity> capturedEntity
     ) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()
-                && visor$capturedEntity == minecraft.getCameraEntity()) {
+        if (capturedEntity.get() != null) {
             ((GameRendererModified) minecraft.gameRenderer)
-                    .visor$cacheCameraEntity((LivingEntity) visor$capturedEntity);
+                    .visor$cacheCameraEntity(capturedEntity.get());
             ((GameRendererModified) minecraft.gameRenderer)
-                    .visor$setupCameraEntity();
+                    .visor$setupCameraEntityDisplay();
         }
         this.visor$renderedEntity = null;
     }

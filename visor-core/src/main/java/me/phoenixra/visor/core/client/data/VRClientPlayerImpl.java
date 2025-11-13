@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.data;
 
 import lombok.Getter;
 
+import lombok.Setter;
 import me.phoenixra.visor.api.client.VRClientPlayer;
 import me.phoenixra.visor.api.client.data.*;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -12,11 +13,12 @@ import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +43,11 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private Vector3fc origin = new Vector3f(0.0f, 0.0f, 0.0f);
     @Getter
     private float worldScale = 1.0f;
+
+
+    //@TODO why is it like this?
+    // mb make rotation through minecraft instead,
+    // we need it in-game only anyway
     @Getter
     private float rotationY = 0f;
 
@@ -49,7 +56,9 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private ControllerHand activeHand = ControllerHand.MAIN;
 
     @Getter
-    private Vector2f inputMovement = new Vector2f();
+    private Vector2f movement = new Vector2f();
+    @Getter @Setter
+    private boolean moving;
 
     public VRClientPlayerImpl() {
         this.roomPose = new PoseDataImpl(PoseDataType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
@@ -98,37 +107,27 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     public void postTick() {
 
-        var posWithOldScale = PoseDataHelper
-                .createHmdPose(
-                        preTickPose.getOrigin(),
-                        VRClientSettings.getWalkMultiplier(),
+        Vector3f scaleOffset = preTickPose.hmd
+                .getScalePosOffset(
+                        preTickPose.getRotationY(),
                         preTickPose.getWorldScale(),
-                        preTickPose.getRotationY()
-                ).getPosition();
+                        this.worldScale
+                );
+        this.origin = this.origin.sub(
+                scaleOffset, new Vector3f()
+        );
 
-        var posWithNewScale = PoseDataHelper
-                .createHmdPose(
-                        preTickPose.getOrigin(),
-                        VRClientSettings.getWalkMultiplier(),
-                        worldScale,
-                        preTickPose.getRotationY()
-                ).getPosition();
 
-        Vector3f scaleDiff = posWithNewScale.sub(posWithOldScale, new Vector3f());
-        this.origin = this.origin.sub(scaleDiff, new Vector3f());
-
-        Vector3f headPivot = PoseDataHelper.getHeadPivot(
+        Vector3f headPivot = preTickPose.createNewHeadPivot(
                 origin,
-                VRClientSettings.getWalkMultiplier(),
-                worldScale,
-                preTickPose.getRotationY()
+                worldScale
         );
 
         float currentRotation = this.rotationY;
-        float preTickRotation = this.preTickPose.getRotationY();
+        float oldRotation = this.preTickPose.getRotationY();
         this.rotateOriginAround(
                 headPivot,
-                 preTickRotation - currentRotation
+                 oldRotation - currentRotation
         );
 
         this.postTickPose.update(
@@ -279,7 +278,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         player.setXRot(-data.hmd.getPitch());
     }
 
-    public void recenterOrigin(@NotNull LocalPlayer player,
+    public void recenterOrigin(@NotNull Entity cameraEntity,
                                boolean reset) {
 
 
@@ -289,18 +288,17 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 this.preTickPose.getOrigin(),
                 new Vector3f()
         );
-        float x = (float) (player.getX() - headOffset.x);
-        float z = (float) (player.getZ() - headOffset.z);
-        float y = (float) (player.getY() + ((LocalPlayerModified) player).visor$getRoomYOffset());
+        float x = (float) (cameraEntity.getX() - headOffset.x);
+        float z = (float) (cameraEntity.getZ() - headOffset.z);
+        float y = (float) (cameraEntity.getY());
+        if (cameraEntity instanceof LocalPlayerModified p) {
+            y += (float) p.visor$getRoomYOffset();
+        }
         this.setOrigin(x, y, z, reset);
-
     }
 
     public void rotateOriginAround(Vector3fc anchor, float radians) {
 
-        if(radians ==0f){
-            return;
-        }
         float radSin = Mth.sin(radians);
         float radCos = Mth.cos(radians);
         this.setOrigin(

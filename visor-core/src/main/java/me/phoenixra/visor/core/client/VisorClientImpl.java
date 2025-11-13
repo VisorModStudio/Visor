@@ -25,7 +25,7 @@ import me.phoenixra.visor.core.client.render.VRRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
-import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
+import me.phoenixra.visor.core.client.tasks.registry.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 

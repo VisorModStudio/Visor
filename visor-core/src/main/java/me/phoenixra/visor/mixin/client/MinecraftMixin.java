@@ -9,6 +9,7 @@ import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.modified.client.MinecraftModified;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -78,7 +79,8 @@ public abstract class MinecraftMixin implements MinecraftModified {
 
     @Shadow
     public LocalPlayer player;
-
+    @Shadow
+    public abstract Entity getCameraEntity();
 
     @Shadow
     public abstract void tick();
@@ -425,18 +427,12 @@ public abstract class MinecraftMixin implements MinecraftModified {
      * @param pLevelClient s
      * @param info s
      */
-    @Inject(at = @At("TAIL"), method = "setLevel")
+    @Inject(at = @At("HEAD"), method = "setLevel")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
         if (VisorState.getState().isActive()) {
-            if(player != null){
-                ClientContext.player.recenterOrigin(
-                        player, false
-                );
-            }else {
-                ClientContext.player.setOrigin(
-                        0.0f, 0.0f, 0.0f, true
-                );
-            }
+            ClientContext.player.setOrigin(
+                    0.0f, 0.0f, 0.0f, true
+            );
         }
     }
 
@@ -444,7 +440,21 @@ public abstract class MinecraftMixin implements MinecraftModified {
      /* ************** *\
    //--------MISC--------\\
      \* ************** */
-
+     @Inject(method = "setCameraEntity", at = @At("HEAD"))
+     private void visor$rideEntity(Entity entity, CallbackInfo ci) {
+         if (VisorState.getState().isInitialized() && entity != null) {
+             if (entity != this.getCameraEntity()) {
+                 // snap to entity, if it changed
+                 ClientContext.player.recenterOrigin(entity, true);
+             }
+             if (entity != this.player) {
+                 // ride the new camera entity
+                 TaskRoomVehicle.getInstance().onStartRiding(entity);
+             } else {
+                 TaskRoomVehicle.getInstance().onStopRiding();
+             }
+         }
+     }
     /**
      * Disables vanilla hit result calculation on tick.
      *

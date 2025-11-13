@@ -78,8 +78,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     private int lastWidth = 0;
     private int lastHeight = 0;
 
-    public OptionsScreenRegion(@NotNull OverlayOptionsScreenRegion optionCategory) {
-        super(optionCategory, Background.VERTICAL_WIDER);
+    public OptionsScreenRegion(@NotNull OverlayOptionsScreenRegion optionsGroup) {
+        super(optionsGroup, Background.VERTICAL_WIDER);
     }
 
     @Override
@@ -96,13 +96,13 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         this.previewRegionStartY = yRegionHeight + FIELD_HEIGHT;
 
         this.editorRegionX = new ValueEditorInt.Builder(
-                optionCategory.getRegionX(),
+                optionsGroup.getRegionX(),
                 fieldX,
                 yStart,
                 fieldWidth,
                 FIELD_HEIGHT
         ).range(
-                        0, optionCategory.getScreenWidth()
+                        0, optionsGroup.getScreenWidth()
                 ).editBox(
                         new WidgetInfoEditBox()
                                 .setTexture(OptionTextures.GRAY_TEXTURE)
@@ -116,8 +116,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
                                 .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).setResponder((newRegionX)->{
-                    int maxWidth = optionCategory.getScreenWidth();
-                    int currentWidth = optionCategory.getRegionWidth();
+                    int maxWidth = optionsGroup.getScreenWidth();
+                    int currentWidth = optionsGroup.getRegionWidth();
                     int clamped = Mth.clamp(
                             currentWidth,
                             0,
@@ -126,20 +126,20 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
                     if (clamped != currentWidth) {
                         editorRegionWidth.setValue(clamped, true);
-                        optionCategory.setRegionWidth(clamped);
+                        optionsGroup.setRegionWidth(clamped);
                     }
-                    optionCategory.setRegionX(newRegionX);
+                    optionsGroup.setRegionX(newRegionX);
                 })
                 .build();
 
         this.editorRegionY = new ValueEditorInt.Builder(
-                optionCategory.getRegionY(),
+                optionsGroup.getRegionY(),
                 fieldX,
                 yRegionY,
                 fieldWidth,
                 FIELD_HEIGHT
         ).range(
-                        0, optionCategory.getScreenHeight()
+                        0, optionsGroup.getScreenHeight()
                 ).editBox(
                         new WidgetInfoEditBox()
                                 .setTexture(OptionTextures.GRAY_TEXTURE)
@@ -153,8 +153,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
                                 .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).setResponder((newRegionY)->{
-                    int maxHeight = optionCategory.getScreenHeight();
-                    int currentHeight = optionCategory.getRegionHeight();
+                    int maxHeight = optionsGroup.getScreenHeight();
+                    int currentHeight = optionsGroup.getRegionHeight();
                     int clamped = Mth.clamp(
                             currentHeight,
                             0,
@@ -163,20 +163,20 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
                     if (clamped != currentHeight) {
                         editorRegionHeight.setValue(clamped, true);
-                        optionCategory.setRegionHeight(clamped);
+                        optionsGroup.setRegionHeight(clamped);
                     }
-                    optionCategory.setRegionY(newRegionY);
+                    optionsGroup.setRegionY(newRegionY);
                 })
                 .build();
 
         this.editorRegionWidth = new ValueEditorInt.Builder(
-                optionCategory.getRegionWidth(),
+                optionsGroup.getRegionWidth(),
                 fieldX,
                 yRegionWidth,
                 fieldWidth,
                 FIELD_HEIGHT
         ).range(
-                        0, optionCategory.getScreenWidth()
+                        0, optionsGroup.getScreenWidth()
                 ).editBox(
                         new WidgetInfoEditBox()
                                 .setTexture(OptionTextures.GRAY_TEXTURE)
@@ -190,8 +190,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
                                 .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).setResponder((newRegionWidth)->{
-                    int maxWidth = optionCategory.getScreenWidth();
-                    int regionX = optionCategory.getRegionX();
+                    int maxWidth = optionsGroup.getScreenWidth();
+                    int regionX = optionsGroup.getRegionX();
                     int clamped = Mth.clamp(
                             newRegionWidth,
                             1,
@@ -201,18 +201,18 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                     if (clamped != newRegionWidth) {
                         editorRegionWidth.setValue(clamped, true);
                     }
-                    optionCategory.setRegionWidth(clamped);
+                    optionsGroup.setRegionWidth(clamped);
                 })
                 .build();
 
         this.editorRegionHeight = new ValueEditorInt.Builder(
-                optionCategory.getRegionHeight(),
+                optionsGroup.getRegionHeight(),
                 fieldX,
                 yRegionHeight,
                 fieldWidth,
                 FIELD_HEIGHT
         ).range(
-                0, optionCategory.getScreenHeight()
+                0, optionsGroup.getScreenHeight()
                 ).editBox(
                         new WidgetInfoEditBox()
                                 .setTexture(OptionTextures.GRAY_TEXTURE)
@@ -226,8 +226,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                                 .setTexture(OptionTextures.ARROW_GRAY_RIGHT)
                                 .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                 ).setResponder((newRegionHeight)->{
-                    int maxHeight = optionCategory.getScreenHeight();
-                    int regionY = optionCategory.getRegionY();
+                    int maxHeight = optionsGroup.getScreenHeight();
+                    int regionY = optionsGroup.getRegionY();
                     int clamped = Mth.clamp(
                             newRegionHeight,
                             1,
@@ -237,14 +237,14 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                     if (clamped != newRegionHeight) {
                         editorRegionHeight.setValue(clamped, true);
                     }
-                    optionCategory.setRegionHeight(clamped);
+                    optionsGroup.setRegionHeight(clamped);
                 })
                 .build();
 
-        lastX = optionCategory.getRegionX();
-        lastY = optionCategory.getRegionY();
-        lastWidth = optionCategory.getRegionWidth();
-        lastHeight = optionCategory.getRegionHeight();
+        lastX = optionsGroup.getRegionX();
+        lastY = optionsGroup.getRegionY();
+        lastWidth = optionsGroup.getRegionWidth();
+        lastHeight = optionsGroup.getRegionHeight();
         editorRegionX.initWidgets().forEach(this::addRenderableWidget);
         editorRegionY.initWidgets().forEach(this::addRenderableWidget);
         editorRegionWidth.initWidgets().forEach(this::addRenderableWidget);
@@ -261,7 +261,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 || lastY != regionY
                 || lastWidth != regionWidth
                 || lastHeight != regionHeight){
-            var pose = optionCategory.getOwner().getOption(
+            var pose = optionsGroup.getOwner().getOption(
                     OverlayOptionsPose.ID, OverlayOptionsPose.class
             );
             if(pose != null){
@@ -271,10 +271,10 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 );
                 pose.setScale(pose.getScale() * factor);
             }
-            lastX = optionCategory.getRegionX();
-            lastY = optionCategory.getRegionY();
-            lastWidth = optionCategory.getRegionWidth();
-            lastHeight = optionCategory.getRegionHeight();
+            lastX = optionsGroup.getRegionX();
+            lastY = optionsGroup.getRegionY();
+            lastWidth = optionsGroup.getRegionWidth();
+            lastHeight = optionsGroup.getRegionHeight();
 
         }
         editorRegionX.onTick();
@@ -367,8 +367,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         int availW = Math.max(1, right - left);
         int availH = Math.max(1, bottom - top);
 
-        int fbW = Math.max(1, optionCategory.getScreenWidth());
-        int fbH = Math.max(1, optionCategory.getScreenHeight());
+        int fbW = Math.max(1, optionsGroup.getScreenWidth());
+        int fbH = Math.max(1, optionsGroup.getScreenHeight());
 
         double scale = Math.min(availW / (double) fbW, availH / (double) fbH);
 
@@ -385,7 +385,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     }
 
     private void drawFramebufferPreview(GuiGraphics gui) {
-        RenderTarget target = optionCategory.getTargetSupplier().get();
+        RenderTarget target = optionsGroup.getTargetSupplier().get();
         if (target == null || target.getColorTextureId() <= 0) {
             gui.fill(previewX, previewY, previewX + previewW, previewY + previewH, 0xFF202020);
             gui.renderOutline(previewX, previewY, previewW, previewH, 0x55FFFFFF);
@@ -426,10 +426,10 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
     private void drawInteractiveRegionOverlay(GuiGraphics gui) {
         // Map region rect to preview coordinates
-        int rx = previewX + (int) Math.round(optionCategory.getRegionX() * previewScale);
-        int ry = previewY + (int) Math.round(optionCategory.getRegionY() * previewScale);
-        int rw = Math.max(1, (int) Math.round(optionCategory.getRegionWidth() * previewScale));
-        int rh = Math.max(1, (int) Math.round(optionCategory.getRegionHeight() * previewScale));
+        int rx = previewX + (int) Math.round(optionsGroup.getRegionX() * previewScale);
+        int ry = previewY + (int) Math.round(optionsGroup.getRegionY() * previewScale);
+        int rw = Math.max(1, (int) Math.round(optionsGroup.getRegionWidth() * previewScale));
+        int rh = Math.max(1, (int) Math.round(optionsGroup.getRegionHeight() * previewScale));
 
         // Clamp to preview bounds
         if (rx < previewX) rx = previewX;
@@ -481,10 +481,10 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     // Hit-test helpers
     private DragHandle handleAt(int mouseX, int mouseY) {
         // Region rect in preview coords
-        int rx = previewX + (int) Math.round(optionCategory.getRegionX() * previewScale);
-        int ry = previewY + (int) Math.round(optionCategory.getRegionY() * previewScale);
-        int rw = Math.max(1, (int) Math.round(optionCategory.getRegionWidth() * previewScale));
-        int rh = Math.max(1, (int) Math.round(optionCategory.getRegionHeight() * previewScale));
+        int rx = previewX + (int) Math.round(optionsGroup.getRegionX() * previewScale);
+        int ry = previewY + (int) Math.round(optionsGroup.getRegionY() * previewScale);
+        int rw = Math.max(1, (int) Math.round(optionsGroup.getRegionWidth() * previewScale));
+        int rh = Math.max(1, (int) Math.round(optionsGroup.getRegionHeight() * previewScale));
 
         int tlx = rx;
         int tly = ry;
@@ -554,8 +554,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     }
 
     private void setRegionProperties(int x, int y, int w, int h) {
-        int screenWidth = optionCategory.getScreenWidth();
-        int screenHeight = optionCategory.getScreenHeight();
+        int screenWidth = optionsGroup.getScreenWidth();
+        int screenHeight = optionsGroup.getScreenHeight();
 
         int newX = Math.max(0, Math.min(screenWidth, x));
         int newY = Math.max(0, Math.min(screenHeight, y));
@@ -585,10 +585,10 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         activeHandle = handle;
         dragStartMouseX = (int) mouseX;
         dragStartMouseY = (int) mouseY;
-        startRegionX = optionCategory.getRegionX();
-        startRegionY = optionCategory.getRegionY();
-        startRegionW = optionCategory.getRegionWidth();
-        startRegionH = optionCategory.getRegionHeight();
+        startRegionX = optionsGroup.getRegionX();
+        startRegionY = optionsGroup.getRegionY();
+        startRegionW = optionsGroup.getRegionWidth();
+        startRegionH = optionsGroup.getRegionHeight();
         return true; // captured
     }
 
@@ -654,8 +654,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
             }
             case MOVE_WHOLE: {
                 // Move the entire region while keeping its size; clamp so size doesn't shrink at edges
-                int sw = optionCategory.getScreenWidth();
-                int sh = optionCategory.getScreenHeight();
+                int sw = optionsGroup.getScreenWidth();
+                int sh = optionsGroup.getScreenHeight();
                 int targetX = startRegionX + dxPx;
                 int targetY = startRegionY + dyPx;
                 // clamp to keep full region inside bounds

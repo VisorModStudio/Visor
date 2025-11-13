@@ -13,15 +13,15 @@ public class OptionsScreenGeneral extends OptionsScreen<OverlayOptionsGeneral> {
 
     private WidgetsList widgetsList;
 
-    public OptionsScreenGeneral(@NotNull OverlayOptionsGeneral optionCategory) {
-        super(optionCategory, Background.VERTICAL_WIDER);
+    public OptionsScreenGeneral(@NotNull OverlayOptionsGeneral optionsGroup) {
+        super(optionsGroup, Background.VERTICAL_WIDER);
     }
 
     @Override
     protected void onInit() {
         widgetsList =  new WidgetsList.Builder(
                 this::repopulateWidgets,
-                optionCategory.getPropertyList().stream().map(
+                optionsGroup.getPropertyList().stream().map(
                         Property::createWidget
                 ).toList()
         ).pos(cursorBoundsX+10, cursorBoundsY+15)

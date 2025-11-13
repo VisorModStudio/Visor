@@ -108,17 +108,17 @@ public class VROverlayOptionsMenu extends VROverlayScreenInScreen<OptionsScreen<
     }
 
     public void openMenu(@NotNull VROverlaySettings settingsMenu,
-                         @NotNull OverlayOptionGroup optionCategory){
+                         @NotNull OverlayOptionGroup<?> optionsGroup){
         if(isEnabled()
                 && (this.overlaySettings == settingsMenu
-                && this.optionsGroup == optionCategory)){
+                && this.optionsGroup == optionsGroup)){
             //already opened
             return;
         }
         setEnabled(false);
         this.overlaySettings = settingsMenu;
-        this.optionsGroup = optionCategory;
-        this.screen = optionCategory.getScreen();
+        this.optionsGroup = optionsGroup;
+        this.screen = optionsGroup.getScreen();
 
         setEnabled(true);
         updatePose(1);

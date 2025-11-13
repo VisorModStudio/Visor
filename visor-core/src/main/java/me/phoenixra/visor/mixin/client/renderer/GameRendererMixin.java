@@ -1,6 +1,8 @@
 package me.phoenixra.visor.mixin.client.renderer;
 
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -28,10 +30,15 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -103,12 +110,6 @@ public abstract class GameRendererMixin
 
 
 
-    @Shadow public abstract void render(float f, long l, boolean bl);
-
-    @Shadow
-    public abstract void renderItemActivationAnimation(int i, int j, float par1);
-
-
     @Unique
     public Matrix4f visor$thirdPersonProjection = new Matrix4f();
     @Unique
@@ -128,6 +129,11 @@ public abstract class GameRendererMixin
     private boolean visor$cameraEntityCached;
 
 
+
+    @Shadow public abstract void render(float f, long l, boolean bl);
+
+    @Shadow
+    public abstract void renderItemActivationAnimation(int i, int j, float par1);
 
     /* ******************* *\
   //--------RENDERING--------\\
@@ -297,7 +303,52 @@ public abstract class GameRendererMixin
     }
 
 
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
+    @WrapMethod(method = "pick")
+    private void visor$vrPick(float partialTick, Operation<Void> original) {
+        if(VisorState.getState().isNotActive()){
+            original.call(partialTick);
+            return;
+        }
+        // don't update the hitresult when chat is open
+        if (this.minecraft.screen != null && this.minecraft.hitResult != null) {
+            return;
+        }
+        // skip when data not available yet
+        else if (this.minecraft.getCameraEntity() == null)
+        {
+            // some mods don't like it when the hitresult is null, so set it to a miss
+            if (this.minecraft.player != null) {
+                this.minecraft.hitResult = BlockHitResult.miss(this.minecraft.player.position(),
+                        this.minecraft.player.getDirection(), this.minecraft.player.blockPosition());
+            } else {
+                this.minecraft.hitResult = BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO);
+            }
+            return;
+        }
+
+        AABB originalBB = this.minecraft.getCameraEntity().getBoundingBox();
+        // set the entity position and view to the controller
+        this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
+        this.visor$setupCameraEntity(
+                ClientContext.player
+                        .getPoseData(PoseDataType.RENDER)
+                        .getController(ClientContext.player.getActiveHand())
+        );
+        // move the bounding box as well, this is used for entity hits
+        this.minecraft.getCameraEntity().setBoundingBox(originalBB.move(
+                this.minecraft.getCameraEntity().getX() - visor$cameraEntityCache.getX(),
+                this.minecraft.getCameraEntity().getY() - visor$cameraEntityCache.getY(),
+                this.minecraft.getCameraEntity().getZ() - visor$cameraEntityCache.getZ()));
+
+        // call the vanilla method
+        original.call(partialTick);
+
+        // restore entity
+        this.visor$restoreCameraEntity(this.minecraft.getCameraEntity());
+        this.minecraft.getCameraEntity().setBoundingBox(originalBB);
+    }
+
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel")
     public void visor$pickAndSetupCamera(GameRenderer g, float pPartialTicks) {
         if (VRRenderState.getCurrentPhase().isVanilla()) {
             g.pick(pPartialTicks);
@@ -311,16 +362,16 @@ public abstract class GameRendererMixin
             }
         }
 
-        this.visor$cacheCameraEntity((LivingEntity) this.minecraft.getCameraEntity());
-        this.visor$setupCameraEntity();
+        this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
+        this.visor$setupCameraEntityDisplay();
         this.visor$setupOverlayStatus(pPartialTicks);
     }
 
-    @Inject(at = @At(value = "TAIL"), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
+    @Inject(at = @At(value = "TAIL"), method = "renderLevel")
     public void visor$restoreCamera(float f, long j, PoseStack p, CallbackInfo i) {
         if(VRRenderState.getCurrentPhase().isNotVanilla()) {
             this.visor$restoreCameraEntity(
-                    (LivingEntity) this.minecraft.getCameraEntity()
+                    this.minecraft.getCameraEntity()
             );
         }
     }
@@ -512,23 +563,21 @@ public abstract class GameRendererMixin
     \* ************************ */
     @Override
     @Unique
-    public void visor$setupCameraEntity() {
+    public void visor$setupCameraEntity(PoseElement poseElement) {
         if (this.visor$cameraEntityCached) {
-            PoseElement eye = ClientContext.player
-                    .getPoseData(PoseDataType.RENDER)
-                    .getElementForDisplay(VRRenderState.getCurrentVRDisplay());
-            var eyePos = eye.getPosition();
+
+            var position = poseElement.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
-            cameraEntity.setPosRaw(eyePos.x(), eyePos.y(), eyePos.z());
-            cameraEntity.xOld = eyePos.x();
-            cameraEntity.yOld = eyePos.y();
-            cameraEntity.zOld = eyePos.z();
-            cameraEntity.xo = eyePos.x();
-            cameraEntity.yo = eyePos.y();
-            cameraEntity.zo = eyePos.z();
-            cameraEntity.setXRot(-eye.getPitch());
+            cameraEntity.setPosRaw(position.x(), position.y(), position.z());
+            cameraEntity.xOld = position.x();
+            cameraEntity.yOld = position.y();
+            cameraEntity.zOld = position.z();
+            cameraEntity.xo = position.x();
+            cameraEntity.yo = position.y();
+            cameraEntity.zo = position.z();
+            cameraEntity.setXRot(-poseElement.getPitch());
             cameraEntity.xRotO = cameraEntity.getXRot();
-            cameraEntity.setYRot(eye.getYaw());
+            cameraEntity.setYRot(poseElement.getYaw());
             cameraEntity.yHeadRot = cameraEntity.getYRot();
             cameraEntity.yHeadRotO = cameraEntity.getYRot();
             cameraEntity.eyeHeight = 0.0001F;
@@ -537,9 +586,10 @@ public abstract class GameRendererMixin
 
     @Override
     @Unique
-    public void visor$cacheCameraEntity(LivingEntity cameraEntity) {
+    public void visor$cacheCameraEntity(Entity cameraEntity) {
         if (this.minecraft.getCameraEntity() != null) {
             if (!this.visor$cameraEntityCached) {
+                LivingEntity livingEntity = cameraEntity instanceof LivingEntity ent ? ent : null;
                 visor$cameraEntityCache = new VRCameraEntityCache(
                         cameraEntity.getX(), cameraEntity.getY(),
                         cameraEntity.getZ(),
@@ -550,9 +600,11 @@ public abstract class GameRendererMixin
                         cameraEntity.xo, cameraEntity.yo,
                         cameraEntity.zo,
 
-                        cameraEntity.yHeadRot, cameraEntity.getXRot(),
+                        livingEntity != null ? livingEntity.yHeadRot : cameraEntity.getYRot(),
+                        cameraEntity.getXRot(),
 
-                        cameraEntity.yHeadRotO, cameraEntity.xRotO,
+                        livingEntity != null ? livingEntity.yHeadRotO : cameraEntity.yRotO,
+                        cameraEntity.xRotO,
 
                         cameraEntity.getEyeHeight()
                 );
@@ -563,7 +615,7 @@ public abstract class GameRendererMixin
 
     @Override
     @Unique
-    public void visor$restoreCameraEntity(LivingEntity cameraEntity) {
+    public void visor$restoreCameraEntity(Entity cameraEntity) {
         if (cameraEntity != null) {
             visor$cameraEntityCache.apply(cameraEntity);
             this.visor$cameraEntityCached = false;
