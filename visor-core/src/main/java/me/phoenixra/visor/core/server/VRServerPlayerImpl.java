@@ -7,6 +7,7 @@ import me.phoenixra.visor.api.common.network.buffer.DevicePoseBuffer;
 import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
+import me.phoenixra.visor.modified.common.ServerPlayerModified;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -20,18 +21,15 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter
     public ServerPlayer mcPlayer;
     @Nullable
-    @Getter
-    @Setter
+    @Getter @Setter
     private PlayerPoseBuffer playerPoseBuffer;
 
-    public Vector3f offset = new Vector3f(0.0f, 0.0f, 0.0f);
-
-    public int networkVersion = 1;
 
 
-    public float worldScale = 1.0F;
-    @Getter
-    public float heightScale = 1.0F;
+    @Getter @Setter
+    private float worldScale = 1.0F;
+    @Getter @Setter
+    private float height = 1.0F;
 
 
     @Getter
@@ -44,9 +42,13 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Setter
     private boolean vr = false;
 
+    @Getter
+    private float rotationY;
+
     public VRServerPlayerImpl(ServerPlayer player) {
         this.mcPlayer = player;
     }
+
 
 
 
@@ -86,8 +88,7 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     public @NotNull Vec3 getHmdPos(@NotNull Player player) {
         if (this.playerPoseBuffer != null) {
             return new Vec3(this.playerPoseBuffer.hmd().position()
-                    .add(player.position().toVector3f(), new Vector3f())
-                    .add(this.offset));
+                    .add(player.position().toVector3f(), new Vector3f()));
         }
         return player.position().add(0.0D, 1.62D, 0.0D);
     }
@@ -101,11 +102,16 @@ public class VRServerPlayerImpl implements VRServerPlayer {
                     : this.playerPoseBuffer.offhand();
 
             return new Vec3(controllerState.position()
-                    .add(this.mcPlayer.position().toVector3f(), new Vector3f())
-                    .add(this.offset));
+                    .add(this.mcPlayer.position().toVector3f(), new Vector3f()));
         }
 
         return this.mcPlayer.position().add(0.0D, 1.62D, 0.0D);
+    }
+
+
+    public void updateRotationY(float rotationY){
+        this.rotationY = rotationY;
+        ((ServerPlayerModified)mcPlayer).visor$setRotationYCached(rotationY);
     }
 
 }

@@ -35,39 +35,39 @@ public record PlayerPoseBuffer(DevicePoseBuffer hmd,
         );
     }
 
-    public static PlayerPoseBuffer create(VRClientPlayer clientPlayer,
+    public static PlayerPoseBuffer create(VRClientPlayer vrPlayer,
                                           boolean leftHanded) {
         return new PlayerPoseBuffer(
-                getHmdPose(clientPlayer),
-                getControllerPose(clientPlayer, ControllerHand.MAIN),
-                getControllerPose(clientPlayer, ControllerHand.OFFHAND),
+                getHmdPose(vrPlayer),
+                getControllerPose(vrPlayer, ControllerHand.MAIN),
+                getControllerPose(vrPlayer, ControllerHand.OFFHAND),
                 leftHanded
         );
     }
 
-    private static DevicePoseBuffer getHmdPose(VRClientPlayer clientPlayer) {
+    private static DevicePoseBuffer getHmdPose(VRClientPlayer vrPlayer) {
 
-        PoseData postTickPose = clientPlayer
+        PoseData postTickPose = vrPlayer
                 .getPoseData(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
                 .getHmd().getPosition()
-                .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
+                .sub(vrPlayer.getMcPlayer().position().toVector3f(), new Vector3f());
         Quaternionf orientation = postTickPose.getHmd().getRotation()
                 .getNormalizedRotation(new Quaternionf());
 
         return new DevicePoseBuffer(position, orientation);
     }
 
-    private static DevicePoseBuffer getControllerPose(VRClientPlayer clientPlayer,
-                                                      ControllerHand controller
+    private static DevicePoseBuffer getControllerPose(VRClientPlayer vrPlayer,
+                                                      ControllerHand controllerType
     ) {
-        PoseData postTickPose = clientPlayer
+        PoseData postTickPose = vrPlayer
             .getPoseData(PoseDataType.POST_TICK);
         Vector3f position = postTickPose
-                .getController(controller).getPosition()
-                .sub(Minecraft.getInstance().player.position().toVector3f(), new Vector3f());
+                .getController(controllerType).getPosition()
+                .sub(vrPlayer.getMcPlayer().position().toVector3f(), new Vector3f());
         Quaternionf orientation = postTickPose
-                .getController(controller)
+                .getController(controllerType)
                 .getRotation().getNormalizedRotation(new Quaternionf());
 
         return new DevicePoseBuffer(position, orientation);

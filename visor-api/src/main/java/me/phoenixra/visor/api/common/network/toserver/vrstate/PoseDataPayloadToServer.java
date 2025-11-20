@@ -6,7 +6,7 @@ import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.network.FriendlyByteBuf;
 
 
-public record VRPosePayloadToServer(PlayerPoseBuffer pose) implements VisorPayloadToServer {
+public record PoseDataPayloadToServer(PlayerPoseBuffer pose) implements VisorPayloadToServer {
 
 
     @Override
@@ -16,13 +16,13 @@ public record VRPosePayloadToServer(PlayerPoseBuffer pose) implements VisorPaylo
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.VR_POSE;
+        return VisorPayloadID.POSE_DATA;
     }
 
 
-    public static VRPosePayloadToServer read(FriendlyByteBuf buffer) {
+    public static PoseDataPayloadToServer read(FriendlyByteBuf buffer) {
         var pose = PlayerPoseBuffer.deserialize(buffer);
-        return new VRPosePayloadToServer(
+        return new PoseDataPayloadToServer(
                 pose
         );
     }

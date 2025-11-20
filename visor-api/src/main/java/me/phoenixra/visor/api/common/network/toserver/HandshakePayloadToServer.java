@@ -5,22 +5,17 @@ import me.phoenixra.visor.api.common.network.VisorPayload;
 import me.phoenixra.visor.api.common.network.VisorPayloadID;
 import net.minecraft.network.FriendlyByteBuf;
 
-public record HandshakePayloadToServer(String version,
-                                       boolean vrActive,
-                                       int maxVersion,
-                                       int minVersion) implements VisorPayloadToServer {
+public record HandshakePayloadToServer(boolean vrActive,
+                                       int networkVersion,
+                                       String visorVersion) implements VisorPayloadToServer {
 
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
+        buffer.writeBoolean(this.vrActive);
+        buffer.writeInt(networkVersion);
         buffer.writeBytes(
-                String.format("%s %s\n%d\n%d",
-                                this.version,
-                                this.vrActive ? "on" : "off",
-                                this.maxVersion,
-                                this.minVersion
-                        )
-                        .getBytes(Charsets.UTF_8)
+                this.visorVersion.getBytes(Charsets.UTF_8)
         );
     }
 
@@ -31,17 +26,10 @@ public record HandshakePayloadToServer(String version,
 
 
     public static VisorPayloadToServer read(FriendlyByteBuf buffer) {
-
-        String[] parts = VisorPayload
-                .readString(buffer)
-                .split("\\n");
-
-        boolean vr = !parts[0].contains("off");
         return new HandshakePayloadToServer(
-                parts[0],
-                vr,
-                Integer.parseInt(parts[1]),
-                Integer.parseInt(parts[2])
+                buffer.readBoolean(),
+                buffer.readInt(),
+                VisorPayload.readString(buffer)
         );
     }
 }

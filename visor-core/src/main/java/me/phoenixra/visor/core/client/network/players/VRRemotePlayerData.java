@@ -17,7 +17,7 @@ public record VRRemotePlayerData(
         Vector3fc hmdDirection,
         Vector3fc hmdPosition,
         float worldScale,
-        float heightScale,
+        float heightScale, //@TODO rework to just use height. REWORK WHOLE THING
         int headsetModel,
         boolean leftHanded
 ) {

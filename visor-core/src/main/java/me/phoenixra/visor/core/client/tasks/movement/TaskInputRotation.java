@@ -22,8 +22,8 @@ public class TaskInputRotation extends VisorTask {
     @Getter
     private static TaskInputRotation instance;
 
-    @Setter
-    private float inputRotation = -1;
+    @Getter @Setter
+    private float inputRotation = 0;
 
     public TaskInputRotation(@NotNull VisorAddon owner) {
         super(owner);
@@ -32,16 +32,16 @@ public class TaskInputRotation extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        if(inputRotation == -1){
+        if(inputRotation == 0){
             return;
         }
-        ClientContext.player.setRotationY(inputRotation);
-        inputRotation = -1;
+        ClientContext.player.setRotationY(ClientContext.player.getRotationY()+inputRotation);
+        inputRotation = 0;
     }
 
     @Override
     protected void onClear(@Nullable LocalPlayer player) {
-        inputRotation = -1;
+        inputRotation = 0;
     }
 
     @Override

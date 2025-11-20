@@ -235,7 +235,7 @@
   "visor.messages.error.generic": "An unexpected VR error occurred!",
   "visor.messages.error.summary": "§rYou can report this issue in our Visor Discord community.\n\nOpen your Logs folder (using the button below) and upload the 'latest.log' file, along with details of what you were doing and where the error occurred, to the appropriate discord channel for assistance.",
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
-  "visor.messages.server_mod": "Visor server mod detected: %s",
+  "visor.messages.server_supports": "Server supports Visor!",
   "visor.messages.calibrate_height": "Please calibrate your height in the pause menu.",
   "visor.messages.height_set": "User height set to %d%%",
   "visor.messages.vr_auto_switch": "Put on your headset to play VR",

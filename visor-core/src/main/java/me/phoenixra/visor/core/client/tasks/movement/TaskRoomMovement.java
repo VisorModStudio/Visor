@@ -47,7 +47,7 @@ public class TaskRoomMovement extends VisorTask {
 
         PoseDataImpl preTickPose = ClientContext.player
                 .getPoseData(PoseDataType.PRE_TICK);
-        var origin = ClientContext.player.getOrigin();
+        var origin = ClientContext.player.getWorldOrigin();
         float worldScale = ClientContext.player.getWorldScale();
 
         var headPivot = preTickPose.createNewHeadPivot(
@@ -120,7 +120,7 @@ public class TaskRoomMovement extends VisorTask {
                             0.0f, 0.1f * (i + 1), 0.0f,
                             new Vector3f()
                     );
-                    ClientContext.player.setOrigin(
+                    ClientContext.player.setWorldOrigin(
                             newRoomOrigin.x,
                             newRoomOrigin.y,
                             newRoomOrigin.z,
@@ -150,8 +150,7 @@ public class TaskRoomMovement extends VisorTask {
         return player != null
                 && !player.isShiftKeyDown()
                 && !player.isSleeping()
-                && player.isAlive()
-                && !ClientContext.player.isMoving();
+                && player.isAlive();
     }
 
     @Override

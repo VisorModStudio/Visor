@@ -40,14 +40,10 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private final PoseDataImpl renderPose;
 
     @Getter
-    private Vector3fc origin = new Vector3f(0.0f, 0.0f, 0.0f);
+    private Vector3fc worldOrigin = new Vector3f(0.0f, 0.0f, 0.0f);
     @Getter
     private float worldScale = 1.0f;
 
-
-    //@TODO why is it like this?
-    // mb make rotation through minecraft instead,
-    // we need it in-game only anyway
     @Getter
     private float rotationY = 0f;
 
@@ -61,18 +57,18 @@ public class VRClientPlayerImpl implements VRClientPlayer {
     private boolean moving;
 
     public VRClientPlayerImpl() {
-        this.roomPose = new PoseDataImpl(PoseDataType.ROOM, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomPose = new PoseDataImpl(PoseDataType.ROOM, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new PoseDataImpl(PoseDataType.PRE_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new PoseDataImpl(PoseDataType.POST_TICK, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new PoseDataImpl(PoseDataType.RENDER, origin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.preTickPose = new PoseDataImpl(PoseDataType.PRE_TICK, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.postTickPose = new PoseDataImpl(PoseDataType.POST_TICK, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new PoseDataImpl(PoseDataType.RENDER, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
 
     public void preTick() {
 
         this.preTickPose.update(
-                this.origin,
+                this.worldOrigin,
                 VRClientSettings.getWalkMultiplier(),
                 this.worldScale,
                 rotationY
@@ -113,13 +109,13 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                         preTickPose.getWorldScale(),
                         this.worldScale
                 );
-        this.origin = this.origin.sub(
+        this.worldOrigin = this.worldOrigin.sub(
                 scaleOffset, new Vector3f()
         );
 
 
         Vector3f headPivot = preTickPose.createNewHeadPivot(
-                origin,
+                worldOrigin,
                 worldScale
         );
 
@@ -131,7 +127,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         );
 
         this.postTickPose.update(
-                this.origin,
+                this.worldOrigin,
                 VRClientSettings.getWalkMultiplier(),
                 this.worldScale,
                 currentRotation
@@ -294,37 +290,37 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         if (cameraEntity instanceof LocalPlayerModified p) {
             y += (float) p.visor$getRoomYOffset();
         }
-        this.setOrigin(x, y, z, reset);
+        this.setWorldOrigin(x, y, z, reset);
     }
 
     public void rotateOriginAround(Vector3fc anchor, float radians) {
 
         float radSin = Mth.sin(radians);
         float radCos = Mth.cos(radians);
-        this.setOrigin(
+        this.setWorldOrigin(
                 radCos
-                        * (origin.x() - anchor.x())
+                        * (worldOrigin.x() - anchor.x())
                         - radSin
-                        * (origin.z() - anchor.z())
-                        + anchor.x(), origin.y(),
+                        * (worldOrigin.z() - anchor.z())
+                        + anchor.x(), worldOrigin.y(),
                 radSin
-                        * (origin.x() - anchor.x())
+                        * (worldOrigin.x() - anchor.x())
                         + radCos
-                        * (origin.z() - anchor.z())
+                        * (worldOrigin.z() - anchor.z())
                         + anchor.z(),
                 false
         );
     }
 
 
-    public void setOrigin(float x, float y, float z,
-                          boolean reset) {
+    public void setWorldOrigin(float x, float y, float z,
+                               boolean reset) {
         var newOrigin = new Vector3f(x, y, z);
         if (reset) {
             this.preTickPose.resetOrigin(newOrigin);
         }
 
-        this.origin = newOrigin;
+        this.worldOrigin = newOrigin;
     }
 
 
@@ -396,7 +392,7 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 postTick pose: %s
                 render pose: %s"""
         ).formatted(
-                this.origin,
+                this.worldOrigin,
                 this.rotationY,
                 this.worldScale,
                 this.roomPose,

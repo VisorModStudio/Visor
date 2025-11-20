@@ -1,4 +1,4 @@
-package me.phoenixra.visor.mixin.client.player;
+package me.phoenixra.visor.mixin.client.multiplayer;
 
 import me.phoenixra.visor.api.client.data.PoseData;
 import me.phoenixra.visor.api.client.data.PoseDataType;

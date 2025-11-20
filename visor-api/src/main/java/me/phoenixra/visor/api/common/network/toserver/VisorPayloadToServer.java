@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.common.network.toserver;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.network.VisorPayload;
 import me.phoenixra.visor.api.common.network.VisorPayloadID;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.HeightPayloadToServer;
+import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import net.minecraft.network.FriendlyByteBuf;
 
 public interface VisorPayloadToServer extends VisorPayload {
@@ -14,8 +14,12 @@ public interface VisorPayloadToServer extends VisorPayload {
         if (index < VisorPayloadID.values().length) {
             VisorPayloadID id = VisorPayloadID.values()[index];
             return switch (id) {
-                case HEIGHT -> HeightPayloadToServer.read(buffer);
                 case HANDSHAKE -> HandshakePayloadToServer.read(buffer);
+                case HEIGHT -> HeightPayloadToServer.read(buffer);
+                case ROTATION_Y -> RotationYPayloadToServer.read(buffer);
+                case VR_ACTIVE -> VRActivePayloadToServer.read(buffer);
+                case POSE_DATA -> PoseDataPayloadToServer.read(buffer);
+                case WORLD_SCALE -> WorldScalePayloadToServer.read(buffer);
                 default -> {
                     VisorAPI.server().getLogger().error(
                             "Visor: Got unexpected payload identifier on server: {}", id

@@ -6,24 +6,24 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
 
-public record VRActivePayloadToClient(UUID playerUUID,
-                                      boolean hasVr) implements VisorPayloadToClient {
+public record VROtherActivePayloadToClient(UUID playerUUID,
+                                           boolean vrActive) implements VisorPayloadToClient {
 
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
-        buffer.writeBoolean(hasVr);
+        buffer.writeBoolean(vrActive);
     }
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.PLAYER_VR_ACTIVE;
+        return VisorPayloadID.OTHER_VR_ACTIVE;
     }
 
 
-    public static VRActivePayloadToClient read(FriendlyByteBuf buffer) {
-        return new VRActivePayloadToClient(
+    public static VROtherActivePayloadToClient read(FriendlyByteBuf buffer) {
+        return new VROtherActivePayloadToClient(
                 buffer.readUUID(),
                 buffer.readBoolean()
         );

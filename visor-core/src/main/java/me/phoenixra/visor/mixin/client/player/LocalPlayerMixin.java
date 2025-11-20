@@ -1,7 +1,8 @@
 package me.phoenixra.visor.mixin.client.player;
 
 import com.mojang.authlib.GameProfile;
-import me.phoenixra.visor.api.client.ClientFeature;
+import me.jellysquid.mods.sodium.mixin.core.world.map.ClientWorldMixin;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.data.PoseDataType;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.api.common.ControllerHand;
@@ -18,6 +19,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -33,6 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -75,6 +78,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
     @Shadow
     public abstract void swing(InteractionHand interactionHand);
+
+
+
+
 
 
     /* ****************** *\
@@ -172,7 +179,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
         boolean canMoveY = true;
 
-        Vector3fc origin = ClientContext.player.getOrigin();
+        Vector3fc origin = ClientContext.player.getWorldOrigin();
 
         if ((this.zza != 0.0F
                 || this.isFallFlying()
@@ -196,7 +203,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 this.updateAutoJump((float) (this.getX() - prevX), (float) (this.getZ() - prevZ));
             }
 
-            ClientContext.player.setOrigin(
+            ClientContext.player.setWorldOrigin(
                     (float) (this.getX() + xOffset),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     (float) (this.getZ() + zOffset),
@@ -207,7 +214,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
         if (canMoveY) {
             super.move(type, new Vec3(0.0D, pos.y, 0.0D));
-            ClientContext.player.setOrigin(
+            ClientContext.player.setWorldOrigin(
                     origin.x(),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     origin.z(),
@@ -336,7 +343,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                     );
             posX = posX - premountPos.x;
             posZ = posZ - premountPos.z;
-            ClientContext.player.setOrigin(
+            ClientContext.player.setWorldOrigin(
                     (float) posX, (float) posY, (float) posZ,
                     shouldReset
             );

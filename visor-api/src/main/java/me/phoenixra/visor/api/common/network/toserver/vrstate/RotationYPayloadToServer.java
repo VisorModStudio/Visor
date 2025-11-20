@@ -4,22 +4,22 @@ import me.phoenixra.visor.api.common.network.VisorPayloadID;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.network.FriendlyByteBuf;
 
-public record VRActivePayloadToServer(boolean vrActive) implements VisorPayloadToServer {
+public record RotationYPayloadToServer(float rotationY) implements VisorPayloadToServer {
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(vrActive);
+        buffer.writeFloat(rotationY);
     }
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.VR_ACTIVE;
+        return VisorPayloadID.ROTATION_Y;
     }
 
 
-    public static VRActivePayloadToServer read(FriendlyByteBuf buffer) {
-        return new VRActivePayloadToServer(
-                buffer.readBoolean()
+    public static RotationYPayloadToServer read(FriendlyByteBuf buffer) {
+        return new RotationYPayloadToServer(
+                buffer.readFloat()
         );
     }
 }

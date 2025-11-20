@@ -16,7 +16,7 @@ public interface VRServerPlayer {
 
 
     boolean isCrawling();
-    float getHeightScale();
+    float getHeight();
     float getBowTension();
     @NotNull
     Vec3 getHmdDir();

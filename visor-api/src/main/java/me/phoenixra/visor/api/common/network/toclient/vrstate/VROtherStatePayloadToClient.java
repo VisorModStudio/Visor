@@ -7,10 +7,10 @@ import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
 
-public record VRStatePayloadToClient(UUID playerUUID,
-                                     PlayerPoseBuffer pose,
-                                     float worldScale,
-                                     float heightScale) implements VisorPayloadToClient {
+public record VROtherStatePayloadToClient(UUID playerUUID,
+                                          PlayerPoseBuffer pose,
+                                          float worldScale,
+                                          float height) implements VisorPayloadToClient {
 
 
     @Override
@@ -18,21 +18,21 @@ public record VRStatePayloadToClient(UUID playerUUID,
         buffer.writeUUID(playerUUID);
         pose.serialize(buffer);
         buffer.writeFloat(worldScale);
-        buffer.writeFloat(heightScale);
+        buffer.writeFloat(height);
     }
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.PLAYER_VR_STATE;
+        return VisorPayloadID.OTHER_VR_STATE;
     }
 
 
-    public static VRStatePayloadToClient read(FriendlyByteBuf buffer) {
+    public static VROtherStatePayloadToClient read(FriendlyByteBuf buffer) {
         UUID playerUUID = buffer.readUUID();
         var pose = PlayerPoseBuffer.deserialize(buffer);
         float worldScale = buffer.readFloat();
         float height = buffer.readFloat();
-        return new VRStatePayloadToClient(
+        return new VROtherStatePayloadToClient(
                 playerUUID,
                 pose,
                 worldScale,

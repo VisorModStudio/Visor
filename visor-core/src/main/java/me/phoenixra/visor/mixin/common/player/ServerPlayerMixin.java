@@ -6,8 +6,10 @@ import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import me.phoenixra.visor.core.server.network.ServerNetworking;
+import me.phoenixra.visor.modified.common.ServerPlayerModified;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -33,14 +35,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin extends Player {
+public abstract class ServerPlayerMixin extends Player implements ServerPlayerModified {
 
     @Shadow
     @Final
     public MinecraftServer server;
 
+    @Unique
+    private float visor$rotationYCached;
+
     public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
         super(level, blockPos, f, gameProfile);
+    }
+
+
+
+    /* *************** *\
+  //--------DATA--------\\
+    \* **************** */
+
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        visor$rotationYCached = compound.getFloat("visor$rotation_y");
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putFloat("visor$rotation_y", visor$rotationYCached);
     }
 
 
@@ -165,5 +189,15 @@ public abstract class ServerPlayerMixin extends Player {
     @Unique
     private VRServerPlayer visor$getVrPlayer() {
         return VisorAPI.server().getVrPlayer((ServerPlayer) (Object) this);
+    }
+
+    @Unique
+    public void visor$setRotationYCached(float visor$rotationY) {
+        this.visor$rotationYCached = visor$rotationY;
+    }
+
+    @Unique
+    public float visor$getRotationYCached() {
+        return visor$rotationYCached;
     }
 }

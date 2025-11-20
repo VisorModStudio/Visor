@@ -112,7 +112,7 @@ public class VRRemotePlayers {
     public void applyPlayer(UUID uuid,
                             PlayerPoseBuffer poseBuffer,
                             float worldScale,
-                            float heightScale,
+                            float height,
                             boolean localPlayer) {
         if(!localPlayer && MC.player.getUUID().equals(uuid)){
             return;
@@ -124,14 +124,6 @@ public class VRRemotePlayers {
                 .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
         Vector3f offhandDir = poseBuffer.offhand()
                 .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
-        //[0.5; 1.5] bounds
-        heightScale = Math.max(
-                0.5f,
-                Math.min(
-                        1.5f,
-                        heightScale
-                )
-        );
 
         VRRemotePlayerData playerData = new VRRemotePlayerData(
                 //OFFHAND
@@ -156,7 +148,7 @@ public class VRRemotePlayers {
                 poseBuffer.hmd().position(),
                 //MISC
                 worldScale,
-                heightScale,
+                height,
                 0,
                 poseBuffer.leftHanded()
         );
@@ -168,8 +160,8 @@ public class VRRemotePlayers {
     public void applyPlayer(UUID uuid,
                             PlayerPoseBuffer poseBuffer,
                             float worldScale,
-                            float heightScale) {
-        this.applyPlayer(uuid, poseBuffer, worldScale, heightScale, false);
+                            float height) {
+        this.applyPlayer(uuid, poseBuffer, worldScale, height, false);
     }
 
 

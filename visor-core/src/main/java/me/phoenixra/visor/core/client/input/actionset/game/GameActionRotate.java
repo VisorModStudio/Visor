@@ -39,7 +39,7 @@ public class GameActionRotate extends VisorActionVec2 {
             float rotationIncrementer = (float) Math.toRadians(
                     VRClientSettings.getWorldRotationIncrement()
             );
-            float currentRotation = ClientContext.player.getRotationY();
+            float currentRotation = TaskInputRotation.getInstance().getInputRotation();
 
             float newRotation = currentRotation
                     - rotationIncrementer * Math.signum(inputPosX);
