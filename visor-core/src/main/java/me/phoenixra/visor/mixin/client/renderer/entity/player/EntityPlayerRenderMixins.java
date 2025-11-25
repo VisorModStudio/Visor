@@ -3,13 +3,12 @@ package me.phoenixra.visor.mixin.client.renderer.entity.player;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import me.phoenixra.visor.core.client.VisorClientImpl;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.modified.client.entity.EntityRenderDispatcherPlayerModified;
 import me.phoenixra.visor.modified.client.render.RenderLayerModified;
 import me.phoenixra.visor.core.client.render.player.RenderLayerType;
 import me.phoenixra.visor.core.client.render.player.VRPlayerRenderer;
 import me.phoenixra.visor.core.common.CommonUtils;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayerData;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
@@ -94,11 +93,11 @@ public class EntityPlayerRenderMixins {
                                   CallbackInfoReturnable<EntityRenderer<AbstractClientPlayer>> info) {
             if (pEntity instanceof AbstractClientPlayer) {
                 String skinId = ((AbstractClientPlayer) pEntity).getModelName();
-                VRRemotePlayerData vrPlayerNetworkData = VRRemotePlayers.getInstance()
+                var vrPlayer = VRClientPlayers
                         .getPlayer(
                                 pEntity.getUUID()
                         );
-                if (vrPlayerNetworkData != null) {
+                if (vrPlayer != null) {
                     VRPlayerRenderer playerRenderer;
                     playerRenderer = this.visor$skinMapVR.get(skinId);
                     if (playerRenderer == null) {

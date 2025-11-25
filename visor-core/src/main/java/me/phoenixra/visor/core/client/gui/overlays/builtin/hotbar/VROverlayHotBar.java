@@ -6,15 +6,15 @@ import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import me.phoenixra.atumvr.api.utils.MathUtils;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.screen.VROverlayRadialSelector;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.render.VRCameraType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
@@ -68,11 +68,11 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     private Vector3f orientPosOffsetRender;
 
     public VROverlayHotBar(@NotNull VisorAddon owner,
-                           @NotNull ControllerHand hand,
+                           @NotNull HandType hand,
                            @NotNull String id) {
 
         super(owner, hand, id,
-                hand == ControllerHand.MAIN
+                hand == HandType.MAIN
                         ? ElementPriority.HIGH
                         :ElementPriority.NORMAL,
                 98,
@@ -155,7 +155,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                 || event.getFeature() == ClientFeature.GUI_CURSOR) {
 
             if(isVisible()
-                    && ClientContext.player.getActiveHand() == getUsedHand()){
+                    && ClientContext.localPlayer.getActiveHand() == getUsedHand()){
                 event.setCanceled(true);
             }
 
@@ -313,8 +313,8 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     @Override
     public void onUpdatePose(float partialTicks) {
         var camPos = RenderPoseHelper.getCameraPosition(
-                VRDisplay.GUI,
-                ClientContext.player.getPoseData(PoseDataType.RENDER)
+                VRCameraType.GUI,
+                ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
 
         getPose().updateOnlyPosition(new Vector3f(
@@ -326,12 +326,12 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Override
     public void onEnable() {
-        PoseAnchor posAnchor = (getUsedHand() == ControllerHand.OFFHAND ?
+        PoseAnchor posAnchor = (getUsedHand() == HandType.OFFHAND ?
                 PoseAnchor.OFFHAND : PoseAnchor.MAIN_HAND);
 
-        PoseData renderPose = ClientContext
-                .player
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext
+                .localPlayer
+                .getPoseData(PlayerPoseType.RENDER);
 
         VROverlayHelper.applyPose(
                 this,

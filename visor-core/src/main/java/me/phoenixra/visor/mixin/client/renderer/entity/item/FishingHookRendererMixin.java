@@ -1,8 +1,8 @@
 package me.phoenixra.visor.mixin.client.renderer.entity.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
@@ -50,24 +50,24 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 25)
     private double visor$fishingLineStartX(double value, FishingHook fishingHook) {
-        if(VRRenderState.getCurrentPhase().isVanilla()
+        if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){
             return value;
         }
-        var renderPose = ClientContext.player
-                .getPoseData(PoseDataType.RENDER);
+        var renderPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER);
 
-        ControllerHand handType = ControllerHand.OFFHAND;
+        HandType handType = HandType.OFFHAND;
         if (fishingHook.getPlayerOwner().getMainHandItem().getItem() instanceof FishingRodItem) {
-            handType = ControllerHand.MAIN;
+            handType = HandType.MAIN;
         }
         Vector3f handPos = new Vector3f(
-                RenderPoseHelper.getControllerPosition(handType)
+                RenderPoseHelper.getHandPosition(handType)
         );
 
         Vector3f handDir = renderPose
-                .getHand(handType).getCustomVector(
+                .getGripHand(handType).getCustomVector(
                         new Vector3f(-0.05f,-0.06f,-1.0f)
                 );
 
@@ -86,7 +86,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 27)
     private double visor$fishingLineStartY(double value, FishingHook fishingHook) {
-        if(VRRenderState.getCurrentPhase().isVanilla()
+        if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){
             return value;
@@ -98,7 +98,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 29)
     private double visor$fishingLineStartZ(double value, FishingHook fishingHook) {
-        if(VRRenderState.getCurrentPhase().isVanilla()
+        if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){
             return value;

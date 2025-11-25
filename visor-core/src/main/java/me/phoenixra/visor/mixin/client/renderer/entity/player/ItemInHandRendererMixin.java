@@ -4,8 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.input.HandAction;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.render.VRCameraType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.modified.client.entity.EntityRenderDispatcherVRModified;
@@ -138,7 +138,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
 
 
         boolean renderArm =
-                VRRenderState.getCurrentVRDisplay() != VRDisplay.THIRD_PERSON
+                VRRenderState.getCameraType() != VRCameraType.THIRD_PERSON
                 || (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
                         && VRClientSettings.isMixedRealityRenderHands());
 
@@ -170,7 +170,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
 
         ClientContext.handRenderer.applyItemHandPose(
                 pPlayer,
-                mainHand ? ControllerHand.MAIN : ControllerHand.OFFHAND,
+                mainHand ? HandType.MAIN : HandType.OFFHAND,
                 itemStack,
                 poseStack,
                 pEquippedProgress,

@@ -14,17 +14,17 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class FabricGameRendererMixin {
     @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V ", ordinal = 2), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
     public void removeMulPoseXRotation(PoseStack s, Quaternionf quaternion) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             s.mulPose(quaternion);
         }
     }
 
     @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V ", ordinal = 3), method = "renderLevel(FJLcom/mojang/blaze3d/vertex/PoseStack;)V")
     public void removeMulPoseYRotation(PoseStack s, Quaternionf quaternion) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             s.mulPose(quaternion);
         } else {
-            RenderPoseHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), s);
+            RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), s);
         }
     }
 

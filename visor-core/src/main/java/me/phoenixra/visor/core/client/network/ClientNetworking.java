@@ -1,18 +1,15 @@
 package me.phoenixra.visor.core.client.network;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.phoenixra.visor.api.ModLoader;
-import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.network.toserver.HandshakePayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.HeightPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.PoseDataPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.RotationYPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.WorldScalePayloadToServer;
+import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
@@ -70,25 +67,27 @@ public class ClientNetworking {
             return;
         }
 
-        float playerHeight = VRClientSettings.getPlayerHeight();
-        if (playerHeight != heightLastSent) {
+        var localPlayer = ClientContext.localPlayer;
+
+        float height = localPlayer.getHeight();
+        if (height != heightLastSent) {
             sendVRPacket(
                     new HeightPayloadToServer(
-                            playerHeight
+                            height
                     )
 
             );
-            heightLastSent = playerHeight;
+            heightLastSent = height;
         }
 
-        float worldScale = ClientContext.player.getWorldScale();
+        float worldScale = localPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale();
         if (worldScale != worldScaleLastSent) {
             sendVRPacket(
                     new WorldScalePayloadToServer(worldScale)
             );
             worldScaleLastSent = worldScale;
         }
-        float rotationY = ClientContext.player.getRotationY();
+        float rotationY = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
         if(rotationY != rotationYLastSent){
             sendVRPacket(
                     new RotationYPayloadToServer(rotationY)
@@ -96,21 +95,14 @@ public class ClientNetworking {
             rotationYLastSent = rotationY;
         }
 
-        PlayerPoseBuffer vrPlayerState = PlayerPoseBuffer.create(
-                ClientContext.player,
-                VRClientSettings.isLeftHanded()
+        PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
+                localPlayer,
+                localPlayer.isLeftHanded()
         );
         sendVRPacket(
                 new PoseDataPayloadToServer(vrPlayerState)
         );
 
-        VRRemotePlayers.getInstance().applyPlayer(
-                MC.player.getUUID(),
-                vrPlayerState,
-                worldScale,
-                playerHeight,
-                true
-        );
     }
 
 
@@ -123,7 +115,7 @@ public class ClientNetworking {
             );
         }
         if (VisorState.getState().isActive()
-                && VRClientSettings.getPlayerHeight() == -1.0F) {
+                && ClientContext.localPlayer.getHeight() == -1.0F) {
             MC.gui.getChat().addMessage(
                     Component.translatable("visor.messages.calibrate_height")
             );
@@ -133,7 +125,10 @@ public class ClientNetworking {
 
     public static void dispose(){
         serverSupportsVisor = false;
-        VRRemotePlayers.clear();
+        heightLastSent = 0.0F;
+        worldScaleLastSent = 1.0F;
+        rotationYLastSent = 0;
+        VRClientPlayers.clear();
     }
 
 }

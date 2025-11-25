@@ -172,7 +172,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
              ++VisorState.FRAME_COUNT;
 
              ClientContext.visor
-                     .earlyPreRenderVR(new PreRenderContext(
+                     .onGameLoopStart(new PreRenderContext(
                              profiler, tick,
                              visor$getPartialTicks()
                      ));
@@ -205,7 +205,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
 
             ClientContext.renderer.onGameRenderStart(renderLevel);
 
-            if (VRRenderState.getCurrentPhase().isVRGui()) {
+            if (VRRenderState.getPhase().isVRGui()) {
                 return false; //disable level rendering
             } else {
                 return renderLevel; //fallback on exception
@@ -324,7 +324,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      * Overrides an action performed when
      * pressed "keyTogglePerspective" button
      * <br>
-     * So, instead this button changes mirror display type
+     * So, instead this button changes mirror camera type
      *
      * @param instance   s
      * @param cameraType s
@@ -430,7 +430,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     @Inject(at = @At("HEAD"), method = "setLevel")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
         if (VisorState.getState().isActive()) {
-            ClientContext.player.setWorldOrigin(
+            ClientContext.localPlayer.setOrigin(
                     0.0f, 0.0f, 0.0f, true
             );
         }
@@ -445,7 +445,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
          if (VisorState.getState().isInitialized() && entity != null) {
              if (entity != this.getCameraEntity()) {
                  // snap to entity, if it changed
-                 ClientContext.player.recenterOrigin(entity, true);
+                 ClientContext.localPlayer.recenterOrigin(entity, true);
              }
              if (entity != this.player) {
                  // ride the new camera entity

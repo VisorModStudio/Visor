@@ -3,16 +3,16 @@ package me.phoenixra.visor.core.client.tasks.movement;
 import lombok.Getter;
 
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
@@ -47,10 +47,10 @@ public class TaskRoomSwim extends VisorTask {
     @Override
     protected void onRun(LocalPlayer player) {
 
-        PoseDataImpl preTickPose = ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK);
-        final PoseElement mainHand = preTickPose.getController(ControllerHand.MAIN);
-        final PoseElement offhand = preTickPose.getController(ControllerHand.OFFHAND);
+        LocalPlayerPose preTickPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.PREV_TICK);
+        final PoseElement mainHand = preTickPose.getHand(HandType.MAIN);
+        final PoseElement offhand = preTickPose.getHand(HandType.OFFHAND);
         final PoseElement hmd = preTickPose.getHmd();
 
         final Vector3fc mainHandPos = mainHand.getPosition();

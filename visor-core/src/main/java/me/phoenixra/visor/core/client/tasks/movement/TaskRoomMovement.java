@@ -2,14 +2,14 @@ package me.phoenixra.visor.core.client.tasks.movement;
 
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
@@ -45,15 +45,12 @@ public class TaskRoomMovement extends VisorTask {
 
         //@TODO maybe block this logic when player moves via input?
 
-        PoseDataImpl preTickPose = ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK);
-        var origin = ClientContext.player.getWorldOrigin();
-        float worldScale = ClientContext.player.getWorldScale();
+        LocalPlayerPose preTickPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK);
+        var origin = preTickPose.getOrigin();
 
-        var headPivot = preTickPose.createNewHeadPivot(
-                origin,
-                worldScale
-        );
+
+        var headPivot = preTickPose.getHeadPivot();
 
         float playerHalfWidth = player.getBbWidth() / 2f;
         float playerHeight = player.getBbHeight();
@@ -61,12 +58,12 @@ public class TaskRoomMovement extends VisorTask {
 
         // Create a collision bounding box at the destination position.
         AABB collisionBox = new AABB(
-                headPivot.x - playerHalfWidth,
+                headPivot.x() - playerHalfWidth,
                 playerPosY,
-                headPivot.z - playerHalfWidth,
-                headPivot.x + playerHalfWidth,
+                headPivot.z() - playerHalfWidth,
+                headPivot.x() + playerHalfWidth,
                 playerPosY + playerHeight,
-                headPivot.z + playerHalfWidth
+                headPivot.z() + playerHalfWidth
         );
 
 
@@ -74,7 +71,7 @@ public class TaskRoomMovement extends VisorTask {
         // update the player's position
         if (MC.level.noCollision(player, collisionBox)) {
             //avoid using player.setPos() since it is overridden by Visor
-            player.setPosRaw(headPivot.x, player.getY(), headPivot.z);
+            player.setPosRaw(headPivot.x(), player.getY(), headPivot.z());
             player.setBoundingBox(collisionBox);
             player.fallDistance = 0.0F;
             return;
@@ -84,7 +81,7 @@ public class TaskRoomMovement extends VisorTask {
                 && ((LocalPlayerModified) player).visor$getJumpFactor() == 1.0F);
 
         if (canAutoClimb && player.fallDistance == 0.0F) {
-            Vec3 torso = new Vec3(headPivot.x, playerPosY, headPivot.z);
+            Vec3 torso = new Vec3(headPivot.x(), playerPosY, headPivot.z());
             // Reduce the collision box width for climbing checks.
             float climbShrink = player.getDimensions(player.getPose()).width * 0.45F;
             double shrunkClimbHalfWidth = playerHalfWidth - climbShrink;
@@ -110,9 +107,9 @@ public class TaskRoomMovement extends VisorTask {
 
                 if (MC.level.noCollision(player, collisionBox)) {
                     player.setPosRaw(
-                            headPivot.x,
+                            headPivot.x(),
                             collisionBox.minY,
-                            headPivot.z
+                            headPivot.z()
                     );
                     player.setBoundingBox(collisionBox);
 
@@ -120,7 +117,7 @@ public class TaskRoomMovement extends VisorTask {
                             0.0f, 0.1f * (i + 1), 0.0f,
                             new Vector3f()
                     );
-                    ClientContext.player.setWorldOrigin(
+                    ClientContext.localPlayer.setOrigin(
                             newRoomOrigin.x,
                             newRoomOrigin.y,
                             newRoomOrigin.z,

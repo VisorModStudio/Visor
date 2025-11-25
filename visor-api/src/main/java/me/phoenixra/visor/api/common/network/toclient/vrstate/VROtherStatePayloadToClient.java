@@ -1,14 +1,14 @@
 package me.phoenixra.visor.api.common.network.toclient.vrstate;
 
 import me.phoenixra.visor.api.common.network.VisorPayloadID;
-import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
+import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
 
 public record VROtherStatePayloadToClient(UUID playerUUID,
-                                          PlayerPoseBuffer pose,
+                                          PoseDataBuffer pose,
                                           float worldScale,
                                           float height) implements VisorPayloadToClient {
 
@@ -29,7 +29,7 @@ public record VROtherStatePayloadToClient(UUID playerUUID,
 
     public static VROtherStatePayloadToClient read(FriendlyByteBuf buffer) {
         UUID playerUUID = buffer.readUUID();
-        var pose = PlayerPoseBuffer.deserialize(buffer);
+        var pose = PoseDataBuffer.deserialize(buffer);
         float worldScale = buffer.readFloat();
         float height = buffer.readFloat();
         return new VROtherStatePayloadToClient(

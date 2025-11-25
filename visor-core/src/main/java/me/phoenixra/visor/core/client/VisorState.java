@@ -8,7 +8,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
 import me.phoenixra.visor.api.client.render.RenderPhase;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
 import me.phoenixra.visor.core.client.gui.screens.GameMenuScreen;
@@ -16,7 +16,6 @@ import me.phoenixra.visor.core.client.gui.screens.VRErrorReportScreen;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -183,7 +182,7 @@ public class VisorState implements VisorClientState {
         state = VRStateMode.ACTIVE;
 
         if (MC.player != null) {
-            ClientContext.player.recenterOrigin(
+            ClientContext.localPlayer.recenterOrigin(
                     MC.player, false
             );
         }
@@ -200,11 +199,6 @@ public class VisorState implements VisorClientState {
     private static void deactivate() {
         state = VRStateMode.INITIALIZED;
 
-        if (MC.player != null) {
-            VRRemotePlayers.getInstance().removePlayer(
-                    MC.player.getUUID()
-            );
-        }
         if (MC.gameRenderer != null) {
             MC.gameRenderer.checkEntityPostEffect(
                     MC.options.getCameraType().isFirstPerson()
@@ -271,11 +265,11 @@ public class VisorState implements VisorClientState {
 
     @Override
     public @NotNull RenderPhase renderPhase() {
-        return VRRenderState.getCurrentPhase();
+        return VRRenderState.getPhase();
     }
 
     @Override
-    public VRDisplay renderingDisplay() {
-        return VRRenderState.getCurrentVRDisplay();
+    public VRCameraType renderCameraType() {
+        return VRRenderState.getCameraType();
     }
 }

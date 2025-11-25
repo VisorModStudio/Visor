@@ -2,7 +2,7 @@ package me.phoenixra.visor.api.client.render;
 
 import lombok.Getter;
 
-public enum VRDisplay {
+public enum VRCameraType {
     GUI(false),
     EYE_LEFT(true),
     EYE_RIGHT(true),
@@ -12,7 +12,7 @@ public enum VRDisplay {
     @Getter
     private final boolean world;
 
-    VRDisplay(boolean world){
+    VRCameraType(boolean world){
         this.world = world;
     }
 
@@ -22,11 +22,11 @@ public enum VRDisplay {
 
 
     /**
-     * Display that renders the VR world first and should to be used to update
-     * render stuff to not update same for other displays
-     * @return render display
+     * VR camera that renders the VR world first and should to be used to update
+     * render stuff to not update same for other cameras
+     * @return VR camera type
      */
-    public static VRDisplay worldUpdater(){
+    public static VRCameraType worldUpdater(){
         return EYE_LEFT;
     }
 

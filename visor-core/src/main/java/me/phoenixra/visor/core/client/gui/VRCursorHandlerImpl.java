@@ -3,13 +3,13 @@ package me.phoenixra.visor.core.client.gui;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayPose;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
@@ -26,7 +26,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Getter @Setter
-    private ControllerHand cursorHand = ControllerHand.MAIN;
+    private HandType cursorHand = HandType.MAIN;
 
     @Getter @Setter
     private VROverlay forceFocused;
@@ -38,16 +38,16 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private final CursorState offhandState = new CursorState();
 
     public void process() {
-        PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        updateCursorState(ControllerHand.MAIN, mainHandState, renderPose);
-        updateCursorState(ControllerHand.OFFHAND, offhandState, renderPose);
+        updateCursorState(HandType.MAIN, mainHandState, renderPose);
+        updateCursorState(HandType.OFFHAND, offhandState, renderPose);
 
 
         updateOverlays();
     }
 
-    private void updateCursorState(@NotNull ControllerHand hand, @NotNull CursorState state, @NotNull PoseData renderPose) {
+    private void updateCursorState(@NotNull HandType hand, @NotNull CursorState state, @NotNull PlayerPoseClient renderPose) {
         VROverlay previouslyFocused = state.focusedOverlay;
 
         CursorResult result;
@@ -87,8 +87,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         twoHandedCursor = offhandState.supportsTwoCursors()
                 || mainHandState.supportsTwoCursors();
 
-        CursorState activeState = (cursorHand == ControllerHand.MAIN) ? mainHandState : offhandState;
-        CursorState inactiveState = (cursorHand == ControllerHand.MAIN) ? offhandState : mainHandState;
+        CursorState activeState = (cursorHand == HandType.MAIN) ? mainHandState : offhandState;
+        CursorState inactiveState = (cursorHand == HandType.MAIN) ? offhandState : mainHandState;
 
         // Update the overlay for the active hand
         if (activeState.isFocused()) {
@@ -110,8 +110,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    public @NotNull CursorResult getCursorResult(@NotNull ControllerHand hand,
-                                                 @NotNull PoseData poseData,
+    public @NotNull CursorResult getCursorResult(@NotNull HandType hand,
+                                                 @NotNull PlayerPoseClient poseData,
                                                  @Nullable Function<VROverlay, Boolean> overlayFilter,
                                                  boolean checkForceFocused) {
         VROverlay collidingOverlay = null;
@@ -123,7 +123,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         double closestDistance = Double.MAX_VALUE;
 
-        PoseElement cursorElement = poseData.getController(hand);
+        PoseElement cursorElement = poseData.getHand(hand);
 
 
 
@@ -196,13 +196,13 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Override
-    public double getCursorLineLength(@NotNull ControllerHand hand) {
-        return (hand == ControllerHand.MAIN) ? mainHandState.getCursorLength() : offhandState.getCursorLength();
+    public double getCursorLineLength(@NotNull HandType hand) {
+        return (hand == HandType.MAIN) ? mainHandState.getCursorLength() : offhandState.getCursorLength();
     }
 
     @Override
-    public @Nullable VROverlay getFocusedOverlay(@NotNull ControllerHand hand) {
-        return (hand == ControllerHand.MAIN) ? mainHandState.focusedOverlay : offhandState.focusedOverlay;
+    public @Nullable VROverlay getFocusedOverlay(@NotNull HandType hand) {
+        return (hand == HandType.MAIN) ? mainHandState.focusedOverlay : offhandState.focusedOverlay;
     }
 
 
@@ -267,7 +267,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                                                   float guiScale,
                                                   float guiAspectRatio
     ) {
-        PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = VROverlayPose.QUAD_SCALE * guiScale * worldScale;
 

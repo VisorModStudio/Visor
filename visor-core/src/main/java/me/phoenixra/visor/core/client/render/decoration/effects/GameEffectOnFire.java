@@ -3,9 +3,9 @@ package me.phoenixra.visor.core.client.render.decoration.effects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -39,11 +39,11 @@ public class GameEffectOnFire extends VRGameEffect {
     }
 
     @Override
-    public void render(@NotNull VRDisplay display,
+    public void render(@NotNull VRCameraType cameraType,
                        @NotNull PoseStack stack,
                        float partialTicks) {
         // --- Prepare variables ---
-        PoseData renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         float fireHeight = (float)(renderPose.getHeadPivot().y()
                 - ((GameRendererModified)MC.gameRenderer)
                 .visor$getCameraEntityCache()
@@ -66,7 +66,7 @@ public class GameEffectOnFire extends VRGameEffect {
 
         // --- GL setup ---
         RenderSystem.depthFunc(
-                display == VRDisplay.THIRD_PERSON
+                cameraType == VRCameraType.THIRD_PERSON
                         ? GL11C.GL_LEQUAL
                         : GL11C.GL_ALWAYS
         );
@@ -80,7 +80,7 @@ public class GameEffectOnFire extends VRGameEffect {
         // --- Pose setup ---
         stack.pushPose();
         stack.setIdentity();
-        RenderPoseHelper.applyDisplayPose(display, stack);
+        RenderPoseHelper.applyCameraPose(cameraType, stack);
 
         // --- Render ---
         BufferBuilder buf = Tesselator.getInstance().getBuilder();

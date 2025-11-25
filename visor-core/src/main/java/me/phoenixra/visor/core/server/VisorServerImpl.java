@@ -98,7 +98,7 @@ public class VisorServerImpl implements VisorServer {
         if (vrPlayer == null) {
             return false;
         }
-        return vrPlayer.isVr();
+        return vrPlayer.isVRActive();
     }
 
     public void putVrPlayer(VRServerPlayerImpl player) {

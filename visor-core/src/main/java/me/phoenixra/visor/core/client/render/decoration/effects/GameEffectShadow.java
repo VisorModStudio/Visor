@@ -5,8 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -51,7 +51,7 @@ public class GameEffectShadow extends VRGameEffect {
     }
 
     @Override
-    public void render(@NotNull VRDisplay renderDisplay,
+    public void render(@NotNull VRCameraType cameraType,
                        @NotNull PoseStack poseStack,
                        float partialTicks) {
 
@@ -61,8 +61,8 @@ public class GameEffectShadow extends VRGameEffect {
         float playerWidth  = (float) box.getXsize();
         float playerLength = (float) box.getZsize();
 
-        Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderDisplay,
-                ClientContext.player.getPoseData(PoseDataType.RENDER))
+        Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(cameraType,
+                ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER))
         );
         Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
                 .visor$getCameraEntityCache()
@@ -85,7 +85,7 @@ public class GameEffectShadow extends VRGameEffect {
         poseStack.pushPose();
 
         poseStack.setIdentity();
-        RenderPoseHelper.applyDisplayOrientation(renderDisplay, poseStack);
+        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
         poseStack.translate(shadowPos.x, shadowPos.y, shadowPos.z);
 
 
@@ -140,7 +140,7 @@ public class GameEffectShadow extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
+        if(VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON){
             return false;
         }
         if (!MC.player.isAlive()) {

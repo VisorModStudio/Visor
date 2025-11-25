@@ -25,7 +25,7 @@ public abstract class FishingHookMixin extends Entity {
     }
 
     @Unique
-    private VRServerPlayer visor$savedPlayer = null;
+    private VRServerPlayer visor$vrPlayer = null;
     @Unique
     private Vec3 visor$savedHandDir = null;
     @Unique
@@ -33,16 +33,17 @@ public abstract class FishingHookMixin extends Entity {
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 0)
     private float visor$vrRotationX(float xRot, Player player) {
-        visor$savedPlayer = VisorAPI.server().getVrPlayer(
+        visor$vrPlayer = VisorAPI.server().getVrPlayer(
                 (ServerPlayer) player
         );
-        if (visor$savedPlayer == null || !visor$savedPlayer.isVr()) {
+        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
             return xRot;
         }
-        visor$savedHandDir = visor$savedPlayer
-                .getActiveHandDir();
-        visor$savedHandPos = visor$savedPlayer
-                .getActiveHandPos();
+        var activeHand = visor$vrPlayer.getPoseData().getActiveHand();
+
+        visor$savedHandPos = activeHand.getPositionVec3();
+        visor$savedHandDir = activeHand.getDirectionVec3();
+
         return (float) Math.toDegrees(
                 Math.asin(visor$savedHandDir.y / visor$savedHandDir.length())
         ) * -1;
@@ -50,7 +51,7 @@ public abstract class FishingHookMixin extends Entity {
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 1)
     private float visor$vrRotationY(float yRot) {
-        if (visor$savedPlayer == null || !visor$savedPlayer.isVr()) {
+        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
             return yRot;
         }
         return (float) Math.toDegrees(
@@ -63,9 +64,9 @@ public abstract class FishingHookMixin extends Entity {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/FishingHook;moveTo(DDDFF)V"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V")
     private void visor$vrMoveTo(FishingHook instance, double x, double y, double z, float yRot, float xRot) {
-        if (visor$savedPlayer == null || !visor$savedPlayer.isVr()) {
+        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
             this.moveTo(x, y, z, yRot, xRot);
-            visor$savedPlayer = null;
+            visor$vrPlayer = null;
             return;
         }
 
@@ -80,6 +81,6 @@ public abstract class FishingHookMixin extends Entity {
         );
         visor$savedHandDir = null;
         visor$savedHandPos = null;
-        visor$savedPlayer = null;
+        visor$vrPlayer = null;
     }
 }

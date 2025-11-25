@@ -6,7 +6,7 @@ import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
@@ -32,18 +32,18 @@ public class GameActionInputMovement extends VisorActionVec2 {
         super.preTick();
 
         //@TODO
-        if(ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
+        if(ClientContext.cursorHandler.isHandFocused(HandType.OFFHAND)){
             onClear();
             return;
         }
 
         Vector2f rawMove = getState();
 
-        Vector2f movement = ClientContext.player.getMovement();
+        Vector2f movement = ClientContext.localPlayer.getMovement();
 
 
         boolean climbing = false;
-        boolean moving = ClientContext.player.isMoving();
+        boolean moving = ClientContext.localPlayer.isMoving();
         float forward = 0F;
         if (/*!KeyboardHandler.SHOWING
                 && */!climbing) {
@@ -94,7 +94,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
             ClientUtils.updateKeyMappingState(MC.options.keyRight, false);
         }
         this.wasMovement = moving;
-        ClientContext.player.setMoving(moving);
+        ClientContext.localPlayer.setMoving(moving);
         if (this.wasAutoSprinting && forward < VRClientSettings.getSprintThreshold()) {
             MC.player.setSprinting(false);
             this.wasAutoSprinting = false;
@@ -108,11 +108,11 @@ public class GameActionInputMovement extends VisorActionVec2 {
 
     @Override
     protected void onClear() {
-        Vector2f input = ClientContext.player.getMovement();
+        Vector2f input = ClientContext.localPlayer.getMovement();
 
         input.x = 0;
         input.y = 0;
-        ClientContext.player.setMoving(false);
+        ClientContext.localPlayer.setMoving(false);
 
     }
 

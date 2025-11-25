@@ -1,7 +1,8 @@
-package me.phoenixra.visor.api.client.data;
+package me.phoenixra.visor.api.common.player;
 
 
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
@@ -19,6 +20,7 @@ public interface PoseElement {
      */
     PoseElement EMPTY = new PoseElement() {
         @Override public @NotNull Vector3fc getPosition() {return VRMathUtils.ZERO_VECTOR;}
+        @Override public @NotNull Vector3fc getRelativePosition() {return VRMathUtils.ZERO_VECTOR;}
         @Override public @NotNull Vector3fc getDirection() {return VRMathUtils.ZERO_VECTOR;}
         @Override public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {return new Vector3f(vec);}
         @Override public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc customVec) {return new Vector3f(customVec);}
@@ -30,24 +32,68 @@ public interface PoseElement {
 
     /**
      *
-     * @return position of the component
+     * @return position of the element
      */
     @NotNull
     Vector3fc getPosition();
+
     /**
      *
-     * @return direction of the component
+     * @return position of the element as vec3
+     */
+    @NotNull
+    default Vec3 getPositionVec3(){
+        return new Vec3((Vector3f) getPosition());
+    }
+
+    /**
+     *
+     * @return relative position(no origin) of the element
+     */
+    @NotNull
+    Vector3fc getRelativePosition();
+
+    /**
+     *
+     * @return relative position(no origin) of the element as vec3
+     */
+    @NotNull
+    default Vec3 getRelativePositionVec3(){
+        return new Vec3((Vector3f) getRelativePosition());
+    }
+
+    /**
+     *
+     * @return direction of the element
      */
     @NotNull
     Vector3fc getDirection();
 
+    /**
+     *
+     * @return direction of the element as vec3
+     */
+    @NotNull
+    default Vec3 getDirectionVec3(){
+        return new Vec3((Vector3f) getDirection());
+    }
+
 
     /**
-     * Get custom vector from component
+     * Get custom vector from element
      * @return vector
      */
     @NotNull
     Vector3f getCustomVector(@NotNull Vector3fc vec);
+
+    /**
+     * Get custom vector from element
+     * @return vector as vec3
+     */
+    @NotNull
+    default Vec3 getCustomVector3(@NotNull Vector3fc vec){
+        return new Vec3(getCustomVector(vec));
+    }
 
     /**
      * Reverse {@link PoseElement#getCustomVector(Vector3fc)}
@@ -57,8 +103,18 @@ public interface PoseElement {
     @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc customVec);
 
     /**
+     * Reverse {@link PoseElement#getCustomVector(Vector3fc)}
+     * @param customVec vec
+     * @return original vector as vec3
+     */
+    default @NotNull Vec3 reverseCustomVector3(@NotNull Vector3fc customVec){
+        return new Vec3(reverseCustomVector(customVec));
+    }
+
+
+    /**
      *
-     * @return rotation matrix of the component
+     * @return rotation matrix of the element
      */
     @NotNull
     Matrix4fc getRotation();
@@ -66,18 +122,18 @@ public interface PoseElement {
 
     /**
      *
-     * @return yaw of the component
+     * @return yaw of the element
      */
     float getYaw();
     /**
      *
-     * @return pitch of the component
+     * @return pitch of the element
      */
     float getPitch();
 
     /**
      *
-     * @return roll of the component
+     * @return roll of the element
      */
     float getRoll();
 

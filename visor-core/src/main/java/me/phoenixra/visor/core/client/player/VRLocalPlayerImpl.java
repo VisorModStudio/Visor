@@ -1,14 +1,17 @@
-package me.phoenixra.visor.core.client.data;
+package me.phoenixra.visor.core.client.player;
 
 import lombok.Getter;
 
 import lombok.Setter;
-import me.phoenixra.visor.api.client.VRClientPlayer;
-import me.phoenixra.visor.api.client.data.*;
+import me.phoenixra.visor.api.client.player.VRLocalPlayer;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.api.common.player.PoseElement;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -19,10 +22,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import org.joml.Vector2f;
@@ -31,47 +32,43 @@ import org.joml.Vector3fc;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class VRClientPlayerImpl implements VRClientPlayer {
+public class VRLocalPlayerImpl implements VRLocalPlayer {
 
-    private final PoseDataImpl roomPose;
+    private final LocalPlayerPose roomPose;
 
-    private final PoseDataImpl preTickPose;
-    private final PoseDataImpl postTickPose;
-    private final PoseDataImpl renderPose;
-
-    @Getter
-    private Vector3fc worldOrigin = new Vector3f(0.0f, 0.0f, 0.0f);
-    @Getter
-    private float worldScale = 1.0f;
-
-    @Getter
-    private float rotationY = 0f;
+    private final LocalPlayerPose prevPose;
+    private final LocalPlayerPose pose;
+    private final LocalPlayerPose renderPose;
 
 
     @Getter
-    private ControllerHand activeHand = ControllerHand.MAIN;
+    private HandType activeHand = HandType.MAIN;
 
     @Getter
     private Vector2f movement = new Vector2f();
     @Getter @Setter
     private boolean moving;
 
-    public VRClientPlayerImpl() {
-        this.roomPose = new PoseDataImpl(PoseDataType.ROOM, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+    public VRLocalPlayerImpl() {
+        this.roomPose = new LocalPlayerPose(PlayerPoseType.ROOM, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
 
-        this.preTickPose = new PoseDataImpl(PoseDataType.PRE_TICK, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.postTickPose = new PoseDataImpl(PoseDataType.POST_TICK, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new PoseDataImpl(PoseDataType.RENDER, worldOrigin, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.prevPose = new LocalPlayerPose(PlayerPoseType.PREV_TICK, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.pose = new LocalPlayerPose(PlayerPoseType.TICK, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.renderPose  = new LocalPlayerPose(PlayerPoseType.RENDER, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
     }
 
+    public void onGameLoopStart(){
+        this.roomPose.update(
+                VRMathUtils.ZERO_VECTOR,
+                VRClientSettings.getWalkMultiplier(),
+                1.0f, 0.0f
+        );
+    }
 
     public void preTick() {
 
-        this.preTickPose.update(
-                this.worldOrigin,
-                VRClientSettings.getWalkMultiplier(),
-                this.worldScale,
-                rotationY
+        this.prevPose.copyFrom(
+                this.pose
         );
 
         //WORLD SCALE
@@ -79,7 +76,12 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 ? 1.0f
                 : VRClientSettings.getWorldScale();
 
-        this.worldScale = preWorldScale;
+        this.pose.update(
+                this.pose.getOrigin(),
+                VRClientSettings.getWalkMultiplier(),
+                preWorldScale,
+                pose.getRotationY()
+        );
 
     }
 
@@ -103,55 +105,18 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
     public void postTick() {
 
-        Vector3f scaleOffset = preTickPose.hmd
-                .getScalePosOffset(
-                        preTickPose.getRotationY(),
-                        preTickPose.getWorldScale(),
-                        this.worldScale
-                );
-        this.worldOrigin = this.worldOrigin.sub(
-                scaleOffset, new Vector3f()
-        );
-
-
-        Vector3f headPivot = preTickPose.createNewHeadPivot(
-                worldOrigin,
-                worldScale
-        );
-
-        float currentRotation = this.rotationY;
-        float oldRotation = this.preTickPose.getRotationY();
-        this.rotateOriginAround(
-                headPivot,
-                 oldRotation - currentRotation
-        );
-
-        this.postTickPose.update(
-                this.worldOrigin,
-                VRClientSettings.getWalkMultiplier(),
-                this.worldScale,
-                currentRotation
-        );
-
-        this.updatePlayerLook(MC.player, PoseDataType.POST_TICK);
+        this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
 
         ClientNetworking.sendVRPlayerPose();
     }
 
 
-    public void earlyPreRender(){
-        this.roomPose.update(
-                VRMathUtils.ZERO_VECTOR,
-                VRClientSettings.getWalkMultiplier(),
-                1.0f, 0.0f
-        );
-    }
 
     public void preRender(float partialTicks) {
 
         //Interpolated Rotation
-        float rotationPre = this.preTickPose.getRotationY();
-        float rotationPost = this.postTickPose.getRotationY();
+        float rotationPre = this.prevPose.getRotationY();
+        float rotationPost = this.pose.getRotationY();
         float rotationDelta = Math.abs(rotationPost - rotationPre);
 
         if (rotationDelta > Math.PI) {
@@ -161,14 +126,14 @@ public class VRClientPlayerImpl implements VRClientPlayer {
                 rotationPost = (float) ( rotationPost + (Math.PI * 2));
             }
         }
-        float renderRotation = rotationPost
+        float rotationPartial = rotationPost
                 * partialTicks + rotationPre * (1.0f - partialTicks);
 
         //Interpolated Origin
-        var preTickOrigin = this.preTickPose.getOrigin();
-        var postTickOrigin = this.postTickPose.getOrigin();
+        var preTickOrigin = this.prevPose.getOrigin();
+        var postTickOrigin = this.pose.getOrigin();
 
-        Vector3fc renderOrigin = new Vector3f(
+        Vector3fc originPartial = new Vector3f(
                 preTickOrigin.x()
                         + (postTickOrigin.x() - preTickOrigin.x())
                         * partialTicks,
@@ -181,16 +146,17 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         );
 
         //Interpolated World Scale
-        float preTickWorld = this.preTickPose.getWorldScale();
-        float postTickWorld = this.postTickPose.getWorldScale();
-        float renderWorldScale = postTickWorld * partialTicks
+        float preTickWorld = this.prevPose.getWorldScale();
+        float postTickWorld = this.pose.getWorldScale();
+        float worldScalePartial = postTickWorld * partialTicks
                 + preTickWorld * (1.0f - partialTicks);
 
         //Applying
         this.renderPose.update(
-                renderOrigin,
+                originPartial,
                 VRClientSettings.getWalkMultiplier(),
-                renderWorldScale, renderRotation
+                worldScalePartial,
+                rotationPartial
         );
 
 
@@ -199,11 +165,11 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
 
 
-    public void updatePlayerLook(LocalPlayer player, PoseDataType stage) {
+    public void updatePlayerLook(LocalPlayer player, PlayerPoseType stage) {
         if (player == null) {
             return;
         }
-        PoseDataImpl data = getPoseData(stage);
+        LocalPlayerPose data = getPoseData(stage);
 
         if (player.isPassenger()) {
             var vehicleLookDir = TaskRoomVehicle.getVehicleLookDirection(player);
@@ -221,14 +187,14 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         }
         if (player.isBlocking()) {
             //block direction
-            if (ClientContext.player.getActiveHand() == ControllerHand.MAIN) {
-                player.setYRot(data.getController(ControllerHand.MAIN).getYaw());
+            if (ClientContext.localPlayer.getActiveHand() == HandType.MAIN) {
+                player.setYRot(data.getHand(HandType.MAIN).getYaw());
                 player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getController(ControllerHand.MAIN).getPitch());
+                player.setXRot(-data.getHand(HandType.MAIN).getPitch());
             } else {
-                player.setYRot(data.getController(ControllerHand.OFFHAND).getYaw());
+                player.setYRot(data.getHand(HandType.OFFHAND).getYaw());
                 player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getController(ControllerHand.OFFHAND).getPitch());
+                player.setXRot(-data.getHand(HandType.OFFHAND).getPitch());
             }
             return;
         }
@@ -269,19 +235,19 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         }
 
         //use HMD if no other option found
-        player.setYRot(data.hmd.getYaw());
+        player.setYRot(data.getHmd().getRotationYCache());
         player.setYHeadRot(player.getYRot());
-        player.setXRot(-data.hmd.getPitch());
+        player.setXRot(-data.getHmd().getPitch());
     }
 
     public void recenterOrigin(@NotNull Entity cameraEntity,
                                boolean reset) {
 
 
-        var headPivot = this.preTickPose.getHeadPivot();
+        var headPivot = this.prevPose.getHeadPivot();
 
         var headOffset = headPivot.sub(
-                this.preTickPose.getOrigin(),
+                this.prevPose.getOrigin(),
                 new Vector3f()
         );
         float x = (float) (cameraEntity.getX() - headOffset.x);
@@ -290,50 +256,38 @@ public class VRClientPlayerImpl implements VRClientPlayer {
         if (cameraEntity instanceof LocalPlayerModified p) {
             y += (float) p.visor$getRoomYOffset();
         }
-        this.setWorldOrigin(x, y, z, reset);
+        this.setOrigin(x, y, z, reset);
     }
 
-    public void rotateOriginAround(Vector3fc anchor, float radians) {
 
-        float radSin = Mth.sin(radians);
-        float radCos = Mth.cos(radians);
-        this.setWorldOrigin(
-                radCos
-                        * (worldOrigin.x() - anchor.x())
-                        - radSin
-                        * (worldOrigin.z() - anchor.z())
-                        + anchor.x(), worldOrigin.y(),
-                radSin
-                        * (worldOrigin.x() - anchor.x())
-                        + radCos
-                        * (worldOrigin.z() - anchor.z())
-                        + anchor.z(),
-                false
+
+    public void setOrigin(float x, float y, float z,
+                          boolean reset) {
+        var newOrigin = new Vector3f(x, y, z);
+        if (reset) {
+            this.prevPose.resetOrigin(newOrigin);
+        }
+
+        this.pose.update(
+                newOrigin,
+                pose.getWorldScale(),
+                pose.getRotationY()
         );
     }
 
-
-    public void setWorldOrigin(float x, float y, float z,
-                               boolean reset) {
-        var newOrigin = new Vector3f(x, y, z);
-        if (reset) {
-            this.preTickPose.resetOrigin(newOrigin);
-        }
-
-        this.worldOrigin = newOrigin;
-    }
-
-
-
-    public void setRotationY(float rotationY) {
-        this.rotationY = rotationY % ((float) Math.PI * 2);
+    public void setRotationY(float newYaw) {
+        this.pose.update(
+                pose.getOrigin(),
+                pose.getWorldScale(),
+                newYaw % ((float) Math.PI * 2)
+        );
     }
 
 
 
 
     @Override
-    public @Nullable Player getMcPlayer() {
+    public LocalPlayer getMcPlayer() {
         return MC.player;
     }
 
@@ -343,61 +297,55 @@ public class VRClientPlayerImpl implements VRClientPlayer {
 
 
     public InteractionHand getActiveInteractHand(){
-        return activeHand == ControllerHand.MAIN
+        return activeHand == HandType.MAIN
                 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
 
     @Override
-    public @NotNull PoseElement getRotationElement(@NotNull PoseDataType stage){
-        PoseData playerPose = getPoseData(stage);
+    public @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage){
+        PlayerPoseClient playerPose = getPoseData(stage);
         return switch (VRClientSettings.getRotationMode()) {
-            case MAIN_HAND -> playerPose.getController(
-                    ControllerHand.MAIN
+            case MAIN_HAND -> playerPose.getHand(
+                    HandType.MAIN
             );
             case HMD ->  playerPose.getHmd();
-            default -> playerPose.getController(ControllerHand.OFFHAND);
+            default -> playerPose.getHand(HandType.OFFHAND);
 
         };
 
     }
 
     @Override
-    public @NotNull PoseDataImpl getPoseData(@NotNull PoseDataType stage) {
+    public @NotNull LocalPlayerPose getPoseData(@NotNull PlayerPoseType stage) {
         return switch (stage){
-            case PRE_TICK -> preTickPose;
-            case POST_TICK -> postTickPose;
+            case PREV_TICK -> prevPose;
+            case TICK -> pose;
             case RENDER -> renderPose;
             default -> roomPose;
         };
     }
 
     @Override
-    public @NotNull ControllerRaw getControllerRaw(@NotNull ControllerHand hand) {
-        return ClientContext.rawPoseHandler.getControllerData(hand);
+    public float getHeight() {
+        return VRClientSettings.getPlayerHeight();
     }
 
     @Override
-    public @NotNull HmdRaw getHmdRaw() {
-        return ClientContext.rawPoseHandler.getHmdData();
+    public boolean isLeftHanded() {
+        return VRClientSettings.isLeftHanded();
     }
 
     public String toString() {
         return ("""
-            VRClientPlayer:
-                origin: %s
-                rotation: %.3f
-                scale: %.3f
+            VRLocalPlayer:
                 room pose: %s
-                preTick pose: %s
-                postTick pose: %s
+                previous pose: %s
+                pose: %s
                 render pose: %s"""
         ).formatted(
-                this.worldOrigin,
-                this.rotationY,
-                this.worldScale,
                 this.roomPose,
-                this.preTickPose,
-                this.postTickPose,
+                this.prevPose,
+                this.pose,
                 this.renderPose
         );
     }

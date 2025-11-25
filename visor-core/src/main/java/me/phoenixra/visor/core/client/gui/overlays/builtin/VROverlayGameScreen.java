@@ -1,8 +1,8 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
@@ -121,8 +121,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || newScreen instanceof AbstractSignEditScreen
                 || roomPosition == null
                 || roomRotation == null) {
-            PoseElement hmd = ClientContext.player
-                    .getPoseData(PoseDataType.ROOM)
+            PoseElement hmd = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.ROOM)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 
@@ -162,7 +162,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private void orientMainMenu(){
 
-        ClientContext.player.setRotationY(0);
+        ClientContext.localPlayer.setRotationY(0);
         overlayScale = 2.0f;
         Vector2f afloat = ClientUtils.getPlayAreaSize();
         roomPosition = new Vector3f(

@@ -17,11 +17,13 @@ public class CrossbowItemMixin {
     @WrapOperation(method = "shootProjectile", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getViewVector(F)Lnet/minecraft/world/phys/Vec3;"))
     private static Vec3 visor$vrAim(LivingEntity instance, float partialTicks, Operation<Vec3> original) {
         if (instance instanceof ServerPlayer player) {
-            VRServerPlayer serverPlayer = VisorAPI.server().getVrPlayer(player);
-            if (serverPlayer == null || !serverPlayer.isVr()) {
+            VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+            if (vrPlayer == null || !vrPlayer.isVRActive()) {
                 return original.call(instance, partialTicks);
             }
-            return serverPlayer.getActiveHandDir();
+            return vrPlayer.getPoseData()
+                    .getActiveHand()
+                    .getDirectionVec3();
         }
         return original.call(instance, partialTicks);
     }

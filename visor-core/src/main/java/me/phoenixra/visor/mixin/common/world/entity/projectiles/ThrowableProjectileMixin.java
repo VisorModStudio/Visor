@@ -31,13 +31,16 @@ public abstract class ThrowableProjectileMixin extends Entity {
         if (!(entity instanceof ServerPlayer player)) {
             return;
         }
-        VRServerPlayer vrServerPlayer = VisorAPI.server()
+        VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (vrServerPlayer == null || !vrServerPlayer.isVr()) {
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return;
         }
-        Vec3 handPos = vrServerPlayer.getActiveHandPos();
-        Vec3 handDir = vrServerPlayer.getActiveHandDir().scale(0.6F);
+        var activeHand = vrPlayer.getPoseData().getActiveHand();
+
+        Vec3 handPos = activeHand.getPositionVec3();
+        Vec3 handDir = activeHand.getDirectionVec3()
+                .scale(0.6F);
         this.setPos(
                 handPos.x + handDir.x,
                 handPos.y + handDir.y,

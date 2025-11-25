@@ -38,7 +38,7 @@ public class TaskRoomJump extends VisorTask {
 
 
         final double latestY = pivotHistory.latest().y();
-        final double playerHeight = VRClientSettings.getPlayerHeight();
+        final double playerHeight = ClientContext.localPlayer.getHeight();
         final double deltaY = latestY - playerHeight;
 
         if (deltaY > VRClientSettings.getJumpThreshold()) {

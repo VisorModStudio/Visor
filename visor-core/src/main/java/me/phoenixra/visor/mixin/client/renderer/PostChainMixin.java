@@ -2,10 +2,10 @@ package me.phoenixra.visor.mixin.client.renderer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.visor.modified.client.render.RenderTargetModified;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.render.target.MultiDisplayRenderTarget;
+import me.phoenixra.visor.core.client.render.target.MultiCameraRenderTarget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -32,7 +32,7 @@ public class PostChainMixin {
     private RenderTarget screenTarget;
 
     @Unique @Final
-    private final EnumMap<VRDisplay, PostChain> visor$vrChains = new EnumMap<>(VRDisplay.class);
+    private final EnumMap<VRCameraType, PostChain> visor$vrPostChains = new EnumMap<>(VRCameraType.class);
 
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
@@ -46,10 +46,10 @@ public class PostChainMixin {
                 || this.screenTarget != VRRenderState.getVanillaTarget()){
             return;
         }
-        for (VRDisplay display : VRDisplay.values()) {
-            var target = VRRenderState.getTargetForDisplay(display);
+        for (VRCameraType cameraType : VRCameraType.values()) {
+            var target = VRRenderState.getTargetForCamera(cameraType);
             if(target == null) continue;
-            visor$vrChains.put(display,
+            visor$vrPostChains.put(cameraType,
                     new PostChain(
                             textureManager,
                             resourceManager,
@@ -62,10 +62,10 @@ public class PostChainMixin {
 
     @Inject(method = "process", at = @At(value = "HEAD"), cancellable = true)
     private void visor$processVRChains(float partialTick, CallbackInfo ci) {
-        if(VRRenderState.getCurrentPhase().isNotVRWorld()){
+        if(VRRenderState.getPhase().isNotVRWorld()){
             return;
         }
-        PostChain vrChain = this.visor$vrChains.get(VRRenderState.getCurrentVRDisplay());
+        PostChain vrChain = this.visor$vrPostChains.get(VRRenderState.getCameraType());
         if(vrChain == null){
             return;
         }
@@ -77,15 +77,15 @@ public class PostChainMixin {
     @Inject(method = "getTempTarget", at = @At("RETURN"), cancellable = true)
     private void visor$onGetTempTarget(String attributeName, CallbackInfoReturnable<RenderTarget> cir) {
         if (VisorState.getState().isNotInitialized()
-                || visor$vrChains.isEmpty()) {
+                || visor$vrPostChains.isEmpty()) {
             return;
         }
-        var vrTempTargets = new EnumMap<VRDisplay, RenderTarget>(VRDisplay.class);
-        visor$vrChains.forEach((d, pc) -> {
+        var vrTempTargets = new EnumMap<VRCameraType, RenderTarget>(VRCameraType.class);
+        visor$vrPostChains.forEach((d, pc) -> {
             vrTempTargets.put(d, pc.getTempTarget(attributeName));
         });
         cir.setReturnValue(
-                new MultiDisplayRenderTarget(
+                new MultiCameraRenderTarget(
                         cir.getReturnValue(), vrTempTargets
                 )
         );
@@ -102,14 +102,14 @@ public class PostChainMixin {
 
     @Inject(method = "close", at = @At("TAIL"))
     private void visor$onClose(CallbackInfo ci) {
-        visor$vrChains.values().forEach(PostChain::close);
-        visor$vrChains.clear();
+        visor$vrPostChains.values().forEach(PostChain::close);
+        visor$vrPostChains.clear();
     }
 
     @Inject(method = "resize", at = @At("TAIL"))
     private void visor$onResize(CallbackInfo ci) {
-        visor$vrChains.forEach((display, pc) -> {
-            RenderTarget target = VRRenderState.getTargetForDisplay(display);
+        visor$vrPostChains.forEach((cameraType, pc) -> {
+            RenderTarget target = VRRenderState.getTargetForCamera(cameraType);
             if(target == null){
                 return;
             }

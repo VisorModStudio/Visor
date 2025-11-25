@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.framework.template.VROverlayTemplateFrameBuffer;

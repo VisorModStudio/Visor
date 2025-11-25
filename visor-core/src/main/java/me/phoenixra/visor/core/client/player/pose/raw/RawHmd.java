@@ -1,9 +1,9 @@
-package me.phoenixra.visor.core.client.data.raw;
+package me.phoenixra.visor.core.client.player.pose.raw;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.api.client.data.HmdRaw;
+import me.phoenixra.visor.api.client.player.pose.HmdRaw;
 import me.phoenixra.visor.api.common.utils.QuaternionFloatHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.common.utils.Vector3fHistory;

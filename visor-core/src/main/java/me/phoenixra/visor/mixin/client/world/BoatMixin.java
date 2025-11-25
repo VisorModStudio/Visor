@@ -1,7 +1,7 @@
 package me.phoenixra.visor.mixin.client.world;
 
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomBoat;
@@ -64,9 +64,9 @@ public abstract class BoatMixin extends Entity {
         double momentumX, momentumZ;
 
         if (this.inputUp) {
-            float yaw = ClientContext.player
-                    .getPoseData(PoseDataType.PRE_TICK)
-                    .getController(ControllerHand.OFFHAND).getYaw();
+            float yaw = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.PREV_TICK)
+                    .getHand(HandType.OFFHAND).getYaw();
             float end = this.getYRot() % 360;
             float start = yaw;
             float difference = Math.abs(end - start);

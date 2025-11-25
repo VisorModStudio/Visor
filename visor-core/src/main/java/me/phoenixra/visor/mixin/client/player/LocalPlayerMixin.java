@@ -1,11 +1,9 @@
 package me.phoenixra.visor.mixin.client.player;
 
 import com.mojang.authlib.GameProfile;
-import me.jellysquid.mods.sodium.mixin.core.world.map.ClientWorldMixin;
-import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.input.HandAction;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
@@ -19,7 +17,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -35,7 +32,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -122,9 +118,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.updatePlayerLook(
+        ClientContext.localPlayer.updatePlayerLook(
                 (LocalPlayer) (Object) this,
-                PoseDataType.PRE_TICK
+                PlayerPoseType.PREV_TICK
         );
     }
 
@@ -134,9 +130,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.updatePlayerLook(
+        ClientContext.localPlayer.updatePlayerLook(
                 (LocalPlayer) (Object) this,
-                PoseDataType.PRE_TICK
+                PlayerPoseType.PREV_TICK
         );
     }
 
@@ -147,7 +143,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$initialized) {
             return;
         }
-        ClientContext.player.tickPlayer(
+        ClientContext.localPlayer.tickPlayer(
                 (LocalPlayer) (Object) this
         );
     }
@@ -179,7 +175,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
         boolean canMoveY = true;
 
-        Vector3fc origin = ClientContext.player.getWorldOrigin();
+        Vector3fc origin = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK)
+                .getOrigin();
 
         if ((this.zza != 0.0F
                 || this.isFallFlying()
@@ -203,7 +201,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 this.updateAutoJump((float) (this.getX() - prevX), (float) (this.getZ() - prevZ));
             }
 
-            ClientContext.player.setWorldOrigin(
+            ClientContext.localPlayer.setOrigin(
                     (float) (this.getX() + xOffset),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     (float) (this.getZ() + zOffset),
@@ -214,7 +212,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
         if (canMoveY) {
             super.move(type, new Vec3(0.0D, pos.y, 0.0D));
-            ClientContext.player.setWorldOrigin(
+            ClientContext.localPlayer.setOrigin(
                     origin.x(),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     origin.z(),
@@ -258,8 +256,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         );
 
 
-        var rotationElement = ClientContext.player
-                .getRotationElement(PoseDataType.PRE_TICK);
+        var rotationElement = ClientContext.localPlayer
+                .getRotationElement(PlayerPoseType.PREV_TICK);
 
         //SWIMMING OR FLYING
         if (!this.isPassenger()
@@ -304,7 +302,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.recenterOrigin(
+        ClientContext.localPlayer.recenterOrigin(
                 (LocalPlayer) (Object) this,
                 false
         );
@@ -337,20 +335,20 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
             Vec3 premountPos = TaskRoomVehicle.getInstance().premountPosRoom;
             premountPos = premountPos
                     .yRot(
-                            ClientContext.player
-                                    .getPoseData(PoseDataType.PRE_TICK)
+                            ClientContext.localPlayer
+                                    .getPoseData(PlayerPoseType.PREV_TICK)
                                     .getRotationY()
                     );
             posX = posX - premountPos.x;
             posZ = posZ - premountPos.z;
-            ClientContext.player.setWorldOrigin(
+            ClientContext.localPlayer.setOrigin(
                     (float) posX, (float) posY, (float) posZ,
                     shouldReset
             );
             return;
         }
 
-        ClientContext.player.recenterOrigin(
+        ClientContext.localPlayer.recenterOrigin(
                 (LocalPlayer)(Object)this,
                 shouldReset
         );
@@ -360,16 +358,16 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.getState().isActive()
-                ? ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.PREV_TICK).getBodyYaw()
                 : original;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.getState().isActive()
-                ? ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.PREV_TICK).getBodyYaw()
                 : original;
     }
 
@@ -406,7 +404,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         }
         cir.setReturnValue(
                 new Vec3(
-                        (Vector3f) RenderPoseHelper.getControllerPosition(ControllerHand.MAIN)
+                        (Vector3f) RenderPoseHelper.getHandPosition(HandType.MAIN)
                 )
         );
     }

@@ -4,8 +4,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.modified.client.render.LevelRendererModified;
@@ -18,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,8 +30,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import me.phoenixra.visor.core.client.ClientContext;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Mixin(value = LevelRenderer.class, priority = 999)
@@ -55,7 +52,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                                           GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f,
                                           CallbackInfo ci
     ) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             return;
         }
 
@@ -71,7 +68,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                                               @Local(argsOnly = true) Entity entity,
                                               @Share("capturedEntity") LocalRef<Entity> capturedEntity
     ) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()
+        if (VRRenderState.getPhase().isNotVanilla()
                 && entity == minecraft.getCameraEntity()) {
             capturedEntity.set(entity);
             ((GameRendererModified) minecraft.gameRenderer)
@@ -89,7 +86,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
             ((GameRendererModified) minecraft.gameRenderer)
                     .visor$cacheCameraEntity(capturedEntity.get());
             ((GameRendererModified) minecraft.gameRenderer)
-                    .visor$setupCameraEntityDisplay();
+                    .visor$setupCameraEntityAsVRCamera();
         }
         this.visor$renderedEntity = null;
     }
@@ -101,7 +98,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public void visor$stencil(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer,
                              LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo info
     ) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()) {
+        if (VRRenderState.getPhase().isNotVanilla()) {
 
             VREffectsHelper.drawEyeStencil();
         }
@@ -110,27 +107,27 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
     public double visor$rainX(double x) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()
-                && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().x();
+        if (VRRenderState.getPhase().isNotVanilla()
+                && VRRenderState.getCameraType().isEye()) {
+            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().x();
         }
         return x;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
     public double visor$rainY(double y) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()
-                && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().y();
+        if (VRRenderState.getPhase().isNotVanilla()
+                && VRRenderState.getCameraType().isEye()) {
+            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().y();
         }
         return y;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
     public double visor$rainZ(double z) {
-        if (VRRenderState.getCurrentPhase().isNotVanilla()
-                && VRRenderState.getCurrentVRDisplay().isEye()) {
-            return ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition().z();
+        if (VRRenderState.getPhase().isNotVanilla()
+                && VRRenderState.getCameraType().isEye()) {
+            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().z();
         }
         return z;
     }
@@ -139,7 +136,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     /**
      * That fixes issue with incorrect resolution
      * for post chain effects in some cases
-     * (like for FIRST_PERSON, THIRD_PERSON displays
+     * (like for FIRST_PERSON, THIRD_PERSON VR cameras
      * that use different resolution from initial)
      */
     @Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
@@ -179,18 +176,18 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                      1021    // ZOMBIE_BREAK_WOODEN_DOOR
                         -> {
                     ClientContext.inputManager
-                            .triggerHapticPulse(ControllerHand.MAIN, 0.0075f);
+                            .triggerHapticPulse(HandType.MAIN, 0.0075f);
                     ClientContext.inputManager
-                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.0075f);
+                            .triggerHapticPulse(HandType.OFFHAND, 0.0075f);
                 }
                 case 1030 ->    // ANVIL_USE
                         ClientContext.inputManager
-                                .triggerHapticPulse(ControllerHand.MAIN, 0.005f);
+                                .triggerHapticPulse(HandType.MAIN, 0.005f);
                 case 1031 -> {  // ANVIL_LAND
                     ClientContext.inputManager
-                            .triggerHapticPulse(ControllerHand.MAIN, 0.0125f);
+                            .triggerHapticPulse(HandType.MAIN, 0.0125f);
                     ClientContext.inputManager
-                            .triggerHapticPulse(ControllerHand.OFFHAND, 0.0125f);
+                            .triggerHapticPulse(HandType.OFFHAND, 0.0125f);
                 }
             }
         }

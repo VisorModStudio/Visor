@@ -1,17 +1,19 @@
-package me.phoenixra.visor.core.client.data;
+package me.phoenixra.visor.core.client.player.pose;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.core.client.data.raw.RawController;
-import me.phoenixra.visor.core.client.data.raw.RawHmd;
+import me.phoenixra.visor.core.client.player.pose.raw.RawController;
+import me.phoenixra.visor.core.client.player.pose.raw.RawHmd;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.common.data.PoseElementImpl;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -23,20 +25,22 @@ import java.util.List;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.joml.Vector3fc;
 
-@Getter
-public class PoseDataImpl implements PoseData {
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-    private final PoseDataType type;
+@Getter
+public class LocalPlayerPose implements PlayerPoseClient {
+
+    private final PlayerPoseType type;
 
     protected final PoseElementImpl hmd;
     protected final PoseElementImpl eyeLeft;
     protected final PoseElementImpl eyeRight;
 
-    protected final PoseElementImpl controllerMain;
-    protected final PoseElementImpl controllerOffhand;
+    protected final PoseElementImpl mainHand;
+    protected final PoseElementImpl offhand;
 
-    protected final PoseElementImpl handMain;
-    protected final PoseElementImpl handOffhand;
+    protected final PoseElementImpl gripMainHand;
+    protected final PoseElementImpl gripOffhand;
 
     protected final PoseElementImpl thirdPersonCamera;
 
@@ -49,21 +53,21 @@ public class PoseDataImpl implements PoseData {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public PoseDataImpl(PoseDataType type,
-                        Vector3fc origin,
-                        float walkMul,
-                        float worldScale,
-                        float rotationY) {
+    public LocalPlayerPose(PlayerPoseType type,
+                           Vector3fc origin,
+                           float walkMul,
+                           float worldScale,
+                           float rotationY) {
         this.type = type;
 
         this.hmd = new PoseElementImpl();
         this.eyeLeft = new PoseElementImpl();
         this.eyeRight = new PoseElementImpl();
 
-        this.controllerOffhand = new PoseElementImpl();
-        this.controllerMain = new PoseElementImpl();
-        this.handOffhand = new PoseElementImpl();
-        this.handMain = new PoseElementImpl();
+        this.mainHand = new PoseElementImpl();
+        this.offhand = new PoseElementImpl();
+        this.gripOffhand = new PoseElementImpl();
+        this.gripMainHand = new PoseElementImpl();
 
         this.thirdPersonCamera = new PoseElementImpl();
 
@@ -71,8 +75,8 @@ public class PoseDataImpl implements PoseData {
         elements = List.of(
                 hmd,
                 eyeLeft, eyeRight,
-                controllerOffhand, controllerMain,
-                handOffhand, handMain,
+                mainHand, offhand,
+                gripOffhand, gripMainHand,
                 thirdPersonCamera
         );
 
@@ -80,13 +84,13 @@ public class PoseDataImpl implements PoseData {
 
     }
 
-    protected void update(Vector3fc origin,
-                          float walkMul,
-                          float worldScale,
-                          float rotationY){
+    public void update(Vector3fc origin,
+                       float walkMul,
+                       float worldScale,
+                       float rotationY){
 
-        RawController dataMain = ClientContext.rawPoseHandler.getControllerData(ControllerHand.MAIN);
-        RawController dataOffhand = ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND);
+        RawController dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
+        RawController dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
         this.origin = origin;
         this.worldScale = worldScale;
         this.rotationY = rotationY;
@@ -102,57 +106,59 @@ public class PoseDataImpl implements PoseData {
                 this.origin,
                 this.rotationY,
                 this.worldScale,
+                headsetPosFinal,
                 hmdData.getRotation(),
-                headsetPosFinal, hmdData.getVector()
+                hmdData.getVector()
         );
         this.eyeLeft.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                hmdData.getEyeRotation(EyeType.LEFT),
                 hmdData.getEyePosition(EyeType.LEFT).sub(headsetPos).add(headsetPosFinal),
+                hmdData.getEyeRotation(EyeType.LEFT),
                 hmdData.getVector()
         );
         this.eyeRight.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                hmdData.getEyeRotation(EyeType.RIGHT),
                 hmdData.getEyePosition(EyeType.RIGHT).sub(headsetPos).add(headsetPosFinal),
+                hmdData.getEyeRotation(EyeType.RIGHT),
                 hmdData.getVector()
         );
 
-        this.controllerOffhand.update(
+        this.mainHand.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataOffhand.getAimRotation(),
-                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
-                dataOffhand.getAimVector()
-        );
-        this.controllerMain.update(
-                this.origin,
-                this.rotationY,
-                this.worldScale,
-                dataMain.getAimRotation(),
                 dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataMain.getAimRotation(),
                 dataMain.getAimVector()
         );
-        this.handOffhand.update(
+        this.offhand.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataOffhand.getGripRotation(),
                 dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
-                dataOffhand.getGripVector()
+                dataOffhand.getAimRotation(),
+                dataOffhand.getAimVector()
         );
-        this.handMain.update(
+
+        this.gripMainHand.update(
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                dataMain.getGripRotation(),
                 dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataMain.getGripRotation(),
                 dataMain.getGripVector()
+        );
+        this.gripOffhand.update(
+                this.origin,
+                this.rotationY,
+                this.worldScale,
+                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataOffhand.getGripRotation(),
+                dataOffhand.getGripVector()
         );
 
 
@@ -168,12 +174,81 @@ public class PoseDataImpl implements PoseData {
                 this.origin,
                 this.rotationY,
                 this.worldScale,
-                camRot,
                 camPos.sub(headsetPos).add(headsetPosFinal),
+                camRot,
                 camDir
         );
         this.bodyYaw = calcBodyYaw();
         this.headPivot = calcHeadPivot();
+    }
+
+    public void update(Vector3fc newOrigin,
+                       float newWorldScale,
+                       float newRotationY){
+        if (newWorldScale == this.worldScale
+                && newRotationY == this.rotationY
+                && newOrigin.equals(this.origin)) {
+            return;
+        }
+
+        Vector3f adjustedOrigin = new Vector3f(newOrigin);
+
+        if (newWorldScale != this.worldScale) {
+            Vector3f scaleOffset = hmd.getScalePosOffset(
+                    this.rotationY,
+                    this.worldScale,
+                    newWorldScale
+            );
+
+            adjustedOrigin.sub(scaleOffset);
+        }
+
+        Vector3f pivot;
+        boolean originChanged = !adjustedOrigin.equals(this.origin);
+        boolean scaleChanged = (newWorldScale != this.worldScale);
+
+        if (originChanged || scaleChanged) {
+            pivot = createNewHeadPivot(adjustedOrigin, newWorldScale);
+        } else {
+            pivot = new Vector3f(this.headPivot);
+        }
+
+        if (newRotationY != this.rotationY) {
+            float deltaRotation = this.rotationY - newRotationY;
+            rotateOriginAround(adjustedOrigin, pivot, deltaRotation);
+        }
+
+        this.origin = adjustedOrigin;
+        this.rotationY = newRotationY;
+        this.worldScale = newWorldScale;
+
+        for (PoseElementImpl it : elements) {
+            it.update(
+                    this.origin,
+                    this.rotationY,
+                    this.worldScale
+            );
+        }
+
+        this.headPivot = calcHeadPivot();
+        this.bodyYaw = calcBodyYaw();
+    }
+
+    public void copyFrom(LocalPlayerPose playerPose){
+        this.origin = new Vector3f(playerPose.origin);
+        this.rotationY = playerPose.rotationY;
+        this.bodyYaw = playerPose.bodyYaw;
+        this.worldScale = playerPose.worldScale;
+        this.headPivot = new Vector3f(playerPose.headPivot);
+
+        hmd.copyFrom(playerPose.hmd);
+        eyeLeft.copyFrom(playerPose.eyeLeft);
+        eyeRight.copyFrom(playerPose.eyeRight);
+        mainHand.copyFrom(playerPose.mainHand);
+        offhand.copyFrom(playerPose.offhand);
+        gripMainHand.copyFrom(playerPose.gripMainHand);
+        gripOffhand.copyFrom(playerPose.gripOffhand);
+        thirdPersonCamera.copyFrom(playerPose.thirdPersonCamera);
     }
 
     public Vector3f createNewHeadPivot(Vector3fc newOrigin, float newWorldScale) {
@@ -196,8 +271,8 @@ public class PoseDataImpl implements PoseData {
     }
 
     private float calcBodyYaw() {
-        Vector3f bodyPos = this.controllerOffhand.getPosition()
-                .sub(this.controllerMain.getPosition(), new Vector3f())
+        Vector3f bodyPos = this.offhand.getPosition()
+                .sub(this.mainHand.getPosition(), new Vector3f())
                 .normalize()
                 .rotateY((-(float) Math.PI / 2F));
         var hmdDirection = this.hmd.getDirection();
@@ -206,7 +281,7 @@ public class PoseDataImpl implements PoseData {
             bodyPos = bodyPos.mul(-1);
         }
 
-        bodyPos = VRMathUtils.lerpVector(hmdDirection, bodyPos, 0.7f);
+        bodyPos = hmdDirection.lerp(bodyPos, 0.7f, new Vector3f());
         return (float) Mth.atan2(-bodyPos.x, bodyPos.z);
     }
 
@@ -228,7 +303,7 @@ public class PoseDataImpl implements PoseData {
     }
 
 
-    protected void resetOrigin(Vector3fc newOrigin){
+    public void resetOrigin(Vector3fc newOrigin){
         this.origin = newOrigin;
         elements.forEach(
                 it->it.onOriginChanged(this.origin)
@@ -237,14 +312,27 @@ public class PoseDataImpl implements PoseData {
         this.bodyYaw = calcBodyYaw();
     }
 
+    private static void rotateOriginAround(Vector3f originToMutate, Vector3fc anchor, float radians) {
+        float radSin = Mth.sin(radians);
+        float radCos = Mth.cos(radians);
+
+        float ox = originToMutate.x() - anchor.x();
+        float oz = originToMutate.z() - anchor.z();
+
+        float rx = radCos * ox - radSin * oz + anchor.x();
+        float rz = radSin * ox + radCos * oz + anchor.z();
+
+        originToMutate.set(rx, originToMutate.y(), rz);
+    }
+
 
 
     @Override
-    public @NotNull PoseElement getElementForDisplay(@Nullable VRDisplay display) {
-        if(display == null){
+    public @NotNull PoseElement getCameraElement(@Nullable VRCameraType cameraType) {
+        if(cameraType == null){
             return hmd;
         }
-        return switch (display) {
+        return switch (cameraType) {
             case FIRST_PERSON -> this.hmd;
             case THIRD_PERSON -> this.thirdPersonCamera;
             case EYE_LEFT -> this.eyeLeft;
@@ -254,7 +342,7 @@ public class PoseDataImpl implements PoseData {
     }
 
     @Override
-    public @NotNull Vector3f convertPositionFrom(@NotNull PoseDataType originType,
+    public @NotNull Vector3f convertPositionFrom(@NotNull PlayerPoseType originType,
                                                  @NotNull Vector3fc position){
         if(originType == type) {
             return new Vector3f(
@@ -263,13 +351,13 @@ public class PoseDataImpl implements PoseData {
                     position.z()
             );
         }
-        if (originType == PoseDataType.ROOM) {
+        if (originType == PlayerPoseType.ROOM) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
         }
 
-        PoseDataImpl originPose = ClientContext.player
+        LocalPlayerPose originPose = ClientContext.localPlayer
                 .getPoseData(originType);
 
         Vector3f roomPose = position
@@ -277,7 +365,7 @@ public class PoseDataImpl implements PoseData {
                 .mul(1.0f / originPose.worldScale)
                 .rotateY(-originPose.rotationY);
 
-        if(type == PoseDataType.ROOM){
+        if(type == PlayerPoseType.ROOM){
             return roomPose;
         }
 
@@ -288,7 +376,7 @@ public class PoseDataImpl implements PoseData {
 
 
     @Override
-    public @NotNull Matrix4f convertRotationFrom(@NotNull PoseDataType originType,
+    public @NotNull Matrix4f convertRotationFrom(@NotNull PlayerPoseType originType,
                                                  @NotNull Matrix4fc rotationMatrix) {
         if (originType == this.type) {
             return new Matrix4f(rotationMatrix);
@@ -296,14 +384,14 @@ public class PoseDataImpl implements PoseData {
 
 
 
-        if (originType == PoseDataType.ROOM) {
+        if (originType == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
-        PoseDataImpl originPose = ClientContext.player.getPoseData(originType);
+        LocalPlayerPose originPose = ClientContext.localPlayer.getPoseData(originType);
 
-        if (this.type == PoseDataType.ROOM) {
+        if (this.type == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);
         }
 
@@ -313,12 +401,15 @@ public class PoseDataImpl implements PoseData {
     }
 
 
-
+    @Override
+    public Player getMcPlayer() {
+        return MC.player;
+    }
 
     @Override
     public String toString() {
         return String.format(
-                "VRClientPose:%n" +
+                "LocalPlayerPose:%n" +
                         "  Pose Stage         : %s%n" +
                         "  Origin             : %s%n" +
                         "  Rotation           : %.2f°%n" +
@@ -328,10 +419,10 @@ public class PoseDataImpl implements PoseData {
                         "  HMD                : %s%n" +
                         "  Eye Left           : %s%n" +
                         "  Eye Right          : %s%n" +
-                        "  Controller Left    : %s%n" +
-                        "  Controller Right   : %s%n" +
-                        "  Hand Left          : %s%n" +
-                        "  Hand Right         : %s%n" +
+                        "  Main hand          : %s%n" +
+                        "  Offhand            : %s%n" +
+                        "  Main hand grip     : %s%n" +
+                        "  Offhand grip       : %s%n" +
                         "  Third Person Camera: %s",
                 type,
                 origin,
@@ -342,10 +433,10 @@ public class PoseDataImpl implements PoseData {
                 hmd,
                 eyeLeft,
                 eyeRight,
-                controllerOffhand,
-                controllerMain,
-                handOffhand,
-                handMain,
+                mainHand,
+                offhand,
+                gripMainHand,
+                gripOffhand,
                 thirdPersonCamera
         );
     }

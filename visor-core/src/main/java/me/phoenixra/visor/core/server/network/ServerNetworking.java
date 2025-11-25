@@ -63,7 +63,7 @@ public class ServerNetworking {
                 return;
             }
 
-            if (vrPlayer == null || !vrPlayer.isVr()) {
+            if (vrPlayer == null || !vrPlayer.isVRActive()) {
                 serverPlayer.connection.disconnect(
                         Component.literal(
                                 "Server For VR player only!"
@@ -75,11 +75,11 @@ public class ServerNetworking {
     }
 
 
-    public static void updatePlayerPose(ServerPlayer serverPlayer) {
+    public static void updateStandingPose(ServerPlayer serverPlayer) {
         VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(serverPlayer);
 
-        if (vrPlayer != null && vrPlayer.isVr()
+        if (vrPlayer != null && vrPlayer.isVRActive()
                 && vrPlayer.isCrawling()) {
             serverPlayer.setPose(Pose.SWIMMING);
         }
@@ -97,15 +97,15 @@ public class ServerNetworking {
         if (serverPlayer.hasDisconnected()) {
             playersWithVR.remove(serverPlayer.getUUID());
         }
-        if (!vrPlayer.isVr()
-                || vrPlayer.getPlayerPoseBuffer() == null) {
+        if (!vrPlayer.isVRActive()
+                || vrPlayer.getPoseData().getBuffer() == null) {
             return;
         }
         sendPacketToTrackedVRPlayers(
                 serverPlayer,
                 new VROtherStatePayloadToClient(
                         serverPlayer.getUUID(),
-                        vrPlayer.getPlayerPoseBuffer(),
+                        vrPlayer.getPoseData().getBuffer(),
                         vrPlayer.getWorldScale(),
                         vrPlayer.getHeight()
                 )

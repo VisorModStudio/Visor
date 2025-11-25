@@ -28,7 +28,7 @@ public enum ClientFeature {
     GUI_DISABLE_HUD(false),
 
     /**
-     * VR cursor processing and display
+     * VR cursor processing and rendering
      */
     GUI_CURSOR(true),
 

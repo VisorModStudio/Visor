@@ -1,7 +1,7 @@
 package me.phoenixra.visor.mixin.client.world;
 
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.player.LocalPlayer;
@@ -39,13 +39,13 @@ public class FireworkRocketEntityMixin {
         if(!(attachedToEntity instanceof LocalPlayer localPlayer)){
             return x;
         }
-        ControllerHand handWithFirework = !localPlayer.getOffhandItem().is(Items.FIREWORK_ROCKET)
+        HandType handWithFirework = !localPlayer.getOffhandItem().is(Items.FIREWORK_ROCKET)
                 && localPlayer.getMainHandItem().is(Items.FIREWORK_ROCKET)
-                ? ControllerHand.MAIN
-                : ControllerHand.OFFHAND;
+                ? HandType.MAIN
+                : HandType.OFFHAND;
 
-        var handElement = ClientContext.player
-                .getPoseData(PoseDataType.RENDER).getHand(
+        var handElement = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER).getGripHand(
                         handWithFirework
                 );
         Vector3f position = new Vector3f(handElement.getPosition());

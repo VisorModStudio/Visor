@@ -4,8 +4,8 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard;
 import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
@@ -90,10 +90,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 posOffset,
                 rotationOffset
         );
-        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
-        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
+        roomPosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+                .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+        roomRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+                .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
     @Override
@@ -169,10 +169,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 posOffset,
                 rotationOffset
         );
-        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
-        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
+        roomPosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+                .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+        roomRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+                .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
 

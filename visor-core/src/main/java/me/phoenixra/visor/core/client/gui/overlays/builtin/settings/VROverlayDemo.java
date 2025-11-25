@@ -3,16 +3,16 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -207,7 +207,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
         ClientContext.cursorHandler.setCursorHand(
                 movingByAnchor == PoseAnchor.OFFHAND
-                ? ControllerHand.OFFHAND : ControllerHand.MAIN
+                ? HandType.OFFHAND : HandType.MAIN
         );
     }
 
@@ -225,8 +225,8 @@ public class VROverlayDemo extends VROverlayScreen {
         if(!isEnabled()) return;
         emulatingPose = true;
 
-        PoseData renderPose = ClientContext.player
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER);
 
         PoseAnchor posAnchor = targetPoseOptions.getPositionAnchor();
 

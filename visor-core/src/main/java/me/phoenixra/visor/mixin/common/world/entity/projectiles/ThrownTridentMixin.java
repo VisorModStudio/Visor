@@ -1,7 +1,6 @@
 package me.phoenixra.visor.mixin.common.world.entity.projectiles;
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -20,14 +19,14 @@ public class ThrownTridentMixin {
         if (!(entity instanceof ServerPlayer player)) {
             return eyePosition;
         }
-        VRServerPlayer vrServerPlayer = VisorAPI.server()
+        VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (vrServerPlayer == null || !vrServerPlayer.isVr()) {
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return eyePosition;
         }
 
-        return vrServerPlayer.getControllerPos(
-                ControllerHand.MAIN
-        );
+        return vrPlayer.getPoseData()
+                .getMainHand()
+                .getPositionVec3();
     }
 }

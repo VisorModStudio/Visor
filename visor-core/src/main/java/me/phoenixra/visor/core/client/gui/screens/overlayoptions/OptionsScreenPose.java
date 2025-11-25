@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.gui.screens.overlayoptions;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;

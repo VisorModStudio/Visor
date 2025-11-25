@@ -1,8 +1,8 @@
 package me.phoenixra.visor.mixin.client.multiplayer;
 
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
@@ -50,8 +50,8 @@ public abstract class MultiPlayerGameModeMixin {
                                     player,
                                     interactionHand == InteractionHand
                                             .MAIN_HAND ?
-                                            ControllerHand.MAIN
-                                            : ControllerHand.OFFHAND
+                                            HandType.MAIN
+                                            : HandType.OFFHAND
                             )
             );
         }
@@ -65,8 +65,8 @@ public abstract class MultiPlayerGameModeMixin {
                                     player,
                                     player.getUsedItemHand() == InteractionHand
                                             .MAIN_HAND ?
-                                            ControllerHand.MAIN
-                                            : ControllerHand.OFFHAND
+                                            HandType.MAIN
+                                            : HandType.OFFHAND
                             )
             );
         }
@@ -94,7 +94,7 @@ public abstract class MultiPlayerGameModeMixin {
 
     @Unique
     public Vec3 visor$getRightClickLook(Player player,
-                                       ControllerHand controllerHand) {
+                                       HandType handType) {
         // Start with the player's default look direction.
         Vec3 lookDirection = player.getLookAngle();
 
@@ -109,7 +109,7 @@ public abstract class MultiPlayerGameModeMixin {
         }
 
         // Get the item held in the specified hand.
-        ItemStack heldItem = (controllerHand == ControllerHand.MAIN)
+        ItemStack heldItem = (handType == HandType.MAIN)
                 ? player.getMainHandItem()
                 : player.getOffhandItem();
 
@@ -122,10 +122,10 @@ public abstract class MultiPlayerGameModeMixin {
 
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
-            PoseData preTickPose = ClientContext
-                    .player.getPoseData(PoseDataType.PRE_TICK);
+            PlayerPoseClient preTickPose = ClientContext
+                    .localPlayer.getPoseData(PlayerPoseType.PREV_TICK);
             lookDirection = new Vec3(
-                    (Vector3f) preTickPose.getController(controllerHand).getDirection()
+                    (Vector3f) preTickPose.getHand(handType).getDirection()
             );
 
 

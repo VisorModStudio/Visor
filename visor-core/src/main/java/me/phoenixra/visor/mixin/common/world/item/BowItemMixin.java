@@ -43,7 +43,7 @@ public abstract class BowItemMixin extends ProjectileWeaponItem implements Vanis
         }
 
     }
-
+/*
     @Inject(method = "getPowerForTime", at = @At("HEAD"), cancellable = true)
     private static void visor$getPowerForTime(int i,
                                              CallbackInfoReturnable<Float> cir) {
@@ -51,17 +51,17 @@ public abstract class BowItemMixin extends ProjectileWeaponItem implements Vanis
             return;
         }
 
-        VRServerPlayer vrServerPlayer = VisorAPI.server()
+        VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (vrServerPlayer == null || !vrServerPlayer.isVr()) {
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return;
         }
 
-        float power = vrServerPlayer.getBowTension();
+        float power = vrPlayer.getBowTension();
         if (power > 1) {
             power = 1;
         }
         cir.setReturnValue(power);
 
-    }
+    }*/
 }

@@ -1,8 +1,9 @@
-package me.phoenixra.visor.core.client.data.raw;
+package me.phoenixra.visor.core.client.player.pose.raw;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -33,7 +34,7 @@ public abstract class RawPoseHandler {
 
 
 
-    public Matrix4f getSmoothedRotation(ControllerHand controller, float lenSec) {
+    public Matrix4f getSmoothedRotation(HandType controller, float lenSec) {
         RawController controllerData = getControllerData(controller);
 
         Vector3f averagePosForward = controllerData.getForwardHistory().averagePosition(lenSec);
@@ -48,8 +49,8 @@ public abstract class RawPoseHandler {
     }
 
 
-    public RawController getControllerData(ControllerHand controller) {
-        if (controller.getType(VRClientSettings.isLeftHanded()) == ControllerType.LEFT){
+    public RawController getControllerData(HandType controller) {
+        if (controller.getControllerType(VRClientSettings.isLeftHanded()) == ControllerType.LEFT){
             return controllerLeftData;
         }
         return controllerRightData;

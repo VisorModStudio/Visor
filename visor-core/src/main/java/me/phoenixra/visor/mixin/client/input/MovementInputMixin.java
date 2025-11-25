@@ -40,8 +40,8 @@ public class MovementInputMixin extends Input {
                 || TaskRoomSneak.getInstance().isSneaking()
                 || this.shiftKeyDown);
 
-        if (ClientContext.player.isMoving()) {
-            var movement = ClientContext.player.getMovement();
+        if (ClientContext.localPlayer.isMoving()) {
+            var movement = ClientContext.localPlayer.getMovement();
             this.leftImpulse = -movement.x;
             this.forwardImpulse = movement.y;
         }

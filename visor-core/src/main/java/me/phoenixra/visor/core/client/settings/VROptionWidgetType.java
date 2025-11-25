@@ -145,7 +145,7 @@ public enum VROptionWidgetType {
                             return pair.first() + String.format("%.0f" + "°"/*degrees*/, (float) pair.second());
                         }
                 ).setOnChanged(
-                        () -> ClientContext.player.setRotationY(0)
+                        () -> ClientContext.localPlayer.setRotationY(0)
                 ).build();
             }),
     ROTATION_MODE(

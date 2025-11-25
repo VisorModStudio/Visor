@@ -4,8 +4,8 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayPose;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -46,11 +46,11 @@ public class RenderGuiHelper {
                                          float scale
     ) {
         // --- Prepare variables ---
-        PoseData renderPose = ClientContext.player
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER);
 
         var eye = RenderPoseHelper.getCameraPosition(
-                VRRenderState.getCurrentVRDisplay(),
+                VRRenderState.getCameraType(),
                 renderPose
         );
         scale = scale * renderPose.getWorldScale();
@@ -114,7 +114,7 @@ public class RenderGuiHelper {
         if (MC.level != null && useLight) {
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F) {
-                position = ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition();
+                position = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
             }
 
             int minLight = ShadersHelper.shaderLight();

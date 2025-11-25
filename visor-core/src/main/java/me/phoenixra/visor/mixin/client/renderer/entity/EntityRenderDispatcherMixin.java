@@ -1,8 +1,8 @@
 package me.phoenixra.visor.mixin.client.renderer.entity;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.modified.client.entity.EntityRenderDispatcherVRModified;
 import me.phoenixra.visor.modified.client.render.LevelRendererModified;
@@ -49,7 +49,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
 
     @Inject(at = @At("HEAD"), method = "cameraOrientation", cancellable = true)
     public void visor$cameraOrientation(CallbackInfoReturnable<Quaternionf> cir) {
-        if (VRRenderState.getCurrentPhase().isNotVRWorld()) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
             cir.setReturnValue(cameraOrientation);
             return;
         }
@@ -60,10 +60,10 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             cir.setReturnValue(this.camera.rotation());
             return;
         }
-        var cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER).getHmd().getPosition();
-        if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER)
-                    .getElementForDisplay(VRDisplay.THIRD_PERSON)
+        var cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
+        if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
+            cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                    .getCameraElement(VRCameraType.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCamera = entity.position().add(0.0D, entity.getBbHeight() / 2.0F, 0.0D)
@@ -93,7 +93,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
     @Override
     @Unique
     public Quaternionf visor$getCameraOrientationOffset(float offset) {
-        if (VRRenderState.getCurrentPhase().isNotVRWorld()) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
             return cameraOrientation;
         }
         Entity entity = ((LevelRendererModified) Minecraft.getInstance().levelRenderer)
@@ -101,13 +101,13 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
         if (entity == null) {
             return this.camera.rotation();
         }
-        var cameraPos = ClientContext.player
-                .getPoseData(PoseDataType.RENDER)
+        var cameraPos = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER)
                 .getHmd()
                 .getPosition();
-        if (VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON) {
-            cameraPos = ClientContext.player.getPoseData(PoseDataType.RENDER)
-                    .getElementForDisplay(VRDisplay.THIRD_PERSON)
+        if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
+            cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                    .getCameraElement(VRCameraType.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCameraDirection = entity.position().add(

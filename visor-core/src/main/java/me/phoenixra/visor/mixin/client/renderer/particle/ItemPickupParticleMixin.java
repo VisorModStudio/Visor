@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.renderer.particle;
 
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.client.particle.ItemPickupParticle;
@@ -35,8 +35,8 @@ public class ItemPickupParticleMixin {
                               double newValue) {
         if (VisorState.getState().isActive()
                 && target == MC.player) {
-            visor$playerPos = ClientContext.player
-                    .getPoseData(PoseDataType.RENDER)
+            visor$playerPos = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.RENDER)
                     .getHmd().getPosition();
             oldValue = newValue = visor$playerPos.x();
         }

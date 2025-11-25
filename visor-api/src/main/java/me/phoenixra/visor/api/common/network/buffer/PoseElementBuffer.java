@@ -6,16 +6,16 @@ import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-public record DevicePoseBuffer(Vector3fc position,
-                               Quaternionfc orientation) implements BufferSerializable {
+public record PoseElementBuffer(Vector3fc position,
+                                Quaternionfc orientation) implements BufferSerializable {
 
     @Override
     public void serialize(FriendlyByteBuf buffer) {
         serializeVec(buffer, this.position);
         serializeQuat(buffer, this.orientation);
     }
-    public static DevicePoseBuffer deserialize(FriendlyByteBuf byteBuf) {
-        return new DevicePoseBuffer(
+    public static PoseElementBuffer deserialize(FriendlyByteBuf byteBuf) {
+        return new PoseElementBuffer(
                 deserializeVec(byteBuf),
                 deserializeVRQuaternion(byteBuf)
         );

@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.tasks.movement;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -35,7 +36,7 @@ public class TaskInputRotation extends VisorTask {
         if(inputRotation == 0){
             return;
         }
-        ClientContext.player.setRotationY(ClientContext.player.getRotationY()+inputRotation);
+        ClientContext.localPlayer.setRotationY(ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY()+inputRotation);
         inputRotation = 0;
     }
 

@@ -1,4 +1,4 @@
-package me.phoenixra.visor.api.client.data;
+package me.phoenixra.visor.api.client.player.pose;
 
 
 import me.phoenixra.visor.api.common.utils.VRMathUtils;

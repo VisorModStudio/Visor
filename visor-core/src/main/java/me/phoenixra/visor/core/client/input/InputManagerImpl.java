@@ -8,7 +8,7 @@ import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.ProfileSetHolder;
 import me.phoenixra.visor.api.client.input.InputManager;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
@@ -102,7 +102,7 @@ public class InputManagerImpl implements InputManager {
     }
 
     @Override
-    public void triggerHapticPulse(@NotNull ControllerHand hand,
+    public void triggerHapticPulse(@NotNull HandType hand,
                                    float frequency,
                                    float amplitude,
                                    long durationNanoSec) {
@@ -110,7 +110,7 @@ public class InputManagerImpl implements InputManager {
             return;
         }
         String controllerId = VRDeviceController.getDefaultId(
-                hand.getType(isLeftHanded())
+                hand.getControllerType(isLeftHanded())
         );
         ClientContext.visor.getVrProvider().getInputHandler()
                 .getDevice(controllerId, VRDeviceController.class)

@@ -1,10 +1,10 @@
 package me.phoenixra.visor.api.client.gui;
 
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.common.player.PoseElement;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4fc;
@@ -21,7 +21,7 @@ public interface VRCursorHandler {
 
 
     /**
-     * Get ControllerHand that is considered
+     * Get hand type that is considered
      * as a cursor.
      *
      * <p>If {@link #isTwoHandedCursor()} = true, returns last used cursor
@@ -30,14 +30,14 @@ public interface VRCursorHandler {
      * @return cursor hand
      */
     @NotNull
-    ControllerHand getCursorHand();
+    HandType getCursorHand();
 
     /**
-     * Set ControllerHand to be considered as a cursor.
+     * Set hand type to be considered as a cursor.
      *
      * @param hand the cursor hand
      */
-    void setCursorHand(@NotNull ControllerHand hand);
+    void setCursorHand(@NotNull HandType hand);
 
 
     /**
@@ -89,7 +89,7 @@ public interface VRCursorHandler {
      * @return overlay or null
      */
     @Nullable("Not focused, or hand is not a cursor")
-    VROverlay getFocusedOverlay(@NotNull ControllerHand hand);
+    VROverlay getFocusedOverlay(@NotNull HandType hand);
 
     /**
      * Get VROverlay focused by {@link #getCursorHand()}
@@ -109,7 +109,7 @@ public interface VRCursorHandler {
      * @return overlayScreen or null
      */
     @Nullable("Not focused, or focused at different overlay type, or hand is not a cursor")
-    default VROverlayScreen getFocusedOverlayScreen(@NotNull ControllerHand hand){
+    default VROverlayScreen getFocusedOverlayScreen(@NotNull HandType hand){
         if(getFocusedOverlay(hand) instanceof VROverlayScreen overlayScreen){
             return overlayScreen;
         }
@@ -141,7 +141,7 @@ public interface VRCursorHandler {
      *
      * @return If focused
      */
-    default boolean isHandFocused(@NotNull ControllerHand hand){
+    default boolean isHandFocused(@NotNull HandType hand){
         return getFocusedOverlay(hand) != null;
     }
 
@@ -151,8 +151,8 @@ public interface VRCursorHandler {
      * @return If focused
      */
     default boolean isAnyHandFocused(){
-        return isHandFocused(ControllerHand.MAIN)
-                || isHandFocused(ControllerHand.OFFHAND);
+        return isHandFocused(HandType.MAIN)
+                || isHandFocused(HandType.OFFHAND);
     }
 
 
@@ -172,8 +172,8 @@ public interface VRCursorHandler {
      * @param checkForceFocused if {@link #getForceFocused()} should affect on a result
      * @return result
      */
-    @NotNull CursorResult getCursorResult(@NotNull ControllerHand hand,
-                                          @NotNull PoseData poseData,
+    @NotNull CursorResult getCursorResult(@NotNull HandType hand,
+                                          @NotNull PlayerPoseClient poseData,
                                           @Nullable Function<VROverlay, Boolean> overlayFilter,
                                           boolean checkForceFocused);
     /**
@@ -186,7 +186,7 @@ public interface VRCursorHandler {
      * @param hand cursor hand
      * @return length of a cursor line
      */
-    double getCursorLineLength(@NotNull ControllerHand hand);
+    double getCursorLineLength(@NotNull HandType hand);
 
 
 

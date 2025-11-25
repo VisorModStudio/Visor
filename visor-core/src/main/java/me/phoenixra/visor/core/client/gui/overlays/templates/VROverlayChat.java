@@ -2,14 +2,14 @@ package me.phoenixra.visor.core.client.gui.overlays.templates;
 
 
 
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 
 import me.phoenixra.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
@@ -51,7 +51,7 @@ public class VROverlayChat extends VROverlayTemplateScreen {
         if(minecraft.level == null) return false;
         if(minecraft.isPaused()
                 || ClientContext.overlayManager.getKeyboardAccessor().isVisible()) return false;
-        if (!ClientContext.rawPoseHandler.getControllerData(ControllerHand.OFFHAND)
+        if (!ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND)
                 .isTracking()) {
             return false;
         }

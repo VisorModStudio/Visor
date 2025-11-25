@@ -7,7 +7,7 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.hotbar.HotBarSlice;
@@ -90,7 +90,7 @@ public class TaskHotBar extends VisorTask {
             if (inputPressedOffhand && !pressedOffhand) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
-                                ControllerHand.OFFHAND, 0.002f
+                                HandType.OFFHAND, 0.002f
                         );
                 hotBarOffhand.setEnabled(
                         true
@@ -124,7 +124,7 @@ public class TaskHotBar extends VisorTask {
                 if (!inputPressedOffhand) {
                     ClientContext.inputManager
                             .triggerHapticPulse(
-                                    ControllerHand.OFFHAND, 0.003f
+                                    HandType.OFFHAND, 0.003f
                             );
                     hotBarOffhand.setEnabled(
                             false
@@ -150,7 +150,7 @@ public class TaskHotBar extends VisorTask {
             if (inputPressedMain && !pressedMain) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
-                                ControllerHand.MAIN, 0.002f
+                                HandType.MAIN, 0.002f
                         );
                 hotBarMainHand.setEnabled(
                         true
@@ -181,7 +181,7 @@ public class TaskHotBar extends VisorTask {
                 if (!inputPressedMain) { //isNotDown
                     ClientContext.inputManager
                             .triggerHapticPulse(
-                                    ControllerHand.MAIN, 0.003f
+                                    HandType.MAIN, 0.003f
                             );
                     hotBarMainHand.setEnabled(
                             false
@@ -232,8 +232,8 @@ public class TaskHotBar extends VisorTask {
                 .getItem(currentStateOffhand.getSlot());
     }
 
-    public static ItemStack getHandItem(ControllerHand hand){
-        if(hand == ControllerHand.OFFHAND){
+    public static ItemStack getHandItem(HandType hand){
+        if(hand == HandType.OFFHAND){
             return getOffhandItem();
         }
         //main

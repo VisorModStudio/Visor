@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlays.options.types;
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;

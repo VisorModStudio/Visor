@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.common.addon;
 
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
@@ -40,12 +40,12 @@ public class CoreAddonClient implements VisorAddon {
                                 ),
                                 new VROverlayHotBar(
                                         this,
-                                        ControllerHand.MAIN,
+                                        HandType.MAIN,
                                         VROverlayHotBar.ID_MAIN
                                 ),
                                 new VROverlayHotBar(
                                         this,
-                                        ControllerHand.OFFHAND,
+                                        HandType.OFFHAND,
                                         VROverlayHotBar.ID_OFFHAND
                                 ),
                                 new VROverlayKeyboard(

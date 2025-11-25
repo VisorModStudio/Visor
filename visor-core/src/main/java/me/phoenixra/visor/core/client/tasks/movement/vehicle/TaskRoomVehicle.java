@@ -1,17 +1,17 @@
 package me.phoenixra.visor.core.client.tasks.movement.vehicle;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.player.VRLocalPlayerImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneak;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
@@ -51,8 +51,8 @@ public class TaskRoomVehicle extends VisorTask {
 
         if (canAutoDismount(player)) {
             Vector3fc mountPos = player.getVehicle().position().toVector3f();
-            Vector3fc headPivot = ClientContext.player
-                    .getPoseData(PoseDataType.PRE_TICK).getHeadPivot();
+            Vector3fc headPivot = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.PREV_TICK).getHeadPivot();
             double distance = Math.sqrt(
                     (headPivot.x() - mountPos.x())
                             * (headPivot.x() - mountPos.x())
@@ -116,7 +116,7 @@ public class TaskRoomVehicle extends VisorTask {
         float smoothed = 200.0F * (float) (horizontalSpeed * horizontalSpeed);
         smoothed = Math.max(smoothed, 10.0F);
 
-        VRClientPlayerImpl vrClientPlayer = ClientContext.player;
+        VRLocalPlayerImpl vrClientPlayer = ClientContext.localPlayer;
         // Determine how much to rotate by comparing the target and current rotation.
         float rotateTo = rotationDelta((float) rotationTarget, this.vehicleRotation);
         // Clamp the rotation adjustment within [-smoothed, smoothed]
@@ -125,7 +125,7 @@ public class TaskRoomVehicle extends VisorTask {
 
         // Apply the rotation adjustment
         vrClientPlayer.setRotationY(
-                vrClientPlayer.getRotationY() + rotateTo
+                vrClientPlayer.getPoseData(PlayerPoseType.TICK).getRotationY() + rotateTo
         );
         // Update vehicle rotation and keep it within 0-360 degrees.
         this.vehicleRotation = (this.vehicleRotation - rotateTo) % 360.0F;
@@ -154,20 +154,20 @@ public class TaskRoomVehicle extends VisorTask {
      * @param vehicle the vehicle being ridden.
      */
     public void onStartRiding(Entity vehicle) {
-        VRClientPlayerImpl vrClientPlayer = ClientContext.player;
-        PoseDataImpl preTickPose = vrClientPlayer
-                .getPoseData(PoseDataType.PRE_TICK);
+        VRLocalPlayerImpl vrClientPlayer = ClientContext.localPlayer;
+        LocalPlayerPose preTickPose = vrClientPlayer
+                .getPoseData(PlayerPoseType.PREV_TICK);
 
         final Vector3fc headPivot = vrClientPlayer
-                .getPoseData(PoseDataType.ROOM)
+                .getPoseData(PlayerPoseType.ROOM)
                 .getHeadPivot();
         // Record the player's room position (ignoring vertical component)
         this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
         this.dismountDelay = 5;
 
-        final float hmdYaw = preTickPose.getHmd().getYaw();
+        final float hmdYaw = preTickPose.getHmd().getRotationYCache();
         final float vehicleYRotation = vehicle.getYRot() % 360.0F;
-        this.vehicleRotation = vrClientPlayer.getRotationY();
+        this.vehicleRotation = vrClientPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
         this.rotationCooldown = 2;
 
         // For Minecarts, no additional rotation adjustment is needed.
@@ -244,18 +244,18 @@ public class TaskRoomVehicle extends VisorTask {
         final Entity entity = player.getVehicle();
         if (entity instanceof AbstractHorse || entity instanceof Boat) {
             if (player.zza <= 0) return null;
-            return ClientContext.player
-                    .getRotationElement(PoseDataType.PRE_TICK)
+            return ClientContext.localPlayer
+                    .getRotationElement(PlayerPoseType.PREV_TICK)
                     .getDirection();
         }
         if (entity instanceof Mob mob && mob.isControlledByLocalInstance()) {
-            final ControllerHand handWithFood = ItemClassifier.FOOD_STICK
+            final HandType handWithFood = ItemClassifier.FOOD_STICK
                     .is(player.getMainHandItem().getItem())
-                    ? ControllerHand.MAIN
-                    : ControllerHand.OFFHAND;
-            final PoseElement handPose = ClientContext.player
-                    .getPoseData(PoseDataType.PRE_TICK)
-                    .getController(handWithFood);
+                    ? HandType.MAIN
+                    : HandType.OFFHAND;
+            final PoseElement handPose = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.PREV_TICK)
+                    .getHand(handWithFood);
             return handPose.getDirection().normalize(new Vector3f());
         }
         return null;

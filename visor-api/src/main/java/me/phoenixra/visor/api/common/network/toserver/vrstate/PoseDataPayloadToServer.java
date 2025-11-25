@@ -1,12 +1,12 @@
 package me.phoenixra.visor.api.common.network.toserver.vrstate;
 
 import me.phoenixra.visor.api.common.network.VisorPayloadID;
-import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
+import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.network.FriendlyByteBuf;
 
 
-public record PoseDataPayloadToServer(PlayerPoseBuffer pose) implements VisorPayloadToServer {
+public record PoseDataPayloadToServer(PoseDataBuffer pose) implements VisorPayloadToServer {
 
 
     @Override
@@ -21,7 +21,7 @@ public record PoseDataPayloadToServer(PlayerPoseBuffer pose) implements VisorPay
 
 
     public static PoseDataPayloadToServer read(FriendlyByteBuf buffer) {
-        var pose = PlayerPoseBuffer.deserialize(buffer);
+        var pose = PoseDataBuffer.deserialize(buffer);
         return new PoseDataPayloadToServer(
                 pose
         );

@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.VRRendererBase;
@@ -68,7 +68,7 @@ public class VREffectsHelper {
     public static void drawEyeStencil() {
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
 
-        if ((VRRenderState.getCurrentVRDisplay().isEye())) {
+        if ((VRRenderState.getCameraType().isEye())) {
             doStencil(false);
         }
     }
@@ -100,7 +100,7 @@ public class VREffectsHelper {
             applyOrthoProjection(rt, inverse);
 
             // draw hidden‐area triangles into the stencil
-            VRDisplay eye = VRRenderState.getCurrentVRDisplay();
+            VRCameraType eye = VRRenderState.getCameraType();
             float[] maskVerts = getStencilMask(eye);
             drawStencilMask(maskVerts);
 
@@ -163,12 +163,12 @@ public class VREffectsHelper {
         RenderSystem.applyModelViewMatrix();
     }
 
-    private static float[] getStencilMask(VRDisplay eye) {
-        if (eye != VRDisplay.EYE_LEFT && eye != VRDisplay.EYE_RIGHT) {
+    private static float[] getStencilMask(VRCameraType eye) {
+        if (eye != VRCameraType.EYE_LEFT && eye != VRCameraType.EYE_RIGHT) {
             return null;
         }
         VRRendererBase renderer = ClientContext.renderer;
-        return (eye == VRDisplay.EYE_LEFT)
+        return (eye == VRCameraType.EYE_LEFT)
                 ? renderer.getHiddenAreaVertices(EyeType.LEFT)
                 : renderer.getHiddenAreaVertices(EyeType.RIGHT);
     }

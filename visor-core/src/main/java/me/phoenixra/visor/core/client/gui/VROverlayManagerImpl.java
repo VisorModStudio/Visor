@@ -174,8 +174,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
         // --- Setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderPoseHelper.applyDisplayOrientation(
-                VRRenderState.getCurrentVRDisplay(),
+        RenderPoseHelper.applyCameraOrientation(
+                VRRenderState.getCameraType(),
                 poseStack
         );
 

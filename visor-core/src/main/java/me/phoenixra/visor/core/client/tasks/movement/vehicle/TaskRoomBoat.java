@@ -5,7 +5,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.Minecraft;
@@ -43,10 +43,10 @@ public class TaskRoomBoat extends VisorTask {
     public void onRun(LocalPlayer player) {
 
         final double handRightSpeed = ClientContext.rawPoseHandler.getControllerData(
-                ControllerHand.MAIN
+                HandType.MAIN
         ).getPositionHistory().averageSpeed(0.5f);
         final double handLeftSpeed = ClientContext.rawPoseHandler.getControllerData(
-                ControllerHand.OFFHAND
+                HandType.OFFHAND
         ).getPositionHistory().averageSpeed(0.5f);
 
         // Calculate oar speeds by subtracting an offset.

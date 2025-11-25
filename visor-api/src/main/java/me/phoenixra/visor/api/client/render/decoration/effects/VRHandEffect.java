@@ -4,9 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
 import org.jetbrains.annotations.NotNull;
@@ -26,20 +26,20 @@ public abstract class VRHandEffect implements VisorElement {
      * Render hand effect
      *
      * @param hand for which hand render the effect
-     * @param renderDisplay current rendering display
+     * @param cameraType current VR camera type
      * @param poseStack used poseStack
      * @param simpleHand if hand is without skin (main menu)
      * @param partialTicks current partialTick
      */
-    public abstract void render(@NotNull ControllerHand hand,
-                                @NotNull VRDisplay renderDisplay,
+    public abstract void render(@NotNull HandType hand,
+                                @NotNull VRCameraType cameraType,
                                 @NotNull PoseStack poseStack,
                                 boolean simpleHand,
                                 float partialTicks);
 
 
     public abstract boolean isVisible(@NotNull VRDecorator currentDecorator,
-                                      @NotNull ControllerHand hand,
+                                      @NotNull HandType hand,
                                       boolean simpleHand);
 
     /**
@@ -61,7 +61,7 @@ public abstract class VRHandEffect implements VisorElement {
 
 
     public boolean isEnabledAndVisible(@NotNull VRDecorator currentDecorator,
-                                       @NotNull ControllerHand hand,
+                                       @NotNull HandType hand,
                                        boolean simpleHand){
         return enabled && isVisible(currentDecorator, hand, simpleHand);
     }

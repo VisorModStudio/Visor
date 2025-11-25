@@ -2,8 +2,8 @@ package me.phoenixra.visor.core.client.render.player.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayerData;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -45,23 +45,23 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
                           float netHeadYaw,
                           float headPitch) {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        VRRemotePlayerData remotePlayerData = VRRemotePlayers
-                .getInstance()
+        var vrPlayer = VRClientPlayers
                 .getPlayer(entity.getUUID());
 
-        if (remotePlayerData == null) {
-            return; //how
+        if (vrPlayer == null) {
+            return;
         }
-
+        var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
+        var hmdDir = renderPose.getHmd().getDirection();
         float f1 = (float) Mth.atan2(
-                -remotePlayerData.hmdDirection().x(),
-                -remotePlayerData.hmdDirection().z()
+                -hmdDir.x(),
+                -hmdDir.z()
         );
         float f2 = (float) Math.asin(
-                remotePlayerData.hmdDirection().y()
-                        / remotePlayerData.hmdDirection().length()
+                hmdDir.y()
+                        / hmdDir.length()
         );
-        double d1 = remotePlayerData.getBodyYawRad();
+        double d1 = renderPose.getBodyYaw();
         this.head.xRot = -f2;
         this.head.yRot = (float) (Math.PI - (double) f1 - d1);
         this.laying = this.swimAmount > 0.0F

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.VisorElement;
@@ -35,7 +35,7 @@ public abstract class VRGameEffect implements VisorElement {
         return false;
     }
 
-    public abstract void render(@NotNull VRDisplay renderDisplay,
+    public abstract void render(@NotNull VRCameraType cameraType,
                                 @NotNull PoseStack poseStack,
                                 float partialTicks);
 

@@ -38,7 +38,7 @@ public class TaskRoomSneak extends VisorTask {
             sneakTimer--;
         }
 
-        final double playerHeight = VRClientSettings.getPlayerHeight();
+        final double playerHeight = ClientContext.localPlayer.getHeight();
         final double latestPivotY = ClientContext.rawPoseHandler.getHmdData()
                 .getPivotHistory().latest().y();
         final double sneakThreshold = VRClientSettings.getSneakThreshold();

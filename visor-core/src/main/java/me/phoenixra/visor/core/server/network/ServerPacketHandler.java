@@ -56,24 +56,24 @@ public class ServerPacketHandler {
             }
             case VR_ACTIVE -> {
                 var payload = (VRActivePayloadToServer) payloadToServer;
-                if (vrPlayer.isVr() == payload.vrActive()) {
+                if (vrPlayer.isVRActive() == payload.vrActive()) {
                     return;
                 }
-                boolean hasVR = !vrPlayer.isVr();
-                vrPlayer.setVr(hasVR);
+                boolean hasVR = !vrPlayer.isVRActive();
+                vrPlayer.setVrActive(hasVR);
                 if (hasVR) return;
                 ServerNetworking.sendPacketToTrackedVRPlayers(
                         serverPlayer,
                         new VROtherActivePayloadToClient(
                                 vrPlayer.mcPlayer.getUUID(),
-                                vrPlayer.isVr()
+                                vrPlayer.isVRActive()
                         )
                 );
             }
             case POSE_DATA -> {
                 var payload = (PoseDataPayloadToServer) payloadToServer;
 
-                vrPlayer.setPlayerPoseBuffer(
+                vrPlayer.poseUpdateReceived(
                         payload.pose()
                 );
             }
@@ -143,7 +143,7 @@ public class ServerPacketHandler {
             }
             return;
         }
-        vrPlayer.setVr(vrActive);
+        vrPlayer.setVrActive(vrActive);
 
         if (VRServerSettings.isServerDebug()) {
             VisorServerImpl.LOGGER.info(

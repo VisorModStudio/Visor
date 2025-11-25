@@ -1,7 +1,8 @@
-package me.phoenixra.visor.api.client.data;
+package me.phoenixra.visor.api.client.player.pose;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.common.player.PoseElement;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -25,28 +26,28 @@ public enum PoseAnchor {
     /**
      * Anchored to HMD
      */
-    HMD(PoseData::getHmd),
+    HMD(PlayerPoseClient::getHmd),
 
     /**
-     * Anchored to Main Controller
+     * Anchored to Main Hand
      */
-    MAIN_HAND(PoseData::getControllerMain),
+    MAIN_HAND(PlayerPoseClient::getMainHand),
 
     /**
-     * Anchored to Offhand Controller
+     * Anchored to Offhand
      */
-    OFFHAND(PoseData::getControllerOffhand);
+    OFFHAND(PlayerPoseClient::getOffhand);
 
 
     @Getter
-    private final @NotNull Function<PoseData, PoseElement> supplier;
+    private final @NotNull Function<PlayerPoseClient, PoseElement> supplier;
 
-    PoseAnchor(@NotNull Function<PoseData, PoseElement> supplier){
+    PoseAnchor(@NotNull Function<PlayerPoseClient, PoseElement> supplier){
         this.supplier = supplier;
     }
 
 
-    public @NotNull PoseElement getAnchor(@NotNull PoseData poseData){
+    public @NotNull PoseElement getAnchor(@NotNull PlayerPoseClient poseData){
         return this.supplier.apply(poseData);
     }
 
@@ -54,7 +55,7 @@ public enum PoseAnchor {
         return Component.translatable("visor.options.enums.PoseAnchor."+name());
     }
 
-    public @NotNull Vector3f anchorPos(@NotNull PoseData poseData,
+    public @NotNull Vector3f anchorPos(@NotNull PlayerPoseClient poseData,
                                        @NotNull Vector3fc offset){
         var anchor = getAnchor(poseData);
         float worldScale = poseData.getWorldScale();
@@ -73,7 +74,7 @@ public enum PoseAnchor {
 
     }
 
-    public @NotNull Matrix4f anchorRotation(@NotNull PoseData poseData,
+    public @NotNull Matrix4f anchorRotation(@NotNull PlayerPoseClient poseData,
                                             @NotNull Vector3fc offset){
         var anchor = getAnchor(poseData);
         if(anchor == PoseElement.EMPTY){
@@ -90,7 +91,7 @@ public enum PoseAnchor {
     }
 
 
-    public @NotNull Matrix4f anchorRotationAim(@NotNull PoseData poseData,
+    public @NotNull Matrix4f anchorRotationAim(@NotNull PlayerPoseClient poseData,
                                                @NotNull Vector3fc offset,
                                                @NotNull Vector3fc objPosition){
         var anchor = getAnchor(poseData);
@@ -143,8 +144,8 @@ public enum PoseAnchor {
     public static Vector3f getAnchorPos(@NotNull Vector3fc anchorPosition,
                                         @NotNull Matrix4fc anchorRotation,
                                         @NotNull Vector3fc offset){
-        PoseData renderPose = VisorAPI.client().getPlayer()
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = VisorAPI.client().getLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
 
         offset = new Vector3f(

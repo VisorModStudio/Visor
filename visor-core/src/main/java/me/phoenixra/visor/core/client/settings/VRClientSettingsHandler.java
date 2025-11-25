@@ -71,41 +71,6 @@ public class VRClientSettingsHandler {
 
         overlayConfigsAccessor = new OverlayConfigsManager();
 
-        PlaceholderHandler placeholderHandler = configManager.getPlaceholderHandler().get();
-
-        if(!wasInit) {
-            placeholderHandler.registerGlobalPlaceholder(
-                    new StaticPlaceholder(
-                            "left_handed",
-                            () -> String.valueOf(VRClientSettings.isLeftHanded() ? 1 : 0)
-                    )
-            );
-            placeholderHandler.registerGlobalPlaceholder(
-                    new StaticPlaceholder(
-                            "right_handed",
-                            () -> String.valueOf(!VRClientSettings.isLeftHanded() ? 1 : 0)
-                    )
-            );
-            placeholderHandler.registerGlobalPlaceholder(
-                    new StaticPlaceholder(
-                            "main_hand",
-                            () -> String.valueOf(VRClientSettings.isLeftHanded() ? -1 : 1)
-                    )
-            );
-            placeholderHandler.registerGlobalPlaceholder(
-                    new StaticPlaceholder(
-                            "tick",
-                            () -> String.valueOf(VisorState.TICK_COUNT)
-                    )
-            );
-            placeholderHandler.registerGlobalPlaceholder(
-                    new StaticPlaceholder(
-                            "frame",
-                            () -> String.valueOf(VisorState.FRAME_COUNT)
-                    )
-            );
-        }
-
         wasInit = true;
     }
 

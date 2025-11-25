@@ -282,11 +282,6 @@ public class VRClientSettings {
         return playerHeight;
     }
 
-    public static float getPlayerHeightRatio() {
-
-        return getPlayerHeight() / 1.52f;
-    }
-
     public static void calibrateHeight() {
 
         VRClientSettings.setPlayerHeight(

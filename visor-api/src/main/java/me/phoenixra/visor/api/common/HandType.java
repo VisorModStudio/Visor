@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.common;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.world.InteractionHand;
 
-public enum ControllerHand {
+public enum HandType {
     MAIN,
     OFFHAND;
 
@@ -11,23 +11,23 @@ public enum ControllerHand {
     public InteractionHand asInteractionHand(){
         return this == MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
-    public ControllerType getType(boolean leftHanded){
+    public ControllerType getControllerType(boolean leftHanded){
         if(leftHanded){
             return this == MAIN ? ControllerType.LEFT : ControllerType.RIGHT;
         }else{
             return this == MAIN ? ControllerType.RIGHT : ControllerType.LEFT;
         }
     }
-    public ControllerHand reversed(){
+    public HandType reversed(){
         if(this == OFFHAND) return MAIN;
         else return OFFHAND;
     }
 
-    public static ControllerHand fromInt(int id){
+    public static HandType fromInt(int id){
         if(id == 0) return MAIN;
         return OFFHAND;
     }
-    public static ControllerHand fromMcHand(InteractionHand mcHand){
+    public static HandType fromMc(InteractionHand mcHand){
         return mcHand == InteractionHand.MAIN_HAND ? MAIN : OFFHAND;
     }
 

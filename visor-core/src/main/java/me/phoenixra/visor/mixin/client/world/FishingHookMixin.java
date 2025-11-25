@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.world;
 
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import net.minecraft.world.entity.EntityType;
@@ -45,9 +45,9 @@ public abstract class FishingHookMixin extends Projectile {
         if(player == null || !player.isLocalPlayer()){
             return;
         }
-        ControllerHand hand = player.getMainHandItem()
+        HandType hand = player.getMainHandItem()
                 .getItem() instanceof FishingRodItem
-                ? ControllerHand.MAIN : ControllerHand.OFFHAND;
+                ? HandType.MAIN : HandType.OFFHAND;
         if (biting && !visor$biteHandled) {
             // bite
             ClientContext.inputManager.triggerHapticPulse(

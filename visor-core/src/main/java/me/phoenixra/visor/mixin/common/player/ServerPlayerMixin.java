@@ -1,13 +1,12 @@
 package me.phoenixra.visor.mixin.common.player;
 
-import com.mojang.authlib.GameProfile;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
-import me.phoenixra.visor.core.server.network.ServerNetworking;
 import me.phoenixra.visor.modified.common.ServerPlayerModified;
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -15,14 +14,16 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +36,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerMixin extends Player implements ServerPlayerModified {
+public abstract class ServerPlayerMixin
+        extends ServerPlayer_PlayerMixin implements ServerPlayerModified {
 
     @Shadow
     @Final
@@ -44,9 +46,6 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
     @Unique
     private float visor$rotationYCached;
 
-    public ServerPlayerMixin(Level level, BlockPos blockPos, float f, GameProfile gameProfile) {
-        super(level, blockPos, f, gameProfile);
-    }
 
 
 
@@ -55,24 +54,40 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
     \* **************** */
 
 
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
+    @WrapMethod(method = "readAdditionalSaveData")
+    protected void visor$wrapReadData(CompoundTag compound, Operation<Void> original) {
+        original.call(compound);
         visor$rotationYCached = compound.getFloat("visor$rotation_y");
     }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
+    @WrapMethod(method = "addAdditionalSaveData")
+    protected void visor$wrapSaveData(CompoundTag compound, Operation<Void> original) {
+        original.call(compound);
         compound.putFloat("visor$rotation_y", visor$rotationYCached);
     }
 
+    @Override
+    protected void visor$wrapSetPosRaw(double x,
+                                       double y,
+                                       double z,
+                                       Operation<Void> original) {
+        super.visor$wrapSetPosRaw(x, y, z, original);
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+        if(vrPlayer != null){
+            vrPlayer.getPoseData().resetOrigin(
+                    visor$getPlayer().position().toVector3f()
+            );
+        }
+    }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;tick()V", shift = Shift.AFTER), method = "doTick()V")
-    public void visor$tick(CallbackInfo info) {
-        ServerNetworking.updatePlayerPose(
-                (ServerPlayer) (Object) this
-        );
+    public void visor$tickBodyPose(CallbackInfo info) {
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+
+        if (vrPlayer != null
+                && vrPlayer.isVRActive()
+                && vrPlayer.isCrawling()) {
+            visor$getPlayer().setPose(Pose.SWIMMING);
+        }
     }
 
 
@@ -83,19 +98,17 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
                                 boolean includeName,
                                 CallbackInfoReturnable<ItemEntity> info,
                                 ItemEntity itemEntity) {
-        VRServerPlayer serverPlayer = visor$getVrPlayer();
-        if (serverPlayer == null
-                || !serverPlayer.isVr()
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+        if (vrPlayer == null
+                || !vrPlayer.isVRActive()
                 || dropAround) {
             return;
         }
 
-        Vec3 handDir = serverPlayer.getControllerDir(
-                ControllerHand.MAIN
-        ).scale(0.3F);
-        Vec3 handPos = serverPlayer.getControllerPos(
-                ControllerHand.MAIN
-        );
+        var mainHand = vrPlayer.getPoseData().getMainHand();
+        var handDir = mainHand.getDirection()
+                .mul(0.3F, new Vector3f());
+        var handPos = mainHand.getPosition();
         itemEntity.setDeltaMovement(
                 handDir.x,
                 handDir.y,
@@ -128,9 +141,9 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
         boolean damagerHasVR;
 
         damagerHasVR = damagerPlayer != null
-                && damagerPlayer.isVr();
+                && damagerPlayer.isVRActive();
         victimHasVR = thisPlayer != null
-                && thisPlayer.isVr();
+                && thisPlayer.isVRActive();
 
         boolean blockedDamage = false;
         String blockedDamageCase = "";
@@ -154,41 +167,136 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
         cir.setReturnValue(false);
     }
 
-    /**
-     * Particles..
-     */
     @Override
-    public void sweepAttack() {
-        VRServerPlayer vrServerPlayer = visor$getVrPlayer();
+    protected void visor$wrapSweepAttack(Operation<Void> original) {
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
 
-        if (vrServerPlayer != null && vrServerPlayer.isVr()) {
-            Vec3 handDir = vrServerPlayer.getControllerDir(ControllerHand.MAIN);
-            Vec3 handPos = vrServerPlayer.getControllerPos(ControllerHand.MAIN);
+        if (vrPlayer != null && vrPlayer.isVRActive()) {
+            var mainHand = vrPlayer.getPoseData().getMainHand();
+
+            var handDir = mainHand.getDirection();
+            var handPos = mainHand.getPosition();
 
 
-            float handAngle = (float) Math.toDegrees(Mth.atan2(handDir.x, -handDir.z));
+            float handAngle = (float) Math.toDegrees(Mth.atan2(handDir.x(), -handDir.z()));
             double offsetX = -Mth.sin(handAngle * ((float) Math.PI / 180F));
             double offsetZ = Mth.cos(handAngle * ((float) Math.PI / 180F));
 
             if (this.level() instanceof ServerLevel) {
                 ((ServerLevel) this.level()).sendParticles(
                         ParticleTypes.SWEEP_ATTACK,
-                        handPos.x + offsetX,
-                        handPos.y,
-                        handPos.z + offsetZ,
+                        handPos.x() + offsetX,
+                        handPos.y(),
+                        handPos.z() + offsetZ,
                         0,
                         offsetX, 0.0D, offsetZ,
                         0.0D
                 );
             }
         } else {
-            super.sweepAttack();
+            original.call();
+        }
+    }
+
+
+
+    @Override
+    protected void visor$spawnVRItemParticles(ItemStack itemStack,
+                                              int count,
+                                              CallbackInfo ci){
+        LivingEntity instance = (LivingEntity) (Object)this;
+        if(!(instance instanceof ServerPlayer player)){
+            return;
+        }
+        ci.cancel();
+
+        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        for (int i = 0; i < count; ++i) {
+            Vec3 velocity = new Vec3(
+                    ((double) this.random.nextFloat() - 0.5D) * 0.1D,
+                    Math.random() * 0.1D + 0.1D,
+                    0.0D
+            );
+            velocity = velocity.xRot(
+                    -this.getXRot() * ((float) Math.PI / 180F)
+            );
+            velocity = velocity.yRot(
+                    -this.getYRot() * ((float) Math.PI / 180F)
+            );
+            double verticalOffset = (double) (-this.random.nextFloat()) * 0.6D - 0.3D;
+            Vec3 particlePos;
+            if (vrPlayer != null && vrPlayer.isVRActive()) {
+                InteractionHand interactionhand = player.getUsedItemHand();
+
+                if (interactionhand == InteractionHand.MAIN_HAND) {
+                    particlePos = vrPlayer.getPoseData()
+                            .getMainHand()
+                            .getPositionVec3();
+                } else {
+                    particlePos = vrPlayer.getPoseData()
+                            .getOffhand()
+                            .getPositionVec3();
+                }
+            }else{
+                particlePos = new Vec3(
+                        ((double) this.random.nextFloat() - 0.5D) * 0.3D,
+                        verticalOffset,
+                        0.6D
+                );
+                particlePos = particlePos.xRot(
+                        -this.getXRot() * ((float) Math.PI / 180F)
+                );
+                particlePos = particlePos.yRot(
+                        -this.getYRot() * ((float) Math.PI / 180F)
+                );
+                particlePos = particlePos.add(
+                        this.getX(),
+                        this.getEyeY(),
+                        this.getZ()
+                );
+            }
+            //to not have an annoying particles displaying
+            //too close to player eyes
+            particlePos = particlePos
+                    .add(0,-0.8,0);
+            if (this.level() instanceof ServerLevel) {
+                ((ServerLevel)this.level()).sendParticles(
+                        new ItemParticleOption(
+                                ParticleTypes.ITEM,
+                                itemStack
+                        ),
+                        particlePos.x,
+                        particlePos.y,
+                        particlePos.z,
+                        1, velocity.x,
+                        velocity.y + 0.05D,
+                        velocity.z,
+                        0.0
+                );
+            }else {
+                this.level().addParticle(
+                        new ItemParticleOption(
+                                ParticleTypes.ITEM,
+                                itemStack
+                        ),
+                        particlePos.x,
+                        particlePos.y,
+                        particlePos.z,
+                        velocity.x,
+                        velocity.y + 0.05D,
+                        velocity.z
+                );
+            }
         }
     }
 
     @Unique
     private VRServerPlayer visor$getVrPlayer() {
         return VisorAPI.server().getVrPlayer((ServerPlayer) (Object) this);
+    }
+    @Unique
+    private ServerPlayer visor$getPlayer() {
+        return (ServerPlayer) (Object) this;
     }
 
     @Unique
@@ -200,4 +308,5 @@ public abstract class ServerPlayerMixin extends Player implements ServerPlayerMo
     public float visor$getRotationYCached() {
         return visor$rotationYCached;
     }
+
 }

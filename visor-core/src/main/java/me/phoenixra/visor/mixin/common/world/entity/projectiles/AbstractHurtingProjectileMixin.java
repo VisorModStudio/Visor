@@ -18,12 +18,14 @@ public abstract class AbstractHurtingProjectileMixin {
         if (!(instance instanceof ServerPlayer player)) {
             return instance.getLookAngle();
         }
-        VRServerPlayer serverPlayer = VisorAPI.server()
+        VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (serverPlayer == null || !serverPlayer.isVr()) {
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return instance.getLookAngle();
         }
 
-        return serverPlayer.getHmdDir();
+        return vrPlayer.getPoseData()
+                .getHmd()
+                .getDirectionVec3();
     }
 }

@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.renderer.entity.monsters;
 
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.renderer.entity.GuardianRenderer;
@@ -26,16 +26,16 @@ public abstract class GuardianRendererMixin {
                                LivingEntity livingEntity,
                                double yOffset,
                                float partialTick) {
-        if (VRRenderState.getCurrentPhase().isVanilla()
+        if (VRRenderState.getPhase().isVanilla()
                 || livingEntity != MC.getCameraEntity()) {
             return this.getPosition(livingEntity, yOffset, partialTick);
         }
 
         float worldScale = ClientContext
-                .player
-                .getWorldScale();
-        Vector3f beamPos = ClientContext.player
-                .getPoseData(PoseDataType.RENDER)
+                .localPlayer
+                .getPoseData(PlayerPoseType.TICK).getWorldScale();;
+        Vector3f beamPos = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER)
                 .getHmd().getPosition()
                 .sub(
                         0.0f,

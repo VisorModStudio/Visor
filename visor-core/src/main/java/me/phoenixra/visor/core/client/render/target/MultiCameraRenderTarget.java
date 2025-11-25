@@ -1,18 +1,18 @@
 package me.phoenixra.visor.core.client.render.target;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 
 import java.util.EnumMap;
 
 
-public class MultiDisplayRenderTarget extends RenderTarget {
+public class MultiCameraRenderTarget extends RenderTarget {
 
     private final RenderTarget mainTarget;
-    private final EnumMap<VRDisplay, RenderTarget> vrTargets;
+    private final EnumMap<VRCameraType, RenderTarget> vrTargets;
 
-    public MultiDisplayRenderTarget(RenderTarget mainTarget, EnumMap<VRDisplay, RenderTarget> vrTargets) {
+    public MultiCameraRenderTarget(RenderTarget mainTarget, EnumMap<VRCameraType, RenderTarget> vrTargets) {
         super(mainTarget.useDepth);
 
         this.mainTarget = mainTarget;
@@ -29,9 +29,9 @@ public class MultiDisplayRenderTarget extends RenderTarget {
     }
 
     private RenderTarget getCurrentTarget() {
-        return VRRenderState.getCurrentPhase().isVanilla()
+        return VRRenderState.getPhase().isVanilla()
                 ? mainTarget
-                : vrTargets.get(VRRenderState.getCurrentVRDisplay());
+                : vrTargets.get(VRRenderState.getCameraType());
     }
 
     @Override

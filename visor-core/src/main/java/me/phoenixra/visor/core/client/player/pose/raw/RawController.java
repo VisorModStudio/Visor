@@ -1,7 +1,7 @@
-package me.phoenixra.visor.core.client.data.raw;
+package me.phoenixra.visor.core.client.player.pose.raw;
 
 import lombok.Data;
-import me.phoenixra.visor.api.client.data.ControllerRaw;
+import me.phoenixra.visor.api.client.player.pose.ControllerRaw;
 import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
