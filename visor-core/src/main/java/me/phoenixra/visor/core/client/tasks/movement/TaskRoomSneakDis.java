@@ -16,18 +16,18 @@ import org.jetbrains.annotations.NotNull;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomSneak extends VisorTask {
+public class TaskRoomSneakDis extends VisorTask {
     private static final String ID = "room_sneak";
 
     @Getter
-    private static TaskRoomSneak instance;
+    private static TaskRoomSneakDis instance;
     @Getter
     private boolean sneaking = false;
 
     @Getter @Setter
     private int sneakTimer = 0;
 
-    public TaskRoomSneak(@NotNull VisorAddon owner) {
+    public TaskRoomSneakDis(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
@@ -54,6 +54,9 @@ public class TaskRoomSneak extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer player) {
+        if(true){
+            return false;
+        }
         if(ClientContext.visor
                 .isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;

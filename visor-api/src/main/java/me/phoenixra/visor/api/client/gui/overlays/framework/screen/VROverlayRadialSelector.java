@@ -66,7 +66,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
         Vector2f cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
                 .findCursorPosition2D(
-                        VisorAPI.client().getLocalPlayer()
+                        VisorAPI.client().getVRLocalPlayer()
                                 .getPoseData(PlayerPoseType.RENDER)
                                 .getHand(
                                         usedHand

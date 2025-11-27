@@ -20,7 +20,8 @@
   "visor.options.movement.room_movement_multiplier.tooltip": "Multiplier of your room movement.\nMay cause motion sickness, if changed",
   "visor.options.movement.world_rotation_increment": "Rotation Increment",
   "visor.options.movement.world_rotation_increment.tooltip": "How many degrees to rotate when use rotate button",
-
+  "visor.options.movement.walk_up": "Walk Up",
+  "visor.options.movement.walk_up.tooltip": "If auto walk up on blocks enabled",
   "visor.options.gui": "GUI Settings",
   "visor.options.gui.button": "GUI Settings...",
   "visor.options.gui.scale": "VR GUI Scale",
@@ -138,6 +139,8 @@
   "visor.overlay.options_menu.description": "Options menu for overlay settings",
   "visor.overlay.settings.name": "Overlay Settings",
   "visor.overlay.settings.description": "Create and setup overlays",
+  "visor.overlay.movement_state.name": "Movement State",
+  "visor.overlay.movement_state.description": "Displays an image that visualize your movement state.\nSprinting -> boot\nCrouching -> Eye from blindness effect\nSwimming -> Dolphin\nUsing elytra->Feather",
   "visor.overlay.template.hud.name": "HUD",
   "visor.overlay.template.hud.description": "Vanilla HUD",
   "visor.overlay.template.chat.name": "Chat",

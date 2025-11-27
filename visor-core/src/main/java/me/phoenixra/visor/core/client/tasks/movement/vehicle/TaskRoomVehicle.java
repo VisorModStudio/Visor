@@ -12,7 +12,7 @@ import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.player.VRLocalPlayerImpl;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneak;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneakDis;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -52,7 +52,7 @@ public class TaskRoomVehicle extends VisorTask {
         if (canAutoDismount(player)) {
             Vector3fc mountPos = player.getVehicle().position().toVector3f();
             Vector3fc headPivot = ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.PREV_TICK).getHeadPivot();
+                    .getPoseData(PlayerPoseType.TICK).getHeadPivot();
             double distance = Math.sqrt(
                     (headPivot.x() - mountPos.x())
                             * (headPivot.x() - mountPos.x())
@@ -61,8 +61,8 @@ public class TaskRoomVehicle extends VisorTask {
             );
 
             if (distance > 0.7
-                    && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
-                TaskRoomSneak.getInstance().setSneakTimer(5);
+                    && TaskRoomSneakDis.getInstance().getSneakTimer() == 0) {
+                TaskRoomSneakDis.getInstance().setSneakTimer(5);
             }
 
         }
@@ -139,6 +139,7 @@ public class TaskRoomVehicle extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
+
         if (MC.isPaused()) {
             return false;
         }
@@ -156,7 +157,7 @@ public class TaskRoomVehicle extends VisorTask {
     public void onStartRiding(Entity vehicle) {
         VRLocalPlayerImpl vrClientPlayer = ClientContext.localPlayer;
         LocalPlayerPose preTickPose = vrClientPlayer
-                .getPoseData(PlayerPoseType.PREV_TICK);
+                .getPoseData(PlayerPoseType.TICK);
 
         final Vector3fc headPivot = vrClientPlayer
                 .getPoseData(PlayerPoseType.ROOM)
@@ -186,7 +187,7 @@ public class TaskRoomVehicle extends VisorTask {
      * Called when the player stops riding.
      */
     public void onStopRiding() {
-        TaskRoomSneak.getInstance().setSneakTimer(0);
+        TaskRoomSneakDis.getInstance().setSneakTimer(0);
     }
 
     /**
@@ -245,7 +246,7 @@ public class TaskRoomVehicle extends VisorTask {
         if (entity instanceof AbstractHorse || entity instanceof Boat) {
             if (player.zza <= 0) return null;
             return ClientContext.localPlayer
-                    .getRotationElement(PlayerPoseType.PREV_TICK)
+                    .getRotationElement(PlayerPoseType.TICK)
                     .getDirection();
         }
         if (entity instanceof Mob mob && mob.isControlledByLocalInstance()) {
@@ -254,7 +255,7 @@ public class TaskRoomVehicle extends VisorTask {
                     ? HandType.MAIN
                     : HandType.OFFHAND;
             final PoseElement handPose = ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.PREV_TICK)
+                    .getPoseData(PlayerPoseType.TICK)
                     .getHand(handWithFood);
             return handPose.getDirection().normalize(new Vector3f());
         }

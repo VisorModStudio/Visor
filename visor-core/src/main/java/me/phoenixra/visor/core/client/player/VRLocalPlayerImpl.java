@@ -19,9 +19,11 @@ import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +50,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     private Vector2f movement = new Vector2f();
     @Getter @Setter
     private boolean moving;
+
 
     public VRLocalPlayerImpl() {
         this.roomPose = new LocalPlayerPose(PlayerPoseType.ROOM, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
@@ -88,6 +91,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     public void tickPlayer(LocalPlayer player) {
 
+        movePlayerInRoom(player);
         try {
             var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
 
@@ -164,6 +168,103 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
 
+    private void movePlayerInRoom(LocalPlayer player){
+        if(player == null
+                || player.isShiftKeyDown()
+                || player.isSleeping()
+                || !player.isAlive()){
+            return;
+        }
+
+        var headPivot = pose.getHeadPivot();
+
+        float playerHalfWidth = player.getBbWidth() / 2f;
+        float playerHeight = player.getBbHeight();
+
+        Vec3 newPos = new Vec3(
+                headPivot.x(),
+                player.getY(),
+                headPivot.z()
+        );
+
+        // Create a collision bounding box at the destination position.
+        AABB collisionBox = new AABB(
+                newPos.x() - playerHalfWidth,
+                newPos.y(),
+                newPos.z() - playerHalfWidth,
+                newPos.x() + playerHalfWidth,
+                newPos.y() + playerHeight,
+                newPos.z() + playerHalfWidth
+        );
+
+
+        // If there is no collision at the destination,
+        // update the player's position
+        if (MC.level.noCollision(player, collisionBox)) {
+            //avoid using player.setPos() since it is overridden by Visor
+            player.setPosRaw(newPos.x, newPos.y, newPos.z);
+            player.setBoundingBox(collisionBox);
+            player.fallDistance = 0.0F;
+            return;
+        }
+
+        boolean canAutoClimb = (VRClientSettings.isWalkUpEnabled()
+                && ((LocalPlayerModified) player).visor$getJumpFactor() == 1.0F);
+
+        if (canAutoClimb && player.fallDistance == 0.0F) {
+            // Reduce the collision box width for climbing checks.
+            float climbShrink = player.getDimensions(player.getPose()).width * 0.45F;
+            double climbShrinkHalfWidth = playerHalfWidth - climbShrink;
+
+            AABB collisionBoxClimb = new AABB(
+                    newPos.x - climbShrinkHalfWidth,
+                    collisionBox.minY,
+                    newPos.z - climbShrinkHalfWidth,
+                    newPos.x + climbShrinkHalfWidth,
+                    collisionBox.maxY,
+                    newPos.z + climbShrinkHalfWidth
+            );
+
+            // If the adjusted box is still collision-free, do not perform a climb.
+            if (MC.level.noCollision(player, collisionBoxClimb)) {
+                return;
+            }
+
+
+            // Attempt to move upward in small increments until a collision-free space is found.
+            for (int i = 0; i <= 10; ++i) {
+                collisionBox = collisionBox.move(0.0D, 0.1D, 0.0D);
+
+                if (MC.level.noCollision(player, collisionBox)) {
+                    player.setPosRaw(
+                            newPos.x(),
+                            collisionBox.minY,
+                            newPos.z()
+                    );
+                    player.setBoundingBox(collisionBox);
+                    var newRoomOrigin = pose.getOrigin().add(
+                            0.0f, 0.1f * (i + 1), 0.0f,
+                            new Vector3f()
+                    );
+                    ClientContext.localPlayer.setOrigin(
+                            newRoomOrigin.x,
+                            newRoomOrigin.y,
+                            newRoomOrigin.z,
+                            false
+                    );
+
+                    player.fallDistance = 0.0F;
+                    ((LocalPlayerModified) MC.player).visor$stepSound(
+                            BlockPos.containing(player.position()),
+                            player.position()
+                    );
+                    break;
+                }
+
+
+            }
+        }
+    }
 
     public void updatePlayerLook(LocalPlayer player, PlayerPoseType stage) {
         if (player == null) {
@@ -244,14 +345,14 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                                boolean reset) {
 
 
-        var headPivot = this.prevPose.getHeadPivot();
+        var headPivot = this.pose.getHeadPivot()
+                .sub(pose.getOrigin(), new Vector3f());
 
-        var headOffset = headPivot.sub(
-                this.prevPose.getOrigin(),
-                new Vector3f()
-        );
-        float x = (float) (cameraEntity.getX() - headOffset.x);
-        float z = (float) (cameraEntity.getZ() - headOffset.z);
+        //we want head pivot to be the center,
+        // so,
+        // we sub it to compensate initial room position of pose elements
+        float x = (float) (cameraEntity.getX() - headPivot.x());
+        float z = (float) (cameraEntity.getZ() - headPivot.z());
         float y = (float) (cameraEntity.getY());
         if (cameraEntity instanceof LocalPlayerModified p) {
             y += (float) p.visor$getRoomYOffset();
@@ -263,6 +364,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     public void setOrigin(float x, float y, float z,
                           boolean reset) {
+
         var newOrigin = new Vector3f(x, y, z);
         if (reset) {
             this.prevPose.resetOrigin(newOrigin);

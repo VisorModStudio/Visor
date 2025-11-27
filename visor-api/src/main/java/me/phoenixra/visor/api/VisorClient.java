@@ -61,7 +61,7 @@ public interface VisorClient {
      * @return VRLocalPlayer instance
      */
     @NotNull
-    VRLocalPlayer getLocalPlayer();
+    VRLocalPlayer getVRLocalPlayer();
 
 
     /**

@@ -232,7 +232,7 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull VRLocalPlayer getLocalPlayer() {
+    public @NotNull VRLocalPlayer getVRLocalPlayer() {
         return ClientContext.localPlayer;
     }
 

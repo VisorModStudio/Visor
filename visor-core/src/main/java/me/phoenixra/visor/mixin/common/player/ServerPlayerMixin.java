@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin
-        extends ServerPlayer_PlayerMixin implements ServerPlayerModified {
+        extends Common_PlayerMixin implements ServerPlayerModified {
 
     @Shadow
     @Final
@@ -66,11 +66,7 @@ public abstract class ServerPlayerMixin
     }
 
     @Override
-    protected void visor$wrapSetPosRaw(double x,
-                                       double y,
-                                       double z,
-                                       Operation<Void> original) {
-        super.visor$wrapSetPosRaw(x, y, z, original);
+    protected void visor$injectSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         VRServerPlayer vrPlayer = visor$getVrPlayer();
         if(vrPlayer != null){
             vrPlayer.getPoseData().resetOrigin(

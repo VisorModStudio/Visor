@@ -44,29 +44,42 @@ public class VRClientSettings {
     protected static String keyboardKeysShift = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;':\"ZXCVBNM,./?<>";
     //---
 
-    //----World
+
+
+    //----Movement
+
     @Getter
-    @VROptionField(key = "world_scale", category = VROptionCategory.RENDERING)
-    protected static float worldScale = 1.0f;
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE, key = "rotation_mode")
+    protected static RotationMode rotationMode = RotationMode.HMD;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
             key = "world_rotation_increment")
     protected static float worldRotationIncrement = 45f; //Rotation with thumbstick
 
-    //---
-
-
-
-    //----Locomotion
-
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.WALK_UP, key = "walk_up")
+    protected static boolean walkUpEnabled = true;
 
     @Getter
     @VROptionField(key = "player.walkMultiplier")
     protected static float walkMultiplier = 1;
 
 
+    @Getter
+    protected static final float sprintThreshold = 0.9f;
+    @Getter
+    protected static final float jumpThreshold = 0.05f;
+    @Getter
+    protected static final float sneakThreshold = 0.4f;
+    @Getter
+    protected static final float crawlThreshold = 0.82f;
+
+
     //----Rendering
+    @Getter
+    @VROptionField(key = "world_scale", category = VROptionCategory.RENDERING)
+    protected static float worldScale = 1.0f;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.MIRROR_MODE, key = "mirror_mode")
@@ -215,24 +228,8 @@ public class VRClientSettings {
     @Getter
     @VROptionField(key = "aspectRatio", category = VROptionCategory.RENDERING_MIXED_REALITY)
     protected static float mixedRealityAspectRatio = 16F / 9F;
-    //
-
-
-    @Getter
-    protected static final float sprintThreshold = 0.9f;
-    @Getter
-    protected static final float jumpThreshold = 0.05f;
-    @Getter
-    protected static final float sneakThreshold = 0.4f;
-    @Getter
-    protected static final float crawlThreshold = 0.82f;
-
-    protected static final boolean walkUpEnabled = true;
 
     //
-    @Getter
-    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE, key = "rotation_mode")
-    protected static RotationMode rotationMode = RotationMode.HMD;
 
 
     private static final float defaultHeight = 1.52F;
@@ -268,11 +265,6 @@ public class VRClientSettings {
         eyeFovChanged = true;
     }
 
-    public static boolean isWalkUpEnabled() {
-        return walkUpEnabled
-                && MC.player!= null
-                && !MC.player.isSpectator();
-    }
 
     public static float getPlayerHeight() {
         if (playerHeight < 0) {

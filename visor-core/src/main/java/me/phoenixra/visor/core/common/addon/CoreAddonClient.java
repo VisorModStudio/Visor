@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
+import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayMovementState;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
@@ -63,6 +64,10 @@ public class CoreAddonClient implements VisorAddon {
                                 new VROverlayDemo(
                                         this,
                                         VROverlayDemo.ID
+                                ),
+                                new VROverlayMovementState(
+                                        this,
+                                        VROverlayMovementState.ID
                                 )
                         )
                 );

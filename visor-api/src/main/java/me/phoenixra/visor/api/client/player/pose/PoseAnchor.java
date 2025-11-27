@@ -144,7 +144,7 @@ public enum PoseAnchor {
     public static Vector3f getAnchorPos(@NotNull Vector3fc anchorPosition,
                                         @NotNull Matrix4fc anchorRotation,
                                         @NotNull Vector3fc offset){
-        PlayerPoseClient renderPose = VisorAPI.client().getLocalPlayer()
+        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
                 .getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
 

@@ -23,11 +23,11 @@ import org.joml.Vector3fc;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomSwim extends VisorTask {
+public class TaskRoomSwimDis extends VisorTask {
     private static final String ID = "room_swim";
 
     @Getter
-    private static TaskRoomSwim instance;
+    private static TaskRoomSwimDis instance;
 
     private static final float SWIM_SPEED = 1.3f;
     private static final float FRICTION = 0.9f;
@@ -39,7 +39,7 @@ public class TaskRoomSwim extends VisorTask {
     private Vector3fc motion = new Vector3f();
     private float lastDist;
 
-    public TaskRoomSwim(@NotNull VisorAddon owner) {
+    public TaskRoomSwimDis(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
@@ -48,7 +48,7 @@ public class TaskRoomSwim extends VisorTask {
     protected void onRun(LocalPlayer player) {
 
         LocalPlayerPose preTickPose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.PREV_TICK);
+                .getPoseData(PlayerPoseType.TICK);
         final PoseElement mainHand = preTickPose.getHand(HandType.MAIN);
         final PoseElement offhand = preTickPose.getHand(HandType.OFFHAND);
         final PoseElement hmd = preTickPose.getHmd();
@@ -102,6 +102,9 @@ public class TaskRoomSwim extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
+        if(true){
+            return false;
+        }
         if(!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
         }

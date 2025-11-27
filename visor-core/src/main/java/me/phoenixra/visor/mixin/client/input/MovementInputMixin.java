@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneak;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneakDis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
@@ -36,8 +36,8 @@ public class MovementInputMixin extends Input {
                 && !climbing.get();
 
         this.shiftKeyDown = Minecraft.getInstance().screen == null
-                && (TaskRoomSneak.getInstance().getSneakTimer() > 0
-                || TaskRoomSneak.getInstance().isSneaking()
+                && (TaskRoomSneakDis.getInstance().getSneakTimer() > 0
+                || TaskRoomSneakDis.getInstance().isSneaking()
                 || this.shiftKeyDown);
 
         if (ClientContext.localPlayer.isMoving()) {

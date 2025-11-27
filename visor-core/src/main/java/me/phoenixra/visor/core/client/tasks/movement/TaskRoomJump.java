@@ -53,6 +53,7 @@ public class TaskRoomJump extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
+
         if (p == null || !p.isAlive() || MC.gameMode == null) {
             return false;
         }
