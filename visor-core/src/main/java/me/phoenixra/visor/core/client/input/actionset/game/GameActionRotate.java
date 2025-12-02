@@ -33,11 +33,22 @@ public class GameActionRotate extends VisorActionVec2 {
         }
 
         final float inputPosX = newState.x;
+        float rotationIncrementer = (float) Math.toRadians(
+                VRClientSettings.getWorldRotationIncrement()
+        );
+
+        if(rotationIncrementer == 0){
+            if (inputPosX != 0.0F) {
+                float currentRotation = ClientContext.localPlayer.getRotationY();
+                float newRotation = currentRotation - (inputPosX * VRClientSettings.getWorldRotationSmoothSensitivity());
+                ClientContext.localPlayer.setRotationY(newRotation);
+            }
+            return;
+        }
+
         if (Math.abs(inputPosX) > ROTATION_THRESHOLD) {
 
-            float rotationIncrementer = (float) Math.toRadians(
-                    VRClientSettings.getWorldRotationIncrement()
-            );
+
             float currentRotation = ClientContext.localPlayer.getRotationY();
 
             float newRotation = currentRotation
@@ -45,7 +56,6 @@ public class GameActionRotate extends VisorActionVec2 {
             ClientContext.localPlayer.setRotationY(newRotation);
             alreadyRotated = true;
         }
-
 
 
 

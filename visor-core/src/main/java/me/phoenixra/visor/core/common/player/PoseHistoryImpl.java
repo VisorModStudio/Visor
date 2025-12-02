@@ -5,7 +5,10 @@ import me.phoenixra.visor.api.common.player.PoseHistory;
 import me.phoenixra.visor.api.common.player.VRBodyPart;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -21,6 +24,7 @@ public class PoseHistoryImpl implements PoseHistory {
         this.currentPose = currentPose;
         history.addFirst(currentPose);
     }
+
     @Override
     public Vector3f netMovement(VRBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
@@ -91,6 +95,54 @@ public class PoseHistoryImpl implements PoseHistory {
                 .mapToDouble(Double::valueOf)
                 .average()
                 .orElse(0);
+    }
+
+    @Override
+    public Vector3f averagePosition(VRBodyPart bodyPart, int maxTicksBack) {
+        checkTicksBack(maxTicksBack);
+        if (history.isEmpty()) {
+            return null;
+        }
+        maxTicksBack = clampTicksBack(maxTicksBack);
+        List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
+        int i = 0;
+        for (var pose : this.history) {
+            var pos = pose.getPoseElement(bodyPart).getPosition();
+            positions.add(pos);
+            if (++i >= maxTicksBack) break;
+        }
+        if (positions.isEmpty()) {
+            return null;
+        }
+        return new Vector3f(
+                (float) positions.stream().mapToDouble(Vector3fc::x).average().orElse(0),
+                (float) positions.stream().mapToDouble(Vector3fc::y).average().orElse(0),
+                (float) positions.stream().mapToDouble(Vector3fc::z).average().orElse(0)
+        );
+    }
+
+    @Override
+    public Vector3f headPivotAveragePosition(int maxTicksBack) {
+        checkTicksBack(maxTicksBack);
+        if (history.isEmpty()) {
+            return null;
+        }
+        maxTicksBack = clampTicksBack(maxTicksBack);
+        List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
+        int i = 0;
+        for (var pose : this.history) {
+            var pos = pose.getHeadPivot();
+            positions.add(pos);
+            if (i++ >= maxTicksBack) break;
+        }
+        if (positions.isEmpty()) {
+            return null;
+        }
+        return new Vector3f(
+                (float) positions.stream().mapToDouble(Vector3fc::x).average().orElse(0),
+                (float) positions.stream().mapToDouble(Vector3fc::y).average().orElse(0),
+                (float) positions.stream().mapToDouble(Vector3fc::z).average().orElse(0)
+        );
     }
 
     public void addEntry(PlayerPose entry){

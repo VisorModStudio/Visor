@@ -52,8 +52,11 @@ public class VRClientSettings {
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
-            key = "world_rotation_increment")
-    protected static float worldRotationIncrement = 45f; //Rotation with thumbstick
+            key = "world_rotation.increment")
+    protected static float worldRotationIncrement = 45f;
+    @Getter
+    @VROptionField(key = "worldRotation.smoothSensitivity")
+    protected static float worldRotationSmoothSensitivity = 0.06f;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.WALK_UP, key = "walk_up")
@@ -66,20 +69,20 @@ public class VRClientSettings {
 
     @Getter
     @VROptionField(key = "movement.sprintThreshold")
-    protected static final float sprintThreshold = 0.9f;
+    protected static float sprintThreshold = 0.9f;
 
     //max height to actual height ratio to jump from >=
     @Getter
     @VROptionField(key = "movement.jumpThreshold")
-    protected static final float jumpThreshold = 1.05f;
+    protected static float jumpThreshold = 1.05f;
 
     //max height to actual height ratio to start sneaking from <=
     @Getter
     @VROptionField(key = "movement.sneakThreshold")
-    protected static final float sneakThreshold = 0.75f;
+    protected static float sneakThreshold = 0.75f;
 
     @Getter
-    protected static final float crawlThreshold = 0.82f;
+    protected static float crawlThreshold = 0.82f;
 
 
     //----Rendering

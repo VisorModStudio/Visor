@@ -30,4 +30,9 @@ public interface PoseHistory {
                         int maxTicksBack);
 
     double headPivotAverageSpeed(int maxTicksBack);
+
+    Vector3f averagePosition(VRBodyPart bodyPart,
+                           int maxTicksBack);
+
+    Vector3f headPivotAveragePosition(int maxTicksBack);
 }
