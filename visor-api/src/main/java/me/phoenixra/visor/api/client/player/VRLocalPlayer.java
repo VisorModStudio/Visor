@@ -1,6 +1,8 @@
 package me.phoenixra.visor.api.client.player;
 
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.player.pose.RawController;
+import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.player.PoseElement;
 import net.minecraft.client.player.LocalPlayer;
@@ -19,11 +21,25 @@ public interface VRLocalPlayer extends VRClientPlayer{
     @NotNull
     HandType getActiveHand();
 
+    /**
+     * Get Raw Hmd
+     *
+     * @return RawHmd instance
+     */
+    RawHmd getRawHmd();
+
+    /**
+     * Get Raw Controller for specified hand type
+     *
+     * @param type the hand type
+     * @return RawController instance
+     */
+    RawController getRawController(@NotNull HandType type);
 
 
     /**
-     * Get component that affects client rotation
-     * @return component
+     * Get pose element that affects client rotation
+     * @return pose element
      */
     @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage);
 

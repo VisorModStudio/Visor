@@ -1,7 +1,6 @@
 package me.phoenixra.visor.core.client.network;
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.network.toclient.SettingsPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.UnknownPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
@@ -10,7 +9,6 @@ import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherActivePaylo
 import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
-import me.phoenixra.visor.core.client.tasks.movement.TaskInputRotation;
 import me.phoenixra.visor.core.server.ServerConfig;
 import net.minecraft.client.Minecraft;
 
@@ -35,8 +33,8 @@ public class ClientPacketHandler {
             }
             case ROTATION_Y -> {
                 var payload = (RotationYPayloadToClient) payloadClient;
-                TaskInputRotation.getInstance().setInputRotation(
-                        payload.rotationY() - ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY()
+                ClientContext.localPlayer.setRotationY(
+                        payload.rotationY()
                 );
             }
             case OTHER_VR_ACTIVE -> {
@@ -52,7 +50,7 @@ public class ClientPacketHandler {
                         payload.playerUUID(),
                         payload.pose(),
                         payload.worldScale(),
-                        payload.height()
+                        payload.fullHeight()
                 );
             }
 

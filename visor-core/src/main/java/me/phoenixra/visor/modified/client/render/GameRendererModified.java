@@ -23,7 +23,7 @@ public interface GameRendererModified {
         visor$setupCameraEntity(
                 ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER)
-                .getCameraElement(VRRenderState.getCameraType())
+                .getCameraPose(VRRenderState.getCameraType())
         );
     }
 

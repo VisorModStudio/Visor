@@ -4,7 +4,7 @@ import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomBoatDis;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomBoat;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -96,7 +96,7 @@ public abstract class BoatMixin extends Entity {
             momentumZ = Mth.cos(this.getYRot() * Mth.DEG_TO_RAD) * forward;
         } else {
 
-            TaskRoomBoatDis trackerBoat = TaskRoomBoatDis.getInstance();
+            TaskRoomBoat trackerBoat = TaskRoomBoat.getInstance();
             if (trackerBoat.isRowing()) {
                 this.deltaRotation += (float) (trackerBoat.getOarLeft() / 1.5);
                 this.deltaRotation -= (float) (trackerBoat.getOarRight() / 1.5);

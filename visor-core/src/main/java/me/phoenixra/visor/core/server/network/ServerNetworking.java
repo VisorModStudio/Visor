@@ -5,7 +5,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
-import me.phoenixra.visor.core.server.VRServerPlayerImpl;
+import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
 import me.phoenixra.visor.core.server.VisorServerImpl;
 import me.phoenixra.visor.mixin.common.accessors.ChunkMapAccessor;
 import me.phoenixra.visor.mixin.common.accessors.TrackedEntityAccessor;
@@ -107,7 +107,7 @@ public class ServerNetworking {
                         serverPlayer.getUUID(),
                         vrPlayer.getPoseData().getBuffer(),
                         vrPlayer.getWorldScale(),
-                        vrPlayer.getHeight()
+                        vrPlayer.getFullHeight()
                 )
         );
     }

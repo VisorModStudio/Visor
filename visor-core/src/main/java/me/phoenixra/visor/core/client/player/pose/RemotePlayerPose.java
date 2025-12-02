@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.common.player.PoseElement;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.common.data.PoseElementImpl;
+import me.phoenixra.visor.core.common.player.PoseElementImpl;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -47,10 +47,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
     private Vector3fc headPivot;
 
     public RemotePlayerPose(RemotePlayer mcPlayer,
-                            PlayerPoseType type,
-                            PoseDataBuffer poseBuffer,
-                            Vector3fc origin,
-                            float worldScale) {
+                            PlayerPoseType type) {
         this.mcPlayer = mcPlayer;
         this.type = type;
 
@@ -67,7 +64,6 @@ public class RemotePlayerPose implements PlayerPoseClient {
                 offhand
         );
 
-        update(poseBuffer, origin, worldScale);
 
     }
 
@@ -180,15 +176,15 @@ public class RemotePlayerPose implements PlayerPoseClient {
         this.bodyYaw = calcBodyYaw();
     }
 
-    public void copyFrom(RemotePlayerPose playerPose){
-        this.origin = new Vector3f(playerPose.origin);
-        this.bodyYaw = playerPose.bodyYaw;
-        this.worldScale = playerPose.worldScale;
-        this.headPivot = new Vector3f(playerPose.headPivot);
+    public void copyFrom(RemotePlayerPose other){
+        this.origin = new Vector3f(other.origin);
+        this.bodyYaw = other.bodyYaw;
+        this.worldScale = other.worldScale;
+        this.headPivot = new Vector3f(other.headPivot);
 
-        hmd.copyFrom(playerPose.hmd);
-        mainHand.copyFrom(playerPose.mainHand);
-        offhand.copyFrom(playerPose.offhand);
+        hmd.copyFrom(other.hmd);
+        mainHand.copyFrom(other.mainHand);
+        offhand.copyFrom(other.offhand);
     }
 
 
@@ -238,7 +234,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
 
     @Override
-    public @NotNull PoseElement getCameraElement(@Nullable VRCameraType cameraType) {
+    public @NotNull PoseElement getCameraPose(@Nullable VRCameraType cameraType) {
         return hmd;
     }
 
@@ -272,7 +268,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
                     position.z()
             );
         }
-        if (originType == PlayerPoseType.ROOM) {
+        if (originType == PlayerPoseType.RELATIVE) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
@@ -295,7 +291,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
                 .mul(1.0f / originPose.getWorldScale())
                 .rotateY(-originPose.getRotationY());
 
-        if(type == PlayerPoseType.ROOM){
+        if(type == PlayerPoseType.RELATIVE){
             return roomPose;
         }
 
@@ -314,7 +310,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
 
 
-        if (originType == PlayerPoseType.ROOM) {
+        if (originType == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
@@ -326,7 +322,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
         PlayerPoseClient originPose = vrPlayer.getPoseData(originType);
 
-        if (this.type == PlayerPoseType.ROOM) {
+        if (this.type == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(-originPose.getRotationY()).mul(rotationMatrix);
         }
 

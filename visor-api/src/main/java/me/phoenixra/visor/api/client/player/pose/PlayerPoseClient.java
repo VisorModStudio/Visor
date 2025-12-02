@@ -73,6 +73,30 @@ public interface PlayerPoseClient extends PlayerPose {
     PoseElement getGripOffhand();
 
     /**
+     * Get the grip hand pose element for the given hand type.
+     * <p>
+     *   This represents the gripping pose of VR controller
+     * </p>
+     *
+     * @param handType the hand type
+     * @return the grip hand pose element
+     */
+    @NotNull
+    default PoseElement getGripHand(@NotNull HandType handType) {
+        return handType == HandType.MAIN
+                ? getGripMainHand() : this.getGripOffhand();
+    }
+
+    /**
+     * Get the pose element for camera type
+     *
+     * @param cameraType the camera type
+     * @return the pose element
+     */
+    @NotNull
+    PoseElement getCameraPose(@Nullable VRCameraType cameraType);
+
+    /**
      * Converts <code>position</code> from the coordinate system of <code>originType</code>
      * to the coordinate system of this player pose instance.
      *
@@ -95,31 +119,4 @@ public interface PlayerPoseClient extends PlayerPose {
      */
     @NotNull Matrix4f convertRotationFrom(@NotNull PlayerPoseType originType,
                                           @NotNull Matrix4fc rotationMatrix);
-
-
-    /**
-     * Get the pose element for camera type
-     *
-     * @param cameraType the camera type
-     * @return the pose element
-     */
-    @NotNull
-    PoseElement getCameraElement(@Nullable VRCameraType cameraType);
-
-
-    /**
-     * Get the grip hand pose element for the given hand type.
-     * <p>
-     *   This represents the gripping pose of VR controller
-     * </p>
-     *
-     * @param handType the hand type
-     * @return the grip hand pose element
-     */
-    @NotNull
-    default PoseElement getGripHand(@NotNull HandType handType) {
-        return handType == HandType.MAIN
-                ? getGripMainHand() : this.getGripOffhand();
-    }
-
 }

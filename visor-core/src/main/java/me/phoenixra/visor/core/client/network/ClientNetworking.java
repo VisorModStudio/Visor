@@ -9,7 +9,6 @@ import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
@@ -69,10 +68,10 @@ public class ClientNetworking {
 
         var localPlayer = ClientContext.localPlayer;
 
-        float height = localPlayer.getHeight();
+        float height = localPlayer.getFullHeight();
         if (height != heightLastSent) {
             sendVRPacket(
-                    new HeightPayloadToServer(
+                    new FullHeightPayloadToServer(
                             height
                     )
 
@@ -115,7 +114,7 @@ public class ClientNetworking {
             );
         }
         if (VisorState.getState().isActive()
-                && ClientContext.localPlayer.getHeight() == -1.0F) {
+                && ClientContext.localPlayer.getFullHeight() == -1.0F) {
             MC.gui.getChat().addMessage(
                     Component.translatable("visor.messages.calibrate_height")
             );
@@ -128,7 +127,7 @@ public class ClientNetworking {
         heightLastSent = 0.0F;
         worldScaleLastSent = 1.0F;
         rotationYLastSent = 0;
-        VRClientPlayers.clear();
+        VRClientPlayers.dispose();
     }
 
 }

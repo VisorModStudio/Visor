@@ -60,7 +60,7 @@ public class VRPlayerRenderer extends PlayerRenderer {
                 .getPlayer(entityIn.getUUID());
 
         if (vrPlayer != null) {
-            float heightScale = vrPlayer.getHeightScale();
+            float heightScale = vrPlayer.getFullHeightScale();
             matrixStackIn.scale(
                     heightScale,
                     heightScale,

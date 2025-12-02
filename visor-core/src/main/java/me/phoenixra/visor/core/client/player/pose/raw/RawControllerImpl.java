@@ -1,14 +1,16 @@
 package me.phoenixra.visor.core.client.player.pose.raw;
 
 import lombok.Data;
-import me.phoenixra.visor.api.client.player.pose.ControllerRaw;
+import me.phoenixra.visor.api.client.player.pose.RawController;
+import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Vector3f;
 
 @Data
-public class RawController implements ControllerRaw {
+public class RawControllerImpl implements RawController {
 
 
     private Matrix4f aimPose = new Matrix4f();
@@ -25,7 +27,7 @@ public class RawController implements ControllerRaw {
 
     private boolean tracking;
 
-    public RawController() {
+    public RawControllerImpl() {
 
     }
 
@@ -56,6 +58,33 @@ public class RawController implements ControllerRaw {
     }
     public Matrix4f getGripRotationMutable() {
         return gripRotation;
+    }
+
+
+     @NotNull
+     public Vector3f getAimVector() {
+        return getAimRotation().transformDirection(
+                VRMathUtils.BACK_VECTOR, new Vector3f()
+        );
+    }
+
+     @NotNull
+     public Vector3f getGripVector() {
+        return getGripRotation().transformDirection(
+                VRMathUtils.BACK_VECTOR, new Vector3f()
+        );
+    }
+
+
+
+     @NotNull
+     public Vector3f getAimPosition(){
+        return getAimPose().getTranslation(new Vector3f());
+    }
+
+     @NotNull
+     public Vector3f getGripPosition(){
+        return getGripPose().getTranslation(new Vector3f());
     }
 
 

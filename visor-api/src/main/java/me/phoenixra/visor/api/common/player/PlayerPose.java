@@ -44,7 +44,35 @@ public interface PlayerPose {
     @NotNull
     PoseElement getOffhand();
 
+    /**
+     * Get the hand pose element for the given hand type.
+     * <p>
+     *   This represents the aiming pose of VR controller
+     * </p>
+     *
+     * @param handType the hand type
+     * @return the hand pose element
+     */
+    @NotNull
+    default PoseElement getHand(@NotNull HandType handType) {
+        return handType == HandType.MAIN
+                ? getMainHand() : getOffhand();
+    }
 
+    /**
+     * Get pose element from body part
+     *
+     * @param bodyPart the body part
+     * @return pose element
+     */
+    @NotNull
+    default PoseElement getPoseElement(@NotNull VRBodyPart bodyPart){
+        return switch (bodyPart){
+            case HEAD -> getHmd();
+            case MAIN_HAND -> getMainHand();
+            case OFFHAND -> getOffhand();
+        };
+    }
 
     /**
      * Get the origin to which pose elements relative to.
@@ -110,22 +138,6 @@ public interface PlayerPose {
 
 
 
-
-
-    /**
-     * Get the hand pose element for the given hand type.
-     * <p>
-     *   This represents the aiming pose of VR controller
-     * </p>
-     *
-     * @param handType the hand type
-     * @return the hand pose element
-     */
-    @NotNull
-    default PoseElement getHand(@NotNull HandType handType) {
-        return handType == HandType.MAIN
-                ? getMainHand() : getOffhand();
-    }
 
 
 

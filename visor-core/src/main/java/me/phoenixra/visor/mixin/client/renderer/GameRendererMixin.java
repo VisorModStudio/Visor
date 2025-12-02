@@ -521,8 +521,8 @@ public abstract class GameRendererMixin
         }
         RenderPoseHelper.applyCameraPose(currentCamera, poseStack);
         poseStack.scale(sinN, sinN, sinN);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraElement(currentCamera).getYaw()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraElement(currentCamera).getPitch()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera).getYaw()));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera).getPitch()));
     }
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {

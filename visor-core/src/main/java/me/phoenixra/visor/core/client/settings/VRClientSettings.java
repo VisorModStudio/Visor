@@ -20,8 +20,6 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 
-import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
-
 public class VRClientSettings {
 
 
@@ -62,16 +60,24 @@ public class VRClientSettings {
     protected static boolean walkUpEnabled = true;
 
     @Getter
-    @VROptionField(key = "player.walkMultiplier")
+    @VROptionField(key = "movement.walkMultiplier")
     protected static float walkMultiplier = 1;
 
 
     @Getter
+    @VROptionField(key = "movement.sprintThreshold")
     protected static final float sprintThreshold = 0.9f;
+
+    //max height to actual height ratio to jump from >=
     @Getter
-    protected static final float jumpThreshold = 0.05f;
+    @VROptionField(key = "movement.jumpThreshold")
+    protected static final float jumpThreshold = 1.05f;
+
+    //max height to actual height ratio to start sneaking from <=
     @Getter
-    protected static final float sneakThreshold = 0.4f;
+    @VROptionField(key = "movement.sneakThreshold")
+    protected static final float sneakThreshold = 0.75f;
+
     @Getter
     protected static final float crawlThreshold = 0.82f;
 
@@ -235,8 +241,8 @@ public class VRClientSettings {
     private static final float defaultHeight = 1.52F;
 
     @Setter
-    @VROptionField(key = "player.height")
-    protected static float playerHeight = defaultHeight;
+    @VROptionField(key = "player.full_height")
+    protected static float fullHeight = defaultHeight;
 
 
     public static void setVrPlayMode(VRPlayMode vrPlayMode) {
@@ -266,22 +272,22 @@ public class VRClientSettings {
     }
 
 
-    public static float getPlayerHeight() {
-        if (playerHeight < 0) {
+    public static float getFullHeight() {
+        if (fullHeight < 0) {
             return defaultHeight;
         }
 
-        return playerHeight;
+        return fullHeight;
     }
 
     public static void calibrateHeight() {
 
-        VRClientSettings.setPlayerHeight(
+        VRClientSettings.setFullHeight(
                 ClientContext.rawPoseHandler.getHmdData()
                         .getPivotHistory().averagePosition(0.5f).y
         );
         int i = (int) (Math.round(100.0D
-                * VRClientSettings.getPlayerHeight()
+                * VRClientSettings.getFullHeight()
                 / defaultHeight
         ));
         Minecraft.getInstance().gui.getChat()

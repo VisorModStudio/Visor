@@ -21,28 +21,27 @@ public class VROverlayHelper {
     }
 
     /**
-     * Convenient if you want to calculate render position
-     * once and then just use its room representation,
-     * to be relative to room
+     * Convenient if you want to use room relative pose
+     * instead of render pose that uses world coordinates
      * @param overlay the overlay
      * @param overlayScale the new overlay scale
-     * @param roomPosition the new position relative to room
-     * @param roomRotation the new rotation relative to room
+     * @param relativePosition the new position relative to room
+     * @param relativeRotation the new rotation relative to room
      */
-    public static void applyRoomPose(@NotNull VROverlay overlay,
-                                     float overlayScale,
-                                     @NotNull Vector3fc roomPosition,
-                                     @NotNull Matrix4f roomRotation){
+    public static void applyRelativePose(@NotNull VROverlay overlay,
+                                         float overlayScale,
+                                         @NotNull Vector3fc relativePosition,
+                                         @NotNull Matrix4f relativeRotation){
         PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
                 .getPoseData(PlayerPoseType.RENDER);
 
         Vector3f renderScreenPos = renderPose.convertPositionFrom(
-                PlayerPoseType.ROOM,
-                roomPosition
+                PlayerPoseType.RELATIVE,
+                relativePosition
         );
         Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
-                PlayerPoseType.ROOM,
-                roomRotation
+                PlayerPoseType.RELATIVE,
+                relativeRotation
         );
 
         overlay.getPose().update(

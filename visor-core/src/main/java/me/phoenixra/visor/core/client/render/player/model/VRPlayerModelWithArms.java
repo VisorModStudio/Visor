@@ -192,7 +192,7 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
         var mainHandDir = renderPose.getMainHand().getDirection();
 
 
-        double height = -1.501F * vrPlayer.getHeightScale();
+        double height = -1.501F * vrPlayer.getFullHeightScale();
         float offhandYaw = (float) Mth.atan2(-offhandDir.x(), -offhandDir.z());
         float offhandPitch = (float) Math.asin(offhandDir.y() / offhandDir.length());
         float mainHandYaw = (float) Mth.atan2(-mainHandDir.x(), -mainHandDir.z());
@@ -233,7 +233,7 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
         Vector3f offhandArmPos = renderPose.getOffhand().getPosition()
                 .add(0.0f, (float) height, 0.0f, new Vector3f())
                 .rotateY((float) (-Math.PI + bodyYaw))
-                .mul(16.0F / vrPlayer.getHeightScale());
+                .mul(16.0F / vrPlayer.getFullHeightScale());
         this.leftHand.setPos(
                 -offhandArmPos.x,
                 -offhandArmPos.y,
@@ -266,7 +266,7 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
         Vector3f mainArm = renderPose.getMainHand().getPosition()
                 .add(0.0f, (float) height, 0.0f, new Vector3f())
                 .rotateY((float) (-Math.PI + bodyYaw))
-                .mul(16.0F / vrPlayer.getHeightScale());
+                .mul(16.0F / vrPlayer.getFullHeightScale());
 
         this.rightHand.setPos(-mainArm.x, -((float) mainArm.y), mainArm.z);
         this.rightHand.xRot = (float) ((double) (-mainHandPitch) + (Math.PI * 1.5D));

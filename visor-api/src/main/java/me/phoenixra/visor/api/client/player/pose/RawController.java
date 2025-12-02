@@ -1,13 +1,19 @@
 package me.phoenixra.visor.api.client.player.pose;
 
 
-import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
-public interface ControllerRaw {
+/**
+ * Holds pose data received from VR about Controller.
+ * Updated every frame, at the beginning of game loop
+ * <p>
+ *     Useful when you need to use most recent data directly from VR
+ * </p>
+ */
+public interface RawController {
 
 
     @NotNull
@@ -28,27 +34,15 @@ public interface ControllerRaw {
 
     @NotNull Matrix4fc getGripRotation();
 
-    default @NotNull Vector3f getAimVector() {
-        return getAimRotation().transformDirection(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
-        );
-    }
+    @NotNull Vector3f getAimVector();
 
-    default @NotNull Vector3f getGripVector() {
-        return getGripRotation().transformDirection(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
-        );
-    }
+    @NotNull Vector3f getGripVector();
 
 
 
-    default @NotNull Vector3f getAimPosition(){
-        return getAimPose().getTranslation(new Vector3f());
-    }
+    @NotNull Vector3f getAimPosition();
 
-    default @NotNull Vector3f getGripPosition(){
-        return getGripPose().getTranslation(new Vector3f());
-    }
+    @NotNull Vector3f getGripPosition();
 
     /**
      * If controller is tracked by VR provider

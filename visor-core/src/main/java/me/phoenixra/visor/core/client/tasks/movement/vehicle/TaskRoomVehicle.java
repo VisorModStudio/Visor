@@ -12,7 +12,7 @@ import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.player.VRLocalPlayerImpl;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneakDis;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSneak;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -61,8 +61,8 @@ public class TaskRoomVehicle extends VisorTask {
             );
 
             if (distance > 0.7
-                    && TaskRoomSneakDis.getInstance().getSneakTimer() == 0) {
-                TaskRoomSneakDis.getInstance().setSneakTimer(5);
+                    && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
+                TaskRoomSneak.getInstance().setSneakTimer(5);
             }
 
         }
@@ -155,12 +155,12 @@ public class TaskRoomVehicle extends VisorTask {
      * @param vehicle the vehicle being ridden.
      */
     public void onStartRiding(Entity vehicle) {
-        VRLocalPlayerImpl vrClientPlayer = ClientContext.localPlayer;
-        LocalPlayerPose preTickPose = vrClientPlayer
+        VRLocalPlayerImpl localPlayer = ClientContext.localPlayer;
+        LocalPlayerPose preTickPose = localPlayer
                 .getPoseData(PlayerPoseType.TICK);
 
-        final Vector3fc headPivot = vrClientPlayer
-                .getPoseData(PlayerPoseType.ROOM)
+        final Vector3fc headPivot = localPlayer
+                .getPoseData(PlayerPoseType.RELATIVE)
                 .getHeadPivot();
         // Record the player's room position (ignoring vertical component)
         this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
@@ -168,7 +168,7 @@ public class TaskRoomVehicle extends VisorTask {
 
         final float hmdYaw = preTickPose.getHmd().getRotationYCache();
         final float vehicleYRotation = vehicle.getYRot() % 360.0F;
-        this.vehicleRotation = vrClientPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
+        this.vehicleRotation = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
         this.rotationCooldown = 2;
 
         // For Minecarts, no additional rotation adjustment is needed.
@@ -178,7 +178,7 @@ public class TaskRoomVehicle extends VisorTask {
 
         // Adjust rotation offset for other vehicles based on the difference between vehicle rotation and HMD yaw.
         final float rotationDelta = rotationDelta(vehicleYRotation, hmdYaw);
-        vrClientPlayer.setRotationY(
+        localPlayer.setRotationY(
                 preTickPose.getRotationY() + rotationDelta
         );
     }
@@ -187,7 +187,7 @@ public class TaskRoomVehicle extends VisorTask {
      * Called when the player stops riding.
      */
     public void onStopRiding() {
-        TaskRoomSneakDis.getInstance().setSneakTimer(0);
+        TaskRoomSneak.getInstance().setSneakTimer(0);
     }
 
     /**

@@ -1,6 +1,7 @@
 package me.phoenixra.visor.api.common;
 
 import me.phoenixra.atumvr.api.enums.ControllerType;
+import me.phoenixra.visor.api.common.player.VRBodyPart;
 import net.minecraft.world.InteractionHand;
 
 public enum HandType {
@@ -8,9 +9,14 @@ public enum HandType {
     OFFHAND;
 
 
+    public VRBodyPart asBodyPart(){
+        return this == MAIN ? VRBodyPart.MAIN_HAND : VRBodyPart.OFFHAND;
+    }
+
     public InteractionHand asInteractionHand(){
         return this == MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
+
     public ControllerType getControllerType(boolean leftHanded){
         if(leftHanded){
             return this == MAIN ? ControllerType.LEFT : ControllerType.RIGHT;
@@ -18,6 +24,7 @@ public enum HandType {
             return this == MAIN ? ControllerType.RIGHT : ControllerType.LEFT;
         }
     }
+
     public HandType reversed(){
         if(this == OFFHAND) return MAIN;
         else return OFFHAND;

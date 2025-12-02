@@ -10,7 +10,7 @@ import java.util.UUID;
 public record VROtherStatePayloadToClient(UUID playerUUID,
                                           PoseDataBuffer pose,
                                           float worldScale,
-                                          float height) implements VisorPayloadToClient {
+                                          float fullHeight) implements VisorPayloadToClient {
 
 
     @Override
@@ -18,7 +18,7 @@ public record VROtherStatePayloadToClient(UUID playerUUID,
         buffer.writeUUID(playerUUID);
         pose.serialize(buffer);
         buffer.writeFloat(worldScale);
-        buffer.writeFloat(height);
+        buffer.writeFloat(fullHeight);
     }
 
     @Override
@@ -31,12 +31,12 @@ public record VROtherStatePayloadToClient(UUID playerUUID,
         UUID playerUUID = buffer.readUUID();
         var pose = PoseDataBuffer.deserialize(buffer);
         float worldScale = buffer.readFloat();
-        float height = buffer.readFloat();
+        float fullHeight = buffer.readFloat();
         return new VROtherStatePayloadToClient(
                 playerUUID,
                 pose,
                 worldScale,
-                height
+                fullHeight
         );
     }
 }

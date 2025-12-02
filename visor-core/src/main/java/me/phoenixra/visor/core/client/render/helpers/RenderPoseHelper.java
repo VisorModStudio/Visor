@@ -50,7 +50,7 @@ public class RenderPoseHelper {
         } else {
             // direct VR eye/head rotation
             rotationMatrix = renderPose
-                    .getCameraElement(cameraType)
+                    .getCameraPose(cameraType)
                     .getRotation()
                     .transpose(new Matrix4f());
         }
@@ -66,7 +66,7 @@ public class RenderPoseHelper {
             return;
         }
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        var eyePos = renderPose.getCameraElement(cameraType).getPosition();
+        var eyePos = renderPose.getCameraPose(cameraType).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
 
@@ -117,7 +117,7 @@ public class RenderPoseHelper {
                     .add(vrPose.getOrigin());
         }
 
-        return vrPose.getCameraElement(cameraTye).getPosition();
+        return vrPose.getCameraPose(cameraTye).getPosition();
     }
 
 

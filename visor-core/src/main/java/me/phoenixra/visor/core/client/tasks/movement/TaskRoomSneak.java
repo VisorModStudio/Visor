@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client.tasks.movement;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -16,18 +17,18 @@ import org.jetbrains.annotations.NotNull;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomSneakDis extends VisorTask {
+public class TaskRoomSneak extends VisorTask {
     private static final String ID = "room_sneak";
 
     @Getter
-    private static TaskRoomSneakDis instance;
+    private static TaskRoomSneak instance;
     @Getter
     private boolean sneaking = false;
 
     @Getter @Setter
     private int sneakTimer = 0;
 
-    public TaskRoomSneakDis(@NotNull VisorAddon owner) {
+    public TaskRoomSneak(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
@@ -38,13 +39,10 @@ public class TaskRoomSneakDis extends VisorTask {
             sneakTimer--;
         }
 
-        final double playerHeight = ClientContext.localPlayer.getHeight();
-        final double latestPivotY = ClientContext.rawPoseHandler.getHmdData()
-                .getPivotHistory().latest().y();
-        final double sneakThreshold = VRClientSettings.getSneakThreshold();
+        double fullHeight = ClientContext.localPlayer.getFullHeight();
+        double actualHeight = ClientContext.localPlayer.getActualHeight();
 
-        // Determine if the difference between the configured height and the current head height exceeds the threshold.
-        this.sneaking = (playerHeight - latestPivotY) > sneakThreshold;
+        this.sneaking = (actualHeight / fullHeight) <= VRClientSettings.getSneakThreshold();
     }
 
     @Override
@@ -54,9 +52,6 @@ public class TaskRoomSneakDis extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer player) {
-        if(true){
-            return false;
-        }
         if(ClientContext.visor
                 .isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;

@@ -3,13 +3,13 @@ package me.phoenixra.visor.core.client.player.pose.raw;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.api.client.player.pose.HmdRaw;
+import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.common.utils.QuaternionFloatHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.common.utils.Vector3fHistory;
 import org.joml.*;
 
-public class RawHmd implements HmdRaw {
+public class RawHmdImpl implements RawHmd {
 
     private final Matrix4f devicePose = new Matrix4f();
 

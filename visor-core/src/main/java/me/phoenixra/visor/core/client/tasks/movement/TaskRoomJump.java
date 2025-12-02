@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.client.tasks.movement;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -28,20 +29,18 @@ public class TaskRoomJump extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        final var hmdData = ClientContext.rawPoseHandler.getHmdData();
-        final var pivotHistory = hmdData.getPivotHistory();
+        var historyRelative = ClientContext.localPlayer.getPoseHistoryRelative();
 
-        final double netMovementY = pivotHistory.netMovement(0.25f).y;
-        if (netMovementY < 0.1D) {
+        double yDelta = historyRelative.headPivotNetMovement(5).y;
+        if (yDelta < 0.1D) {
             return;
         }
 
 
-        final double latestY = pivotHistory.latest().y();
-        final double playerHeight = ClientContext.localPlayer.getHeight();
-        final double deltaY = latestY - playerHeight;
+        double fullHeight = ClientContext.localPlayer.getFullHeight();
+        double actualHeight = ClientContext.localPlayer.getActualHeight();
 
-        if (deltaY > VRClientSettings.getJumpThreshold()) {
+        if (actualHeight / fullHeight >= VRClientSettings.getJumpThreshold()) {
             player.jumpFromGround();
         }
     }
@@ -54,14 +53,16 @@ public class TaskRoomJump extends VisorTask {
     @Override
     public boolean isActive(LocalPlayer p) {
 
-        if (p == null || !p.isAlive() || MC.gameMode == null) {
+        if (p == null
+                || !p.isAlive()
+                || MC.gameMode == null) {
             return false;
         }
-        // Only active if movement is not blocked or falling is simulated.
         if (!ClientContext.visor.isFeatureEnabled(ClientFeature.MOVEMENT_MODIFIERS)) {
             return false;
         }
-        // Only allow jump if the player is on solid ground and not performing other actions.
+        // Only allow jump if the player is on solid ground
+        // and not performing other actions.
         if (!p.isInWater() && !p.isInLava() && p.onGround()) {
             return !p.isShiftKeyDown() && !p.isPassenger();
         }

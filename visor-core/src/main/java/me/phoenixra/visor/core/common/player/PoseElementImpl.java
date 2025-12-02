@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.common.data;
+package me.phoenixra.visor.core.common.player;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.common.player.PoseElement;

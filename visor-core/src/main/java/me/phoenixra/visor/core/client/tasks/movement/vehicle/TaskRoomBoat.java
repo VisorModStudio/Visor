@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomBoatDis extends VisorTask {
+public class TaskRoomBoat extends VisorTask {
     public static final String ID = "room_boat";
 
     @Getter
-    private static TaskRoomBoatDis instance;
+    private static TaskRoomBoat instance;
 
     private static final float MAX_FORWARD_SPEED = 2.0F;
     private static final float MAX_ROTATION_SPEED = 1.0F;
@@ -34,7 +34,7 @@ public class TaskRoomBoatDis extends VisorTask {
     @Getter
     private float moveForward;
 
-    public TaskRoomBoatDis(@NotNull VisorAddon owner) {
+    public TaskRoomBoat(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
@@ -86,9 +86,6 @@ public class TaskRoomBoatDis extends VisorTask {
 
     @Override
     public boolean isActive(LocalPlayer p) {
-        if(true){
-            return false;
-        }
         if (!isEnabled()) return false;
         if (p == null || !p.isAlive()) return false;
         if (MC.gameMode == null) return false;

@@ -1,5 +1,8 @@
 package me.phoenixra.visor.api.client.player.pose;
 
+import me.phoenixra.visor.api.client.player.VRLocalPlayer;
+import me.phoenixra.visor.api.client.player.VRRemotePlayer;
+
 /**
  * Describes which stage of the player pose is being used.
  * <p>
@@ -9,14 +12,17 @@ package me.phoenixra.visor.api.client.player.pose;
 public enum PlayerPoseType {
 
     /**
-     * Pose relative to the VR room space.
+     * Pose that is not converted to world coordinates yet.
      * <p>
-     *   Updated from the VR runtime
-     *   at the start of the game loop,
-     *   before any game-tick and rendering.
+     *   For {@link VRLocalPlayer} it is relative to VR room
+     *   and updated each frame at the start of a game loop
+     * </p>
+     * <p>
+     *     For {@link VRRemotePlayer} it is relative to player
+     *     and updated from server
      * </p>
      */
-    ROOM,
+    RELATIVE,
 
     /**
      * Pose from the previous game tick.

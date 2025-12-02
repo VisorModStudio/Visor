@@ -6,12 +6,16 @@ import lombok.Setter;
 import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.player.pose.RawController;
+import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.PoseHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
+import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -36,32 +40,42 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRLocalPlayerImpl implements VRLocalPlayer {
 
-    private final LocalPlayerPose roomPose;
+    private final LocalPlayerPose roomRelativePose;
 
     private final LocalPlayerPose prevPose;
     private final LocalPlayerPose pose;
     private final LocalPlayerPose renderPose;
 
+    @Getter
+    private final PoseHistoryImpl poseHistoryRelative;
+    @Getter
+    private final PoseHistoryImpl poseHistoryTick;
 
     @Getter
     private HandType activeHand = HandType.MAIN;
 
+
+    private float rotationYRaw;
+
+    private boolean isTicking;
+
     @Getter
-    private Vector2f movement = new Vector2f();
+    private final Vector2f movement = new Vector2f();
     @Getter @Setter
     private boolean moving;
 
-
     public VRLocalPlayerImpl() {
-        this.roomPose = new LocalPlayerPose(PlayerPoseType.ROOM, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.roomRelativePose = new LocalPlayerPose(PlayerPoseType.RELATIVE);
+        this.prevPose = new LocalPlayerPose(PlayerPoseType.PREV_TICK);
+        this.pose = new LocalPlayerPose(PlayerPoseType.TICK);
+        this.renderPose  = new LocalPlayerPose(PlayerPoseType.RENDER);
 
-        this.prevPose = new LocalPlayerPose(PlayerPoseType.PREV_TICK, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.pose = new LocalPlayerPose(PlayerPoseType.TICK, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
-        this.renderPose  = new LocalPlayerPose(PlayerPoseType.RENDER, VRMathUtils.ZERO_VECTOR, VRClientSettings.getWalkMultiplier(), 1.0F, 0.0F);
+        this.poseHistoryRelative = new PoseHistoryImpl(roomRelativePose);
+        this.poseHistoryTick = new PoseHistoryImpl(pose);
     }
 
     public void onGameLoopStart(){
-        this.roomPose.update(
+        this.roomRelativePose.update(
                 VRMathUtils.ZERO_VECTOR,
                 VRClientSettings.getWalkMultiplier(),
                 1.0f, 0.0f
@@ -80,18 +94,27 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 : VRClientSettings.getWorldScale();
 
         this.pose.update(
-                this.pose.getOrigin(),
+                pose.getOrigin(),
                 VRClientSettings.getWalkMultiplier(),
                 preWorldScale,
-                pose.getRotationY()
+                this.pose.getRotationY()
         );
+
+        var historyEntry = new LocalPlayerPose(PlayerPoseType.RELATIVE);
+        historyEntry.copyFrom(roomRelativePose);
+        poseHistoryRelative.addEntry(historyEntry);
+
+        historyEntry = new LocalPlayerPose(PlayerPoseType.PREV_TICK);
+        historyEntry.copyFrom(prevPose);
+        poseHistoryTick.addEntry(historyEntry);
 
     }
 
 
     public void tickPlayer(LocalPlayer player) {
-
+        isTicking = true;
         movePlayerInRoom(player);
+        setRotationY(rotationYRaw);
         try {
             var tasks = ClientContext.visor.getTaskRegistry().getPlayerTick();
 
@@ -102,6 +125,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                     task.clear(player);
                 }
             }
+
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }
@@ -112,6 +136,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
 
         ClientNetworking.sendVRPlayerPose();
+
+        isTicking = false;
+        rotationYRaw = pose.getRotationY();
     }
 
 
@@ -377,15 +404,25 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         );
     }
 
-    public void setRotationY(float newYaw) {
+    public void setRotationY(float newValue) {
+        if(!isTicking){
+            rotationYRaw = newValue % ((float) Math.PI * 2);
+            return;
+        }
         this.pose.update(
                 pose.getOrigin(),
                 pose.getWorldScale(),
-                newYaw % ((float) Math.PI * 2)
+                newValue % ((float) Math.PI * 2)
         );
     }
 
-
+    public float getRotationY(){
+        if(isTicking){
+            return pose.getRotationY();
+        }else{
+            return rotationYRaw;
+        }
+    }
 
 
     @Override
@@ -396,12 +433,16 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
 
 
-
-
-    public InteractionHand getActiveInteractHand(){
-        return activeHand == HandType.MAIN
-                ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+    @Override
+    public RawHmd getRawHmd() {
+        return ClientContext.rawPoseHandler.getHmdData();
     }
+
+    @Override
+    public RawController getRawController(@NotNull HandType type) {
+        return ClientContext.rawPoseHandler.getControllerData(type);
+    }
+
 
     @Override
     public @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage){
@@ -423,14 +464,16 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             case PREV_TICK -> prevPose;
             case TICK -> pose;
             case RENDER -> renderPose;
-            default -> roomPose;
+            default -> roomRelativePose;
         };
     }
 
     @Override
-    public float getHeight() {
-        return VRClientSettings.getPlayerHeight();
+    public float getFullHeight() {
+        return VRClientSettings.getFullHeight();
     }
+
+
 
     @Override
     public boolean isLeftHanded() {
@@ -445,7 +488,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 pose: %s
                 render pose: %s"""
         ).formatted(
-                this.roomPose,
+                this.roomRelativePose,
                 this.prevPose,
                 this.pose,
                 this.renderPose

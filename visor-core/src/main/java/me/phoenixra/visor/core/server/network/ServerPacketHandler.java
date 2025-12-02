@@ -13,7 +13,7 @@ import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.server.ServerConfig;
-import me.phoenixra.visor.core.server.VRServerPlayerImpl;
+import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
 import me.phoenixra.visor.core.server.VisorServerImpl;
 import me.phoenixra.visor.modified.common.ServerPlayerModified;
 import net.minecraft.network.chat.Component;
@@ -80,11 +80,10 @@ public class ServerPacketHandler {
             case WORLD_SCALE -> {
                 var payload = (WorldScalePayloadToServer) payloadToServer;
                 vrPlayer.setWorldScale(payload.worldScale());
-
             }
-            case HEIGHT -> {
-                var payload = (HeightPayloadToServer) payloadToServer;
-                vrPlayer.setHeight(payload.height());
+            case FULL_HEIGHT -> {
+                var payload = (FullHeightPayloadToServer) payloadToServer;
+                vrPlayer.setFullHeight(payload.fullHeight());
             }
             case ROTATION_Y -> {
                 var payload = (RotationYPayloadToServer) payloadToServer;

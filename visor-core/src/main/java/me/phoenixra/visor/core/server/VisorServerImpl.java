@@ -12,6 +12,7 @@ import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 
 import me.phoenixra.visor.core.common.addon.CoreAddonServer;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

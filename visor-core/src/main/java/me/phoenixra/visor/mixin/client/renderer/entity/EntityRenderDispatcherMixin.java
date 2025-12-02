@@ -63,7 +63,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
         var cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
         if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
             cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getCameraElement(VRCameraType.THIRD_PERSON)
+                    .getCameraPose(VRCameraType.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCamera = entity.position().add(0.0D, entity.getBbHeight() / 2.0F, 0.0D)
@@ -107,7 +107,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
                 .getPosition();
         if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
             cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getCameraElement(VRCameraType.THIRD_PERSON)
+                    .getCameraPose(VRCameraType.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCameraDirection = entity.position().add(

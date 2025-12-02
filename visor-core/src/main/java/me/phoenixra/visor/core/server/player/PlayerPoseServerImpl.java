@@ -1,10 +1,12 @@
-package me.phoenixra.visor.core.common.data;
+package me.phoenixra.visor.core.server.player;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.common.player.PoseElement;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.player.PlayerPoseServer;
+import me.phoenixra.visor.core.client.player.pose.RemotePlayerPose;
+import me.phoenixra.visor.core.common.player.PoseElementImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.joml.*;
@@ -26,7 +28,6 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
 
 
     private Vector3fc origin;
-    private float worldScale;
 
 
     private float bodyYaw;
@@ -48,10 +49,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     }
 
     public void update(PoseDataBuffer poseData,
-                       Vector3fc origin,
-                       float worldScale){
+                       Vector3fc origin){
         this.origin = origin;
-        this.worldScale = worldScale;
         this.buffer = poseData;
 
         var hmdPose = poseData.hmd();
@@ -68,7 +67,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.hmd.update(
                 this.origin,
                 0,
-                this.worldScale,
+                1.0f,
                 hmdPose.position(),
                 hmdPose.orientation().get(new Matrix4f()),
                 hmdDir
@@ -77,7 +76,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.mainHand.update(
                 this.origin,
                 0,
-                this.worldScale,
+                1.0f,
                 mainHandPose.position(),
                 mainHandPose.orientation().get(new Matrix4f()),
                 mainHandDir
@@ -85,7 +84,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.offhand.update(
                 this.origin,
                 0,
-                this.worldScale,
+                1.0f,
                 offhandPose.position(),
                 offhandPose.orientation().get(new Matrix4f()),
                 offhandDir
@@ -95,9 +94,24 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.headPivot = calcHeadPivot();
     }
 
+    public void copyFrom(PlayerPoseServerImpl other){
+        this.origin = new Vector3f(other.origin);
+        this.bodyYaw = other.bodyYaw;
+        this.headPivot = new Vector3f(other.headPivot);
+
+        hmd.copyFrom(other.hmd);
+        mainHand.copyFrom(other.mainHand);
+        offhand.copyFrom(other.offhand);
+    }
+
     @Override
     public Player getMcPlayer() {
         return null;
+    }
+
+    @Override
+    public float getWorldScale() {
+        return 1.0f;
     }
 
 
@@ -136,8 +150,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
                 .transformPosition(
                         new Vector3f(
                                 0.0F,
-                                -0.1F * worldScale,
-                                0.1F * worldScale
+                                -0.1F,
+                                0.1F
                         )
                 );
         return new Vector3f(
@@ -158,12 +172,10 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         return String.format(
                 "VRClientPose:%n" +
                         "  Origin             : %s%n" +
-                        "  World Scale        : %.2f%n" +
                         "  HMD                : %s%n" +
                         "  Main Hand          : %s%n" +
                         "  Offhand            : %s%n",
                 origin,
-                worldScale,
                 hmd,
                 mainHand,
                 offhand

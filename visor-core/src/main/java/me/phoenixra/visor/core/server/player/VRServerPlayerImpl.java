@@ -1,10 +1,13 @@
-package me.phoenixra.visor.core.server;
+package me.phoenixra.visor.core.server.player;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
+import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
-import me.phoenixra.visor.core.common.data.PlayerPoseServerImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
+import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.common.ServerPlayerModified;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -13,8 +16,20 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter
     public ServerPlayer mcPlayer;
 
+
+    @Getter
+    private final PlayerPoseServerImpl poseDataPrev = new PlayerPoseServerImpl();
+
+    @Getter
+    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl();
+
     @Getter
     private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl();
+
+    @Getter
+    private final PoseHistoryImpl poseHistoryRelative;
+    @Getter
+    private final PoseHistoryImpl poseHistoryTick;
 
     @Setter
     private boolean vrActive = false;
@@ -23,7 +38,7 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter @Setter
     private float worldScale = 1.0F;
     @Getter @Setter
-    private float height = 1.0F;
+    private float fullHeight = 1.0F;
     @Getter
     private float rotationY;
 
@@ -38,16 +53,32 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
     public VRServerPlayerImpl(ServerPlayer player) {
         this.mcPlayer = player;
+        poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);
+        poseHistoryTick = new PoseHistoryImpl(poseData);
     }
 
 
 
     public void poseUpdateReceived(PoseDataBuffer buffer){
+        poseDataPrev.copyFrom(poseData);
+
+        poseDataRelative.update(
+                buffer,
+                VRMathUtils.ZERO_VECTOR
+        );
         poseData.update(
                 buffer,
-                mcPlayer.position().toVector3f(),
-                worldScale
+                mcPlayer.position().toVector3f()
         );
+
+        var historyEntry = new PlayerPoseServerImpl();
+        historyEntry.copyFrom(poseDataRelative);
+        poseHistoryRelative.addEntry(historyEntry);
+
+        historyEntry = new PlayerPoseServerImpl();
+        historyEntry.copyFrom(poseDataPrev);
+        poseHistoryTick.addEntry(historyEntry);
+
         leftHanded = poseData.getBuffer().leftHanded();
     }
 

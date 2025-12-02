@@ -43,13 +43,13 @@ public class VROverlayMovementState extends VROverlayScreen {
         if (player.isSprinting()) {
             mobEffect = MobEffects.MOVEMENT_SPEED;
         }
-        else if (player.isShiftKeyDown()) {
+        if (player.isShiftKeyDown()) {
             mobEffect = MobEffects.BLINDNESS;
         }
-        else if (player.isVisuallySwimming()) {
+        if (player.isVisuallySwimming()) {
             mobEffect = MobEffects.DOLPHINS_GRACE;
         }
-        else if (player.isFallFlying()) {
+        if (player.isFallFlying()) {
             mobEffect = MobEffects.SLOW_FALLING;
         }
 

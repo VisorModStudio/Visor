@@ -15,7 +15,7 @@ public interface VisorPayloadToServer extends VisorPayload {
             VisorPayloadID id = VisorPayloadID.values()[index];
             return switch (id) {
                 case HANDSHAKE -> HandshakePayloadToServer.read(buffer);
-                case HEIGHT -> HeightPayloadToServer.read(buffer);
+                case FULL_HEIGHT -> FullHeightPayloadToServer.read(buffer);
                 case ROTATION_Y -> RotationYPayloadToServer.read(buffer);
                 case VR_ACTIVE -> VRActivePayloadToServer.read(buffer);
                 case POSE_DATA -> PoseDataPayloadToServer.read(buffer);

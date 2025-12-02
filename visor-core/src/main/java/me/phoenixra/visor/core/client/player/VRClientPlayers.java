@@ -3,7 +3,6 @@ package me.phoenixra.visor.core.client.player;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.player.VRClientPlayer;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
-import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
@@ -59,7 +58,7 @@ public class VRClientPlayers {
     public static void receivedPacket(UUID uuid,
                                       PoseDataBuffer poseBuffer,
                                       float worldScale,
-                                      float height) {
+                                      float fullHeight) {
         if(localPlayer.getMcPlayer() != null
                 && localPlayer.getMcPlayer().getUUID().equals(uuid)){
             return;
@@ -79,14 +78,14 @@ public class VRClientPlayers {
                     remotePlayer,
                     poseBuffer,
                     worldScale,
-                    height
+                    fullHeight
             );
         }else{
             vrPlayer.receivedPacked(
                     remotePlayer,
                     poseBuffer,
                     worldScale,
-                    height
+                    fullHeight
             );
         }
         remotePlayersReceived.put(uuid, vrPlayer);
@@ -99,7 +98,7 @@ public class VRClientPlayers {
         }
         return remotePlayers.get(uuid);
     }
-    public static boolean isTracked(UUID uuid){
+    public static boolean isTracked(UUID uuid) {
         return getPlayer(uuid) != null;
     }
 
@@ -109,7 +108,7 @@ public class VRClientPlayers {
     }
 
 
-    public static void clear() {
+    public static void dispose() {
         remotePlayers.clear();
         remotePlayersReceived.clear();
     }

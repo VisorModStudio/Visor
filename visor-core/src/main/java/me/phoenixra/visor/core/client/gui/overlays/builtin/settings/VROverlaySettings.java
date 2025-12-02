@@ -67,8 +67,8 @@ public class VROverlaySettings extends VROverlayScreen
     private final Vector3f posOffset = new Vector3f(0, 0, -0.75f);
     private final Vector3f rotationOffset = new Vector3f(0, 0, 0);
 
-    private Vector3fc roomPosition = null;
-    private Matrix4f roomRotation = null;
+    private Vector3fc relativePosition = null;
+    private Matrix4f relativeRotation = null;
 
     @Getter
     private SettingsTab settingsTab = SettingsTab.OVERLAYS;
@@ -289,11 +289,11 @@ public class VROverlaySettings extends VROverlayScreen
 
     @Override
     protected void onUpdatePose(float partialTicks) {
-        VROverlayHelper.applyRoomPose(
+        VROverlayHelper.applyRelativePose(
                 this,
                 getPose().getScale(),
-                roomPosition,
-                roomRotation
+                relativePosition,
+                relativeRotation
         );
     }
 
@@ -318,9 +318,9 @@ public class VROverlaySettings extends VROverlayScreen
                 posOffset,
                 rotationOffset
         );
-        roomPosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
                 .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-        roomRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
                 .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
@@ -363,9 +363,9 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
         if(getForcedAnchor() != null && forcedAnchor == null){
-            roomPosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
                     .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-            roomRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
                     .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
         }
         super.setForcedAnchor(forcedAnchor);

@@ -4,24 +4,28 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.player.VRRemotePlayer;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
+import me.phoenixra.visor.api.common.player.PoseHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.player.pose.RemotePlayerPose;
-import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
+import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 public class VRRemotePlayerImpl implements VRRemotePlayer {
-    private final RemotePlayerPose roomPose;
+    private final RemotePlayerPose playerRelativePose;
 
     private final RemotePlayerPose prevPose;
     private final RemotePlayerPose pose;
     private final RemotePlayerPose renderPose;
 
-
+    @Getter
+    private final PoseHistoryImpl poseHistoryRelative;
+    @Getter
+    private final PoseHistoryImpl poseHistoryTick;
 
     @Getter
     private RemotePlayer mcPlayer;
@@ -32,7 +36,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     private float worldScaleReceived;
 
     @Getter
-    private float height;
+    private float fullHeight;
     @Getter
     private boolean leftHanded;
 
@@ -40,29 +44,39 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer,
                               float worldScale,
-                              float height) {
+                              float fullHeight) {
         this.poseBufferReceived = poseBuffer;
         this.worldScaleReceived = worldScale;
-        this.height = height;
+        this.fullHeight = fullHeight;
         this.leftHanded = poseBuffer.leftHanded();
-        this.roomPose = new RemotePlayerPose(mcPlayer, PlayerPoseType.ROOM, poseBuffer, VRMathUtils.ZERO_VECTOR,  worldScale);
 
-        this.prevPose = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK, poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
-        this.pose = new RemotePlayerPose(mcPlayer, PlayerPoseType.TICK, poseBuffer, VRMathUtils.ZERO_VECTOR,  worldScale);
-        this.renderPose  = new RemotePlayerPose(mcPlayer, PlayerPoseType.RENDER, poseBuffer,VRMathUtils.ZERO_VECTOR,worldScale);
+        this.playerRelativePose = new RemotePlayerPose(mcPlayer, PlayerPoseType.RELATIVE);
+        this.playerRelativePose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+
+        this.prevPose = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK);
+        this.prevPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+
+        this.pose = new RemotePlayerPose(mcPlayer, PlayerPoseType.TICK);
+        this.pose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+
+        this.renderPose  = new RemotePlayerPose(mcPlayer, PlayerPoseType.RENDER);
+        this.renderPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+
+        this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
+        this.poseHistoryTick = new PoseHistoryImpl(pose);
     }
 
 
     public void receivedPacked(RemotePlayer mcPlayer,
                                PoseDataBuffer poseBuffer,
                                float worldScale,
-                               float height){
+                               float fullHeight){
         this.mcPlayer = mcPlayer;
         this.poseBufferReceived = poseBuffer;
         this.worldScaleReceived = worldScale;
-        this.height = height;
+        this.fullHeight = fullHeight;
         this.leftHanded = poseBuffer.leftHanded();
-        this.roomPose.setMcPlayer(mcPlayer);
+        this.playerRelativePose.setMcPlayer(mcPlayer);
         this.prevPose.setMcPlayer(mcPlayer);
         this.pose.setMcPlayer(mcPlayer);
         this.renderPose.setMcPlayer(mcPlayer);
@@ -83,12 +97,19 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 worldScaleReceived
         );
 
-        this.roomPose.update(
+        this.playerRelativePose.update(
                 poseBufferReceived,
                 VRMathUtils.ZERO_VECTOR,
                 1.0f
         );
 
+        var historyEntry = new RemotePlayerPose(mcPlayer, PlayerPoseType.RELATIVE);
+        historyEntry.copyFrom(playerRelativePose);
+        poseHistoryRelative.addEntry(historyEntry);
+
+        historyEntry = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK);
+        historyEntry.copyFrom(prevPose);
+        poseHistoryTick.addEntry(historyEntry);
     }
 
 
@@ -191,27 +212,6 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
 
 
-    public void recenterOrigin(@NotNull Entity cameraEntity,
-                               boolean reset) {
-
-
-        var headPivot = this.prevPose.getHeadPivot();
-
-        var headOffset = headPivot.sub(
-                this.prevPose.getOrigin(),
-                new Vector3f()
-        );
-        float x = (float) (cameraEntity.getX() - headOffset.x);
-        float z = (float) (cameraEntity.getZ() - headOffset.z);
-        float y = (float) (cameraEntity.getY());
-        if (cameraEntity instanceof LocalPlayerModified p) {
-            y += (float) p.visor$getRoomYOffset();
-        }
-        this.setOrigin(x, y, z, reset);
-    }
-
-
-
     public void setOrigin(float x, float y, float z,
                           boolean reset) {
         var newOrigin = new Vector3f(x, y, z);
@@ -233,7 +233,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
             case PREV_TICK -> prevPose;
             case TICK -> pose;
             case RENDER -> renderPose;
-            default -> roomPose;
+            default -> playerRelativePose;
         };
     }
 
@@ -245,7 +245,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 pose: %s
                 render pose: %s"""
         ).formatted(
-                this.roomPose,
+                this.playerRelativePose,
                 this.prevPose,
                 this.pose,
                 this.renderPose

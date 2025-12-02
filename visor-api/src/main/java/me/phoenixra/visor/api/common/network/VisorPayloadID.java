@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.common.network;
 public enum VisorPayloadID {
     HANDSHAKE,
     SETTINGS,
-    HEIGHT,
+    FULL_HEIGHT,
     VR_ACTIVE,
     POSE_DATA,
     WORLD_SCALE,

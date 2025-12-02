@@ -290,6 +290,7 @@ public abstract class ServerPlayerMixin
     private VRServerPlayer visor$getVrPlayer() {
         return VisorAPI.server().getVrPlayer((ServerPlayer) (Object) this);
     }
+
     @Unique
     private ServerPlayer visor$getPlayer() {
         return (ServerPlayer) (Object) this;

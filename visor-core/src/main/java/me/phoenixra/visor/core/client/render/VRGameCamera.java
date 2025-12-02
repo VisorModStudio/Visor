@@ -58,7 +58,7 @@ public class VRGameCamera extends Camera {
         VRCameraType cameraType = VRRenderState.getCameraType();
         PoseElement cameraElement = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER)
-                .getCameraElement(cameraType);
+                .getCameraPose(cameraType);
 
         // Position
         this.setPosition(new Vec3(

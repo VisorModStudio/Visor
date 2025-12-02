@@ -8,10 +8,10 @@ import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.core.client.player.pose.raw.RawController;
-import me.phoenixra.visor.core.client.player.pose.raw.RawHmd;
+import me.phoenixra.visor.core.client.player.pose.raw.RawControllerImpl;
+import me.phoenixra.visor.core.client.player.pose.raw.RawHmdImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.common.data.PoseElementImpl;
+import me.phoenixra.visor.core.common.player.PoseElementImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -53,11 +53,7 @@ public class LocalPlayerPose implements PlayerPoseClient {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public LocalPlayerPose(PlayerPoseType type,
-                           Vector3fc origin,
-                           float walkMul,
-                           float worldScale,
-                           float rotationY) {
+    public LocalPlayerPose(PlayerPoseType type) {
         this.type = type;
 
         this.hmd = new PoseElementImpl();
@@ -80,7 +76,7 @@ public class LocalPlayerPose implements PlayerPoseClient {
                 thirdPersonCamera
         );
 
-        update(origin, walkMul, worldScale, rotationY);
+        update(VRMathUtils.ZERO_VECTOR, 1.0f, 1.0f, 0f);
 
     }
 
@@ -89,12 +85,12 @@ public class LocalPlayerPose implements PlayerPoseClient {
                        float worldScale,
                        float rotationY){
 
-        RawController dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
-        RawController dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
+        RawControllerImpl dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
+        RawControllerImpl dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
         this.origin = origin;
         this.worldScale = worldScale;
         this.rotationY = rotationY;
-        RawHmd hmdData = ClientContext.rawPoseHandler.getHmdData();
+        RawHmdImpl hmdData = ClientContext.rawPoseHandler.getHmdData();
         Vector3f headsetPos = hmdData.getHeadsetPosition();
         Vector3f headsetPosFinal = new Vector3f(
                 headsetPos.x *  walkMul,
@@ -234,21 +230,21 @@ public class LocalPlayerPose implements PlayerPoseClient {
         this.bodyYaw = calcBodyYaw();
     }
 
-    public void copyFrom(LocalPlayerPose playerPose){
-        this.origin = new Vector3f(playerPose.origin);
-        this.rotationY = playerPose.rotationY;
-        this.bodyYaw = playerPose.bodyYaw;
-        this.worldScale = playerPose.worldScale;
-        this.headPivot = new Vector3f(playerPose.headPivot);
+    public void copyFrom(LocalPlayerPose other){
+        this.origin = new Vector3f(other.origin);
+        this.rotationY = other.rotationY;
+        this.bodyYaw = other.bodyYaw;
+        this.worldScale = other.worldScale;
+        this.headPivot = new Vector3f(other.headPivot);
 
-        hmd.copyFrom(playerPose.hmd);
-        eyeLeft.copyFrom(playerPose.eyeLeft);
-        eyeRight.copyFrom(playerPose.eyeRight);
-        mainHand.copyFrom(playerPose.mainHand);
-        offhand.copyFrom(playerPose.offhand);
-        gripMainHand.copyFrom(playerPose.gripMainHand);
-        gripOffhand.copyFrom(playerPose.gripOffhand);
-        thirdPersonCamera.copyFrom(playerPose.thirdPersonCamera);
+        hmd.copyFrom(other.hmd);
+        eyeLeft.copyFrom(other.eyeLeft);
+        eyeRight.copyFrom(other.eyeRight);
+        mainHand.copyFrom(other.mainHand);
+        offhand.copyFrom(other.offhand);
+        gripMainHand.copyFrom(other.gripMainHand);
+        gripOffhand.copyFrom(other.gripOffhand);
+        thirdPersonCamera.copyFrom(other.thirdPersonCamera);
     }
 
     public Vector3f createNewHeadPivot(Vector3fc newOrigin, float newWorldScale) {
@@ -325,10 +321,12 @@ public class LocalPlayerPose implements PlayerPoseClient {
         originToMutate.set(rx, originToMutate.y(), rz);
     }
 
-
+    public PoseElement getActiveHand() {
+        return getPoseElement(ClientContext.localPlayer.getActiveHand().asBodyPart());
+    }
 
     @Override
-    public @NotNull PoseElement getCameraElement(@Nullable VRCameraType cameraType) {
+    public @NotNull PoseElement getCameraPose(@Nullable VRCameraType cameraType) {
         if(cameraType == null){
             return hmd;
         }
@@ -351,7 +349,7 @@ public class LocalPlayerPose implements PlayerPoseClient {
                     position.z()
             );
         }
-        if (originType == PlayerPoseType.ROOM) {
+        if (originType == PlayerPoseType.RELATIVE) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
@@ -365,7 +363,7 @@ public class LocalPlayerPose implements PlayerPoseClient {
                 .mul(1.0f / originPose.worldScale)
                 .rotateY(-originPose.rotationY);
 
-        if(type == PlayerPoseType.ROOM){
+        if(type == PlayerPoseType.RELATIVE){
             return roomPose;
         }
 
@@ -384,14 +382,14 @@ public class LocalPlayerPose implements PlayerPoseClient {
 
 
 
-        if (originType == PlayerPoseType.ROOM) {
+        if (originType == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
         LocalPlayerPose originPose = ClientContext.localPlayer.getPoseData(originType);
 
-        if (this.type == PlayerPoseType.ROOM) {
+        if (this.type == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);
         }
 
