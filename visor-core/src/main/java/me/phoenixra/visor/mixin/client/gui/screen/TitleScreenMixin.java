@@ -1,5 +1,6 @@
 package me.phoenixra.visor.mixin.client.gui.screen;
 
+import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -23,12 +24,29 @@ public abstract class TitleScreenMixin extends Screen {
     @Unique
     private Button visor$vrModeButton;
     @Unique
-    private Button visor$updateButton;
+    private VRPlayMode visor$playModeLast;
 
     protected TitleScreenMixin(Component component) {
         super(component);
     }
 
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void visor$onTick(CallbackInfo ci){
+        var currentPlayMode = VRClientSettings.getVrPlayMode();
+        if(visor$playModeLast != currentPlayMode){
+            Component text =  Component.translatable(
+                    "visor.options.common.vr_play_mode",
+                    Component.translatable(
+                            "visor.options.enums.VRPlayMode."+
+                                    currentPlayMode.name()
+                    )
+            );
+            visor$vrModeButton.setMessage(
+                    text
+            );
+            visor$playModeLast = currentPlayMode;
+        }
+    }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", shift = At.Shift.AFTER, ordinal = 1), method = "createNormalMenuOptions")
     public void visor$initFullGame(CallbackInfo ci) {
@@ -38,36 +56,6 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(at = @At("TAIL"), method = "createDemoMenuOptions")
     public void visor$initDemo(CallbackInfo ci) {
         visor$addVRModeButton();
-    }
-
-    @Unique
-    private void visor$addVRModeButton() {
-
-        Component text =  Component.translatable(
-                "visor.options.common.vr_play_mode",
-                Component.translatable(
-                        "visor.options.enums.VRPlayMode."+
-                                VRClientSettings.getVrPlayMode().name()
-                )
-        );
-        visor$vrModeButton = new Button.Builder(
-                text,
-                (button) -> {
-                    var playMode = VRClientSettings.getVrPlayMode();
-                    VRClientSettings.setVrPlayMode(
-                            playMode.next()
-                    );
-                    ClientContext.settingsHandler.saveOptions();
-                    button.setMessage(
-                            text
-                    );
-                })
-                .size(76, 20)
-                .pos(this.width / 2 + 104, this.height / 4 + 72)
-                .build();
-        visor$vrModeButton.visible = true;
-
-        this.addRenderableWidget(visor$vrModeButton);
     }
 
     @Inject(at = @At("TAIL"), method = "render")
@@ -101,4 +89,40 @@ public abstract class TitleScreenMixin extends Screen {
                 ? 0.0F
                 : alpha;
     }
+
+    @Unique
+    private void visor$addVRModeButton() {
+
+        Component text =  Component.translatable(
+                "visor.options.common.vr_play_mode",
+                Component.translatable(
+                        "visor.options.enums.VRPlayMode."+
+                                VRClientSettings.getVrPlayMode().name()
+                )
+        );
+        visor$vrModeButton = new Button.Builder(
+                text,
+                (button) -> {
+                    var playMode = VRClientSettings.getVrPlayMode();
+                    VRClientSettings.setVrPlayMode(
+                            playMode.next()
+                    );
+                    ClientContext.settingsHandler.saveOptions();
+                    button.setMessage(
+                            text
+                    );
+                    visor$playModeLast = VRClientSettings.getVrPlayMode();
+                })
+                .size(76, 20)
+                .pos(this.width / 2 + 104, this.height / 4 + 72)
+                .build();
+        visor$vrModeButton.visible = true;
+
+        visor$playModeLast = VRClientSettings.getVrPlayMode();
+
+        this.addRenderableWidget(visor$vrModeButton);
+    }
+
+
+
 }
