@@ -28,6 +28,8 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin {
 
     @Shadow public abstract void remove(Entity.RemovalReason reason);
 
+    @Shadow protected abstract float getBlockSpeedFactor();
+
     @WrapMethod(method = "sweepAttack")
     protected void visor$wrapSweepAttack(Operation<Void> original) {
         original.call();

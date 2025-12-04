@@ -8,9 +8,11 @@ import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherActivePayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.HandshakePayloadToServer;
+import me.phoenixra.visor.api.common.network.toserver.TeleportMovePayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.UnknownPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
+import me.phoenixra.visor.api.server.SupportedMovement;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.server.ServerConfig;
 import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
@@ -88,6 +90,18 @@ public class ServerPacketHandler {
             case ROTATION_Y -> {
                 var payload = (RotationYPayloadToServer) payloadToServer;
                 vrPlayer.updateRotationY(payload.rotationY());
+            }
+            case TELEPORT -> {
+                if(VRServerSettings.getSupportedMovement() == SupportedMovement.CONTROLLER){
+                    return;
+                }
+                var payload = (TeleportMovePayloadToServer) payloadToServer;
+                ServerPlayer player = vrPlayer.getMcPlayer();
+                player.absMoveTo(
+                        payload.x(), payload.y(), payload.z(),
+                        player.getYRot(),
+                        player.getXRot()
+                );
             }
         }
     }

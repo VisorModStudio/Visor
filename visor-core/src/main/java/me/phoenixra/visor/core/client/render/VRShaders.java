@@ -6,6 +6,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.core.client.render.shaders.VRShaderEndPortal;
 import me.phoenixra.visor.core.client.render.shaders.VRShaderMixedReality;
 import me.phoenixra.visor.core.client.render.shaders.VRShaderPostProcessEye;
+import me.phoenixra.visor.core.client.render.shaders.VRShaderTeleportPoint;
 
 
 public class VRShaders {
@@ -15,6 +16,9 @@ public class VRShaders {
 
     @Getter
     private static VRShaderMixedReality mixedReality;
+
+    @Getter
+    private static VRShaderTeleportPoint teleportPoint;
 
     @Getter
     private static VRShaderEndPortal endPortal;
@@ -32,6 +36,10 @@ public class VRShaders {
         mixedReality = new VRShaderMixedReality();
         mixedReality.init();
         GLUtils.checkGLError("init MixedReality shader");
+
+        teleportPoint = new VRShaderTeleportPoint();
+        teleportPoint.init();
+        GLUtils.checkGLError("init TeleportPoint shader");
 
         endPortal = new VRShaderEndPortal();
         endPortal.init();

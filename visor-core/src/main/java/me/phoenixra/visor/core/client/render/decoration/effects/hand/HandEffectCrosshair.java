@@ -147,11 +147,11 @@ public class HandEffectCrosshair extends VRHandEffect {
         if (MC.hitResult instanceof BlockHitResult bhr) {
             switch (bhr.getDirection()) {
                 case DOWN -> {
-                    rotateInDegrees(poseStack, pose.getHand(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack, pose.getHand(hand).getYawDegrees(), 0, 1, 0);
                     rotateInDegrees(poseStack, -90, 1, 0, 0);
                 }
                 case UP -> {
-                    rotateInDegrees(poseStack, -pose.getHand(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack, -pose.getHand(hand).getYawDegrees(), 0, 1, 0);
                     rotateInDegrees(poseStack,  90, 1, 0, 0);
                 }
                 case WEST -> rotateInDegrees(poseStack,  90, 0, 1, 0);
@@ -160,8 +160,8 @@ public class HandEffectCrosshair extends VRHandEffect {
                 default -> {}
             }
         } else {
-            rotateInDegrees(poseStack, -pose.getHand(hand).getYaw(),   0, 1, 0);
-            rotateInDegrees(poseStack, -pose.getHand(hand).getPitch(), 1, 0, 0);
+            rotateInDegrees(poseStack, -pose.getHand(hand).getYawDegrees(),   0, 1, 0);
+            rotateInDegrees(poseStack, -pose.getHand(hand).getPitchDegrees(), 1, 0, 0);
         }
     }
 

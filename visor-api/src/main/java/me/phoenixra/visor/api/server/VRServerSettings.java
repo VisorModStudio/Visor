@@ -21,4 +21,14 @@ public class VRServerSettings {
     @Getter @Setter
     private static double creeperSwellDistance = 1.75;
 
+    @Getter @Setter
+    private static SupportedMovement supportedMovement = SupportedMovement.BOTH;
+
+
+    @Getter @Setter
+    protected static int teleportUpLimit = 1;
+    @Getter @Setter
+    protected static int teleportDownLimit = 4;
+    @Getter @Setter
+    protected static int teleportForwardLimit = 16;
 }

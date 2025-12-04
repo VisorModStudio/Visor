@@ -132,6 +132,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void postTick() {
+        this.pose.update(
+                pose.getOrigin(),
+                pose.getWorldScale(),
+                rotationYRaw
+        );
 
         this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
 
@@ -316,13 +321,13 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         if (player.isBlocking()) {
             //block direction
             if (ClientContext.localPlayer.getActiveHand() == HandType.MAIN) {
-                player.setYRot(data.getHand(HandType.MAIN).getYaw());
+                player.setYRot(data.getHand(HandType.MAIN).getYawDegrees());
                 player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getHand(HandType.MAIN).getPitch());
+                player.setXRot(-data.getHand(HandType.MAIN).getPitchDegrees());
             } else {
-                player.setYRot(data.getHand(HandType.OFFHAND).getYaw());
+                player.setYRot(data.getHand(HandType.OFFHAND).getYawDegrees());
                 player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getHand(HandType.OFFHAND).getPitch());
+                player.setXRot(-data.getHand(HandType.OFFHAND).getPitchDegrees());
             }
             return;
         }
@@ -334,9 +339,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 && player.zza > 0.0F) {
 
             PoseElement rotationElement = getRotationElement(data.getType());
-            player.setYRot(rotationElement.getYaw());
+            player.setYRot(rotationElement.getYawDegrees());
             player.setYHeadRot(player.getYRot());
-            player.setXRot(-rotationElement.getPitch());
+            player.setXRot(-rotationElement.getPitchDegrees());
             return;
         }
 
@@ -365,7 +370,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         //use HMD if no other option found
         player.setYRot(data.getHmd().getRotationYCache());
         player.setYHeadRot(player.getYRot());
-        player.setXRot(-data.getHmd().getPitch());
+        player.setXRot(-data.getHmd().getPitchDegrees());
     }
 
     public void recenterOrigin(@NotNull Entity cameraEntity,
@@ -405,23 +410,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void setRotationY(float newValue) {
-        if(!isTicking){
-            rotationYRaw = newValue % ((float) Math.PI * 2);
-            return;
-        }
-        this.pose.update(
-                pose.getOrigin(),
-                pose.getWorldScale(),
-                newValue % ((float) Math.PI * 2)
-        );
+        rotationYRaw = newValue % ((float) Math.PI * 2);
     }
 
     public float getRotationY(){
-        if(isTicking){
-            return pose.getRotationY();
-        }else{
-            return rotationYRaw;
-        }
+        return rotationYRaw;
     }
 
 

@@ -103,8 +103,7 @@ public class TaskRoomSwim extends VisorTask {
         if (MC.gameMode == null) return false;
         if (p == null || !p.isAlive()) return false;
         if (!p.isInWater() && !p.isInLava()) return false;
-        if (p.zza > 0.0F) return false;
-        if (p.xxa > 0.0F) return false;
+        if (p.zza > 0.0F || p.xxa > 0.0F) return false;
         return true;
     }
 

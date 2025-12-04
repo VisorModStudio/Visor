@@ -29,16 +29,19 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
 public class TaskRoomVehicle extends VisorTask {
+
     private static final String ID = "room_vehicle";
 
     @Getter
     private static TaskRoomVehicle instance;
 
-    // Position in room coordinates before mounting.
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
-    public float vehicleRotation = 0.0F;
+
+
+    public float vehicleRotationDeg = 0.0F;
+
     public int rotationCooldown = 0;
-    private int minecartTimer;
+    private int minecartTimer = 0;
     public int dismountDelay = 0;
 
     public TaskRoomVehicle(@NotNull VisorAddon owner) {
@@ -48,171 +51,153 @@ public class TaskRoomVehicle extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
+        if (player == null) return;
 
-        if (canAutoDismount(player)) {
-            Vector3fc mountPos = player.getVehicle().position().toVector3f();
-            Vector3fc headPivot = ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.TICK).getHeadPivot();
-            double distance = Math.sqrt(
-                    (headPivot.x() - mountPos.x())
-                            * (headPivot.x() - mountPos.x())
-                            + (headPivot.z() - mountPos.z())
-                            * (headPivot.z() - mountPos.z())
-            );
-
-            if (distance > 0.7
-                    && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
-                TaskRoomSneak.getInstance().setSneakTimer(5);
-            }
-
-        }
-
-        // Decrement dismount and rotation cooldown timers
-        if (this.dismountDelay > 0) {
-            --this.dismountDelay;
-        }
-        if (this.rotationCooldown > 0) {
-            --this.rotationCooldown;
-        }
+        handleAutoDismount(player);
+        tickTimers();
 
         final LocalPlayer mcPlayer = MC.player;
-        // If player is not a passenger or if rotation is cooling down,
-        // reset the minecart timer and update vehicleRotation from the current vehicle.
-        if (!mcPlayer.isPassenger() || this.rotationCooldown != 0) {
+        if (mcPlayer == null) return;
+
+        if (!mcPlayer.isPassenger() || this.rotationCooldown > 0) {
             this.minecartTimer = 3;
             if (mcPlayer.isPassenger()) {
-                this.vehicleRotation = mcPlayer.getVehicle().getYRot();
+                this.vehicleRotationDeg = mcPlayer.getVehicle().getYRot();
             }
             return;
         }
 
         final Entity vehicle = mcPlayer.getVehicle();
-        // Only process further if the vehicle is a Minecart.
-        if (!(vehicle instanceof Minecart)) {
+        if (!(vehicle instanceof Minecart minecart)) {
             return;
         }
-        final Minecart minecart = (Minecart) vehicle;
 
-        // Update minecart timer based on whether the minecart is actively turning.
-        if (shouldMinecartTurnView(minecart)) {
-            if (this.minecartTimer > 0) {
-                --this.minecartTimer;
-            }
-        } else {
-            this.minecartTimer = 3;
-        }
-
-        // Compute target rotation based on minecart movement.
-        final double rotationTarget = getMinecartRenderYaw(minecart);
-        if (this.minecartTimer > 0) {
-            this.vehicleRotation = (float) rotationTarget;
-        }
-
-        // Compute horizontal speed (ignoring Y axis)
-        final Vec3 deltaMovement = vehicle.getDeltaMovement();
-        final double horizontalSpeed = new Vec3(deltaMovement.x, 0.0, deltaMovement.z).length();
-
-        // Calculate a "smoothed" value proportional to the square of the speed, clamped to a minimum.
-        float smoothed = 200.0F * (float) (horizontalSpeed * horizontalSpeed);
-        smoothed = Math.max(smoothed, 10.0F);
-
-        VRLocalPlayerImpl vrClientPlayer = ClientContext.localPlayer;
-        // Determine how much to rotate by comparing the target and current rotation.
-        float rotateTo = rotationDelta((float) rotationTarget, this.vehicleRotation);
-        // Clamp the rotation adjustment within [-smoothed, smoothed]
-        smoothed = (float) Math.toRadians(smoothed);
-        rotateTo = Math.min(smoothed, Math.max(rotateTo, -smoothed));
-
-        // Apply the rotation adjustment
-        vrClientPlayer.setRotationY(
-                vrClientPlayer.getPoseData(PlayerPoseType.TICK).getRotationY() + rotateTo
-        );
-        // Update vehicle rotation and keep it within 0-360 degrees.
-        this.vehicleRotation = (this.vehicleRotation - rotateTo) % 360.0F;
+        updateMinecartTimer(minecart);
+        updateVehicleRotationForMinecart(minecart);
+        applyVehicleRotationToVRPlayer(minecart);
     }
 
     @Override
     protected void onClear(LocalPlayer player) {
-        this.minecartTimer = 2;
-
+        this.minecartTimer = 3;
     }
 
     @Override
-    public boolean isActive(LocalPlayer p) {
-
-        if (MC.isPaused()) {
-            return false;
-        }
-        if (p == null || MC.gameMode == null) {
-            return false;
-        }
-        return p.isAlive();
+    public boolean isActive(LocalPlayer player) {
+        if (MC.isPaused()) return false;
+        if (player == null || MC.gameMode == null) return false;
+        return player.isAlive();
     }
 
-    /**
-     * Called when the player starts riding a vehicle.
-     *
-     * @param vehicle the vehicle being ridden.
-     */
     public void onStartRiding(Entity vehicle) {
         VRLocalPlayerImpl localPlayer = ClientContext.localPlayer;
-        LocalPlayerPose preTickPose = localPlayer
-                .getPoseData(PlayerPoseType.TICK);
+        LocalPlayerPose tickPose = localPlayer.getPoseData(PlayerPoseType.TICK);
 
         final Vector3fc headPivot = localPlayer
                 .getPoseData(PlayerPoseType.RELATIVE)
                 .getHeadPivot();
-        // Record the player's room position (ignoring vertical component)
-        this.premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
-        this.dismountDelay = 5;
+        premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
 
-        final float hmdYaw = preTickPose.getHmd().getRotationYCache();
-        final float vehicleYRotation = vehicle.getYRot() % 360.0F;
-        this.vehicleRotation = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
-        this.rotationCooldown = 2;
+        dismountDelay = 5;
 
-        // For Minecarts, no additional rotation adjustment is needed.
+        final float hmdYawDeg = tickPose.getHmd().getYawDegrees();
+        final float vehicleYawDeg = vehicle.getYRot() % 360.0F;
+
+        vehicleRotationDeg = (float) Math.toDegrees(localPlayer.getRotationY());
+        rotationCooldown = 2;
+
         if (vehicle instanceof Minecart) {
             return;
         }
 
-        // Adjust rotation offset for other vehicles based on the difference between vehicle rotation and HMD yaw.
-        final float rotationDelta = rotationDelta(vehicleYRotation, hmdYaw);
+        final float deltaDeg = rotationDeltaDeg(vehicleYawDeg, hmdYawDeg);
         localPlayer.setRotationY(
-                preTickPose.getRotationY() + rotationDelta
+                localPlayer.getRotationY() - (float) Math.toRadians(deltaDeg)
         );
     }
 
-    /**
-     * Called when the player stops riding.
-     */
     public void onStopRiding() {
         TaskRoomSneak.getInstance().setSneakTimer(0);
     }
 
-    /**
-     * Computes the target render yaw for a Minecart.
-     *
-     * @param minecart the minecart entity.
-     * @return the computed yaw.
-     */
-    private float getMinecartRenderYaw(Minecart minecart) {
+    private void handleAutoDismount(LocalPlayer player) {
+        if (!canAutoDismount(player)) return;
+
+        Vector3fc mountPos = player.getVehicle().position().toVector3f();
+        Vector3fc headPivot = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK)
+                .getHeadPivot();
+
+        double dx = headPivot.x() - mountPos.x();
+        double dz = headPivot.z() - mountPos.z();
+        double distance = Math.sqrt(dx * dx + dz * dz);
+
+        if (distance > 1.0 && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
+            TaskRoomSneak.getInstance().setSneakTimer(5);
+        }
+    }
+
+    private void tickTimers() {
+        if (dismountDelay > 0) {
+            --dismountDelay;
+        }
+        if (rotationCooldown > 0) {
+            --rotationCooldown;
+        }
+    }
+
+    private void updateMinecartTimer(Minecart minecart) {
+        if (shouldMinecartTurnView(minecart)) {
+            if (minecartTimer > 0) {
+                --minecartTimer;
+            }
+        } else {
+            minecartTimer = 3;
+        }
+    }
+
+    private void updateVehicleRotationForMinecart(Minecart minecart) {
+        final float rotationTargetDeg = getMinecartRenderYawDeg(minecart);
+        if (minecartTimer > 0) {
+            vehicleRotationDeg = rotationTargetDeg;
+        }
+    }
+
+    private void applyVehicleRotationToVRPlayer(Minecart minecart) {
+        final Entity vehicle = minecart;
+
+        final float rotationTargetDeg = getMinecartRenderYawDeg(minecart);
+        float deltaDeg = rotationDeltaDeg(rotationTargetDeg, vehicleRotationDeg);
+
+        final Vec3 deltaMovement = vehicle.getDeltaMovement();
+        final double horizontalSpeed = new Vec3(deltaMovement.x, 0.0, deltaMovement.z).length();
+
+        float maxStepDeg = 200.0F * (float) (horizontalSpeed * horizontalSpeed);
+        maxStepDeg = Math.max(maxStepDeg, 10.0F);
+
+        deltaDeg = Mth.clamp(deltaDeg, -maxStepDeg, maxStepDeg);
+
+        VRLocalPlayerImpl localPlayer = ClientContext.localPlayer;
+        float deltaRad = (float) Math.toRadians(deltaDeg);
+
+        localPlayer.setRotationY(localPlayer.getRotationY() - deltaRad);
+
+        vehicleRotationDeg = (vehicleRotationDeg + deltaDeg) % 360.0F;
+        if (vehicleRotationDeg < 0.0F) {
+            vehicleRotationDeg += 360.0F;
+        }
+    }
+
+    private float getMinecartRenderYawDeg(Minecart minecart) {
         final Vec3 delta = new Vec3(
                 minecart.getX() - minecart.xOld,
                 minecart.getY() - minecart.yOld,
                 minecart.getZ() - minecart.zOld
         );
-        final float yaw = (float) Math.toDegrees(Mth.atan2(-delta.x, delta.z));
-        // If the minecart is turning, adjust the yaw; otherwise, use the stored rotation.
-        return shouldMinecartTurnView(minecart) ? -180.0F + yaw : this.vehicleRotation;
+        final float yawDeg = (float) Math.toDegrees(Mth.atan2(-delta.x, delta.z));
+        return shouldMinecartTurnView(minecart) ? -180.0F + yawDeg : vehicleRotationDeg;
     }
 
-    /**
-     * Determines if the minecart is turning by checking if its movement delta is significant.
-     *
-     * @param minecart the minecart entity.
-     * @return true if the minecart is actively turning.
-     */
     private boolean shouldMinecartTurnView(Minecart minecart) {
         final Vec3 delta = new Vec3(
                 minecart.getX() - minecart.xOld,
@@ -222,26 +207,24 @@ public class TaskRoomVehicle extends VisorTask {
         return delta.length() > 0.001D;
     }
 
-    /**
-     * Determines if auto-dismount conditions are met.
-     *
-     * @param player the local player.
-     * @return true if auto-dismount is allowed.
-     */
-    public boolean canAutoDismount(LocalPlayer player) {
-        return player.zza == 0.0F
-                && player.xxa == 0.0F
-                && player.isPassenger()
-                && this.dismountDelay == 0;
+    private float rotationDeltaDeg(float targetDeg, float currentDeg) {
+        float delta = (targetDeg - currentDeg) % 360.0F;
+        if (delta > 180.0F) delta -= 360.0F;
+        if (delta < -180.0F) delta += 360.0F;
+        return delta;
     }
 
-    /**
-     * Computes the vehicle look direction for certain types of vehicles.
-     *
-     * @param player the local player.
-     * @return the direction vector, or null if not applicable.
-     */
+    public boolean canAutoDismount(LocalPlayer player) {
+        return player != null
+                && player.zza == 0.0F
+                && player.xxa == 0.0F
+                && player.isPassenger()
+                && dismountDelay == 0;
+    }
+
     public static Vector3fc getVehicleLookDirection(LocalPlayer player) {
+        if (player == null) return null;
+
         final Entity entity = player.getVehicle();
         if (entity instanceof AbstractHorse || entity instanceof Boat) {
             if (player.zza <= 0) return null;
@@ -262,11 +245,6 @@ public class TaskRoomVehicle extends VisorTask {
         return null;
     }
 
-    private float rotationDelta(float start, float end) {
-        float radiansEnd = (float) Math.toRadians(end);
-        float radiansStart = (float) Math.toRadians(start);
-        return (float) Mth.atan2(Mth.sin(radiansEnd - radiansStart), Mth.cos(radiansEnd - radiansStart));
-    }
     @Override
     public @NotNull TaskType getType() {
         return TaskType.VR_PLAYER_TICK;

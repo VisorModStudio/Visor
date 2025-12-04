@@ -15,6 +15,7 @@ import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
+import me.phoenixra.visor.core.client.tasks.movement.TaskTeleport;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import me.phoenixra.visor.core.client.render.VRGameCamera;
@@ -360,6 +361,9 @@ public abstract class GameRendererMixin
             if (this.minecraft.hitResult != null && this.minecraft.hitResult.getType() != HitResult.Type.MISS) {
                 this.visor$crossVec = this.minecraft.hitResult.getLocation();
             }
+            if(MC.screen == null){
+                TaskTeleport.updateTeleportDestination(MC.player);
+            }
         }
 
         this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
@@ -501,6 +505,7 @@ public abstract class GameRendererMixin
             return;
         }
         VRCameraType currentCamera = VRRenderState.getCameraType();
+        var cameraPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera);
         // need to do stuff twice, because redirects have no access to locals
         int i = 40 - this.itemActivationTicks;
         float g = ((float) i + partialTicks) / 40.0f;
@@ -521,8 +526,8 @@ public abstract class GameRendererMixin
         }
         RenderPoseHelper.applyCameraPose(currentCamera, poseStack);
         poseStack.scale(sinN, sinN, sinN);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera).getYaw()));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera).getPitch()));
+        poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
+        poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
     }
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
@@ -583,9 +588,9 @@ public abstract class GameRendererMixin
             cameraEntity.xo = position.x();
             cameraEntity.yo = position.y();
             cameraEntity.zo = position.z();
-            cameraEntity.setXRot(-poseElement.getPitch());
+            cameraEntity.setXRot(-poseElement.getPitchDegrees());
             cameraEntity.xRotO = cameraEntity.getXRot();
-            cameraEntity.setYRot(poseElement.getYaw());
+            cameraEntity.setYRot(poseElement.getYawDegrees());
             cameraEntity.yHeadRot = cameraEntity.getYRot();
             cameraEntity.yHeadRotO = cameraEntity.getYRot();
             cameraEntity.eyeHeight = 0.0001F;

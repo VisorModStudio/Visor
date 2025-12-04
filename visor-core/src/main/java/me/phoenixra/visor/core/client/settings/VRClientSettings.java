@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.server.SupportedMovement;
+import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.settings.options.VROptionField;
 import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
 import me.phoenixra.visor.core.client.settings.options.enums.RotationMode;
 import me.phoenixra.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
 import me.phoenixra.visor.api.client.VRPlayMode;
@@ -15,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
@@ -46,8 +50,13 @@ public class VRClientSettings {
 
     //----Movement
 
+    @VROptionField(widgetType = VROptionWidgetType.MOVEMENT_MODE,
+            key = "mode")
+    protected static MovementMode movementMode = MovementMode.CONTROLLER;
+
     @Getter
-    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE, key = "rotation_mode")
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE,
+            key = "rotation_mode")
     protected static RotationMode rotationMode = RotationMode.HMD;
 
     @Getter
@@ -83,6 +92,7 @@ public class VRClientSettings {
 
     @Getter
     protected static float crawlThreshold = 0.82f;
+
 
 
     //----Rendering
@@ -256,6 +266,20 @@ public class VRClientSettings {
         );
     }
 
+    public static MovementMode getMoveMode(Player player) {
+        var out = movementMode;
+        var supported = VRServerSettings.getSupportedMovement();
+        if (supported != SupportedMovement.BOTH) {
+            out = supported == SupportedMovement.CONTROLLER
+                    ? MovementMode.CONTROLLER
+                    : MovementMode.TELEPORT;
+        }
+        if (player.isPassenger()) {
+            out = MovementMode.CONTROLLER;
+        }
+        return out;
+    }
+
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,
                                                @NotNull Quaternionfc rotation,
                                                boolean save){
@@ -304,6 +328,8 @@ public class VRClientSettings {
                 );
         ClientContext.settingsHandler.saveOptions();
     }
-
+    public static boolean isLimitedSurvivalTeleport() {
+        return true; //leave it, for later easier navigation in code to change movement
+    }
 
 }

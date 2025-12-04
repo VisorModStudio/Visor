@@ -121,21 +121,51 @@ public interface PoseElement {
 
 
     /**
+     * Get yaw in radians
      *
      * @return yaw of the element
      */
     float getYaw();
+
     /**
+     * Get yaw in degrees
+     *
+     * @return yaw of the element
+     */
+    default float getYawDegrees(){
+        return (float) Math.toDegrees(getYaw());
+    }
+
+    /**
+     * Get pitch in radians
      *
      * @return pitch of the element
      */
     float getPitch();
 
     /**
+     * Get pitch in degrees
+     *
+     * @return yaw of the element
+     */
+    default float getPitchDegrees(){
+        return (float) Math.toDegrees(getPitch());
+    }
+
+    /**
+     * Get roll in radians
      *
      * @return roll of the element
      */
     float getRoll();
 
+    /**
+     * Get roll in degrees
+     *
+     * @return yaw of the element
+     */
+    default float getRollDegrees(){
+        return (float) Math.toDegrees(getRoll());
+    }
 
 }

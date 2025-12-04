@@ -40,6 +40,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.mainHand = new PoseElementImpl();
         this.offhand = new PoseElementImpl();
 
+        origin = VRMathUtils.ZERO_VECTOR;
+        headPivot = VRMathUtils.ZERO_VECTOR;
 
         elements = List.of(
                 hmd,
@@ -95,6 +97,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     }
 
     public void copyFrom(PlayerPoseServerImpl other){
+
         this.origin = new Vector3f(other.origin);
         this.bodyYaw = other.bodyYaw;
         this.headPivot = new Vector3f(other.headPivot);

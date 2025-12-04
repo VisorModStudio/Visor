@@ -78,19 +78,9 @@ public class PoseElementImpl implements PoseElement {
         this.direction = direction.rotateY(rotationY, new Vector3f());
 
 
-        this.yaw = (float) Math.toDegrees(
-                Mth.atan2(-this.direction.x(), this.direction.z())
-        );
-        this.pitch = (float) Math.toDegrees(
-                Math.asin(this.direction.y() / this.direction.length())
-        );
-
-        //here rotationMatrix used instead of rotation, to calculate
-        //roll without rotationY affected
-        this.roll = (float) (
-                -Math.toDegrees(Mth.atan2(rotationMatrix.m10(),
-                        rotationMatrix.m11()))
-        );
+        this.yaw = (float) Mth.atan2(-this.direction.x(), this.direction.z());
+        this.pitch = (float) Math.asin(this.direction.y() / this.direction.length());
+        this.roll = (float) -Math.atan2(rotationMatrix.m01(), rotationMatrix.m11());
 
 
     }
@@ -130,24 +120,15 @@ public class PoseElementImpl implements PoseElement {
 
         this.direction = rawDirection.rotateY(newRotationY, new Vector3f());
 
-        this.yaw = (float) Math.toDegrees(
-                Mth.atan2(-this.direction.x(), this.direction.z())
-        );
+        this.yaw = (float) Mth.atan2(-this.direction.x(), this.direction.z());
 
         float len = this.direction.length();
         if (len > 1e-6f) {
-            this.pitch = (float) Math.toDegrees(
-                    Math.asin(this.direction.y() / len)
-            );
+            this.pitch = (float) Math.asin(this.direction.y() / len);
         } else {
             this.pitch = 0f;
         }
-        this.roll = (float) (
-                -Math.toDegrees(Mth.atan2(
-                        rawRotation.m10(),
-                        rawRotation.m11()
-                ))
-        );
+        this.roll = (float) -Mth.atan2(rawRotation.m10(), rawRotation.m11());
     }
 
     public void copyFrom(PoseElementImpl element) {

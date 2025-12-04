@@ -12,8 +12,8 @@
 
   "visor.options.movement": "Movement Settings",
   "visor.options.movement.button": "Movement...",
-  "visor.options.movement.movement_mode": "Movement Mode",
-  "visor.options.movement.movement_mode.tooltip": "The movement mode.\n\n  Controller: Vanilla-like. Move via Offhand joystick\n  Teleport: Use both joysticks to teleport to desired location. \nAttention! VR servers can decide what movement mode to support, if it is different from what you chosen, option will be ignored.\nTeleportation won't work on servers without Visor support",
+  "visor.options.movement.mode": "Movement Mode",
+  "visor.options.movement.mode.tooltip": "The movement mode.\n\n  Controller: Vanilla-like. Move via Offhand joystick\n  Teleport: Use both joysticks to teleport to desired location. \nAttention! VR servers can decide what movement mode to support, if it is different from what you chosen, option will be ignored.\nTeleportation won't work on servers without Visor support",
   "visor.options.movement.rotation_mode": "Rotation Mode",
   "visor.options.movement.rotation_mode.tooltip": "Rotation mode\n\nChoose which VR device should control your player’s rotation: the main hand (right controller if not leftHanded), offhand (left controller if not leftHanded), or your headset (HMD).",
   "visor.options.movement.room_movement_multiplier": "Room Movement Multiplier",

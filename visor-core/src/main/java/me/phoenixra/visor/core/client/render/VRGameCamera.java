@@ -69,8 +69,8 @@ public class VRGameCamera extends Camera {
         ));
 
         // Orientation
-        this.xRot = -cameraElement.getPitch();
-        this.yRot =  cameraElement.getYaw();
+        this.xRot = -cameraElement.getPitchDegrees();
+        this.yRot =  cameraElement.getYawDegrees();
 
         // Look, Up, Left vectors
         var dir = cameraElement.getDirection();

@@ -4,8 +4,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.api.common.network.toserver.TeleportMovePayloadToServer;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.network.ClientNetworking;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
 import me.phoenixra.visor.mixin.common.player.Common_PlayerMixin;
@@ -16,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -34,9 +37,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -61,6 +62,8 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Unique
     private boolean visor$walkUpBlocksActive = false;
 
+    @Unique
+    private boolean visor$teleported;
 
     @Shadow
     protected abstract void updateAutoJump(float f, float g);
@@ -252,14 +255,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
             move = move.xRot(
                     rotationElement.getPitch()
-                            * ((float) Math.PI / 180F)
             );
         }
         move = move.yRot(
-                rotationElement
-                        .getYaw()
-                        * ((float) Math.PI / 180F)
-                        * -1
+                rotationElement.getYaw() * -1
         );
 
 
@@ -308,6 +307,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;lastOnGround:Z", shift = At.Shift.AFTER, ordinal = 1), method = "sendPosition")
     public void visor$walkUp(CallbackInfo ci) {
+        this.visor$teleported = false;
         if (VisorState.getState().isNotActive()
                 || !VRClientSettings.isWalkUpEnabled()) {
             return;
@@ -336,7 +336,33 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     }
 
 
+    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isPassenger()Z"), ordinal = 2, method = "sendPosition")
+    private boolean visor$directTeleport(boolean updateRotation) {
+        if (this.visor$teleported) {
+            updateRotation = true;
+            ClientNetworking.sendVRPacket(
+                    new TeleportMovePayloadToServer(
+                            (float) this.getX(),
+                            (float) this.getY(),
+                            (float) this.getZ()
+                    )
+            );
+        }
+        return updateRotation;
+    }
 
+    /**
+     * Helps to avoid server spamming
+     * 'moved too quickly', 'moved wrongly'
+     * @param instance s
+     * @param packet s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"), method = "sendPosition", slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isPassenger()Z")))
+    public void visor$noPosPacketOnTeleport(ClientPacketListener instance, Packet<?> packet) {
+        if (!this.visor$teleported) {
+            instance.send(packet);
+        }
+    }
 
 
     /* ************** *\
@@ -442,6 +468,14 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         return out;
     }
 
+    @Override
+    @Unique
+    public float visor$getSpeedFactor() {
+        return this.visor$moveMulIn.lengthSqr() > 0.0D
+                ? (float) ((double) getBlockSpeedFactor()
+                * (this.visor$moveMulIn.x + this.visor$moveMulIn.z) / 2.0D)
+                : this.getBlockSpeedFactor();
+    }
 
     @Override
     @Unique
@@ -456,6 +490,12 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Unique
     public void visor$setUseItemRemaining(int count) {
         this.useItemRemaining = count;
+    }
+
+    @Override
+    @Unique
+    public void visor$setTeleported(boolean teleported) {
+        this.visor$teleported = teleported;
     }
 
 

@@ -9,7 +9,8 @@ public enum VisorPayloadID {
     WORLD_SCALE,
     ROTATION_Y,
     OTHER_VR_ACTIVE,
-    OTHER_VR_STATE
+    OTHER_VR_STATE,
+    TELEPORT
 
 
 }
