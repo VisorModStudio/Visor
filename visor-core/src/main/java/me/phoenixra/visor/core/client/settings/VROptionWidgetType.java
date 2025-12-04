@@ -137,6 +137,10 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             (it) -> null
     ),
+    ROTATION_FLY_MODE(
+            VROptionCategory.MOVEMENT,
+            (it) -> null
+    ),
     WALK_UP(
             VROptionCategory.MOVEMENT,
             (it) -> null

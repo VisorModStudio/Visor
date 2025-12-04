@@ -24,6 +24,8 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 public class VRClientSettings {
 
 
@@ -54,10 +56,13 @@ public class VRClientSettings {
             key = "mode")
     protected static MovementMode movementMode = MovementMode.CONTROLLER;
 
-    @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE,
             key = "rotation_mode")
     protected static RotationMode rotationMode = RotationMode.HMD;
+
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_FLY_MODE,
+            key = "rotation_fly_mode")
+    protected static RotationMode rotationFlyMode = RotationMode.OFFHAND;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
@@ -274,10 +279,21 @@ public class VRClientSettings {
                     ? MovementMode.CONTROLLER
                     : MovementMode.TELEPORT;
         }
-        if (player.isPassenger()) {
+        if (player.isPassenger()
+                || (!player.isPassenger()
+                && player.getAbilities().flying)) {
             out = MovementMode.CONTROLLER;
         }
         return out;
+    }
+
+    public static RotationMode getRotationMode() {
+        if(MC.player != null
+                && !MC.player.isPassenger()
+                && MC.player.getAbilities().flying){
+            return rotationFlyMode;
+        }
+        return rotationMode;
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,
