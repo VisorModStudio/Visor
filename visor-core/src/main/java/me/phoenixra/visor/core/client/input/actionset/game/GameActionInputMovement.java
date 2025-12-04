@@ -13,6 +13,7 @@ import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomClimb;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
         }
 
 
-        boolean climbing = false;
+        boolean climbing = ClientContext.localPlayer.isClimbing();
         boolean moving = ClientContext.localPlayer.isMoving();
         float forward = 0F;
         if (/*!KeyboardHandler.SHOWING
@@ -101,6 +102,8 @@ public class GameActionInputMovement extends VisorActionVec2 {
                     }
                 }
             }
+        }else {
+            moving = false;
         }
 
         if (!moving && this.wasMovement) {

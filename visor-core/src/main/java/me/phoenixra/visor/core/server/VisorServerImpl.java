@@ -85,7 +85,7 @@ public class VisorServerImpl implements VisorServer {
     public VRServerPlayerImpl getVrPlayer(@NotNull ServerPlayer player) {
         VRServerPlayerImpl out = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
         if(out != null && out.getMcPlayer() != player){
-            out.mcPlayer = player;
+            out.setMcPlayer(player);
         }
         return out;
     }
@@ -104,13 +104,13 @@ public class VisorServerImpl implements VisorServer {
     }
 
     public void putVrPlayer(VRServerPlayerImpl player) {
-        playersWithVR.put(player.mcPlayer.getUUID(), player);
+        playersWithVR.put(player.getMcPlayer().getUUID(), player);
     }
 
     public void updateVrPlayer(ServerPlayer player) {
         VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
         if (vrServerPlayer != null) {
-            vrServerPlayer.mcPlayer = player;
+            vrServerPlayer.setMcPlayer(player);
         }
     }
 

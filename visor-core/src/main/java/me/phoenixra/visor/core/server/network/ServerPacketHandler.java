@@ -67,7 +67,7 @@ public class ServerPacketHandler {
                 ServerNetworking.sendPacketToTrackedVRPlayers(
                         serverPlayer,
                         new VROtherActivePayloadToClient(
-                                vrPlayer.mcPlayer.getUUID(),
+                                vrPlayer.getMcPlayer().getUUID(),
                                 vrPlayer.isVRActive()
                         )
                 );
@@ -92,8 +92,17 @@ public class ServerPacketHandler {
                 vrPlayer.updateRotationY(payload.rotationY());
             }
             case CRAWLING -> {
+                if(!VRServerSettings.isCrawlingSupported()){
+                    return;
+                }
                 var payload = (CrawlingPayloadToServer) payloadToServer;
                 vrPlayer.setCrawling(payload.crawling());
+            }
+            case CLIMBING -> {
+                if(!VRServerSettings.isClimbingSupported()){
+                    return;
+                }
+                vrPlayer.getMcPlayer().fallDistance = 0.0F;
             }
             case TELEPORT -> {
                 if(VRServerSettings.getSupportedMovement() == SupportedMovement.CONTROLLER){

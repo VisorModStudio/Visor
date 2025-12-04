@@ -125,7 +125,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             return;
         }
         var player = visor$getPlayer();
-        if (TaskRoomCrawl.getInstance().isCrawling()) {
+        if (ClientContext.localPlayer.isCrawling()) {
             player.setPose(Pose.SWIMMING);
         }
         ClientContext.localPlayer.updatePlayerLook(

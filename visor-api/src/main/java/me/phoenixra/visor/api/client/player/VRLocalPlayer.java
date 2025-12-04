@@ -22,6 +22,33 @@ public interface VRLocalPlayer extends VRClientPlayer{
     HandType getActiveHand();
 
     /**
+     * Get pose element that affects client rotation
+     * @return pose element
+     */
+    @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage);
+
+    /**
+     * If player is crawling
+     *
+     * @return true/false
+     */
+    boolean isCrawling();
+
+    /**
+     * If player is climbing with hands
+     *
+     * @return true/false
+     */
+    boolean isClimbing();
+
+    /**
+     * If player is climbing with specified hand
+     *
+     * @return true/false
+     */
+    boolean isClimbing(@NotNull HandType handType);
+
+    /**
      * Get Raw Hmd
      *
      * @return RawHmd instance
@@ -36,11 +63,5 @@ public interface VRLocalPlayer extends VRClientPlayer{
      */
     RawController getRawController(@NotNull HandType type);
 
-
-    /**
-     * Get pose element that affects client rotation
-     * @return pose element
-     */
-    @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage);
 
 }

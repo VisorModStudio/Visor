@@ -81,16 +81,15 @@ public class TaskTeleport extends VisorTask implements VREventListener {
         VisorAPI.eventBus().registerListener(owner, this);
     }
 
-    /* ---------------------------------------------------------------------- */
-    /* Events                                                                 */
-    /* ---------------------------------------------------------------------- */
-
     @VREventHandler
-    public void onAllowAimEffectsEvent(AllowClientFeatureVREvent event) {
+    public void onAllowClientFeaturesEvent(AllowClientFeatureVREvent event) {
         if (!isAiming()) return;
 
-        if (event.getFeature() == ClientFeature.AIM_EFFECTS
-                || event.getFeature() == ClientFeature.MOVEMENT_MODIFIERS) {
+        if(event.getFeature() == ClientFeature.AIM_EFFECTS
+                && ClientContext.localPlayer.getActiveHand() == usingHand){
+            event.setCanceled(true);
+        }
+        if (event.getFeature() == ClientFeature.MOVEMENT_MODIFIERS) {
             event.setCanceled(true);
         }
     }
@@ -129,6 +128,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     public boolean isActive(LocalPlayer player) {
         if (ClientContext.visor.isFeatureDisabled(ClientFeature.INPUT_MOVEMENT)) return false;
         if (VRClientSettings.getMoveMode(player) != MovementMode.TELEPORT) return false;
+        if(TaskRoomClimb.getInstance().isGrabbed()) return false;
         if (player == null || !player.isAlive() || player.isPassenger()) return false;
         return !player.isSleeping();
     }
@@ -390,11 +390,10 @@ public class TaskTeleport extends VisorTask implements VREventListener {
                 return;
             }
         } else if (collision.getDirection() != Direction.UP) {
-            //
-            // if (TrackerClimb.isClimbableBlock(blockState.getBlock())) {
-            //    updateClimbableDestination(blockPos, blockState);
-            //    return;
-            // }
+             if (TaskRoomClimb.isClimbableBlock(blockState.getBlock())) {
+                updateClimbableDestination(blockPos, blockState);
+                return;
+            }
             if (!MC.player.getAbilities().mayfly
                     && VRClientSettings.isLimitedSurvivalTeleport()) {
                 return;

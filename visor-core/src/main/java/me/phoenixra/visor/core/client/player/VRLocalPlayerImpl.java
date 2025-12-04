@@ -3,6 +3,9 @@ package me.phoenixra.visor.core.client.player;
 import lombok.Getter;
 
 import lombok.Setter;
+import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
+import me.phoenixra.visor.api.client.events.InRoomMoveVREvent;
 import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
@@ -14,6 +17,8 @@ import me.phoenixra.visor.api.common.player.PoseElement;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomClimb;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
 import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
@@ -203,6 +208,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 || player.isShiftKeyDown()
                 || player.isSleeping()
                 || !player.isAlive()){
+            return;
+        }
+        var event = new InRoomMoveVREvent();
+        VisorAPI.eventBus().callEvent(event);
+        if(event.isCanceled()){
             return;
         }
 
@@ -415,6 +425,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         return rotationYRaw;
     }
 
+    public float getWorldScale(){
+        return this.pose.getWorldScale();
+    }
 
     @Override
     public LocalPlayer getMcPlayer() {
@@ -469,6 +482,21 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Override
     public boolean isLeftHanded() {
         return VRClientSettings.isLeftHanded();
+    }
+
+    @Override
+    public boolean isCrawling() {
+        return TaskRoomCrawl.getInstance().isCrawling();
+    }
+
+    @Override
+    public boolean isClimbing() {
+        return TaskRoomClimb.getInstance().isGrabbed();
+    }
+
+    @Override
+    public boolean isClimbing(@NotNull HandType handType) {
+        return TaskRoomClimb.getInstance().isGrabbed(handType);
     }
 
     public String toString() {

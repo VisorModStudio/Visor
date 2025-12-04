@@ -13,10 +13,10 @@ public class VRServerSettings {
     private static boolean vrOnly = false;
 
     @Getter
-    private static boolean crawling = true;
+    private static boolean crawlingSupported = true;
 
     @Getter
-    private static boolean climbing = true;
+    private static boolean climbingSupported = true;
 
     @Getter
     private static boolean pvpVRvsVanilla = true;
@@ -53,8 +53,8 @@ public class VRServerSettings {
     public static void joinedDedicatedServer(){
         vrOnly = false;
         serverDebug = false;
-        crawling = false;
-        climbing = false;
+        crawlingSupported = false;
+        climbingSupported = false;
         pvpVRvsVanilla = true;
         pvpVRvsVR = true;
         notifyPvpBlocked = false;

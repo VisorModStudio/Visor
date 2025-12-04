@@ -14,8 +14,8 @@ import net.minecraft.world.entity.Pose;
 
 
 public class VRServerPlayerImpl implements VRServerPlayer {
-    @Getter
-    public ServerPlayer mcPlayer;
+    @Getter @Setter
+    private ServerPlayer mcPlayer;
 
 
     @Getter

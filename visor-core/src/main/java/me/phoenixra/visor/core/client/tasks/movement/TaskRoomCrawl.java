@@ -7,6 +7,7 @@ import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.CrawlingPayloadToServer;
+import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -54,6 +55,7 @@ public class TaskRoomCrawl extends VisorTask {
         if(ClientContext.visor.isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
         }
+        if(!VRServerSettings.isCrawlingSupported()) return false;
         return isEnabled()
                 && player != null
                 && player.isAlive()
