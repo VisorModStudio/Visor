@@ -28,12 +28,12 @@ import org.joml.Vector3fc;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomVehicle extends VisorTask {
+public class TasVehicle extends VisorTask {
 
-    private static final String ID = "room_vehicle";
+    private static final String ID = "movement_vehicle";
 
     @Getter
-    private static TaskRoomVehicle instance;
+    private static TasVehicle instance;
 
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
 
@@ -44,7 +44,7 @@ public class TaskRoomVehicle extends VisorTask {
     private int minecartTimer = 0;
     public int dismountDelay = 0;
 
-    public TaskRoomVehicle(@NotNull VisorAddon owner) {
+    public TasVehicle(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }

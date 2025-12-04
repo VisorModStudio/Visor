@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorServer;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
+import me.phoenixra.visor.core.common.ServerConfig;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 
 import me.phoenixra.visor.core.common.addon.CoreAddonServer;
@@ -53,7 +54,7 @@ public class VisorServerImpl implements VisorServer {
         // init server config
         ServerConfig serverConfig = new ServerConfig();
         try {
-            serverConfig.init();
+            serverConfig.onServerInit();
         }catch (Throwable e){
             LoggerUtils.printError(e);
         }

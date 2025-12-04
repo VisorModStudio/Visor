@@ -7,6 +7,7 @@ import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -47,7 +48,11 @@ public class VROverlayMovementState extends VROverlayScreen {
             mobEffect = MobEffects.BLINDNESS;
         }
         if (player.isVisuallySwimming()) {
-            mobEffect = MobEffects.DOLPHINS_GRACE;
+            if(TaskRoomCrawl.getInstance().isCrawling()){
+                mobEffect = MobEffects.MOVEMENT_SLOWDOWN;
+            }else {
+                mobEffect = MobEffects.DOLPHINS_GRACE;
+            }
         }
         if (player.isFallFlying()) {
             mobEffect = MobEffects.SLOW_FALLING;

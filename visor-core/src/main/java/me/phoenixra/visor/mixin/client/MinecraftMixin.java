@@ -9,7 +9,7 @@ import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.modified.client.MinecraftModified;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -449,9 +449,9 @@ public abstract class MinecraftMixin implements MinecraftModified {
              }
              if (entity != this.player) {
                  // ride the new camera entity
-                 TaskRoomVehicle.getInstance().onStartRiding(entity);
+                 TasVehicle.getInstance().onStartRiding(entity);
              } else {
-                 TaskRoomVehicle.getInstance().onStopRiding();
+                 TasVehicle.getInstance().onStopRiding();
              }
          }
      }

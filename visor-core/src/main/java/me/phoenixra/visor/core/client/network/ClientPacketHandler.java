@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherActivePaylo
 import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
-import me.phoenixra.visor.core.server.ServerConfig;
+import me.phoenixra.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
 
 public class ClientPacketHandler {
@@ -26,7 +26,7 @@ public class ClientPacketHandler {
             case SETTINGS -> {
                 var payload = (SettingsPayloadToClient) payloadClient;
 
-                ServerConfig.updateServerSettings(
+                ServerConfig.updateSettings(
                         VisorAPI.client().getConfigManager(),
                         payload.config()
                 );

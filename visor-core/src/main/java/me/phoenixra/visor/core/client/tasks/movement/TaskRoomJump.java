@@ -17,7 +17,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
 public class TaskRoomJump extends VisorTask {
-    private static final String ID = "room_jump";
+    private static final String ID = "movement_room_jump";
 
     @Getter
     private static TaskRoomJump instance;

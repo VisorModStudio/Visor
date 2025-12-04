@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.server;
+package me.phoenixra.visor.core.common;
 
 
 import me.phoenixra.atumconfig.api.ConfigManager;
@@ -24,7 +24,7 @@ public class ServerConfig{
     }
 
 
-    public void init() throws Throwable{
+    public void onServerInit() throws Throwable{
         config = VisorAPI.server().
                 getConfigManager().createConfigFile(
                         ConfigType.YAML,
@@ -32,18 +32,18 @@ public class ServerConfig{
                         Path.of("server_settings.yml"),
                 false
         );
-        updateServerSettings(config);
+        updateSettings(config);
     }
 
-    public static void updateServerSettings(ConfigManager configManager,
-                                            String configString){
+    public static void updateSettings(ConfigManager configManager,
+                                      String configString){
         Config config = configManager.createConfigFromString(
                 ConfigType.YAML,
                 configString
         );
-        updateServerSettings(config);
+        updateSettings(config);
     }
-    public static void updateServerSettings(Config config){
+    public static void updateSettings(Config config){
         try {
             Class<VRServerSettings> clazz = VRServerSettings.class;
             for (Field field : clazz.getDeclaredFields()) {

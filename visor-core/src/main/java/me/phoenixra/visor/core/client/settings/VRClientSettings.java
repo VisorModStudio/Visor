@@ -93,10 +93,11 @@ public class VRClientSettings {
     //max height to actual height ratio to start sneaking from <=
     @Getter
     @VROptionField(key = "movement.sneakThreshold")
-    protected static float sneakThreshold = 0.75f;
+    protected static float sneakThreshold = 0.85f;
 
     @Getter
-    protected static float crawlThreshold = 0.82f;
+    @VROptionField(key = "movement.crawlThreshold")
+    protected static float crawlThreshold = 0.7f;
 
 
 

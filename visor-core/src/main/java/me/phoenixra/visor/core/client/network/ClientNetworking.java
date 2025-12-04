@@ -7,6 +7,7 @@ import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.network.toserver.HandshakePayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
+import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.Minecraft;
@@ -41,6 +42,9 @@ public class ClientNetworking {
     public static void sendHandShake(HandshakePayloadToServer payload) {
         if (MC.getConnection() == null) return;
         MC.getConnection().send(createVRPacket(payload));
+        if(!Minecraft.getInstance().isLocalServer()) {
+            VRServerSettings.joinedDedicatedServer();
+        }
     }
 
     public static Packet<?> createVRPacket(VisorPayloadToServer payload) {

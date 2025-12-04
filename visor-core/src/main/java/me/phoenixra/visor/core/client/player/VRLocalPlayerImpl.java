@@ -11,7 +11,6 @@ import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.player.PoseElement;
-import me.phoenixra.visor.api.common.player.PoseHistory;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
@@ -20,12 +19,11 @@ import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -305,7 +303,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         LocalPlayerPose data = getPoseData(stage);
 
         if (player.isPassenger()) {
-            var vehicleLookDir = TaskRoomVehicle.getVehicleLookDirection(player);
+            var vehicleLookDir = TasVehicle.getVehicleLookDirection(player);
 
             if (vehicleLookDir != null) {
                 player.setXRot((float) Math.toDegrees(

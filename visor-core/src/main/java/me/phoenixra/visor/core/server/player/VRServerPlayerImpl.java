@@ -10,6 +10,7 @@ import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.common.ServerPlayerModified;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Pose;
 
 
 public class VRServerPlayerImpl implements VRServerPlayer {
@@ -42,14 +43,14 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter
     private float rotationY;
 
-    @Getter
-    public float bowTension;
+    @Getter @Setter
+    private float bowTension;
 
     @Getter
     private boolean leftHanded;
 
     @Getter
-    public boolean crawling;
+    private boolean crawling;
 
     public VRServerPlayerImpl(ServerPlayer player) {
         this.mcPlayer = player;
@@ -82,6 +83,12 @@ public class VRServerPlayerImpl implements VRServerPlayer {
         leftHanded = poseData.getBuffer().leftHanded();
     }
 
+    public void setCrawling(boolean crawling) {
+        this.crawling = crawling;
+        if(crawling) {
+            mcPlayer.setPose(Pose.SWIMMING);
+        }
+    }
 
     public void updateRotationY(float rotationY){
         this.rotationY = rotationY;

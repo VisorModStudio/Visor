@@ -20,6 +20,7 @@ public interface VisorPayloadToServer extends VisorPayload {
                 case VR_ACTIVE -> VRActivePayloadToServer.read(buffer);
                 case POSE_DATA -> PoseDataPayloadToServer.read(buffer);
                 case WORLD_SCALE -> WorldScalePayloadToServer.read(buffer);
+                case CRAWLING -> CrawlingPayloadToServer.read(buffer);
                 case TELEPORT -> TeleportMovePayloadToServer.read(buffer);
                 default -> {
                     VisorAPI.server().getLogger().error(

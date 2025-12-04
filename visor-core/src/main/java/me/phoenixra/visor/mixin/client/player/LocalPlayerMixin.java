@@ -9,7 +9,8 @@ import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.mixin.common.player.Common_PlayerMixin;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.ItemInHandRendererModified;
@@ -82,7 +83,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TaskRoomVehicle.getInstance()
+        TasVehicle.getInstance()
                 .onStartRiding(
                         entity
                 );
@@ -95,7 +96,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TaskRoomVehicle.getInstance()
+        TasVehicle.getInstance()
                 .onStopRiding();
     }
 
@@ -123,8 +124,12 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)) {
             return;
         }
+        var player = visor$getPlayer();
+        if (TaskRoomCrawl.getInstance().isCrawling()) {
+            player.setPose(Pose.SWIMMING);
+        }
         ClientContext.localPlayer.updatePlayerLook(
-                (LocalPlayer) (Object) this,
+                player,
                 PlayerPoseType.TICK
         );
     }
@@ -281,7 +286,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
         boolean shouldReset = (x + y + z) == 0;
         if (this.isPassenger()) {
-            Vec3 premountPos = TaskRoomVehicle.getInstance().premountPosRoom;
+            Vec3 premountPos = TasVehicle.getInstance().premountPosRoom;
             premountPos = premountPos
                     .yRot(
                             ClientContext.localPlayer
@@ -462,7 +467,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         if (this.getPose() == Pose.SPIN_ATTACK
                 || this.getPose() == Pose.FALL_FLYING
                 || this.getPose() == Pose.SWIMMING) {
-            out = -1.2D;
+            out = -0.01;
         }
 
         return out;

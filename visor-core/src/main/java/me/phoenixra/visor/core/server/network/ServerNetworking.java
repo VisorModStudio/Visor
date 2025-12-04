@@ -75,18 +75,6 @@ public class ServerNetworking {
     }
 
 
-    public static void updateStandingPose(ServerPlayer serverPlayer) {
-        VRServerPlayer vrPlayer = VisorAPI.server()
-                .getVrPlayer(serverPlayer);
-
-        if (vrPlayer != null && vrPlayer.isVRActive()
-                && vrPlayer.isCrawling()) {
-            serverPlayer.setPose(Pose.SWIMMING);
-        }
-    }
-
-
-
 
     public static void sendPacketVRStateOf(ServerPlayer serverPlayer) {
         Map<UUID, VRServerPlayer> playersWithVR = VisorServerImpl.INSTANCE.getPlayersWithVR();

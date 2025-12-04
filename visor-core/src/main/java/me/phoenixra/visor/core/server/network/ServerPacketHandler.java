@@ -14,7 +14,7 @@ import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
 import me.phoenixra.visor.api.server.SupportedMovement;
 import me.phoenixra.visor.api.server.VRServerSettings;
-import me.phoenixra.visor.core.server.ServerConfig;
+import me.phoenixra.visor.core.common.ServerConfig;
 import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
 import me.phoenixra.visor.core.server.VisorServerImpl;
 import me.phoenixra.visor.modified.common.ServerPlayerModified;
@@ -90,6 +90,10 @@ public class ServerPacketHandler {
             case ROTATION_Y -> {
                 var payload = (RotationYPayloadToServer) payloadToServer;
                 vrPlayer.updateRotationY(payload.rotationY());
+            }
+            case CRAWLING -> {
+                var payload = (CrawlingPayloadToServer) payloadToServer;
+                vrPlayer.setCrawling(payload.crawling());
             }
             case TELEPORT -> {
                 if(VRServerSettings.getSupportedMovement() == SupportedMovement.CONTROLLER){

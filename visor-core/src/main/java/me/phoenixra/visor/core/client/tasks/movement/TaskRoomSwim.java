@@ -24,7 +24,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
 public class TaskRoomSwim extends VisorTask {
-    private static final String ID = "room_swim";
+    private static final String ID = "movement_room_swim";
 
     @Getter
     private static TaskRoomSwim instance;

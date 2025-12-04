@@ -43,7 +43,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 @RegisterVisorTask
 public class TaskTeleport extends VisorTask implements VREventListener {
 
-    private static final String ID = "teleport";
+    private static final String ID = "movement_teleport";
 
     private static final int MAX_ARC_STEPS = 50;
     private static final float MAX_ENERGY = 100f;

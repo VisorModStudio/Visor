@@ -8,6 +8,8 @@ public enum VisorPayloadID {
     POSE_DATA,
     WORLD_SCALE,
     ROTATION_Y,
+    CRAWLING,
+    CLIMBING,
     OTHER_VR_ACTIVE,
     OTHER_VR_STATE,
     TELEPORT

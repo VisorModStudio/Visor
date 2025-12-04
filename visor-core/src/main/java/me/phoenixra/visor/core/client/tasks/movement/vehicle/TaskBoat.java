@@ -16,11 +16,11 @@ import org.jetbrains.annotations.NotNull;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TaskRoomBoat extends VisorTask {
-    public static final String ID = "room_boat";
+public class TaskBoat extends VisorTask {
+    public static final String ID = "movement_boat";
 
     @Getter
-    private static TaskRoomBoat instance;
+    private static TaskBoat instance;
 
     private static final float MAX_FORWARD_SPEED = 2.0F;
     private static final float MAX_ROTATION_SPEED = 1.0F;
@@ -34,7 +34,7 @@ public class TaskRoomBoat extends VisorTask {
     @Getter
     private float moveForward;
 
-    public TaskRoomBoat(@NotNull VisorAddon owner) {
+    public TaskBoat(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
