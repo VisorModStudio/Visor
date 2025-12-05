@@ -53,6 +53,7 @@ public interface VRLocalPlayer extends VRClientPlayer{
      */
     boolean isClimbing(@NotNull HandType handType);
 
+
     /**
      * Get Raw Hmd
      *

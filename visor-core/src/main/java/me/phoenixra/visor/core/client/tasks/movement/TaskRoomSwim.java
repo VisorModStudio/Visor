@@ -31,12 +31,13 @@ public class TaskRoomSwim extends VisorTask {
 
     private static final float SWIM_SPEED = 1.3f;
     private static final float FRICTION = 0.9f;
-    private static final float SWIM_MOTION_SCALE = 0.1f;
+    private static final float SWIM_MOTION_SCALE = 0.15f;
     private static final float MIN_SWIM_THRESHOLD = 0.3f;
     private static final float SPRINTING_THRESHOLD = 1.0f;
 
     private Vector3fc motion = new Vector3f();
     private float lastDist;
+
 
     public TaskRoomSwim(@NotNull VisorAddon owner) {
         super(owner);
@@ -82,6 +83,7 @@ public class TaskRoomSwim extends VisorTask {
         this.lastDist = handDistance;
 
         double motionLength = this.motion.length();
+
         player.setSwimming(motionLength > MIN_SWIM_THRESHOLD);
         player.setSprinting(motionLength > SPRINTING_THRESHOLD);
         player.push(this.motion.x(), this.motion.y(), this.motion.z());
@@ -93,6 +95,7 @@ public class TaskRoomSwim extends VisorTask {
     protected void onClear(@Nullable LocalPlayer player) {
 
     }
+
 
     @Override
     public boolean isActive(LocalPlayer p) {

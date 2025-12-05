@@ -1,6 +1,6 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -8,12 +8,10 @@ import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPo
 import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSwim;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,6 +22,61 @@ public class VROverlayMovementState extends VROverlayScreen {
     public static final String ID = "movement_state";
 
     protected final OverlayOptionsPose optionsPose;
+
+    protected static final ResourceLocation RESOURCE = new ResourceLocation(
+            "visor:textures/gui/overlays/movement_state.png"
+    );
+    protected static final int TEX_WIDTH = 162;
+    protected static final int TEX_HEIGHT = 212;
+
+    protected static final GuiTexture RUN_STATE = new GuiTexture(
+            RESOURCE,
+            0, 0,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture SNEAK_STATE = new GuiTexture(
+            RESOURCE,
+            56, 0,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture CRAWL_STATE = new GuiTexture(
+            RESOURCE,
+            112, 0,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture CLIMB_STATE = new GuiTexture(
+            RESOURCE,
+            0, 72,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture SWIM_STATE = new GuiTexture(
+            RESOURCE,
+            56, 72,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture FALL_FLYING_STATE = new GuiTexture(
+            RESOURCE,
+            112, 72,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture FLYING_STATE = new GuiTexture(
+            RESOURCE,
+            0, 144,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
+    protected static final GuiTexture FAST_FLYING_STATE = new GuiTexture(
+            RESOURCE,
+            56, 144,
+            50, 50,
+            TEX_WIDTH, TEX_HEIGHT
+    );
 
     public VROverlayMovementState(@NotNull VisorAddon owner,
                                   @NotNull String id) {
@@ -40,29 +93,41 @@ public class VROverlayMovementState extends VROverlayScreen {
 
         var player = MC.player;
 
-        MobEffect mobEffect = null;
+        GuiTexture statusTexture = null;
 
         if (player.isSprinting()) {
-            mobEffect = MobEffects.MOVEMENT_SPEED;
+            statusTexture = RUN_STATE;
         }
         if (player.isShiftKeyDown()) {
-            mobEffect = MobEffects.BLINDNESS;
+            statusTexture = SNEAK_STATE;
         }
-        if (player.isVisuallySwimming()) {
-            if(ClientContext.localPlayer.isCrawling()){
-                mobEffect = MobEffects.MOVEMENT_SLOWDOWN;
+        if (player.isSwimming()) {
+            statusTexture = SWIM_STATE;
+        }
+        if(ClientContext.localPlayer.isCrawling()){
+            statusTexture = CRAWL_STATE;
+        }
+
+        if(player.getAbilities().flying){
+            if (player.isSprinting()) {
+                statusTexture = FAST_FLYING_STATE;
             }else {
-                mobEffect = MobEffects.DOLPHINS_GRACE;
+                statusTexture = FLYING_STATE;
             }
         }
         if (player.isFallFlying()) {
-            mobEffect = MobEffects.SLOW_FALLING;
+            statusTexture = FALL_FLYING_STATE;
+        }
+        if(ClientContext.localPlayer.isClimbing()){
+            statusTexture = CLIMB_STATE;
         }
 
-        if (mobEffect != null) {
-            TextureAtlasSprite textureatlassprite = MC.getMobEffectTextures().get(mobEffect);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            guiGraphics.blit(0, 0, 0, 256, 256, textureatlassprite);
+        if (statusTexture != null) {
+            statusTexture.blit(
+                    guiGraphics,
+                    0,0,
+                    256,256
+            );
         }
 
     }

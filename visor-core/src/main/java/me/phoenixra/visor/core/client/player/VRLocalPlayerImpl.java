@@ -19,6 +19,7 @@ import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.tasks.movement.TaskRoomClimb;
 import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSwim;
 import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
@@ -498,6 +499,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     public boolean isClimbing(@NotNull HandType handType) {
         return TaskRoomClimb.getInstance().isGrabbed(handType);
     }
+
 
     public String toString() {
         return ("""
