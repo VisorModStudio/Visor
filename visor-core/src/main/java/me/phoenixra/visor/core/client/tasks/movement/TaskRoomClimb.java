@@ -49,8 +49,7 @@ public class TaskRoomClimb extends VisorTask
 
     private static final double HAND_DIRECTION_OFFSET = 0.2D;
     private static final double HAND_DISTANCE_THRESHOLD = 0.5D;
-    private static final int HAPTIC_PULSE_STRONG = 2000;
-    private static final int HAPTIC_PULSE_WEAK = 100;
+    private static final int HAPTIC_PULSE = 2000;
     private static final double COLLISION_BOX_OFFSET = 0.1D;
 
     private final EnumMap<Direction, AABB> faces = new EnumMap<>(Direction.class);
@@ -110,6 +109,7 @@ public class TaskRoomClimb extends VisorTask
             event.setCanceled(true);
         }
     }
+
 
     @Override
     public void onRun(LocalPlayer player) {
@@ -384,7 +384,7 @@ public class TaskRoomClimb extends VisorTask
             state.anchoredShape = state.handShape;
             state.isAnchored = true;
 
-            ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HAPTIC_PULSE_STRONG);
+            ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HAPTIC_PULSE);
         }
     }
 
@@ -435,7 +435,7 @@ public class TaskRoomClimb extends VisorTask
                     ? HandType.OFFHAND : HandType.MAIN;
             handStates.get(otherHand).isAnchored = false;
 
-            ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HAPTIC_PULSE_STRONG);
+            ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HAPTIC_PULSE);
             ((LocalPlayerModified) MC.player).visor$stepSound(handBlockPos, state.anchoredPos);
         }
         state.wasInsideBlock = state.isInsideBlock;

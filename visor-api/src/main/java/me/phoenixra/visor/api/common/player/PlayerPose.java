@@ -11,6 +11,11 @@ import org.joml.Vector3fc;
  */
 public interface PlayerPose {
 
+    /**
+     * Get player associated with this instance
+     *
+     * @return mc player
+     */
     Player getMcPlayer();
 
     /**

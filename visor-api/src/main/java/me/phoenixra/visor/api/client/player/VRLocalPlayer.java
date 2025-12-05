@@ -10,6 +10,11 @@ import org.jetbrains.annotations.NotNull;
 
 public interface VRLocalPlayer extends VRClientPlayer{
 
+    /**
+     * Get local player associated with this instance
+     *
+     * @return mc player
+     */
     LocalPlayer getMcPlayer();
 
     /**
