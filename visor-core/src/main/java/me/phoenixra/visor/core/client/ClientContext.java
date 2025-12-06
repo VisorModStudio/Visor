@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client;
 
-import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
-import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
+import me.phoenixra.visor.core.client.player.VRLocalPlayerImpl;
+import me.phoenixra.visor.core.client.player.pose.raw.RawPoseHandler;
 import me.phoenixra.visor.core.client.gui.VRCursorHandlerImpl;
 import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.gui.VROverlayManagerImpl;
@@ -29,7 +29,7 @@ public class ClientContext {
 
     public static VRClientSettingsHandler settingsHandler;
 
-    public static VRClientPlayerImpl player;
+    public static VRLocalPlayerImpl localPlayer;
 
     public static VRRendererBase renderer;
 

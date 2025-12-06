@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import me.phoenixra.visor.api.server.SupportedMovement;
+import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.settings.options.VROptionField;
 import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
+import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
 import me.phoenixra.visor.core.client.settings.options.enums.RotationMode;
 import me.phoenixra.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
 import me.phoenixra.visor.api.client.VRPlayMode;
@@ -15,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
@@ -44,29 +48,63 @@ public class VRClientSettings {
     protected static String keyboardKeysShift = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;':\"ZXCVBNM,./?<>";
     //---
 
-    //----World
-    @Getter
-    @VROptionField(key = "world_scale", category = VROptionCategory.RENDERING)
-    protected static float worldScale = 1.0f;
+
+
+    //----Movement
+
+    @VROptionField(widgetType = VROptionWidgetType.MOVEMENT_MODE,
+            key = "mode")
+    protected static MovementMode movementMode = MovementMode.CONTROLLER;
+
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE,
+            key = "rotation_mode")
+    protected static RotationMode rotationMode = RotationMode.HMD;
+
+    @VROptionField(widgetType = VROptionWidgetType.ROTATION_FLY_MODE,
+            key = "rotation_fly_mode")
+    protected static RotationMode rotationFlyMode = RotationMode.OFFHAND;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
-            key = "world_rotation_increment")
-    protected static float worldRotationIncrement = 45f; //Rotation with thumbstick
-
-    //---
-
-
-
-    //----Locomotion
-
+            key = "world_rotation.increment")
+    protected static float worldRotationIncrement = 45f;
+    @Getter
+    @VROptionField(key = "worldRotation.smoothSensitivity")
+    protected static float worldRotationSmoothSensitivity = 0.06f;
 
     @Getter
-    @VROptionField(key = "player.walkMultiplier")
+    @VROptionField(widgetType = VROptionWidgetType.WALK_UP, key = "walk_up")
+    protected static boolean walkUpEnabled = true;
+
+    @Getter
+    @VROptionField(key = "movement.walkMultiplier")
     protected static float walkMultiplier = 1;
 
 
+    @Getter
+    @VROptionField(key = "movement.sprintThreshold")
+    protected static float sprintThreshold = 0.9f;
+
+    //max height to actual height ratio to jump from >=
+    @Getter
+    @VROptionField(key = "movement.jumpThreshold")
+    protected static float jumpThreshold = 1.05f;
+
+    //max height to actual height ratio to start sneaking from <=
+    @Getter
+    @VROptionField(key = "movement.sneakThreshold")
+    protected static float sneakThreshold = 0.85f;
+
+    @Getter
+    @VROptionField(key = "movement.crawlThreshold")
+    protected static float crawlThreshold = 0.7f;
+
+
+
     //----Rendering
+    @Getter
+    @VROptionField(key = "world_scale", category = VROptionCategory.RENDERING)
+    protected static float worldScale = 1.0f;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.MIRROR_MODE, key = "mirror_mode")
@@ -215,31 +253,15 @@ public class VRClientSettings {
     @Getter
     @VROptionField(key = "aspectRatio", category = VROptionCategory.RENDERING_MIXED_REALITY)
     protected static float mixedRealityAspectRatio = 16F / 9F;
-    //
-
-
-    @Getter
-    protected static final float sprintThreshold = 0.9f;
-    @Getter
-    protected static final float jumpThreshold = 0.05f;
-    @Getter
-    protected static final float sneakThreshold = 0.4f;
-    @Getter
-    protected static final float crawlThreshold = 0.82f;
-
-    protected static final boolean walkUpEnabled = true;
 
     //
-    @Getter
-    @VROptionField(widgetType = VROptionWidgetType.ROTATION_MODE, key = "rotation_mode")
-    protected static RotationMode rotationMode = RotationMode.HMD;
 
 
     private static final float defaultHeight = 1.52F;
 
     @Setter
-    @VROptionField(key = "player.height")
-    protected static float playerHeight = defaultHeight;
+    @VROptionField(key = "player.full_height")
+    protected static float fullHeight = defaultHeight;
 
 
     public static void setVrPlayMode(VRPlayMode vrPlayMode) {
@@ -248,6 +270,31 @@ public class VRClientSettings {
                 "Changed VR Play Mode to: {}",
                 VRClientSettings.getVrPlayMode()
         );
+    }
+
+    public static MovementMode getMoveMode(Player player) {
+        var out = movementMode;
+        var supported = VRServerSettings.getSupportedMovement();
+        if (supported != SupportedMovement.BOTH) {
+            out = supported == SupportedMovement.CONTROLLER
+                    ? MovementMode.CONTROLLER
+                    : MovementMode.TELEPORT;
+        }
+        if (player.isPassenger()
+                || (!player.isPassenger()
+                && player.getAbilities().flying)) {
+            out = MovementMode.CONTROLLER;
+        }
+        return out;
+    }
+
+    public static RotationMode getRotationMode() {
+        if(MC.player != null
+                && !MC.player.isPassenger()
+                && MC.player.getAbilities().flying){
+            return rotationFlyMode;
+        }
+        return rotationMode;
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,
@@ -268,28 +315,23 @@ public class VRClientSettings {
         eyeFovChanged = true;
     }
 
-    public static boolean isWalkUpEnabled() {
-        return walkUpEnabled
-                && MC.player!= null
-                && !MC.player.isSpectator();
-    }
 
-    public static float getPlayerHeight() {
-        if (playerHeight < 0) {
+    public static float getFullHeight() {
+        if (fullHeight < 0) {
             return defaultHeight;
         }
 
-        return playerHeight;
+        return fullHeight;
     }
 
     public static void calibrateHeight() {
 
-        VRClientSettings.setPlayerHeight(
+        VRClientSettings.setFullHeight(
                 ClientContext.rawPoseHandler.getHmdData()
                         .getPivotHistory().averagePosition(0.5f).y
         );
         int i = (int) (Math.round(100.0D
-                * VRClientSettings.getPlayerHeight()
+                * VRClientSettings.getFullHeight()
                 / defaultHeight
         ));
         Minecraft.getInstance().gui.getChat()
@@ -303,6 +345,8 @@ public class VRClientSettings {
                 );
         ClientContext.settingsHandler.saveOptions();
     }
-
+    public static boolean isLimitedSurvivalTeleport() {
+        return true; //leave it, for later easier navigation in code to change movement
+    }
 
 }

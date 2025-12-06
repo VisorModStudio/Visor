@@ -19,7 +19,7 @@ public class PlayerListenerMixins {
         @Inject(at = @At("HEAD"), method = "placeNewPlayer")
         private void visor$onLogin(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {
             if (VRServerSettings.isVrOnly()){
-                ServerNetworking.kickDelayedNoVR(serverPlayer);
+                ServerNetworking.kickDelayedIfNoVR(serverPlayer);
             }
         }
         @Redirect(method = "respawn", at = @At(value = "INVOKE",

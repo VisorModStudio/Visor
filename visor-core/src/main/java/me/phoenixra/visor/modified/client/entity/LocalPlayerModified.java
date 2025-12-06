@@ -14,12 +14,14 @@ public interface LocalPlayerModified {
 
     void visor$setUseItemRemaining(int i);
 
+    void visor$setTeleported(boolean flag);
 
     void visor$stepSound(BlockPos blockpos, Vec3 vec3);
 
     void visor$swingArm(InteractionHand interactionhand, HandAction interact);
 
 
+    float visor$getSpeedFactor();
     float visor$getJumpFactor();
 
     double visor$getRoomYOffset();

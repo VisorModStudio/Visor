@@ -5,8 +5,9 @@ import me.phoenixra.atumvr.api.input.device.VRDeviceController;
 import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceController;
 import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
-import me.phoenixra.visor.core.client.data.raw.RawPoseHandler;
+import me.phoenixra.visor.core.client.player.pose.raw.RawPoseHandler;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -52,7 +53,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
                 );
         hmdData.getRotationHistory()
                 .add(new Quaternionf().setFromNormalized(hmdRotation)
-                        .rotateY(ClientContext.player.getRotationY()));
+                        .rotateY(ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY()));
 
 
         //LEFT CONTROLLER

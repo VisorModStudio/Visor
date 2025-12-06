@@ -4,13 +4,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
@@ -51,16 +51,16 @@ public class HandEffectCrosshair extends VRHandEffect {
     }
 
     @Override
-    public void render(@NotNull ControllerHand hand,
-                       @NotNull VRDisplay display,
+    public void render(@NotNull HandType hand,
+                       @NotNull VRCameraType cameraType,
                        @NotNull PoseStack poseStack,
                        boolean simpleHand,
                        float partialTicks) {
 
         // --- Prepare variables ---
-        PoseData pose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec().toVector3f();
-        var aim = rawCross.sub(pose.getController(hand).getPosition(), new Vector3f());
+        var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
         float scale = BASE_SCALE * worldScale;
 
@@ -97,7 +97,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- Pose setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderPoseHelper.applyDisplayOrientation(display, poseStack);
+        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
 
         Vector3f camPos = MC.getCameraEntity().position().toVector3f();
         Vector3f translate = crossPos.sub(camPos);
@@ -142,16 +142,16 @@ public class HandEffectCrosshair extends VRHandEffect {
     }
 
     private void applyCrossHairRotation(PoseStack poseStack,
-                                        ControllerHand hand,
-                                        PoseData pose) {
+                                        HandType hand,
+                                        PlayerPoseClient pose) {
         if (MC.hitResult instanceof BlockHitResult bhr) {
             switch (bhr.getDirection()) {
                 case DOWN -> {
-                    rotateInDegrees(poseStack, pose.getController(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack, pose.getHand(hand).getYawDegrees(), 0, 1, 0);
                     rotateInDegrees(poseStack, -90, 1, 0, 0);
                 }
                 case UP -> {
-                    rotateInDegrees(poseStack, -pose.getController(hand).getYaw(), 0, 1, 0);
+                    rotateInDegrees(poseStack, -pose.getHand(hand).getYawDegrees(), 0, 1, 0);
                     rotateInDegrees(poseStack,  90, 1, 0, 0);
                 }
                 case WEST -> rotateInDegrees(poseStack,  90, 0, 1, 0);
@@ -160,8 +160,8 @@ public class HandEffectCrosshair extends VRHandEffect {
                 default -> {}
             }
         } else {
-            rotateInDegrees(poseStack, -pose.getController(hand).getYaw(),   0, 1, 0);
-            rotateInDegrees(poseStack, -pose.getController(hand).getPitch(), 1, 0, 0);
+            rotateInDegrees(poseStack, -pose.getHand(hand).getYawDegrees(),   0, 1, 0);
+            rotateInDegrees(poseStack, -pose.getHand(hand).getPitchDegrees(), 1, 0, 0);
         }
     }
 
@@ -173,12 +173,12 @@ public class HandEffectCrosshair extends VRHandEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator,
-                             @NotNull ControllerHand hand,
+                             @NotNull HandType hand,
                              boolean simpleHand) {
         if(simpleHand){
             return false;
         }
-        if(hand != ClientContext.player.getActiveHand()){
+        if(hand != ClientContext.localPlayer.getActiveHand()){
             return false;
         }
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;

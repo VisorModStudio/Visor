@@ -11,7 +11,7 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +24,7 @@ public class ActionMiddleMouse extends VisorActionButton {
 
     private static final int BUTTON_TYPE = 2;
 
-    private ControllerHand lastUsedHand = ControllerHand.MAIN;
+    private HandType lastUsedHand = HandType.MAIN;
 
     private VROverlay previousFocus;
     private boolean wasPressed;
@@ -159,12 +159,12 @@ public class ActionMiddleMouse extends VisorActionButton {
 
         if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
-            mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
+            mainHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN;
         }else {
             var cursorHand = ClientContext.cursorHandler.getCursorHand();
-            mainHand = cursorHand == ControllerHand.MAIN;
+            mainHand = cursorHand == HandType.MAIN;
         }
-        lastUsedHand = mainHand ? ControllerHand.MAIN : ControllerHand.OFFHAND;
+        lastUsedHand = mainHand ? HandType.MAIN : HandType.OFFHAND;
         //Here we change leftHanded parameter for method call,
         //to match used hand
         if(leftHanded){

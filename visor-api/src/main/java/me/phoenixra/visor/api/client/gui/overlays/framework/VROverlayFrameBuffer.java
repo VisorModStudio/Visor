@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.*;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;

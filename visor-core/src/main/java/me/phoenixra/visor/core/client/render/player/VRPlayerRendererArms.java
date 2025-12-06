@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.render.player;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -32,7 +32,7 @@ public class VRPlayerRendererArms extends PlayerRenderer {
                 poseStack, bufferSource,
                 combinedLight, player,
                 (this.model).rightArm, (this.model).rightSleeve,
-                ControllerHand.MAIN
+                HandType.MAIN
         );
     }
 
@@ -45,7 +45,7 @@ public class VRPlayerRendererArms extends PlayerRenderer {
                 poseStack, bufferSource,
                 combinedLight, player,
                 (this.model).leftArm, (this.model).leftSleeve,
-                ControllerHand.OFFHAND
+                HandType.OFFHAND
         );
     }
 
@@ -55,7 +55,7 @@ public class VRPlayerRendererArms extends PlayerRenderer {
                             AbstractClientPlayer playerIn,
                             ModelPart rendererArmIn,
                             ModelPart rendererArmwearIn,
-                            ControllerHand hand) {
+                            HandType hand) {
         PlayerModel<AbstractClientPlayer> playermodel = this.getModel();
         this.setModelProperties(playerIn);
         RenderSystem.enableBlend();
@@ -106,7 +106,7 @@ public class VRPlayerRendererArms extends PlayerRenderer {
 
 
     private float getItemFade(LocalPlayer player,
-                              ControllerHand hand,
+                              HandType hand,
                               ItemStack itemStack) {
         float fade = player.getAttackStrengthScale(0.0F) * 0.75F + 0.25F;
 

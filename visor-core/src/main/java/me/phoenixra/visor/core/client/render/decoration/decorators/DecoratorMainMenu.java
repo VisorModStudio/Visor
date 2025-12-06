@@ -2,12 +2,12 @@ package me.phoenixra.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -36,7 +36,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     @Override
     public void render(PoseStack poseStack, float partialTicks) {
-        RenderPoseHelper.applyDisplayOrientation(VRRenderState.getCurrentVRDisplay(), poseStack);
+        RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), poseStack);
 
         renderPanorama(poseStack);
 
@@ -60,11 +60,11 @@ public class DecoratorMainMenu extends VRDecorator {
 
     private static void renderPanorama(PoseStack poseStack){
 
-        PoseDataImpl renderPose = ClientContext.player
-                .getPoseData(PoseDataType.RENDER);
+        LocalPlayerPose renderPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER);
         poseStack.pushPose();
         var eye = RenderPoseHelper.getCameraPosition(
-                VRRenderState.getCurrentVRDisplay(),
+                VRRenderState.getCameraType(),
                 renderPose
         );
         var origin = renderPose.getOrigin();

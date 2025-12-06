@@ -4,7 +4,7 @@ package me.phoenixra.visor.api.client.input;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
 import me.phoenixra.atumvr.core.input.action.profileset.ProfileSetHolder;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +35,8 @@ public interface InputManager {
      * @param durationSeconds pulse duration in seconds
      */
     default void triggerHapticPulseBoth(float durationSeconds) {
-        triggerHapticPulse(ControllerHand.MAIN, durationSeconds);
-        triggerHapticPulse(ControllerHand.OFFHAND, durationSeconds);
+        triggerHapticPulse(HandType.MAIN, durationSeconds);
+        triggerHapticPulse(HandType.OFFHAND, durationSeconds);
     }
 
     /**
@@ -44,7 +44,7 @@ public interface InputManager {
      *
      * @param hand the hand
      */
-    default void triggerHapticPulseClick(@NotNull ControllerHand hand){
+    default void triggerHapticPulseClick(@NotNull HandType hand){
         triggerHapticPulse(
                 hand,
                 20f,
@@ -59,7 +59,7 @@ public interface InputManager {
      * @param hand the hand
      * @param durationSeconds pulse duration in seconds
      */
-    default void triggerHapticPulse(@NotNull ControllerHand hand,
+    default void triggerHapticPulse(@NotNull HandType hand,
                                     float durationSeconds){
         triggerHapticPulse(
                 hand,
@@ -75,7 +75,7 @@ public interface InputManager {
      * @param hand the hand
      * @param durationMicroSeconds pulse duration in microseconds
      */
-    default void triggerHapticPulseMicroSec(@NotNull ControllerHand hand,
+    default void triggerHapticPulseMicroSec(@NotNull HandType hand,
                                             int durationMicroSeconds){
         triggerHapticPulse(
                 hand,
@@ -93,7 +93,7 @@ public interface InputManager {
      * @param amplitude pulse amplitude
      * @param durationSeconds pulse duration in seconds
      */
-    default void triggerHapticPulse(@NotNull ControllerHand hand,
+    default void triggerHapticPulse(@NotNull HandType hand,
                                     float frequency,
                                     float amplitude,
                                     float durationSeconds){
@@ -113,7 +113,7 @@ public interface InputManager {
      * @param amplitude pulse amplitude
      * @param durationMicroSeconds pulse duration in microseconds
      */
-    default void triggerHapticPulseMicroSec(@NotNull ControllerHand hand,
+    default void triggerHapticPulseMicroSec(@NotNull HandType hand,
                                             float frequency,
                                             float amplitude,
                                             int durationMicroSeconds){
@@ -133,7 +133,7 @@ public interface InputManager {
      * @param amplitude pulse amplitude
      * @param durationNanoSec pulse duration in nanoseconds
      */
-    void triggerHapticPulse(@NotNull ControllerHand hand,
+    void triggerHapticPulse(@NotNull HandType hand,
                             float frequency,
                             float amplitude,
                             long durationNanoSec);

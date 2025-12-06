@@ -6,7 +6,7 @@ import lombok.Getter;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.api.client.render.RenderPhase;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.modified.client.WindowModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
@@ -15,6 +15,7 @@ import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +24,11 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class VRRenderState {
 
-    @Getter
-    private static RenderPhase currentPhase = RenderPhase.VANILLA;
+    @Getter @NotNull
+    private static RenderPhase phase = RenderPhase.VANILLA;
 
-    @Getter
-    private static VRDisplay currentVRDisplay = null;
+    @Getter @Nullable
+    private static VRCameraType cameraType = null;
 
 
 
@@ -44,41 +45,41 @@ public class VRRenderState {
 
 
     public static void startVanillaPhase() {
-        currentPhase = RenderPhase.VANILLA;
-        currentVRDisplay = null;
+        phase = RenderPhase.VANILLA;
+        cameraType = null;
         MC.mainRenderTarget = vanillaTarget;
     }
 
     public static void startVRGuiPhase() {
-        currentPhase = RenderPhase.VR_GUI;
-        currentVRDisplay = VRDisplay.GUI;
-        MC.mainRenderTarget = getTargetForDisplay(VRDisplay.GUI);
+        phase = RenderPhase.VR_GUI;
+        cameraType = VRCameraType.GUI;
+        MC.mainRenderTarget = getTargetForCamera(VRCameraType.GUI);
     }
 
-    public static void startVRWorldPhase(@NotNull VRDisplay display) {
-        if(!display.isWorld()){
+    public static void startVRWorldPhase(@NotNull VRCameraType cameraType) {
+        if(!cameraType.isWorld()){
             throw new RuntimeException(
                     "Tried to start VR_WORLD phase " +
-                            "for display not rendering world: "+display
+                            "for camera type that is not rendering world: "+cameraType
             );
         }
-        currentPhase = RenderPhase.VR_WORLD;
-        currentVRDisplay = display;
-        MC.mainRenderTarget = getTargetForDisplay(display);
+        phase = RenderPhase.VR_WORLD;
+        VRRenderState.cameraType = cameraType;
+        MC.mainRenderTarget = getTargetForCamera(cameraType);
     }
 
     public static void startVRMirrorPhase(){
-        currentPhase = RenderPhase.VR_MIRROR;
-        currentVRDisplay = null;
+        phase = RenderPhase.VR_MIRROR;
+        cameraType = null;
         MC.mainRenderTarget = ClientContext.renderer.mainTarget.getMirrorTarget();
     }
 
-    public static RenderTarget getTargetForDisplay(VRDisplay display){
+    public static RenderTarget getTargetForCamera(VRCameraType cameraType){
         if(VisorState.getState().isNotInitialized()
-                || display == null){
+                || cameraType == null){
             return vanillaTarget;
         }
-        return switch (display){
+        return switch (cameraType){
             case GUI ->
                     ClientContext.renderer.guiTarget.getTarget();
             case EYE_LEFT, EYE_RIGHT ->
@@ -102,12 +103,12 @@ public class VRRenderState {
     }
 
 
-    public static List<VRDisplay> getVRWorldDisplays() {
+    public static List<VRCameraType> getActiveCameraTypes() {
 
 
-        List<VRDisplay> list = new ArrayList<>();
-        list.add(VRDisplay.EYE_LEFT);
-        list.add(VRDisplay.EYE_RIGHT);
+        List<VRCameraType> list = new ArrayList<>();
+        list.add(VRCameraType.EYE_LEFT);
+        list.add(VRCameraType.EYE_RIGHT);
 
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
@@ -116,15 +117,15 @@ public class VRRenderState {
                 && windowModif.visor$getActualScreenHeight() > 0) {
             MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
-                list.add(VRDisplay.FIRST_PERSON);
+                list.add(VRCameraType.FIRST_PERSON);
             } else if (mirrorMode == MirrorMode.THIRD_PERSON) {
-                list.add(VRDisplay.THIRD_PERSON);
+                list.add(VRCameraType.THIRD_PERSON);
             } else if (mirrorMode == MirrorMode.MIXED_REALITY) {
                 if (VRClientSettings.isMixedRealityWithFirstPerson() && VRClientSettings.isMixedRealityAsGrid2x2()) {
-                    list.add(VRDisplay.FIRST_PERSON);
+                    list.add(VRCameraType.FIRST_PERSON);
                 }
 
-                list.add(VRDisplay.THIRD_PERSON);
+                list.add(VRCameraType.THIRD_PERSON);
             }
         }
 

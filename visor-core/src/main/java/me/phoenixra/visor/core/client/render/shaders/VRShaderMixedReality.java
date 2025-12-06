@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.modified.client.WindowModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
@@ -63,9 +63,9 @@ public class VRShaderMixedReality implements VRShader{
         boolean withFirstPerson = VRClientSettings.isMixedRealityWithFirstPerson();
 
 
-        var roomPose = ClientContext.player.getPoseData(PoseDataType.ROOM);
-        var cameraElement = roomPose.getThirdPersonCamera();
-        Vector3f cameraPos = roomPose.getHeadPivot()
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var cameraElement = relativePose.getThirdPersonCamera();
+        Vector3f cameraPos = relativePose.getHeadPivot()
                 .sub(cameraElement.getPosition(), new Vector3f());
 
 

@@ -3,9 +3,9 @@ package me.phoenixra.visor.api.client.gui.overlays.framework.screen;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,7 +23,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected final int radialMenuSize;
 
     @Getter
-    protected ControllerHand usedHand;
+    protected HandType usedHand;
 
     protected HashMap<Integer, SelectionBox> selectionBoxes;
     @Getter
@@ -35,7 +35,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     private int selectedSlice = -1;
 
     protected VROverlayRadialSelector(@NotNull VisorAddon owner,
-                                      @NotNull ControllerHand hand,
+                                      @NotNull HandType hand,
                                       @NotNull String id,
                                       @NotNull ElementPriority priority,
                                       int radialMenuSize,
@@ -66,9 +66,9 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
         Vector2f cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
                 .findCursorPosition2D(
-                        VisorAPI.client().getPlayer()
-                                .getPoseData(PoseDataType.RENDER)
-                                .getController(
+                        VisorAPI.client().getVRLocalPlayer()
+                                .getPoseData(PlayerPoseType.RENDER)
+                                .getHand(
                                         usedHand
                                 ),
                         getPose().getPosition(),

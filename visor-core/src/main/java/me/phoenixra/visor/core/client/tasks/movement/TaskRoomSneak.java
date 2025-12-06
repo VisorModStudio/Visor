@@ -3,6 +3,7 @@ package me.phoenixra.visor.core.client.tasks.movement;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.ClientFeature;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
@@ -17,7 +18,7 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
 public class TaskRoomSneak extends VisorTask {
-    private static final String ID = "room_sneak";
+    private static final String ID = "movement_room_sneak";
 
     @Getter
     private static TaskRoomSneak instance;
@@ -38,13 +39,10 @@ public class TaskRoomSneak extends VisorTask {
             sneakTimer--;
         }
 
-        final double playerHeight = VRClientSettings.getPlayerHeight();
-        final double latestPivotY = ClientContext.rawPoseHandler.getHmdData()
-                .getPivotHistory().latest().y();
-        final double sneakThreshold = VRClientSettings.getSneakThreshold();
+        double fullHeight = ClientContext.localPlayer.getFullHeight();
+        double actualHeight = ClientContext.localPlayer.getActualHeight();
 
-        // Determine if the difference between the configured height and the current head height exceeds the threshold.
-        this.sneaking = (playerHeight - latestPivotY) > sneakThreshold;
+        this.sneaking = (actualHeight / fullHeight) <= VRClientSettings.getSneakThreshold();
     }
 
     @Override

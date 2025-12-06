@@ -20,12 +20,12 @@ public class SodiumWorldRendererMixin {
     @Group(name = "forceChunkUpdate", min = 1, max = 1)
     @ModifyVariable(method = "updateChunks", at = @At("STORE"), ordinal = 1, remap = false, expect = 0)
     private boolean visor$RenderUpdate(boolean dirty) {
-        return !VRRenderState.getCurrentPhase().isVanilla() || dirty;
+        return !VRRenderState.getPhase().isVanilla() || dirty;
     }
 
     @Group(name = "forceChunkUpdate", min = 1, max = 1)
     @ModifyVariable(method = "setupTerrain", at = @At("STORE"), ordinal = 2, remap = false, expect = 0)
     private boolean visor$RenderUpdateSodium5(boolean dirty) {
-        return !VRRenderState.getCurrentPhase().isVanilla() || dirty;
+        return !VRRenderState.getPhase().isVanilla() || dirty;
     }
 }

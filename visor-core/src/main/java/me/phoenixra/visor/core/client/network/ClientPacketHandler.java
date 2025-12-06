@@ -1,21 +1,18 @@
 package me.phoenixra.visor.core.client.network;
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.network.toclient.HandshakePayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.SettingsPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.UnknownPayloadToClient;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
-import me.phoenixra.visor.api.common.network.toclient.vrstate.VRActivePayloadToClient;
-import me.phoenixra.visor.api.common.network.toclient.vrstate.VRStatePayloadToClient;
-import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
-import me.phoenixra.visor.core.server.ServerConfig;
+import me.phoenixra.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
+import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherActivePayloadToClient;
+import me.phoenixra.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
+import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
+import me.phoenixra.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 
 public class ClientPacketHandler {
-    public static boolean displayedServerStatusMsg = false;
 
 
     public static void handlePacket(VisorPayloadToClient payloadClient){
@@ -24,47 +21,36 @@ public class ClientPacketHandler {
         Minecraft mc = Minecraft.getInstance();
         switch (payloadClient.payloadId()) {
             case HANDSHAKE -> {
-                var payload = (HandshakePayloadToClient) payloadClient;
-                if (!displayedServerStatusMsg
-                        && !Minecraft.getInstance().isLocalServer()) {
-                    displayedServerStatusMsg = true;
-                    mc.gui.getChat().addMessage(
-                            Component.translatable(
-                                    "visor.messages.server_mod",
-                                    payload.networkVersion()
-                            )
-                    );
-                }
-                if (VisorState.getState().isActive()
-                        && VRClientSettings.getPlayerHeight() == -1.0F) {
-                    mc.gui.getChat().addMessage(
-                            Component.translatable("visor.messages.calibrate_height")
-                    );
-                }
-                ClientNetworking.SERVER_HAS_VISOR = true;
+                ClientNetworking.receivedHandShake();
             }
             case SETTINGS -> {
                 var payload = (SettingsPayloadToClient) payloadClient;
 
-                ServerConfig.updateServerSettings(
+                ServerConfig.updateSettings(
                         VisorAPI.client().getConfigManager(),
                         payload.config()
                 );
             }
-            case PLAYER_VR_ACTIVE -> {
-                var payload = (VRActivePayloadToClient) payloadClient;
-                if (!payload.hasVr()) {
-                    VRRemotePlayers.getInstance()
+            case ROTATION_Y -> {
+                var payload = (RotationYPayloadToClient) payloadClient;
+                ClientContext.localPlayer.setRotationY(
+                        payload.rotationY()
+                );
+            }
+            case OTHER_VR_ACTIVE -> {
+                var payload = (VROtherActivePayloadToClient) payloadClient;
+                if (!payload.vrActive()) {
+                    VRClientPlayers
                             .removePlayer(payload.playerUUID());
                 }
             }
-            case PLAYER_VR_STATE -> {
-                var payload = (VRStatePayloadToClient) payloadClient;
-                VRRemotePlayers.getInstance().applyPlayer(
+            case OTHER_VR_STATE -> {
+                var payload = (VROtherStatePayloadToClient) payloadClient;
+                VRClientPlayers.receivedPacket(
                         payload.playerUUID(),
                         payload.pose(),
                         payload.worldScale(),
-                        payload.heightScale()
+                        payload.fullHeight()
                 );
             }
 

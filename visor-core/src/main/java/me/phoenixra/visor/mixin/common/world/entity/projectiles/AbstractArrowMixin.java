@@ -42,23 +42,16 @@ public abstract class AbstractArrowMixin extends Entity {
         if (!(livingEntity instanceof ServerPlayer player)) {
            return;
         }
-        VRServerPlayer serverPlayer = VisorAPI.server()
+        VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (serverPlayer == null || !serverPlayer.isVr()) {
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return;
         }
 
-        Vec3 handPos;
-        Vec3 handDir;
-        if (serverPlayer.getBowTension() > 0.0F) {
-            handDir = serverPlayer.getActiveHandPos().subtract(
-                    serverPlayer.getActiveHandPos()
-            ).normalize();
-            handPos = serverPlayer.getActiveHandPos();
-        }else{
-            handPos = serverPlayer.getActiveHandPos();
-            handDir = serverPlayer.getActiveHandDir();
-        }
+        var activeHand = vrPlayer.getPoseData()
+                .getActiveHand();
+        Vec3 handPos = activeHand.getPositionVec3();
+        Vec3 handDir = activeHand.getDirectionVec3();
 
         this.setPos(
                 handPos.x + handDir.x,
@@ -76,7 +69,7 @@ public abstract class AbstractArrowMixin extends Entity {
         }
         VRServerPlayer serverPlayer = VisorAPI.server()
                 .getVrPlayer(owner);
-        if (serverPlayer == null || !serverPlayer.isVr()){
+        if (serverPlayer == null || !serverPlayer.isVRActive()){
             return;
         }
         Vec3 hitPosHead = visor$getHitPosIfHead(entityHitResult);

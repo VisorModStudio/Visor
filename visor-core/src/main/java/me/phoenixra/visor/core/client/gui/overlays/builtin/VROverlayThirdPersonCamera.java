@@ -2,13 +2,13 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.render.VRCameraType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -80,7 +80,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     public void onUpdatePose(float partialTicks) {
         if(changingPosition){
             PoseAnchor anchor = ClientContext.cursorHandler
-                    .getCursorHand() == ControllerHand.MAIN ?
+                    .getCursorHand() == HandType.MAIN ?
                     PoseAnchor.MAIN_HAND : PoseAnchor.OFFHAND;
 
             posDragOffset.z = Mth.lerp(partialTicks, preTickOffsetZ, postTickOffsetZ);
@@ -98,7 +98,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
             return;
         }
-        var renderData = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        var renderData = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var camPosition = renderData
                 .getThirdPersonCamera().getPosition();
         var camRotation =  renderData
@@ -126,14 +126,14 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     }
 
     private void updateCameraPose(boolean save){
-        var roomData = ClientContext.player.getPoseData(PoseDataType.ROOM);
+        var roomData = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
         var newPosition = roomData
                 .convertPositionFrom(
-                        PoseDataType.RENDER,
+                        PlayerPoseType.RENDER,
                         getPose().getPosition()
                 );
         Quaternionfc newRotation = roomData.convertRotationFrom(
-                PoseDataType.RENDER,
+                PlayerPoseType.RENDER,
                 getPose().getRotation()
         ).getUnnormalizedRotation(new Quaternionf()).rotateY((float) Math.PI);
 
@@ -170,7 +170,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
     @Override
     protected boolean updateVisibility() {
-        return VRRenderState.getVRWorldDisplays().contains(VRDisplay.THIRD_PERSON);
+        return VRRenderState.getActiveCameraTypes().contains(VRCameraType.THIRD_PERSON);
     }
 
     @Override

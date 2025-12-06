@@ -1,8 +1,8 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
@@ -30,8 +30,8 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public static final String ID = "game_screen";
 
-    private Vector3fc roomPosition = null;
-    private Matrix4f roomRotation = null;
+    private Vector3fc relativePosition = null;
+    private Matrix4f relativeRotation = null;
 
     private float overlayScale = 1.0f;
 
@@ -119,10 +119,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || newScreen instanceof ChatScreen
                 || newScreen instanceof BookEditScreen
                 || newScreen instanceof AbstractSignEditScreen
-                || roomPosition == null
-                || roomRotation == null) {
-            PoseElement hmd = ClientContext.player
-                    .getPoseData(PoseDataType.ROOM)
+                || relativePosition == null
+                || relativeRotation == null) {
+            PoseElement hmd = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.RELATIVE)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 
@@ -135,7 +135,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
             var hmdPos = hmd.getPosition();
             var offset = hmd.getCustomVector(forwardVec);
-            roomPosition = new Vector3f(
+            relativePosition = new Vector3f(
                     offset.x / 2.0f + hmdPos.x(),
                     offset.y / 2.0f + hmdPos.y(),
                     offset.z / 2.0f + hmdPos.z()
@@ -143,15 +143,15 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
             // orient screen
             Vector3f look = new Vector3f(
-                    roomPosition.x() - hmdPos.x(),
-                    roomPosition.y() - hmdPos.y(),
-                    roomPosition.z() - hmdPos.z()
+                    relativePosition.x() - hmdPos.x(),
+                    relativePosition.y() - hmdPos.y(),
+                    relativePosition.z() - hmdPos.z()
             );
 
             float yaw = (float) (Math.PI + Mth.atan2(look.x, look.z));
             float pitch = (float) Math.asin((look.y / look.length()));
 
-            roomRotation = new Matrix4f().rotationY(yaw)
+            relativeRotation = new Matrix4f().rotationY(yaw)
                     .mul(new Matrix4f().rotationX(pitch));
 
         }
@@ -162,10 +162,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private void orientMainMenu(){
 
-        ClientContext.player.setRotationY(0);
+        ClientContext.localPlayer.setRotationY(0);
         overlayScale = 2.0f;
         Vector2f afloat = ClientUtils.getPlayAreaSize();
-        roomPosition = new Vector3f(
+        relativePosition = new Vector3f(
                 0.02f,
                 1.3F,
                 -Math.max(
@@ -173,25 +173,25 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                         1.5F
                 )
         );
-        roomRotation = new Matrix4f();
+        relativeRotation = new Matrix4f();
 
     }
 
     @Override
     public void onUpdatePose(float partialTicks) {
 
-        if (roomPosition == null || roomRotation == null) {
+        if (relativePosition == null || relativeRotation == null) {
             orient(
                     null,
                     MC.screen
             );
         }
 
-        VROverlayHelper.applyRoomPose(
+        VROverlayHelper.applyRelativePose(
                 this,
                 overlayScale,
-                roomPosition,
-                roomRotation
+                relativePosition,
+                relativeRotation
         );
 
     }
@@ -243,8 +243,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
 
     public void resetOrient() {
-        roomPosition = null;
-        roomRotation = null;
+        relativePosition = null;
+        relativeRotation = null;
         overlayScale = 1.0f;
     }
 

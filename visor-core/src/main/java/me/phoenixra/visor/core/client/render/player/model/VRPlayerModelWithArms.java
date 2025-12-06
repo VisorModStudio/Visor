@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import lombok.Getter;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayerData;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.ModelPart.Polygon;
 import net.minecraft.client.model.geom.ModelPart.Vertex;
@@ -181,23 +181,27 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
                           float netHeadYaw,
                           float headPitch) {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        VRRemotePlayerData remotePlayerData = VRRemotePlayers
-                .getInstance().getPlayer(entity.getUUID());
+        var vrPlayer= VRClientPlayers.getPlayer(entity.getUUID());
 
-        if (remotePlayerData == null) {
+        if (vrPlayer == null) {
             return;
         }
+        var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        double height = -1.501F * remotePlayerData.heightScale();
-        float offhandYaw = (float) Mth.atan2(-remotePlayerData.offhandDirection().x(), -remotePlayerData.offhandDirection().z());
-        float offhandPitch = (float) Math.asin(remotePlayerData.offhandDirection().y() / remotePlayerData.offhandDirection().length());
-        float mainHandYaw = (float) Mth.atan2(-remotePlayerData.mainHandDirection().x(), -remotePlayerData.mainHandDirection().z());
-        float mainHandPitch = (float) Math.asin(remotePlayerData.mainHandDirection().y() / remotePlayerData.mainHandDirection().length());
-        double bodyYaw = remotePlayerData.getBodyYawRad();
+        var offhandDir = renderPose.getOffhand().getDirection();
+        var mainHandDir = renderPose.getMainHand().getDirection();
+
+
+        double height = -1.501F * vrPlayer.getFullHeightScale();
+        float offhandYaw = (float) Mth.atan2(-offhandDir.x(), -offhandDir.z());
+        float offhandPitch = (float) Math.asin(offhandDir.y() / offhandDir.length());
+        float mainHandYaw = (float) Mth.atan2(-mainHandDir.x(), -mainHandDir.z());
+        float mainHandPitch = (float) Math.asin(mainHandDir.y() / mainHandDir.length());
+        double bodyYaw = renderPose.getBodyYaw();
 
         this.laying = this.swimAmount > 0.0F || entity.isFallFlying() && !entity.isAutoSpinAttack();
 
-        if (!remotePlayerData.leftHanded()) {
+        if (!vrPlayer.isLeftHanded()) {
             this.rightShoulder.setPos(
                     -Mth.cos(this.body.yRot) * 5.0F,
                     this.slim ? 2.5F : 2.0F,
@@ -226,10 +230,10 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             this.leftShoulder.y += 3.2F;
         }
 
-        Vector3f offhandArmPos = remotePlayerData.offhandPosition()
+        Vector3f offhandArmPos = renderPose.getOffhand().getPosition()
                 .add(0.0f, (float) height, 0.0f, new Vector3f())
                 .rotateY((float) (-Math.PI + bodyYaw))
-                .mul(16.0F / remotePlayerData.heightScale());
+                .mul(16.0F / vrPlayer.getFullHeightScale());
         this.leftHand.setPos(
                 -offhandArmPos.x,
                 -offhandArmPos.y,
@@ -259,10 +263,10 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             this.leftHand.xRot = (float) ((double) this.leftHand.xRot - (Math.PI / 2D));
         }
 
-        Vector3f mainArm = remotePlayerData.mainHandPosition()
+        Vector3f mainArm = renderPose.getMainHand().getPosition()
                 .add(0.0f, (float) height, 0.0f, new Vector3f())
                 .rotateY((float) (-Math.PI + bodyYaw))
-                .mul(16.0F / remotePlayerData.heightScale());
+                .mul(16.0F / vrPlayer.getFullHeightScale());
 
         this.rightHand.setPos(-mainArm.x, -((float) mainArm.y), mainArm.z);
         this.rightHand.xRot = (float) ((double) (-mainHandPitch) + (Math.PI * 1.5D));

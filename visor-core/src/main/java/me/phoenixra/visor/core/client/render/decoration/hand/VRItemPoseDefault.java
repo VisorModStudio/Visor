@@ -3,14 +3,13 @@ package me.phoenixra.visor.core.client.render.decoration.hand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -41,13 +40,13 @@ public class VRItemPoseDefault extends VRHandItemPose {
     @Override
     public void applyPose(@NotNull PoseStack stack,
                           @NotNull AbstractClientPlayer player,
-                          @NotNull ControllerHand hand,
+                          @NotNull HandType hand,
                           @NotNull ItemStack item,
                           float equipProgress,
                           float partialTicks) {
 
-        InteractionHand mcHand = hand == ControllerHand.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-        int handDir = hand == ControllerHand.MAIN ? 1 : -1;
+        InteractionHand mcHand = hand == HandType.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        int handDir = hand == HandType.MAIN ? 1 : -1;
 
 
         PoseParams params = computeParams(item, player, mcHand, handDir, equipProgress, partialTicks);
@@ -67,7 +66,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      float equipProgress,
                                      float partialTicks) {
         float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
-        ControllerHand controllerHand = ControllerHand.fromMcHand(mcHand);
+        HandType handType = HandType.fromMc(mcHand);
         // defaults
         float scale = 0.7f;
         float translateX = -0.05f, translateY = 0.005f, translateZ = 0f;
@@ -146,7 +145,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 translateZ += 0.1F;
             }
             case SHIELD -> {
-                if (VRClientSettings.isLeftHanded()) handDir *= -1;
+                if (ClientContext.localPlayer.isLeftHanded()) handDir *= -1;
                 scale = 0.4f;
                 translateY += 0.18f;
                 translateZ += 0.1f;
@@ -192,7 +191,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
                             if (VisorState.TICK_COUNT % 2 == 0) {
                                 ClientContext.inputManager.triggerHapticPulseMicroSec(
-                                        controllerHand, 200
+                                        handType, 200
                                 );
                             }
 
@@ -305,7 +304,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
 
     @Override
-    public boolean canApplyPose(@NotNull AbstractClientPlayer player, @NotNull ControllerHand hand, @NotNull ItemStack itemStack) {
+    public boolean canApplyPose(@NotNull AbstractClientPlayer player, @NotNull HandType hand, @NotNull ItemStack itemStack) {
         return true;
     }
 

@@ -6,7 +6,7 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.VRRenderer;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -170,8 +170,8 @@ public abstract class VRRendererBase implements VRRenderer {
         int eyeRenderWidth = (int) Math.ceil(eyeWidth * this.renderScale);
         int eyeRenderHeight = (int) Math.ceil(eyeHeight * this.renderScale);
 
-        List<VRDisplay> list = VRRenderState.getVRWorldDisplays();
-        for (VRDisplay renderStage : list) {
+        List<VRCameraType> list = VRRenderState.getActiveCameraTypes();
+        for (VRCameraType renderStage : list) {
             VisorClientImpl.LOGGER.info("VR Displays: {}", renderStage.toString());
         }
 
@@ -183,7 +183,7 @@ public abstract class VRRendererBase implements VRRenderer {
         );
 
         firstPersonTarget = new RenderTargetFirst();
-        if(list.contains(VRDisplay.FIRST_PERSON)
+        if(list.contains(VRCameraType.FIRST_PERSON)
                 || ShadersHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             firstPersonTarget.init(
@@ -192,7 +192,7 @@ public abstract class VRRendererBase implements VRRenderer {
         }
 
         thirdPersonTarget = new RenderTargetThird();
-        if(list.contains(VRDisplay.THIRD_PERSON)
+        if(list.contains(VRCameraType.THIRD_PERSON)
                 || ShadersHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             thirdPersonTarget.init(
@@ -233,7 +233,7 @@ public abstract class VRRendererBase implements VRRenderer {
         long windowPixels = (long) windowModif.visor$getActualScreenWidth() * windowModif.visor$getActualScreenHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
-        if (list.contains(VRDisplay.FIRST_PERSON)) {
+        if (list.contains(VRCameraType.FIRST_PERSON)) {
             vrPixels += windowPixels;
         }
 

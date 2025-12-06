@@ -9,7 +9,7 @@ import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.modified.client.MinecraftModified;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -172,7 +172,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
              ++VisorState.FRAME_COUNT;
 
              ClientContext.visor
-                     .earlyPreRenderVR(new PreRenderContext(
+                     .onGameLoopStart(new PreRenderContext(
                              profiler, tick,
                              visor$getPartialTicks()
                      ));
@@ -205,7 +205,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
 
             ClientContext.renderer.onGameRenderStart(renderLevel);
 
-            if (VRRenderState.getCurrentPhase().isVRGui()) {
+            if (VRRenderState.getPhase().isVRGui()) {
                 return false; //disable level rendering
             } else {
                 return renderLevel; //fallback on exception
@@ -324,7 +324,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
      * Overrides an action performed when
      * pressed "keyTogglePerspective" button
      * <br>
-     * So, instead this button changes mirror display type
+     * So, instead this button changes mirror camera type
      *
      * @param instance   s
      * @param cameraType s
@@ -430,7 +430,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     @Inject(at = @At("HEAD"), method = "setLevel")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
         if (VisorState.getState().isActive()) {
-            ClientContext.player.setOrigin(
+            ClientContext.localPlayer.setOrigin(
                     0.0f, 0.0f, 0.0f, true
             );
         }
@@ -445,13 +445,13 @@ public abstract class MinecraftMixin implements MinecraftModified {
          if (VisorState.getState().isInitialized() && entity != null) {
              if (entity != this.getCameraEntity()) {
                  // snap to entity, if it changed
-                 ClientContext.player.recenterOrigin(entity, true);
+                 ClientContext.localPlayer.recenterOrigin(entity, true);
              }
              if (entity != this.player) {
                  // ride the new camera entity
-                 TaskRoomVehicle.getInstance().onStartRiding(entity);
+                 TasVehicle.getInstance().onStartRiding(entity);
              } else {
-                 TaskRoomVehicle.getInstance().onStopRiding();
+                 TasVehicle.getInstance().onStopRiding();
              }
          }
      }

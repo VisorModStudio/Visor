@@ -4,12 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.compatibility.ShadersHelper;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -46,8 +46,8 @@ public class GlobalHandEffectCursor extends VRHandEffect {
         super(owner);
     }
     @Override
-    public void render(@NotNull ControllerHand hand,
-                       @NotNull VRDisplay renderDisplay,
+    public void render(@NotNull HandType hand,
+                       @NotNull VRCameraType cameraType,
                        @NotNull PoseStack poseStack,
                        boolean simpleHand,
                        float partialTicks) {
@@ -68,8 +68,8 @@ public class GlobalHandEffectCursor extends VRHandEffect {
             float rawLight = MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
                             new Vec3(
-                                    (Vector3f) ClientContext.player
-                                    .getPoseData(PoseDataType.RENDER)
+                                    (Vector3f) ClientContext.localPlayer
+                                    .getPoseData(PlayerPoseType.RENDER)
                                     .getHmd()
                                     .getPosition()
                             )
@@ -121,7 +121,7 @@ public class GlobalHandEffectCursor extends VRHandEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator,
-                             @NotNull ControllerHand hand,
+                             @NotNull HandType hand,
                              boolean simpleHand) {
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 

@@ -34,9 +34,9 @@ public abstract class VisorActionVec2 implements VisorAction {
 
 
 
-    private final Map<XRInteractionProfile, BindingPath> defaultBindings;
+    protected final Map<XRInteractionProfile, BindingPath> defaultBindings;
 
-    private final Map<XRInteractionProfile, BindingPath> bindings;
+    protected final Map<XRInteractionProfile, BindingPath> bindings;
 
 
     public VisorActionVec2(VisorActionSet actionSet,

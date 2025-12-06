@@ -34,7 +34,7 @@ public abstract class MouseHandlerMixin {
         }
 
         Vector3fHistory forwardMove = ClientContext.rawPoseHandler
-                .getControllerData(ClientContext.player.getActiveHand())
+                .getControllerData(ClientContext.localPlayer.getActiveHand())
                 .getForwardHistory();
         this.minecraft.getTutorial().onMouse(
                 1.0 - forwardMove

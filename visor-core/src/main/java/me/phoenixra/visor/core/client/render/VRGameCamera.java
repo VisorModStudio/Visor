@@ -1,9 +1,9 @@
 package me.phoenixra.visor.core.client.render;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.client.data.PoseElement;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Camera;
@@ -24,7 +24,7 @@ public class VRGameCamera extends Camera {
                       boolean thirdPerson,
                       boolean thirdPersonReverse,
                       float partialTicks) {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             super.setup(level, entity, thirdPerson, thirdPersonReverse, partialTicks);
         } else {
             setupVR(level, entity);
@@ -34,7 +34,7 @@ public class VRGameCamera extends Camera {
 
     @Override
     public void tick() {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             super.tick();
         }
     }
@@ -42,10 +42,10 @@ public class VRGameCamera extends Camera {
 
     @Override
     public boolean isDetached() {
-        if (VRRenderState.getCurrentPhase().isVanilla()) {
+        if (VRRenderState.getPhase().isVanilla()) {
             return super.isDetached();
         }
-        return VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON;
+        return VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON;
     }
 
 
@@ -55,27 +55,27 @@ public class VRGameCamera extends Camera {
         this.level = level;
         this.entity = entity;
 
-        VRDisplay display = VRRenderState.getCurrentVRDisplay();
-        PoseElement eye = ClientContext.player
-                .getPoseData(PoseDataType.RENDER)
-                .getElementForDisplay(display);
+        VRCameraType cameraType = VRRenderState.getCameraType();
+        PoseElement cameraElement = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER)
+                .getCameraPose(cameraType);
 
         // Position
         this.setPosition(new Vec3(
                 (Vector3f) RenderPoseHelper.getCameraPosition(
-                        display,
-                        ClientContext.player.getPoseData(PoseDataType.RENDER)
+                        cameraType,
+                        ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
                 )
         ));
 
         // Orientation
-        this.xRot = -eye.getPitch();
-        this.yRot =  eye.getYaw();
+        this.xRot = -cameraElement.getPitchDegrees();
+        this.yRot =  cameraElement.getYawDegrees();
 
         // Look, Up, Left vectors
-        var dir = eye.getDirection();
-        var upVec = eye.getCustomVector(VRMathUtils.UP_VECTOR);
-        var leftVec = eye.getCustomVector(VRMathUtils.LEFT_VECTOR);
+        var dir = cameraElement.getDirection();
+        var upVec = cameraElement.getCustomVector(VRMathUtils.UP_VECTOR);
+        var leftVec = cameraElement.getCustomVector(VRMathUtils.LEFT_VECTOR);
 
         this.getLookVector().set(dir.x(), dir.y(), dir.z());
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);

@@ -72,7 +72,7 @@ accessible field net/minecraft/network/Connection channel Lio/netty/channel/Chan
 # for quicktorch
 accessible method net/minecraft/client/Minecraft startUseItem ()V
 
-# to switch rendertargets for VR displays
+# to switch rendertargets for VR cameras
 mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
 accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
 

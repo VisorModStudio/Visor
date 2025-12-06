@@ -1,14 +1,14 @@
 package me.phoenixra.visor.core.client.tasks;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.tasks.RegisterVisorTask;
 import me.phoenixra.visor.api.client.tasks.TaskType;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.input.actionset.actions.ActionRightMouse;
 import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,8 +37,8 @@ public class TaskRoomConsume extends VisorTask {
     private static final int HAPTIC_DELAY_EAT_DRINK = 2;
     private static final int HAPTIC_DELAY_TOOT_HORN = 1;
 
-    private final EnumMap<ControllerHand, Boolean> consuming = new EnumMap<>(ControllerHand.class);
-    private final EnumMap<ControllerHand, Long> eatStartMap = new EnumMap<>(ControllerHand.class);
+    private final EnumMap<HandType, Boolean> consuming = new EnumMap<>(HandType.class);
+    private final EnumMap<HandType, Long> eatStartMap = new EnumMap<>(HandType.class);
 
     private boolean eatingPressed;
     public TaskRoomConsume(@NotNull VisorAddon owner) {
@@ -48,24 +48,24 @@ public class TaskRoomConsume extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        PoseDataImpl roomPose = ClientContext.player
-                .getPoseData(PoseDataType.ROOM);
+        LocalPlayerPose roomPose = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RELATIVE);
         Vector3fc hmdPos = roomPose.getHmd().getPosition();
         Vector3fc mouthPos = roomPose
-                .getController(ControllerHand.MAIN)
+                .getHand(HandType.MAIN)
                 .getCustomVector(new Vector3f(0, 0, 0))
                 .add(hmdPos);
 
-        for (ControllerHand hand : ControllerHand.values()) {
+        for (HandType hand : HandType.values()) {
             Vector3fc handPos = calculateHandPosition(roomPose, hand);
             if (mouthPos.distance(handPos) >= MOUTH_DISTANCE) {
                 consuming.put(hand, false);
                 continue;
             }
 
-            InteractionHand interactHand = (hand == ControllerHand.MAIN)
+            InteractionHand interactHand = (hand == HandType.MAIN)
                     ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-            ItemStack foodItem = (hand == ControllerHand.MAIN)
+            ItemStack foodItem = (hand == HandType.MAIN)
                     ? player.getMainHandItem() : player.getOffhandItem();
 
             if (!isConsumable(foodItem)) {
@@ -103,8 +103,8 @@ public class TaskRoomConsume extends VisorTask {
             }
         }
 
-        boolean isEating = consuming.getOrDefault(ControllerHand.MAIN, false)
-                || consuming.getOrDefault(ControllerHand.OFFHAND, false);
+        boolean isEating = consuming.getOrDefault(HandType.MAIN, false)
+                || consuming.getOrDefault(HandType.OFFHAND, false);
 
 
         if(isEating){
@@ -149,14 +149,14 @@ public class TaskRoomConsume extends VisorTask {
         return ID;
     }
 
-    private Vector3fc calculateHandPosition(PoseDataImpl roomPose,
-                                       ControllerHand hand) {
+    private Vector3fc calculateHandPosition(LocalPlayerPose roomPose,
+                                            HandType hand) {
         Vector3fc basePos = ClientContext.rawPoseHandler.getControllerData(hand)
                 .getPositionHistory()
                 .averagePosition(0.333f);
-        Vector3fc customOffset = roomPose.getController(hand)
+        Vector3fc customOffset = roomPose.getHand(hand)
                 .getCustomVector(new Vector3f(0.0f, 0.0f, -0.1f));
-        Vector3fc directionOffset = roomPose.getController(hand)
+        Vector3fc directionOffset = roomPose.getHand(hand)
                 .getDirection()
                 .mul(0.1f, new Vector3f());
         return basePos.add(customOffset, new Vector3f()).add(directionOffset);

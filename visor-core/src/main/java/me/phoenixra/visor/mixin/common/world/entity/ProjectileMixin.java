@@ -1,17 +1,13 @@
 package me.phoenixra.visor.mixin.common.world.entity;
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.ControllerHand;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TraceableEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,39 +34,13 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
         if (!(entity instanceof ServerPlayer player)) {
             return pVelocity;
         }
-        VRServerPlayer serverPlayer = VisorAPI.server().getVrPlayer(player);
-        if (serverPlayer == null || !serverPlayer.isVr()) {
+        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        if (vrPlayer == null || !vrPlayer.isVRActive()) {
             return pVelocity;
         }
-        this.visor$savedHandDir = serverPlayer.getActiveHandDir();
-
-        Projectile instance = ((Projectile) (Object) this);
-
-        boolean isArrow = (instance instanceof AbstractArrow)
-                && !(instance instanceof ThrownTrident);
-        if (!isArrow || serverPlayer.getBowTension() <= 0) {
-            return pVelocity;
-        }
-        boolean bowInMainHand = visor$isBow(
-                player.getItemInHand(InteractionHand.MAIN_HAND)
-        );
-        if (bowInMainHand) {
-            this.visor$savedHandDir = serverPlayer
-                    .getControllerPos(ControllerHand.MAIN)
-                    .subtract(
-                            serverPlayer.getControllerPos(
-                                    ControllerHand.OFFHAND
-                            )
-                    ).normalize();
-        } else {
-            this.visor$savedHandDir = serverPlayer
-                    .getControllerPos(ControllerHand.OFFHAND)
-                    .subtract(
-                            serverPlayer.getControllerPos(
-                                    ControllerHand.MAIN
-                            )
-                    ).normalize();
-        }
+        var poseData = vrPlayer.getPoseData();
+        this.visor$savedHandDir = poseData.getActiveHand()
+                .getDirectionVec3();
 
         return pVelocity;
     }

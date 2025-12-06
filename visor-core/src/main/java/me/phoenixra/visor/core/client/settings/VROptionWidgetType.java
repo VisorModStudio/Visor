@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import me.phoenixra.visor.core.client.ClientContext;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,30 +129,48 @@ public enum VROptionWidgetType {
             VROptionCategory.RENDERING,
             (it) -> null
     ),
-    WORLD_ROTATION_INCREMENT(
+    MOVEMENT_MODE(
             VROptionCategory.MOVEMENT,
-            (it) -> {
-                List<Float> entries = List.of(10f, 30f, 45f, 90f);
-                return OptionBehaviourFactory.discreteSlider(
-                        it, entries,
-                        () -> {
-                            int initialIndex = entries.indexOf(VRClientSettings.getWorldRotationIncrement());
-                            return initialIndex != -1
-                                    ? initialIndex
-                                    : entries.size() / 2;
-                        }
-                ).setOnUpdateName(
-                        (pair) -> {
-                            return pair.first() + String.format("%.0f" + "°"/*degrees*/, (float) pair.second());
-                        }
-                ).setOnChanged(
-                        () -> ClientContext.player.setRotationY(0)
-                ).build();
-            }),
+            (it) -> null
+    ),
     ROTATION_MODE(
             VROptionCategory.MOVEMENT,
             (it) -> null
-    );
+    ),
+    ROTATION_FLY_MODE(
+            VROptionCategory.MOVEMENT,
+            (it) -> null
+    ),
+    WALK_UP(
+            VROptionCategory.MOVEMENT,
+            (it) -> null
+    ),
+    WORLD_ROTATION_INCREMENT(
+            VROptionCategory.MOVEMENT,
+            (it) -> {
+        List<Float> entries = List.of(0f, 10f, 30f, 45f, 90f);
+        return OptionBehaviourFactory.discreteSlider(
+                it, entries,
+                () -> {
+                    int initialIndex = entries.indexOf(VRClientSettings.getWorldRotationIncrement());
+                    return initialIndex != -1
+                            ? initialIndex
+                            : entries.size() / 2;
+                }
+        ).setOnUpdateName(
+                (pair) -> {
+                    String value;
+                    if((float)pair.second() == 0){
+                        value = Component.translatable("visor.options.movement.world_rotation.smooth").getString();
+                    }else{
+                        value = String.format("%.0f" + "°"/*degrees*/, (float) pair.second());
+                    }
+                    return pair.first() + value;
+                }
+        ).setOnChanged(
+                () -> ClientContext.localPlayer.setRotationY(0)
+        ).build();
+    });
 
     @Getter
     @Setter

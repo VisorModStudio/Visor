@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.renderer.entity;
 
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -17,11 +17,11 @@ public class MobRendererMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getRopeHoldPosition(F)Lnet/minecraft/world/phys/Vec3;"), method = "renderLeash")
     public Vec3 visor$vrRenderLeash(Entity instance, float partialTick) {
-        if (VRRenderState.getCurrentPhase().isNotVRWorld()) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
             return instance.getRopeHoldPosition(partialTick);
         }
-        return new Vec3((Vector3f) RenderPoseHelper.getControllerPosition(
-                ControllerHand.MAIN
+        return new Vec3((Vector3f) RenderPoseHelper.getHandPosition(
+                HandType.MAIN
         ));
     }
 }

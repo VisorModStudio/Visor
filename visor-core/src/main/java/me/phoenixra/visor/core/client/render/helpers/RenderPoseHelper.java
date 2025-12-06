@@ -1,11 +1,11 @@
 package me.phoenixra.visor.core.client.render.helpers;
 
 import com.mojang.blaze3d.vertex.*;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.render.VRDisplay;
-import me.phoenixra.visor.core.client.data.PoseDataImpl;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.client.render.VRCameraType;
+import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import org.joml.Matrix3f;
@@ -23,20 +23,20 @@ public class RenderPoseHelper {
 
 
 
-    public static void applyDisplayPose(VRDisplay vrDisplay,
-                                        PoseStack poseStack){
-        applyDisplayOrientation(vrDisplay, poseStack);
-        applyDisplayTranslation(vrDisplay, poseStack);
+    public static void applyCameraPose(VRCameraType cameraType,
+                                       PoseStack poseStack){
+        applyCameraOrientation(cameraType, poseStack);
+        applyCameraTranslation(cameraType, poseStack);
     }
 
-    public static void applyDisplayOrientation(VRDisplay vrDisplay,
-                                               PoseStack poseStack) {
+    public static void applyCameraOrientation(VRCameraType cameraType,
+                                              PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         final Matrix4f rotationMatrix;
 
-        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
+        boolean smooth = cameraType == VRCameraType.FIRST_PERSON && mirrorSmooth > 0f;
         if (smooth) {
 
             // average rotation over history
@@ -50,7 +50,7 @@ public class RenderPoseHelper {
         } else {
             // direct VR eye/head rotation
             rotationMatrix = renderPose
-                    .getElementForDisplay(vrDisplay)
+                    .getCameraPose(cameraType)
                     .getRotation()
                     .transpose(new Matrix4f());
         }
@@ -60,13 +60,13 @@ public class RenderPoseHelper {
         poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
     }
 
-    public static void applyDisplayTranslation(VRDisplay vrDisplay,
-                                               PoseStack poseStack) {
-        if (!vrDisplay.isEye()) {
+    public static void applyCameraTranslation(VRCameraType cameraType,
+                                              PoseStack poseStack) {
+        if (!cameraType.isEye()) {
             return;
         }
-        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
-        var eyePos = renderPose.getElementForDisplay(vrDisplay).getPosition();
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        var eyePos = renderPose.getCameraPose(cameraType).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
 
@@ -75,19 +75,20 @@ public class RenderPoseHelper {
 
 
 
-    public static void applyControllerPose(ControllerHand hand,
-                                           PoseStack poseStack) {
-        PoseDataImpl renderPose = ClientContext.player.getPoseData(PoseDataType.RENDER);
+    public static void applyHandPose(HandType hand,
+                                     PoseStack poseStack) {
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        // move origin to controller pos relative to camera
-        var controllerPos = getControllerPosition(hand);
-        var cameraPos = getCameraPosition(VRRenderState.getCurrentVRDisplay(), renderPose);
-        var relative = controllerPos.sub(cameraPos, new Vector3f());
+        var handPose = renderPose.getHand(hand);
+        // move origin to hand pos relative to camera
+        var handPos = handPose.getPosition();
+
+        var cameraPos = getCameraPosition(VRRenderState.getCameraType(), renderPose);
+        var relative = handPos.sub(cameraPos, new Vector3f());
         poseStack.translate(relative.x, relative.y, relative.z);
 
-        // apply controller’s inverse rotation
-        Matrix4f invRot = renderPose
-                .getController(hand)
+        // apply hand’s inverse rotation
+        Matrix4f invRot = handPose
                 .getRotation()
                 .invert(new Matrix4f())
                 .transpose(new Matrix4f());
@@ -99,11 +100,11 @@ public class RenderPoseHelper {
     }
 
 
-    public static Vector3fc getCameraPosition(VRDisplay vrDisplay,
-                                              PoseData vrPose) {
+    public static Vector3fc getCameraPosition(VRCameraType cameraTye,
+                                              PlayerPoseClient vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        boolean smooth = vrDisplay == VRDisplay.FIRST_PERSON && mirrorSmooth > 0f;
+        boolean smooth = cameraTye == VRCameraType.FIRST_PERSON && mirrorSmooth > 0f;
         if (smooth) {
             var avg = ClientContext.rawPoseHandler
                     .getHmdData()
@@ -116,17 +117,17 @@ public class RenderPoseHelper {
                     .add(vrPose.getOrigin());
         }
 
-        return vrPose.getElementForDisplay(vrDisplay).getPosition();
+        return vrPose.getCameraPose(cameraTye).getPosition();
     }
 
 
 
 
-    public static Vector3fc getControllerPosition(ControllerHand hand) {
+    public static Vector3fc getHandPosition(HandType hand) {
         return ClientContext
-                .player
-                .getPoseData(PoseDataType.RENDER)
-                .getController(hand)
+                .localPlayer
+                .getPoseData(PlayerPoseType.RENDER)
+                .getHand(hand)
                 .getPosition();
     }
 

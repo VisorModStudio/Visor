@@ -19,7 +19,7 @@ public class EndPortalRendererMixins {
 
         @Inject(method = "renderType", at = @At("HEAD"), cancellable = true)
         private void visor$overrideShader(CallbackInfoReturnable<RenderType> cir) {
-            if (VRRenderState.getCurrentPhase().isNotVanilla()) {
+            if (VRRenderState.getPhase().isNotVanilla()) {
                 cir.setReturnValue(VRShaders.getEndPortal().getRenderType());
             }
         }
@@ -31,7 +31,7 @@ public class EndPortalRendererMixins {
 
         @Inject(method = "renderType", at = @At("HEAD"), cancellable = true)
         private void visor$overrideShader(CallbackInfoReturnable<RenderType> cir) {
-            if (VRRenderState.getCurrentPhase().isNotVanilla()) {
+            if (VRRenderState.getPhase().isNotVanilla()) {
                 cir.setReturnValue(VRShaders.getEndPortal().getRenderType());
             }
         }

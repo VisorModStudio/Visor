@@ -1,16 +1,22 @@
 package me.phoenixra.visor.core.client.input.actionset.game;
 
+import lombok.Getter;
 import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
+import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.OculusTouchSet;
 import me.phoenixra.atumvr.core.input.action.profileset.types.ValveIndexSet;
+import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomClimb;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
 import java.util.Map;
@@ -23,6 +29,10 @@ public class GameActionInputMovement extends VisorActionVec2 {
     private boolean wasMovement;
     private boolean wasAutoSprinting;
 
+    //@TODO rework it to get that hand type from atumvr or parent class?
+    @Getter
+    private static HandType handType = HandType.OFFHAND;
+
     public GameActionInputMovement(VisorActionSet actionSet) {
         super(actionSet, ID);
     }
@@ -31,19 +41,26 @@ public class GameActionInputMovement extends VisorActionVec2 {
     public void preTick() {
         super.preTick();
 
-        //@TODO
-        if(ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
+
+        if(ClientContext.cursorHandler.isHandFocused(handType)
+                || ClientContext.visor.isFeatureDisabled(ClientFeature.INPUT_MOVEMENT)){
             onClear();
             return;
         }
 
         Vector2f rawMove = getState();
 
-        Vector2f movement = ClientContext.player.getMovement();
+        Vector2f movement = ClientContext.localPlayer.getMovement();
+
+        if(VRClientSettings.getMoveMode(MC.player) == MovementMode.TELEPORT){
+            movement.set(rawMove);
+            ClientContext.localPlayer.setMoving(false);
+            return;
+        }
 
 
-        boolean climbing = false;
-        boolean moving = ClientContext.player.isMoving();
+        boolean climbing = ClientContext.localPlayer.isClimbing();
+        boolean moving = ClientContext.localPlayer.isMoving();
         float forward = 0F;
         if (/*!KeyboardHandler.SHOWING
                 && */!climbing) {
@@ -85,6 +102,8 @@ public class GameActionInputMovement extends VisorActionVec2 {
                     }
                 }
             }
+        }else {
+            moving = false;
         }
 
         if (!moving && this.wasMovement) {
@@ -94,11 +113,34 @@ public class GameActionInputMovement extends VisorActionVec2 {
             ClientUtils.updateKeyMappingState(MC.options.keyRight, false);
         }
         this.wasMovement = moving;
-        ClientContext.player.setMoving(moving);
+        ClientContext.localPlayer.setMoving(moving);
         if (this.wasAutoSprinting && forward < VRClientSettings.getSprintThreshold()) {
             MC.player.setSprinting(false);
             this.wasAutoSprinting = false;
         }
+    }
+
+    @Override
+    public void updateState(@NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
+        super.updateState(currentProfile, leftHanded);
+        BindingPath bindingPath = bindings.get(currentProfile.getType());
+        if(bindingPath == null){
+            return;
+        }
+
+        var vec2Data = getVec2Data(
+                bindingPath,
+                currentProfile,
+                leftHanded
+        );
+        if(vec2Data == null){
+            return;
+        }
+        handType = vec2Data.getId().contains("left")
+                ? HandType.OFFHAND
+                : HandType.MAIN;
+        handType = leftHanded ? handType.reversed() : handType;
+
     }
 
     @Override
@@ -108,11 +150,11 @@ public class GameActionInputMovement extends VisorActionVec2 {
 
     @Override
     protected void onClear() {
-        Vector2f input = ClientContext.player.getMovement();
+        Vector2f input = ClientContext.localPlayer.getMovement();
 
         input.x = 0;
         input.y = 0;
-        ClientContext.player.setMoving(false);
+        ClientContext.localPlayer.setMoving(false);
 
     }
 

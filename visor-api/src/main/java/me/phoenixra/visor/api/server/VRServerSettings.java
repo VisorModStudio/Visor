@@ -2,23 +2,63 @@ package me.phoenixra.visor.api.server;
 
 
 import lombok.Getter;
-import lombok.Setter;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 
 
 public class VRServerSettings {
-    @Getter @Setter
+    @Getter
     private static boolean serverDebug = false;
-    @Getter @Setter
+    @Getter
     private static boolean vrOnly = false;
 
-    @Getter @Setter
+    @Getter
+    private static boolean crawlingSupported = true;
+
+    @Getter
+    private static boolean climbingSupported = true;
+
+    @Getter
     private static boolean pvpVRvsVanilla = true;
-    @Getter @Setter
+    @Getter
     private static boolean pvpVRvsVR = true;
-    @Getter @Setter
+    @Getter
     private static boolean notifyPvpBlocked = false;
 
-    @Getter @Setter
+    @Getter
     private static double creeperSwellDistance = 1.75;
 
+    @Getter
+    private static SupportedMovement supportedMovement = SupportedMovement.BOTH;
+
+
+    @Getter
+    protected static int teleportUpLimit = 1;
+    @Getter
+    protected static int teleportDownLimit = 4;
+    @Getter
+    protected static int teleportForwardLimit = 16;
+
+
+    /**
+     * Reset server settings for client when joined dedicated server.
+     * <p>
+     *     In such case, we configure settings to make
+     *     them work on non-visor server.
+     *     If server supports visor,
+     *     it will send his configuration during handshake
+     * </p>
+     */
+    @Environment(EnvType.CLIENT)
+    public static void joinedDedicatedServer(){
+        vrOnly = false;
+        serverDebug = false;
+        crawlingSupported = false;
+        climbingSupported = false;
+        pvpVRvsVanilla = true;
+        pvpVRvsVR = true;
+        notifyPvpBlocked = false;
+        creeperSwellDistance = 1.75;
+        supportedMovement = SupportedMovement.CONTROLLER;
+    }
 }

@@ -6,7 +6,7 @@ import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.render.RenderPhase;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.addon.AddonManager;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.VREventBus;
@@ -151,7 +151,7 @@ public interface VisorAPI {
             @Override
             public @NotNull RenderPhase renderPhase() {return RenderPhase.VANILLA;}
             @Override
-            public @Nullable("Not rendering VR display") VRDisplay renderingDisplay() {return null;}
+            public @Nullable VRCameraType renderCameraType() {return null;}
         };
 
 

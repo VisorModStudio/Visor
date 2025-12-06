@@ -8,10 +8,12 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorServer;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.server.player.VRServerPlayer;
+import me.phoenixra.visor.core.common.ServerConfig;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 
 import me.phoenixra.visor.core.common.addon.CoreAddonServer;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.server.player.VRServerPlayerImpl;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +54,7 @@ public class VisorServerImpl implements VisorServer {
         // init server config
         ServerConfig serverConfig = new ServerConfig();
         try {
-            serverConfig.init();
+            serverConfig.onServerInit();
         }catch (Throwable e){
             LoggerUtils.printError(e);
         }
@@ -83,7 +85,7 @@ public class VisorServerImpl implements VisorServer {
     public VRServerPlayerImpl getVrPlayer(@NotNull ServerPlayer player) {
         VRServerPlayerImpl out = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
         if(out != null && out.getMcPlayer() != player){
-            out.mcPlayer = player;
+            out.setMcPlayer(player);
         }
         return out;
     }
@@ -98,17 +100,17 @@ public class VisorServerImpl implements VisorServer {
         if (vrPlayer == null) {
             return false;
         }
-        return vrPlayer.isVr();
+        return vrPlayer.isVRActive();
     }
 
     public void putVrPlayer(VRServerPlayerImpl player) {
-        playersWithVR.put(player.mcPlayer.getUUID(), player);
+        playersWithVR.put(player.getMcPlayer().getUUID(), player);
     }
 
     public void updateVrPlayer(ServerPlayer player) {
         VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
         if (vrServerPlayer != null) {
-            vrServerPlayer.mcPlayer = player;
+            vrServerPlayer.setMcPlayer(player);
         }
     }
 

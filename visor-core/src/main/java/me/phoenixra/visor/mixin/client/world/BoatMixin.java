@@ -1,10 +1,10 @@
 package me.phoenixra.visor.mixin.client.world;
 
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomBoat;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskBoat;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -64,9 +64,9 @@ public abstract class BoatMixin extends Entity {
         double momentumX, momentumZ;
 
         if (this.inputUp) {
-            float yaw = ClientContext.player
-                    .getPoseData(PoseDataType.PRE_TICK)
-                    .getController(ControllerHand.OFFHAND).getYaw();
+            float yaw = ClientContext.localPlayer
+                    .getPoseData(PlayerPoseType.TICK)
+                    .getHand(HandType.OFFHAND).getYawDegrees();
             float end = this.getYRot() % 360;
             float start = yaw;
             float difference = Math.abs(end - start);
@@ -96,7 +96,7 @@ public abstract class BoatMixin extends Entity {
             momentumZ = Mth.cos(this.getYRot() * Mth.DEG_TO_RAD) * forward;
         } else {
 
-            TaskRoomBoat trackerBoat = TaskRoomBoat.getInstance();
+            TaskBoat trackerBoat = TaskBoat.getInstance();
             if (trackerBoat.isRowing()) {
                 this.deltaRotation += (float) (trackerBoat.getOarLeft() / 1.5);
                 this.deltaRotation -= (float) (trackerBoat.getOarRight() / 1.5);

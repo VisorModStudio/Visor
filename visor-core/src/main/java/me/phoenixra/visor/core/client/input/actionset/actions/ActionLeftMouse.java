@@ -12,7 +12,7 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.BindingPath;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -26,7 +26,7 @@ public class ActionLeftMouse extends VisorActionButton {
 
     private static final int BUTTON_TYPE = 0;
 
-    private ControllerHand lastUsedHand = ControllerHand.MAIN;
+    private HandType lastUsedHand = HandType.MAIN;
 
     private VROverlay previousFocus;
 
@@ -162,7 +162,7 @@ public class ActionLeftMouse extends VisorActionButton {
     private void processCursorUpdate(VRActionDataButton buttonDataOffhand,
                                      VRActionDataButton buttonDataMain){
 
-        ControllerHand cursorHand = ClientContext.cursorHandler.getCursorHand();
+        HandType cursorHand = ClientContext.cursorHandler.getCursorHand();
 
         boolean offHandClicked = buttonDataOffhand.isPressed()
                 && buttonDataOffhand.isButtonChanged();
@@ -174,37 +174,37 @@ public class ActionLeftMouse extends VisorActionButton {
 
         //We make sure that button was clicked on one hand
         //and other hand button is not pressed or just released
-        if (cursorHand != ControllerHand.OFFHAND
+        if (cursorHand != HandType.OFFHAND
                 && offHandClicked
                 && !buttonDataMain.isPressed()
                 && !buttonDataMain.isButtonChanged()) {
 
-            if(!ClientContext.cursorHandler.isHandFocused(ControllerHand.OFFHAND)){
+            if(!ClientContext.cursorHandler.isHandFocused(HandType.OFFHAND)){
                 return;
             }
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
             ClientContext.cursorHandler.setCursorHand(
-                    ControllerHand.OFFHAND
+                    HandType.OFFHAND
             );
             ClientContext.cursorHandler.process();
             return;
         }
 
-        if (cursorHand != ControllerHand.MAIN
+        if (cursorHand != HandType.MAIN
                 && mainClicked
                 && !buttonDataOffhand.isPressed()
                 && !buttonDataOffhand.isButtonChanged()) {
 
-            if(!ClientContext.cursorHandler.isHandFocused(ControllerHand.MAIN)){
+            if(!ClientContext.cursorHandler.isHandFocused(HandType.MAIN)){
                 return;
             }
             if(!ClientContext.cursorHandler.isTwoHandedCursor()){
                 ignoreSingleClick = true;
             }
             ClientContext.cursorHandler.setCursorHand(
-                    ControllerHand.MAIN
+                    HandType.MAIN
             );
             ClientContext.cursorHandler.process();
         }
@@ -275,13 +275,13 @@ public class ActionLeftMouse extends VisorActionButton {
 
         if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
-            mainHand = ClientContext.player.getActiveHand() == ControllerHand.MAIN;
+            mainHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN;
         }else {
             var cursorHand = ClientContext.cursorHandler.getCursorHand();
-            mainHand = cursorHand == ControllerHand.MAIN;
+            mainHand = cursorHand == HandType.MAIN;
         }
 
-        lastUsedHand = mainHand ? ControllerHand.MAIN : ControllerHand.OFFHAND;
+        lastUsedHand = mainHand ? HandType.MAIN : HandType.OFFHAND;
         //Here we change leftHanded parameter for method call,
         //to match used hand
         if(leftHanded){

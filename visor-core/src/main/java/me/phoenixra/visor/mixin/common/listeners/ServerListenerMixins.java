@@ -25,7 +25,7 @@ public class ServerListenerMixins {
 
         @Inject(at = @At("TAIL"), method = "tick()V")
         public void visor$onTick(CallbackInfo info) {
-            ServerNetworking.sendVRStateToOthers(this.player);
+            ServerNetworking.sendPacketVRStateOf(this.player);
         }
 
         @Inject(at = @At("TAIL"), method = "onDisconnect")

@@ -1,11 +1,11 @@
 package me.phoenixra.visor.core.client.render.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.player.model.HeadsetModel;
 import me.phoenixra.visor.core.client.render.player.model.VRPlayerModelWithArms;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayerData;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -56,14 +56,15 @@ public class VRPlayerRenderer extends PlayerRenderer {
                        int pPackedLight
     ) {
 
-        VRRemotePlayerData vrPlayerNetworkData = VRRemotePlayers.getInstance()
+        var vrPlayer = VRClientPlayers
                 .getPlayer(entityIn.getUUID());
 
-        if (vrPlayerNetworkData != null) {
+        if (vrPlayer != null) {
+            float heightScale = vrPlayer.getFullHeightScale();
             matrixStackIn.scale(
-                    vrPlayerNetworkData.heightScale(),
-                    vrPlayerNetworkData.heightScale(),
-                    vrPlayerNetworkData.heightScale()
+                    heightScale,
+                    heightScale,
+                    heightScale
             );
             super.render(
                     entityIn, pEntityYaw, pPartialTicks,
@@ -71,7 +72,7 @@ public class VRPlayerRenderer extends PlayerRenderer {
             );
             matrixStackIn.scale(
                     1.0F,
-                    1.0F / vrPlayerNetworkData.heightScale(),
+                    1.0F / heightScale,
                     1.0F
             );
         }
@@ -101,10 +102,10 @@ public class VRPlayerRenderer extends PlayerRenderer {
                                   float pPartialTicks
     ) {
         UUID uuid = pEntityLiving.getUUID();
-        if (VRRenderState.getCurrentPhase().isNotVRGui()
-                && VRRemotePlayers.getInstance().isTracked(uuid)) {
-            VRRemotePlayerData vrPlayerNetworkData = VRRemotePlayers.getInstance().getPlayer(uuid);
-            pRotationYaw = (float) Math.toDegrees(vrPlayerNetworkData.getBodyYawRad());
+        if (VRRenderState.getPhase().isNotVRGui()
+                && VRClientPlayers.isTracked(uuid)) {
+            var vrPlayer = VRClientPlayers.getPlayer(uuid);
+            pRotationYaw = (float) Math.toDegrees(vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw());
         }
 
         //vanilla below here

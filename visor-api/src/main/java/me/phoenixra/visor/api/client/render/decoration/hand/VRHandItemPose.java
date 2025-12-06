@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.render.decoration.hand;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
 import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -28,19 +28,19 @@ public abstract class VRHandItemPose implements VisorElement, PrioritySupporter 
 
     public abstract void applyPose(@NotNull PoseStack poseStack,
                                    @NotNull AbstractClientPlayer player,
-                                   @NotNull ControllerHand hand,
+                                   @NotNull HandType hand,
                                    @NotNull ItemStack itemStack,
                                    float equippedProgress,
                                    float partialTick);
 
     public abstract boolean canApplyPose(@NotNull AbstractClientPlayer player,
-                                         @NotNull ControllerHand hand,
+                                         @NotNull HandType hand,
                                          @NotNull ItemStack itemStack);
 
 
 
     public boolean isEnabledAndCanApplyPose(@NotNull AbstractClientPlayer player,
-                                            @NotNull ControllerHand hand,
+                                            @NotNull HandType hand,
                                             @NotNull ItemStack itemStack){
         return enabled && canApplyPose(player, hand, itemStack);
     }

@@ -4,10 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.data.PoseDataType;
-import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
@@ -15,10 +13,9 @@ import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FilterListBinaryWidgetSet;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.element.ElementPriority;
-import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.CreateOverlayWidgetSet;
@@ -70,8 +67,8 @@ public class VROverlaySettings extends VROverlayScreen
     private final Vector3f posOffset = new Vector3f(0, 0, -0.75f);
     private final Vector3f rotationOffset = new Vector3f(0, 0, 0);
 
-    private Vector3fc roomPosition = null;
-    private Matrix4f roomRotation = null;
+    private Vector3fc relativePosition = null;
+    private Matrix4f relativeRotation = null;
 
     @Getter
     private SettingsTab settingsTab = SettingsTab.OVERLAYS;
@@ -292,11 +289,11 @@ public class VROverlaySettings extends VROverlayScreen
 
     @Override
     protected void onUpdatePose(float partialTicks) {
-        VROverlayHelper.applyRoomPose(
+        VROverlayHelper.applyRelativePose(
                 this,
                 getPose().getScale(),
-                roomPosition,
-                roomRotation
+                relativePosition,
+                relativeRotation
         );
     }
 
@@ -321,10 +318,10 @@ public class VROverlaySettings extends VROverlayScreen
                 posOffset,
                 rotationOffset
         );
-        roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
-        roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
+        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
     @Override
@@ -366,10 +363,10 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
         if(getForcedAnchor() != null && forcedAnchor == null){
-            roomPosition = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                    .convertPositionFrom(PoseDataType.RENDER, getPose().getPosition());
-            roomRotation = ClientContext.player.getPoseData(PoseDataType.ROOM)
-                    .convertRotationFrom(PoseDataType.RENDER, getPose().getRotation());
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
         }
         super.setForcedAnchor(forcedAnchor);
     }
@@ -390,7 +387,7 @@ public class VROverlaySettings extends VROverlayScreen
                     this
             );
             PoseAnchor anchor = ClientContext.cursorHandler
-                    .getCursorHand() == ControllerHand.MAIN
+                    .getCursorHand() == HandType.MAIN
                     ? PoseAnchor.MAIN_HAND
                     : PoseAnchor.OFFHAND;
             setForcedAnchor(anchor);

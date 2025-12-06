@@ -1,6 +1,6 @@
 package me.phoenixra.visor.mixin.client.renderer;
 
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,13 +19,13 @@ public class VRLightsMixins {
 
 
         /**
-         * Canceled if called from non-tick display
-         * @param info s
+         * Only process this when rendering vanilla
+         * or VR camera that is a worldUpdater
          */
         @Inject(at = @At("HEAD"), method = "pollLightUpdates", cancellable = true)
-        public void visor$noUpdateIfNotTickDisplay(CallbackInfo info){
+        public void visor$noUpdateOncePerFrame(CallbackInfo info){
             if(VisorState.getState().isNotActive()) return;
-            if (VRRenderState.getCurrentVRDisplay() != VRDisplay.worldUpdater()) {
+            if (VRRenderState.getCameraType() != VRCameraType.worldUpdater()) {
                 info.cancel();
             }
         }
@@ -39,15 +39,16 @@ public class VRLightsMixins {
 
         @Shadow
         public abstract int runLightUpdates();
+
         /**
-         * Canceled if called from non-tick display
-         * @param callbackInfo s
+         * Only process this when rendering vanilla
+         * or VR camera that is a worldUpdater
          */
         @Inject(at = @At("HEAD"), method = "runLightUpdates", cancellable = true)
-        public void visor$noUpdateIfNotTickDisplay(CallbackInfoReturnable<Integer> callbackInfo){
+        public void visor$noUpdateOncePerFrame(CallbackInfoReturnable<Integer> callbackInfo){
             if(VisorState.getState().isNotActive()) return;
             if(!visor$redirect) return;
-            if (VRRenderState.getCurrentVRDisplay() == VRDisplay.worldUpdater()) {
+            if (VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
                 visor$redirect = false;
                 callbackInfo.setReturnValue(runLightUpdates());
                 visor$redirect = true;

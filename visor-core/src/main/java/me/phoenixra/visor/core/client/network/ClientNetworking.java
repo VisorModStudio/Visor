@@ -1,15 +1,19 @@
 package me.phoenixra.visor.core.client.network;
 
+import lombok.Getter;
 import me.phoenixra.visor.api.ModLoader;
-import me.phoenixra.visor.api.common.network.buffer.PlayerPoseBuffer;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
+import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
+import me.phoenixra.visor.api.common.network.toserver.HandshakePayloadToServer;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.HeightPayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.VRPosePayloadToServer;
-import me.phoenixra.visor.api.common.network.toserver.vrstate.WorldScalePayloadToServer;
-import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
+import me.phoenixra.visor.api.common.network.toserver.vrstate.*;
+import me.phoenixra.visor.api.server.VRServerSettings;
+import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.util.Mth;
@@ -20,16 +24,27 @@ import me.phoenixra.visor.core.client.ClientContext;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class ClientNetworking {
-    public static boolean SERVER_HAS_VISOR = false;
+    @Getter
+    private static boolean serverSupportsVisor = false;
 
     private static float heightLastSent = 0.0F;
     private static float worldScaleLastSent = 1.0F;
+    private static float rotationYLastSent = 0;
+
 
 
     public static void sendVRPacket(VisorPayloadToServer payload) {
         if (MC.getConnection() == null) return;
-        if (!SERVER_HAS_VISOR) return;
+        if (!serverSupportsVisor) return;
         MC.getConnection().send(createVRPacket(payload));
+    }
+
+    public static void sendHandShake(HandshakePayloadToServer payload) {
+        if (MC.getConnection() == null) return;
+        MC.getConnection().send(createVRPacket(payload));
+        if(!Minecraft.getInstance().isLocalServer()) {
+            VRServerSettings.joinedDedicatedServer();
+        }
     }
 
     public static Packet<?> createVRPacket(VisorPayloadToServer payload) {
@@ -55,53 +70,68 @@ public class ClientNetworking {
             return;
         }
 
-        float playerHeight = VRClientSettings.getPlayerHeight();
-        if (playerHeight != heightLastSent) {
+        var localPlayer = ClientContext.localPlayer;
+
+        float height = localPlayer.getFullHeight();
+        if (height != heightLastSent) {
             sendVRPacket(
-                    new HeightPayloadToServer(
-                            playerHeight / 1.52F
+                    new FullHeightPayloadToServer(
+                            height
                     )
 
             );
-            heightLastSent = playerHeight;
+            heightLastSent = height;
         }
 
-        float worldScale = ClientContext.player.getWorldScale();
+        float worldScale = localPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale();
         if (worldScale != worldScaleLastSent) {
             sendVRPacket(
-                    new WorldScalePayloadToServer(
-                            worldScale
-                    )
-
+                    new WorldScalePayloadToServer(worldScale)
             );
             worldScaleLastSent = worldScale;
         }
+        float rotationY = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
+        if(rotationY != rotationYLastSent){
+            sendVRPacket(
+                    new RotationYPayloadToServer(rotationY)
+            );
+            rotationYLastSent = rotationY;
+        }
 
-        PlayerPoseBuffer vrPlayerState = PlayerPoseBuffer.create(
-                ClientContext.player,
-                VRClientSettings.isLeftHanded()
+        PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
+                localPlayer,
+                localPlayer.isLeftHanded()
         );
         sendVRPacket(
-                new VRPosePayloadToServer(vrPlayerState)
+                new PoseDataPayloadToServer(vrPlayerState)
         );
 
-        VRRemotePlayers.getInstance().applyPlayer(
-                MC.player.getUUID(),
-                vrPlayerState,
-                worldScale,
-                playerHeight / 1.52F,
-                true
-        );
     }
 
 
+    protected static void receivedHandShake(){
+        if (!Minecraft.getInstance().isLocalServer()) {
+            MC.gui.getChat().addMessage(
+                    Component.translatable(
+                            "visor.messages.server_supports"
+                    )
+            );
+        }
+        if (VisorState.getState().isActive()
+                && ClientContext.localPlayer.getFullHeight() == -1.0F) {
+            MC.gui.getChat().addMessage(
+                    Component.translatable("visor.messages.calibrate_height")
+            );
+        }
+        serverSupportsVisor = true;
+    }
 
-
-    public static void resetServerSettings() {
+    public static void dispose(){
+        serverSupportsVisor = false;
         heightLastSent = 0.0F;
-
-        // clear VR player data
-        VRRemotePlayers.clear();
+        worldScaleLastSent = 1.0F;
+        rotationYLastSent = 0;
+        VRClientPlayers.dispose();
     }
 
 }

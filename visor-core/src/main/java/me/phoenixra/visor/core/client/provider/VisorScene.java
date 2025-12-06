@@ -8,7 +8,7 @@ import me.phoenixra.atumvr.api.rendering.IRenderContext;
 import me.phoenixra.atumvr.api.rendering.VRRenderer;
 import me.phoenixra.atumvr.api.rendering.VRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRShaders;
@@ -68,18 +68,18 @@ public class VisorScene implements VRScene {
         profiler.pop();
         GLUtils.checkGLError("post VR Overlays texturing");
 
-        for (VRDisplay display : VRRenderState.getVRWorldDisplays()) {
-            profiler.push("VR world display: "+display.name());
+        for (VRCameraType cameraType : VRRenderState.getActiveCameraTypes()) {
+            profiler.push("VR camera type: "+cameraType.name());
 
-            renderVRDisplay(
-                    display,
+            renderCamera(
+                    cameraType,
                     renderContext
             );
-            GLUtils.checkGLError("post VR world display render: " + display.name());
+            GLUtils.checkGLError("post VR camera type render: " + cameraType.name());
 
 
             if (ClientContext.renderer.isAskedForScreenShot()) {
-                takeScreenshot(display);
+                takeScreenshot(cameraType);
             }
             profiler.pop();
         }
@@ -95,15 +95,15 @@ public class VisorScene implements VRScene {
 
     }
 
-    private void takeScreenshot(VRDisplay currentStage) {
+    private void takeScreenshot(VRCameraType currentStage) {
 
         boolean flag;
-        if (currentStage == VRDisplay.FIRST_PERSON) {
+        if (currentStage == VRCameraType.FIRST_PERSON) {
             flag = true;
         } else {
             flag = VRClientSettings.getMirrorEye() == EyeType.LEFT ?
-                    currentStage == VRDisplay.EYE_LEFT
-                    : currentStage == VRDisplay.EYE_RIGHT;
+                    currentStage == VRCameraType.EYE_LEFT
+                    : currentStage == VRCameraType.EYE_RIGHT;
         }
 
         if (flag) {
@@ -121,10 +121,10 @@ public class VisorScene implements VRScene {
 
     }
 
-    private void renderVRDisplay(VRDisplay display,
-                                 RenderContext context
+    private void renderCamera(VRCameraType cameraType,
+                              RenderContext context
     ) {
-        VRRenderState.startVRWorldPhase(display);
+        VRRenderState.startVRWorldPhase(cameraType);
 
         MC.mainRenderTarget.bindWrite(true);
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
@@ -137,9 +137,9 @@ public class VisorScene implements VRScene {
                 context.renderLevel()
         );
 
-        if (display.isEye()) {
+        if (cameraType.isEye()) {
 
-            if (display == VRDisplay.EYE_LEFT) {
+            if (cameraType == VRCameraType.EYE_LEFT) {
                 ClientContext.renderer.getTextureLeftEye()
                         .getRenderTarget().bindWrite(true);
             } else {
@@ -148,7 +148,7 @@ public class VisorScene implements VRScene {
             }
 
             VRShaders.getPostProcess().finishEye(
-                    display == VRDisplay.EYE_LEFT
+                    cameraType == VRCameraType.EYE_LEFT
                             ? EyeType.LEFT : EyeType.RIGHT,
                     MC.mainRenderTarget,
                     context.partialTicks()

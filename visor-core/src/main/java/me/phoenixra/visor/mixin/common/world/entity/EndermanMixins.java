@@ -44,13 +44,14 @@ public class EndermanMixins {
         public void visor$lookAtHmd(LookControl instance,
                                     double d, double e, double f) {
             if (this.target instanceof ServerPlayer player) {
-                VRServerPlayer serverPlayer = VisorAPI.server()
+                VRServerPlayer vrPlayer = VisorAPI.server()
                         .getVrPlayer(
                                 player
                         );
-                if(serverPlayer == null || !serverPlayer.isVr()) return;
+                if(vrPlayer == null || !vrPlayer.isVRActive()) return;
                 this.enderman.getLookControl().setLookAt(
-                        serverPlayer.getHmdPos(player)
+                        vrPlayer.getPoseData().getHmd()
+                                .getPositionVec3()
                 );
             }else{
                 instance.setLookAt(d,e,f);
@@ -84,11 +85,13 @@ public class EndermanMixins {
                                                       ServerPlayer player) {
             ItemStack itemstack = player.getInventory().armor.get(3);
             if (!itemstack.is(Items.CARVED_PUMPKIN)) { //no ender item
-                VRServerPlayer serverPlayer = VisorAPI.server()
+                VRServerPlayer vrPlayer = VisorAPI.server()
                         .getVrPlayer(player);
-                if (serverPlayer == null) return false;
+                if (vrPlayer == null) return false;
 
-                Vec3 hmdPos = serverPlayer.getHmdPos(player);
+                var hmd = vrPlayer.getPoseData().getHmd();
+
+                Vec3 hmdPos = hmd.getPositionVec3();
                 Vec3 relativePos = new Vec3(
                         enderman.getX() - hmdPos.x,
                         enderman.getEyeY() - hmdPos.y,
@@ -98,8 +101,7 @@ public class EndermanMixins {
                 double relativeLength = relativePos.length();
 
                 relativePos = relativePos.normalize();
-                double dotProd = serverPlayer
-                        .getHmdDir()
+                double dotProd = hmd.getDirectionVec3()
                         .dot(relativePos);
 
                 return dotProd > 0.975
@@ -107,7 +109,7 @@ public class EndermanMixins {
                         &&
                         visor$canEntityBeSeen(
                                 enderman,
-                                serverPlayer.getHmdPos(player)
+                                hmd.getPositionVec3()
                         );
             }
 

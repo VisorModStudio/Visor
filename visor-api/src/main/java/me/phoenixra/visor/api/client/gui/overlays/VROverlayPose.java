@@ -2,8 +2,8 @@ package me.phoenixra.visor.api.client.gui.overlays;
 
 import lombok.*;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
@@ -11,7 +11,7 @@ import org.joml.*;
 
 /**
  * Holder of overlay pose data,
- * relative to world render coordinates. {@link PoseDataType#RENDER}
+ * relative to world render coordinates. {@link PlayerPoseType#RENDER}
  */
 @EqualsAndHashCode @ToString
 public class VROverlayPose {
@@ -27,13 +27,13 @@ public class VROverlayPose {
     private final VROverlay owner;
 
     /**
-     * Get Overlay position of {@link PoseDataType#RENDER} type
+     * Get Overlay position of {@link PlayerPoseType#RENDER} type
      */
     @Getter
     private Vector3fc position = new Vector3f(0f, 0f, 0f);
 
     /**
-     * Get Overlay rotation of {@link PoseDataType#RENDER} type
+     * Get Overlay rotation of {@link PlayerPoseType#RENDER} type
      */
     @Getter
     private Matrix4fc rotation = new Matrix4f();
@@ -80,7 +80,7 @@ public class VROverlayPose {
         this.scale = overlayScale;
 
 
-        PoseData renderPose = VisorAPI.client().getPlayer().getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = QUAD_SCALE * scale * worldScale;
         float aspect = owner.getAspectRatio();
@@ -144,7 +144,7 @@ public class VROverlayPose {
      * from normalized coordinates
      * <p>
      *     The returned result
-     *     is of specified {@link PoseDataType pose type}
+     *     is of specified {@link PlayerPoseType pose type}
      * </p>
      *
      * @param returnType the PoseDataType in whose coordinate system to express the result
@@ -155,7 +155,7 @@ public class VROverlayPose {
      */
     public Vector3f getPositionAt(float xNorm, float yNorm,
                                   boolean useCursorBounds,
-                                  @NotNull PoseDataType returnType) {
+                                  @NotNull PlayerPoseType returnType) {
         if(useCursorBounds){
             int w = owner.getWidth();
             int h = owner.getHeight();
@@ -181,8 +181,8 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        PoseData targetPose = VisorAPI.client().getPlayer().getPoseData(returnType);
-        return targetPose.convertPositionFrom(PoseDataType.RENDER, pointInRender);
+        PlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 
     /**
@@ -190,7 +190,7 @@ public class VROverlayPose {
      * from normalized coordinates
      * <p>
      *     The returned result
-     *     is of specified {@link PoseDataType pose type}
+     *     is of specified {@link PlayerPoseType pose type}
      * </p>
      *
      * @param returnType the PoseDataType in whose coordinate system to express the result
@@ -203,7 +203,7 @@ public class VROverlayPose {
      */
     public Vector3f getPositionAt(float xNorm, float yNorm,
                                   int[] customBounds,
-                                  @NotNull PoseDataType returnType) {
+                                  @NotNull PlayerPoseType returnType) {
         if(customBounds != null){
             int w = owner.getWidth();
             int h = owner.getHeight();
@@ -229,7 +229,7 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        PoseData targetPose = VisorAPI.client().getPlayer().getPoseData(returnType);
-        return targetPose.convertPositionFrom(PoseDataType.RENDER, pointInRender);
+        PlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 }

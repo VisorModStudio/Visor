@@ -3,8 +3,8 @@ package me.phoenixra.visor.api.client.gui.overlays;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
@@ -63,8 +63,8 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
      * @return true/false
      */
     default boolean isInViewDistance(){
-        var hmdPos = VisorAPI.client().getPlayer()
-                .getPoseData(PoseDataType.PRE_TICK)
+        var hmdPos = VisorAPI.client().getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.TICK)
                 .getHmd().getPosition();
         return hmdPos.distance(getPose().getPosition()) < 5;
     }

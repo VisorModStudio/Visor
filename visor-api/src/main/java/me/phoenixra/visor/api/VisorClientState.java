@@ -3,7 +3,7 @@ package me.phoenixra.visor.api;
 import me.phoenixra.visor.api.client.VRPlayMode;
 import me.phoenixra.visor.api.client.VRStateMode;
 import me.phoenixra.visor.api.client.render.RenderPhase;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,10 +40,10 @@ public interface VisorClientState {
     RenderPhase renderPhase();
 
     /**
-     * Get VR Display
+     * Get VR Camera type that is currently rendered
      *
-     * @return the current {@link VRDisplay} or null
+     * @return the current {@link VRCameraType} or null
      */
     @Nullable
-    VRDisplay renderingDisplay();
+    VRCameraType renderCameraType();
 }

@@ -2,9 +2,9 @@ package me.phoenixra.visor.api.client.gui.overlays;
 
 
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.data.PoseAnchor;
-import me.phoenixra.visor.api.client.data.PoseData;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -21,28 +21,27 @@ public class VROverlayHelper {
     }
 
     /**
-     * Convenient if you want to calculate render position
-     * once and then just use its room representation,
-     * to be relative to room
+     * Convenient if you want to use room relative pose
+     * instead of render pose that uses world coordinates
      * @param overlay the overlay
      * @param overlayScale the new overlay scale
-     * @param roomPosition the new position relative to room
-     * @param roomRotation the new rotation relative to room
+     * @param relativePosition the new position relative to room
+     * @param relativeRotation the new rotation relative to room
      */
-    public static void applyRoomPose(@NotNull VROverlay overlay,
-                                     float overlayScale,
-                                     @NotNull Vector3fc roomPosition,
-                                     @NotNull Matrix4f roomRotation){
-        PoseData renderPose = VisorAPI.client().getPlayer()
-                .getPoseData(PoseDataType.RENDER);
+    public static void applyRelativePose(@NotNull VROverlay overlay,
+                                         float overlayScale,
+                                         @NotNull Vector3fc relativePosition,
+                                         @NotNull Matrix4f relativeRotation){
+        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
 
         Vector3f renderScreenPos = renderPose.convertPositionFrom(
-                PoseDataType.ROOM,
-                roomPosition
+                PlayerPoseType.RELATIVE,
+                relativePosition
         );
         Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
-                PoseDataType.ROOM,
-                roomRotation
+                PlayerPoseType.RELATIVE,
+                relativeRotation
         );
 
         overlay.getPose().update(
@@ -78,8 +77,8 @@ public class VROverlayHelper {
                                  @NotNull Vector3fc rotationOffset
     ) {
 
-        PoseData renderPose = VisorAPI.client().getPlayer()
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
 
         Vector3f newPosition = positionAnchor.anchorPos(
                 renderPose,
@@ -158,9 +157,9 @@ public class VROverlayHelper {
                                          @NotNull Vector3fc rotationOffset) {
         VROverlayPose targetPose = targetOverlay.getPose();
         VROverlayPose anchorPose = anchorOverlay.getPose();
-        PoseData renderPose  = VisorAPI.client()
-                .getPlayer()
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose  = VisorAPI.client()
+                .getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
 
         Vector3f anchorPointWorld =
@@ -168,7 +167,7 @@ public class VROverlayHelper {
                         anchorNormalX,
                         anchorNormalY,
                         anchorUseCursorBounds,
-                        PoseDataType.RENDER
+                        PlayerPoseType.RENDER
                 );
 
         Vector3f originWorld     = new Vector3f(targetPose.getPosition());
@@ -177,7 +176,7 @@ public class VROverlayHelper {
                         targetNormalX,
                         targetNormalY,
                         targetUseCursorBounds,
-                        PoseDataType.RENDER
+                        PlayerPoseType.RENDER
                 );
         Vector3f worldOffsetOld = new Vector3f(targetPointWorld)
                 .sub(originWorld);
@@ -244,9 +243,9 @@ public class VROverlayHelper {
                                          @NotNull Vector3fc rotationOffset) {
         VROverlayPose targetPose = targetOverlay.getPose();
         VROverlayPose anchorPose = anchorOverlay.getPose();
-        PoseData renderPose  = VisorAPI.client()
-                .getPlayer()
-                .getPoseData(PoseDataType.RENDER);
+        PlayerPoseClient renderPose  = VisorAPI.client()
+                .getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
 
         Vector3f anchorPointWorld =
@@ -254,7 +253,7 @@ public class VROverlayHelper {
                         anchorNormalX,
                         anchorNormalY,
                         anchorCustomBounds,
-                        PoseDataType.RENDER
+                        PlayerPoseType.RENDER
                 );
 
         Vector3f originWorld     = new Vector3f(targetPose.getPosition());
@@ -263,7 +262,7 @@ public class VROverlayHelper {
                         targetNormalX,
                         targetNormalY,
                         targetCustomBounds,
-                        PoseDataType.RENDER
+                        PlayerPoseType.RENDER
                 );
         Vector3f worldOffsetOld = new Vector3f(targetPointWorld)
                 .sub(originWorld);

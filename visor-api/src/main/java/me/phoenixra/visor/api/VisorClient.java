@@ -3,13 +3,21 @@ package me.phoenixra.visor.api;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumvr.api.VRProvider;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.VRClientPlayer;
+import me.phoenixra.visor.api.client.player.VRClientPlayer;
+import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
 import me.phoenixra.visor.api.client.input.InputManager;
+import me.phoenixra.visor.api.client.player.VRRemotePlayer;
+import me.phoenixra.visor.api.client.player.pose.RawController;
+import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.client.render.VRRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
+import me.phoenixra.visor.api.common.HandType;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 /**
  * Access point for client-side part of the Visor
@@ -34,13 +42,29 @@ public interface VisorClient {
         return !isFeatureEnabled(feature);
     }
 
+
     /**
-     * Get VR Client Player
+     * Get VR Client Player from uuid.
      *
-     * @return VRClientPlayer instance
+     * <p>
+     *     if <code>uuid</code> is associated with
+     *     mc local or remote player the method will return
+     *     {@link VRLocalPlayer} or {@link VRRemotePlayer} instance,
+     *     otherwise null
+     * </p>
+     *
+     * @return VRClientPlayer instance or null
+     */
+    @Nullable
+    VRClientPlayer getVRPlayer(@NotNull UUID uuid);
+
+    /**
+     * Get VR Local Player
+     *
+     * @return VRLocalPlayer instance
      */
     @NotNull
-    VRClientPlayer getPlayer();
+    VRLocalPlayer getVRLocalPlayer();
 
 
     /**

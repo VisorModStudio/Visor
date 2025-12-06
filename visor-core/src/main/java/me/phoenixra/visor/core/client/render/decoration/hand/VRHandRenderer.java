@@ -5,11 +5,11 @@ import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.render.VRDisplay;
+import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
-import me.phoenixra.visor.api.common.ControllerHand;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.compatibility.ShadersHelper;
@@ -56,7 +56,7 @@ public class VRHandRenderer {
 
 
     public void applyItemHandPose(@NotNull AbstractClientPlayer player,
-                                  @NotNull ControllerHand hand,
+                                  @NotNull HandType hand,
                                   @NotNull ItemStack itemStack,
                                   @NotNull PoseStack poseStack,
                                   float equippedProgress,
@@ -108,7 +108,7 @@ public class VRHandRenderer {
             return;
         }
         //don't render world hands in third person
-        if(VRRenderState.getCurrentVRDisplay() == VRDisplay.THIRD_PERSON){
+        if(VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON){
             if(VRClientSettings.getMirrorMode() != MirrorMode.MIXED_REALITY){
                 return;
             }
@@ -119,12 +119,12 @@ public class VRHandRenderer {
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
-        VRDisplay display = VRRenderState.getCurrentVRDisplay();
+        VRCameraType cameraType = VRRenderState.getCameraType();
         Collection<VRHandEffect> effects = effectsRegistry.getElementsMap().values();
 
-        if (renderMain && isControllerTracking(ControllerHand.MAIN)) {
-            boolean isCursorHand = cursorHandler.isHandFocused(ControllerHand.MAIN)
-                    && (cursorHandler.getCursorHand() == ControllerHand.MAIN
+        if (renderMain && isTrackingHand(HandType.MAIN)) {
+            boolean isCursorHand = cursorHandler.isHandFocused(HandType.MAIN)
+                    && (cursorHandler.getCursorHand() == HandType.MAIN
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = isGui
                     || isCursorHand
@@ -132,18 +132,18 @@ public class VRHandRenderer {
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
 
             renderHand(
-                    ControllerHand.MAIN,
+                    HandType.MAIN,
                     poseStack,
                     partialTicks,
                     isGuiHand,
-                    display,
+                    cameraType,
                     effects,
                     decorator
             );
         }
-        if (renderOffhand && isControllerTracking(ControllerHand.OFFHAND)) {
-            boolean isCursorHand = cursorHandler.isHandFocused(ControllerHand.OFFHAND)
-                    && (cursorHandler.getCursorHand() == ControllerHand.OFFHAND
+        if (renderOffhand && isTrackingHand(HandType.OFFHAND)) {
+            boolean isCursorHand = cursorHandler.isHandFocused(HandType.OFFHAND)
+                    && (cursorHandler.getCursorHand() == HandType.OFFHAND
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = isGui
                     || isCursorHand
@@ -151,11 +151,11 @@ public class VRHandRenderer {
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
 
             renderHand(
-                    ControllerHand.OFFHAND,
+                    HandType.OFFHAND,
                     poseStack,
                     partialTicks,
                     isGuiHand,
-                    display,
+                    cameraType,
                     effects,
                     decorator
             );
@@ -164,19 +164,19 @@ public class VRHandRenderer {
         RenderSystem.restoreProjectionMatrix();
     }
 
-    private void renderHand(ControllerHand hand,
+    private void renderHand(HandType hand,
                             @NotNull PoseStack poseStack,
                             float partialTicks,
                             boolean isGui,
-                            VRDisplay display,
+                            VRCameraType cameraType,
                             Collection<VRHandEffect> effects,
                             VRDecorator decorator) {
 
         poseStack.pushPose();
 
         poseStack.setIdentity();
-        RenderPoseHelper.applyDisplayOrientation(display, poseStack);
-        RenderPoseHelper.applyControllerPose(hand, poseStack);
+        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyHandPose(hand, poseStack);
 
         var stageEffects = groupEffectsByStage(effects, decorator, hand, isGui);
 
@@ -186,7 +186,7 @@ public class VRHandRenderer {
         renderHandEffects(
                 stageEffects.get(VRHandEffect.RenderStage.BEFORE_HANDS),
                 hand,
-                display,
+                cameraType,
                 poseStack,
                 isGui,
                 partialTicks
@@ -201,7 +201,7 @@ public class VRHandRenderer {
         renderHandEffects(
                 stageEffects.get(VRHandEffect.RenderStage.AFTER_HANDS),
                 hand,
-                display,
+                cameraType,
                 poseStack,
                 isGui,
                 partialTicks
@@ -237,8 +237,8 @@ public class VRHandRenderer {
             float light = (float) MC.level.getMaxLocalRawBrightness(
                     BlockPos.containing(
                             new Vec3(
-                                    (Vector3f) ClientContext.player
-                                                    .getPoseData(PoseDataType.RENDER)
+                                    (Vector3f) ClientContext.localPlayer
+                                                    .getPoseData(PlayerPoseType.RENDER)
                                                     .getHmd().getPosition()
                             )
                     )
@@ -273,7 +273,7 @@ public class VRHandRenderer {
     }
 
     private void renderWorldHand(PoseStack poseStack,
-                                 ControllerHand hand,
+                                 HandType hand,
                                  float partialTicks) {
 
         if(MC.player == null) return;
@@ -308,21 +308,21 @@ public class VRHandRenderer {
 
 
     private void renderHandEffects(Collection<VRHandEffect> effects,
-                                   ControllerHand hand,
-                                   VRDisplay display,
+                                   HandType hand,
+                                   VRCameraType cameraType,
                                    PoseStack poseStack,
                                    boolean isSimple,
                                    float partialTicks) {
         if (effects == null || effects.isEmpty()) return;
 
         effects.forEach(it->
-                it.render(hand, display, poseStack, isSimple, partialTicks)
+                it.render(hand, cameraType, poseStack, isSimple, partialTicks)
         );
     }
 
 
     private Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> groupEffectsByStage(
-            Collection<VRHandEffect> effects, VRDecorator decorator, ControllerHand hand, boolean isSimple) {
+            Collection<VRHandEffect> effects, VRDecorator decorator, HandType hand, boolean isSimple) {
 
         Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> map = new EnumMap<>(VRHandEffect.RenderStage.class);
         for (VRHandEffect effect : effects) {
@@ -337,8 +337,9 @@ public class VRHandRenderer {
         return map;
     }
 
-    private boolean isControllerTracking(ControllerHand hand) {
-        return ClientContext.rawPoseHandler.getControllerData(hand).isTracking();
+    private boolean isTrackingHand(HandType hand) {
+        return ClientContext.rawPoseHandler.getControllerData(hand)
+                .isTracking();
     }
 
 }

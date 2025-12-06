@@ -102,7 +102,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             if (!effect.isEnabledAndVisible(currentDecorator)) continue;
 
             effect.render(
-                    VRRenderState.getCurrentVRDisplay(),
+                    VRRenderState.getCameraType(),
                     poseStack,
                     partialTick
             );

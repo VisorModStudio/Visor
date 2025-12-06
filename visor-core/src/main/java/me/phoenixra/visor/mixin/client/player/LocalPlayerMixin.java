@@ -1,23 +1,25 @@
 package me.phoenixra.visor.mixin.client.player;
 
-import com.mojang.authlib.GameProfile;
-import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.data.PoseDataType;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.input.HandAction;
-import me.phoenixra.visor.api.common.ControllerHand;
+import me.phoenixra.visor.api.common.HandType;
+import me.phoenixra.visor.api.common.network.toserver.TeleportMovePayloadToServer;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.network.ClientNetworking;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TaskRoomVehicle;
+import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
+import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
+import me.phoenixra.visor.mixin.common.player.Common_PlayerMixin;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.ItemInHandRendererModified;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -30,22 +32,19 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends AbstractClientPlayer implements LocalPlayerModified {
+public abstract class LocalPlayerMixin extends Common_PlayerMixin implements LocalPlayerModified {
 
 
     @Final
@@ -62,13 +61,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     @Unique
     private Vec3 visor$moveMulIn = Vec3.ZERO;
     @Unique
-    private boolean visor$initialized;
-    @Unique
     private boolean visor$walkUpBlocksActive = false;
 
-    public LocalPlayerMixin(ClientLevel clientLevel, GameProfile gameProfile) {
-        super(clientLevel, gameProfile);
-    }
+    @Unique
+    private boolean visor$teleported;
 
     @Shadow
     protected abstract void updateAutoJump(float f, float g);
@@ -77,16 +73,17 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     public abstract void swing(InteractionHand interactionHand);
 
 
+
     /* ****************** *\
-  //--------VEHICLE--------\\
-    \* ****************** */
+      //--------VEHICLE--------\\
+        \* ****************** */
     @Inject(at = @At("TAIL"), method = "startRiding")
     public void visor$onStartRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
         if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TaskRoomVehicle.getInstance()
+        TasVehicle.getInstance()
                 .onStartRiding(
                         entity
                 );
@@ -99,7 +96,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TaskRoomVehicle.getInstance()
+        TasVehicle.getInstance()
                 .onStopRiding();
     }
 
@@ -115,9 +112,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.updatePlayerLook(
+        ClientContext.localPlayer.updatePlayerLook(
                 (LocalPlayer) (Object) this,
-                PoseDataType.PRE_TICK
+                PlayerPoseType.TICK
         );
     }
 
@@ -127,108 +124,111 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.updatePlayerLook(
-                (LocalPlayer) (Object) this,
-                PoseDataType.PRE_TICK
+        var player = visor$getPlayer();
+        if (ClientContext.localPlayer.isCrawling()) {
+            player.setPose(Pose.SWIMMING);
+        }
+        ClientContext.localPlayer.updatePlayerLook(
+                player,
+                PlayerPoseType.TICK
         );
     }
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;aiStep()V"), method = "aiStep")
     public void visor$tickPlayer(CallbackInfo ci) {
         if (VisorState.getState().isNotActive()
-                || !visor$isLocalPlayer(this)
-                || !visor$initialized) {
+                || !visor$isLocalPlayer(this)) {
             return;
         }
-        ClientContext.player.tickPlayer(
-                (LocalPlayer) (Object) this
+        ClientContext.localPlayer.tickPlayer(
+                visor$getPlayer()
         );
     }
 
-    /**
-     * Updates client origin position on move
-     *
-     * @param info s
-     */
-    @Inject(at = @At("HEAD"), method = "move", cancellable = true)
-    public void visor$onMove(MoverType type, Vec3 pos, CallbackInfo info) {
+
+
+    @Override
+    protected void visor$wrapMove(MoverType type,
+                                  Vec3 pos,
+                                  Operation<Void> original) {
         if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)
-                || Minecraft.getInstance().getCameraEntity() != this) {
+                || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
             if (this.visor$walkUpBlocksActive) {
-                this.setMaxUpStep(0.6F);
+                setMaxUpStep(0.6F);
                 this.visor$walkUpBlocksActive = false;
             }
+            original.call(type, pos);
             return;
         }
-        info.cancel();
         // stuckSpeedMultiplier gets zeroed in the super call.
         this.visor$moveMulIn = this.stuckSpeedMultiplier;
 
         if (pos.length() == 0 || this.isPassenger()) {
-            super.move(type, pos);
+            original.call(type, pos);
             return;
         }
 
         boolean canMoveY = true;
 
-        Vector3fc origin = ClientContext.player.getOrigin();
+        Vector3fc origin = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK)
+                .getOrigin();
 
         if ((this.zza != 0.0F
                 || this.isFallFlying()
-                || Math.abs(this.getDeltaMovement().x) > 0.0095 ||
-                Math.abs(this.getDeltaMovement().z) > 0.0095
+                || Math.abs(this.getDeltaMovement().x) > 0.0095
+                || Math.abs(this.getDeltaMovement().z) > 0.0095
         )) {
             double xOffset = origin.x() - this.getX();
             double zOffset = origin.z() - this.getZ();
             double prevX = this.getX();
             double prevZ = this.getZ();
-            super.move(type, pos);
+            original.call(type, pos);
 
             if (VRClientSettings.isWalkUpEnabled()) {
-                this.setMaxUpStep(this.getBlockJumpFactor() == 1.0F ? 1.0F : 0.6F);
                 this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F;
+                this.setMaxUpStep(
+                        this.visor$walkUpBlocksActive
+                        ? 1.0F : 0.6F
+                );
             } else {
                 if (this.visor$walkUpBlocksActive) {
                     this.setMaxUpStep(0.6F);
                     this.visor$walkUpBlocksActive = false;
                 }
-                this.updateAutoJump((float) (this.getX() - prevX), (float) (this.getZ() - prevZ));
+                this.updateAutoJump(
+                        (float) (this.getX() - prevX),
+                        (float) (this.getZ() - prevZ)
+                );
             }
 
-            ClientContext.player.setOrigin(
+            ClientContext.localPlayer.setOrigin(
                     (float) (this.getX() + xOffset),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     (float) (this.getZ() + zOffset),
                     false
             );
-            return;
-        }
-
-        if (canMoveY) {
-            super.move(type, new Vec3(0.0D, pos.y, 0.0D));
-            ClientContext.player.setOrigin(
+        } else if (canMoveY) {
+            original.call(type, new Vec3(0.0D, pos.y, 0.0D));
+            ClientContext.localPlayer.setOrigin(
                     origin.x(),
                     (float) (this.getY() + this.visor$getRoomYOffset()),
                     origin.z(),
                     false
             );
-            return;
+        }else {
+            this.setOnGround(true);
         }
 
-        this.setOnGround(true);
-
-
     }
-
-    /**
-     * VR Input movement
-     */
     @Override
-    public void moveRelative(float inputStrength, @NotNull Vec3 relative) {
+    protected void visor$wrapMoveRelative(float amount,
+                                          Vec3 relative,
+                                          Operation<Void> original){
         if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
-            super.moveRelative(inputStrength, relative);
+            original.call(amount, relative);
             return;
         }
 
@@ -243,7 +243,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 Math.sqrt(speed)
         );
 
-        speed = (double) inputStrength / speed;
+        speed = (double) amount / speed;
         Vec3 move = new Vec3(
                 relative.x * speed,
                 0.0D,
@@ -251,8 +251,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         );
 
 
-        var rotationElement = ClientContext.player
-                .getRotationElement(PoseDataType.PRE_TICK);
+        var rotationElement = ClientContext.localPlayer
+                .getRotationElement(PlayerPoseType.TICK);
 
         //SWIMMING OR FLYING
         if (!this.isPassenger()
@@ -260,14 +260,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
 
             move = move.xRot(
                     rotationElement.getPitch()
-                            * ((float) Math.PI / 180F)
             );
         }
         move = move.yRot(
-                rotationElement
-                        .getYaw()
-                        * ((float) Math.PI / 180F)
-                        * -1
+                rotationElement.getYaw() * -1
         );
 
 
@@ -280,32 +276,43 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
                 this.getDeltaMovement().y + move.y * (double) yFactor,
                 this.getDeltaMovement().z + move.z
         );
-
     }
 
-
-    /**
-     * Updates client origin position
-     * when instantly moved.
-     * (Also called by mc on world join, so, we need
-     * to make sure origin recenter to have right rendering pose)
-     */
     @Override
-    public void absMoveTo(double x, double e, double y, float g, float z) {
-        super.absMoveTo(x, e, y, g, z);
-        if (VisorState.getState().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+    protected void visor$injectSetPos(double x,
+                                      double y,
+                                      double z,
+                                      CallbackInfo ci) {
+
+        boolean shouldReset = (x + y + z) == 0;
+        if (this.isPassenger()) {
+            Vec3 premountPos = TasVehicle.getInstance().premountPosRoom;
+            premountPos = premountPos
+                    .yRot(
+                            ClientContext.localPlayer
+                                    .getPoseData(PlayerPoseType.PREV_TICK)
+                                    .getRotationY()
+                    );
+            x = x - premountPos.x;
+            z = z - premountPos.z;
+            ClientContext.localPlayer.setOrigin(
+                    (float) x, (float) y, (float) z,
+                    shouldReset
+            );
             return;
         }
-        ClientContext.player.recenterOrigin(
-                (LocalPlayer) (Object) this,
-                false
+
+        ClientContext.localPlayer.recenterOrigin(
+                (LocalPlayer)(Object)this,
+                shouldReset
         );
+
     }
 
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;lastOnGround:Z", shift = At.Shift.AFTER, ordinal = 1), method = "sendPosition")
     public void visor$walkUp(CallbackInfo ci) {
+        this.visor$teleported = false;
         if (VisorState.getState().isNotActive()
                 || !VRClientSettings.isWalkUpEnabled()) {
             return;
@@ -313,75 +320,62 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         this.minecraft.options.autoJump().set(false);
     }
 
-    @Override
-    public void setPos(double posX, double posY, double posZ) {
-        this.visor$initialized = true;
-        if (VisorState.getState().isNotActive()
-                || !visor$isLocalPlayer(this)) {
-            super.setPos(posX, posY, posZ);
-            return;
-        }
-
-        super.setPos(posX, posY, posZ);
 
 
-        boolean shouldReset = (posX + posY + posZ) == 0;
-        if (this.isPassenger()) {
-            Vec3 premountPos = TaskRoomVehicle.getInstance().premountPosRoom;
-            premountPos = premountPos
-                    .yRot(
-                            ClientContext.player
-                                    .getPoseData(PoseDataType.PRE_TICK)
-                                    .getRotationY()
-                    );
-            posX = posX - premountPos.x;
-            posZ = posZ - premountPos.z;
-            ClientContext.player.setOrigin(
-                    (float) posX, (float) posY, (float) posZ,
-                    shouldReset
-            );
-            return;
-        }
 
-        ClientContext.player.recenterOrigin(
-                (LocalPlayer)(Object)this,
-                shouldReset
-        );
-
-    }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.getState().isActive()
-                ? ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.getState().isActive()
-                ? ClientContext.player
-                .getPoseData(PoseDataType.PRE_TICK).getBodyYaw()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
     }
 
 
+    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isPassenger()Z"), ordinal = 2, method = "sendPosition")
+    private boolean visor$directTeleport(boolean updateRotation) {
+        if (this.visor$teleported) {
+            updateRotation = true;
+            ClientNetworking.sendVRPacket(
+                    new TeleportMovePayloadToServer(
+                            (float) this.getX(),
+                            (float) this.getY(),
+                            (float) this.getZ()
+                    )
+            );
+        }
+        return updateRotation;
+    }
 
+    /**
+     * Helps to avoid server spamming
+     * 'moved too quickly', 'moved wrongly'
+     * @param instance s
+     * @param packet s
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"), method = "sendPosition", slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isPassenger()Z")))
+    public void visor$noPosPacketOnTeleport(ClientPacketListener instance, Packet<?> packet) {
+        if (!this.visor$teleported) {
+            instance.send(packet);
+        }
+    }
 
 
     /* ************** *\
   //--------MISC--------\\
     \* ************** */
 
-    /**
-     * Haptic feedback on death
-     *
-     * @param pCause s
-     */
     @Override
-    public void die(DamageSource pCause) {
-        super.die(pCause);
+    protected void visor$afterDie(DamageSource damageSource, CallbackInfo ci) {
         if (VisorState.getState().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
@@ -399,7 +393,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         }
         cir.setReturnValue(
                 new Vec3(
-                        (Vector3f) RenderPoseHelper.getControllerPosition(ControllerHand.MAIN)
+                        (Vector3f) RenderPoseHelper.getHandPosition(HandType.MAIN)
                 )
         );
     }
@@ -473,12 +467,20 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         if (this.getPose() == Pose.SPIN_ATTACK
                 || this.getPose() == Pose.FALL_FLYING
                 || this.getPose() == Pose.SWIMMING) {
-            out = -1.2D;
+            out = -0.01;
         }
 
         return out;
     }
 
+    @Override
+    @Unique
+    public float visor$getSpeedFactor() {
+        return this.visor$moveMulIn.lengthSqr() > 0.0D
+                ? (float) ((double) getBlockSpeedFactor()
+                * (this.visor$moveMulIn.x + this.visor$moveMulIn.z) / 2.0D)
+                : this.getBlockSpeedFactor();
+    }
 
     @Override
     @Unique
@@ -495,6 +497,12 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
         this.useItemRemaining = count;
     }
 
+    @Override
+    @Unique
+    public void visor$setTeleported(boolean teleported) {
+        this.visor$teleported = teleported;
+    }
+
 
     /* ************************* *\
   //--------UTILITY METHODS--------\\
@@ -503,5 +511,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements L
     private boolean visor$isLocalPlayer(Object player) {
         return player.getClass().equals(LocalPlayer.class)
                 || Minecraft.getInstance().player == player;
+    }
+    private LocalPlayer visor$getPlayer(){
+        return (LocalPlayer) (Object) this;
     }
 }

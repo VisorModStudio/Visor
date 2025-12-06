@@ -10,14 +10,15 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.VisorClient;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.client.VRClientPlayer;
+import me.phoenixra.visor.api.client.player.VRClientPlayer;
+import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.input.InputManager;
+import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
 import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
-import me.phoenixra.visor.core.client.data.VRClientPlayerImpl;
 import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.input.InputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
@@ -29,16 +30,16 @@ import me.phoenixra.visor.core.client.tasks.registry.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 
-import me.phoenixra.visor.core.client.network.players.VRRemotePlayers;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-
+import java.util.UUID;
 
 
 @Getter
@@ -83,10 +84,10 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.settingsHandler = new VRClientSettingsHandler();
 
         //-------Main client classes-------
+        ClientContext.localPlayer = VRClientPlayers.getLocalPlayer();
         ClientContext.inputManager = new InputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new VRGuiManagerImpl();
-        ClientContext.player = new VRClientPlayerImpl();
 
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
@@ -121,6 +122,25 @@ public class VisorClientImpl implements VisorClient {
         vrProvider.syncState();
     }
 
+
+    public void onGameLoopStart(PreRenderContext context){
+        try {
+            vrProvider.preRender(context);
+            ClientContext.inputManager.update();
+            VRClientPlayers.onGameLoopStart();
+
+            if (!(MC.screen instanceof OptionsScreen)
+                    && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()) {
+                VRClientSettings.setEyeFovScaleCurrent(
+                        VRClientSettings.getEyesFovScale()
+                );
+            }
+
+        } catch (Throwable e) {
+            VisorState.destroyVRWithErrorScreen(e);
+        }
+    }
+
     public void preTickVR(){
         try {
             featuresToggle.preTick();
@@ -135,7 +155,7 @@ public class VisorClientImpl implements VisorClient {
                 }
             }
 
-            ClientContext.player.preTick();
+            VRClientPlayers.preTick();
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }
@@ -146,7 +166,7 @@ public class VisorClientImpl implements VisorClient {
             ++VisorState.TICK_COUNT;
 
 
-            VRRemotePlayers.getInstance().tick();
+            VRClientPlayers.tick();
 
 
             ClientContext.decorationRenderer.tick();
@@ -158,28 +178,20 @@ public class VisorClientImpl implements VisorClient {
     }
     public void postTickVR(){
         try {
-            ClientContext.player.postTick();
+            VRClientPlayers.postTick();
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }
     }
 
 
-    public void earlyPreRenderVR(PreRenderContext context){
-        try {
-            vrProvider.preRender(context);
-            ClientContext.inputManager.update();
-            ClientContext.player.earlyPreRender();
 
-            if (!(MC.screen instanceof OptionsScreen)
-                    && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()) {
-                VRClientSettings.setEyeFovScaleCurrent(
-                        VRClientSettings.getEyesFovScale()
-                );
-            }
 
+    public void preRenderVR(PreRenderContext context){
+        try{
             featuresToggle.preRender();
-
+            
+            VRClientPlayers.preRender(context.partialTicks());
 
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
             for (VisorTask task : tasks) {
@@ -189,17 +201,6 @@ public class VisorClientImpl implements VisorClient {
                     task.clear(null);
                 }
             }
-
-        } catch (Throwable e) {
-            VisorState.destroyVRWithErrorScreen(e);
-        }
-    }
-
-
-    public void preRenderVR(PreRenderContext context){
-        try{
-            ClientContext.player.preRender(context.partialTicks());
-
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         }
@@ -231,8 +232,8 @@ public class VisorClientImpl implements VisorClient {
 
 
     @Override
-    public @NotNull VRClientPlayer getPlayer() {
-        return ClientContext.player;
+    public @NotNull VRLocalPlayer getVRLocalPlayer() {
+        return ClientContext.localPlayer;
     }
 
     @Override
@@ -265,6 +266,11 @@ public class VisorClientImpl implements VisorClient {
     @Override
     public boolean isFeatureEnabled(@NotNull ClientFeature feature) {
         return featuresToggle.isAllowed(feature);
+    }
+
+    @Override
+    public @Nullable VRClientPlayer getVRPlayer(@NotNull UUID uuid) {
+        return VRClientPlayers.getPlayer(uuid);
     }
 
     protected void destroy(){
