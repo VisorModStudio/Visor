@@ -31,7 +31,7 @@ public class TaskRoomSwim extends VisorTask {
 
     private static final float SWIM_SPEED = 1.3f;
     private static final float FRICTION = 0.9f;
-    private static final float SWIM_MOTION_SCALE = 0.15f;
+    private static final float SWIM_MOTION_SCALE = 0.12f;
     private static final float MIN_SWIM_THRESHOLD = 0.3f;
     private static final float SPRINTING_THRESHOLD = 1.0f;
 

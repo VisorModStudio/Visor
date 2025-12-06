@@ -93,37 +93,37 @@ public class VROverlayMovementState extends VROverlayScreen {
 
         var player = MC.player;
 
-        GuiTexture statusTexture = null;
+        GuiTexture stateTexture = null;
 
         if (player.isSprinting()) {
-            statusTexture = RUN_STATE;
+            stateTexture = RUN_STATE;
         }
         if (player.isShiftKeyDown()) {
-            statusTexture = SNEAK_STATE;
+            stateTexture = SNEAK_STATE;
         }
         if (player.isSwimming()) {
-            statusTexture = SWIM_STATE;
+            stateTexture = SWIM_STATE;
         }
         if(ClientContext.localPlayer.isCrawling()){
-            statusTexture = CRAWL_STATE;
+            stateTexture = CRAWL_STATE;
         }
 
         if(player.getAbilities().flying){
             if (player.isSprinting()) {
-                statusTexture = FAST_FLYING_STATE;
+                stateTexture = FAST_FLYING_STATE;
             }else {
-                statusTexture = FLYING_STATE;
+                stateTexture = FLYING_STATE;
             }
         }
         if (player.isFallFlying()) {
-            statusTexture = FALL_FLYING_STATE;
+            stateTexture = FALL_FLYING_STATE;
         }
         if(ClientContext.localPlayer.isClimbing()){
-            statusTexture = CLIMB_STATE;
+            stateTexture = CLIMB_STATE;
         }
 
-        if (statusTexture != null) {
-            statusTexture.blit(
+        if (stateTexture != null) {
+            stateTexture.blit(
                     guiGraphics,
                     0,0,
                     256,256
