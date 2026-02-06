@@ -8,7 +8,6 @@ import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPo
 import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSwim;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

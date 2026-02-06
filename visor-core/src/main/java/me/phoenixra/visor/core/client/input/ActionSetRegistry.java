@@ -4,9 +4,8 @@ import lombok.Getter;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
-import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,23 +16,23 @@ import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 
-public class ActionSetRegistry implements VisorRegistry<VisorActionSet> {
+public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
     private static final String REGISTRY_NAME = "Visor Action Sets";
 
-    private static final String ELEMENT_NAME = "VisorActionSet";
+    private static final String COMPONENT_NAME = "VisorActionSet";
     private static final String ANNOTATION_NAME = "@RegisterActionSet";
 
-    private final Map<String, VisorActionSet> elementsMap = new LinkedHashMap<>();
+    private final Map<String, VisorActionSet> componentsMap = new LinkedHashMap<>();
 
-    private final List<VisorActionSet> sortedElements = new ArrayList<>();
+    private final List<VisorActionSet> sortedComponents = new ArrayList<>();
 
     @Getter
-    private final Collection<VisorActionSet> allElements =
-            Collections.unmodifiableCollection(elementsMap.values());
+    private final Collection<VisorActionSet> allComponents =
+            Collections.unmodifiableCollection(componentsMap.values());
 
 
-    public List<VisorActionSet> getSortedElements() {
-        return Collections.unmodifiableList(sortedElements);
+    public List<VisorActionSet> getSortedComponents() {
+        return Collections.unmodifiableList(sortedComponents);
     }
 
 
@@ -51,13 +50,13 @@ public class ActionSetRegistry implements VisorRegistry<VisorActionSet> {
         );
 
         LOGGER.info("Found {} {} to register in addon: '{}'",
-                annotated.size(), ELEMENT_NAME, addon.getAddonId());
+                annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VisorActionSet.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
-                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
+                        clazz.getName(), ANNOTATION_NAME, COMPONENT_NAME
                 );
                 continue;
             }
@@ -67,53 +66,53 @@ public class ActionSetRegistry implements VisorRegistry<VisorActionSet> {
                         ((Class<? extends VisorActionSet>) clazz)
                                 .getConstructor(VisorAddon.class);
 
-                var element = constructor.newInstance(addon);
+                var component = constructor.newInstance(addon);
 
-                registerElement(element);
+                registerComponent(component);
 
             } catch (Exception e) {
-                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
+                LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
-                // continue registering other elements
+                // continue registering other components
             }
         }
     }
 
     @Override
-    public void registerElement(@NotNull VisorActionSet element) {
-        var previous = elementsMap.put(element.getId(), element);
+    public void registerComponent(@NotNull VisorActionSet component) {
+        var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {
             LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
-                    ELEMENT_NAME,
+                    COMPONENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
-            sortedElements.remove(previous);
+            sortedComponents.remove(previous);
 
         }else{
-            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
+            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
-        sortedElements.add(element);
-        Collections.sort(sortedElements);
+        sortedComponents.add(component);
+        Collections.sort(sortedComponents);
     }
 
     @Override
-    public @Nullable VisorActionSet unregisterElement(@NotNull String id) {
-        var removed = elementsMap.remove(id);;
+    public @Nullable VisorActionSet unregisterComponent(@NotNull String id) {
+        var removed = componentsMap.remove(id);;
         if(removed != null) {
-            sortedElements.remove(removed);
-            Collections.sort(sortedElements);
-            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
+            sortedComponents.remove(removed);
+            Collections.sort(sortedComponents);
+            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;
 
     }
 
     @Override
-    public @Nullable VisorActionSet getElement(@NotNull String id) {
-        return elementsMap.get(id);
+    public @Nullable VisorActionSet getComponent(@NotNull String id) {
+        return componentsMap.get(id);
     }
 
 

@@ -70,7 +70,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             addonFiltersFunc.put(
                     filterId,
                     (it)->{
-                        var templateRecord = ClientContext.overlayManager.getOverlayTemplatesRegistry().getElement(it);
+                        var templateRecord = ClientContext.overlayManager.getOverlayTemplatesRegistry().getComponent(it);
                         if(templateRecord == null){
                             return false;
                         }
@@ -91,7 +91,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
 
         Map<String, String> templatesMap = new LinkedHashMap<>();
         ClientContext.overlayManager.getOverlayTemplatesRegistry()
-                .getAllElements().forEach(
+                .getAllComponents().forEach(
                         it -> {
                             templatesMap.put(it.getId(), it.name().getString());
                         }
@@ -179,7 +179,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                         )
                         .setTooltip((id)->{
                     var registry = ClientContext.overlayManager.getOverlayTemplatesRegistry();
-                    var template = registry.getElement(id);
+                    var template = registry.getComponent(id);
                     if(template == null) return Component.empty();
                     return Component.translatable(
                             "visor.overlay.options.main.create_overlay.template_tooltip",
@@ -191,7 +191,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                 templatesMap,
                 (selected)->{
                     var registry = ClientContext.overlayManager.getOverlayTemplatesRegistry();
-                    selectedTemplate = registry.getElement(selected.getId());
+                    selectedTemplate = registry.getComponent(selected.getId());
                 },
                 onWidgetsChanged
 
@@ -237,7 +237,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                             int mouseX, int mouseY,
                             float partialTicks) {
         Font font = Minecraft.getInstance().font;
-        int textColor = VROverlaySettings.TEXT_COLOR.toInt();
+        int textColor = VROverlaySettings.TEXT_COLOR.asInt();
 
         boolean filterSelected =  templatesWidget.getFilterButton()
                 .isSelected();
@@ -293,7 +293,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id");
         }
         VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-        if(registry.getElement(setupIdentity.getIdWidget().getValue()) != null) {
+        if(registry.getComponent(setupIdentity.getIdWidget().getValue()) != null) {
             return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id.exists");
         }
 
@@ -322,7 +322,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                     ClientContext.coreAddon,
                     id
             );
-            registry.registerElement(overlay);
+            registry.registerComponent(overlay);
 
             //apply identity
             var identity = overlay.getOption(OverlayOptionsIdentity.ID, OverlayOptionsIdentity.class);

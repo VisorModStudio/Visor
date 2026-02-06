@@ -8,59 +8,59 @@ import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
-import me.phoenixra.visor.api.common.addon.VisorRegistries;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.ComponentRegistries;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class VisorRegistriesImpl implements VisorRegistries {
-    protected final List<VisorRegistry<?>> list;
+public class VisorRegistriesImpl implements ComponentRegistries {
+    protected final List<ComponentRegistry<?>> list;
 
-    public VisorRegistriesImpl(List<VisorRegistry<?>> registries){
+    public VisorRegistriesImpl(List<ComponentRegistry<?>> registries){
         this.list = registries;
     }
 
     @Override
-    public @NotNull VisorRegistry<VisorTask> tasks() {
+    public @NotNull ComponentRegistry<VisorTask> tasks() {
         return ClientContext.visor.getTaskRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VisorActionSet> actionSets() {
+    public @NotNull ComponentRegistry<VisorActionSet> actionSets() {
         return ClientContext.inputManager.getActionSetRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VRDecorator> decorators() {
+    public @NotNull ComponentRegistry<VRDecorator> decorators() {
         return ClientContext.decorationRenderer.getRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VRGameEffect> gameEffects() {
+    public @NotNull ComponentRegistry<VRGameEffect> gameEffects() {
         return ClientContext.decorationRenderer.getEffectsRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VRHandEffect> handEffects() {
+    public @NotNull ComponentRegistry<VRHandEffect> handEffects() {
         return ClientContext.handRenderer.getEffectsRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VRHandItemPose> itemPoses() {
+    public @NotNull ComponentRegistry<VRHandItemPose> itemPoses() {
         return ClientContext.handRenderer.getItemPosesRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VROverlay> overlays() {
+    public @NotNull ComponentRegistry<VROverlay> overlays() {
         return ClientContext.guiManager
                 .getOverlayManager()
                 .getOverlaysRegistry();
     }
 
     @Override
-    public @NotNull VisorRegistry<VROverlayTemplateRecord> overlayTemplates() {
+    public @NotNull ComponentRegistry<VROverlayTemplateRecord> overlayTemplates() {
         return ClientContext.guiManager
                 .getOverlayManager()
                 .getOverlayTemplatesRegistry();

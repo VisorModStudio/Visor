@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
-import me.phoenixra.visor.core.client.render.VRRendererBase;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
@@ -167,7 +167,7 @@ public class VREffectsHelper {
         if (eye != VRCameraType.EYE_LEFT && eye != VRCameraType.EYE_RIGHT) {
             return null;
         }
-        VRRendererBase renderer = ClientContext.renderer;
+        VisorRendererBase renderer = ClientContext.renderer;
         return (eye == VRCameraType.EYE_LEFT)
                 ? renderer.getHiddenAreaVertices(EyeType.LEFT)
                 : renderer.getHiddenAreaVertices(EyeType.RIGHT);

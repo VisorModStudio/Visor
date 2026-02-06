@@ -39,7 +39,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
 
 
         overlayTargets.clear();
-        for(VROverlay overlay : ClientContext.overlayManager.getOverlaysRegistry().getSortedElements()) {
+        for(VROverlay overlay : ClientContext.overlayManager.getOverlaysRegistry().getSortedComponents()) {
             if(overlay instanceof VROverlayScreen overlayScreen) {
                 if(!overlay.isVisible() || !overlay.isEnabled()){
                     overlayTargets.put(overlayScreen, null);

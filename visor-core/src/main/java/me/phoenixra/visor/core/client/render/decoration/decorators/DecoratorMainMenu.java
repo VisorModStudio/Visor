@@ -5,7 +5,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
 import me.phoenixra.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
@@ -100,7 +100,7 @@ public class DecoratorMainMenu extends VRDecorator {
     }
 
     @Override
-    public @NotNull ElementPriority getPriority() {
-        return ElementPriority.LOW;
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.LOW;
     }
 }

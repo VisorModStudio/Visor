@@ -29,7 +29,7 @@ public class CoreAddonClient implements VisorAddon {
     @Override
     public void onAddonLoad() {
         ClientContext.overlayManager.getOverlaysRegistry()
-                .registerElements(
+                .registerComponents(
                         List.of(
                                 new VROverlayGameScreen(
                                         this,

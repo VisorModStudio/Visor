@@ -1,7 +1,7 @@
 package me.phoenixra.visor.modified.client.render;
 
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -17,7 +17,7 @@ public interface GameRendererModified {
     void visor$setVRGuiVisible(boolean flag);
 
 
-    void visor$setupCameraEntity(PoseElement poseElement);
+    void visor$setupCameraEntity(VRPose vrPose);
 
     default void visor$setupCameraEntityAsVRCamera(){
         visor$setupCameraEntity(

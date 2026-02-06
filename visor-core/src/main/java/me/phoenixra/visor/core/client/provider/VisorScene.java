@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.rendering.IRenderContext;
+import me.phoenixra.atumvr.api.rendering.VRRenderContext;
 import me.phoenixra.atumvr.api.rendering.VRRenderer;
 import me.phoenixra.atumvr.api.rendering.VRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
@@ -26,11 +26,11 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.*;
 public class VisorScene implements VRScene {
 
     @Getter
-    private VRRenderer vrRenderer;
+    private VRRenderer renderer;
 
 
-    public VisorScene(VRRenderer vrRenderer) {
-        this.vrRenderer = vrRenderer;
+    public VisorScene(VRRenderer renderer) {
+        this.renderer = renderer;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class VisorScene implements VRScene {
     }
 
     @Override
-    public void render(@NotNull IRenderContext context) {
+    public void render(@NotNull VRRenderContext context) {
 
         var renderContext = (RenderContext) context;
         var profiler =  renderContext.profiler();

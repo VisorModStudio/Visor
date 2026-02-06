@@ -61,11 +61,11 @@ public class VRKeyboardScreen extends Screen {
                 String label = String.valueOf(keyChar);
                 KeyboardButton button = new KeyboardButton.Builder(
                         this,
-                        Component.literal(label), (p) ->
-                {
-                    InputHelper.typeChars(label);
-                })
-                        .size(i1, 20)
+                        Component.literal(label), (p) -> {
+
+                            InputHelper.typeChars(label);
+
+                }).size(i1, 20)
                         .pos(yPos + column * (i1 + l), yPos + row * (20 + l))
                         .build();
                 this.addRenderableWidget(button);

@@ -13,7 +13,7 @@ import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsId
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -56,11 +56,11 @@ public abstract class VROverlayTemplateFrameBuffer extends VROverlayFrameBuffer 
 
     public VROverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
                                         @NotNull String id) {
-        this(owner, id, ElementPriority.NORMAL,null,1.0f);
+        this(owner, id, ComponentPriority.NORMAL,null,1.0f);
     }
     public VROverlayTemplateFrameBuffer(@NotNull VisorAddon owner,
                                         @NotNull String id,
-                                        @NotNull ElementPriority priority,
+                                        @NotNull ComponentPriority priority,
                                         @Nullable RenderTarget renderTarget,
                                         float overlayScale) {
         super(owner, id, priority, renderTarget, overlayScale);

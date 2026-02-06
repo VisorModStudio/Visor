@@ -6,7 +6,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.hand.VRHandItemPose;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.compatibility.ItemClassifier;
 import me.phoenixra.visor.core.client.VisorState;
@@ -309,8 +309,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
 
     @Override
-    public @NotNull ElementPriority getPriority() {
-        return ElementPriority.LOWEST;
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.LOWEST;
     }
 
     @Override

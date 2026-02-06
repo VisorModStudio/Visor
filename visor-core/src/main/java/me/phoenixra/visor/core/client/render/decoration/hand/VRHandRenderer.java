@@ -62,7 +62,7 @@ public class VRHandRenderer {
                                   float equippedProgress,
                                   float partialTicks
     ){
-        for(VRHandItemPose entry : itemPosesRegistry.getSortedElements()){
+        for(VRHandItemPose entry : itemPosesRegistry.getSortedComponents()){
             if(!entry.isEnabledAndCanApplyPose(player, hand, itemStack)){
                 continue;
             }
@@ -120,7 +120,7 @@ public class VRHandRenderer {
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRCameraType cameraType = VRRenderState.getCameraType();
-        Collection<VRHandEffect> effects = effectsRegistry.getElementsMap().values();
+        Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
 
         if (renderMain && isTrackingHand(HandType.MAIN)) {
             boolean isCursorHand = cursorHandler.isHandFocused(HandType.MAIN)

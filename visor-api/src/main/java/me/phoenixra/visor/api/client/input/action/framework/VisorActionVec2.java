@@ -1,12 +1,12 @@
 package me.phoenixra.visor.api.client.input.action.framework;
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.input.action.VRActionDataVec2;
-import me.phoenixra.atumvr.core.OpenXRProvider;
-import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
-import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
+import me.phoenixra.atumvr.api.input.action.data.VRActionDataVec2;
+import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
+import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.input.action.BindingPath;
+import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +16,7 @@ import org.joml.Vector2f;
 import java.util.*;
 
 public abstract class VisorActionVec2 implements VisorAction {
+
     @Getter
     private final VisorActionSet actionSet;
 
@@ -34,9 +35,9 @@ public abstract class VisorActionVec2 implements VisorAction {
 
 
 
-    protected final Map<XRInteractionProfile, BindingPath> defaultBindings;
+    protected final Map<VRInteractionProfileType, ActionBinding> defaultBindings;
 
-    protected final Map<XRInteractionProfile, BindingPath> bindings;
+    protected final Map<VRInteractionProfileType, ActionBinding> bindings;
 
 
     public VisorActionVec2(VisorActionSet actionSet,
@@ -50,7 +51,7 @@ public abstract class VisorActionVec2 implements VisorAction {
 
     }
 
-    protected abstract Map<XRInteractionProfile, BindingPath> loadDefaults();
+    protected abstract Map<VRInteractionProfileType, ActionBinding> loadDefaults();
 
     protected abstract void onStateChanged(Vector2f newState);
 
@@ -58,10 +59,10 @@ public abstract class VisorActionVec2 implements VisorAction {
 
     }
 
-    protected @Nullable VRActionDataVec2 getVec2Data(@NotNull BindingPath bindingPath,
-                                           @NotNull OpenXRProfileSet currentProfile,
-                                           boolean leftHanded){
-        return bindingPath.getVec2(currentProfile, leftHanded);
+    protected @Nullable VRActionDataVec2 getVec2Data(@NotNull ActionBinding actionBinding,
+                                                     @NotNull XRInteractionProfile currentProfile,
+                                                     boolean leftHanded){
+        return actionBinding.getVec2(currentProfile, leftHanded);
     }
 
     @Override
@@ -73,9 +74,9 @@ public abstract class VisorActionVec2 implements VisorAction {
     }
 
     @Override
-    public void updateState(@NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
-        BindingPath bindingPath = bindings.get(currentProfile.getType());
-        if(bindingPath == null){
+    public void updateState(@NotNull XRInteractionProfile currentProfile, boolean leftHanded) {
+        ActionBinding actionBinding = bindings.get(currentProfile.getType());
+        if(actionBinding == null){
             active = false;
             changed = true;
             state.set(0,0);
@@ -83,7 +84,7 @@ public abstract class VisorActionVec2 implements VisorAction {
         }
 
         var vec2Data = getVec2Data(
-                bindingPath,
+                actionBinding,
                 currentProfile,
                 leftHanded
         );
@@ -103,7 +104,7 @@ public abstract class VisorActionVec2 implements VisorAction {
             return;
         }
         changed = true;
-        state = vec2Data.getCurrentState();
+        state = vec2Data.getVec2Data();
 
 
     }
@@ -119,28 +120,28 @@ public abstract class VisorActionVec2 implements VisorAction {
         onClear();
     }
 
-    public void setBinding(@NotNull XRInteractionProfile profile, @NotNull BindingPath path){
-        bindings.put(profile, path);
+    public void setBinding(@NotNull VRInteractionProfileType profile, @NotNull ActionBinding binding){
+        bindings.put(profile, binding);
     }
 
     @Override
-    public @Nullable BindingPath getBinding(@NotNull XRInteractionProfile profile) {
+    public @Nullable ActionBinding getBinding(@NotNull VRInteractionProfileType profile) {
         return bindings.get(profile);
     }
 
     @Override
-    public @Nullable BindingPath getDefaultBinding(@NotNull XRInteractionProfile profile) {
+    public @Nullable ActionBinding getDefaultBinding(@NotNull VRInteractionProfileType profile) {
         return defaultBindings.get(profile);
     }
 
     @Override
-    public @NotNull Collection<String> getSelectableBindings(@NotNull XRInteractionProfile profile) {
+    public @NotNull Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profile) {
         var profileSet = VisorAPI.client().getInputManager()
-                .getProfileSetHolder()
-                .getProfileSet(profile);
+                .getProfileManager()
+                .getProfile(profile);
 
-        var out = new ArrayList<String>();
-        out.add(BindingPath.EMPTY_PATH);
+        var out = new ArrayList<VRActionIdentifier>();
+        out.add(ActionBinding.EMPTY_ID);
         if(profileSet != null){
             out.addAll(profileSet.getVec2Ids());
         }

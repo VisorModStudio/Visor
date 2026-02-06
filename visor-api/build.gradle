@@ -9,6 +9,8 @@ dependencies {
     // @Environment annotation and mixin extras
     compileOnly(libs.fabric.loader)
 
-    api(libs.atumvr.api)
     api(libs.atumvr.core)
+
+    compileOnly(libs.bundles.annotations)
+    annotationProcessor(libs.bundles.annotations)
 }

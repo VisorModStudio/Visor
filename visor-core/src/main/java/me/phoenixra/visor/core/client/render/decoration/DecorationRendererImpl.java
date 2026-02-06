@@ -6,7 +6,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.render.decoration.registry.DecoratorRegistry;
@@ -48,7 +48,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     @Override
     public void tick() {
         VRDecorator newScene = null;
-        for(var entry : registry.getSortedElements()){
+        for(var entry : registry.getSortedComponents()){
             if(entry.isEnabledAndCanActivate()){
                 newScene = entry;
                 break;
@@ -76,11 +76,11 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     @Override
     public @Nullable VRDecorator getDecorator(@NotNull String id) {
-        return registry.getElement(id);
+        return registry.getComponent(id);
     }
 
 
-    public List<VisorRegistry<?>> getElementRegistries(){
+    public List<ComponentRegistry<?>> getComponentRegistries(){
         return List.of(
                 registry,
                 effectsRegistry,
@@ -94,7 +94,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                                   PoseStack poseStack,
                                   float partialTick) {
         VRDecorator currentDecorator = ClientContext.decorationRenderer.getCurrentDecorator();
-        for (VRGameEffect effect : effectsRegistry.getElementsMap().values()) {
+        for (VRGameEffect effect : effectsRegistry.getComponentsMap().values()) {
             if(!effect.isGlobal()
                     && !decorator.gameEffects().contains(effect.getId())){
                 continue;

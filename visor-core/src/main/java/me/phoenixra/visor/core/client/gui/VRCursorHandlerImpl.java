@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VRCursorHandler;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
@@ -123,12 +123,12 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         double closestDistance = Double.MAX_VALUE;
 
-        PoseElement cursorElement = poseData.getHand(hand);
+        VRPose cursorElement = poseData.getHand(hand);
 
 
 
         for (VROverlay overlay : ClientContext.overlayManager
-                .getOverlaysRegistry().getSortedElements()) {
+                .getOverlaysRegistry().getSortedComponents()) {
             if (!overlay.supportsCursor()) {
                 continue;
             }
@@ -206,19 +206,19 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
 
-    public boolean isFacingOverlay(@NotNull PoseElement element,
+    public boolean isFacingOverlay(@NotNull VRPose pose,
                                    @NotNull VROverlay overlay,
                                    boolean checkUpsideDown) {
         // -- basis
         var overlayRot = overlay.getPose().getRotation();
 
-        Vector3f elementForward = VRMathUtils.extractForwardDir(element.getRotation(), true);
+        Vector3f elementForward = VRMathUtils.extractForwardDir(pose.getRotation(), true);
 
         Vector3f overlayForward = VRMathUtils.extractForwardDir(overlayRot, true);
         Vector3f overlayUp = VRMathUtils.extractUpDir(overlayRot, true);
         Vector3f overlayRight = VRMathUtils.extractRightDir(overlayRot, true);
 
-        var elementPos = element.getPosition();
+        var elementPos = pose.getPosition();
         var overlayCenter = overlay.getPose().getPosition();
 
 
@@ -261,7 +261,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     @Override
-    public @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
+    public @NotNull Vector3f findCursorPosition3D(@NotNull VRPose pose,
                                                   @NotNull Vector3fc guiPosition,
                                                   @NotNull Matrix4fc guiRotation,
                                                   float guiScale,
@@ -271,8 +271,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = VROverlayPose.QUAD_SCALE * guiScale * worldScale;
 
-        Vector3fc rayOrigin = element.getPosition();
-        Vector3fc rayDirection = element.getDirection()
+        Vector3fc rayOrigin = pose.getPosition();
+        Vector3fc rayDirection = pose.getDirection()
                 .normalize(new Vector3f());
 
         Vector3fc planeRight = VRMathUtils.extractRightDir(guiRotation, false);

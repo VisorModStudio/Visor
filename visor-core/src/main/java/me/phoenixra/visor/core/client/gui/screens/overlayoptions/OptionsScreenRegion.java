@@ -301,7 +301,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 guiGraphics,
                 Minecraft.getInstance().font,
                 "x",
-                AtumColor.LIGHT_GRAY.toInt(),
+                AtumColor.LIGHT_GRAY.asInt(),
                 startPosX, xFieldPosY,
                 fieldWidth, textHeight,
                 true
@@ -310,7 +310,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 guiGraphics,
                 Minecraft.getInstance().font,
                 "y",
-                AtumColor.LIGHT_GRAY.toInt(),
+                AtumColor.LIGHT_GRAY.asInt(),
                 startPosX, yFieldPosY,
                 fieldWidth, textHeight,
                 true
@@ -320,7 +320,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 guiGraphics,
                 Minecraft.getInstance().font,
                 "w",
-                AtumColor.LIGHT_GRAY.toInt(),
+                AtumColor.LIGHT_GRAY.asInt(),
                 startPosX, widthFieldPosY,
                 fieldWidth, textHeight,
                 true
@@ -329,7 +329,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
                 guiGraphics,
                 Minecraft.getInstance().font,
                 "h",
-                AtumColor.LIGHT_GRAY.toInt(),
+                AtumColor.LIGHT_GRAY.asInt(),
                 startPosX, heightFieldPosY,
                 fieldWidth, textHeight,
                 true

@@ -10,7 +10,7 @@ import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
@@ -46,7 +46,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
     public VROverlayThirdPersonCamera(@NotNull VisorAddon owner,
                                       @NotNull String id) {
-        super(owner, id, ElementPriority.HIGHER, 0.35f);
+        super(owner, id, ComponentPriority.HIGHER, 0.35f);
         setEnabled(true);
     }
 

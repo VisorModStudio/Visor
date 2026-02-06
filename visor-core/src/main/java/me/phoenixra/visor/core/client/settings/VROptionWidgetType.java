@@ -170,7 +170,35 @@ public enum VROptionWidgetType {
         ).setOnChanged(
                 () -> ClientContext.localPlayer.setRotationY(0)
         ).build();
-    });
+    }),
+    ROOM_SNEAK(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_CRAWL(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_CLIMB(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_JUMP(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_SWIM(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_DISMOUNT_VEHICLE(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    ),
+    ROOM_CONSUME(
+            VROptionCategory.IMMERSION,
+            (it) -> null
+    );
 
     @Getter
     @Setter

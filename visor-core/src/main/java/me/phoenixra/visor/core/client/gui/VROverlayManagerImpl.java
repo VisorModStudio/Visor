@@ -49,7 +49,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     private final List<VROverlay> preparedOverlays = new ArrayList<>();
     public void tick(){
-        for(VROverlay overlay : overlaysRegistry.getSortedElements()){
+        for(VROverlay overlay : overlaysRegistry.getSortedComponents()){
             if(!overlay.isEnabled()) continue;
             overlay.tick();
         }
@@ -59,7 +59,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     public void prepareOverlaysAndCursor(float partialTicks){
         preparedOverlays.clear();
-        for (VROverlay overlay : overlaysRegistry.getSortedElements()) {
+        for (VROverlay overlay : overlaysRegistry.getSortedComponents()) {
             if(!overlay.isVisible()) continue;
             RenderTarget target = overlay.getRenderTarget();
 
@@ -212,7 +212,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     @Override
     public VROverlay getOverlay(@NotNull String id) {
-        return overlaysRegistry.getElement(id);
+        return overlaysRegistry.getComponent(id);
     }
 
 

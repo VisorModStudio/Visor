@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.overlays.framework.screen;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,13 +21,13 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
     public VROverlayScreenInScreen(@NotNull VisorAddon owner,
                                    @NotNull String id,
                                    @Nullable T screen) {
-        this(owner, id, ElementPriority.NORMAL, 1.0f, screen);
+        this(owner, id, ComponentPriority.NORMAL, 1.0f, screen);
 
     }
 
     public VROverlayScreenInScreen(@NotNull VisorAddon owner,
                                    @NotNull String id,
-                                   @NotNull ElementPriority priority,
+                                   @NotNull ComponentPriority priority,
                                    float overlayScale,
                                    @Nullable T screen) {
         super(owner, id, priority, overlayScale);

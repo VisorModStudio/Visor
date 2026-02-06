@@ -7,10 +7,10 @@ import lombok.Setter;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class VRGameEffect implements VisorElement {
+public abstract class VRGameEffect implements VisorComponent {
     @Getter
     private final VisorAddon owner;
 

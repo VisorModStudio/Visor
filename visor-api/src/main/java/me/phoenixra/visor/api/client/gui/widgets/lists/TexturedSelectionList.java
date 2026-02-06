@@ -424,7 +424,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
 
             int startX = getRowLeft() + 4;
             int textWidth = getRowWidth() - 8;
-            int color = widgetInfo.getTextColor().toInt();
+            int color = widgetInfo.getTextColor().asInt();
 
             GuiHelper.renderScalableText(
                     guiGraphics,

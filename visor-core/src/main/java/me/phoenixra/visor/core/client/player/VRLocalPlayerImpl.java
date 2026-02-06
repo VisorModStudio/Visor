@@ -4,7 +4,6 @@ import lombok.Getter;
 
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.events.InRoomMoveVREvent;
 import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
@@ -13,19 +12,18 @@ import me.phoenixra.visor.api.client.player.pose.RawController;
 import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomClimb;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomCrawl;
-import me.phoenixra.visor.core.client.tasks.movement.TaskRoomSwim;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomClimb;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskRoomCrawl;
 import me.phoenixra.visor.core.common.player.PoseHistoryImpl;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
+import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -347,7 +345,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 || player.isSwimming()
                 && player.zza > 0.0F) {
 
-            PoseElement rotationElement = getRotationElement(data.getType());
+            VRPose rotationElement = getRotationElement(data.getType());
             player.setYRot(rotationElement.getYawDegrees());
             player.setYHeadRot(player.getYRot());
             player.setXRot(-rotationElement.getPitchDegrees());
@@ -391,7 +389,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         //we want head pivot to be the center,
         // so,
-        // we sub it to compensate initial room position of pose elements
+        // we sub it to compensate initial room position of pose data
         float x = (float) (cameraEntity.getX() - headPivot.x());
         float z = (float) (cameraEntity.getZ() - headPivot.z());
         float y = (float) (cameraEntity.getY());
@@ -450,8 +448,8 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
 
     @Override
-    public @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage){
-        PlayerPoseClient playerPose = getPoseData(stage);
+    public @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType){
+        PlayerPoseClient playerPose = getPoseData(poseType);
         return switch (VRClientSettings.getRotationMode()) {
             case MAIN_HAND -> playerPose.getHand(
                     HandType.MAIN

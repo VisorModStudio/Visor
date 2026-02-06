@@ -17,7 +17,7 @@ minecraftVersion       = "1.20.1"
 parchment              = "2023.09.03"
 architectury-lib       = "11.0.5"
 lwjgl                  = "3.3.6"
-atum-vr                = "5.1.0alpha"
+atum-vr                = "1.6.0beta"
 atum-config            = '1.0.0'
 
 #Fabric

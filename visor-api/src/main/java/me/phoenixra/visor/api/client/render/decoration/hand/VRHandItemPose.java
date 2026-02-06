@@ -4,17 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
-import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
+import me.phoenixra.visor.api.common.addon.component.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 
 //@TODO move to remote player rendering maybe or make "general" rendering for VR players?
-public abstract class VRHandItemPose implements VisorElement, PrioritySupporter {
+public abstract class VRHandItemPose implements VisorComponent, PrioritySupporter {
     @Getter
     private final VisorAddon owner;
 
@@ -47,8 +47,8 @@ public abstract class VRHandItemPose implements VisorElement, PrioritySupporter 
 
 
     @Override
-    public @NotNull ElementPriority getPriority() {
-        return ElementPriority.NORMAL;
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.NORMAL;
     }
 
 

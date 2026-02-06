@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.*;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,7 +36,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private final VisorAddon owner;
 
     @Getter
-    private final ElementPriority priority;
+    private final ComponentPriority priority;
 
     @Getter
     private final VROverlayPose pose;
@@ -93,12 +93,12 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id) {
-        this(owner, id, ElementPriority.NORMAL,1.0f);
+        this(owner, id, ComponentPriority.NORMAL,1.0f);
     }
 
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id,
-                           @NotNull ElementPriority priority,
+                           @NotNull ComponentPriority priority,
                            float overlayScale) {
         super(Component.literal(id));
         Objects.requireNonNull(owner);

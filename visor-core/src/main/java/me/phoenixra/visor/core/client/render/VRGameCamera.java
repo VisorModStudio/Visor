@@ -1,7 +1,7 @@
 package me.phoenixra.visor.core.client.render;
 
 import com.mojang.math.Axis;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
@@ -56,7 +56,7 @@ public class VRGameCamera extends Camera {
         this.entity = entity;
 
         VRCameraType cameraType = VRRenderState.getCameraType();
-        PoseElement cameraElement = ClientContext.localPlayer
+        VRPose cameraElement = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER)
                 .getCameraPose(cameraType);
 

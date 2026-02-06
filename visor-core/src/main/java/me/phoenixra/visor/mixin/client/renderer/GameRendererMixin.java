@@ -9,13 +9,13 @@ import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.ClientFeature;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.player.pose.LocalPlayerPose;
-import me.phoenixra.visor.core.client.tasks.movement.TaskTeleport;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskTeleport;
 import me.phoenixra.visor.modified.client.render.GameRendererModified;
 import me.phoenixra.visor.core.client.render.VRCameraEntityCache;
 import me.phoenixra.visor.core.client.render.VRGameCamera;
@@ -576,10 +576,10 @@ public abstract class GameRendererMixin
     \* ************************ */
     @Override
     @Unique
-    public void visor$setupCameraEntity(PoseElement poseElement) {
+    public void visor$setupCameraEntity(VRPose vrPose) {
         if (this.visor$cameraEntityCached) {
 
-            var position = poseElement.getPosition();
+            var position = vrPose.getPosition();
             LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
             cameraEntity.setPosRaw(position.x(), position.y(), position.z());
             cameraEntity.xOld = position.x();
@@ -588,9 +588,9 @@ public abstract class GameRendererMixin
             cameraEntity.xo = position.x();
             cameraEntity.yo = position.y();
             cameraEntity.zo = position.z();
-            cameraEntity.setXRot(-poseElement.getPitchDegrees());
+            cameraEntity.setXRot(-vrPose.getPitchDegrees());
             cameraEntity.xRotO = cameraEntity.getXRot();
-            cameraEntity.setYRot(poseElement.getYawDegrees());
+            cameraEntity.setYRot(vrPose.getYawDegrees());
             cameraEntity.yHeadRot = cameraEntity.getYRot();
             cameraEntity.yHeadRotO = cameraEntity.getYRot();
             cameraEntity.eyeHeight = 0.0001F;
@@ -753,10 +753,10 @@ public abstract class GameRendererMixin
     }
 
     @Unique
-    public Vec3 visor$aimedPointAtDistance(PoseElement poseElement,
+    public Vec3 visor$aimedPointAtDistance(VRPose vrPose,
                                            double distance) {
-        var dir = poseElement.getDirection();
-        return new Vec3(poseElement
+        var dir = vrPose.getDirection();
+        return new Vec3(vrPose
                 .getPosition().add(
                         dir.x() * (float) distance,
                         dir.y() * (float) distance,
@@ -767,12 +767,12 @@ public abstract class GameRendererMixin
     }
 
     @Unique
-    public HitResult visor$pickBlock(PoseElement poseElement,
+    public HitResult visor$pickBlock(VRPose vrPose,
                                      double blockReachDistance,
                                      boolean fluid
     ) {
-        var position = poseElement.getPosition();
-        Vec3 aimedPointAtDistance = visor$aimedPointAtDistance(poseElement, blockReachDistance);
+        var position = vrPose.getPosition();
+        Vec3 aimedPointAtDistance = visor$aimedPointAtDistance(vrPose, blockReachDistance);
         return MC.level.clip(
                 new ClipContext(
                         new Vec3((Vector3f) position),

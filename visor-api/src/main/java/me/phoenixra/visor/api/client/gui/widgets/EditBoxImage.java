@@ -20,7 +20,7 @@ public class EditBoxImage extends EditBox {
                 Component.empty()
         );
         this.texture = widgetInfo.getTexture();
-        setTextColor(widgetInfo.getTextColor().toInt());
+        setTextColor(widgetInfo.getTextColor().asInt());
         setHint(widgetInfo.getHint());
         setMaxLength(widgetInfo.getTextMaxLength());
 

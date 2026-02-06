@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.client.gui;
 
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.HandType;
@@ -194,7 +194,7 @@ public interface VRCursorHandler {
     /**
      * If {@code element} is considered to be facing {@code overlay}
      *
-     * @param element  the pose element
+     * @param pose  the pose
      * @param overlay  overlay that should be faced
      *
      * @param checkUpsideDown  if {@code true}, rejects 180°-flipped orientations
@@ -202,16 +202,16 @@ public interface VRCursorHandler {
      * @return If facing
      *
      */
-    boolean isFacingOverlay(@NotNull PoseElement element,
-                                    @NotNull VROverlay overlay,
-                                    boolean checkUpsideDown);
+    boolean isFacingOverlay(@NotNull VRPose pose,
+                            @NotNull VROverlay overlay,
+                            boolean checkUpsideDown);
 
 
     /**
      * Computes the cursor’s position in GUI for the given
      * {@code element}.
      *
-     * @param element     pose element whose cursor is queried
+     * @param pose     pose whose cursor is queried
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
@@ -219,7 +219,7 @@ public interface VRCursorHandler {
      *
      * @return Vector where x,y are cursor coordinates and z is cursor length
      */
-    @NotNull Vector3f findCursorPosition3D(@NotNull PoseElement element,
+    @NotNull Vector3f findCursorPosition3D(@NotNull VRPose pose,
                                            @NotNull Vector3fc guiPosition,
                                            @NotNull Matrix4fc guiRotation,
                                            float guiScale,
@@ -229,7 +229,7 @@ public interface VRCursorHandler {
      * Computes the cursor’s position in GUI for the given
      * {@code element}.
      *
-     * @param element     pose element whose cursor is queried
+     * @param pose        pose whose cursor is queried
      * @param guiPosition position of the GUI
      * @param guiRotation rotation of the GUI
      * @param guiScale    scale factor applied to the GUI
@@ -237,13 +237,13 @@ public interface VRCursorHandler {
      *
      * @return Vector where x,y are cursor coordinates
      */
-    default @NotNull Vector2f findCursorPosition2D(@NotNull PoseElement element,
+    default @NotNull Vector2f findCursorPosition2D(@NotNull VRPose pose,
                                                    @NotNull Vector3fc guiPosition,
                                                    @NotNull Matrix4fc guiRotation,
                                                    float guiScale,
                                                    float guiAspectRatio) {
         var vec3 = findCursorPosition3D(
-                element,
+                pose,
                 guiPosition, guiRotation,
                 guiScale,
                 guiAspectRatio

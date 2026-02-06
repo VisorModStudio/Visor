@@ -4,7 +4,7 @@ import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.player.pose.RawController;
 import me.phoenixra.visor.api.client.player.pose.RawHmd;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,10 +27,10 @@ public interface VRLocalPlayer extends VRClientPlayer{
     HandType getActiveHand();
 
     /**
-     * Get pose element that affects client rotation
-     * @return pose element
+     * Get pose that affects client rotation
+     * @return pose
      */
-    @NotNull PoseElement getRotationElement(@NotNull PlayerPoseType stage);
+    @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType);
 
     /**
      * If player is crawling

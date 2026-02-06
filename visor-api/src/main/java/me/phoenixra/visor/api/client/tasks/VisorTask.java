@@ -2,10 +2,10 @@ package me.phoenixra.visor.api.client.tasks;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
-import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
+import me.phoenixra.visor.api.common.addon.component.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 @Getter
-public abstract class VisorTask implements VisorElement, PrioritySupporter {
+public abstract class VisorTask implements VisorComponent, PrioritySupporter {
     @NotNull
     private final VisorAddon owner;
     @Setter
@@ -57,8 +57,8 @@ public abstract class VisorTask implements VisorElement, PrioritySupporter {
     }
 
     @Override
-    public @NotNull ElementPriority getPriority() {
-        return ElementPriority.NORMAL;
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.NORMAL;
     }
 
     @NotNull

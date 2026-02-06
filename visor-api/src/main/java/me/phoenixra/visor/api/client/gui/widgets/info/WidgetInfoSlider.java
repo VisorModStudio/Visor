@@ -68,9 +68,9 @@ public class WidgetInfoSlider extends WidgetInfo{
     private Tooltip tooltip;
 
 
-    private int knobHighlightHoveredInt = AtumColor.WHITE.toInt();
+    private int knobHighlightHoveredInt = AtumColor.WHITE.asInt();
 
-    private int knobHighlightCornerHoveredInt = AtumColor.WHITE.toInt();
+    private int knobHighlightCornerHoveredInt = AtumColor.WHITE.asInt();
 
     public WidgetInfoSlider(@NotNull WidgetInfoSlider copyFrom) {
         super(copyFrom);
@@ -127,8 +127,8 @@ public class WidgetInfoSlider extends WidgetInfo{
 
     public WidgetInfoSlider setKnobHighlightHovered(AtumColor color) {
         this.knobHighlightHovered = color;
-        this.knobHighlightHoveredInt = color.toInt();
-        this.knobHighlightCornerHoveredInt = color.lighten(0.25f).toInt();
+        this.knobHighlightHoveredInt = color.asInt();
+        this.knobHighlightCornerHoveredInt = color.lighten(0.25f).asInt();
         return this;
     }
 

@@ -1,12 +1,11 @@
 package me.phoenixra.visor.core.server.player;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.player.PlayerPoseServer;
-import me.phoenixra.visor.core.client.player.pose.RemotePlayerPose;
-import me.phoenixra.visor.core.common.player.PoseElementImpl;
+import me.phoenixra.visor.core.common.player.VRPoseImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.joml.*;
@@ -17,11 +16,11 @@ import java.util.List;
 @Getter
 public class PlayerPoseServerImpl implements PlayerPoseServer {
 
-    protected final PoseElementImpl hmd;
-    protected final PoseElementImpl mainHand;
-    protected final PoseElementImpl offhand;
+    protected final VRPoseImpl hmd;
+    protected final VRPoseImpl mainHand;
+    protected final VRPoseImpl offhand;
 
-    private final List<PoseElementImpl> elements;
+    private final List<VRPoseImpl> elements;
 
 
     private PoseDataBuffer buffer;
@@ -35,10 +34,10 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
 
     public PlayerPoseServerImpl() {
 
-        this.hmd = new PoseElementImpl();
+        this.hmd = new VRPoseImpl();
 
-        this.mainHand = new PoseElementImpl();
-        this.offhand = new PoseElementImpl();
+        this.mainHand = new VRPoseImpl();
+        this.offhand = new VRPoseImpl();
 
         origin = VRMathUtils.ZERO_VECTOR;
         headPivot = VRMathUtils.ZERO_VECTOR;
@@ -165,7 +164,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     }
 
     @Override
-    public PoseElement getActiveHand() {
+    public VRPose getActiveHand() {
         return mainHand;
     }
 

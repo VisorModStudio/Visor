@@ -3,8 +3,8 @@ package me.phoenixra.visor.core.client.provider.openxr;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.input.device.VRDeviceController;
 import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
-import me.phoenixra.atumvr.core.input.device.OpenXRDeviceController;
-import me.phoenixra.atumvr.core.input.device.OpenXRDeviceHMD;
+import me.phoenixra.atumvr.core.input.device.XRDeviceController;
+import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.player.pose.raw.RawPoseHandler;
@@ -24,7 +24,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
     public void updatePose() {
         //HND
         var hmdDevice = provider.getInputHandler().getDevice(
-                VRDeviceHMD.ID, OpenXRDeviceHMD.class
+                VRDeviceHMD.ID, XRDeviceHMD.class
         );
         hmdData.setTracking(hmdDevice.isActive());
 
@@ -59,7 +59,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
         //LEFT CONTROLLER
 
         var controllerLeftDevice = provider.getInputHandler().getDevice(
-                VRDeviceController.ID_LEFT, OpenXRDeviceController.class
+                VRDeviceController.ID_LEFT, XRDeviceController.class
         );
         controllerLeftData.setTracking(controllerLeftDevice.isActive());
 
@@ -94,7 +94,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
         //RIGHT CONTROLLER
         var controllerRightDevice = provider.getInputHandler().getDevice(
-                VRDeviceController.ID_RIGHT, OpenXRDeviceController.class
+                VRDeviceController.ID_RIGHT, XRDeviceController.class
         );
         controllerRightData.setTracking(controllerRightDevice.isActive());
 

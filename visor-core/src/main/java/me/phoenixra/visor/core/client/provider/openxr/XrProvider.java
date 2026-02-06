@@ -1,26 +1,24 @@
 package me.phoenixra.visor.core.client.provider.openxr;
 
 import me.phoenixra.atumvr.api.VRLogger;
-import me.phoenixra.atumvr.api.rendering.IRenderContext;
 import me.phoenixra.atumvr.api.rendering.VRRenderer;
-import me.phoenixra.atumvr.core.OpenXRProvider;
-import me.phoenixra.atumvr.core.OpenXRState;
-import me.phoenixra.atumvr.core.enums.XRSessionStateChange;
-import me.phoenixra.atumvr.core.input.OpenXRInputHandler;
+import me.phoenixra.atumvr.core.XRProvider;
+import me.phoenixra.atumvr.core.XRState;
+import me.phoenixra.atumvr.core.enums.XRSessionState;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.provider.openxr.render.XrRenderer;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class XrProvider extends OpenXRProvider {
+public class XrProvider extends XRProvider {
 
     public XrProvider(@NotNull String appName, @NotNull VRLogger logger) {
         super(appName, logger);
 
         ClientContext.rawPoseHandler = new XrRawPoseHandler(this);
+        ClientContext.inputProvider = inputHandler;
     }
 
     @Override
@@ -34,18 +32,18 @@ public class XrProvider extends OpenXRProvider {
     }
 
     @Override
-    public void preRender(@NotNull IRenderContext context) {
-        super.preRender(context);
+    public void startFrame() {
+        super.startFrame();
         ClientContext.rawPoseHandler.updatePose();
     }
 
     @Override
-    public @Nullable OpenXRState createStateHandler() {
-        return new OpenXRState(this);
+    public @NotNull XRState createStateHandler() {
+        return new XRState(this);
     }
 
     @Override
-    public @Nullable OpenXRInputHandler createInputHandler() {
+    public @NotNull XrInputHandler createInputHandler() {
         return new XrInputHandler(this);
     }
 
@@ -55,8 +53,8 @@ public class XrProvider extends OpenXRProvider {
     }
 
     @Override
-    public void onStateChanged(XRSessionStateChange state) {
-        if(state == XRSessionStateChange.EXITING){
+    public void onStateChanged(XRSessionState state) {
+        if(state == XRSessionState.EXITING){
             MC.stop();
         }
     }

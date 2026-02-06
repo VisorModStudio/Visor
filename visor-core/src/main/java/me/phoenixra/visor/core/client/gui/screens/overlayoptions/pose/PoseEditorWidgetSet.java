@@ -305,7 +305,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "X",
-                    AtumColor.LIGHT_GRAY.toInt(),
+                    AtumColor.LIGHT_GRAY.asInt(),
                     startX + 24, startY + 23,
                     93, 8,
                     true
@@ -314,7 +314,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "Y",
-                    AtumColor.LIGHT_GRAY.toInt(),
+                    AtumColor.LIGHT_GRAY.asInt(),
                     startX + 24, startY + 47,
                     93, 8,
                     true
@@ -323,7 +323,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                     guiGraphics,
                     Minecraft.getInstance().font,
                     "Z",
-                    AtumColor.LIGHT_GRAY.toInt(),
+                    AtumColor.LIGHT_GRAY.asInt(),
                     startX + 24, startY + 71,
                     93, 8,
                     true

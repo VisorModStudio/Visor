@@ -15,7 +15,6 @@ dependencies {
 
     modApi(libs.architectury.lib)
 
-    api(libs.atumvr.api)
     api(libs.atumvr.core)
 
     //Other mods

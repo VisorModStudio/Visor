@@ -361,7 +361,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
             throw new IllegalArgumentException("Not allowed to remove built-in overlays in settings");
         }
         ClientContext.overlayManager.getOverlaysRegistry()
-                .unregisterElement(overlay.getId());
+                .unregisterComponent(overlay.getId());
         initWidgets();
         widgetsChanged();
     }

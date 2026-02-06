@@ -34,7 +34,7 @@ public class VRActionSetsScreen extends Screen {
         //Sets
         List<VisorActionSet> sets = ClientContext.inputManager
                 .getActionSetRegistry()
-                .getSortedElements();
+                .getSortedComponents();
 
         this.list = new ActionSetsList(
                 this.width, this.height,
@@ -104,7 +104,7 @@ public class VRActionSetsScreen extends Screen {
             guiGraphics.fill(
                     this.x0, this.y0,
                     this.x1, this.y1,
-                    AtumColor.BLACK.withAlpha(0.5f).toInt()
+                    AtumColor.BLACK.withAlpha(0.5f).asInt()
             );
         }
     }

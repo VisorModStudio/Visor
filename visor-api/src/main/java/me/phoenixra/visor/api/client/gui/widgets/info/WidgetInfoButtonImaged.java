@@ -90,13 +90,13 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     private Tooltip tooltip;
 
 
-    private int highlightHoveredInt = AtumColor.WHITE.toInt();
-    private int highlightSelectedInt = AtumColor.GRAY.toInt();
-    private int highlightHoveredSelectedInt = AtumColor.LIGHT_GRAY.toInt();
+    private int highlightHoveredInt = AtumColor.WHITE.asInt();
+    private int highlightSelectedInt = AtumColor.GRAY.asInt();
+    private int highlightHoveredSelectedInt = AtumColor.LIGHT_GRAY.asInt();
 
-    private int highlightCornerHoveredInt = AtumColor.WHITE.toInt();
-    private int highlightCornerSelectedInt = AtumColor.GRAY.toInt();
-    private int highlightCornerHoveredSelectedInt = AtumColor.LIGHT_GRAY.toInt();
+    private int highlightCornerHoveredInt = AtumColor.WHITE.asInt();
+    private int highlightCornerSelectedInt = AtumColor.GRAY.asInt();
+    private int highlightCornerHoveredSelectedInt = AtumColor.LIGHT_GRAY.asInt();
 
     public WidgetInfoButtonImaged(@NotNull WidgetInfoButtonImaged copyFrom) {
         super(copyFrom);
@@ -175,21 +175,21 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
 
     public WidgetInfoButtonImaged setHighlightHovered(AtumColor color) {
         this.highlightHovered = color;
-        this.highlightHoveredInt = color.toInt();
-        this.highlightCornerHoveredInt = color.lighten(0.25f).toInt();
+        this.highlightHoveredInt = color.asInt();
+        this.highlightCornerHoveredInt = color.lighten(0.25f).asInt();
         return this;
     }
 
     public WidgetInfoButtonImaged setHighlightSelected(AtumColor color) {
         this.highlightSelected = color;
-        this.highlightSelectedInt = color.toInt();
-        this.highlightCornerSelectedInt = color.lighten(0.25f).toInt();
+        this.highlightSelectedInt = color.asInt();
+        this.highlightCornerSelectedInt = color.lighten(0.25f).asInt();
         return this;
     }
     public WidgetInfoButtonImaged setHighlightHoveredSelected(AtumColor color) {
         this.highlightHoveredSelected = color;
-        this.highlightHoveredSelectedInt = color.toInt();
-        this.highlightCornerHoveredSelectedInt = color.lighten(0.25f).toInt();
+        this.highlightHoveredSelectedInt = color.asInt();
+        this.highlightCornerHoveredSelectedInt = color.lighten(0.25f).asInt();
         return this;
     }
 

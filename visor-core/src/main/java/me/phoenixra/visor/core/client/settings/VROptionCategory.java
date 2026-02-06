@@ -15,7 +15,8 @@ public enum VROptionCategory {
     RENDERING_THIRD_PERSON("rendering.third_person"),
     RENDERING_MIXED_REALITY("rendering.mixed_reality"),
     MOVEMENT("movement"),
-    CONTROLS("controls");
+    CONTROLS("controls"),
+    IMMERSION("immersion");
 
     @Getter
     private final String key;

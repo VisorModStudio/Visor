@@ -2,10 +2,7 @@ package me.phoenixra.visor.core.client.gui.screens.settings;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsControlsScreen;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsGuiScreen;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsMovementScreen;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.VRSettingsRenderingScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.*;
 import me.phoenixra.visor.core.client.settings.VROptionCategory;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,6 +47,12 @@ public class VRSettingsMainScreen extends VROptionsBaseScreen {
                         OptionWidgetPosition.RIGHT,
                         2,
                         "visor.options.controls.button"
+                ),
+                new OptionWidgetEntry(
+                        VRSettingsImmersionScreen.class,
+                        OptionWidgetPosition.LEFT,
+                        3,
+                        "visor.options.immersion.button"
                 ),
                 new OptionWidgetEntry(
                         VRSettingsAddonsScreen.class,

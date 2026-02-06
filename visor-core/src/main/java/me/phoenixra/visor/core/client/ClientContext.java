@@ -1,12 +1,13 @@
 package me.phoenixra.visor.core.client;
 
+import me.phoenixra.atumvr.api.input.VRInputHandler;
 import me.phoenixra.visor.core.client.player.VRLocalPlayerImpl;
 import me.phoenixra.visor.core.client.player.pose.raw.RawPoseHandler;
 import me.phoenixra.visor.core.client.gui.VRCursorHandlerImpl;
 import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
 import me.phoenixra.visor.core.client.gui.VROverlayManagerImpl;
-import me.phoenixra.visor.core.client.input.InputManagerImpl;
-import me.phoenixra.visor.core.client.render.VRRendererBase;
+import me.phoenixra.visor.core.client.input.VRInputManagerImpl;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.render.decoration.hand.VRHandRenderer;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
@@ -31,10 +32,13 @@ public class ClientContext {
 
     public static VRLocalPlayerImpl localPlayer;
 
-    public static VRRendererBase renderer;
+    public static VisorRendererBase renderer;
 
 
-    public static InputManagerImpl inputManager;
+    public static VRInputManagerImpl inputManager;
+
+    /** Input handler from VR provider */
+    public static VRInputHandler inputProvider;
 
     public static VRGuiManagerImpl guiManager;
     public static VRCursorHandlerImpl cursorHandler;

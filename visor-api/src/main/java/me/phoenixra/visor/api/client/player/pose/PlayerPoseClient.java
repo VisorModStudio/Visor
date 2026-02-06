@@ -4,7 +4,7 @@ import me.phoenixra.visor.api.client.player.VRRemotePlayer;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.player.PlayerPose;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -27,74 +27,74 @@ public interface PlayerPoseClient extends PlayerPose {
 
 
     /**
-     * Get the left eye pose element.
+     * Get the left eye pose.
      * <p>
      *   For {@link VRRemotePlayer remote player} returns {@link #getHmd()} instead
      * </p>
      *
-     * @return the left eye pose element
+     * @return the left eye pose
      */
     @NotNull
-    PoseElement getEyeLeft();
+    VRPose getEyeLeft();
 
     /**
-     * Get the right eye pose element.
+     * Get the right eye pose.
      * <p>
      *   For {@link VRRemotePlayer remote player} returns {@link #getHmd()} instead
      * </p>
      *
-     * @return the right eye pose element
+     * @return the right eye pose
      */
     @NotNull
-    PoseElement getEyeRight();
+    VRPose getEyeRight();
 
     /**
-     * Get the main hand grip pose element.
+     * Get the main hand grip pose.
      * <p>
      *   This represents the gripping pose of VR controller.
      *   For {@link VRRemotePlayer remote player} returns {@link #getMainHand()} instead
      * </p>
      *
-     * @return the main hand grip pose element
+     * @return the main hand grip pose
      */
     @NotNull
-    PoseElement getGripMainHand();
+    VRPose getGripMainHand();
 
     /**
-     * Get the offhand grip pose element.
+     * Get the offhand grip pose.
      * <p>
      *   This represents the gripping pose of VR controller.
      *   For {@link VRRemotePlayer remote player} returns {@link #getOffhand()} instead
      * </p>
      *
-     * @return the offhand grip pose element
+     * @return the offhand grip pose
      */
     @NotNull
-    PoseElement getGripOffhand();
+    VRPose getGripOffhand();
 
     /**
-     * Get the grip hand pose element for the given hand type.
+     * Get the grip hand pose for the given hand type.
      * <p>
      *   This represents the gripping pose of VR controller
      * </p>
      *
      * @param handType the hand type
-     * @return the grip hand pose element
+     * @return the grip hand pose
      */
     @NotNull
-    default PoseElement getGripHand(@NotNull HandType handType) {
+    default VRPose getGripHand(@NotNull HandType handType) {
         return handType == HandType.MAIN
                 ? getGripMainHand() : this.getGripOffhand();
     }
 
     /**
-     * Get the pose element for camera type
+     * Get the pose for camera type
      *
      * @param cameraType the camera type
-     * @return the pose element
+     * @return the pose
      */
     @NotNull
-    PoseElement getCameraPose(@Nullable VRCameraType cameraType);
+    VRPose getCameraPose(@Nullable VRCameraType cameraType);
 
     /**
      * Converts <code>position</code> from the coordinate system of <code>originType</code>

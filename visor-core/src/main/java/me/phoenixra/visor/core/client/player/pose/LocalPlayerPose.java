@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.player.pose;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
@@ -11,7 +11,7 @@ import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.player.pose.raw.RawControllerImpl;
 import me.phoenixra.visor.core.client.player.pose.raw.RawHmdImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.common.player.PoseElementImpl;
+import me.phoenixra.visor.core.common.player.VRPoseImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -32,19 +32,19 @@ public class LocalPlayerPose implements PlayerPoseClient {
 
     private final PlayerPoseType type;
 
-    protected final PoseElementImpl hmd;
-    protected final PoseElementImpl eyeLeft;
-    protected final PoseElementImpl eyeRight;
+    protected final VRPoseImpl hmd;
+    protected final VRPoseImpl eyeLeft;
+    protected final VRPoseImpl eyeRight;
 
-    protected final PoseElementImpl mainHand;
-    protected final PoseElementImpl offhand;
+    protected final VRPoseImpl mainHand;
+    protected final VRPoseImpl offhand;
 
-    protected final PoseElementImpl gripMainHand;
-    protected final PoseElementImpl gripOffhand;
+    protected final VRPoseImpl gripMainHand;
+    protected final VRPoseImpl gripOffhand;
 
-    protected final PoseElementImpl thirdPersonCamera;
+    protected final VRPoseImpl thirdPersonCamera;
 
-    private final List<PoseElementImpl> elements;
+    private final List<VRPoseImpl> elements;
 
     private Vector3fc origin;
     private float rotationY;
@@ -56,16 +56,16 @@ public class LocalPlayerPose implements PlayerPoseClient {
     public LocalPlayerPose(PlayerPoseType type) {
         this.type = type;
 
-        this.hmd = new PoseElementImpl();
-        this.eyeLeft = new PoseElementImpl();
-        this.eyeRight = new PoseElementImpl();
+        this.hmd = new VRPoseImpl();
+        this.eyeLeft = new VRPoseImpl();
+        this.eyeRight = new VRPoseImpl();
 
-        this.mainHand = new PoseElementImpl();
-        this.offhand = new PoseElementImpl();
-        this.gripOffhand = new PoseElementImpl();
-        this.gripMainHand = new PoseElementImpl();
+        this.mainHand = new VRPoseImpl();
+        this.offhand = new VRPoseImpl();
+        this.gripOffhand = new VRPoseImpl();
+        this.gripMainHand = new VRPoseImpl();
 
-        this.thirdPersonCamera = new PoseElementImpl();
+        this.thirdPersonCamera = new VRPoseImpl();
 
 
         elements = List.of(
@@ -218,7 +218,7 @@ public class LocalPlayerPose implements PlayerPoseClient {
         this.rotationY = newRotationY;
         this.worldScale = newWorldScale;
 
-        for (PoseElementImpl it : elements) {
+        for (VRPoseImpl it : elements) {
             it.update(
                     this.origin,
                     this.rotationY,
@@ -321,12 +321,12 @@ public class LocalPlayerPose implements PlayerPoseClient {
         originToMutate.set(rx, originToMutate.y(), rz);
     }
 
-    public PoseElement getActiveHand() {
+    public VRPose getActiveHand() {
         return getPoseElement(ClientContext.localPlayer.getActiveHand().asBodyPart());
     }
 
     @Override
-    public @NotNull PoseElement getCameraPose(@Nullable VRCameraType cameraType) {
+    public @NotNull VRPose getCameraPose(@Nullable VRCameraType cameraType) {
         if(cameraType == null){
             return hmd;
         }

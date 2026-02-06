@@ -6,13 +6,10 @@ import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.player.VRClientPlayer;
 import me.phoenixra.visor.api.client.player.VRLocalPlayer;
 import me.phoenixra.visor.api.client.gui.VRGuiManager;
-import me.phoenixra.visor.api.client.input.InputManager;
+import me.phoenixra.visor.api.client.input.VRInputManager;
 import me.phoenixra.visor.api.client.player.VRRemotePlayer;
-import me.phoenixra.visor.api.client.player.pose.RawController;
-import me.phoenixra.visor.api.client.player.pose.RawHmd;
-import me.phoenixra.visor.api.client.render.VRRenderer;
+import me.phoenixra.visor.api.client.render.VisorRenderer;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorationRenderer;
-import me.phoenixra.visor.api.common.HandType;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -73,7 +70,7 @@ public interface VisorClient {
      * @return InputManager instance
      */
     @NotNull
-    InputManager getInputManager();
+    VRInputManager getInputManager();
 
 
     /**
@@ -82,7 +79,7 @@ public interface VisorClient {
      * @return VisorRenderer instance
      */
     @NotNull
-    VRRenderer getRenderer();
+    VisorRenderer getRenderer();
 
 
     /**

@@ -92,14 +92,14 @@ public class ServerPacketHandler {
                 vrPlayer.updateRotationY(payload.rotationY());
             }
             case CRAWLING -> {
-                if(!VRServerSettings.isCrawlingSupported()){
+                if(!VRServerSettings.isRoomCrawlingSupported()){
                     return;
                 }
                 var payload = (CrawlingPayloadToServer) payloadToServer;
                 vrPlayer.setCrawling(payload.crawling());
             }
             case CLIMBING -> {
-                if(!VRServerSettings.isClimbingSupported()){
+                if(!VRServerSettings.isRoomClimbingSupported()){
                     return;
                 }
                 vrPlayer.getMcPlayer().fallDistance = 0.0F;

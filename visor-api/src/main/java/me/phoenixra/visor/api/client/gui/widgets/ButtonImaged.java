@@ -93,7 +93,7 @@ public class ButtonImaged extends AbstractButton {
 
         if (!text.isEmpty()) {
             Font font = Minecraft.getInstance().font;
-            int color = widgetInfo.getTextColor().toInt();
+            int color = widgetInfo.getTextColor().asInt();
 
             if(widgetInfo.isScaleText()) {
                 GuiHelper.renderScalableText(

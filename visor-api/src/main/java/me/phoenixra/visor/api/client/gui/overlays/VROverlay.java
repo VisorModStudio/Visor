@@ -7,8 +7,8 @@ import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ import java.util.Collection;
  *
  * <p>Implements {@link PrioritySupporter} to control the draw order</p>
  */
-public interface VROverlay extends VisorElement, PrioritySupporter {
+public interface VROverlay extends VisorComponent, PrioritySupporter {
 
 
     /**
@@ -638,7 +638,7 @@ public interface VROverlay extends VisorElement, PrioritySupporter {
 
     /**
      * Override of {@link PrioritySupporter#compareTo(PrioritySupporter)}
-     * to sort elements in reverse priority order,
+     * to sort components in reverse priority order,
      * since we need top priority to be rendered the last
      *
      * @param o the object to be compared.

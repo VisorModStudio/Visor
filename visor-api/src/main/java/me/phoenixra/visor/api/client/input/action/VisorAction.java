@@ -1,58 +1,147 @@
 package me.phoenixra.visor.api.client.input.action;
 
-import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
-import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.atumvr.api.input.action.VRAction;
+import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
+import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
+import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
-
+/**
+ * Base interface for visor actions.
+ * <p>
+ *     It is used to handle specific user interactions with VR
+ *     (controller buttons, joystick...)
+ * </p>
+ * <p>
+ *     It uses {@link VRAction} as an access point for VR data
+ * </p>
+ */
 public interface VisorAction {
 
 
+    /**
+     * On game pre-tick
+     */
     void preTick();
 
 
-    void updateState(@NotNull OpenXRProfileSet currentProfile,
+    /**
+     * Update action state
+     * <p>
+     *     Called at the beginning of the game loop every frame
+     * </p>
+     *
+     * @param currentProfile the profile
+     * @param leftHanded if left-handed
+     */
+    void updateState(@NotNull XRInteractionProfile currentProfile,
                      boolean leftHanded);
 
+    /**
+     * Clear action state
+     */
     void clear();
 
+    /**
+     * If action is currently active and tracked by VR
+     *
+     * @return true/false
+     */
     boolean isActive();
 
+    /**
+     * If action's data has been changed from previous update
+     *
+     * @return true/false
+     */
     boolean isChanged();
 
 
-    void setBinding(@NotNull XRInteractionProfile profile,
-                    @NotNull BindingPath path);
+    /**
+     * If action is required to be bound.
+     * <p>
+     *     When false, the action can have no binding, i.e. optional for user
+     * </p>
+     * @return true/false
+     */
+    boolean isRequired();
 
+    /**
+     * Set action binding for specified interaction profile
+     *
+     * @param profile the interaction profile
+     * @param binding the action binding
+     */
+    void setBinding(@NotNull VRInteractionProfileType profile,
+                    @NotNull ActionBinding binding);
+
+    /**
+     * Get action binding of specified interaction profile
+     *
+     * @param profile the interaction profile
+     * @return the action binding
+     */
     @Nullable
-    BindingPath getBinding(@NotNull XRInteractionProfile profile);
+    ActionBinding getBinding(@NotNull VRInteractionProfileType profile);
 
+    /**
+     * Get binding for specified interaction profile or empty
+     *
+     * @param profile the interaction profile
+     * @return the action binding
+     */
     @NotNull
-    default BindingPath getBindingOrEmpty(@NotNull XRInteractionProfile profile){
-        return Optional.ofNullable(getBinding(profile)).orElse(BindingPath.EMPTY);
+    default ActionBinding getBindingOrEmpty(@NotNull VRInteractionProfileType profile){
+        return Optional.ofNullable(getBinding(profile)).orElse(ActionBinding.EMPTY);
     }
 
+    /**
+     * Get default binding for specified interaction profile.
+     *
+     * @param profile the interaction profile
+     * @return the action binding
+     */
     @Nullable
-    BindingPath getDefaultBinding(@NotNull XRInteractionProfile profile);
+    ActionBinding getDefaultBinding(@NotNull VRInteractionProfileType profile);
 
+    /**
+     * Get VR action identifiers that are supported by this action to bind
+     * and available on specified interaction profile
+     *
+     * @param profile the interaction profile
+     * @return the collection of binding identifiers
+     */
     @NotNull
-    Collection<String> getSelectableBindings(@NotNull XRInteractionProfile profile);
+    Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profile);
 
+    /**
+     * Get action set that is using this action.
+     *
+     * @return the action set
+     */
     @NotNull
     VisorActionSet getActionSet();
 
 
+    /**
+     * Get display name
+     *
+     * @return the name
+     */
     @NotNull
     default Component getName(){
         return Component.translatable("visor.action."+getId());
     }
 
+    /**
+     * Get id
+     * @return the id
+     */
     @NotNull
     String getId();
 

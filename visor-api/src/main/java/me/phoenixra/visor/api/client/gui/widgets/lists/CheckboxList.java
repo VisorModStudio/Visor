@@ -400,7 +400,7 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
             int textMaxHeight = rowHeight - (rowHeight - font.lineHeight) / 2;
             int textMaxWidth = rowWidth - (textX - getRowLeft())
                     - paddingCheckbox;
-            int color  = widgetInfo.getTextColor().toInt();
+            int color  = widgetInfo.getTextColor().asInt();
 
             widgetInfo.getTextureEntry().blit(
                     guiGraphics,

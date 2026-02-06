@@ -1,7 +1,7 @@
 package me.phoenixra.visor.api.client.gui.overlays;
 
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +24,7 @@ public record VROverlayTemplateRecord(@NotNull VisorAddon owner,
                                       boolean isCreateDefault,
                                       @NotNull Class<? extends VROverlayTemplate> clazz,
                                       @NotNull Constructor<? extends VROverlayTemplate> constructor
-                            ) implements VisorElement {
+                            ) implements VisorComponent {
     /**
      * Overlay templates are always enabled
      *
@@ -43,7 +43,7 @@ public record VROverlayTemplateRecord(@NotNull VisorAddon owner,
     @Override
     public void setEnabled(boolean flag) {
         if(!flag) {
-            throw new RuntimeException("Disabling of this visor element is not supported");
+            throw new RuntimeException("Disabling of this visor component is not supported");
         }
     }
 

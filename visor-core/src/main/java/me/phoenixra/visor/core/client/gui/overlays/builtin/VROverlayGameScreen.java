@@ -1,14 +1,14 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayCursorData;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
 import me.phoenixra.visor.api.client.input.InputHelper;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.modified.client.WindowModified;
@@ -40,7 +40,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         super(
                 owner,
                 id,
-                ElementPriority.LOW,
+                ComponentPriority.LOW,
                 null,
                 1.0f
         );
@@ -121,7 +121,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || newScreen instanceof AbstractSignEditScreen
                 || relativePosition == null
                 || relativeRotation == null) {
-            PoseElement hmd = ClientContext.localPlayer
+            VRPose hmd = ClientContext.localPlayer
                     .getPoseData(PlayerPoseType.RELATIVE)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);

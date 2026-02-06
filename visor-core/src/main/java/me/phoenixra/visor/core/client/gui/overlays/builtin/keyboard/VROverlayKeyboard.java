@@ -10,7 +10,7 @@ import me.phoenixra.visor.api.client.events.AllowClientFeatureVREvent;
 import me.phoenixra.visor.api.client.gui.VRKeyboardAccessor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
@@ -48,7 +48,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     public VROverlayKeyboard(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id, ElementPriority.HIGHER,0.5f,
+        super(owner, id, ComponentPriority.HIGHER,0.5f,
                 new VRKeyboardScreen(Component.literal(""))
         );
         getScreen().setOverlayKeyboard(this);

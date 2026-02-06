@@ -8,8 +8,12 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
+/**
+ * Base interface for Visor addons.
+ * @see AddonManager
+ */
 public interface VisorAddon {
+
     GuiTexture MISSING_ICON = new GuiTexture(
             new ResourceLocation(VisorAPI.MOD_ID, "textures/gui/overlays/missing_icon.png")
     );

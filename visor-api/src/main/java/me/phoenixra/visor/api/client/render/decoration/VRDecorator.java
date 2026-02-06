@@ -3,15 +3,15 @@ package me.phoenixra.visor.api.client.render.decoration;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
-import me.phoenixra.visor.api.common.addon.element.PrioritySupporter;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
+import me.phoenixra.visor.api.common.addon.component.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorElement;
+import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public abstract class VRDecorator implements VisorElement, PrioritySupporter {
+public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
     @Getter
     private final VisorAddon owner;
     @Getter
@@ -64,7 +64,7 @@ public abstract class VRDecorator implements VisorElement, PrioritySupporter {
     }
 
     @Override
-    public @NotNull ElementPriority getPriority() {
-        return ElementPriority.NORMAL;
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.NORMAL;
     }
 }

@@ -104,9 +104,9 @@ public class TextBoxEditable extends AbstractWidget {
         this.textureScrollBarActive = widgetInfo.getTextureScrollBarActive();
 
         this.font = widgetInfo.getTextFont();
-        this.textColor = widgetInfo.getTextColor().toInt();
-        this.textHintColor = widgetInfo.getTextHintColor().toInt();
-        this.highlightColor = widgetInfo.getHighlightColor().toInt();
+        this.textColor = widgetInfo.getTextColor().asInt();
+        this.textHintColor = widgetInfo.getTextHintColor().asInt();
+        this.highlightColor = widgetInfo.getHighlightColor().asInt();
         this.textScale = widgetInfo.getTextScale() <= 0f ? 1.0f : widgetInfo.getTextScale();
         this.paddingX = 4;
         this.paddingY = 4;

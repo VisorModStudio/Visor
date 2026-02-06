@@ -9,7 +9,7 @@ import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.*;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     private final VisorAddon owner;
 
     @Getter
-    private final ElementPriority priority;
+    private final ComponentPriority priority;
 
     @Getter
     private final VROverlayPose pose;
@@ -69,12 +69,12 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     public VROverlayFrameBuffer(@NotNull VisorAddon owner,
                                 @NotNull String id){
-        this(owner, id, ElementPriority.NORMAL, null, 1.0f);
+        this(owner, id, ComponentPriority.NORMAL, null, 1.0f);
     }
 
     public VROverlayFrameBuffer(@NotNull VisorAddon owner,
                                 @NotNull String id,
-                                @NotNull ElementPriority priority,
+                                @NotNull ComponentPriority priority,
                                 @Nullable RenderTarget renderTarget,
                                 float overlayScale) {
         Objects.requireNonNull(owner);

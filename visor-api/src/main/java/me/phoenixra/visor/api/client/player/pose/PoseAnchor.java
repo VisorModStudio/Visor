@@ -2,7 +2,7 @@ package me.phoenixra.visor.api.client.player.pose;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 /**
  * Enum that helps to anchor position and rotation
- * to a {@link PoseElement}
+ * to a {@link VRPose}
  */
 public enum PoseAnchor {
 
@@ -21,7 +21,7 @@ public enum PoseAnchor {
      * Not anchored to anything,
      * only offset may affect.
      */
-    NONE(it-> PoseElement.EMPTY),
+    NONE(it-> VRPose.EMPTY),
 
     /**
      * Anchored to HMD
@@ -40,14 +40,14 @@ public enum PoseAnchor {
 
 
     @Getter
-    private final @NotNull Function<PlayerPoseClient, PoseElement> supplier;
+    private final @NotNull Function<PlayerPoseClient, VRPose> supplier;
 
-    PoseAnchor(@NotNull Function<PlayerPoseClient, PoseElement> supplier){
+    PoseAnchor(@NotNull Function<PlayerPoseClient, VRPose> supplier){
         this.supplier = supplier;
     }
 
 
-    public @NotNull PoseElement getAnchor(@NotNull PlayerPoseClient poseData){
+    public @NotNull VRPose getAnchor(@NotNull PlayerPoseClient poseData){
         return this.supplier.apply(poseData);
     }
 
@@ -64,7 +64,7 @@ public enum PoseAnchor {
                 offset.y() * worldScale,
                 offset.z() * worldScale
         );
-        if(anchor == PoseElement.EMPTY){
+        if(anchor == VRPose.EMPTY){
             return new Vector3f(offset.x(), offset.y(), offset.z());
         }
 
@@ -77,7 +77,7 @@ public enum PoseAnchor {
     public @NotNull Matrix4f anchorRotation(@NotNull PlayerPoseClient poseData,
                                             @NotNull Vector3fc offset){
         var anchor = getAnchor(poseData);
-        if(anchor == PoseElement.EMPTY){
+        if(anchor == VRPose.EMPTY){
             return new Matrix4f().rotationZYX(offset.z(), offset.y(), offset.x());
         }
         return anchor.getRotation().mul(
@@ -95,7 +95,7 @@ public enum PoseAnchor {
                                                @NotNull Vector3fc offset,
                                                @NotNull Vector3fc objPosition){
         var anchor = getAnchor(poseData);
-        if(anchor == PoseElement.EMPTY){
+        if(anchor == VRPose.EMPTY){
             return new Matrix4f().rotationZYX(offset.z(), offset.y(), offset.x());
         }
 

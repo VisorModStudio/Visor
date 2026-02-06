@@ -4,8 +4,7 @@ import lombok.Getter;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.AddonManager;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
-import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.common.eventbus.VREventBusImpl;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,7 @@ public class AddonManagerImpl implements AddonManager {
     }
 
     public void initialize(VisorAddon coreAddon,
-                           List<VisorRegistry<?>> elementRegistries){
+                           List<ComponentRegistry<?>> elementRegistries){
 
         this.registries = new VisorRegistriesImpl(elementRegistries);
 

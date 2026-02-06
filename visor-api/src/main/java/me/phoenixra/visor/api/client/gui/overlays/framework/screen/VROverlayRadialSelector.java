@@ -6,7 +6,7 @@ import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     protected VROverlayRadialSelector(@NotNull VisorAddon owner,
                                       @NotNull HandType hand,
                                       @NotNull String id,
-                                      @NotNull ElementPriority priority,
+                                      @NotNull ComponentPriority priority,
                                       int radialMenuSize,
                                       SelectionBox... selectionBoxes
     ) {

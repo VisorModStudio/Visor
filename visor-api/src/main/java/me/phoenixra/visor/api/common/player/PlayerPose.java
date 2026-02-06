@@ -19,59 +19,59 @@ public interface PlayerPose {
     Player getMcPlayer();
 
     /**
-     * Get the head-mounted display (HMD) pose element.
+     * Get the head-mounted display (HMD) pose.
      *
-     * @return the HMD pose element
+     * @return the HMD pose
      */
     @NotNull
-    PoseElement getHmd();
+    VRPose getHmd();
 
 
     /**
-     * Get the main hand pose element.
+     * Get the main hand pose.
      * <p>
      *   This represents the aiming pose of VR controller.
      * </p>
      *
-     * @return the main hand pose element
+     * @return the main hand pose
      */
     @NotNull
-    PoseElement getMainHand();
+    VRPose getMainHand();
 
     /**
-     * Get the offhand pose element.
+     * Get the offhand pose.
      * <p>
      *   This represents the aiming pose of VR controller.
      * </p>
      *
-     * @return the offhand pose element
+     * @return the offhand pose
      */
     @NotNull
-    PoseElement getOffhand();
+    VRPose getOffhand();
 
     /**
-     * Get the hand pose element for the given hand type.
+     * Get the hand pose for the given hand type.
      * <p>
      *   This represents the aiming pose of VR controller
      * </p>
      *
      * @param handType the hand type
-     * @return the hand pose element
+     * @return the hand pose
      */
     @NotNull
-    default PoseElement getHand(@NotNull HandType handType) {
+    default VRPose getHand(@NotNull HandType handType) {
         return handType == HandType.MAIN
                 ? getMainHand() : getOffhand();
     }
 
     /**
-     * Get pose element from body part
+     * Get pose from body part
      *
      * @param bodyPart the body part
-     * @return pose element
+     * @return pose
      */
     @NotNull
-    default PoseElement getPoseElement(@NotNull VRBodyPart bodyPart){
+    default VRPose getPoseElement(@NotNull VRBodyPart bodyPart){
         return switch (bodyPart){
             case HEAD -> getHmd();
             case MAIN_HAND -> getMainHand();
@@ -80,7 +80,7 @@ public interface PlayerPose {
     }
 
     /**
-     * Get the origin to which pose elements relative to.
+     * Get the origin to which pose data is relative to.
      * <p>
      *   The origin is used by Visor to convert
      *   pose data in VR room coordinates

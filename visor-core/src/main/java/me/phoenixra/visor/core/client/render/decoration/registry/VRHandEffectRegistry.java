@@ -3,10 +3,9 @@ package me.phoenixra.visor.core.client.render.decoration.registry;
 import lombok.Getter;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
-import me.phoenixra.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRHandEffect;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,23 +14,23 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
-public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
+public class VRHandEffectRegistry implements ComponentRegistry<VRHandEffect> {
     private static final String REGISTRY_NAME = "VR Hand Effects";
 
-    private static final String ELEMENT_NAME = "VRHandEffect";
+    private static final String COMPONENT_NAME = "VRHandEffect";
     private static final String ANNOTATION_NAME = "@RegisterVRHandEffect";
 
     @Getter
-    private final HashMap<String, VRHandEffect> elementsMap = new HashMap<>();
+    private final HashMap<String, VRHandEffect> componentsMap = new HashMap<>();
     @Getter
-    private final HashMap<String, VRHandEffect> globalElementsMap = new HashMap<>();
+    private final HashMap<String, VRHandEffect> globalComponentsMap = new HashMap<>();
 
     @Getter
-    private final Collection<VRHandEffect> allElements =
-            Collections.unmodifiableCollection(elementsMap.values());
+    private final Collection<VRHandEffect> allComponents =
+            Collections.unmodifiableCollection(componentsMap.values());
     @Getter
-    private final Collection<VRHandEffect> globalElements =
-            Collections.unmodifiableCollection(globalElementsMap.values());
+    private final Collection<VRHandEffect> globalComponents =
+            Collections.unmodifiableCollection(globalComponentsMap.values());
 
     @Override
     public void registerAddonPath(@NotNull VisorAddon addon) {
@@ -48,13 +47,13 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
 
 
         LOGGER.info("Found {} {} to register in addon: '{}'",
-                annotated.size(), ELEMENT_NAME, addon.getAddonId());
+                annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VRHandEffect.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
-                        clazz.getName(), ANNOTATION_NAME, ELEMENT_NAME
+                        clazz.getName(), ANNOTATION_NAME, COMPONENT_NAME
                 );
                 continue;
             }
@@ -64,14 +63,14 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
                         ((Class<? extends VRHandEffect>) clazz)
                                 .getConstructor(VisorAddon.class);
 
-                var element = constructor.newInstance(addon);
+                var component = constructor.newInstance(addon);
 
-                registerElement(element);
+                registerComponent(component);
 
             } catch (Exception e) {
-                LOGGER.error("Failed to register {} from class: {}", ELEMENT_NAME, clazz.getName());
+                LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
-                // continue registering other elements
+                // continue registering other components
             }
         }
 
@@ -79,40 +78,40 @@ public class VRHandEffectRegistry implements VisorRegistry<VRHandEffect> {
     }
 
     @Override
-    public void registerElement(@NotNull VRHandEffect element) {
-        var previous = elementsMap.put(element.getId(), element);
+    public void registerComponent(@NotNull VRHandEffect component) {
+        var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {
             LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
-                    ELEMENT_NAME,
+                    COMPONENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
 
         } else {
-            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
+            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
-        if(element.isGlobal()){
-            globalElementsMap.put(element.getId(), element);
+        if(component.isGlobal()){
+            globalComponentsMap.put(component.getId(), component);
         }
     }
 
     @Override
-    public VRHandEffect unregisterElement(@NotNull String id) {
-        var removed = elementsMap.remove(id);
-        globalElementsMap.remove(id);
+    public VRHandEffect unregisterComponent(@NotNull String id) {
+        var removed = componentsMap.remove(id);
+        globalComponentsMap.remove(id);
 
         if (removed != null) {
-            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
+            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
 
         return removed;
     }
 
     @Override
-    public @Nullable VRHandEffect getElement(@NotNull String id) {
-        return elementsMap.get(id);
+    public @Nullable VRHandEffect getComponent(@NotNull String id) {
+        return componentsMap.get(id);
     }
 
 

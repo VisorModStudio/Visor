@@ -12,21 +12,21 @@ import me.phoenixra.visor.api.VisorClient;
 import me.phoenixra.visor.api.client.ClientFeature;
 import me.phoenixra.visor.api.client.player.VRClientPlayer;
 import me.phoenixra.visor.api.client.player.VRLocalPlayer;
-import me.phoenixra.visor.api.client.input.InputManager;
+import me.phoenixra.visor.api.client.input.VRInputManager;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.tasks.VisorTask;
 import me.phoenixra.visor.api.common.MCVRLogger;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.gui.VRGuiManagerImpl;
-import me.phoenixra.visor.core.client.input.InputManagerImpl;
+import me.phoenixra.visor.core.client.input.VRInputManagerImpl;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
-import me.phoenixra.visor.core.client.render.VRRendererBase;
+import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
-import me.phoenixra.visor.core.client.tasks.registry.VisorTaskRegistry;
+import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.CoreAddonClient;
 
@@ -85,7 +85,7 @@ public class VisorClientImpl implements VisorClient {
 
         //-------Main client classes-------
         ClientContext.localPlayer = VRClientPlayers.getLocalPlayer();
-        ClientContext.inputManager = new InputManagerImpl();
+        ClientContext.inputManager = new VRInputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new VRGuiManagerImpl();
 
@@ -94,11 +94,11 @@ public class VisorClientImpl implements VisorClient {
 
         ClientContext.addonManager = new AddonManagerImpl(LOGGER);
 
-        var registries = new ArrayList<VisorRegistry<?>>();
+        var registries = new ArrayList<ComponentRegistry<?>>();
         registries.add(taskRegistry);
-        registries.addAll(ClientContext.inputManager.getElementRegistries());
-        registries.addAll(ClientContext.decorationRenderer.getElementRegistries());
-        registries.addAll(ClientContext.guiManager.getElementRegistries());
+        registries.addAll(ClientContext.inputManager.getComponentRegistries());
+        registries.addAll(ClientContext.decorationRenderer.getComponentRegistries());
+        registries.addAll(ClientContext.guiManager.getComponentRegistries());
 
         ClientContext.addonManager.initialize(
                 new CoreAddonClient(),
@@ -123,9 +123,9 @@ public class VisorClientImpl implements VisorClient {
     }
 
 
-    public void onGameLoopStart(PreRenderContext context){
+    public void onGameLoopStart(){
         try {
-            vrProvider.preRender(context);
+            vrProvider.startFrame();
             ClientContext.inputManager.update();
             VRClientPlayers.onGameLoopStart();
 
@@ -237,7 +237,7 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public @NotNull VRRendererBase getRenderer() {
+    public @NotNull VisorRendererBase getRenderer() {
         return ClientContext.renderer;
     }
 
@@ -247,7 +247,7 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public @NotNull InputManager getInputManager() {
+    public @NotNull VRInputManager getInputManager() {
         return ClientContext.inputManager;
     }
 

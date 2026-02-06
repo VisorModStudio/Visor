@@ -370,7 +370,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
 
         //RENDERING
         Font font = Minecraft.getInstance().font;
-        int textColor = VROverlaySettings.TEXT_COLOR.toInt();
+        int textColor = VROverlaySettings.TEXT_COLOR.asInt();
         var icon = overlay.getIcon();
         GuiTexture labelTexture =
                 this.isCustom

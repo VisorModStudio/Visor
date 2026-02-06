@@ -5,11 +5,11 @@ import lombok.Setter;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.render.VRCameraType;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.common.network.buffer.PoseDataBuffer;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.common.player.PoseElementImpl;
+import me.phoenixra.visor.core.common.player.VRPoseImpl;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -30,14 +30,14 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
     private final PlayerPoseType type;
 
-    protected final PoseElementImpl hmd;
+    protected final VRPoseImpl hmd;
 
-    protected final PoseElementImpl mainHand;
-    protected final PoseElementImpl offhand;
+    protected final VRPoseImpl mainHand;
+    protected final VRPoseImpl offhand;
 
 
 
-    private final List<PoseElementImpl> elements;
+    private final List<VRPoseImpl> elements;
 
     private Vector3fc origin;
     private final float rotationY = 0.0f;
@@ -51,10 +51,10 @@ public class RemotePlayerPose implements PlayerPoseClient {
         this.mcPlayer = mcPlayer;
         this.type = type;
 
-        this.hmd = new PoseElementImpl();
+        this.hmd = new VRPoseImpl();
 
-        this.mainHand = new PoseElementImpl();
-        this.offhand = new PoseElementImpl();
+        this.mainHand = new VRPoseImpl();
+        this.offhand = new VRPoseImpl();
 
 
 
@@ -164,7 +164,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
         this.origin = adjustedOrigin;
         this.worldScale = newWorldScale;
 
-        for (PoseElementImpl it : elements) {
+        for (VRPoseImpl it : elements) {
             it.update(
                     this.origin,
                     this.rotationY,
@@ -234,27 +234,27 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
 
     @Override
-    public @NotNull PoseElement getCameraPose(@Nullable VRCameraType cameraType) {
+    public @NotNull VRPose getCameraPose(@Nullable VRCameraType cameraType) {
         return hmd;
     }
 
     @Override
-    public @NotNull PoseElement getEyeLeft() {
+    public @NotNull VRPose getEyeLeft() {
         return hmd;
     }
 
     @Override
-    public @NotNull PoseElement getEyeRight() {
+    public @NotNull VRPose getEyeRight() {
         return hmd;
     }
 
     @Override
-    public @NotNull PoseElement getGripMainHand() {
+    public @NotNull VRPose getGripMainHand() {
         return mainHand;
     }
 
     @Override
-    public @NotNull PoseElement getGripOffhand() {
+    public @NotNull VRPose getGripOffhand() {
         return offhand;
     }
 

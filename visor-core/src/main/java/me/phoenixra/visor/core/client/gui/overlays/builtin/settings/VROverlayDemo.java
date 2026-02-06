@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseClient;
-import me.phoenixra.visor.api.common.player.PoseElement;
+import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
@@ -13,7 +13,7 @@ import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsMi
 import me.phoenixra.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
@@ -49,7 +49,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
     public VROverlayDemo(@NotNull VisorAddon owner,
                          @NotNull String id) {
-        super(owner, id, ElementPriority.HIGHEST, 1.0f);
+        super(owner, id, ComponentPriority.HIGHEST, 1.0f);
     }
 
 
@@ -62,7 +62,7 @@ public class VROverlayDemo extends VROverlayScreen {
         int height = this.height;
 
         //Screen Edge
-        renderOutline(guiGraphics, startX, startY, width, height, AtumColor.RED.toInt());
+        renderOutline(guiGraphics, startX, startY, width, height, AtumColor.RED.asInt());
 
         //MOUSE bounds outline
         startX = cursorBoundsX;
@@ -83,7 +83,7 @@ public class VROverlayDemo extends VROverlayScreen {
                 && height == this.height){
             return;
         }
-        renderOutline(guiGraphics, startX, startY, width, height, AtumColor.GREEN.toInt());
+        renderOutline(guiGraphics, startX, startY, width, height, AtumColor.GREEN.asInt());
 
 
     }
@@ -230,11 +230,11 @@ public class VROverlayDemo extends VROverlayScreen {
 
         PoseAnchor posAnchor = targetPoseOptions.getPositionAnchor();
 
-        PoseElement elementAnchorPos = posAnchor.getSupplier()
+        VRPose posAnchorPose = posAnchor.getSupplier()
                 .apply(renderPose);
-        var anchorPosition = elementAnchorPos.getPosition();
+        var anchorPosition = posAnchorPose.getPosition();
 
-        Vector3f offsetPos = elementAnchorPos
+        Vector3f offsetPos = posAnchorPose
                 .reverseCustomVector(
                         getPose().getPosition().sub(anchorPosition, new Vector3f())
                 ).div(
@@ -258,9 +258,9 @@ public class VROverlayDemo extends VROverlayScreen {
 
         PoseAnchor rotationAnchor = targetPoseOptions.getRotationAnchor();
 
-        PoseElement elementAnchorRot = rotationAnchor.getSupplier()
+        VRPose rotationAnchorPose = rotationAnchor.getSupplier()
                 .apply(renderPose);
-        var anchorRotation = elementAnchorRot.getRotation();
+        var anchorRotation = rotationAnchorPose.getRotation();
 
         Vector3f rotationOffset = rotationAnchor.reverseAnchoredRotation(
                 anchorRotation,

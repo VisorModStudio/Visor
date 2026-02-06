@@ -15,7 +15,7 @@ import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FilterListBinaryWidgetSet;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.CreateOverlayWidgetSet;
@@ -98,7 +98,7 @@ public class VROverlaySettings extends VROverlayScreen
 
     public VROverlaySettings(@NotNull VisorAddon owner,
                              @NotNull String id) {
-        super(owner, id, ElementPriority.NORMAL, 0.6f);
+        super(owner, id, ComponentPriority.NORMAL, 0.6f);
         VisorAPI.eventBus().registerListener(owner, this);
         overlaysWidgetSet = new OverlaysWidgetSet(
                 this, this::repopulateWidgets
@@ -215,7 +215,7 @@ public class VROverlaySettings extends VROverlayScreen
                 guiGraphics,
                 font,
                 text.getString(),
-                TEXT_COLOR.toInt(),
+                TEXT_COLOR.asInt(),
                 menuBoundsX
                         + (settingsTab == SettingsTab.OVERLAYS ? 0 : 115),
                 menuBoundsY + 6,

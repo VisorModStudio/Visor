@@ -110,7 +110,7 @@ public class SliderWidget<T> extends AbstractWidget {
         String text = resolveDisplayText();
         if (!text.isEmpty()) {
             Font font = widgetInfo.getTextFont() != null ? widgetInfo.getTextFont() : Minecraft.getInstance().font;
-            int color = widgetInfo.getTextColor().toInt();
+            int color = widgetInfo.getTextColor().asInt();
 
             int textX = getX();
             int textY = getY();

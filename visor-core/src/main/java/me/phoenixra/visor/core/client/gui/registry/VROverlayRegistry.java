@@ -3,7 +3,7 @@ package me.phoenixra.visor.core.client.gui.registry;
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.api.common.addon.element.VisorRegistry;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,27 +14,27 @@ import java.util.stream.Collectors;
 import static com.mojang.text2speech.Narrator.LOGGER;
 
 
-public class VROverlayRegistry implements VisorRegistry<VROverlay> {
+public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
     private static final String REGISTRY_NAME = "VR Overlays";
 
-    private static final String ELEMENT_NAME = "VROverlay";
+    private static final String COMPONENT_NAME = "VROverlay";
 
 
-    private final Map<String, VROverlay> elementsMap = new LinkedHashMap<>();
+    private final Map<String, VROverlay> componentsMap = new LinkedHashMap<>();
 
-    private final List<VROverlay> sortedElements = new ArrayList<>();
+    private final List<VROverlay> sortedComponents = new ArrayList<>();
 
     @Getter
-    private final Collection<VROverlay> allElements =
-            Collections.unmodifiableCollection(elementsMap.values());
+    private final Collection<VROverlay> allComponents =
+            Collections.unmodifiableCollection(componentsMap.values());
 
 
-    public List<VROverlay> getSortedElements() {
-        return Collections.unmodifiableList(sortedElements);
+    public List<VROverlay> getSortedComponents() {
+        return Collections.unmodifiableList(sortedComponents);
     }
 
     public List<VROverlay> getSortedByName() {
-        return elementsMap.values().stream()
+        return componentsMap.values().stream()
                 .sorted(Comparator.comparing(
                         (it)->it.getName().getString(),
                         String.CASE_INSENSITIVE_ORDER
@@ -47,40 +47,40 @@ public class VROverlayRegistry implements VisorRegistry<VROverlay> {
     }
 
     @Override
-    public void registerElement(@NotNull VROverlay element) {
-        var previous = elementsMap.put(element.getId(), element);
+    public void registerComponent(@NotNull VROverlay component) {
+        var previous = componentsMap.put(component.getId(), component);
 
 
         if (previous != null) {
             LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
-                    ELEMENT_NAME,
+                    COMPONENT_NAME,
                     previous.getId(),
                     previous.getOwner().getAddonId()
             );
-            sortedElements.remove(previous);
+            sortedComponents.remove(previous);
 
         }else{
-            LOGGER.info("Registered {}: '{}'", ELEMENT_NAME, element.getId());
+            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
-        sortedElements.add(element);
-        Collections.sort(sortedElements);
+        sortedComponents.add(component);
+        Collections.sort(sortedComponents);
 
     }
 
     @Override
-    public VROverlay unregisterElement(@NotNull String id) {
-        var removed = elementsMap.remove(id);;
+    public VROverlay unregisterComponent(@NotNull String id) {
+        var removed = componentsMap.remove(id);;
         if(removed != null) {
-            sortedElements.remove(removed);
-            Collections.sort(sortedElements);
+            sortedComponents.remove(removed);
+            Collections.sort(sortedComponents);
             var template = removed.asTemplate();
             if(template != null){
                 template.getOptionsConfig().getFile().delete();
                 ClientContext.settingsHandler.getOverlayConfigsAccessor()
                         .removeConfig(removed.getId());
             }
-            LOGGER.info("Unregistered {}: '{}'", ELEMENT_NAME, removed.getId());
+            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
 
         return removed;
@@ -89,8 +89,8 @@ public class VROverlayRegistry implements VisorRegistry<VROverlay> {
 
 
     @Override
-    public @Nullable VROverlay getElement(@NotNull String id) {
-        return elementsMap.get(id);
+    public @Nullable VROverlay getComponent(@NotNull String id) {
+        return componentsMap.get(id);
     }
 
 

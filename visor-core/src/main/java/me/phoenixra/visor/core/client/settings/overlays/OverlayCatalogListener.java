@@ -69,7 +69,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
         var templatesRegistry = ClientContext.overlayManager
                 .getOverlayTemplatesRegistry();
         try {
-            for(var entry : templatesRegistry.getAddonElements(addon)){
+            for(var entry : templatesRegistry.getAddonComponents(addon)){
                 if(!entry.isCreateDefault()) continue;
                 //creates file with default settings
                 entry.constructor().newInstance(
@@ -94,7 +94,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
                 .getOverlaysRegistry();
         for(ConfigFile config : manager.getAddonConfigs(addon, builtIn)){
             String id = config.getId();
-            var overlay = overlaysRegistry.getElement(id);
+            var overlay = overlaysRegistry.getComponent(id);
             if(overlay == null){
                 continue;
             }
@@ -110,7 +110,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
         for(ConfigFile config : manager.getAddonConfigs(addon, builtIn)){
             String id = config.getId();
 
-            if(overlaysRegistry.getElement(id) != null){
+            if(overlaysRegistry.getComponent(id) != null){
                 LoggerUtils.getLogger().error(
                         "The overlay with id {} already exists!", id
                 );
@@ -118,7 +118,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
             }
 
             String templateId  = config.getString("template");
-            VROverlayTemplateRecord templateRecord = templatesRegistry.getElement(templateId);
+            VROverlayTemplateRecord templateRecord = templatesRegistry.getComponent(templateId);
             if(templateRecord == null){
                 LoggerUtils.getLogger().error(
                         "Unknown overlay template {} specified for {}", templateId, id
@@ -130,7 +130,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
                         templateRecord.owner(),
                         id
                 );
-                overlaysRegistry.registerElement(overlay);
+                overlaysRegistry.registerComponent(overlay);
             }catch (Throwable throwable){
                 VisorState.destroyVRWithErrorScreen(throwable);
             }

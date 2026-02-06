@@ -85,21 +85,6 @@ public class VRClientSettings {
     @VROptionField(key = "movement.sprintThreshold")
     protected static float sprintThreshold = 0.9f;
 
-    //max height to actual height ratio to jump from >=
-    @Getter
-    @VROptionField(key = "movement.jumpThreshold")
-    protected static float jumpThreshold = 1.05f;
-
-    //max height to actual height ratio to start sneaking from <=
-    @Getter
-    @VROptionField(key = "movement.sneakThreshold")
-    protected static float sneakThreshold = 0.85f;
-
-    @Getter
-    @VROptionField(key = "movement.crawlThreshold")
-    protected static float crawlThreshold = 0.7f;
-
-
 
     //----Rendering
     @Getter
@@ -255,6 +240,60 @@ public class VRClientSettings {
     protected static float mixedRealityAspectRatio = 16F / 9F;
 
     //
+
+    // ---- IMMERSION
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_SNEAK,
+            key = "room_sneak.enabled")
+    protected static boolean roomSneakEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_CRAWL,
+            key = "room_crawl.enabled")
+    protected static boolean roomCrawlEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_CLIMB,
+            key = "room_climb.enabled")
+    protected static boolean roomClimbEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_JUMP,
+            key = "room_jump.enabled")
+    protected static boolean roomJumpEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_SWIM,
+            key = "room_swim.enabled")
+    protected static boolean roomSwimEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_DISMOUNT_VEHICLE,
+            key = "room_dismount_vehicle.enabled")
+    protected static boolean roomDismountVehicleEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_CONSUME,
+            key = "room_consume.enabled")
+    protected static boolean roomConsumeEnabled = true;
+
+    //max height to actual height ratio to jump from >=
+    @Getter
+    @VROptionField(key = "immersion.room_jump.threshold")
+    protected static float roomJumpThreshold = 1.05f;
+
+    //max height to actual height ratio to start sneaking from <=
+    @Getter
+    @VROptionField(key = "immersion.room_sneak.threshold")
+    protected static float roomSneakThreshold = 0.85f;
+
+    @Getter
+    @VROptionField(key = "immersion.room_crawl.threshold")
+    protected static float roomCrawlThreshold = 0.7f;
+
+
+    // ---- OTHER
 
 
     private static final float defaultHeight = 1.52F;

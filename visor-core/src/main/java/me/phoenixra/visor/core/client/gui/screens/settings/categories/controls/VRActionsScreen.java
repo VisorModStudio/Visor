@@ -1,10 +1,10 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories.controls;
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import me.phoenixra.atumvr.core.OpenXRProvider;
-import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
-import me.phoenixra.visor.api.client.input.action.BindingPath;
+import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
+import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -38,11 +38,11 @@ public class VRActionsScreen extends Screen {
 
     private final Screen previousScreen;
     private final VisorActionSet actionSet;
-    private final XRInteractionProfile activeProfile;
-    private XRInteractionProfile currentProfile;
+    private final VRInteractionProfileType activeProfileType;
+    private VRInteractionProfileType currentProfileType;
 
 
-    private final Map<XRInteractionProfile, Map<VisorAction,BindingPath>> newBindings;
+    private final Map<VRInteractionProfileType, Map<VisorAction, ActionBinding>> newBindings;
 
 
     private Button applyButton;
@@ -54,12 +54,12 @@ public class VRActionsScreen extends Screen {
         super(actionSet.getName());
         this.previousScreen = previous;
         this.actionSet = actionSet;
-        this.activeProfile = ClientContext.inputManager.getActiveProfile();
-        this.currentProfile = activeProfile != null
-                ? activeProfile
-                : XRInteractionProfile.VALVE_INDEX;
+        this.activeProfileType = ClientContext.inputManager.getActiveProfile();
+        this.currentProfileType = activeProfileType != null
+                ? activeProfileType
+                : VRInteractionProfileType.VALVE_INDEX;
 
-        newBindings = new EnumMap<>(XRInteractionProfile.class);
+        newBindings = new EnumMap<>(VRInteractionProfileType.class);
 
         resetNewBinds();
     }
@@ -86,17 +86,17 @@ public class VRActionsScreen extends Screen {
 
         // Profile selector button
         addRenderableWidget(
-                CycleButton.<XRInteractionProfile>builder(p ->
-                                 Component.literal(AtumColor.COLOR_SYMBOL+(activeProfile == currentProfile
+                CycleButton.<VRInteractionProfileType>builder(p ->
+                                 Component.literal(AtumColor.COLOR_SYMBOL+(activeProfileType == currentProfileType
                                          ? "a"+p.name() : "f"+ p.name())))
                         .withValues(getProfiles())
-                        .withInitialValue(currentProfile)
+                        .withInitialValue(currentProfileType)
                         .create(
                                 MARGIN - GAP, headerY - GAP - BUTTON_HEIGHT,
                                 150, BUTTON_HEIGHT,
                                 Component.translatable("visor.button.input_profile"),
                                 (btn, prof) -> {
-                                    currentProfile = prof;
+                                    currentProfileType = prof;
                                     init();
                                 }
                         )
@@ -110,7 +110,7 @@ public class VRActionsScreen extends Screen {
                 Button.builder(
                         Component.translatable("visor.button.load_defaults"),
                         b -> {
-                            actionSet.loadDefaults(currentProfile);
+                            actionSet.loadDefaults(currentProfileType);
                             resetNewBinds();
                             init();
                         }
@@ -122,7 +122,7 @@ public class VRActionsScreen extends Screen {
                 Button.builder(
                         Component.translatable("visor.button.apply_changes"),
                         b -> {
-                            getNewBinds().forEach((a, p) -> a.setBinding(currentProfile, p));
+                            getNewBinds().forEach((a, p) -> a.setBinding(currentProfileType, p));
                             actionSet.saveBindings();
                             init();
                         }
@@ -144,27 +144,25 @@ public class VRActionsScreen extends Screen {
         );
     }
 
-    private List<XRInteractionProfile> getProfiles() {
-        return XRInteractionProfile.getSupported(
-                (OpenXRProvider) ClientContext.visor.getVrProvider()
-        );
+    private List<VRInteractionProfileType> getProfiles() {
+        return ClientContext.inputProvider.getSupportedProfileTypes();
     }
 
     private void updateApplyButton() {
         boolean hasChanges = getNewBinds().keySet().stream()
                 .anyMatch(a -> !Objects.equals(
-                        a.getBindingOrEmpty(currentProfile),
+                        a.getBindingOrEmpty(currentProfileType),
                         getNewBinds().get(a)
                 ));
         boolean collision = hasBindingCollision();
         applyButton.active = hasChanges && !collision;
     }
 
-    private boolean hasCollision(String path, boolean leftHanded) {
+    private boolean hasCollision(VRActionIdentifier actionId, boolean leftHanded) {
         var counts = getNewBinds().values().stream()
-                .map(b -> b.getPath(leftHanded))
-                .filter(p -> p.equals(path))
-                .filter(p->!p.startsWith("vec2")) //ignore this for now, since some actions may use only 1 dimension
+                .map(b -> b.getActionId(leftHanded))
+                .filter(p -> p.equals(actionId))
+                .filter(p->!p.getValue().startsWith("vec2")) //ignore this for now, since some actions may use only 1 dimension
                 .collect(Collectors.groupingBy(p -> p, Collectors.counting()));
         return counts.values().stream().anyMatch(c -> c > 1);
     }
@@ -173,9 +171,9 @@ public class VRActionsScreen extends Screen {
     private boolean hasBindingCollision() {
         for (boolean left : new boolean[]{false,true}) {
             var counts = getNewBinds().values().stream()
-                    .map(b -> b.getPath(left))
-                    .filter(p -> !p.equals(BindingPath.EMPTY_PATH))
-                    .filter(p->!p.startsWith("vec2")) //ignore this for now, since some actions may use only 1 dimension
+                    .map(b -> b.getActionId(left))
+                    .filter(p -> !p.equals(ActionBinding.EMPTY_ID))
+                    .filter(p->!p.getValue().startsWith("vec2")) //ignore this for now, since some actions may use only 1 dimension
                     .collect(Collectors.groupingBy(p -> p, Collectors.counting()));
             if (counts.values().stream().anyMatch(c -> c > 1)) return true;
         }
@@ -184,8 +182,8 @@ public class VRActionsScreen extends Screen {
 
     private void resetNewBinds(){
         newBindings.clear();
-        for(var profile : XRInteractionProfile.values()){
-            var map = new HashMap<VisorAction, BindingPath>();
+        for(var profile : VRInteractionProfileType.values()){
+            var map = new HashMap<VisorAction, ActionBinding>();
             actionSet.getActions().forEach(a ->
                     map.put(a, a.getBindingOrEmpty(profile))
             );
@@ -224,11 +222,11 @@ public class VRActionsScreen extends Screen {
         int bindColumn = (int)(listWidth * BIND_RATIO);
         int headerTextY = headerY + (HEADER_H - font.lineHeight) / 2;
         guiGraphics.drawString(font, Component.translatable("visor.options.controls.action"),
-                listLeft + GAP, headerTextY, AtumColor.GRAY.toInt());
+                listLeft + GAP, headerTextY, AtumColor.GRAY.asInt());
         guiGraphics.drawString(font, Component.translatable("visor.options.controls.left_handed"),
-                listLeft + actionColumn + GAP, headerTextY,  !leftHanded ? AtumColor.GRAY.toInt() : activeColor.toInt());
+                listLeft + actionColumn + GAP, headerTextY,  !leftHanded ? AtumColor.GRAY.asInt() : activeColor.asInt());
         guiGraphics.drawString(font, Component.translatable("visor.options.controls.right_handed"),
-                listLeft + actionColumn + bindColumn + GAP, headerTextY, !leftHanded ? activeColor.toInt() : AtumColor.GRAY.toInt());
+                listLeft + actionColumn + bindColumn + GAP, headerTextY, !leftHanded ? activeColor.asInt() : AtumColor.GRAY.asInt());
 
         // 5) all other widgets
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -243,8 +241,8 @@ public class VRActionsScreen extends Screen {
         return super.keyPressed(key, sc, mods);
     }
 
-    public Map<VisorAction, BindingPath> getNewBinds(){
-        return newBindings.get(currentProfile);
+    public Map<VisorAction, ActionBinding> getNewBinds(){
+        return newBindings.get(currentProfileType);
     }
     public class ActionList extends ContainerObjectSelectionList<BindingEntry> {
         public ActionList(Minecraft mc, int w, int h, int top, int bottom, int itemH) {
@@ -276,9 +274,9 @@ public class VRActionsScreen extends Screen {
             this.leftButton = Button.builder(Component.literal(""),
                     b -> {
                         scrollSaved = bindingList.getScrollAmount();
-                        MC.setScreen(new BindingPathScreen(
+                        MC.setScreen(new ActionBindingScreen(
                                 VRActionsScreen.this,
-                                currentProfile,
+                                currentProfileType,
                                 action,
                                 getNewBinds().get(action),
                                 true
@@ -288,9 +286,9 @@ public class VRActionsScreen extends Screen {
             this.rightButton = Button.builder(Component.literal(""),
                     b -> {
                         scrollSaved = bindingList.getScrollAmount();
-                        MC.setScreen(new BindingPathScreen(
+                        MC.setScreen(new ActionBindingScreen(
                                 VRActionsScreen.this,
-                                currentProfile,
+                                currentProfileType,
                                 action,
                                 getNewBinds().get(action),
                                 false
@@ -311,8 +309,8 @@ public class VRActionsScreen extends Screen {
             int actionColumn = (int)(w * ACTION_RATIO) - 3;
             int bindColumn   = (int)(w * BIND_RATIO);
 
-            String leftPath = getNewBinds().get(action).getPath(true);
-            String rightPath = getNewBinds().get(action).getPath(false);
+            VRActionIdentifier leftActionId = getNewBinds().get(action).getActionId(true);
+            VRActionIdentifier rightActionId = getNewBinds().get(action).getActionId(false);
 
             // action label
             guiGraphics.drawString(font,
@@ -323,14 +321,14 @@ public class VRActionsScreen extends Screen {
                     false);
 
             // left button
-            if(hasCollision(leftPath, true)){
+            if(hasCollision(leftActionId, true)){
                 leftButton.setMessage(
                         Component.literal(
-                                AtumColor.COLOR_SYMBOL+"c"+leftPath
+                                AtumColor.COLOR_SYMBOL+"c"+leftActionId.getValue()
                         )
                 );
             }else{
-                leftButton.setMessage(Component.literal(leftPath));
+                leftButton.setMessage(Component.literal(leftActionId.getValue()));
             }
             leftButton.setWidth(bindColumn - GAP * 2);
             leftButton.setX(x + actionColumn + GAP);
@@ -338,14 +336,14 @@ public class VRActionsScreen extends Screen {
             leftButton.render(guiGraphics, mouseX, mouseY, pt);
 
             // right button
-            if(hasCollision(rightPath, false)){
+            if(hasCollision(rightActionId, false)){
                 rightButton.setMessage(
                         Component.literal(
-                                AtumColor.COLOR_SYMBOL+"c"+rightPath
+                                AtumColor.COLOR_SYMBOL+"c"+rightActionId.getValue()
                         )
                 );
             }else{
-                rightButton.setMessage(Component.literal(rightPath));
+                rightButton.setMessage(Component.literal(rightActionId.getValue()));
             }
             rightButton.setWidth(bindColumn - GAP * 2);
             rightButton.setX(x + actionColumn + bindColumn + GAP);

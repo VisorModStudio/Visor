@@ -123,7 +123,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 guiGraphics,
                 Minecraft.getInstance().font,
                 Component.translatable("visor.overlay.options.main.create_overlay.load_icon").getString(),
-                VROverlaySettings.TEXT_COLOR.toInt(),
+                VROverlaySettings.TEXT_COLOR.asInt(),
                 startX + 10,
                 startY + 5,
                 88, 8,

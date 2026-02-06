@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.gui.screens;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.tasks.TaskHotBar;
+import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;

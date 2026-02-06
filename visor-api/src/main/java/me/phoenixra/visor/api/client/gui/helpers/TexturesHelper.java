@@ -50,7 +50,7 @@ public class TexturesHelper {
 
         NativeImage img = new NativeImage(NativeImage.Format.RGBA, 1, 1, true);
 
-        img.setPixelRGBA(0, 0, color.toInt());
+        img.setPixelRGBA(0, 0, color.asInt());
 
         DynamicTexture tex = new DynamicTexture(img);
 

@@ -62,11 +62,11 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
 
 
 
-    private int highlightHoveredInt = AtumColor.WHITE.toInt();
-    private int highlightDraggedInt = AtumColor.WHITE.toInt();
+    private int highlightHoveredInt = AtumColor.WHITE.asInt();
+    private int highlightDraggedInt = AtumColor.WHITE.asInt();
 
-    private int highlightCornerHoveredInt = AtumColor.WHITE.toInt();
-    private int highlightCornerDraggedInt = AtumColor.WHITE.toInt();
+    private int highlightCornerHoveredInt = AtumColor.WHITE.asInt();
+    private int highlightCornerDraggedInt = AtumColor.WHITE.asInt();
 
     public WidgetInfoValueDrag(@NotNull WidgetInfoValueDrag copyFrom) {
         super(copyFrom);
@@ -115,14 +115,14 @@ public class WidgetInfoValueDrag extends WidgetInfoImage{
 
     public WidgetInfoValueDrag setHighlightHovered(AtumColor color) {
         this.highlightHovered = color;
-        this.highlightHoveredInt = color.toInt();
-        this.highlightCornerHoveredInt = color.lighten(0.25f).toInt();
+        this.highlightHoveredInt = color.asInt();
+        this.highlightCornerHoveredInt = color.lighten(0.25f).asInt();
         return this;
     }
     public WidgetInfoValueDrag setHighlightDragged(AtumColor color) {
         this.highlightDragged = color;
-        this.highlightDraggedInt = color.toInt();
-        this.highlightCornerDraggedInt = color.lighten(0.25f).toInt();
+        this.highlightDraggedInt = color.asInt();
+        this.highlightCornerDraggedInt = color.lighten(0.25f).asInt();
         return this;
     }
 

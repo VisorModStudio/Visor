@@ -15,13 +15,13 @@ import me.phoenixra.visor.api.client.gui.overlays.VROverlayHelper;
 import me.phoenixra.visor.api.client.gui.overlays.framework.screen.VROverlayRadialSelector;
 import me.phoenixra.visor.api.client.render.VRCameraType;
 import me.phoenixra.visor.api.common.HandType;
-import me.phoenixra.visor.api.common.addon.element.ElementPriority;
+import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventHandler;
 import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.render.helpers.RenderPoseHelper;
-import me.phoenixra.visor.core.client.tasks.TaskHotBar;
+import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -73,8 +73,8 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
         super(owner, hand, id,
                 hand == HandType.MAIN
-                        ? ElementPriority.HIGH
-                        :ElementPriority.NORMAL,
+                        ? ComponentPriority.HIGH
+                        : ComponentPriority.NORMAL,
                 98,
                 new SelectionBoxHotBar(
                         HotBarSlice.CENTER.getSlot(),

@@ -4,7 +4,7 @@ import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
-import me.phoenixra.visor.core.client.input.actionset.actions.*;
+import me.phoenixra.visor.core.client.input.actions.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

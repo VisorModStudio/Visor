@@ -2,12 +2,13 @@ package me.phoenixra.visor.api.client.input.action.framework;
 
 
 import lombok.Getter;
-import me.phoenixra.atumvr.api.input.action.VRActionDataButton;
-import me.phoenixra.atumvr.core.enums.XRInteractionProfile;
-import me.phoenixra.atumvr.core.input.action.profileset.OpenXRProfileSet;
+import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
+import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
+import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
+import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
-import me.phoenixra.visor.api.client.input.action.BindingPath;
+import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,9 +42,9 @@ public abstract class VisorActionButton implements VisorAction {
 
 
 
-    protected final Map<XRInteractionProfile, BindingPath> defaultBindings;
+    protected final Map<VRInteractionProfileType, ActionBinding> defaultBindings;
 
-    protected Map<XRInteractionProfile, BindingPath> bindings;
+    protected Map<VRInteractionProfileType, ActionBinding> bindings;
 
 
     public VisorActionButton(VisorActionSet actionSet,
@@ -55,7 +56,7 @@ public abstract class VisorActionButton implements VisorAction {
         this.bindings = new EnumMap<>(defaultBindings);
     }
 
-    protected abstract Map<XRInteractionProfile, BindingPath> loadDefaults();
+    protected abstract Map<VRInteractionProfileType, ActionBinding> loadDefaults();
 
     protected abstract void onPress();
 
@@ -66,10 +67,10 @@ public abstract class VisorActionButton implements VisorAction {
     }
 
 
-    protected @Nullable VRActionDataButton getButtonData(@NotNull BindingPath bindingPath,
-                                               @NotNull OpenXRProfileSet currentProfile,
-                                               boolean leftHanded){
-        return bindingPath.getButton(currentProfile, leftHanded);
+    protected @Nullable VRActionDataButton getButtonData(@NotNull ActionBinding actionBinding,
+                                                         @NotNull XRInteractionProfile currentProfile,
+                                                         boolean leftHanded){
+        return actionBinding.getButton(currentProfile, leftHanded);
     }
 
     @Override
@@ -95,10 +96,10 @@ public abstract class VisorActionButton implements VisorAction {
     }
 
     @Override
-    public void updateState(@NotNull OpenXRProfileSet currentProfile, boolean leftHanded) {
-        BindingPath bindingPath = bindings.get(currentProfile.getType());
+    public void updateState(@NotNull XRInteractionProfile currentProfile, boolean leftHanded) {
+        ActionBinding actionBinding = bindings.get(currentProfile.getType());
 
-        if(bindingPath == null){
+        if(actionBinding == null){
             active = false;
             if(pressed){
                 releaseDelayed = true;
@@ -111,7 +112,7 @@ public abstract class VisorActionButton implements VisorAction {
             return;
         }
 
-        var buttonData = getButtonData(bindingPath, currentProfile, leftHanded);
+        var buttonData = getButtonData(actionBinding, currentProfile, leftHanded);
 
         if(buttonData == null){
             if(active) {
@@ -173,29 +174,29 @@ public abstract class VisorActionButton implements VisorAction {
         releaseDelayed = true;
     }
 
-    public void setBinding(@NotNull XRInteractionProfile profile, @NotNull BindingPath path){
-        bindings.put(profile, path);
+    public void setBinding(@NotNull VRInteractionProfileType profile, @NotNull ActionBinding binding){
+        bindings.put(profile, binding);
     }
 
     @Override
-    public @Nullable BindingPath getBinding(@NotNull XRInteractionProfile profile) {
+    public @Nullable ActionBinding getBinding(@NotNull VRInteractionProfileType profile) {
         return bindings.get(profile);
     }
 
     @Override
-    public @Nullable BindingPath getDefaultBinding(@NotNull XRInteractionProfile profile) {
+    public @Nullable ActionBinding getDefaultBinding(@NotNull VRInteractionProfileType profile) {
         return defaultBindings.get(profile);
     }
 
 
     @Override
-    public @NotNull Collection<String> getSelectableBindings(@NotNull XRInteractionProfile profile) {
+    public @NotNull Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profile) {
         var profileSet = VisorAPI.client().getInputManager()
-                .getProfileSetHolder()
-                .getProfileSet(profile);
+                .getProfileManager()
+                .getProfile(profile);
 
-        var out = new ArrayList<String>();
-        out.add(BindingPath.EMPTY_PATH);
+        var out = new ArrayList<VRActionIdentifier>();
+        out.add(ActionBinding.EMPTY_ID);
         if(profileSet != null){
             out.addAll(profileSet.getButtonIds());
         }

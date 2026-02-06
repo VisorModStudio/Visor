@@ -7,17 +7,17 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * Manages addons and element registries
+ * Manages addons and component registries
  */
 public interface AddonManager {
 
     /**
-     * Get Element Registries
+     * Get Component registries
      *
-     * @return element registries
+     * @return component registries
      */
     @NotNull
-    VisorRegistries getRegistries();
+    ComponentRegistries getRegistries();
 
     /**
      * Get addon with specified id
@@ -34,8 +34,10 @@ public interface AddonManager {
      * <br>
      * That is an addon registered by Visor itself.
      *
-     * <p>its instance can be used to access builtin visor elements.
-     * You may also override these elements with yours</p>
+     * <p>
+     *     its instance can be used to access builtin visor components.
+     *     You may also override these components with yours
+     * </p>
      *
      * @return addon instance
      */

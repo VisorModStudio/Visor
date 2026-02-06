@@ -9,7 +9,7 @@ import me.phoenixra.visor.core.client.render.context.PreRenderContext;
 import me.phoenixra.visor.core.client.render.context.RenderContext;
 import me.phoenixra.visor.api.client.input.HandAction;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
-import me.phoenixra.visor.core.client.tasks.movement.vehicle.TasVehicle;
+import me.phoenixra.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
 import me.phoenixra.visor.modified.client.MinecraftModified;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
 import me.phoenixra.visor.core.client.render.VRRenderState;
@@ -172,10 +172,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
              ++VisorState.FRAME_COUNT;
 
              ClientContext.visor
-                     .onGameLoopStart(new PreRenderContext(
-                             profiler, tick,
-                             visor$getPartialTicks()
-                     ));
+                     .onGameLoopStart();
 
          }
      }
