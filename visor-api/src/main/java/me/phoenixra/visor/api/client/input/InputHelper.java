@@ -4,6 +4,7 @@ package me.phoenixra.visor.api.client.input;
 import me.phoenixra.visor.api.VisorAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -16,38 +17,38 @@ public class InputHelper {
     private static final HashMap<Character, Integer> keyCodes = new HashMap<>();
 
 
-    public static void pressMouse(int button, int modifiers) {
+    public static void pressMouse(@NotNull MouseButtonType button, int modifiers) {
         Minecraft.getInstance().mouseHandler.onPress(
                 Minecraft.getInstance().getWindow().getWindow(),
-                button, 1, modifiers
+                button.getId(), 1, modifiers
         );
 
     }
-    public static void pressMouse(int button) {
+    public static void pressMouse(@NotNull MouseButtonType button) {
         pressMouse(button, 0);
     }
 
 
-    public static void releaseMouse(int button, int modifiers) {
+    public static void releaseMouse(@NotNull MouseButtonType button, int modifiers) {
         Minecraft.getInstance().mouseHandler.onPress(
                 Minecraft.getInstance().getWindow().getWindow(),
-                button, 0, modifiers
+                button.getId(), 0, modifiers
         );
     }
-    public static void releaseMouse(int button) {
+    public static void releaseMouse(@NotNull MouseButtonType button) {
         releaseMouse(button, 0);
     }
 
-    public static boolean isMousePressed(int button){
+    public static boolean isMousePressed(@NotNull MouseButtonType button){
         var mouseHandler =  Minecraft.getInstance().mouseHandler;
         switch (button){
-            case 0 ->{
+            case LEFT ->{
                 return mouseHandler.isLeftPressed();
             }
-            case 1 ->{
+            case RIGHT ->{
                 return mouseHandler.isRightPressed();
             }
-            case 2 ->{
+            case MIDDLE ->{
                 return mouseHandler.isMiddlePressed();
             }
         }

@@ -8,12 +8,15 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 /**
  * Generic registry for visor components.
  */
 public interface ComponentRegistry<T extends VisorComponent> {
+
+    String ID_REGEX = "[a-zA-Z0-9_]+";
 
     /**
      * Scan and register all found addon components for specified addon.

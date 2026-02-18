@@ -38,7 +38,7 @@ public abstract class FishingHookMixin extends Projectile {
 
     @Inject(at = @At(value = "HEAD"), method = "tick")
     private void visor$hapticFeedback(CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
         Player player = this.getPlayerOwner();

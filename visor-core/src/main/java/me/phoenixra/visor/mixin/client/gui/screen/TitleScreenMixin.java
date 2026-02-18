@@ -71,7 +71,7 @@ public abstract class TitleScreenMixin extends Screen {
                     i, j
             );
         }
-        if (VisorState.getState() == VRStateMode.INITIALIZED
+        if (VisorState.get() == VRStateMode.INITIALIZED
                 && VRClientSettings.getVrPlayMode().canPlayVR()) {
             Component text = Component.translatable("visor.messages.vr_auto_switch");
             guiGraphics.renderTooltip(
@@ -85,7 +85,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(FF)V"), method = "render", index = 1)
     public float visor$noPanorama(float alpha) {
-        return VisorState.getState().isActive()
+        return VisorState.get().isActive()
                 ? 0.0F
                 : alpha;
     }

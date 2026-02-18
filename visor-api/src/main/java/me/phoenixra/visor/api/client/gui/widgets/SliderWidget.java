@@ -59,12 +59,12 @@ public class SliderWidget<T> extends AbstractWidget {
 
         setTooltip(widgetInfo.getTooltip());
 
-        setIndex(0, false);
+        setSelectedIndex(0, false);
 
     }
 
 
-    private void setIndex(int newIndex, boolean callResponder) {
+    public void setSelectedIndex(int newIndex, boolean callResponder) {
         int clamped = clampIndex(newIndex);
         if (clamped != this.index) {
             this.index = clamped;
@@ -75,7 +75,7 @@ public class SliderWidget<T> extends AbstractWidget {
         }
     }
     public void setSelected(@Nullable T value, boolean callResponder) {
-        setIndex(entries.indexOf(value), callResponder);
+        setSelectedIndex(entries.indexOf(value), callResponder);
     }
 
 
@@ -108,45 +108,28 @@ public class SliderWidget<T> extends AbstractWidget {
 
         // Draw label or selected text (centered)
         String text = resolveDisplayText();
+        int textX = getX();
+        int textY = getY();
+        int textW = getWidth();
+        int textH = getHeight();
         if (!text.isEmpty()) {
-            Font font = widgetInfo.getTextFont() != null ? widgetInfo.getTextFont() : Minecraft.getInstance().font;
+            Font font = Minecraft.getInstance().font;
             int color = widgetInfo.getTextColor().asInt();
 
-            int textX = getX();
-            int textY = getY();
-            int textW = getWidth();
-            int textH = getHeight();
-
-            if (widgetInfo.isScaleText()) {
+            if (widgetInfo.isDynamicTextScale()) {
                 GuiHelper.renderScalableText(
-                        guiGraphics,
-                        font,
-                        text,
-                        color,
-                        textX, textY,
-                        textW, textH,
-                        true
+                        guiGraphics, font, text, color,
+                        textX, textY, textW, textH, true
                 );
-            } else {
-                int strW = font.width(text);
-                int strH = font.lineHeight;
-                int x = textX + (textW - strW) / 2;
-                int y = textY + (textH - strH) / 2;
-
-                if (strW <= textW) {
-                    guiGraphics.drawString(font, text, x, y, color, false);
-                } else {
-                    int overflow = strW - textW;
-                    double cycleSecs = 4.0;
-                    double t = (System.currentTimeMillis() % (long) (cycleSecs * 1000)) / (cycleSecs * 1000.0);
-                    double phase = (Math.sin(2 * Math.PI * t) + 1) * 0.5;
-                    int offset = (int) (phase * overflow);
-
-                    guiGraphics.enableScissor(textX, textY, textX + textW, textY + textH);
-                    guiGraphics.drawString(font, text, x - offset, y, color, false);
-                    guiGraphics.disableScissor();
-                }
+                return;
             }
+
+            GuiHelper.renderScrollableText(
+                    guiGraphics, font, text, color,
+                    textX, textY, textW, textH,
+                    widgetInfo.getTextScale(),
+                    true
+            );
         }
     }
 
@@ -193,7 +176,7 @@ public class SliderWidget<T> extends AbstractWidget {
         double span = end - start;
 
         if (span <= 0) {
-            setIndex(0, true);
+            setSelectedIndex(0, true);
             return;
         }
 
@@ -203,7 +186,7 @@ public class SliderWidget<T> extends AbstractWidget {
         double scaled = t * (entries.size() - 1);
         int nearest = (int) Math.round(scaled);
 
-        setIndex(nearest, true);
+        setSelectedIndex(nearest, true);
     }
 
     @Override
@@ -225,22 +208,22 @@ public class SliderWidget<T> extends AbstractWidget {
 
         // Left arrow
         if (keyCode == 263) {
-            setIndex(this.index - 1, true);
+            setSelectedIndex(this.index - 1, true);
             return true;
         }
         // Right arrow
         if (keyCode == 262) {
-            setIndex(this.index + 1, true);
+            setSelectedIndex(this.index + 1, true);
             return true;
         }
         // Home
         if (keyCode == 268) {
-            setIndex(0, true);
+            setSelectedIndex(0, true);
             return true;
         }
         // End
         if (keyCode == 269) {
-            setIndex(entries.size() - 1, true);
+            setSelectedIndex(entries.size() - 1, true);
             return true;
         }
         return false;

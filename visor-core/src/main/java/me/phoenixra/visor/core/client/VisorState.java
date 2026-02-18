@@ -1,7 +1,6 @@
 package me.phoenixra.visor.core.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.visor.api.VisorClientState;
 import me.phoenixra.visor.api.VisorAPI;
@@ -27,9 +26,10 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VisorState implements VisorClientState {
 
 
-    @Getter
     private static VRStateMode state = VRStateMode.OFF;
-
+    public static VRStateMode get(){
+        return state;
+    }
 
     public static int TICK_COUNT;
 

@@ -56,7 +56,7 @@ public abstract class BoatMixin extends Entity {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", shift = At.Shift.BEFORE), method = "controlBoat", locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void visor$rowingInVR(CallbackInfo ci, float forward) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
         ci.cancel();

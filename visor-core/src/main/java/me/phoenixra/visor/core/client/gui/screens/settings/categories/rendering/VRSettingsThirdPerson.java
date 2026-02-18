@@ -3,20 +3,24 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
-import me.phoenixra.visor.core.client.settings.VROptionCategory;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
+import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetPosition;
-import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
-import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class VRSettingsThirdPerson extends VROptionsBaseScreen {
+public class VRSettingsThirdPerson extends VROptionsSet {
 
-    public VRSettingsThirdPerson(Screen previousScreen) {
-        super(VROptionCategory.RENDERING_THIRD_PERSON, previousScreen);
+    public VRSettingsThirdPerson(@NotNull VRSettingsScreen screen,
+                                 @Nullable VROptionsSet previousOptions,
+                                 @NotNull Runnable onWidgetsChanged) {
+        super(screen, previousOptions, onWidgetsChanged);
     }
+
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
         return new VROptionWidgetType[0];
@@ -27,14 +31,16 @@ public class VRSettingsThirdPerson extends VROptionsBaseScreen {
 
         return new OptionWidgetEntry[]{
                 new OptionWidgetEntry(
+                        this,
                         VROptionWidgetType.THIRD_PERSON_FOV,
                         OptionWidgetPosition.LEFT,
                         1,
                         null
                 ),
                 new OptionWidgetEntry(
+                        this,
                         ()->{
-                            if(!VisorState.getState().isActive()){
+                            if(!VisorState.get().isActive()){
                                 return;
                             }
                             var camOverlay = ClientContext.overlayManager.getOverlay(

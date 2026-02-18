@@ -1,36 +1,42 @@
 package me.phoenixra.visor.core.client.gui.screens.settings;
 
 import lombok.Getter;
-import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
+import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-
+import java.util.function.Consumer;
 
 
 public class OptionWidgetEntry {
 
+    private final VROptionsSet owner;
+
     @Getter
     @Nullable
     private final VROptionWidgetType optionType;
+
     @Getter
     @Nullable
     private final Class<? extends Screen> opensScreen;
+
     @Getter
     @Nullable
-    private final VROverlay opensOverlay;
+    private final VROptionsSet opensOptions;
+
     @Getter
     @Nullable
-    private final Runnable actionOnClick;
+    private final Runnable onClick;
 
     private final OptionWidgetPosition position;
     private final int row;
@@ -38,13 +44,16 @@ public class OptionWidgetEntry {
     private final String buttonText;
 
 
-    public OptionWidgetEntry(@NotNull VROptionWidgetType option,
+    public OptionWidgetEntry(@NotNull VROptionsSet owner,
+                             @NotNull VROptionWidgetType option,
                              @NotNull OptionWidgetPosition pos, int row,
                              @Nullable String buttonText
     ) {
+        this.owner = owner;
+
         this.opensScreen = null;
-        this.opensOverlay = null;
-        this.actionOnClick = null;
+        this.opensOptions = null;
+        this.onClick = null;
 
         this.optionType = option;
         this.position = pos;
@@ -55,13 +64,16 @@ public class OptionWidgetEntry {
         );
     }
 
-    public OptionWidgetEntry(@NotNull Class<? extends Screen> opensScreen,
+    public OptionWidgetEntry(@NotNull VROptionsSet owner,
+                             @NotNull Class<? extends Screen> opensScreen,
                              @NotNull OptionWidgetPosition pos, int row,
                              @Nullable String buttonText
     ) {
+        this.owner = owner;
+
         this.optionType = null;
-        this.opensOverlay = null;
-        this.actionOnClick = null;
+        this.opensOptions = null;
+        this.onClick = null;
 
         this.opensScreen = opensScreen;
         this.position = pos;
@@ -72,32 +84,18 @@ public class OptionWidgetEntry {
         );
     }
 
-    public OptionWidgetEntry(@NotNull VROverlay opensOverlay,
+    public OptionWidgetEntry(@NotNull VROptionsSet owner,
+                             @NotNull VROptionsSet opensOptions,
                              @NotNull OptionWidgetPosition pos, int row,
                              @Nullable String buttonText
     ) {
+        this.owner = owner;
+
         this.optionType = null;
         this.opensScreen = null;
-        this.actionOnClick = null;
+        this.onClick = null;
 
-        this.opensOverlay = opensOverlay;
-        this.position = pos;
-        this.row = row;
-
-        this.buttonText = Objects.requireNonNullElse(
-                buttonText, ""
-        );
-    }
-
-    public OptionWidgetEntry(@NotNull Runnable actionOnClick,
-                             @NotNull OptionWidgetPosition pos, int row,
-                             @Nullable String buttonText
-    ) {
-        this.optionType = null;
-        this.opensScreen = null;
-        this.opensOverlay = null;
-
-        this.actionOnClick = actionOnClick;
+        this.opensOptions = opensOptions;
         this.position = pos;
         this.row = row;
 
@@ -107,19 +105,40 @@ public class OptionWidgetEntry {
     }
 
 
-    public AbstractWidget createWidget(Screen forScreen) {
+    public OptionWidgetEntry(@NotNull VROptionsSet owner,
+                             @NotNull Runnable onClick,
+                             @NotNull OptionWidgetPosition pos, int row,
+                             @Nullable String buttonText
+    ) {
+        this.owner = owner;
+
+        this.optionType = null;
+        this.opensScreen = null;
+        this.opensOptions = null;
+
+        this.onClick = onClick;
+        this.position = pos;
+        this.row = row;
+
+        this.buttonText = Objects.requireNonNullElse(
+                buttonText, ""
+        );
+    }
+
+
+    public AbstractWidget createWidget() {
 
 
         if (optionType != null) {
             return optionType.getBehaviour().getWidget(
-                    getWidgetX(forScreen.width),
-                    getWidgetY(forScreen.height),
+                    getWidgetX(),
+                    getWidgetY(),
                     getWidgetWidth(),
                     getWidgetHeight()
             );
         }
 
-        Button.OnPress onPress = (button) -> actionOnClick.run();
+        Consumer<ButtonImaged> onPress = (button) -> this.onClick.run();
 
         if (opensScreen != null) {
             onPress = (button) -> {
@@ -129,53 +148,55 @@ public class OptionWidgetEntry {
                     Minecraft.getInstance().setScreen(
                             opensScreen
                                     .getConstructor(Screen.class)
-                                    .newInstance(forScreen)
+                                    .newInstance(owner.getScreen())
                     );
                 } catch (ReflectiveOperationException exception) {
                     LoggerUtils.printError(exception);
                 }
             };
-        } else if (opensOverlay != null) {
+        }else if(opensOptions != null){
             onPress = (button) -> {
                 ClientContext.settingsHandler.saveOptions();
-
-                opensOverlay.setEnabled(false);
-                opensOverlay.setEnabled(true);
+                owner.getScreen().switchOptions(opensOptions);
             };
         }
 
-        return new Button.Builder(
-                Component.translatable(getButtonText()),
+        return new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(getWidgetX(), getWidgetY())
+                        .size(getWidgetWidth(), getWidgetHeight())
+                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setTextScale(0.7f)
+                        .setHighlightEnabled(true)
+                        .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                        .setText(Component.translatable(getButtonText())),
                 onPress
-        ).bounds(
-                getWidgetX(forScreen.width),
-                getWidgetY(forScreen.height),
-                getWidgetWidth(),
-                getWidgetHeight()
-        ).build();
-    }
-
-
-    public int getWidgetX(int screenWidth) {
-        if (this.position == OptionWidgetPosition.LEFT) {
-            return screenWidth / 2 - getWidgetWidth() - 5;
-        }
-        if (this.position == OptionWidgetPosition.RIGHT) {
-            return screenWidth / 2 + 5;
-        }
-        return screenWidth / 2 + 80 - getWidgetWidth() - 5;
-    }
-
-    public int getWidgetY(int screenHeight) {
-        return (int) Math.ceil(
-                (float) (screenHeight / 6) + (getWidgetHeight() + 1) * this.row - 10.0F
         );
     }
+
+
+    public int getWidgetX() {
+        int startX = owner.getScreen().getOptionsStartX();
+        int width = owner.getScreen().getOptionsWidth();
+        if (this.position == OptionWidgetPosition.LEFT) {
+            return startX + (width / 2 - getWidgetWidth() - 5);
+        }
+        if (this.position == OptionWidgetPosition.RIGHT) {
+            return startX + (width / 2 + 5);
+        }
+        return startX + (width / 2 + 17 - getWidgetWidth() - 5);
+    }
+
+    public int getWidgetY() {
+        return 7 + owner.getScreen().getOptionsStartY()
+                + (getWidgetHeight() + 2) * this.row;
+    }
     public int getWidgetWidth(){
-        return 150;
+        return owner.getScreen().getScaleHelper().scaledSize(52);
     }
     public int getWidgetHeight(){
-        return 20;
+        return owner.getScreen().getScaleHelper().scaledSize(10);
     }
 
     public String getButtonText() {
@@ -189,4 +210,6 @@ public class OptionWidgetEntry {
         return this.optionType == null ?
                 0 : this.optionType.ordinal();
     }
+
+
 }

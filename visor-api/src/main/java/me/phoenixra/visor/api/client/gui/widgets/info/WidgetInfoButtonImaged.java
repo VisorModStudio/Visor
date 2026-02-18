@@ -73,10 +73,20 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
 
     /**
      * If text should be scaled to fit its bounds.
+     * <p>
+     *     When true, {@link #textScale} will be ignored
+     * </p>
      */
     @Setter @Getter
     @Accessors(chain = true)
-    private boolean scaleText = false;
+    private boolean dynamicTextScale = false;
+
+    /**
+     * Text scale to use
+     */
+    @Setter @Getter
+    @Accessors(chain = true)
+    private float textScale = 1.0f;
 
     /**
      * If button becomes inactive once selected
@@ -122,7 +132,7 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         textPosOffset = copyFrom.textPosOffset;
         textSizeOffset = copyFrom.textSizeOffset;
         inactiveOnSelected = copyFrom.inactiveOnSelected;
-        scaleText = copyFrom.scaleText;
+        dynamicTextScale = copyFrom.dynamicTextScale;
         tooltip = copyFrom.tooltip;
 
     }

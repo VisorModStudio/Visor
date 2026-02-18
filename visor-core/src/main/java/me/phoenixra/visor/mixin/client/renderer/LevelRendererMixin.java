@@ -141,7 +141,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
      */
     @Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
     private void visor$ensureVanillaPhase(CallbackInfo ci) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             VRRenderState.startVanillaPhase();
         }
     }
@@ -151,7 +151,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     \* **************** */
     @Inject(at = @At("TAIL"), method = "onResourceManagerReload")
     public void visor$onResourceManagerReload(ResourceManager resourceManager, CallbackInfo ci) {
-        if (VisorState.getState().isInitialized()) {
+        if (VisorState.get().isInitialized()) {
             ClientContext.renderer.prepareReinit(
                     "Resources Reload"
             );
@@ -165,7 +165,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At("HEAD"), method = "levelEvent")
     public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
-        if(!VisorState.getState().isNotActive()) return;
+        if(!VisorState.get().isNotActive()) return;
 
         if (this.minecraft.player != null
                 && this.minecraft.player.isAlive()

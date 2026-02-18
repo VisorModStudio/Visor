@@ -44,7 +44,7 @@ public abstract class MultiPlayerGameModeMixin {
                                             InteractionHand interactionHand,
                                             CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             ClientNetworking.sendLookPacket(player,
                     visor$getRightClickLook(
                                     player,
@@ -59,7 +59,7 @@ public abstract class MultiPlayerGameModeMixin {
 
     @Inject(at = @At("HEAD"), method = "releaseUsingItem")
     public void visor$ensureUseDirection2(Player player, CallbackInfo ci) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             ClientNetworking.sendLookPacket(player,
                     visor$getRightClickLook(
                                     player,
@@ -76,7 +76,7 @@ public abstract class MultiPlayerGameModeMixin {
     public void visor$ensureUseDirection3(LocalPlayer localPlayer, InteractionHand interactionHand,
                                    BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir
     ) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             ClientNetworking.sendLookPacket(
                     localPlayer,
                     blockHitResult.getLocation()

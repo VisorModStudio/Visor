@@ -1,19 +1,14 @@
 package me.phoenixra.visor.core.client.input.actions;
 
-import lombok.Getter;
-import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
-import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
-import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
-import me.phoenixra.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.input.mouse.MouseClickHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -21,173 +16,93 @@ import java.util.Map;
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
 public class ActionRightMouse extends VisorActionButton {
-    public static final String ID = "mouse_right";
+    public static final String ID_MAIN = "mouse_right_main";
+    public static final String ID_OFFHAND = "mouse_right_offhand";
 
-    private static final int BUTTON_TYPE = 1;
+    private final MouseClickHandler handler = MouseClickHandler.RIGHT_HANDLER;
 
-    @Getter
-    private final boolean required = true;
+    private final HandType handType;
 
-
-    private VROverlay previousFocus;
-    private boolean wasPressed;
-
-
-    public ActionRightMouse(VisorActionSet actionSet) {
-        super(actionSet, ID);
+    public ActionRightMouse(@NotNull VisorActionSet actionSet,
+                            @NotNull HandType handType) {
+        super(actionSet, handType == HandType.MAIN ? ID_MAIN : ID_OFFHAND);
+        this.handType = handType;
     }
 
     @Override
     public void preTick() {
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
+        handler.updateState(handType, pressed, changed);
 
-        // --- Cleanup Clicks ---
-
-        if(focusedOverlay != null
-                && previousFocus == null
-                && InputHelper.isMousePressed(BUTTON_TYPE)){
-            InputHelper.releaseMouse(BUTTON_TYPE);
+        if (handType == HandType.MAIN) {
+            handler.preTick();
         }
-        else if(focusedOverlay == null
-                && previousFocus != null
-                && wasPressed){
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
-                    BUTTON_TYPE
-            );
-            if(previousFocus instanceof VROverlayScreen overlayScreen){
-                overlayScreen.finishDragMouse();
-            }
-            wasPressed = false;
-        }else if(focusedOverlay != null
-                && previousFocus != null
-                && focusedOverlay != previousFocus
-                && wasPressed){
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
-                    BUTTON_TYPE
-            );
-            if(previousFocus instanceof VROverlayScreen overlayScreen){
-                overlayScreen.finishDragMouse();
-            }
-            wasPressed = false;
-        }
-        previousFocus = focusedOverlay;
 
         super.preTick();
-
-
     }
 
     @Override
     protected void onPress() {
-        process(true);
+        HandType activeHand;
+        if (!ClientContext.cursorHandler.isCursorHandFocused()
+                && MC.screen == null && MC.player != null) {
+            activeHand = ClientContext.localPlayer.getActiveHand();
+        } else {
+            activeHand = ClientContext.cursorHandler.getCursorHand();
+        }
+        if (handType != activeHand) {
+            return;
+        }
+        handler.onPress(handType);
     }
 
     @Override
     protected void onRelease() {
-        process(false);
+        HandType activeHand;
+        if (!ClientContext.cursorHandler.isCursorHandFocused()
+                && MC.screen == null && MC.player != null) {
+            activeHand = ClientContext.localPlayer.getActiveHand();
+        } else {
+            activeHand = ClientContext.cursorHandler.getCursorHand();
+        }
+        if (handType != activeHand) {
+            return;
+        }
+        handler.onRelease();
     }
 
     @Override
     protected void onClear() {
-        InputHelper.releaseMouse(BUTTON_TYPE);
-        if(previousFocus != null
-                && wasPressed){
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
-                    BUTTON_TYPE
-            );
-
-        }
-        previousFocus = null;
-
-        wasPressed = false;
+        handler.onClear();
     }
 
-    private void process(boolean press){
-        VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
-
-        if(focusedOverlay != null){
-            processOverlay(focusedOverlay, press);
-            return;
-        }
-        if(MC.screen != null){
-            return;
-        }
-
-        if(MC.player != null){
-            processGame(press);
-        }
-    }
-
-    private void processOverlay(VROverlay overlay, boolean press){
-
-        if (press) {
-            overlay.mouseClicked(
-                    overlay.getMouseX(),overlay.getMouseY(),
-                    BUTTON_TYPE
+    @Override
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
+        if (getId().equals(ID_MAIN)) {
+            return Map.of(
+                    VRInteractionProfileType.VALVE_INDEX,
+                    new ActionBinding(
+                            ValveIndexProfile.BUTTON_B_RIGHT,
+                            ValveIndexProfile.BUTTON_B_LEFT
+                    ),
+                    VRInteractionProfileType.OCULUS_TOUCH,
+                    new ActionBinding(
+                            OculusTouchProfile.BUTTON_A,
+                            OculusTouchProfile.BUTTON_X
+                    )
             );
-            wasPressed = true;
-        }else if(wasPressed){
-            overlay.mouseReleased(
-                    overlay.getMouseX(),overlay.getMouseY(),
-                    BUTTON_TYPE
-            );
-            wasPressed = false;
-        }
-    }
-
-
-    private void processGame(boolean press){
-        if (press) {
-            InputHelper.pressMouse(BUTTON_TYPE);
         } else {
-            InputHelper.releaseMouse(BUTTON_TYPE);
+            return Map.of(
+                    VRInteractionProfileType.VALVE_INDEX,
+                    new ActionBinding(
+                            ValveIndexProfile.BUTTON_B_LEFT,
+                            ValveIndexProfile.BUTTON_B_RIGHT
+                    ),
+                    VRInteractionProfileType.OCULUS_TOUCH,
+                    new ActionBinding(
+                            OculusTouchProfile.BUTTON_X,
+                            OculusTouchProfile.BUTTON_A
+                    )
+            );
         }
-    }
-
-
-    @Override
-    protected VRActionDataButton getButtonData(@NotNull ActionBinding actionBinding, @NotNull XRInteractionProfile currentProfile, boolean leftHanded) {
-        boolean mainHand;
-
-        if(!ClientContext.cursorHandler.isCursorHandFocused()
-                && MC.screen == null && MC.player != null){
-            mainHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN;
-        }else {
-            var cursorHand = ClientContext.cursorHandler.getCursorHand();
-            mainHand = cursorHand == HandType.MAIN;
-        }
-
-        //Here we change leftHanded parameter for method call,
-        //to match used hand
-        if(leftHanded){
-            //left hand as main (leftHanded parameter = true)
-            return actionBinding.getButton(currentProfile, mainHand);
-        }else{
-            //right hand as main (leftHanded parameter = false)
-            return actionBinding.getButton(currentProfile, !mainHand);
-        }
-    }
-
-
-    @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
-        return Map.of(
-                VRInteractionProfileType.VALVE_INDEX,
-                new ActionBinding(
-                        ValveIndexProfile.BUTTON_B_RIGHT,
-                        ValveIndexProfile.BUTTON_B_LEFT
-                ),
-                VRInteractionProfileType.OCULUS_TOUCH,
-                new ActionBinding(
-                        OculusTouchProfile.BUTTON_A,
-                        OculusTouchProfile.BUTTON_X
-                )
-        );
     }
 }

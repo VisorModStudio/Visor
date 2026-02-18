@@ -38,7 +38,7 @@ public class VROverlaySettings extends VROverlayScreen
 
     public static final AtumColor TEXT_COLOR = AtumColor.WHITE.blend(AtumColor.BLACK, 0.2f);
 
-    public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.find");
+    public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.overlays.find");
 
     private static final ResourceLocation BACKGROUND_OVERLAYS = new ResourceLocation(
             "visor:textures/gui/overlays/settings/bg_main_1.png"
@@ -59,9 +59,9 @@ public class VROverlaySettings extends VROverlayScreen
 
 
     private static final Component TITLE_CREATE_OVERLAY
-            = Component.translatable("visor.overlay.options.main.create_overlay");
+            = Component.translatable("visor.overlay.options.overlays.create_overlay");
     private static final Component TITLE_OVERLAYS
-            = Component.translatable("visor.overlay.options.main.overlays");
+            = Component.translatable("visor.overlay.options.overlays");
 
 
     private final Vector3f posOffset = new Vector3f(0, 0, -0.75f);
@@ -269,7 +269,7 @@ public class VROverlaySettings extends VROverlayScreen
                 .changeSelectedAll(true);
         var overlayEntry = overlaysList.getEntry(select.getId());
         if (overlayEntry != null) {
-            overlaysList.setSelected(overlayEntry);
+            overlaysList.setSelectedEntry(overlayEntry);
             overlaysList.scrollTo(overlayEntry);
         }
     }

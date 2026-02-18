@@ -79,7 +79,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.SELECTED_HIGHLIGHT)
                         .setHighlightThickness(0.9f)
                         .setText(Component.translatable("visor.overlay.options.pose.position"))
-                        .setScaleText(true),
+                        .setDynamicTextScale(true),
                 (it)->{
                     selectEditor(EditorType.POSITION);
                 }
@@ -94,7 +94,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT)
                         .setText(Component.translatable("visor.overlay.options.pose.rotation"))
-                        .setScaleText(true),
+                        .setDynamicTextScale(true),
                 (it)->{
                     selectEditor(EditorType.ROTATION);
                 }
@@ -107,7 +107,7 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT)
                         .setText(Component.translatable("visor.overlay.options.pose.scale"))
-                        .setScaleText(true),
+                        .setDynamicTextScale(true),
                 (it)->{
                     selectEditor(EditorType.SCALE);
                 }

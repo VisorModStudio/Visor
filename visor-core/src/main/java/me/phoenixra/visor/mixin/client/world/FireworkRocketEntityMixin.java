@@ -30,7 +30,7 @@ public class FireworkRocketEntityMixin {
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addParticle(Lnet/minecraft/core/particles/ParticleOptions;DDDDDD)V"), index = 1, method = "tick")
     private double visor$modifyX(double x) {
-        if(VisorState.getState().isNotActive()){
+        if(VisorState.get().isNotActive()){
             return x;
         }
         if(attachedToEntity != MC.player){

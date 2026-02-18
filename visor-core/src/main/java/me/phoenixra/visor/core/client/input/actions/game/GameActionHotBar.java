@@ -9,6 +9,7 @@ import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
 import me.phoenixra.visor.core.client.tasks.types.TaskHotBar;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.util.Map;
@@ -16,8 +17,6 @@ import java.util.Map;
 public class GameActionHotBar extends VisorActionButton {
     public static final String ID = "hotbar";
 
-    @Getter
-    private final boolean required = true;
 
     public GameActionHotBar(VisorActionSet actionSet) {
         super(actionSet, ID);
@@ -37,7 +36,7 @@ public class GameActionHotBar extends VisorActionButton {
 
 
     @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         return Map.of(
                 VRInteractionProfileType.VALVE_INDEX,
                 new ActionBinding(

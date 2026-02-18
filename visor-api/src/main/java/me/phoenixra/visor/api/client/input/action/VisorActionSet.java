@@ -14,6 +14,7 @@ import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -34,46 +35,30 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     private boolean enabled = true;
 
     protected Map<String, VisorAction> actionsMap;
-    protected Map<String, VisorActionKeyboard> keyboardActionsMap;
+    protected Map<String, VisorActionKey> keyActionsMap;
+    protected Map<VRInteractionProfileType, Boolean> keyModifiersActiveMap;
 
 
     @Getter
-    protected ConfigFile configLeft;
-    @Getter
-    protected ConfigFile configRight;
-
-    @Getter
-    protected ConfigFile configKeyboardActions;
+    protected ConfigFile config;
 
     public VisorActionSet(@NotNull VisorAddon owner){
         this.owner = owner;
         this.actionsMap = new LinkedHashMap<>();
-        this.keyboardActionsMap = new LinkedHashMap<>();
+        this.keyActionsMap = new LinkedHashMap<>();
+        this.keyModifiersActiveMap = new EnumMap<>(VRInteractionProfileType.class);
 
         try {
 
-            configKeyboardActions =  VisorAPI.client().getConfigManager()
+            config =  VisorAPI.client().getConfigManager()
                     .createConfigFile(
                             ConfigType.JSON,
-                            getId() +"_keyActions",
-                            Path.of("input/"+getId()+"_keyActions"+".json")
-                    );
-
-            configLeft = VisorAPI.client().getConfigManager()
-                    .createConfigFile(
-                            ConfigType.JSON,
-                            "left_action_set_" + getId(),
-                            Path.of("input/leftHanded/"+getId()+".json")
-                    );
-
-            configRight = VisorAPI.client().getConfigManager()
-                    .createConfigFile(
-                            ConfigType.JSON,
-                            "right_action_set_" + getId(),
-                            Path.of("input/rightHanded/"+getId()+".json")
+                            getId(),
+                            Path.of("input/"+getId()+".json")
                     );
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
@@ -81,16 +66,8 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
             actionsMap.put(action.getId(), action);
         }
 
-        //save current bindings if config has no subsections, i.e. empty
-        if(configLeft.getAllSubsections().isEmpty()){
-            saveBindings(true);
-        }
 
-        if(configRight.getAllSubsections().isEmpty()){
-            saveBindings(false);
-        }
-
-        loadKeyboardActions();
+        loadKeyActions();
         loadBindings();
 
     }
@@ -99,6 +76,12 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * Loads actions that belong to this set.
      */
     protected abstract List<VisorAction> loadActions();
+
+    /**
+     * Loads map of default boolean flags
+     * if key modifiers active for specific interaction profile type
+     */
+    protected abstract Map<VRInteractionProfileType, Boolean> loadDefaultKeyModifiersActive();
 
     /**
      * If the set can be activated right now.
@@ -120,6 +103,13 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      */
     public Component getName() {
         return Component.translatable("visor.action_sets."+getId());
+    }
+
+    /**
+     * Tooltip for the action set.
+     */
+    public Component getTooltip() {
+        return Component.translatable("visor.action_sets."+getId()+".tooltip");
     }
 
     /**
@@ -150,38 +140,50 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
         );
     }
 
+
     /**
-     * Loads keyboard actions from config.
+     * Loads key actions from config.
      */
-    public void loadKeyboardActions(){
-        for(String key : configKeyboardActions.getKeys(false)){
-            if(key.length() > 1) {
-                return;
+    public void loadKeyActions(){
+        boolean requireSave = false;
+        var subsection = config.getSubsection("key_actions");
+        for(String key : subsection.getKeys(false)){
+            if(getAction(key) != null){
+                requireSave = true;
+                continue; // key actions are lower priority than built-in
             }
-            char character = key.charAt(0);
-            String nameKey = configKeyboardActions.getString(key);
+            char character = subsection.getString(key+".key").charAt(0);
+            String name = subsection.getString(key+".name");
 
-            var action = new VisorActionKeyboard(this, character, nameKey);
-            actionsMap.put(action.getId(), action);
-            keyboardActionsMap.put(action.getId(), action);
-
+            var action = new VisorActionKey(key,this,  character, name);
+            actionsMap.put(key, action);
+            keyActionsMap.put(key, action);
+        }
+        if(requireSave){
+            saveKeyActions();
         }
     }
 
     /**
-     * Saves keyboard actions to config.
+     * Saves key actions to config.
      */
-    public void saveKeyboardActions(){
-        for(var action : keyboardActionsMap.values()){
-            configKeyboardActions.set(
-                    String.valueOf(action.getCharacter()),
+    public void saveKeyActions(){
+        var subsectionPath = "key_actions.";
+        for(var action : keyActionsMap.values()){
+            config.set(
+                    subsectionPath + action.getId() + ".key",
+                    String.valueOf(action.getCharacter())
+            );
+            config.set(
+                    subsectionPath + action.getId() + ".name",
                     action.getNameKey()
             );
         }
         try {
-            configKeyboardActions.save();
+            config.save();
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -190,8 +192,26 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * Loads bindings for all actions from config.
      */
     public void loadBindings(){
+        boolean requireSave = false;
+        var subsection = config.getSubsection("bindings");
+        var defaults = loadDefaultKeyModifiersActive();
+        for(var profileType : VRInteractionProfileType.values()){
+            Boolean keyModifiersActive = subsection.getBoolOrNull(
+                    profileType.name()+".key_modifiers_active");
+            if(keyModifiersActive == null){
+                keyModifiersActive = defaults.getOrDefault(profileType, false);
+                requireSave = true;
+            }
+            keyModifiersActiveMap.put(profileType, keyModifiersActive);
+        }
         for(var action : actionsMap.values()){
-            loadBinding(action);
+            boolean flag = loadBinding(action);
+            if(flag){
+                requireSave = true;
+            }
+        }
+        if(requireSave) {
+            saveBindings();
         }
     }
 
@@ -199,37 +219,77 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * Loads bindings for a specified action from config.
      *
      * @param action the visor action to load
+     * @return If require to call {@link #saveBindings()} (after finished loading of other action bindings if loading the action list)
      */
-    public void loadBinding(@NotNull VisorAction action){
+    public boolean loadBinding(@NotNull VisorAction action){
+        var subsection = config.getSubsection("bindings");
+        var defaults = action.getDefaultBindings();
+        boolean requireSave = false;
         for(var profileType : VRInteractionProfileType.values()){
-            String path = profileType.name()+"."+action.getId();
-            String leftHandedPath = configLeft.getStringOrNull(path);
-            String rightHandedPath = configRight.getStringOrNull(path);
-            VRActionIdentifier leftHandedId = ActionBinding.EMPTY_ID;
-            VRActionIdentifier rightHandedId = ActionBinding.EMPTY_ID;
+            boolean keyModifiersActive = isKeyModifiersActive(profileType);
+
+            String idPath = profileType.name() + ".actions." + action.getId()+".path";
+            String keyModifierPath = profileType.name() + ".actions." + action.getId()+".key_modifier";
+
+            String leftHandedPath = subsection.getStringOrNull("left_handed."+idPath);
+            String rightHandedPath = subsection.getStringOrNull("right_handed."+idPath);
+
+            VRActionIdentifier leftHandedId;
+            ActionKeyModifierType leftHandedKeyModifier = ActionKeyModifierType.OFF;
+            VRActionIdentifier rightHandedId;
+            ActionKeyModifierType rightHandedKeyModifier = ActionKeyModifierType.OFF;
+
+            ActionBinding defaultBinding = defaults.getOrDefault(profileType, ActionBinding.EMPTY);
+
+            var supportedIds = action.getSupportedBindingIds(profileType);
+
             if(leftHandedPath != null){
                 leftHandedId = new VRActionIdentifier(leftHandedPath);
-                if (!VRInteractionProfileType
-                        .getActionIdsOf(profileType)
-                        .contains(leftHandedId)){
-                    leftHandedId = ActionBinding.EMPTY_ID;
+                if (!supportedIds.contains(leftHandedId)){
+                    leftHandedId = ActionBinding.ID_EMPTY;
+                    requireSave = true;
                 }
+                if(keyModifiersActive) {
+                    leftHandedKeyModifier = ActionKeyModifierType.valueOf(
+                            subsection.getStringOrDefault("left_handed."+keyModifierPath, "OFF")
+                    );
+                }
+            }else{
+                leftHandedId = defaultBinding.getLeftHandedId();
+                if(keyModifiersActive) {
+                    leftHandedKeyModifier = defaultBinding.getLeftHandedKeyModifier();
+                }
+                requireSave = true;
             }
 
             if(rightHandedPath != null){
                 rightHandedId = new VRActionIdentifier(rightHandedPath);
-                if (!VRInteractionProfileType
-                        .getActionIdsOf(profileType)
-                        .contains(rightHandedId)){
-                    rightHandedId = ActionBinding.EMPTY_ID;
+                if (!supportedIds.contains(rightHandedId)){
+                    rightHandedId = ActionBinding.ID_EMPTY;
+                    requireSave = true;
                 }
+                if(keyModifiersActive) {
+                    rightHandedKeyModifier = ActionKeyModifierType.valueOf(
+                            subsection.getStringOrDefault("right_handed."+keyModifierPath, "OFF")
+                    );
+                }
+            }else{
+                rightHandedId = defaultBinding.getRightHandedId();
+                if(keyModifiersActive) {
+                    rightHandedKeyModifier = defaultBinding.getRightHandedKeyModifier();
+                }
+                requireSave = true;
             }
 
             action.setBinding(
                     profileType,
-                    new ActionBinding(rightHandedId, leftHandedId)
+                    new ActionBinding(
+                            rightHandedKeyModifier, rightHandedId,
+                            leftHandedKeyModifier, leftHandedId
+                    )
             );
         }
+        return requireSave;
     }
 
     /**
@@ -247,56 +307,47 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
                     it.setBinding(profileType, def);
                 }
         );
+
+        var defaults = loadDefaultKeyModifiersActive();
+        for(var profileEntry : VRInteractionProfileType.values()){
+            keyModifiersActiveMap.put(profileEntry, defaults.getOrDefault(profileEntry, false));
+        }
+
     }
 
     /**
      * Save bindings to config file (both left and right-handed)
      */
     public void saveBindings(){
-        saveKeyboardActions();
+        saveKeyActions();
+
+        var subsectionPath = "bindings.";
+
+        for(var entry : keyModifiersActiveMap.entrySet()){
+            config.set(
+                    subsectionPath+entry.getKey().name()+".key_modifiers_active",
+                    entry.getValue()
+            );
+        }
 
         for(var action : actionsMap.values()){
             for(var profile : VRInteractionProfileType.values()){
                 ActionBinding binding = action.getBindingOrEmpty(profile);
-                String path = profile.name()+"."+action.getId();
+                String idPath = profile.name()+".actions."+action.getId()+".path";
+                String keyModifierPath = profile.name()+".actions."+action.getId()+".key_modifier";
 
-                configLeft.set(path, binding.getLeftHandedId().getValue());
-                configRight.set(path, binding.getRightHandedId().getValue());
+                config.set(subsectionPath+"left_handed."+idPath, binding.getLeftHandedId().getValue());
+                config.set(subsectionPath+"left_handed."+keyModifierPath, binding.getLeftHandedKeyModifier().name());
+                config.set(subsectionPath+"right_handed."+idPath, binding.getRightHandedId().getValue());
+                config.set(subsectionPath+"right_handed."+keyModifierPath, binding.getRightHandedKeyModifier().name());
             }
         }
         try {
-            configLeft.save();
-            configRight.save();
+
+            config.save();
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
-     * Save bindings to config file (left or right-handed)
-     */
-    public void saveBindings(boolean leftHanded){
-        for(var action : actionsMap.values()){
-            for(var profile : VRInteractionProfileType.values()){
-                ActionBinding binding = action.getBindingOrEmpty(profile);
-                String path = profile.name()+"."+action.getId();
-
-                if(leftHanded){
-                    configLeft.set(path, binding.getLeftHandedId().getValue());
-                }else {
-                    configRight.set(path, binding.getRightHandedId().getValue());
-                }
-            }
-        }
-        try {
-            if(leftHanded){
-                configLeft.save();
-            }else {
-                configRight.save();
-            }
-        } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
@@ -304,53 +355,59 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
 
 
     /**
-     * Add keyboard action to this set
+     * Add key action to this set
      *
-     * @param action the keyboard action
+     * @param action the key action
      */
-    public void addKeyboardAction(@NotNull VisorActionKeyboard action){
-        keyboardActionsMap.put(action.getId(), action);
+    public void addKeyAction(@NotNull VisorActionKey action){
+        keyActionsMap.put(action.getId(), action);
         actionsMap.put(action.getId(), action);
-        loadBinding(action);
+        if(loadBinding(action)){
+            saveBindings();
+        }
     }
 
     /**
-     * Remove keyboard action from this set
+     * Remove key action from this set
      *
-     * @param action the keyboard action
+     * @param id the key action id
      */
-    public void removeKeyboardAction(@NotNull VisorActionKeyboard action){
-        keyboardActionsMap.remove(action.getId());
-        actionsMap.remove(action.getId());
+    public void removeKeyAction(@NotNull String id){
+        keyActionsMap.remove(id);
+        actionsMap.remove(id);
+
+        config.set(id, null);
+
+        var subsection = config.getSubsection("bindings");
         for(var profile : VRInteractionProfileType.values()){
-            String path = profile.name()+"."+action.getId();
-            configLeft.set(path, null);
-            configRight.set(path, null);
+            String path = profile.name()+".actions."+id;
+            subsection.set(path, null);
+            subsection.set(path, null);
         }
         try {
-            configLeft.save();
-            configRight.save();
+            config.save();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Get keyboard action or null if not found
-     * @param id the keyboard action id
-     * @return keyboard action or null
+     * Get key action or null if not found
+     * @param id the key action id
+     * @return key action or null
      */
-    public @NotNull VisorActionKeyboard getKeyboardAction(@NotNull String id){
-        return keyboardActionsMap.get(id);
+    public @Nullable VisorActionKey getKeyAction(@NotNull String id){
+        return keyActionsMap.get(id);
     }
 
     /**
-     * Get all keyboard actions of this set
+     * Get all key actions of this set
      *
-     * @return collection of keyboard actions
+     * @return collection of key actions
      */
-    public Collection<VisorActionKeyboard> getKeyboardActions(){
-        return keyboardActionsMap.values();
+    public Collection<VisorActionKey> getKeyActions(){
+        return keyActionsMap.values();
     }
 
 
@@ -360,7 +417,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * @param id the action id
      * @return the action
      */
-    public VisorAction getAction(@NotNull String id){
+    public @Nullable VisorAction getAction(@NotNull String id){
         return actionsMap.get(id);
     }
 
@@ -371,6 +428,17 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      */
     public Collection<VisorAction> getActions(){
         return actionsMap.values();
+    }
+
+
+
+    public void setKeyModifiersActive(@NotNull VRInteractionProfileType profileType,
+                                      boolean flag){
+        keyModifiersActiveMap.put(profileType, flag);
+    }
+
+    public boolean isKeyModifiersActive(@NotNull VRInteractionProfileType profileType){
+        return keyModifiersActiveMap.getOrDefault(profileType, false);
     }
 
 

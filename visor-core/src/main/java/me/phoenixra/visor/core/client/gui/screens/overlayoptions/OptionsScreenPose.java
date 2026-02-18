@@ -156,7 +156,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
                         .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE)
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT)
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.position_anchor.tooltip")))
-                        .setScaleText(true),
+                        .setDynamicTextScale(true),
                 Lists.newArrayList(PoseAnchor.values()),
                 (it)->{
                     optionsGroup.setPositionAnchor(it.getSelected());
@@ -181,7 +181,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
                         .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE)
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT)
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.pose.rotation_anchor.tooltip")))
-                        .setScaleText(true),
+                        .setDynamicTextScale(true),
                 Lists.newArrayList(PoseAnchor.values()),
                 (it)->{
                     optionsGroup.setRotationAnchor(it.getSelected());

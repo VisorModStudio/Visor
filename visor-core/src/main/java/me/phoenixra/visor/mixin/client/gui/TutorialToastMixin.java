@@ -17,7 +17,7 @@ public abstract class TutorialToastMixin implements Toast {
     public void visor$noToast(GuiGraphics guiGraphics,
                                        ToastComponent toastComponent,
                                        long l, CallbackInfoReturnable<Visibility> ci) {
-        if(VisorState.getState().isNotActive()) return;
+        if(VisorState.get().isNotActive()) return;
         ci.setReturnValue(Visibility.HIDE);
     }
 

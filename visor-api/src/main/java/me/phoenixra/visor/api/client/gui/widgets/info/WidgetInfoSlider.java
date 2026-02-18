@@ -56,12 +56,23 @@ public class WidgetInfoSlider extends WidgetInfo{
     @Setter @Getter
     @Accessors(chain = true)
     private AtumColor textColor = AtumColor.WHITE;
+
     /**
      * If text should be scaled to fit its bounds.
+     * <p>
+     *     When true, {@link #textScale} will be ignored
+     * </p>
      */
     @Setter @Getter
     @Accessors(chain = true)
-    private boolean scaleText = false;
+    private boolean dynamicTextScale = false;
+
+    /**
+     * Text scale to use
+     */
+    @Setter @Getter
+    @Accessors(chain = true)
+    private float textScale = 1.0f;
 
     @Setter @Getter
     @Accessors(chain = true)
@@ -87,7 +98,7 @@ public class WidgetInfoSlider extends WidgetInfo{
         knobWidth = copyFrom.knobWidth;
         textFont = copyFrom.textFont;
         textColor = copyFrom.textColor;
-        scaleText = copyFrom.scaleText;
+        dynamicTextScale = copyFrom.dynamicTextScale;
         tooltip = copyFrom.tooltip;
     }
 

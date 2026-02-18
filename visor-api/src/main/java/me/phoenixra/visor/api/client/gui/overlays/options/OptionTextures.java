@@ -47,6 +47,9 @@ public interface OptionTextures {
     GuiTexture LIGHT_GRAY_TEXTURE = TexturesHelper.getColorGuiTexture(
             AtumColor.immutable(150, 150, 150, 255)
     );
+    GuiTexture LIGHT_GRAY_TEXTURE_2 = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(116, 116, 116, 255)
+    );
     GuiTexture GRAY_TEXTURE = TexturesHelper.getColorGuiTexture(
             AtumColor.immutable(34,34,34,255)
     );

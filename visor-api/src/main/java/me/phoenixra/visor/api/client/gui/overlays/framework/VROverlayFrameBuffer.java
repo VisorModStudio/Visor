@@ -85,7 +85,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         }
 
         this.owner = owner;
-        this.id = id;
+        this.id = id.toLowerCase();
         this.renderTarget = renderTarget;
         this.priority = priority;
 

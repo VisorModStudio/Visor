@@ -117,7 +117,7 @@ public enum VROptionWidgetType {
                     OptionBehaviourFactory
                             .simple(it)
                             .setOnChanged(() -> {
-                                if (VisorState.getState().isActive()
+                                if (VisorState.get().isActive()
                                         && !ShadersHelper.isShaderActive()) {
                                     ClientContext.renderer.prepareReinit(
                                             "Mirror Setting Changed"
@@ -145,14 +145,14 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             (it) -> null
     ),
-    WORLD_ROTATION_INCREMENT(
+    WORLD_ROTATION_STEP(
             VROptionCategory.MOVEMENT,
             (it) -> {
         List<Float> entries = List.of(0f, 10f, 30f, 45f, 90f);
         return OptionBehaviourFactory.discreteSlider(
                 it, entries,
                 () -> {
-                    int initialIndex = entries.indexOf(VRClientSettings.getWorldRotationIncrement());
+                    int initialIndex = entries.indexOf(VRClientSettings.getWorldRotationStep());
                     return initialIndex != -1
                             ? initialIndex
                             : entries.size() / 2;

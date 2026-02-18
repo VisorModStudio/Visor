@@ -27,7 +27,7 @@ public class ClientPacketListenerMixin {
         ClientNetworking.dispose();
         ClientNetworking.sendHandShake(
                 new HandshakePayloadToServer(
-                        VisorState.getState().isActive(),
+                        VisorState.get().isActive(),
                         VisorNetwork.NETWORK_VERSION,
                         ModLoader.get().getModVersion(VisorAPI.MOD_ID)
                 )

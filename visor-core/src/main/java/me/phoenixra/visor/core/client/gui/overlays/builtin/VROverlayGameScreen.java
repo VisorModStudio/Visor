@@ -1,6 +1,7 @@
 package me.phoenixra.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
+import me.phoenixra.visor.api.client.input.MouseButtonType;
 import me.phoenixra.visor.api.common.player.VRPose;
 import me.phoenixra.visor.api.client.player.pose.PlayerPoseType;
 import me.phoenixra.visor.api.client.gui.VROverlayManager;
@@ -260,14 +261,14 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
         //we need it to go through minecraft
-        InputHelper.pressMouse(buttonType);
+        InputHelper.pressMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
         //we need it to go through minecraft
-        InputHelper.releaseMouse(buttonType);
+        InputHelper.releaseMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
 

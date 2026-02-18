@@ -225,7 +225,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "getProjectionMatrix(D)Lorg/joml/Matrix4f;", cancellable = true)
     public void visor$projection(double d, CallbackInfoReturnable<Matrix4f> info) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
         PoseStack posestack = new PoseStack();
@@ -293,7 +293,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V")
     public void visor$matrix(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
-        if(VisorState.getState().isNotActive()) return;
+        if(VisorState.get().isNotActive()) return;
         this.resetProjectionMatrix(
                 this.getProjectionMatrix(
                         minecraft.options.fov().get()
@@ -306,7 +306,7 @@ public abstract class GameRendererMixin
 
     @WrapMethod(method = "pick")
     private void visor$vrPick(float partialTick, Operation<Void> original) {
-        if(VisorState.getState().isNotActive()){
+        if(VisorState.get().isNotActive()){
             original.call(partialTick);
             return;
         }
@@ -386,7 +386,7 @@ public abstract class GameRendererMixin
     \* ********************* */
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 0)
     public Vec3 visor$pickPos(Vec3 original) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return original;
         }
         LocalPlayerPose renderPose = ClientContext.localPlayer
@@ -409,7 +409,7 @@ public abstract class GameRendererMixin
 
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 1)
     public Vec3 visor$pickDirection(Vec3 original) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return original;
         }
         HandType activeHand = ClientContext.localPlayer.getActiveHand();
@@ -432,7 +432,7 @@ public abstract class GameRendererMixin
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = "render")
     public boolean visor$noPauseGameIfWindowNotFocused(Minecraft instance) {
-        return VisorState.getState().isActive() || instance.isWindowActive();
+        return VisorState.get().isActive() || instance.isWindowActive();
     }
 
 
@@ -446,7 +446,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$noScreenshotInMenu(Path path, CallbackInfo ci) {
-        if (VisorState.getState().isActive() && VRRenderState.isInMainMenu()) {
+        if (VisorState.get().isActive() && VRRenderState.isInMainMenu()) {
             ci.cancel();
         }
     }
@@ -549,7 +549,7 @@ public abstract class GameRendererMixin
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;pauseGame(Z)V"), method = "render")
     public void visor$pauseOncePerFrame(Minecraft instance, boolean bl) {
-        if (VisorState.getState().isNotActive() || VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
+        if (VisorState.get().isNotActive() || VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
             instance.pauseGame(bl);
         }
     }
@@ -560,7 +560,7 @@ public abstract class GameRendererMixin
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;getMillis()J"), method = "render")
     public long visor$useActiveTimeOncePerFrame() {
-        if (VisorState.getState().isNotActive() || VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
+        if (VisorState.get().isNotActive() || VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
             return Util.getMillis();
         } else {
             return this.lastActiveTime;

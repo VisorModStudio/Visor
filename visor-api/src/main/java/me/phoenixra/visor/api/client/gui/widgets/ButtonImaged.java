@@ -4,11 +4,13 @@ import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.util.Mth;
 
 import java.util.function.Consumer;
 
@@ -76,11 +78,13 @@ public class ButtonImaged extends AbstractButton {
                 .pos(getX(), getY())
                 .size(getWidth(), getHeight());
 
-        texture.blit(
-                guiGraphics,
-                this.getX(), this.getY(),
-                this.width, this.height
-        );
+        if(texture != null) {
+            texture.blit(
+                    guiGraphics,
+                    this.getX(), this.getY(),
+                    this.width, this.height
+            );
+        }
 
         widgetInfo.drawHighlight(guiGraphics, active, isHovered, selected);
 
@@ -95,39 +99,20 @@ public class ButtonImaged extends AbstractButton {
             Font font = Minecraft.getInstance().font;
             int color = widgetInfo.getTextColor().asInt();
 
-            if(widgetInfo.isScaleText()) {
+            if (widgetInfo.isDynamicTextScale()) {
                 GuiHelper.renderScalableText(
-                        guiGraphics,
-                        font,
-                        text,
-                        color,
-                        textX,
-                        textY,
-                        textW, textH,
-                        true
+                        guiGraphics, font, text, color,
+                        textX, textY, textW, textH, true
                 );
                 return;
             }
-            int textWidth = font.width(text);
-            int textHeight = font.lineHeight;
 
-            int x = textX + (textW  - textWidth)  / 2;
-            int y = textY + (textH - textHeight) / 2;
-
-            if (textWidth <= textW) {
-                guiGraphics.drawString(font, text, x, y, color, false);
-            } else {
-                int overflow = textWidth - textW;
-                double cycleSecs = 4.0;
-                double t = (System.currentTimeMillis() % (long)(cycleSecs * 1000))
-                        / (cycleSecs * 1000);
-                double phase = (Math.sin(2 * Math.PI * t) + 1) * 0.5;
-                int offset = (int)(phase * overflow);
-
-                guiGraphics.enableScissor(textX, textY, textX + textW, textY + textH);
-                guiGraphics.drawString(font, text, x - offset, y, color, false);
-                guiGraphics.disableScissor();
-            }
+            GuiHelper.renderScrollableText(
+                    guiGraphics, font, text, color,
+                    textX, textY, textW, textH,
+                    widgetInfo.getTextScale(),
+                    true
+            );
         }
     }
 

@@ -1,17 +1,22 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
+import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import me.phoenixra.visor.core.client.settings.VROptionCategory;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
-import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
-import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class VRSettingsMovementScreen extends VROptionsBaseScreen {
+public class VRSettingsMovement extends VROptionsSet {
 
-    public VRSettingsMovementScreen(Screen previousScreen) {
-        super(VROptionCategory.MOVEMENT, previousScreen);
+    public VRSettingsMovement(@NotNull VRSettingsScreen screen,
+                              @Nullable VROptionsSet previousOptions,
+                              @NotNull Runnable onWidgetsChanged) {
+        super(screen, previousOptions, onWidgetsChanged);
     }
+
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
         return VROptionCategory.MOVEMENT.types()

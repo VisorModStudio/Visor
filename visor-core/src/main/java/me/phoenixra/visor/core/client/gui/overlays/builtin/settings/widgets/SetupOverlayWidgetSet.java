@@ -103,9 +103,9 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                                 null,null,
                                 SettingsTextures.COPY_BUTTON_INACTIVE
                         )
-                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.copy_options.tooltip"))),
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.copy_options.tooltip"))),
                 (button)->{
-                    var selectedEntry = optionsListWidget.getSelected();
+                    var selectedEntry = optionsListWidget.getSelectedEntry();
                     OverlayOptionGroup<?> options = optionsMap.get(selectedEntry.getId());
                     if (options == null) return;
                     if(!options.canCopy()) return;
@@ -126,13 +126,13 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                         .setTooltip(
                                 Tooltip.create(
                                         Component.translatable(
-                                                "visor.overlay.options.main.overlays.paste_options.tooltip"
+                                                "visor.overlay.options.overlays.paste_options.tooltip"
                                         )
                                 )
                         ),
                 (button)->{
                     var optionsToCopy = owner.getCopiedOptionGroup();
-                    var selectedEntry = optionsListWidget.getSelected();
+                    var selectedEntry = optionsListWidget.getSelectedEntry();
                     OverlayOptionGroup<?> optionsTarget = optionsMap.get(selectedEntry.getId());
                     if(optionsToCopy == null){
                         return;
@@ -154,7 +154,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                         .size(17, 17)
                         .setTexture(SettingsTextures.BUTTON_LOAD)
                         .setTextureHovered(SettingsTextures.BUTTON_LOAD_HOVERED)
-                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.overlays.load.tooltip"))),
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.load.tooltip"))),
                 button -> {
                     overlay.reloadOptions();
                 }
@@ -202,7 +202,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.SELECTED_HIGHLIGHT
                         )
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setText(Component.translatable("visor.overlay.options.main.overlays.load_defaults")),
+                        .setText(Component.translatable("visor.overlay.options.overlays.load_defaults")),
                 (it) -> {
                     loadDefaults();
                 }
@@ -217,7 +217,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.SELECTED_HIGHLIGHT
                         )
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setText(Component.translatable("visor.overlay.options.main.overlays.save")),
+                        .setText(Component.translatable("visor.overlay.options.overlays.save")),
                 (it) -> {
                     saveChanges();
                 }
@@ -249,7 +249,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.SELECTED_HIGHLIGHT
                         )
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setText(Component.translatable("visor.overlay.options.main.overlays.confirm_remove")),
+                        .setText(Component.translatable("visor.overlay.options.overlays.confirm_remove")),
                 (it) -> {
                     confirmRemove = false;
                     owner.removeOverlay(overlay);
@@ -305,7 +305,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
     public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         //PREPARE WIDGETS
         if(hasSettings){
-            var selectedEntry = optionsListWidget.getSelected();
+            var selectedEntry = optionsListWidget.getSelectedEntry();
             OverlayOptionGroup<?> options = null;
             if(selectedEntry != null){
                 options = optionsMap.get(selectedEntry.getId());;
@@ -337,21 +337,21 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                     saveButtonWidget.setTooltip(
                             Tooltip.create(
                                     Component.translatable(
-                                            "visor.overlay.options.main.overlays.save.tooltip_not_saved"
+                                            "visor.overlay.options.overlays.save.tooltip_not_saved"
                                     )
                             )
                     );
                     copyButtonWidget.setTooltip(
                             Tooltip.create(
                                     Component.translatable(
-                                            "visor.overlay.options.main.overlays.copy.tooltip_not_saved"
+                                            "visor.overlay.options.overlays.copy.tooltip_not_saved"
                                     )
                             )
                     );
                     pasteButtonWidget.setTooltip(
                             Tooltip.create(
                                     Component.translatable(
-                                            "visor.overlay.options.main.overlays.paste.tooltip_not_saved"
+                                            "visor.overlay.options.overlays.paste.tooltip_not_saved"
                                     )
                             )
                     );
@@ -376,8 +376,8 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
                 this.isCustom
                         ? SettingsTextures.LABEL_CUSTOM
                         : SettingsTextures.LABEL_BUILT_IN;
-        Component addonText = Component.translatable("visor.overlay.options.main.overlays.addon", overlay.getOwner().getAddonName());
-        Component idText = Component.translatable("visor.overlay.options.main.overlays.id", overlay.getId());
+        Component addonText = Component.translatable("visor.overlay.options.overlays.addon", overlay.getOwner().getAddonName());
+        Component idText = Component.translatable("visor.overlay.options.overlays.id", overlay.getId());
 
         //Overlay icon
         icon.blit(
@@ -431,7 +431,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         );
         //Overlay template
         if (this.isCustom) {
-            Component templateText = Component.translatable("visor.overlay.options.main.overlays.template", asTemplate.getTemplateName().getString());
+            Component templateText = Component.translatable("visor.overlay.options.overlays.template", asTemplate.getTemplateName().getString());
 
             OptionTextures.GRAY_TEXTURE.blit(
                     guiGraphics,
@@ -461,7 +461,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
             GuiHelper.renderScalableText(
                     guiGraphics,
                     font,
-                    Component.translatable("visor.overlay.options.main.overlays.options_not_found")
+                    Component.translatable("visor.overlay.options.overlays.options_not_found")
                             .getString(),
                     textColor,
                     startX + 15,
@@ -479,7 +479,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
             GuiHelper.renderScalableText(
                     guiGraphics,
                     font,
-                    Component.translatable("visor.overlay.options.main.overlays.select_options")
+                    Component.translatable("visor.overlay.options.overlays.select_options")
                             .getString(),
                     textColor,
                     startX + 9,
@@ -496,7 +496,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
     }
 
     private void loadDefaults(){
-        var entry = optionsListWidget.getSelected();
+        var entry = optionsListWidget.getSelectedEntry();
         if(entry == null){
             for(var options : optionsMap.values()){
                 options.loadDefaults();

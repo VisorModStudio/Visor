@@ -15,7 +15,7 @@ public class LibraryMixin {
      */
     @ModifyVariable(method = "init", at = @At("HEAD"), argsOnly = true)
     private boolean visor$enableHRTF(boolean defaultHRTF) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             return true;
         }
         return defaultHRTF;

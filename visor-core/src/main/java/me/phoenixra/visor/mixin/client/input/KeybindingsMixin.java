@@ -21,7 +21,7 @@ public class KeybindingsMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Screenshot;grab(Ljava/io/File;Lcom/mojang/blaze3d/pipeline/RenderTarget;Ljava/util/function/Consumer;)V"), method = "keyPress")
     public void visor$screenshot(File file, RenderTarget renderTarget, Consumer<Component> consumer) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             Screenshot.grab(file, renderTarget, consumer);
             return;
         }

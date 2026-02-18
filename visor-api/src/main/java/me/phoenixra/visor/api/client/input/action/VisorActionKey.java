@@ -15,7 +15,7 @@ import java.util.Map;
  *     Users can create custom actions in settings based on this.
  * </p>
  */
-public class VisorActionKeyboard extends VisorActionButton {
+public class VisorActionKey extends VisorActionButton {
 
 
     @Getter
@@ -28,10 +28,11 @@ public class VisorActionKeyboard extends VisorActionButton {
     @Getter
     private final String nameKey;
 
-    public VisorActionKeyboard(@NotNull VisorActionSet actionSet,
-                               char character,
-                               @NotNull String nameKey) {
-        super(actionSet, "keyboard_"+character);
+    public VisorActionKey(@NotNull String id,
+                          @NotNull VisorActionSet actionSet,
+                          char character,
+                          @NotNull String nameKey) {
+        super(actionSet, id);
         this.character = character;
         this.name = Component.translatable(nameKey);
         this.nameKey = nameKey;
@@ -55,7 +56,7 @@ public class VisorActionKeyboard extends VisorActionButton {
     }
 
     @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         //empty
         return Map.of();
     }

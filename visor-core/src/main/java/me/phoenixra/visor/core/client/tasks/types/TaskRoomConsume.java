@@ -110,13 +110,13 @@ public class TaskRoomConsume extends VisorTask {
 
         if(isEating){
             var actionRightMouse = (ActionRightMouse) ClientContext.inputManager.getActiveSet().getAction(
-                    ActionRightMouse.ID
+                    ActionRightMouse.ID_MAIN
             );
             actionRightMouse.forcePress();
             eatingPressed = true;
         }else if(eatingPressed){
             var actionRightMouse = (ActionRightMouse) ClientContext.inputManager.getActiveSet().getAction(
-                    ActionRightMouse.ID
+                    ActionRightMouse.ID_MAIN
             );
             actionRightMouse.forceRelease();
             eatingPressed = false;

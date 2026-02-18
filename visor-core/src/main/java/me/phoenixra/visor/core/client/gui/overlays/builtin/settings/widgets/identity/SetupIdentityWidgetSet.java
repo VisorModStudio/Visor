@@ -58,8 +58,8 @@ public class SetupIdentityWidgetSet implements WidgetSet {
                             .size(92, 13)
                             .setTexture(OptionTextures.GRAY_TEXTURE)
                             .setTextColor(VROverlaySettings.TEXT_COLOR)
-                            .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_id"))
-                            .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.create_overlay.type_id.tooltip")))
+                            .setHint(Component.translatable("visor.overlay.options.overlays.create_overlay.type_id"))
+                            .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.create_overlay.type_id.tooltip")))
             );
             extraY = 23;
         }
@@ -69,8 +69,8 @@ public class SetupIdentityWidgetSet implements WidgetSet {
                         .size(92, 13)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_name"))
-                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.create_overlay.type_name.tooltip")))
+                        .setHint(Component.translatable("visor.overlay.options.overlays.create_overlay.type_name"))
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.create_overlay.type_name.tooltip")))
         );
         descriptionWidget = new TextBoxEditable(
                 new WidgetInfoTextBoxEditable()
@@ -79,8 +79,8 @@ public class SetupIdentityWidgetSet implements WidgetSet {
                         .setTextHintColor(VROverlaySettings.TEXT_COLOR)
                         .setTextScale(0.6f)
                         .setBackground(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_description"))
-                        .setTooltip(()->Component.translatable("visor.overlay.options.main.create_overlay.type_description.tooltip"))
+                        .setHint(Component.translatable("visor.overlay.options.overlays.create_overlay.type_description"))
+                        .setTooltip(()->Component.translatable("visor.overlay.options.overlays.create_overlay.type_description.tooltip"))
         );
 
         setupIconWidget = new SetupIconWidgetSet(

@@ -78,7 +78,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         \* ****************** */
     @Inject(at = @At("TAIL"), method = "startRiding")
     public void visor$onStartRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -91,7 +91,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(at = @At("TAIL"), method = "removeVehicle")
     public void visor$onStopRiding(CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -107,7 +107,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.BEFORE), method = "tick")
     public void visor$preTick(CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -119,7 +119,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.AFTER), method = "tick")
     public void visor$postTick(CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -135,7 +135,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;aiStep()V"), method = "aiStep")
     public void visor$tickPlayer(CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -150,7 +150,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     protected void visor$wrapMove(MoverType type,
                                   Vec3 pos,
                                   Operation<Void> original) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)
                 || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
             if (this.visor$walkUpBlocksActive) {
@@ -225,7 +225,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     protected void visor$wrapMoveRelative(float amount,
                                           Vec3 relative,
                                           Operation<Void> original){
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             original.call(amount, relative);
             return;
@@ -312,7 +312,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;lastOnGround:Z", shift = At.Shift.AFTER, ordinal = 1), method = "sendPosition")
     public void visor$walkUp(CallbackInfo ci) {
         this.visor$teleported = false;
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !VRClientSettings.isWalkUpEnabled()) {
             return;
         }
@@ -325,7 +325,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpSin(float original) {
-        return VisorState.getState().isActive()
+        return VisorState.get().isActive()
                 ? ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
@@ -333,7 +333,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpCos(float original) {
-        return VisorState.getState().isActive()
+        return VisorState.get().isActive()
                 ? ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
@@ -375,7 +375,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Override
     protected void visor$afterDie(DamageSource damageSource, CallbackInfo ci) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }
@@ -386,7 +386,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(method = "getRopeHoldPosition", at = @At("HEAD"), cancellable = true)
     private void visor$vrRopePosition(CallbackInfoReturnable<Vec3> cir) {
-        if (VisorState.getState().isNotActive()
+        if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)) {
             return;
         }

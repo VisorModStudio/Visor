@@ -25,7 +25,7 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
     public VRDecorator(@NotNull VisorAddon owner,
                        @NotNull String id){
         this.owner = owner;
-        this.id = id;
+        this.id = id.toLowerCase();
     }
 
     public void init(){

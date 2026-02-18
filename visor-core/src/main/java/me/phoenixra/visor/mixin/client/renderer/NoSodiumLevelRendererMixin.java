@@ -21,7 +21,7 @@ public class NoSodiumLevelRendererMixin {
 
     @Inject(method = "setupRender", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;needsFullRenderChunkUpdate:Z", ordinal = 1, shift = At.Shift.AFTER))
     private void visor$alwaysUpdateCull(CallbackInfo ci) {
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             // fixes chunks cull frustum between displays
             this.needsFullRenderChunkUpdate = true;
             this.needsFrustumUpdate.set(true);

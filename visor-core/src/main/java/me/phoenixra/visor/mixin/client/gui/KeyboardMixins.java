@@ -37,7 +37,7 @@ public class KeyboardMixins {
         private static void visor$keyDown(long l, int i, CallbackInfoReturnable<Boolean> cir) {
             cir.setReturnValue(
                     GLFW.glfwGetKey(l, i) == 1
-                            || (VisorState.getState().isActive() && InputHelper.isKeyDown(i))
+                            || (VisorState.get().isActive() && InputHelper.isKeyDown(i))
             );
         }
     }
@@ -55,7 +55,7 @@ public class KeyboardMixins {
          */
         @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 0, shift = At.Shift.AFTER), method = "keyPress", cancellable = true)
         public void visor$onKeyPressed(long windowHandle, int keyCode, int keyScan, int actionType, int keyModifiers, CallbackInfo ci) {
-            if (VisorState.getState().isNotActive()) {
+            if (VisorState.get().isNotActive()) {
                 return;
             }
             var keyboardAccessor = ClientContext.overlayManager.getKeyboardAccessor();
@@ -91,7 +91,7 @@ public class KeyboardMixins {
 
         @Inject(at = @At(value = "HEAD"), method = "onClick")
         public void visor$openKeyboard(double d, double e, CallbackInfo ci) {
-            if (VisorState.getState().isNotActive()) {
+            if (VisorState.get().isNotActive()) {
                 return;
             }
 
@@ -123,7 +123,7 @@ public class KeyboardMixins {
 
         @Inject(at = @At("HEAD"), method = "init")
         public void visor$onInit(CallbackInfo ci) {
-            if (VisorState.getState().isNotActive()) {
+            if (VisorState.get().isNotActive()) {
                 return;
             }
             var keyboardAccessor = ClientContext.overlayManager
@@ -133,7 +133,7 @@ public class KeyboardMixins {
 
         @Inject(at = @At("HEAD"), method = "removed")
         public void visor$onRemoved(CallbackInfo ci) {
-            if (VisorState.getState().isNotActive()) {
+            if (VisorState.get().isNotActive()) {
                 return;
             }
             var keyboardAccessor = ClientContext.overlayManager
@@ -151,7 +151,7 @@ public class KeyboardMixins {
 
         @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/BookEditScreen;updateButtonVisibility()V", shift = At.Shift.BEFORE), method = "init")
         public void visor$onInit(CallbackInfo ci) {
-            if (VisorState.getState().isNotActive()) {
+            if (VisorState.get().isNotActive()) {
                 return;
             }
             var keyboardAccessor = ClientContext.overlayManager

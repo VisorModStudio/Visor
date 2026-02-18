@@ -19,14 +19,18 @@ public interface WidgetSet {
             & NarratableEntry> List<T> getWidgets();
 
 
+    void onTick();
+
     void onPreRender(@NotNull GuiGraphics guiGraphics,
                      int mouseX, int mouseY,
                      float partialTicks);
-    void onTick();
 
-    default void onPostRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks){
+    default void onPostRender(@NotNull GuiGraphics guiGraphics,
+                              int mouseX, int mouseY,
+                              float partialTicks){
 
     }
+
     default boolean mouseScrolled(double mouseX, double mouseY, double delta){
         return true;
     }

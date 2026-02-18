@@ -13,6 +13,7 @@ import me.phoenixra.visor.api.client.gui.widgets.info.*;
 import me.phoenixra.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import me.phoenixra.visor.api.client.gui.widgets.sets.FiltersListWidgetSet;
 import me.phoenixra.visor.api.client.gui.widgets.sets.SearchableListWidgetSet;
+import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.SettingsTextures;
@@ -114,7 +115,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.SELECTED_HIGHLIGHT,
                                 0.65f
                         )
-                        .setText(Component.translatable("visor.overlay.options.main.create_overlay.create"))
+                        .setText(Component.translatable("visor.overlay.options.overlays.create_overlay.create"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 (button)->{
                     if(isReadyToCreate() != null) return;
@@ -182,7 +183,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                     var template = registry.getComponent(id);
                     if(template == null) return Component.empty();
                     return Component.translatable(
-                            "visor.overlay.options.main.create_overlay.template_tooltip",
+                            "visor.overlay.options.overlays.create_overlay.template_tooltip",
                             template.getOwner().getAddonName(),
                             template.id(),
                             template.description()
@@ -247,7 +248,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         if(readyFallback != null) {
             createButton.setTooltip(Tooltip.create(readyFallback));
         }else{
-            createButton.setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip")));
+            createButton.setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip")));
         }
 
         owner.setBackgroundExtended(
@@ -259,7 +260,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         GuiHelper.renderScalableText(
                 guiGraphics,
                 font,
-                Component.translatable("visor.overlay.options.main.create_overlay.select_template").getString(),
+                Component.translatable("visor.overlay.options.overlays.create_overlay.select_template").getString(),
                 textColor,
                 getOwner().getMenuBoundsX() + 129,
                 getOwner().getMenuBoundsY() + 38,
@@ -271,7 +272,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
             GuiHelper.renderScalableText(
                     guiGraphics,
                     font,
-                    Component.translatable("visor.overlay.options.main.overlays.filters.addons").getString(),
+                    Component.translatable("visor.overlay.options.overlays.filters.addons").getString(),
                     textColor,
                     filterStartX + 8,
                     filterStartY + 6,
@@ -289,20 +290,24 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
 
 
     private Component isReadyToCreate(){
-        if(setupIdentity.getIdWidget().getValue().isBlank()){
-            return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id");
+        String id = setupIdentity.getIdWidget().getValue();
+        if(id.isBlank()){
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.id");
+        }
+        if(!id.matches(ComponentRegistry.ID_REGEX)){
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.regex");
         }
         VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-        if(registry.getComponent(setupIdentity.getIdWidget().getValue()) != null) {
-            return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.id.exists");
+        if(registry.getComponent(id) != null) {
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.id.exists");
         }
 
         if(setupIdentity.getNameWidget().getValue().isBlank()){
-            return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.name");
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.name");
         }
 
         if(selectedTemplate == null){
-            return Component.translatable("visor.overlay.options.main.create_overlay.create.tooltip.template");
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.template");
         }
 
         return null;

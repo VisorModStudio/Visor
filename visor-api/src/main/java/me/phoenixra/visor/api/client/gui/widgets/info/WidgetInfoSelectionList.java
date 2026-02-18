@@ -46,6 +46,19 @@ public class WidgetInfoSelectionList extends WidgetInfo {
 
 
     /**
+     * Number of columns to display entries in.
+     */
+    @Accessors(chain = true)
+    private int columns = 1;
+
+    /**
+     * Horizontal gap (in pixels) between columns.
+     * Only relevant when {@link #columns} > 1.
+     */
+    @Accessors(chain = true)
+    private int columnGap = 4;
+
+    /**
      * If supported, can deselect entry
      * and run callback with null value
      */

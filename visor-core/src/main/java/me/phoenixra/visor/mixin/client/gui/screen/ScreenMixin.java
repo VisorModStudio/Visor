@@ -24,7 +24,7 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
             return;
         }
 
-        if (VisorState.getState().isActive()) {
+        if (VisorState.get().isActive()) {
             ci.cancel();
         }
 

@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.input.InputHelper;
 import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionButton;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
@@ -15,8 +16,7 @@ import java.util.Map;
 public class GameActionJump extends VisorActionButton {
     public static final String ID = "jump";
 
-    @Getter
-    private final boolean required = false;
+
 
     public GameActionJump(VisorActionSet actionSet) {
         super(actionSet, ID);
@@ -36,7 +36,7 @@ public class GameActionJump extends VisorActionButton {
 
 
     @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         return Map.of(
                 VRInteractionProfileType.VALVE_INDEX,
                 new ActionBinding(

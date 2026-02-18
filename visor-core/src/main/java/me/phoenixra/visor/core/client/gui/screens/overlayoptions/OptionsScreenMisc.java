@@ -39,7 +39,7 @@ public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
                         )
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
                         .setText(text)
-                        .setScaleText(true)
+                        .setDynamicTextScale(true)
                         .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.misc.update_options.tooltip"))),
                 (it) -> {
                     optionsGroup.setOptionsUpdaterType(

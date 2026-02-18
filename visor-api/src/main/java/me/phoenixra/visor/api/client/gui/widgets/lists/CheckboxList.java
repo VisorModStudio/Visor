@@ -2,6 +2,7 @@ package me.phoenixra.visor.api.client.gui.widgets.lists;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
+import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoCheckboxList;
@@ -78,8 +79,9 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.hovered = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
-        if(scrolling
-                && lastDragCall + 200 < System.currentTimeMillis()){
+        if (VisorAPI.clientState().stateMode().isActive()
+                && scrolling
+                && lastDragCall + 200 < System.currentTimeMillis()) {
             scrolling = false;
             lastDragCall = -1;
         }
@@ -457,9 +459,6 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
             }
             return false;
         }
-
-
-
 
     }
 }

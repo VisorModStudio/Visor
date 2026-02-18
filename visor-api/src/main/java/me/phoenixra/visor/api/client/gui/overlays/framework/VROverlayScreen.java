@@ -109,7 +109,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         }
 
         this.owner = owner;
-        this.id = id;
+        this.id = id.toLowerCase();
         this.priority = priority;
         this.pose = new VROverlayPose(this, overlayScale);
 

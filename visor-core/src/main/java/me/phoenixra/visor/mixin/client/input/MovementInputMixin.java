@@ -27,7 +27,7 @@ public class MovementInputMixin extends Input {
                                float sneakSpeed,
                                CallbackInfo ci,
                                @Share("climbing") LocalBooleanRef climbing) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
 

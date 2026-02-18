@@ -58,17 +58,16 @@ public interface VisorAPI {
                     "Tried to register Visor addon after Visor instance is created"
             );
         }
+        if (addon.getAddonId().equals("core")) {
+            throw new RuntimeException(
+                    "Not allowed to register Visor Addon with ID 'core'"
+            );
+        }
         if(Instance.getPreparedAddons().containsKey(addon.getAddonId())){
             throw new RuntimeException(
                     "Tried to register addon with ID '"
                             + addon.getAddonId()
                             + "', that is already registered");
-        }
-
-        if (addon.getAddonId().equals("core")) {
-            throw new RuntimeException(
-                    "Not allowed to register Visor Addon with ID 'core'"
-            );
         }
         Instance.getPreparedAddons().put(addon.getAddonId(), addon);
     }

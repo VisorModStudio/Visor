@@ -117,7 +117,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         VROverlay collidingOverlay = null;
         Vector3fc finalCursorPos = new Vector3f(0, 0, -1);
 
-        if(VisorState.getState().isNotFocused()){
+        if(VisorState.get().isNotFocused()){
             return new CursorResult(finalCursorPos, collidingOverlay);
         }
 

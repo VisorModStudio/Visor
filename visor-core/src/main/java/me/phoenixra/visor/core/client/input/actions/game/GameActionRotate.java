@@ -9,6 +9,7 @@ import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.input.action.framework.VisorActionVec2;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
 import java.util.Map;
@@ -18,9 +19,6 @@ public class GameActionRotate extends VisorActionVec2 {
 
     private static final float ROTATION_THRESHOLD = 0.5F;
 
-    @Getter
-    private final boolean required = false;
-
 
     private boolean alreadyRotated;
 
@@ -29,7 +27,11 @@ public class GameActionRotate extends VisorActionVec2 {
     }
 
     @Override
-    protected void onStateChanged(Vector2f newState) {
+    public void preTick() {
+        onStateChanged(getState());
+    }
+    @Override
+    protected void onStateChanged(@NotNull Vector2f newState) {
         if(alreadyRotated){
             if(Math.abs(newState.x) < ROTATION_THRESHOLD){
                 alreadyRotated = false;
@@ -38,15 +40,15 @@ public class GameActionRotate extends VisorActionVec2 {
         }
 
         final float inputPosX = newState.x;
-        float rotationIncrementer = (float) Math.toRadians(
-                VRClientSettings.getWorldRotationIncrement()
+        float rotationStep = (float) Math.toRadians(
+                VRClientSettings.getWorldRotationStep()
         );
 
-        if(rotationIncrementer == 0){
+        if(rotationStep == 0){
             if (inputPosX != 0.0F) {
+                float delta = -(inputPosX * VRClientSettings.getWorldRotationSmoothSensitivity());
                 float currentRotation = ClientContext.localPlayer.getRotationY();
-                float newRotation = currentRotation - (inputPosX * VRClientSettings.getWorldRotationSmoothSensitivity());
-                ClientContext.localPlayer.setRotationY(newRotation);
+                ClientContext.localPlayer.setRotationY(currentRotation + delta);
             }
             return;
         }
@@ -57,7 +59,7 @@ public class GameActionRotate extends VisorActionVec2 {
             float currentRotation = ClientContext.localPlayer.getRotationY();
 
             float newRotation = currentRotation
-                    - rotationIncrementer * Math.signum(inputPosX);
+                    - rotationStep * Math.signum(inputPosX);
             ClientContext.localPlayer.setRotationY(newRotation);
             alreadyRotated = true;
         }
@@ -66,8 +68,9 @@ public class GameActionRotate extends VisorActionVec2 {
 
     }
 
+
     @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         return Map.of(
                 VRInteractionProfileType.VALVE_INDEX,
                 new ActionBinding(

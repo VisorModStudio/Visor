@@ -33,7 +33,7 @@ public class ItemPickupParticleMixin {
     public double visor$vrPosX(double partialTick,
                               double oldValue,
                               double newValue) {
-        if (VisorState.getState().isActive()
+        if (VisorState.get().isActive()
                 && target == MC.player) {
             visor$playerPos = ClientContext.localPlayer
                     .getPoseData(PlayerPoseType.RENDER)
@@ -48,7 +48,7 @@ public class ItemPickupParticleMixin {
     public double visor$vrPosY(double partialTick,
                               double oldValue,
                               double newValue) {
-        if (VisorState.getState().isActive()
+        if (VisorState.get().isActive()
                 && target == MC.player) {
             float offset = 0.5F + itemEntity.getBbHeight();
             oldValue = newValue = visor$playerPos.y() - offset;
@@ -61,7 +61,7 @@ public class ItemPickupParticleMixin {
     public double visor$vrPosZ(double partialTick,
                               double oldValue,
                               double newValue) {
-        if (VisorState.getState().isActive()
+        if (VisorState.get().isActive()
                 && target == MC.player) {
             oldValue = newValue = visor$playerPos.z();
             visor$playerPos = null;

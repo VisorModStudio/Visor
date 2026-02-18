@@ -13,6 +13,7 @@ import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
+import me.phoenixra.visor.core.client.tasks.types.movement.TaskTeleport;
 import me.phoenixra.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -22,21 +23,18 @@ import java.util.Map;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class GameActionInputMovement extends VisorActionVec2 {
-    public static final String ID = "input_movement";
+public class GameActionMovement extends VisorActionVec2 {
+    public static final String ID = "movement";
 
-    @Getter
-    private final boolean required = true;
+
 
 
     private boolean wasMovement;
     private boolean wasAutoSprinting;
 
-    //@TODO rework it to get that hand type from atumvr or parent class?
-    @Getter
     private static HandType handType = HandType.OFFHAND;
 
-    public GameActionInputMovement(VisorActionSet actionSet) {
+    public GameActionMovement(VisorActionSet actionSet) {
         super(actionSet, ID);
     }
 
@@ -58,6 +56,10 @@ public class GameActionInputMovement extends VisorActionVec2 {
         if(VRClientSettings.getMoveMode(MC.player) == MovementMode.TELEPORT){
             movement.set(rawMove);
             ClientContext.localPlayer.setMoving(false);
+            TaskTeleport.getInstance().updateInputState(
+                    handType,
+                    rawMove
+            );
             return;
         }
 
@@ -127,6 +129,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
     public void updateState(@NotNull XRInteractionProfile currentProfile, boolean leftHanded) {
         super.updateState(currentProfile, leftHanded);
         ActionBinding actionBinding = bindings.get(currentProfile.getType());
+        handType = null;
         if(actionBinding == null){
             return;
         }
@@ -139,14 +142,19 @@ public class GameActionInputMovement extends VisorActionVec2 {
         if(vec2Data == null){
             return;
         }
-        handType = vec2Data.getId().isControllerLeft()
-                ? HandType.OFFHAND
-                : HandType.MAIN;
-
+        if(leftHanded) {
+            handType = vec2Data.getId().isControllerLeft()
+                    ? HandType.MAIN
+                    : HandType.OFFHAND;
+        }else{
+            handType = vec2Data.getId().isControllerLeft()
+                    ? HandType.OFFHAND
+                    : HandType.MAIN;
+        }
     }
 
     @Override
-    protected void onStateChanged(Vector2f newState) {
+    protected void onStateChanged(@NotNull Vector2f newState) {
 
     }
 
@@ -161,7 +169,7 @@ public class GameActionInputMovement extends VisorActionVec2 {
     }
 
     @Override
-    protected Map<VRInteractionProfileType, ActionBinding> loadDefaults() {
+    public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         return Map.of(
                 VRInteractionProfileType.VALVE_INDEX,
                 new ActionBinding(

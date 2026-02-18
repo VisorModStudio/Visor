@@ -2,33 +2,31 @@ package me.phoenixra.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
-import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffectsScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
+import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
+import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffects;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsMixedReality;
 import me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsThirdPerson;
-import me.phoenixra.visor.core.client.settings.VROptionCategory;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import me.phoenixra.visor.core.client.settings.options.enums.MirrorMode;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetPosition;
-import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
-public class VRSettingsRenderingScreen extends VROptionsBaseScreen {
 
-    public VRSettingsRenderingScreen(Screen previousScreen) {
-        super(VROptionCategory.RENDERING, previousScreen);
-    }
+public class VRSettingsRendering extends VROptionsSet {
 
-    @Override
-    protected void init() {
-        super.init();
 
+    public VRSettingsRendering(@NotNull VRSettingsScreen screen, @Nullable VROptionsSet previousOptions, @NotNull Runnable onWidgetsChanged) {
+        super(screen, previousOptions, onWidgetsChanged);
     }
 
     @Override
@@ -42,17 +40,19 @@ public class VRSettingsRenderingScreen extends VROptionsBaseScreen {
         List<OptionWidgetEntry> options = new ArrayList<>();
         options.add(
                 new OptionWidgetEntry(
+                        this,
                         VROptionWidgetType.MIRROR_MODE,
                         OptionWidgetPosition.LEFT,
-                        1,
+                        0,
                         null
                 )
         );
         options.add(
                 new OptionWidgetEntry(
-                        VRSettingsEyeEffectsScreen.class,
+                        this,
+                        new VRSettingsEyeEffects(getScreen(), this, onWidgetsChanged),
                         OptionWidgetPosition.RIGHT,
-                        1,
+                        0,
                         "visor.options.rendering.eye_effects.button"
                 )
         );
@@ -63,27 +63,30 @@ public class VRSettingsRenderingScreen extends VROptionsBaseScreen {
                 || mirrorMode == MirrorMode.SINGLE){
             options.add(
                     new OptionWidgetEntry(
+                            this,
                             VROptionWidgetType.MIRROR_EYE,
                             OptionWidgetPosition.LEFT,
-                            2,
+                            1,
                             null
                     )
             );
         } else if(mirrorMode == MirrorMode.THIRD_PERSON){
             options.add(
                     new OptionWidgetEntry(
-                            VRSettingsThirdPerson.class,
+                            this,
+                            new VRSettingsThirdPerson(getScreen(), this, onWidgetsChanged),
                             OptionWidgetPosition.LEFT,
-                            2,
+                            1,
                             "visor.options.rendering.third_person.button"
                     )
             );
         }else if(mirrorMode == MirrorMode.MIXED_REALITY){
             options.add(
                     new OptionWidgetEntry(
-                            VRSettingsMixedReality.class,
+                            this,
+                            new VRSettingsMixedReality(getScreen(), this, onWidgetsChanged),
                             OptionWidgetPosition.LEFT,
-                            2,
+                            1,
                             "visor.options.rendering.mixed_reality.button"
                     )
             );
@@ -95,24 +98,29 @@ public class VRSettingsRenderingScreen extends VROptionsBaseScreen {
 
 
     @Override
-    protected void loadDefaultSettings() {
-        super.loadDefaultSettings();
-        this.minecraft.options.fov().set(70);
-        if(VisorState.getState().isActive()) {
+    public void loadDefaults() {
+        super.loadDefaults();
+        MC.options.fov().set(70);
+        if(VisorState.get().isActive()) {
             ClientContext.renderer.prepareReinit("Defaults Loaded");
         }
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-       boolean success =  super.mouseClicked(d, e, i);
-       if(success && getFocused() instanceof AbstractWidget clicked){
-           var clickedOption = getTypeFromWidget(clicked);
-           if(clickedOption == null) return success;
-           if(clickedOption == VROptionWidgetType.MIRROR_MODE){
-               this.init();
-           }
-       }
-       return success;
+    protected void mouseClicked(double mouseX, double mouseY,
+                                int button,
+                                boolean success) {
+        if(!success) return;
+
+        if(!(getScreen().getFocused() instanceof AbstractWidget clicked)){
+            return;
+        }
+
+        var clickedOption = getTypeFromWidget(clicked);
+        if(clickedOption == null) return;
+
+        if(clickedOption == VROptionWidgetType.MIRROR_MODE){
+            reinit();
+        }
     }
 }

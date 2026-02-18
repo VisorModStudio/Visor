@@ -75,7 +75,7 @@ public class VRRenderState {
     }
 
     public static RenderTarget getTargetForCamera(VRCameraType cameraType){
-        if(VisorState.getState().isNotInitialized()
+        if(VisorState.get().isNotInitialized()
                 || cameraType == null){
             return vanillaTarget;
         }

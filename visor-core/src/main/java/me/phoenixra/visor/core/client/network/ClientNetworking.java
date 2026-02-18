@@ -117,7 +117,7 @@ public class ClientNetworking {
                     )
             );
         }
-        if (VisorState.getState().isActive()
+        if (VisorState.get().isActive()
                 && ClientContext.localPlayer.getFullHeight() == -1.0F) {
             MC.gui.getChat().addMessage(
                     Component.translatable("visor.messages.calibrate_height")

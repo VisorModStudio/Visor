@@ -1,22 +1,22 @@
 package me.phoenixra.visor.core.client.gui.screens.settings.categories.rendering;
 
+import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
+import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import me.phoenixra.visor.core.client.settings.VROptionCategory;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
-import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsBaseScreen;
-import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class VRSettingsEyeEffectsScreen extends VROptionsBaseScreen {
+public class VRSettingsEyeEffects extends VROptionsSet {
 
-    public VRSettingsEyeEffectsScreen(Screen previousScreen) {
-        super(VROptionCategory.RENDERING_EYE_EFFECTS, previousScreen);
+
+    public VRSettingsEyeEffects(@NotNull VRSettingsScreen screen,
+                                @Nullable VROptionsSet previousOptions,
+                                @NotNull Runnable onWidgetsChanged) {
+        super(screen, previousOptions, onWidgetsChanged);
     }
 
-    @Override
-    protected void init() {
-        super.init();
-
-    }
 
     @Override
     protected VROptionWidgetType[] getOptionTypes() {

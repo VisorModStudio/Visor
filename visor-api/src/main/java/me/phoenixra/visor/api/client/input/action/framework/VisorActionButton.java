@@ -2,11 +2,13 @@ package me.phoenixra.visor.api.client.input.action.framework;
 
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.client.input.action.ActionKeyModifierType;
 import me.phoenixra.visor.api.client.input.action.VisorAction;
 import me.phoenixra.visor.api.client.input.action.ActionBinding;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
@@ -47,16 +49,16 @@ public abstract class VisorActionButton implements VisorAction {
     protected Map<VRInteractionProfileType, ActionBinding> bindings;
 
 
-    public VisorActionButton(VisorActionSet actionSet,
-                             String id
+    public VisorActionButton(@NotNull VisorActionSet actionSet,
+                             @NotNull String id
     ) {
         this.actionSet = actionSet;
-        this.id = id;
-        this.defaultBindings = new EnumMap<>(loadDefaults());
+        this.id = id.toLowerCase();
+        this.defaultBindings = new EnumMap<>(VRInteractionProfileType.class);
+        this.defaultBindings.putAll(getDefaultBindings());
         this.bindings = new EnumMap<>(defaultBindings);
     }
 
-    protected abstract Map<VRInteractionProfileType, ActionBinding> loadDefaults();
 
     protected abstract void onPress();
 
@@ -110,6 +112,25 @@ public abstract class VisorActionButton implements VisorAction {
 
         if(forcedState){
             return;
+        }
+
+        var keyModifier = actionBinding.getActionKeyModifier(leftHanded);
+
+        if(actionSet.isKeyModifiersActive(currentProfile.getType())) {
+            boolean leftPressed = ActionBinding.getKeyModifier(currentProfile, ControllerType.LEFT).isPressed();
+            boolean rightPressed = ActionBinding.getKeyModifier(currentProfile, ControllerType.RIGHT).isPressed();
+            if(leftPressed && rightPressed){
+                return;
+            }
+            if(!leftPressed && keyModifier == ActionKeyModifierType.LEFT_TRIGGER){
+                return;
+            }
+            if(!rightPressed && keyModifier == ActionKeyModifierType.RIGHT_TRIGGER){
+                return;
+            }
+            if((leftPressed || rightPressed) && keyModifier == ActionKeyModifierType.OFF){
+                return;
+            }
         }
 
         var buttonData = getButtonData(actionBinding, currentProfile, leftHanded);
@@ -190,17 +211,22 @@ public abstract class VisorActionButton implements VisorAction {
 
 
     @Override
-    public @NotNull Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profile) {
-        var profileSet = VisorAPI.client().getInputManager()
-                .getProfileManager()
-                .getProfile(profile);
-
-        var out = new ArrayList<VRActionIdentifier>();
-        out.add(ActionBinding.EMPTY_ID);
-        if(profileSet != null){
-            out.addAll(profileSet.getButtonIds());
+    public @NotNull Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profileType,
+                                                                          boolean keyModifiersActive) {
+        var list = new ArrayList<VRActionIdentifier>();
+        list.add(ActionBinding.ID_EMPTY);
+        list.addAll(switch (profileType){
+            case VALVE_INDEX -> ValveIndexProfile.BUTTON_IDS;
+            case OCULUS_TOUCH -> OculusTouchProfile.BUTTON_IDS;
+            case VIVE -> ViveProfile.BUTTON_IDS;
+            case VIVE_COSMOS -> ViveCosmosProfile.BUTTON_IDS;
+            case HP_MIXED_REALITY -> HpMixedRealityProfile.BUTTON_IDS;
+            case WINDOWS_MOTION -> WindowsMotionProfile.BUTTON_IDS;
+        });
+        if(keyModifiersActive){
+            list.removeIf(it-> it.getValue().contains("trigger"));
         }
-        return out;
+        return list;
     }
 
 }

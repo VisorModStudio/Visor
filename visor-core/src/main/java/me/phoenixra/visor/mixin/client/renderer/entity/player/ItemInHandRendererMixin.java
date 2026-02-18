@@ -84,7 +84,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
     public void visor$overrideArm(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, float f, float g,
                                  HumanoidArm humanoidArm, CallbackInfo ci
     ) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
         visor$renderVrArm(
@@ -101,7 +101,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
                                      InteractionHand interactionHand, float h, ItemStack itemStack, float i,
                                      PoseStack poseStack, MultiBufferSource multiBufferSource, int j, CallbackInfo ci
     ) {
-        if (VisorState.getState().isNotActive()) {
+        if (VisorState.get().isNotActive()) {
             return;
         }
         this.visor$renderVrArmWithItem(

@@ -26,7 +26,7 @@ public abstract class ForgeIngameGuiVRMixin {
                 && (Minecraft.getInstance().screen instanceof ChatScreen)){
             return;
         }
-        if(VisorState.getState().isNotActive()){
+        if(VisorState.get().isNotActive()){
             return;
         }
         if(Minecraft.getInstance().screen != null){

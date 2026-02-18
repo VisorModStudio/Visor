@@ -27,7 +27,7 @@ public class TooltipMixin {
     )
     private Screen visor$redirectMinecraftScreen(Minecraft minecraftInstance) {
         if(visor$attachedTo == null){
-            if(VisorState.getState().isNotActive()){
+            if(VisorState.get().isNotActive()){
                 visor$attachedTo = Minecraft.getInstance().screen;
                 return visor$attachedTo;
             }

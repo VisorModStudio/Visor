@@ -90,7 +90,7 @@ public class GuiTexture {
      * @param targetWidth  desired width
      * @param targetHeight desired height
      */
-    public void blit(GuiGraphics gui,
+    public void blit(@NotNull GuiGraphics gui,
                      int xPos, int yPos,
                      int targetWidth, int targetHeight) {
 
@@ -114,6 +114,17 @@ public class GuiTexture {
         }
     }
 
+    /**
+     * Draws this texture region with specified position and original size
+     *
+     * @param gui          the GuiGraphics instance
+     * @param xPos         X coordinate to draw at
+     * @param yPos         Y coordinate to draw at
+     */
+    public void blit(@NotNull GuiGraphics gui,
+                     int xPos, int yPos) {
+        blit(gui, xPos, yPos, textureWidth, textureHeight);
+    }
 
     /**
      * Returns {@link DrawMode#STRETCH} texture,

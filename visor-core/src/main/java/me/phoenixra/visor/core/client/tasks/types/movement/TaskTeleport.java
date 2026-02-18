@@ -15,7 +15,7 @@ import me.phoenixra.visor.api.common.eventbus.listener.VREventListener;
 import me.phoenixra.visor.api.common.utils.VRMathUtils;
 import me.phoenixra.visor.api.server.VRServerSettings;
 import me.phoenixra.visor.core.client.ClientContext;
-import me.phoenixra.visor.core.client.input.actions.game.GameActionInputMovement;
+import me.phoenixra.visor.core.client.input.actions.game.GameActionMovement;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.options.enums.MovementMode;
 import me.phoenixra.visor.modified.client.entity.LocalPlayerModified;
@@ -75,6 +75,9 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     @Getter
     private HandType usingHand = HandType.OFFHAND;
 
+    private boolean pressedMainHandPre;
+    private boolean pressedOffhandPre;
+
     public TaskTeleport(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
@@ -102,7 +105,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     public void onRun(LocalPlayer player) {
         regenerateEnergy();
 
-        boolean teleportTriggered = updateInputState();
+        boolean teleportTriggered = updateTeleportState();
 
         if (usingHand != null) {
             return;
@@ -137,33 +140,32 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     /* Input handling                                                         */
     /* ---------------------------------------------------------------------- */
 
-    private boolean updateInputState() {
+    public void updateInputState(@Nullable HandType usingHand,
+                             Vector2f joystickPos) {
+        if(usingHand == HandType.OFFHAND){
+            if (!pressedOffhandPre) {
+                pressedOffhandPre = joystickPos.y > 0.7f;
+            } else {
+                pressedOffhandPre = hasJoystickMovement(joystickPos);
+            }
+        } else if (usingHand == HandType.MAIN) {
+            if (!pressedMainHandPre) {
+                pressedMainHandPre = joystickPos.y > 0.7f;
+            } else {
+                pressedMainHandPre = hasJoystickMovement(joystickPos);
+            }
+        }else{
+            pressedOffhand = false;
+            pressedMainHand = false;
+        }
+    }
+
+    private boolean updateTeleportState() {
         boolean teleportTriggered = false;
         boolean ignoreMainPress = false;
-
-        // Process offhand joystick
-        if (!pressedMainHand) {
-            Vector2f offhandJoystickPos = getJoystickForHand(HandType.OFFHAND);
-            if (!pressedOffhand) {
-                pressedOffhand = offhandJoystickPos.y > 0.7f;
-            } else {
-                pressedOffhand = hasJoystickMovement(offhandJoystickPos);
-                ignoreMainPress = arcActive;
-            }
-        }
-
-        // Process main joystick if not overridden
-        if (!pressedOffhand && !ignoreMainPress) {
-            Vector2f mainJoystickPos = getJoystickForHand(HandType.MAIN);
-            if (!pressedMainHand) {
-                pressedMainHand = mainJoystickPos.y > 0.7f;
-            } else {
-                pressedMainHand = hasJoystickMovement(mainJoystickPos);
-            }
-        }
-
-        // Determine which hand is used
-        usingHand = determineUsingHand();
+        this.pressedMainHand = pressedMainHandPre;
+        this.pressedOffhand = pressedOffhandPre;
+        this.usingHand = determineUsingHand();
 
         // If a hand is pressed, we are aiming
         if (usingHand != null) {
@@ -178,19 +180,6 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
         return teleportTriggered;
     }
-
-    private static boolean hasJoystickMovement(Vector2f joystickPos) {
-        return Math.abs(joystickPos.x) > 0.1f
-                || Math.abs(joystickPos.y) > 0.1f;
-    }
-
-    private static Vector2f getJoystickForHand(HandType hand) {
-        if (GameActionInputMovement.getHandType() == hand) {
-            return ClientContext.localPlayer.getMovement();
-        }
-        return new Vector2f();
-    }
-
     private HandType determineUsingHand() {
         if (pressedMainHand) {
             return HandType.MAIN;
@@ -200,6 +189,15 @@ public class TaskTeleport extends VisorTask implements VREventListener {
         }
         return null;
     }
+
+    private static boolean hasJoystickMovement(Vector2f joystickPos) {
+        return Math.abs(joystickPos.x) > 0.1f
+                || Math.abs(joystickPos.y) > 0.1f;
+    }
+
+
+
+
 
     /* ---------------------------------------------------------------------- */
     /* Teleport execution / energy                                            */

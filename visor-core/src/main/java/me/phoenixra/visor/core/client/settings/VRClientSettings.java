@@ -65,9 +65,9 @@ public class VRClientSettings {
     protected static RotationMode rotationFlyMode = RotationMode.OFFHAND;
 
     @Getter
-    @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_INCREMENT,
-            key = "world_rotation.increment")
-    protected static float worldRotationIncrement = 45f;
+    @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_STEP,
+            key = "world_rotation.step")
+    protected static float worldRotationStep = 45f;
     @Getter
     @VROptionField(key = "worldRotation.smoothSensitivity")
     protected static float worldRotationSmoothSensitivity = 0.06f;

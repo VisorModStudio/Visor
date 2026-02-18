@@ -63,7 +63,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
             & NarratableEntry> List<T> initWidgets() {
         //FILTER: CUSTOM ONLY
         String id = "custom_only";
-        Component name = Component.translatable("visor.overlay.options.main.overlays.filters.main."+id);
+        Component name = Component.translatable("visor.overlay.options.overlays.filters.main."+id);
         mainFiltersName.put(id, name.getString());
         mainFiltersFunc.put(id, (it)->{
             var overlay = ClientContext.overlayManager.getOverlay(it);
@@ -74,7 +74,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         });
         //FILTER: BUILT-IN ONLY
         id = "built_in_only";
-        name = Component.translatable("visor.overlay.options.main.overlays.filters.main."+id);
+        name = Component.translatable("visor.overlay.options.overlays.filters.main."+id);
         mainFiltersName.put(id, name.getString());
         mainFiltersFunc.put(id, (it)->{
             var overlay = ClientContext.overlayManager.getOverlay(it);
@@ -85,7 +85,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         });
         //FILTER: Has options
         id = "has_options";
-        name = Component.translatable("visor.overlay.options.main.overlays.filters.main."+id);
+        name = Component.translatable("visor.overlay.options.overlays.filters.main."+id);
         mainFiltersName.put(id, name.getString());
         mainFiltersFunc.put(id, (it)->{
             var overlay = ClientContext.overlayManager.getOverlay(it);
@@ -96,7 +96,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         });
         //FILTER: No options
         id = "no_options";
-        name = Component.translatable("visor.overlay.options.main.overlays.filters.main."+id);
+        name = Component.translatable("visor.overlay.options.overlays.filters.main."+id);
         mainFiltersName.put(id, name.getString());
         mainFiltersFunc.put(id, (it)->{
             var overlay = ClientContext.overlayManager.getOverlay(it);
@@ -184,7 +184,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT
                         )
-                        .setText(Component.translatable("visor.overlay.options.main.overlays.filters.main"))
+                        .setText(Component.translatable("visor.overlay.options.overlays.filters.main"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 mainFiltersName,
                 mainFiltersFunc,
@@ -200,7 +200,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
                                 OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT
                         )
-                        .setText(Component.translatable("visor.overlay.options.main.overlays.filters.addons"))
+                        .setText(Component.translatable("visor.overlay.options.overlays.filters.addons"))
                         .setTextColor(VROverlaySettings.TEXT_COLOR),
                 addonFiltersName,
                 addonFiltersFunc,
@@ -324,7 +324,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
         }
 
         //silly way to auto rename overlay entry when identity is modified
-        var selected = overlaysList.getList().getSelected();
+        var selected = overlaysList.getList().getSelectedEntry();
         if(selected == null){
             return;
         }

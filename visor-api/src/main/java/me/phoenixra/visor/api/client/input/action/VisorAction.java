@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -62,14 +63,6 @@ public interface VisorAction {
     boolean isChanged();
 
 
-    /**
-     * If action is required to be bound.
-     * <p>
-     *     When false, the action can have no binding, i.e. optional for user
-     * </p>
-     * @return true/false
-     */
-    boolean isRequired();
 
     /**
      * Set action binding for specified interaction profile
@@ -101,6 +94,14 @@ public interface VisorAction {
     }
 
     /**
+     * Get default bindings
+     *
+     * @return the map of bindings
+     */
+    @NotNull
+    Map<VRInteractionProfileType, ActionBinding> getDefaultBindings();
+
+    /**
      * Get default binding for specified interaction profile.
      *
      * @param profile the interaction profile
@@ -109,15 +110,36 @@ public interface VisorAction {
     @Nullable
     ActionBinding getDefaultBinding(@NotNull VRInteractionProfileType profile);
 
+
     /**
      * Get VR action identifiers that are supported by this action to bind
      * and available on specified interaction profile
      *
-     * @param profile the interaction profile
+     * @param profileType the interaction profile type
+     * @param keyModifiersActive if consider keyModifiers as active
      * @return the collection of binding identifiers
      */
     @NotNull
-    Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profile);
+    Collection<VRActionIdentifier> getSupportedBindingIds(
+            @NotNull VRInteractionProfileType profileType,
+            boolean keyModifiersActive
+    );
+
+    /**
+     * Get VR action identifiers that are supported by this action to bind
+     * and available on specified interaction profile
+     *
+     * @param profileType the interaction profile type
+     * @return the collection of binding identifiers
+     */
+    @NotNull
+    default Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profileType){
+        return getSupportedBindingIds(
+                profileType,
+                getActionSet().isKeyModifiersActive(profileType)
+        );
+    }
+
 
     /**
      * Get action set that is using this action.

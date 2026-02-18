@@ -59,8 +59,8 @@ public class SetupIconWidgetSet implements WidgetSet {
                         .size(100, 13)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
                         .setTextColor(VROverlaySettings.TEXT_COLOR)
-                        .setHint(Component.translatable("visor.overlay.options.main.create_overlay.type_icon_path"))
-                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.main.create_overlay.type_icon_path.tooltip")))
+                        .setHint(Component.translatable("visor.overlay.options.overlays.create_overlay.type_icon_path"))
+                        .setTooltip(Tooltip.create(Component.translatable("visor.overlay.options.overlays.create_overlay.type_icon_path.tooltip")))
         );
 
 
@@ -122,7 +122,7 @@ public class SetupIconWidgetSet implements WidgetSet {
         GuiHelper.renderScalableText(
                 guiGraphics,
                 Minecraft.getInstance().font,
-                Component.translatable("visor.overlay.options.main.create_overlay.load_icon").getString(),
+                Component.translatable("visor.overlay.options.overlays.create_overlay.load_icon").getString(),
                 VROverlaySettings.TEXT_COLOR.asInt(),
                 startX + 10,
                 startY + 5,

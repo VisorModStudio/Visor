@@ -12,6 +12,7 @@ import me.phoenixra.visor.api.common.HandType;
 import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.core.client.input.mouse.MouseScrollHandler;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +62,7 @@ public class VRInputManagerImpl implements VRInputManager {
             pausedActionsTicks--;
         }
     }
+
     public void update(){
         if(activeSet == null){
             return;
@@ -106,7 +108,7 @@ public class VRInputManagerImpl implements VRInputManager {
                                    float frequency,
                                    float amplitude,
                                    long durationNanoSec) {
-        if(VisorState.getState().isNotActive()){
+        if(VisorState.get().isNotActive()){
             return;
         }
         String controllerId = VRDeviceController.getId(
