@@ -109,6 +109,26 @@ public class GuiHelper {
                                           int posX, int posY,
                                           int width, int height,
                                           boolean center) {
+        renderScalableText(
+                guiGraphics,
+                font,
+                text,
+                color,
+                posX, posY,
+                width, height,
+                1.0f,
+                center
+        );
+    }
+
+    public static void renderScalableText(@NotNull GuiGraphics guiGraphics,
+                                          @NotNull Font font,
+                                          @NotNull String text,
+                                          int color,
+                                          int posX, int posY,
+                                          int width, int height,
+                                          float maxScale,
+                                          boolean center) {
         if (text.isEmpty()) return;
 
         float textWidth = font.width(text);
@@ -116,7 +136,7 @@ public class GuiHelper {
 
         float heightScale = (float) height / font.lineHeight;
 
-        float scale = Math.min(1f, Math.min(width / textWidth, heightScale));
+        float scale = Math.min(maxScale, Math.min(width / textWidth, heightScale));
 
 
         float dispW = textWidth * scale;
@@ -140,9 +160,6 @@ public class GuiHelper {
         poseStack.scale(scale, scale, 1f);
         poseStack.translate(-drawX, -drawY, 0);
 
-        // Calculate scissor in original coordinate space
-        guiGraphics.enableScissor(posX, posY, posX + width, posY + height);
-
         // Calculate text position in the transformed space
         float baseX = drawX;
         float baseY = drawY;
@@ -152,7 +169,7 @@ public class GuiHelper {
 
         // Restore transform state
         poseStack.popPose();
-        guiGraphics.disableScissor();
+
     }
 
 

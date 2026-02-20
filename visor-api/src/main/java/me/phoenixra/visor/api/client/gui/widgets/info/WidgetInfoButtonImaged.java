@@ -82,6 +82,13 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     private boolean dynamicTextScale = false;
 
     /**
+     * Max scale for the dynamic scaled text
+     */
+    @Setter @Getter
+    @Accessors(chain = true)
+    private float dynamicTextMaxScale = 1.0f;
+
+    /**
      * Text scale to use
      */
     @Setter @Getter

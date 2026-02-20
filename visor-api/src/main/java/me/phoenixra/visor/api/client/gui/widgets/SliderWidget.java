@@ -119,7 +119,9 @@ public class SliderWidget<T> extends AbstractWidget {
             if (widgetInfo.isDynamicTextScale()) {
                 GuiHelper.renderScalableText(
                         guiGraphics, font, text, color,
-                        textX, textY, textW, textH, true
+                        textX, textY, textW, textH,
+                        widgetInfo.getDynamicTextMaxScale(),
+                        true
                 );
                 return;
             }

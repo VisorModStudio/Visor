@@ -102,7 +102,9 @@ public class ButtonImaged extends AbstractButton {
             if (widgetInfo.isDynamicTextScale()) {
                 GuiHelper.renderScalableText(
                         guiGraphics, font, text, color,
-                        textX, textY, textW, textH, true
+                        textX, textY, textW, textH,
+                        widgetInfo.getDynamicTextMaxScale(),
+                        true
                 );
                 return;
             }

@@ -226,6 +226,7 @@ public class VisorState implements VisorClientState {
     }
 
     public static void destroyVRWithErrorScreen(Throwable throwable) {
+        throwable.printStackTrace();
 
         destroyVR();
 

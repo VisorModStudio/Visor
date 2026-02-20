@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.gui.GuiTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,11 +34,11 @@ public class TexturesHelper {
     }
 
 
-    public static ResourceLocation getColorTexture(AtumColor color) {
+    public static ResourceLocation getColorTexture(@NotNull AtumColor color) {
         return CACHE.computeIfAbsent(color, TexturesHelper::createAndRegister);
     }
 
-    public static GuiTexture getColorGuiTexture(AtumColor color) {
+    public static GuiTexture getColorGuiTexture(@NotNull AtumColor color) {
         return CACHE_GUI.computeIfAbsent(color,
                 it-> new GuiTexture(
                         getColorTexture(color),
@@ -46,7 +47,7 @@ public class TexturesHelper {
         );
     }
 
-    private static ResourceLocation createAndRegister(AtumColor color) {
+    private static ResourceLocation createAndRegister(@NotNull AtumColor color) {
 
         NativeImage img = new NativeImage(NativeImage.Format.RGBA, 1, 1, true);
 
