@@ -116,7 +116,7 @@ public abstract class VROptionsSet extends DynamicWidgetSet {
 
         ArrayList<OptionWidgetEntry> result = new ArrayList<>();
 
-        int i = 0;
+        int i = optionWidgets.size();
         for (VROptionWidgetType option : options) {
             OptionWidgetPosition optionPos = i % 2 == 0
                     ? OptionWidgetPosition.LEFT

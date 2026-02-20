@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -166,7 +167,7 @@ public class OptionWidgetEntry {
                         .pos(getWidgetX(), getWidgetY())
                         .size(getWidgetWidth(), getWidgetHeight())
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
@@ -190,7 +191,7 @@ public class OptionWidgetEntry {
 
     public int getWidgetY() {
         return 7 + owner.getScreen().getOptionsStartY()
-                + (getWidgetHeight() + 2) * this.row;
+                + (getWidgetHeight() + 4) * this.row;
     }
     public int getWidgetWidth(){
         return owner.getScreen().getScaleHelper().scaledSize(52);

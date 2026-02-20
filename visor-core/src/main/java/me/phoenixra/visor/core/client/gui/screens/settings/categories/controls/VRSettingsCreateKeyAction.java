@@ -12,6 +12,7 @@ import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -106,7 +107,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.translatable("visor.action.options.add_key_action.create")),
                 (it)->{
                     createPressed();

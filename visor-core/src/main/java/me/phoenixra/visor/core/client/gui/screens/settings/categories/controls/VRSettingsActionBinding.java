@@ -21,6 +21,7 @@ import me.phoenixra.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import me.phoenixra.visor.core.client.gui.screens.settings.VROptionsSet;
 import me.phoenixra.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -166,7 +167,7 @@ public class VRSettingsActionBinding extends VROptionsSet {
                         .size(scaleHelper.scaledSize(44), scaleHelper.scaledSize(8))
                         .setTexture(OptionTextures.LIGHT_GRAY_TEXTURE_2)
                         .setTextureInactive(OptionTextures.GRAY_TEXTURE)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.translatable("visor.action.options.bindings.capture_input"))
                         .setTooltip(Tooltip.create(Component.translatable("visor.action.options.bindings.capture_input.tooltip")))
                         .setHighlightEnabled(true)
@@ -242,7 +243,7 @@ public class VRSettingsActionBinding extends VROptionsSet {
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.translatable("visor.button.confirm")),
                 (it)->{
                     confirmPressed();

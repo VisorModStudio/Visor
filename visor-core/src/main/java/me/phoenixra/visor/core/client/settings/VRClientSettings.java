@@ -69,7 +69,8 @@ public class VRClientSettings {
             key = "world_rotation.step")
     protected static float worldRotationStep = 45f;
     @Getter
-    @VROptionField(key = "worldRotation.smoothSensitivity")
+    @VROptionField(widgetType = VROptionWidgetType.WORLD_ROTATION_SMOOTH,
+            key = "world_rotation.smooth_sensitivity")
     protected static float worldRotationSmoothSensitivity = 0.06f;
 
     @Getter
@@ -163,6 +164,13 @@ public class VRClientSettings {
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.SHADER_GUI_RENDER, key = "shader_gui_render")
     protected static ShaderGUIRenderMode shaderGUIRender = ShaderGUIRenderMode.AFTER_SHADER;
+
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.SETTINGS_TEXT_SCALE,
+            key = "settings_text_scale")
+    protected static float settingsTextScale = 0.9f;
+
     @Getter
     @VROptionField(key = "gui.scale")
     protected static float guiScale = 0;
@@ -245,52 +253,55 @@ public class VRClientSettings {
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_SNEAK,
-            key = "room_sneak.enabled")
+            key = "room_sneak")
     protected static boolean roomSneakEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_CRAWL,
-            key = "room_crawl.enabled")
+            key = "room_crawl")
     protected static boolean roomCrawlEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_CLIMB,
-            key = "room_climb.enabled")
+            key = "room_climb")
     protected static boolean roomClimbEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_JUMP,
-            key = "room_jump.enabled")
+            key = "room_jump")
     protected static boolean roomJumpEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_SWIM,
-            key = "room_swim.enabled")
+            key = "room_swim")
     protected static boolean roomSwimEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_DISMOUNT_VEHICLE,
-            key = "room_dismount_vehicle.enabled")
+            key = "room_dismount_vehicle")
     protected static boolean roomDismountVehicleEnabled = true;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.ROOM_CONSUME,
-            key = "room_consume.enabled")
+            key = "room_consume")
     protected static boolean roomConsumeEnabled = true;
 
-    //max height to actual height ratio to jump from >=
-    @Getter
-    @VROptionField(key = "immersion.room_jump.threshold")
-    protected static float roomJumpThreshold = 1.05f;
 
-    //max height to actual height ratio to start sneaking from <=
     @Getter
-    @VROptionField(key = "immersion.room_sneak.threshold")
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_SNEAK_THRESHOLD,
+            key = "room_sneak.threshold")
     protected static float roomSneakThreshold = 0.85f;
 
     @Getter
-    @VROptionField(key = "immersion.room_crawl.threshold")
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_CRAWL_THRESHOLD,
+            key = "room_crawl.threshold")
     protected static float roomCrawlThreshold = 0.7f;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.ROOM_JUMP_THRESHOLD,
+            key = "room_jump.threshold")
+    protected static float roomJumpThreshold = 1.05f;
+
 
 
     // ---- OTHER

@@ -6,6 +6,7 @@ import me.phoenixra.visor.api.client.gui.widgets.SliderWidget;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 import me.phoenixra.visor.core.client.ClientContext;
+import me.phoenixra.visor.core.client.settings.VRClientSettings;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import me.phoenixra.visor.core.client.utils.LangHelper;
 import net.minecraft.client.gui.components.Tooltip;
@@ -24,7 +25,7 @@ public class OptionBehaviourFactory {
                 new WidgetInfoButtonImaged()
                         .pos(entry.x, entry.y)
                         .size(entry.z, entry.w)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setTexture(OptionTextures.GRAY_TEXTURE)
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
@@ -57,7 +58,7 @@ public class OptionBehaviourFactory {
                     new WidgetInfoSlider()
                             .pos(entry.x, entry.y)
                             .size(entry.z, entry.w)
-                            .setTextScale(0.7f)
+                            .setTextScale(VRClientSettings.getSettingsTextScale())
                             .setBackgroundTexture(OptionTextures.GRAY_TEXTURE)
                             .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE)
                             .highlight(OptionTextures.HOVERED_HIGHLIGHT)

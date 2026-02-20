@@ -16,7 +16,8 @@ public enum VROptionCategory {
     RENDERING_MIXED_REALITY("rendering.mixed_reality"),
     MOVEMENT("movement"),
     CONTROLS("controls"),
-    IMMERSION("immersion");
+    IMMERSION("immersion"),
+    IMMERSION_ADVANCED("immersion.advanced");
 
     @Getter
     private final String key;

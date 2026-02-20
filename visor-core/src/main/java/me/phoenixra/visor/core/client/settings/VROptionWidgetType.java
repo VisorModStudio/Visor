@@ -17,6 +17,8 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 public enum VROptionWidgetType {
 
     EMPTY(
@@ -85,6 +87,31 @@ public enum VROptionWidgetType {
     MIXED_REALITY_RENDER_HANDS(
             VROptionCategory.RENDERING_MIXED_REALITY,
             (it) -> null
+    ),
+    SETTINGS_TEXT_SCALE(
+            VROptionCategory.GUI,
+            (it) -> {
+                List<Float> entries = List.of(0.5f, 0.55f, 0.6f, 0.65f, 0.7f, 0.75f, 0.8f, 0.85f, 0.9f, 0.95f, 1.0f, 1.1f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getSettingsTextScale());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).setOnChanged(
+                        ()->{
+                            //reinit screen
+                            MC.setScreen(MC.screen);
+                        }
+                ).build();
+            }
     ),
     HUD_DISABLED_HOTBAR(
             VROptionCategory.GUI,
@@ -171,6 +198,25 @@ public enum VROptionWidgetType {
                 () -> ClientContext.localPlayer.setRotationY(0)
         ).build();
     }),
+    WORLD_ROTATION_SMOOTH(
+            VROptionCategory.MOVEMENT,
+            (it) -> {
+                List<Float> entries = List.of(0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getWorldRotationSmoothSensitivity());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }),
     ROOM_SNEAK(
             VROptionCategory.IMMERSION,
             (it) -> null
@@ -198,6 +244,66 @@ public enum VROptionWidgetType {
     ROOM_CONSUME(
             VROptionCategory.IMMERSION,
             (it) -> null
+    ),
+    ROOM_SNEAK_THRESHOLD(
+            VROptionCategory.IMMERSION_ADVANCED,
+            (it) -> {
+                List<Float> entries = List.of(0.77f, 0.78f, 0.79f, 0.8f, 0.81f, 0.82f, 0.83f, 0.84f, 0.85f, 0.86f, 0.87f, 0.88f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getRoomSneakThreshold());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
+    ),
+    ROOM_CRAWL_THRESHOLD(
+            VROptionCategory.IMMERSION_ADVANCED,
+            (it) -> {
+                List<Float> entries = List.of(0.6f, 0.61f, 0.62f, 0.63f, 0.64f, 0.65f, 0.66f, 0.67f, 0.68f, 0.69f, 0.7f, 0.71f, 0.72f, 0.73f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getRoomCrawlThreshold());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
+    ),
+    ROOM_JUMP_THRESHOLD(
+            VROptionCategory.IMMERSION_ADVANCED,
+            (it) -> {
+                List<Float> entries = List.of(1.03f, 1.04f, 1.05f, 1.06f, 1.07f, 1.08f, 1.09f, 1.1f, 1.11f, 1.12f, 1.13f, 1.14f, 1.15f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getRoomJumpThreshold());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
     );
 
     @Getter

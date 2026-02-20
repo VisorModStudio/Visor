@@ -146,7 +146,7 @@ public class VRSettingsActions extends VROptionsSet {
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.literal(
                                 Component.translatable("visor.action.options.interaction_profile").getString()
                                 + ": " + AtumColor.COLOR_SYMBOL+(activeProfileType == profileType
@@ -174,7 +174,7 @@ public class VRSettingsActions extends VROptionsSet {
                         .pos(scaleHelper.scaledX(65),scaleHelper.scaledY(136))
                         .size(scaleHelper.scaledSize(21), scaleHelper.scaledSize(10))
                         .setTexture(VRSettingsScreen.ADD_BUTTON)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setTooltip(Tooltip.create(Component.translatable("visor.action.options.add_key_action_tooltip")))
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
@@ -193,7 +193,7 @@ public class VRSettingsActions extends VROptionsSet {
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                        .setTextScale(0.7f)
+                        .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.translatable("visor.button.apply_changes")),
                 (it)->{
                     applyChangesPressed();
@@ -483,8 +483,8 @@ public class VRSettingsActions extends VROptionsSet {
 
 
     private void updateApplyButton() {
-        boolean collision = hasBindingCollision();
-        applyChangesButton.active = modified && !collision;
+
+        applyChangesButton.active = modified;
         if(applyChangesButton.active) {
             applyChangesButton.getWidgetInfo().setTextColor(AtumColor.YELLOW);
         }else{
@@ -560,7 +560,7 @@ public class VRSettingsActions extends VROptionsSet {
                             .setText(Component.literal(bindingName))
                             .setHighlightEnabled(true)
                             .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
-                            .setTextScale(0.7f),
+                            .setTextScale(VRClientSettings.getSettingsTextScale()),
                     it->{
                         getScreen().switchOptions(new VRSettingsActionBinding(
                                 VRSettingsActions.this,
