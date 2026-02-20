@@ -339,7 +339,7 @@
 
   "_comment999": "*--------MESSAGES--------*",
   "visor.messages.error.generic": "An unexpected VR error occurred!",
-  "visor.messages.error.summary": "§rYou can report this issue in our Visor Discord community.\n\nOpen your Logs folder (using the button below) and upload the 'latest.log' file, along with details of what you were doing and where the error occurred, to the appropriate discord channel for assistance.",
+  "visor.messages.error.summary": "It can be due to:\n\n1) VR not found. Have you launched VR runtime? (SteamVR or other).\nIf you use linux, join our discord community for more info\n\n2) You have updated Visor version, that significantly changed configs. Try to remove config/Visor folder\n\n3) Issue that wasn't fixed\n\n\n§rYou can report this issue in our Visor Discord community.\n\nOpen your Logs folder (using the button below) and upload the 'latest.log' file, along with details of what you were doing and where the error occurred, to the appropriate discord channel for assistance.",
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Server supports Visor!",
   "visor.messages.calibrate_height": "Please calibrate your height in the pause menu.",
