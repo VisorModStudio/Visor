@@ -47,9 +47,9 @@ public interface VRInputManager {
     default void triggerHapticPulseClick(@NotNull HandType hand){
         triggerHapticPulse(
                 hand,
-                20f,
-                0.2f,
-                (long) (0.05f * 1_000_000_000)
+                160f,
+                0.1f,
+                (long) (0.0001f * 1_000_000_000)
         );
     }
 
