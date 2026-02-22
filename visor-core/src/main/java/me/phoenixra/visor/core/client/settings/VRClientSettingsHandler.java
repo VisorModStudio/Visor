@@ -1,7 +1,3 @@
-/**
- * Copyright 2013 Mark Browning, StellaArtois
- * Licensed under the LGPL 3.0 or later (See LICENSE.md for details)
- */
 package me.phoenixra.visor.core.client.settings;
 
 import lombok.Getter;
