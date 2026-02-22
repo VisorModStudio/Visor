@@ -8,6 +8,7 @@ import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
+import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.gui.screens.overlayoptions.OptionsScreenKeyButton;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -38,9 +39,10 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
 
 
-    private GuiTexture texture;
+    private GuiTexture textureColor;
+    private GuiTexture texturePath;
 
-
+    private boolean worldOnly;
 
     private char key;
 
@@ -70,16 +72,18 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
         textColor = parseColor(config.getStringOrDefault("textColor", colorToString(AtumColor.WHITE)));
 
-        rawTexturePath = config.getStringOrDefault("texturePath", "visor:icon.png");
+        worldOnly = config.getBool("world_only");
 
-        switch (customizationType){
-            case COLOR -> {
-                texture = TexturesHelper.getColorGuiTexture(color);
-            }
-            case TEXTURE -> {
-                setTexturePath(rawTexturePath);
-            }
-        }
+        var defaultTexture = VisorAddon.MISSING_ICON.getResourceLocation();
+        rawTexturePath = config.getStringOrDefault(
+                "texturePath",
+                defaultTexture.getNamespace()
+                        + ResourceLocation.NAMESPACE_SEPARATOR
+                        + defaultTexture.getPath()
+        );
+
+        textureColor = TexturesHelper.getColorGuiTexture(color);
+        setTexturePath(rawTexturePath);
 
         changesNotSaved = true;
     }
@@ -97,6 +101,8 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         config.set("text", text);
 
         config.set("texturePath", rawTexturePath);
+
+        config.set("world_only", worldOnly);
 
     }
 
@@ -135,9 +141,9 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
             this.rawTexturePath = null;
         }
 
-        this.texture = this.rawTexturePath != null
+        this.texturePath = this.rawTexturePath != null
                 ? GuiTexture.of(new ResourceLocation(this.rawTexturePath))
-                : null;
+                : VisorAddon.MISSING_ICON;
 
         changesNotSaved = true;
     }
@@ -163,6 +169,11 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         return Math.max(0, Math.min(255, value));
     }
 
+    public GuiTexture getTexture(){
+        return customizationType == CustomizationType.TEXTURE
+                ? texturePath
+                : textureColor;
+    }
     public void setText(@Nullable String buttonText) {
         this.text = buttonText == null ? "" : buttonText;
         changesNotSaved = true;
@@ -175,9 +186,7 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
     public void setColor(AtumColor color) {
         this.color = color;
-        if(customizationType == CustomizationType.COLOR) {
-            this.texture = TexturesHelper.getColorGuiTexture(color);
-        }
+        this.textureColor = TexturesHelper.getColorGuiTexture(color);
         changesNotSaved = true;
     }
     public void setTextColor(AtumColor color) {
@@ -186,16 +195,11 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
     }
     public void setCustomizationType(CustomizationType type){
         this.customizationType = type;
+        changesNotSaved = true;
+    }
 
-        if(customizationType == CustomizationType.COLOR) {
-            if(color!=null) {
-                this.texture = TexturesHelper.getColorGuiTexture(color);
-            }
-        }else{
-            if(rawTexturePath!=null) {
-                setTexturePath(rawTexturePath);
-            }
-        }
+    public void setWorldOnly(boolean flag) {
+        this.worldOnly = flag;
         changesNotSaved = true;
     }
 

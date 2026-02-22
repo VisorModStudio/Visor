@@ -5,13 +5,17 @@ import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.SliderWidget;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
+import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 import me.phoenixra.visor.core.client.gui.overlays.options.OverlayOptionsKeyButton;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButton> {
 
@@ -28,7 +32,9 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private EditBoxImage keyField;
 
-    private ButtonImaged customizationTypeButton;
+    private ButtonImaged visibilityButton;
+
+    private SliderWidget<OverlayOptionsKeyButton.CustomizationType> customizationTypeSlider;
 
     private EditBoxImage colorField;
 
@@ -115,10 +121,33 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         // Row 3
         y += ROW_SPACING;
 
+        int visibilityButtonW = 80;
+        int visibilityButtonX = startX + (fullW - visibilityButtonW) / 2;
+
+        visibilityButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(visibilityButtonX, y)
+                        .size(visibilityButtonW, FIELD_HEIGHT)
+                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setText(Component.translatable("Visible: "+(optionsGroup.isWorldOnly()?"World":"Always")))
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        ),
+                button -> {
+                    optionsGroup.setWorldOnly(!optionsGroup.isWorldOnly());
+                    button.setMessage(Component.translatable("Visible: "+(optionsGroup.isWorldOnly()?"In-game":"Always")));
+                }
+        );
+
+
+        // Row 4
+        y += ROW_SPACING;
+
         int keyFieldW = 40;
         int keyFieldX = startX + (fullW - keyFieldW) / 2;
 
-        keyField =new EditBoxImage(
+        keyField = new EditBoxImage(
                 new WidgetInfoEditBox()
                         .pos(keyFieldX, y)
                         .size(keyFieldW, FIELD_HEIGHT)
@@ -134,47 +163,44 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         keyField.setMaxLength(1);
 
 
-        // Row 4
+        // Row 5
         y += ROW_SPACING;
 
         int modeW = 60;
         int modeX = startX + (fullW - modeW) / 2;
 
 
-        customizationTypeButton = new ButtonImaged(
-                new WidgetInfoButtonImaged()
+        customizationTypeSlider = new SliderWidget<>(
+                new WidgetInfoSlider()
                         .pos(modeX, y)
                         .size(modeW, 20)
-                        .setText(
-                                Component.literal("Mode: " + optionsGroup.getCustomizationType().name())
-                        )
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setBackgroundTexture(OptionTextures.GRAY_TEXTURE)
+                        .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE_2)
                         .setDynamicTextScale(true)
-                        .setInactiveOnSelected(false)
-                        .setTextColor(AtumColor.WHITE)
-                        .setHighlightEnabled(true)
-                        .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT),
-                btn -> {
-            var current =
-                    optionsGroup.getCustomizationType();
-            var next =
-                    current == OverlayOptionsKeyButton.CustomizationType.COLOR
-                            ? OverlayOptionsKeyButton.CustomizationType.TEXTURE
-                            : OverlayOptionsKeyButton.CustomizationType.COLOR;
-            optionsGroup.setCustomizationType(next);
-            init();
-        });
+                        .setTextColor(AtumColor.WHITE),
+                List.of(OverlayOptionsKeyButton.CustomizationType.values()),
+                slider -> {
+                    optionsGroup.setCustomizationType(slider.getSelected());
+                    slider.setText(Component.literal("Mode: " + optionsGroup.getCustomizationType().name()));
+                    init();
+                });
+        customizationTypeSlider.setSelected(
+                optionsGroup.getCustomizationType(),
+                false
+        );
+        customizationTypeSlider.setText(Component.literal("Mode: " + optionsGroup.getCustomizationType().name()));
 
 
-        // Row 5
+        // Row 6
         y += ROW_SPACING;
 
         addRenderableWidget(widthField);
         addRenderableWidget(heightField);
         addRenderableWidget(buttonTextField);
         addRenderableWidget(textColorField);
+        addRenderableWidget(visibilityButton);
         addRenderableWidget(keyField);
-        addRenderableWidget(customizationTypeButton);
+        addRenderableWidget(customizationTypeSlider);
 
         if (optionsGroup.getCustomizationType()
                 == OverlayOptionsKeyButton.CustomizationType.COLOR) {
@@ -187,7 +213,6 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private void initColorFields(int baseX, int y, int fieldW) {
 
-        // ---- Button Color (red;green;blue) ----
         colorField = new EditBoxImage(
                 new WidgetInfoEditBox()
                         .pos(baseX, y)
@@ -237,44 +262,33 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         int halfW = (fullW - GAP) / 2;
         int labelY = cursorBoundsY + 3 + 10;
 
-        // ---- Row 1 labels: Width | Height ----
+        // ---- Row 1 ----
         guiGraphics.drawString(font, Component.translatable(
-                "visor.overlay.options.key_button.width"),
+                        "visor.overlay.options.key_button.width"),
                 startX, labelY,
                 0xFFFFFF
         );
         guiGraphics.drawString(font, Component.translatable(
                 "visor.overlay.options.key_button.height"), startX + halfW + GAP, labelY, 0xFFFFFF);
 
-        // ---- Row 2 labels: Text | Text Color ----
+        // ---- Row 2 ----
         labelY += ROW_SPACING;
         guiGraphics.drawString(font, Component.translatable(
                 "visor.overlay.options.key_button.text"), startX, labelY, 0xFFFFFF);
         guiGraphics.drawString(font, Component.translatable(
                 "visor.overlay.options.key_button.text_color"), startX + halfW + GAP, labelY, 0xFFFFFF);
 
+        // ---- Row 3  ----
+        labelY += ROW_SPACING;
 
-        // ---- Row 3 label: Key (centered) ----
+        // ---- Row 4 ----
         labelY += ROW_SPACING;
         Component keyLabel = Component.translatable("visor.overlay.options.key_button.key");
         int keyLabelW = font.width(keyLabel);
         guiGraphics.drawString(font, keyLabel,
                 startX + (fullW - keyLabelW) / 2, labelY, 0xFFFFFF);
 
-        // ---- Row 4 label: customization-specific ----
-        labelY += ROW_SPACING;
-        labelY += ROW_SPACING;
 
-        if (optionsGroup.getCustomizationType()
-                == OverlayOptionsKeyButton.CustomizationType.COLOR) {
-
-            guiGraphics.drawString(font, Component.translatable(
-                    "visor.overlay.options.key_button.color"), startX, labelY, 0xFFFFFF);
-
-        } else {
-            guiGraphics.drawString(font, Component.translatable(
-                    "visor.overlay.options.key_button.texture"), startX, labelY, 0xFFFFFF);
-        }
     }
 
 

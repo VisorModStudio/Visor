@@ -170,9 +170,10 @@ public class VRSettingsActionBinding extends VROptionsSet {
                         .setTextScale(VRClientSettings.getSettingsTextScale())
                         .setText(Component.translatable("visor.action.options.bindings.capture_input"))
                         .setTooltip(Tooltip.create(Component.translatable("visor.action.options.bindings.capture_input.tooltip")))
-                        .setHighlightEnabled(true)
-                        .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
-                        .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT),
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        ),
                 (it)->{
                     captureInputPressed();
                 }

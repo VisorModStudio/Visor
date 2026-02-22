@@ -16,6 +16,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
+
 @RegisterVROverlayTemplate(
         id = VROverlayKeyButton.ID,
         name = VROverlayKeyButton.NAME,
@@ -78,7 +80,7 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
 
     @Override
     public boolean updateVisibility() {
-        return true;
+        return MC.screen == null || !optionsKeyButton.isWorldOnly();
     }
 
     @Override
@@ -150,7 +152,7 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
                             it.setCustomizationType(OverlayOptionsKeyButton.CustomizationType.COLOR);
                             it.setColor(AtumColor.DARK_GRAY);
                             it.setTextColor(AtumColor.WHITE);
-                            it.setTexturePath("visor:icon.png");
+                            it.setTexturePath(VisorAddon.MISSING_ICON.getResourceLocation().getPath());
                         }
                 )
         );

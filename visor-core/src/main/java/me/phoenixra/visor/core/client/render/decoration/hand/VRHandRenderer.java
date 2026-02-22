@@ -41,6 +41,8 @@ import java.util.*;
 
 import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 
+//@TODO there is no way to determine outside
+// when world hand or menu hand is rendered!!
 public class VRHandRenderer {
 
     private static final AtumColorImmutable GUI_HANDS_COLOR = new AtumColorImmutable(
