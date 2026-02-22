@@ -93,11 +93,11 @@
   "_comment.immersion.advanced": "----Immersion Advanced Settings----",
   "visor.options.immersion.advanced.button": "Advanced...",
   "visor.options.immersion.advanced.room_sneak.threshold": "Sneak Threshold",
-  "visor.options.immersion.advanced.room_sneak.threshold.tooltip": "§bSneak Threshold§r\n\nPercent from the full height where sneaking starts.\n\n1.0 - full height\n0.5 - half full height",
+  "visor.options.immersion.advanced.room_sneak.threshold.tooltip": "§bSneak Threshold§r\n\nThe percent from the full height where sneaking starts.",
   "visor.options.immersion.advanced.room_crawl.threshold": "Crawl Threshold",
-  "visor.options.immersion.advanced.room_crawl.threshold.tooltip": "§bCrawl Threshold§r\n\nPercent from the full height where crawling starts.\n\n1.0 - full height\n0.5 - half full height",
+  "visor.options.immersion.advanced.room_crawl.threshold.tooltip": "§bCrawl Threshold§r\n\nThe percent from the full height where crawling starts.",
   "visor.options.immersion.advanced.room_jump.threshold": "Jump Threshold",
-  "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bJump Threshold§r\n\nPercent from the full height where your character will jump.\n\n1.0 - full height\n0.5 - half full height",
+  "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bJump Threshold§r\n\nThe percent from the full height where your character will jump.",
 
 
   "_comment18": "*--------OPTION ENUMS--------*",

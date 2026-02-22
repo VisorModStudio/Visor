@@ -259,7 +259,7 @@ public enum VROptionWidgetType {
                         }
                 ).setOnUpdateName(
                         (pair) -> {
-                            String value = String.format("%.2f", (float) pair.second());
+                            String value = String.format("%.0f%%", (float) pair.second() * 100);
                             return pair.first() + value;
                         }
                 ).build();
@@ -279,7 +279,7 @@ public enum VROptionWidgetType {
                         }
                 ).setOnUpdateName(
                         (pair) -> {
-                            String value = String.format("%.2f", (float) pair.second());
+                            String value = String.format("%.0f%%", (float) pair.second() * 100);
                             return pair.first() + value;
                         }
                 ).build();
@@ -299,7 +299,7 @@ public enum VROptionWidgetType {
                         }
                 ).setOnUpdateName(
                         (pair) -> {
-                            String value = String.format("%.2f", (float) pair.second());
+                            String value = String.format("%.0f%%", (float) pair.second() * 100);
                             return pair.first() + value;
                         }
                 ).build();
