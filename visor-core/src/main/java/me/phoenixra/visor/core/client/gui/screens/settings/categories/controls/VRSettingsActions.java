@@ -39,10 +39,6 @@ public class VRSettingsActions extends VROptionsSet {
 
     protected static final int ENTRY_GAP = 2;
 
-    protected static final AtumColor LIGHT_GRAY_COLOR = AtumColor.immutable(116,116,116,255);
-    protected static final GuiTexture LIGHT_GRAY_TEXTURE = TexturesHelper.getColorGuiTexture(
-            LIGHT_GRAY_COLOR
-    );
 
 
     private WidgetSetList listWidget;
@@ -245,15 +241,23 @@ public class VRSettingsActions extends VROptionsSet {
                     var newId = bindingNew.getActionId(useLeftHanded);
                     var newIdDisplayName = bindingNew.getActionDisplayName(useLeftHanded);
 
-                    var actionId = bindingOld.getActionId(useLeftHanded);
-                    if(!actionId.equals(newId)
-                            && !newId.equals(ActionBinding.ID_EMPTY)
-                            && bindingOld.getActionKeyModifier(useLeftHanded) != newKeyModifier
-                            && newKeyModifier != ActionKeyModifierType.OFF){
-                        listEntry.bindingName = AtumColor.COLOR_SYMBOL + "6" + newKeyModifier.getDisplayName().getString() + " + "+ newIdDisplayName.getString();
-                    }
-                    else if(!actionId.equals(newId)){
-                        listEntry.bindingName = AtumColor.COLOR_SYMBOL + "6" + newIdDisplayName.getString();
+                    var oldKeyModifier = bindingOld.getActionKeyModifier(useLeftHanded);
+                    var oldActionId = bindingOld.getActionId(useLeftHanded);
+
+                    if (!oldActionId.equals(newId) || oldKeyModifier != newKeyModifier) {
+                        modified = true;
+                        var listEntry1 = listEntries.get(entry1.getKey().getId());
+                        if (listEntry1 == null) continue;
+
+                        if (newKeyModifier != ActionKeyModifierType.OFF
+                                && !newId.equals(ActionBinding.ID_EMPTY)) {
+                            listEntry1.bindingName = AtumColor.COLOR_SYMBOL + "6"
+                                    + newKeyModifier.getDisplayName().getString()
+                                    + " + " + newIdDisplayName.getString();
+                        } else {
+                            listEntry1.bindingName = AtumColor.COLOR_SYMBOL + "6"
+                                    + newIdDisplayName.getString();
+                        }
                     }
 
                 }
@@ -469,7 +473,7 @@ public class VRSettingsActions extends VROptionsSet {
                         map.forEach((action, binding)-> action.setBinding(profile, binding))
         );
 
-        actionSet.saveBindings();
+        actionSet.save();
         modified = false;
         resetNewBindings();
         reinit();
@@ -508,7 +512,7 @@ public class VRSettingsActions extends VROptionsSet {
     @Override
     public void loadDefaults() {
         actionSet.loadDefaults(profileType);
-        actionSet.saveBindings();
+        actionSet.save();
         resetNewBindings();
         reinit();
     }
@@ -521,7 +525,10 @@ public class VRSettingsActions extends VROptionsSet {
 
     @Getter
     protected class VRActionEntry extends WidgetSetList.Entry {
-
+        protected static final AtumColor NAME_COLOR = AtumColor.immutable(180,180,180,255);
+        protected static final GuiTexture SEPARATOR_TEXTURE = TexturesHelper.getColorGuiTexture(
+                AtumColor.immutable(116,116,116,255)
+        );
         protected static final int SEPARATOR_HEIGHT = 1;
 
         private final VisorAction action;
@@ -607,7 +614,7 @@ public class VRSettingsActions extends VROptionsSet {
 
         @Override
         public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-            LIGHT_GRAY_TEXTURE.blit(
+            SEPARATOR_TEXTURE.blit(
                     guiGraphics,
                     separatorPosX,
                     separatorPosY,
@@ -618,7 +625,7 @@ public class VRSettingsActions extends VROptionsSet {
                     guiGraphics,
                     MC.font,
                     action.getName().getString(),
-                    LIGHT_GRAY_COLOR.asInt(),
+                    NAME_COLOR.asInt(),
                     namePosX, namePosY,
                     nameWidth, nameHeight,
                     true

@@ -120,7 +120,7 @@ public class VRSettingsActionBinding extends VROptionsSet {
         Map<String, String> rawEntries = new LinkedHashMap<>();
         Map<String, VRActionIdentifier> entries = new HashMap<>();
 
-        // To make bindings LEFT - RIGHT on list widget row,
+        // To make bindings LEFT handed - RIGHT handed on list widget row,
         // without this they are reversed
         String name = AtumColor.COLOR_SYMBOL + "2";
         name += ActionBinding.getActionDisplayName(ActionBinding.ID_EMPTY).getString();
