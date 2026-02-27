@@ -255,6 +255,11 @@ public class VRSettingsActions extends VROptionsSet {
                                     + newKeyModifier.getDisplayName().getString()
                                     + " + " + newIdDisplayName.getString();
                         } else {
+                            if(newId.equals(oldActionId)
+                                    && newId.equals(ActionBinding.ID_EMPTY)) {
+                                listEntry1.bindingName = newIdDisplayName.getString();
+                                continue;
+                            }
                             listEntry1.bindingName = AtumColor.COLOR_SYMBOL + "6"
                                     + newIdDisplayName.getString();
                         }
