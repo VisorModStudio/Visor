@@ -26,6 +26,8 @@
   "visor.options.presets.specify_settings": "Settings to save",
   "visor.options.presets.saved_settings": "Saved settings",
   "visor.options.presets.confirm_creation": "Confirm",
+  "visor.options.presets.remove": "Remove",
+  "visor.options.presets.confirm_remove": "Confirm",
 
   "visor.options.presets.settings_type.general": "General",
   "visor.options.presets.settings_type.action_bindings": "Action bindings",

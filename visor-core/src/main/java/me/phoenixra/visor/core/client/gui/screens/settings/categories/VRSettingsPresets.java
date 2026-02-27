@@ -4,6 +4,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.VisorAPI;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
+import me.phoenixra.visor.api.client.gui.helpers.TexturesHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.settings.VRSettingsPreset;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
@@ -43,6 +44,12 @@ import static me.phoenixra.visor.core.client.VisorClientImpl.MC;
 public class VRSettingsPresets extends VROptionsSet {
 
 
+    GuiTexture ENTRY_TEXTURE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(42,42,42,255)
+    );
+    GuiTexture BLACK_TEXTURE = TexturesHelper.getColorGuiTexture(
+            AtumColor.immutable(22,22,22,255)
+    );
 
     public static final GuiTexture BACKGROUND_BUILT_IN = new GuiTexture(
             new ResourceLocation(
@@ -52,25 +59,9 @@ public class VRSettingsPresets extends VROptionsSet {
             144, 124,
             144, 124
     );
-    public static final GuiTexture BACKGROUND_BUILT_IN_EMPTY = new GuiTexture(
-            new ResourceLocation(
-                    "visor:textures/gui/settings/presets_built_in_empty_background.png"
-            ),
-            0, 0,
-            144, 124,
-            144, 124
-    );
     public static final GuiTexture BACKGROUND_CUSTOM = new GuiTexture(
             new ResourceLocation(
                     "visor:textures/gui/settings/presets_custom_background.png"
-            ),
-            0, 0,
-            144, 124,
-            144, 124
-    );
-    public static final GuiTexture BACKGROUND_CUSTOM_EMPTY = new GuiTexture(
-            new ResourceLocation(
-                    "visor:textures/gui/settings/presets_custom_empty_background.png"
             ),
             0, 0,
             144, 124,
@@ -121,6 +112,12 @@ public class VRSettingsPresets extends VROptionsSet {
             RESOURCE,
             223, 135,
             6, 6,
+            RESOURCE_WIDTH, RESOURCE_HEIGHT
+    );
+    public static final GuiTexture CANCEL_REMOVAL = new GuiTexture(
+            RESOURCE,
+            209, 144,
+            51, 22,
             RESOURCE_WIDTH, RESOURCE_HEIGHT
     );
 
@@ -242,11 +239,21 @@ public class VRSettingsPresets extends VROptionsSet {
                             .size(scaleHelper.scaledSize(72), scaleHelper.scaledSize(88))
                             .setEntryButton(
                                     new WidgetInfoButtonImaged()
-                                            .setTexture(OptionTextures.GRAY_TEXTURE)
+                                            .setTexture(ENTRY_TEXTURE)
                                             .highlight(
                                                     OptionTextures.HOVERED_HIGHLIGHT,
                                                     OptionTextures.SELECTED_HIGHLIGHT
                                             )
+                            )
+                            .setTooltip(
+                                    (it)->{
+                                        var entry = entries.get(it);
+                                        String id = Component.translatable("visor.options.presets.id").getString()
+                                                +": "+entry.getId();
+                                        String addon = Component.translatable("visor.options.presets.addon").getString()
+                                                +": "+entry.getOwner().getAddonName().getString();
+                                        return Component.translatable(id+"\n"+addon);
+                                    }
                             )
                             .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE),
                     rawEntries,
@@ -300,11 +307,10 @@ public class VRSettingsPresets extends VROptionsSet {
 
             descriptionTextBox = new TextBoxEditable(
                     new WidgetInfoTextBoxEditable()
-                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(62))
-                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(68))
-                            .setText(Component.literal(""))
+                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(58))
+                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(72))
+                            .setText(Component.literal("????"))
                             .setTextScale(0.8f)
-
             );
             descriptionTextBox.setReadOnly(true);
 
@@ -332,23 +338,13 @@ public class VRSettingsPresets extends VROptionsSet {
         @Override
         public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
             var scaleHelper = getScreen().getScaleHelper();
-            if(selectedPreset == null){
-                BACKGROUND_BUILT_IN_EMPTY.blit(
-                        guiGraphics,
-                        scaleHelper.scaledX(56),
-                        scaleHelper.scaledY(27),
-                        scaleHelper.scaledSize(BACKGROUND_BUILT_IN_EMPTY.getWidth()),
-                        scaleHelper.scaledSize(BACKGROUND_BUILT_IN_EMPTY.getHeight())
-                );
-            }else {
-                BACKGROUND_BUILT_IN.blit(
-                        guiGraphics,
-                        scaleHelper.scaledX(56),
-                        scaleHelper.scaledY(27),
-                        scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getWidth()),
-                        scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getHeight())
-                );
-            }
+            BACKGROUND_BUILT_IN.blit(
+                    guiGraphics,
+                    scaleHelper.scaledX(56),
+                    scaleHelper.scaledY(27),
+                    scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getWidth()),
+                    scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getHeight())
+            );
             applyButton.active = selectedPreset != null;
         }
 
@@ -377,38 +373,18 @@ public class VRSettingsPresets extends VROptionsSet {
                     true
             );
 
-            if(selectedPreset == null) return;
 
+            String name = selectedPreset == null
+                    ? "????"
+                    :  selectedPreset.getName().getString();
             //name
             GuiHelper.renderScalableText(
                     guiGraphics,
                     MC.font,
-                    selectedPreset.getName().getString(),
+                    name,
                     AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(137), scaleHelper.scaledY(47),
+                    scaleHelper.scaledX(137), scaleHelper.scaledY(48),
                     scaleHelper.scaledSize(58), scaleHelper.scaledSize(7),
-                    true
-            );
-            //id
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    Component.translatable("visor.options.presets.id").getString()
-                            +": "+selectedPreset.getId(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(137), scaleHelper.scaledY(55),
-                    scaleHelper.scaledSize(28), scaleHelper.scaledSize(5),
-                    true
-            );
-            //addon name
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    Component.translatable("visor.options.presets.addon").getString()
-                            +": "+selectedPreset.getOwner().getAddonName().getString(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(167), scaleHelper.scaledY(55),
-                    scaleHelper.scaledSize(28), scaleHelper.scaledSize(5),
                     true
             );
         }
@@ -426,6 +402,9 @@ public class VRSettingsPresets extends VROptionsSet {
 
     }
 
+    //Don't want to add "save" for saving of settings for already created preset,
+    //cause it will give a room for confusion when there
+    // is a description not aligning with the result
     private class CustomWidgetSet extends DynamicWidgetSet{
         private TexturedSelectionList listWidget;
         private TexturedSelectionList settingTypesList;
@@ -436,6 +415,10 @@ public class VRSettingsPresets extends VROptionsSet {
         private ButtonImaged createButton;
         private ButtonImaged presetsFolderButton;
         private ButtonImaged applyButton;
+
+        private ButtonImaged removeButton;
+        private ButtonImaged removeConfirmButton;
+        private ButtonImaged removeCancelButton;
 
 
         private VRSettingsPreset selectedPreset;
@@ -467,11 +450,20 @@ public class VRSettingsPresets extends VROptionsSet {
                             .size(scaleHelper.scaledSize(72), scaleHelper.scaledSize(88))
                             .setEntryButton(
                                     new WidgetInfoButtonImaged()
-                                            .setTexture(OptionTextures.GRAY_TEXTURE)
+                                            .setTexture(ENTRY_TEXTURE)
                                             .highlight(
                                                     OptionTextures.HOVERED_HIGHLIGHT,
                                                     OptionTextures.SELECTED_HIGHLIGHT
                                             )
+                            )
+                            .setTooltip(
+                                    (it)->{
+                                        var entry = entries.get(it);
+                                        String id = Component.translatable("visor.options.presets.id").getString()
+                                                +": "+entry.getId();
+                                        String version = "Visor: "+((VRSettingsPresetCustom)entry).getOriginVisorVersion();
+                                        return Component.translatable(id+"\n"+version);
+                                    }
                             )
                             .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE),
                     rawEntries,
@@ -487,11 +479,11 @@ public class VRSettingsPresets extends VROptionsSet {
 
             settingTypesList = new TexturedSelectionList(
                     new WidgetInfoSelectionList()
-                            .pos(scaleHelper.scaledX(137), scaleHelper.scaledY(94))
+                            .pos(scaleHelper.scaledX(137), scaleHelper.scaledY(87))
                             .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(36))
                             .setEntryButton(
                                     new WidgetInfoButtonImaged()
-                                            .setTexture(OptionTextures.GRAY_TEXTURE)
+                                            .setTexture(ENTRY_TEXTURE)
                             )
                             .setSupportDeselection(true)
                             .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE),
@@ -574,16 +566,66 @@ public class VRSettingsPresets extends VROptionsSet {
                     }
             );
 
+            removeButton = new ButtonImaged(
+                    new WidgetInfoButtonImaged()
+                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(125))
+                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(6))
+                            .setTexture(BLACK_TEXTURE)
+                            .setHighlightEnabled(true)
+                            .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                            .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                            .setTextScale(VRClientSettings.getSettingsTextScale())
+                            .setText(Component.translatable(
+                                    "visor.options.presets.remove"
+                            )),
+                    (it)->{
+                        removePressed();
+                    }
+            );
+
+            removeConfirmButton = new ButtonImaged(
+                    new WidgetInfoButtonImaged()
+                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(125))
+                            .size(scaleHelper.scaledSize(39), scaleHelper.scaledSize(6))
+                            .setTexture(BLACK_TEXTURE)
+                            .setHighlightEnabled(true)
+                            .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                            .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                            .setTextScale(VRClientSettings.getSettingsTextScale())
+                            .setText(Component.translatable(
+                                    "visor.options.presets.confirm_remove"
+                            )),
+                    (it)->{
+                        removeConfirmed();
+                    }
+            );
+            removeCancelButton = new ButtonImaged(
+                    new WidgetInfoButtonImaged()
+                            .pos(scaleHelper.scaledX(181),scaleHelper.scaledY(125))
+                            .size(scaleHelper.scaledSize(14), scaleHelper.scaledSize(6))
+                            .setTexture(CANCEL_REMOVAL)
+                            .setHighlightEnabled(true)
+                            .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                            .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                    ,
+                    (it)->{
+                        removeCancelled();
+                    }
+            );
 
             descriptionTextBox = new TextBoxEditable(
                     new WidgetInfoTextBoxEditable()
-                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(62))
-                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(25))
-                            .setText(Component.literal(""))
+                            .pos(scaleHelper.scaledX(137),scaleHelper.scaledY(56))
+                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(23))
+                            .setText(Component.literal("????"))
                             .setTextScale(0.8f)
 
             );
             descriptionTextBox.setReadOnly(true);
+
+            removeButton.visible = false;
+            removeConfirmButton.visible = false;
+            removeCancelButton.visible = false;
 
             return List.of();
         }
@@ -601,6 +643,9 @@ public class VRSettingsPresets extends VROptionsSet {
             list.add((T) createButton);
             list.add((T) presetsFolderButton);
             list.add((T) applyButton);
+            list.add((T) removeButton);
+            list.add((T) removeConfirmButton);
+            list.add((T) removeCancelButton);
             return list;
         }
 
@@ -612,23 +657,13 @@ public class VRSettingsPresets extends VROptionsSet {
         @Override
         public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
             var scaleHelper = getScreen().getScaleHelper();
-            if(selectedPreset == null){
-                BACKGROUND_CUSTOM_EMPTY.blit(
-                        guiGraphics,
-                        scaleHelper.scaledX(56),
-                        scaleHelper.scaledY(27),
-                        scaleHelper.scaledSize(BACKGROUND_CUSTOM_EMPTY.getWidth()),
-                        scaleHelper.scaledSize(BACKGROUND_CUSTOM_EMPTY.getHeight())
-                );
-            }else {
-                BACKGROUND_CUSTOM.blit(
-                        guiGraphics,
-                        scaleHelper.scaledX(56),
-                        scaleHelper.scaledY(27),
-                        scaleHelper.scaledSize(BACKGROUND_CUSTOM.getWidth()),
-                        scaleHelper.scaledSize(BACKGROUND_CUSTOM.getHeight())
-                );
-            }
+            BACKGROUND_CUSTOM.blit(
+                    guiGraphics,
+                    scaleHelper.scaledX(56),
+                    scaleHelper.scaledY(27),
+                    scaleHelper.scaledSize(BACKGROUND_CUSTOM.getWidth()),
+                    scaleHelper.scaledSize(BACKGROUND_CUSTOM.getHeight())
+            );
             applyButton.active = selectedPreset != null;
 
         }
@@ -658,50 +693,33 @@ public class VRSettingsPresets extends VROptionsSet {
                     true
             );
 
-            if(selectedPreset == null) return;
 
+            String name = selectedPreset == null
+                    ? "????"
+                    :  selectedPreset.getName().getString();
             //name
             GuiHelper.renderScalableText(
                     guiGraphics,
                     MC.font,
-                    selectedPreset.getName().getString(),
+                    name,
                     AtumColor.WHITE.asInt(),
                     scaleHelper.scaledX(137), scaleHelper.scaledY(47),
                     scaleHelper.scaledSize(58), scaleHelper.scaledSize(7),
                     true
             );
-            //id
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    Component.translatable("visor.options.presets.id").getString()
-                            +": "+selectedPreset.getId(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(137), scaleHelper.scaledY(55),
-                    scaleHelper.scaledSize(28), scaleHelper.scaledSize(5),
-                    true
-            );
-            //visor version
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    "Visor: "+((VRSettingsPresetCustom)selectedPreset).getOriginVisorVersion(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(167), scaleHelper.scaledY(55),
-                    scaleHelper.scaledSize(28), scaleHelper.scaledSize(5),
-                    true
-            );
 
             //settings saved
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    Component.translatable( "visor.options.presets.saved_settings").getString(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(143), scaleHelper.scaledY(88),
-                    scaleHelper.scaledSize(46), scaleHelper.scaledSize(5),
-                    true
-            );
+            if(selectedPreset != null) {
+                GuiHelper.renderScalableText(
+                        guiGraphics,
+                        MC.font,
+                        Component.translatable("visor.options.presets.saved_settings").getString(),
+                        AtumColor.WHITE.asInt(),
+                        scaleHelper.scaledX(143), scaleHelper.scaledY(81),
+                        scaleHelper.scaledSize(46), scaleHelper.scaledSize(5),
+                        true
+                );
+            }
         }
 
         private void presetSelected(){
@@ -712,6 +730,7 @@ public class VRSettingsPresets extends VROptionsSet {
                 rawEntries.put(type.getKey(), type.getName().getString());
             }
             settingTypesList.resetEntries(rawEntries);
+            removeButton.visible = true;
         }
 
         private void switchToBuiltIn(){
@@ -735,6 +754,22 @@ public class VRSettingsPresets extends VROptionsSet {
             if(selectedPreset != null) {
                 selectedPreset.apply();
             }
+        }
+        private void removePressed(){
+            removeButton.visible = false;
+            removeConfirmButton.visible = true;
+            removeCancelButton.visible = true;
+        }
+        private void removeConfirmed(){
+            ClientContext.settingsManager.getPresetsRegistry().unregisterComponent(
+                    selectedPreset.getId()
+            );
+            reinit();
+        }
+        private void removeCancelled(){
+            removeButton.visible = true;
+            removeConfirmButton.visible = false;
+            removeCancelButton.visible = false;
         }
     }
 
@@ -772,10 +807,10 @@ public class VRSettingsPresets extends VROptionsSet {
                     new WidgetInfoCheckboxList()
                             .pos(scaleHelper.scaledX(134),scaleHelper.scaledY(53))
                             .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(79))
-                            .setTextColor(VROverlaySettings.TEXT_COLOR)
+                            .setTextColor(AtumColor.WHITE)
                             .setCheckboxLeftSided(false)
                             .textures(
-                                    OptionTextures.GRAY_TEXTURE,
+                                    ENTRY_TEXTURE,
                                     CHECKBOX,
                                     CHECKBOX_HOVERED,
                                     CHECKBOX_SELECTED,

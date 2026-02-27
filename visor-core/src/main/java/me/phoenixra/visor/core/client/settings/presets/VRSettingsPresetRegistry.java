@@ -7,6 +7,7 @@ import me.phoenixra.visor.api.client.gui.settings.VRSettingsPreset;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.addon.component.ComponentRegistry;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
+import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -93,6 +94,13 @@ public class VRSettingsPresetRegistry implements ComponentRegistry<VRSettingsPre
         var removed = componentsMap.remove(id);
 
         if(removed != null) {
+            var catalog = ClientContext.settingsManager.getPresetsCatalog();
+            catalog.getConfigFile(
+                    id
+            ).ifPresent(it->{
+                it.getFile().delete();
+                catalog.getConfigFilesMap().remove(id);
+            });
             LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;
