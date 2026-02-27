@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
@@ -130,7 +131,7 @@ public class FabricModLoader implements ModLoader {
                                                             )
                                                     );
                                                 } catch (ClassNotFoundException e) {
-                                                    throw new RuntimeException(e);
+                                                    throw new VRException(e);
                                                 }
                                             }
                                             return super.visitAnnotation(desc, visible);
@@ -144,7 +145,7 @@ public class FabricModLoader implements ModLoader {
             }
             return result;
         }catch (Exception e){
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
     }
 

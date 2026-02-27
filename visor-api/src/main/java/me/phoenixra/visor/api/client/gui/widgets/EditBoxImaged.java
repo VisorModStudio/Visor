@@ -8,10 +8,10 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 
-public class EditBoxImage extends EditBox {
+public class EditBoxImaged extends EditBox {
     private final GuiTexture texture;
 
-    public EditBoxImage(@NotNull WidgetInfoEditBox widgetInfo) {
+    public EditBoxImaged(@NotNull WidgetInfoEditBox widgetInfo) {
         super(widgetInfo.getTextFont(),
                 widgetInfo.getX(),
                 widgetInfo.getY(),
@@ -34,11 +34,13 @@ public class EditBoxImage extends EditBox {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(visible) {
-            texture.blit(
-                    guiGraphics,
-                    getX(), getY(),
-                    getWidth(), getHeight()
-            );
+            if(texture != null) {
+                texture.blit(
+                        guiGraphics,
+                        getX(), getY(),
+                        getWidth(), getHeight()
+                );
+            }
         }
 
         // draw text, cursor, selection

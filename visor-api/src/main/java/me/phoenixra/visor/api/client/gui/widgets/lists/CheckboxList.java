@@ -384,24 +384,36 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
             }else{
                 checkboxTex = widgetInfo.getTextureCheckbox();
             }
-            int iconX = getRowLeft() + paddingCheckbox;
-            int iconY = top + (rowHeight - checkboxTex.getHeight()) / 2;
+
+            Font font = CheckboxList.this.minecraft.font;
+            String text = label.getString();
+
+            int cbSize = rowHeight;
+
+            int iconX;
+            int textX;
+            int textMaxWidth;
+
+            if (widgetInfo.isCheckboxLeftSided()) {
+                iconX = getRowLeft() + paddingCheckbox;
+                textX = iconX + cbSize + paddingCheckbox;
+                textMaxWidth = rowWidth - (textX - getRowLeft()) - paddingCheckbox;
+            } else {
+                textX = getRowLeft() + paddingCheckbox;
+                iconX = getRowLeft() + rowWidth - paddingCheckbox - cbSize;
+                textMaxWidth = iconX - textX - paddingCheckbox;
+            }
+
+            int iconY = top;
 
             checkboxTex.blit(
                     guiGraphics,
                     iconX, iconY,
-                    checkboxTex.getWidth(), checkboxTex.getHeight()
+                    cbSize, cbSize
             );
 
-
-            Font font = CheckboxList.this.minecraft.font;
-            String text = label.getString();
-            int textX = iconX + checkboxTex.getWidth()
-                    + paddingCheckbox;
             int textY = top + (rowHeight - font.lineHeight) / 2;
             int textMaxHeight = rowHeight - (rowHeight - font.lineHeight) / 2;
-            int textMaxWidth = rowWidth - (textX - getRowLeft())
-                    - paddingCheckbox;
             int color  = widgetInfo.getTextColor().asInt();
 
             widgetInfo.getTextureEntry().blit(
@@ -440,14 +452,20 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
             if (idx < 0) return false;
 
             int rowTop = CheckboxList.this.getRowTop(idx);
+            int rowWidth = CheckboxList.this.getRowWidth();
 
-            int iconX = getRowLeft() + paddingCheckbox;
-            int iconY = rowTop + (itemHeight - checkboxTex.getHeight()) / 2;
-            int iconW = checkboxTex.getWidth();
-            int iconH = checkboxTex.getHeight();
+            int cbSize = itemHeight - paddingTop;
 
-            return mouseX >= iconX && mouseX <= iconX + iconW
-                    && mouseY >= iconY && mouseY <= iconY + iconH;
+            int iconX;
+            if (widgetInfo.isCheckboxLeftSided()) {
+                iconX = getRowLeft() + paddingCheckbox;
+            } else {
+                iconX = getRowLeft() + rowWidth - paddingCheckbox - cbSize;
+            }
+            int iconY = rowTop;
+
+            return mouseX >= iconX && mouseX <= iconX + cbSize
+                    && mouseY >= iconY && mouseY <= iconY + cbSize;
         }
 
 

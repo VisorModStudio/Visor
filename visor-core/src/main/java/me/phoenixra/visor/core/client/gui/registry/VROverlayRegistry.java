@@ -77,7 +77,7 @@ public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
             var template = removed.asTemplate();
             if(template != null){
                 template.getOptionsConfig().getFile().delete();
-                ClientContext.settingsHandler.getOverlayConfigsAccessor()
+                ClientContext.settingsManager.getOverlayConfigsAccessor()
                         .removeConfig(removed.getId());
             }
             LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());

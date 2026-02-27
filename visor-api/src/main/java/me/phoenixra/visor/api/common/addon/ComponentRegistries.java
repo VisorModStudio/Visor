@@ -3,6 +3,8 @@ package me.phoenixra.visor.api.common.addon;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
 import me.phoenixra.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
+import me.phoenixra.visor.api.client.gui.settings.RegisterVRSettingsPreset;
+import me.phoenixra.visor.api.client.gui.settings.VRSettingsPreset;
 import me.phoenixra.visor.api.client.input.action.RegisterActionSet;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
@@ -118,4 +120,16 @@ public interface ComponentRegistries {
     @Environment(EnvType.CLIENT)
     ComponentRegistry<VROverlayTemplateRecord> overlayTemplates();
 
+
+
+    /**
+     * Get Settings presets registry
+     *
+     * <p>Annotation to auto-register on load: {@link RegisterVRSettingsPreset}</p>
+     *
+     * @return VR settings presets registry instance
+     */
+    @NotNull
+    @Environment(EnvType.CLIENT)
+    ComponentRegistry<VRSettingsPreset> settingsPresets();
 }

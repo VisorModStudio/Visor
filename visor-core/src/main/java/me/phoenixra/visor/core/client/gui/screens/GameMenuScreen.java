@@ -73,7 +73,7 @@ public class GameMenuScreen extends Screen {
         rowHelper.addChild(new Button.Builder(Component.translatable("visor.button.calibrate_height"), (p) ->
         {
             VRClientSettings.calibrateHeight();
-            ClientContext.settingsHandler.saveOptions();
+            ClientContext.settingsManager.saveOptions();
             this.minecraft.setScreen(null);
         }).width(104).build(),
                 2, gridLayout.newCellSettings().paddingTop(20));

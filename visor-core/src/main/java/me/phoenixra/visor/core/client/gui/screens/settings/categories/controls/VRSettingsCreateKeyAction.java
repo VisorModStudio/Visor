@@ -4,7 +4,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.input.action.VisorActionKey;
@@ -31,9 +31,9 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
 
     private VRSettingsActions parent;
 
-    private EditBoxImage actionIdEdit;
-    private EditBoxImage actionNameEdit;
-    private EditBoxImage actionKeyEdit;
+    private EditBoxImaged actionIdEdit;
+    private EditBoxImaged actionNameEdit;
+    private EditBoxImaged actionKeyEdit;
 
     private ButtonImaged createButton;
 
@@ -65,7 +65,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
         var scaleHelper = getScreen().getScaleHelper();
 
         int offsetY = 15;
-        actionIdEdit = new EditBoxImage(
+        actionIdEdit = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(scaleHelper.scaledX(56+36), scaleHelper.scaledY(46+offsetY))
                         .size(scaleHelper.scaledSize(72), scaleHelper.scaledSize(10))
@@ -76,7 +76,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
                         .setHint(Component.translatable("visor.action.options.add_key_action.type_id"))
         );
 
-        actionNameEdit = new EditBoxImage(
+        actionNameEdit = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(scaleHelper.scaledX(56+36), scaleHelper.scaledY(60+offsetY))
                         .size(scaleHelper.scaledSize(72), scaleHelper.scaledSize(10))
@@ -87,7 +87,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
                         .setHint(Component.translatable("visor.action.options.add_key_action.type_name"))
         );
 
-        actionKeyEdit = new EditBoxImage(
+        actionKeyEdit = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(scaleHelper.scaledX(56+36+18), scaleHelper.scaledY(74+offsetY))
                         .size(scaleHelper.scaledSize(36), scaleHelper.scaledSize(10))

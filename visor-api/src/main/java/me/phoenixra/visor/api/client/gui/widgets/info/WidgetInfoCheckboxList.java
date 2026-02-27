@@ -51,6 +51,12 @@ public class WidgetInfoCheckboxList extends WidgetInfo {
     private int scrollBarWidth = 4;
 
     /**
+     * If true - checkbox will be on the left,
+     * otherwise on the right
+     */
+    @Accessors(chain = true)
+    private boolean checkboxLeftSided = true;
+    /**
      * [element id -> tooltip[
      */
     @Accessors(chain = true)
@@ -72,6 +78,7 @@ public class WidgetInfoCheckboxList extends WidgetInfo {
         paddingLeft = copyFrom.paddingLeft;
         paddingCheckbox = copyFrom.paddingCheckbox;
         scrollBarWidth = copyFrom.scrollBarWidth;
+        checkboxLeftSided = copyFrom.checkboxLeftSided;
         tooltip = copyFrom.tooltip;
     }
 

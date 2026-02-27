@@ -218,7 +218,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     @Override
     public @NotNull OverlayConfigAccessor getOverlayConfigAccessor() {
-        return ClientContext.settingsHandler.getOverlayConfigsAccessor();
+        return ClientContext.settingsManager.getOverlayConfigsAccessor();
     }
 
     @Override

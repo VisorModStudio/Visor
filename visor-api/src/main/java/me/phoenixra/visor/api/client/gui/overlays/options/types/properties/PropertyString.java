@@ -1,9 +1,8 @@
 package me.phoenixra.visor.api.client.gui.overlays.options.types.properties;
 
 import me.phoenixra.atumconfig.api.config.Config;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import net.minecraft.client.gui.components.AbstractWidget;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,11 +41,11 @@ public class PropertyString extends Property<String> {
     }
 
     @Override
-    public EditBoxImage createWidget() {
+    public EditBoxImaged createWidget() {
         WidgetInfoEditBox widgetInfo = new WidgetInfoEditBox(
                 this.widgetInfo
         );
-        var widget = new EditBoxImage(widgetInfo);
+        var widget = new EditBoxImaged(widgetInfo);
 
         widget.setValue(getValue());
 

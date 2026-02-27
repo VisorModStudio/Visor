@@ -2,6 +2,7 @@ package me.phoenixra.visor.core.common.addon;
 
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.client.gui.settings.VRSettingsPreset;
 import me.phoenixra.visor.api.client.input.action.VisorActionSet;
 import me.phoenixra.visor.api.client.render.decoration.VRDecorator;
 import me.phoenixra.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -64,5 +65,10 @@ public class VisorRegistriesImpl implements ComponentRegistries {
         return ClientContext.guiManager
                 .getOverlayManager()
                 .getOverlayTemplatesRegistry();
+    }
+
+    @Override
+    public @NotNull ComponentRegistry<VRSettingsPreset> settingsPresets() {
+        return ClientContext.settingsManager.getPresetsRegistry();
     }
 }

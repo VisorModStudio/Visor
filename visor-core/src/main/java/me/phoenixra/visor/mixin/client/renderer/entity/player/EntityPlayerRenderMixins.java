@@ -2,6 +2,7 @@ package me.phoenixra.visor.mixin.client.renderer.entity.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.core.client.player.VRClientPlayers;
 import me.phoenixra.visor.modified.client.entity.EntityRenderDispatcherPlayerModified;
@@ -223,7 +224,7 @@ public class EntityPlayerRenderMixins {
                 newLayer.renderer = target;
                 target.addLayer(newLayer);
             } catch (CloneNotSupportedException e) {
-                throw new RuntimeException(e);
+                throw new VRException(e);
             }
         }
 
@@ -289,7 +290,7 @@ public class EntityPlayerRenderMixins {
                     }
                 }
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                throw new VRException(e);
             }
         }
     }

@@ -25,7 +25,7 @@ import me.phoenixra.visor.core.client.provider.openxr.XrProvider;
 import me.phoenixra.visor.core.client.render.VisorRendererBase;
 import me.phoenixra.visor.core.client.render.decoration.DecorationRendererImpl;
 import me.phoenixra.visor.core.client.settings.VRClientSettings;
-import me.phoenixra.visor.core.client.settings.VRClientSettingsHandler;
+import me.phoenixra.visor.core.client.settings.VRClientSettingsManager;
 import me.phoenixra.visor.core.client.tasks.VisorTaskRegistry;
 import me.phoenixra.visor.core.common.addon.AddonManagerImpl;
 import me.phoenixra.visor.core.common.addon.CoreAddonClient;
@@ -81,7 +81,7 @@ public class VisorClientImpl implements VisorClient {
         configManager.setPlaceholderHandler(
                 new AtumPlaceholderHandler(vrProvider.getLogger())
         );
-        ClientContext.settingsHandler = new VRClientSettingsHandler();
+        ClientContext.settingsManager = new VRClientSettingsManager();
 
         //-------Main client classes-------
         ClientContext.localPlayer = VRClientPlayers.getLocalPlayer();
@@ -96,6 +96,7 @@ public class VisorClientImpl implements VisorClient {
 
         var registries = new ArrayList<ComponentRegistry<?>>();
         registries.add(taskRegistry);
+        registries.add(ClientContext.settingsManager.getPresetsRegistry());
         registries.addAll(ClientContext.inputManager.getComponentRegistries());
         registries.addAll(ClientContext.decorationRenderer.getComponentRegistries());
         registries.addAll(ClientContext.guiManager.getComponentRegistries());
@@ -104,6 +105,8 @@ public class VisorClientImpl implements VisorClient {
                 new CoreAddonClient(),
                 registries
         );
+
+        ClientContext.settingsManager.getPresetsCatalog().reload();
     }
 
 

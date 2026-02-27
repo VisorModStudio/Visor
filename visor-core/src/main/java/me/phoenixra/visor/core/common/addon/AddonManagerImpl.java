@@ -33,9 +33,9 @@ public class AddonManagerImpl implements AddonManager {
     }
 
     public void initialize(VisorAddon coreAddon,
-                           List<ComponentRegistry<?>> elementRegistries){
+                           List<ComponentRegistry<?>> componentRegistries){
 
-        this.registries = new VisorRegistriesImpl(elementRegistries);
+        this.registries = new VisorRegistriesImpl(componentRegistries);
 
         addonsMap.put(coreAddon.getAddonId(), coreAddon);
         loadAddon(coreAddon);

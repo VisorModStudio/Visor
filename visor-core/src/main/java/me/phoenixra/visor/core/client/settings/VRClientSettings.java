@@ -355,7 +355,7 @@ public class VRClientSettings {
         thirdPersonCameraPosZ = position.z();
         thirdPersonCameraRotation = new Quaternionf(rotation);
         if(save) {
-            ClientContext.settingsHandler.saveOptions();
+            ClientContext.settingsManager.saveOptions();
         }
     }
 
@@ -393,7 +393,7 @@ public class VRClientSettings {
                                 )
                         )
                 );
-        ClientContext.settingsHandler.saveOptions();
+        ClientContext.settingsManager.saveOptions();
     }
     public static boolean isLimitedSurvivalTeleport() {
         return true; //leave it, for later easier navigation in code to change movement

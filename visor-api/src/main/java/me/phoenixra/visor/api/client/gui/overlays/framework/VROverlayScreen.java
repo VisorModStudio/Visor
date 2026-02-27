@@ -9,6 +9,7 @@ import me.phoenixra.visor.api.client.player.pose.PoseAnchor;
 import me.phoenixra.visor.api.client.gui.overlays.*;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplate;
 import me.phoenixra.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
@@ -131,7 +132,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                         .getConfigOrCreate(this);
                 initOptions();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new VRException(e);
             }
         }else{
             this.optionsConfig = null;

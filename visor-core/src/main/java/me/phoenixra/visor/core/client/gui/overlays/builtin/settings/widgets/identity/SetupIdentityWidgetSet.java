@@ -2,7 +2,7 @@ package me.phoenixra.visor.core.client.gui.overlays.builtin.settings.widgets.ide
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.TextBoxEditable;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
@@ -24,9 +24,9 @@ public class SetupIdentityWidgetSet implements WidgetSet {
 
 
     @Getter
-    private EditBoxImage idWidget;
+    private EditBoxImaged idWidget;
     @Getter
-    private EditBoxImage nameWidget;
+    private EditBoxImaged nameWidget;
     @Getter
     private TextBoxEditable descriptionWidget;
 
@@ -52,7 +52,7 @@ public class SetupIdentityWidgetSet implements WidgetSet {
 
         int extraY = 0;
         if(withId) {
-            idWidget = new EditBoxImage(
+            idWidget = new EditBoxImaged(
                     new WidgetInfoEditBox()
                             .pos(startX + 14, startY + 43)
                             .size(92, 13)
@@ -63,7 +63,7 @@ public class SetupIdentityWidgetSet implements WidgetSet {
             );
             extraY = 23;
         }
-        nameWidget = new EditBoxImage(
+        nameWidget = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX + 14,startY + 66 - 23 + extraY)
                         .size(92, 13)

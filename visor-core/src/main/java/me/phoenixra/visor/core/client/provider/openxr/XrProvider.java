@@ -26,7 +26,7 @@ public class XrProvider extends XRProvider {
 
         super.initializeVR();
 
-        ClientContext.settingsHandler.loadOptions();
+        ClientContext.settingsManager.loadOptions();
 
         VisorClientImpl.LOGGER.info("OpenXR initialized");
     }

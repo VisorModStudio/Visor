@@ -4,7 +4,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionsScreen;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.SliderWidget;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
@@ -24,21 +24,21 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
     private static final int GAP = 6;
 
 
-    private EditBoxImage widthField;
-    private EditBoxImage heightField;
+    private EditBoxImaged widthField;
+    private EditBoxImaged heightField;
 
-    private EditBoxImage buttonTextField;
-    private EditBoxImage textColorField;
+    private EditBoxImaged buttonTextField;
+    private EditBoxImaged textColorField;
 
-    private EditBoxImage keyField;
+    private EditBoxImaged keyField;
 
     private ButtonImaged visibilityButton;
 
     private SliderWidget<OverlayOptionsKeyButton.CustomizationType> customizationTypeSlider;
 
-    private EditBoxImage colorField;
+    private EditBoxImaged colorField;
 
-    private EditBoxImage textureField;
+    private EditBoxImaged textureField;
 
     public OptionsScreenKeyButton(@NotNull OverlayOptionsKeyButton optionsGroup) {
         super(optionsGroup, Background.VERTICAL_WIDER);
@@ -53,7 +53,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         int y = cursorBoundsY + 12 + 10;
 
         // Row 1
-        widthField = new EditBoxImage(
+        widthField = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX, y)
                         .size(halfW, FIELD_HEIGHT)
@@ -70,7 +70,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         });
 
 
-        heightField =new EditBoxImage(
+        heightField =new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX + halfW + GAP, y)
                         .size(halfW, FIELD_HEIGHT)
@@ -90,7 +90,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         // Row 2
         y += ROW_SPACING;
 
-        buttonTextField = new EditBoxImage(
+        buttonTextField = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX, y)
                         .size(halfW, FIELD_HEIGHT)
@@ -102,7 +102,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         buttonTextField.setMaxLength(64);
 
 
-        textColorField =new EditBoxImage(
+        textColorField =new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX + halfW + GAP, y)
                         .size(halfW, FIELD_HEIGHT)
@@ -147,7 +147,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         int keyFieldW = 40;
         int keyFieldX = startX + (fullW - keyFieldW) / 2;
 
-        keyField = new EditBoxImage(
+        keyField = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(keyFieldX, y)
                         .size(keyFieldW, FIELD_HEIGHT)
@@ -213,7 +213,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private void initColorFields(int baseX, int y, int fieldW) {
 
-        colorField = new EditBoxImage(
+        colorField = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(baseX, y)
                         .size(fieldW, FIELD_HEIGHT)
@@ -235,7 +235,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
     private void initTextureFields(int baseX, int y, int fieldW) {
 
 
-        textureField = new EditBoxImage(
+        textureField = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(baseX, y)
                         .size(fieldW, FIELD_HEIGHT)

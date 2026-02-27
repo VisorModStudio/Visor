@@ -6,11 +6,13 @@ import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.core.config.AtumConfigFile;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
 import me.phoenixra.visor.api.client.gui.OverlayConfigAccessor;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -37,12 +39,22 @@ public class OverlayConfigsManager implements OverlayConfigAccessor {
     }
 
     @Override
-    public void reload(@NotNull VisorAddon addon) {
-        var catalog = getCatalogOrCreate(addon, true);
+    public void reload(@NotNull VisorAddon addon, boolean builtIn) {
+        var catalog = getCatalogOrCreate(addon, builtIn);
+        catalog.reload();
+    }
+    @Override
+    public void loadDefaults(@NotNull VisorAddon addon, boolean builtIn) {
+        var catalog = getCatalogOrCreate(addon, builtIn);
+        var dir = catalog.getConfigManager()
+                .getDirectory().resolve(
+                        catalog.getDirectory()
+                ).toFile();
+        if(dir.exists()){
+            dir.delete();
+        }
         catalog.reload();
 
-        catalog = getCatalogOrCreate(addon, false);
-        catalog.reload();
     }
 
 
@@ -66,7 +78,7 @@ public class OverlayConfigsManager implements OverlayConfigAccessor {
                         false
                 );
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new VRException(e);
             }
             configCatalogMap.put(config, catalog);
             return config;
@@ -129,8 +141,8 @@ public class OverlayConfigsManager implements OverlayConfigAccessor {
 
 
 
-    private ConfigCatalog getCatalogOrCreate(@NotNull VisorAddon addon,
-                                             boolean builtIn){
+    public ConfigCatalog getCatalogOrCreate(@NotNull VisorAddon addon,
+                                            boolean builtIn){
         Map<VisorAddon, ConfigCatalog> catalogs = builtIn
                 ? catalogsBuiltIn
                 : catalogsCustom;
@@ -150,7 +162,6 @@ public class OverlayConfigsManager implements OverlayConfigAccessor {
                             true,
                             listener
                     );
-            listener.setCatalog(catalog);
             listener.setAddon(key);
             return catalog;
         });

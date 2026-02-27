@@ -2,7 +2,7 @@ package me.phoenixra.visor.api.client.gui.widgets.sets;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.client.gui.widgets.ButtonImaged;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.lists.TexturedSelectionList;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
@@ -39,7 +39,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
     @Getter
     private ButtonImaged filterButton;
     @Getter
-    private EditBoxImage searchBox;
+    private EditBoxImaged searchBox;
     @Getter
     private TexturedSelectionList list;
 
@@ -109,7 +109,7 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
         }
 
         if(searchBoxInfo != null) {
-            searchBox = new EditBoxImage(
+            searchBox = new EditBoxImaged(
                     searchBoxInfo
             );
             searchBox.setResponder(this::applyFilter);

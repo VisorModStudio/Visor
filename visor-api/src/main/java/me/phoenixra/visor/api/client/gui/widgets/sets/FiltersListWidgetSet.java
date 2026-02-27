@@ -51,7 +51,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
     private Consumer<PairRecord<String, Boolean>> onFilterChanged;
 
 
-    private EditBoxImage searchBox;
+    private EditBoxImaged searchBox;
     private ButtonImaged checkboxAll;
     @Getter
     private CheckboxList list;
@@ -113,7 +113,7 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
         }
 
         if(searchBoxInfo != null) {
-            searchBox = new EditBoxImage(
+            searchBox = new EditBoxImaged(
                     searchBoxInfo
             );
             searchBox.setResponder(this::applySearchFilter);

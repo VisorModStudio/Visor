@@ -3,7 +3,7 @@ package me.phoenixra.visor.api.client.gui.widgets.sets;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.ValueDragWidget;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
@@ -26,7 +26,7 @@ public class ValueEditorFloat implements WidgetSet{
     private WidgetInfoValueDrag rightArrowInfo;
 
 
-    private EditBoxImage editBox;
+    private EditBoxImaged editBox;
     private ValueDragWidget leftArrow;
     private ValueDragWidget rightArrow;
 
@@ -92,7 +92,7 @@ public class ValueEditorFloat implements WidgetSet{
     public <T extends GuiEventListener
             & Renderable
             & NarratableEntry> List<T> initWidgets() {
-        editBox = new EditBoxImage(editBoxInfo);
+        editBox = new EditBoxImaged(editBoxInfo);
         editBox.setValue(formatFloat(getValue()));
         editBox.setFilter(s -> {
             if (s.isEmpty()) return true;

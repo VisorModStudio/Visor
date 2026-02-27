@@ -329,7 +329,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;setCameraType(Lnet/minecraft/client/CameraType;)V"), method = "handleKeybinds")
     public void visor$toggleMirrorButton(Options instance, CameraType cameraType) {
         if (VisorState.get().isActive()) {
-            ClientContext.settingsHandler.nextOptionValue(
+            ClientContext.settingsManager.nextOptionValue(
                     VROptionWidgetType.MIRROR_MODE.getKey()
             );
         } else {

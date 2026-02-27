@@ -15,10 +15,39 @@ import java.io.IOException;
 public interface OverlayConfigAccessor {
 
     /**
-     * Reload overlays catalog for addon
-     * @param addon the owner of catalog
+     * Reload overlays catalog for an addon
+     *
+     * @param addon the owner of the catalog
+     * @param builtIn is built in or custom overlay?
      */
-    void reload(@NotNull VisorAddon addon);
+    void reload(@NotNull VisorAddon addon, boolean builtIn);
+
+    /**
+     * Reload overlays catalog for an addon
+     *
+     * @param addon the owner of the catalog
+     */
+    default void reload(@NotNull VisorAddon addon){
+        reload(addon, true);
+        reload(addon, false);
+    }
+
+    /**
+     * Load catalog defaults for an addon
+     *
+     * @param addon the owner of the catalog
+     * @param builtIn is built in or custom overlay?
+     */
+    void loadDefaults(@NotNull VisorAddon addon, boolean builtIn);
+
+    /**
+     * Load catalog defaults for an addon
+     * @param addon the owner of the catalog
+     */
+    default void loadDefaults(@NotNull VisorAddon addon){
+        loadDefaults(addon, true);
+        loadDefaults(addon, false);
+    }
 
     /**
      * Get Config of an overlay

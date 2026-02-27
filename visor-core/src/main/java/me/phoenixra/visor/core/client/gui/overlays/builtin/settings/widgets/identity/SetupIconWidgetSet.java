@@ -5,7 +5,7 @@ import lombok.Setter;
 import me.phoenixra.visor.api.client.gui.helpers.GuiHelper;
 import me.phoenixra.visor.api.client.gui.GuiTexture;
 import me.phoenixra.visor.api.client.gui.overlays.options.OptionTextures;
-import me.phoenixra.visor.api.client.gui.widgets.EditBoxImage;
+import me.phoenixra.visor.api.client.gui.widgets.EditBoxImaged;
 import me.phoenixra.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import me.phoenixra.visor.api.client.gui.widgets.sets.WidgetSet;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -36,7 +36,7 @@ public class SetupIconWidgetSet implements WidgetSet {
     private GuiTexture preIcon =  null;
 
 
-    private EditBoxImage editorTexturePath;
+    private EditBoxImaged editorTexturePath;
 
     @Setter
     private Consumer<String> responder;
@@ -53,7 +53,7 @@ public class SetupIconWidgetSet implements WidgetSet {
             & NarratableEntry> List<T> initWidgets() {
 
 
-        editorTexturePath = new EditBoxImage(
+        editorTexturePath = new EditBoxImaged(
                 new WidgetInfoEditBox()
                         .pos(startX + 4, startY + 71)
                         .size(100, 13)

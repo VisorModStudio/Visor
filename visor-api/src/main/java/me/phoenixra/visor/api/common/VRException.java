@@ -1,4 +1,4 @@
-package me.phoenixra.visor.core.client.exceptions;
+package me.phoenixra.visor.api.common;
 
 import lombok.Getter;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;

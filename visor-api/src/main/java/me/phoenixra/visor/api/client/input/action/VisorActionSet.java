@@ -2,12 +2,14 @@ package me.phoenixra.visor.api.client.input.action;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.addon.component.ComponentPriority;
 import me.phoenixra.visor.api.common.addon.component.PrioritySupporter;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
@@ -54,12 +56,11 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
                     .createConfigFile(
                             ConfigType.JSON,
                             getId(),
-                            Path.of("input/"+getId()+".json")
+                            Path.of("controls/"+getId()+".json")
                     );
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
 
         for(var action : loadActions()){
@@ -68,7 +69,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
 
 
         loadKeyActions();
-        loadBindings();
+        load();
 
     }
 
@@ -141,10 +142,45 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     }
 
 
+
+    /**
+     * Loads bindings for all actions from config.
+     */
+    public void load(@NotNull Config config){
+        boolean requireSave = false;
+        var subsection = config.getSubsection("bindings");
+        var defaults = loadDefaultKeyModifiersActive();
+        for(var profileType : VRInteractionProfileType.values()){
+            Boolean keyModifiersActive = subsection.getBoolOrNull(
+                    profileType.name()+".key_modifiers_active");
+            if(keyModifiersActive == null){
+                keyModifiersActive = defaults.getOrDefault(profileType, false);
+                requireSave = true;
+            }
+            keyModifiersActiveMap.put(profileType, keyModifiersActive);
+        }
+        for(var action : actionsMap.values()){
+            boolean flag = loadBinding(config,action);
+            if(flag){
+                requireSave = true;
+            }
+        }
+        if(requireSave) {
+            save();
+        }
+    }
+
+    /**
+     * Loads bindings for all actions from config.
+     */
+    public void load(){
+        load(config);
+    }
+
     /**
      * Loads key actions from config.
      */
-    public void loadKeyActions(){
+    public void loadKeyActions(@NotNull Config config){
         boolean requireSave = false;
         var subsection = config.getSubsection("key_actions");
         for(String key : subsection.getKeys(false)){
@@ -165,63 +201,20 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     }
 
     /**
-     * Saves key actions to config.
+     * Loads key actions from config.
      */
-    public void saveKeyActions(){
-        var subsectionPath = "key_actions.";
-        for(var action : keyActionsMap.values()){
-            config.set(
-                    subsectionPath + action.getId() + ".key",
-                    String.valueOf(action.getCharacter())
-            );
-            config.set(
-                    subsectionPath + action.getId() + ".name",
-                    action.getNameKey()
-            );
-        }
-        try {
-            config.save();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Loads bindings for all actions from config.
-     */
-    public void loadBindings(){
-        boolean requireSave = false;
-        var subsection = config.getSubsection("bindings");
-        var defaults = loadDefaultKeyModifiersActive();
-        for(var profileType : VRInteractionProfileType.values()){
-            Boolean keyModifiersActive = subsection.getBoolOrNull(
-                    profileType.name()+".key_modifiers_active");
-            if(keyModifiersActive == null){
-                keyModifiersActive = defaults.getOrDefault(profileType, false);
-                requireSave = true;
-            }
-            keyModifiersActiveMap.put(profileType, keyModifiersActive);
-        }
-        for(var action : actionsMap.values()){
-            boolean flag = loadBinding(action);
-            if(flag){
-                requireSave = true;
-            }
-        }
-        if(requireSave) {
-            saveBindings();
-        }
+    public void loadKeyActions() {
+        loadKeyActions(config);
     }
 
     /**
      * Loads bindings for a specified action from config.
      *
      * @param action the visor action to load
-     * @return If require to call {@link #saveBindings()} (after finished loading of other action bindings if loading the action list)
+     * @return If require to call {@link #save()} (after finished loading of other action bindings if loading the action list)
      */
-    public boolean loadBinding(@NotNull VisorAction action){
+    public boolean loadBinding(@NotNull Config config,
+                               @NotNull VisorAction action){
         var subsection = config.getSubsection("bindings");
         var defaults = action.getDefaultBindings();
         boolean requireSave = false;
@@ -293,6 +286,17 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     }
 
     /**
+     * Loads bindings for a specified action from config.
+     *
+     * @param action the visor action to load
+     * @return If require to call {@link #save()} (after finished loading of other action bindings if loading the action list)
+     */
+    public boolean loadBinding(@NotNull VisorAction action){
+        return loadBinding(config, action);
+    }
+
+
+    /**
      * Load default bindings for specified interaction profile type
      *
      * @param profileType the interaction profile type
@@ -314,11 +318,20 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
         }
 
     }
+    /**
+     * Load default bindings for all profiles
+     *
+     */
+    public void loadDefaults(){
+        for(var type : VRInteractionProfileType.values()){
+            loadDefaults(type);
+        }
+    }
 
     /**
      * Save bindings to config file (both left and right-handed)
      */
-    public void saveBindings(){
+    public void save(){
         saveKeyActions();
 
         var subsectionPath = "bindings.";
@@ -347,11 +360,34 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
             config.save();
 
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
 
     }
+
+    /**
+     * Saves key actions to config.
+     */
+    public void saveKeyActions(){
+        var subsectionPath = "key_actions.";
+        for(var action : keyActionsMap.values()){
+            config.set(
+                    subsectionPath + action.getId() + ".key",
+                    String.valueOf(action.getCharacter())
+            );
+            config.set(
+                    subsectionPath + action.getId() + ".name",
+                    action.getNameKey()
+            );
+        }
+        try {
+            config.save();
+
+        } catch (Exception e) {
+            throw new VRException(e);
+        }
+    }
+
 
 
     /**
@@ -363,7 +399,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
         keyActionsMap.put(action.getId(), action);
         actionsMap.put(action.getId(), action);
         if(loadBinding(action)){
-            saveBindings();
+            save();
         }
     }
 
@@ -387,8 +423,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
         try {
             config.save();
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
     }
 

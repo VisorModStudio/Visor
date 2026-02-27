@@ -5,16 +5,17 @@ import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.ConfigType;
-import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
-import me.phoenixra.atumconfig.api.placeholders.types.StaticPlaceholder;
+import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
-import me.phoenixra.visor.core.client.VisorState;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.core.client.VisorClientImpl;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.settings.options.VROptionField;
 import me.phoenixra.visor.core.client.settings.options.VROptionRecord;
 import me.phoenixra.visor.core.client.settings.overlays.OverlayConfigsManager;
+import me.phoenixra.visor.core.client.settings.presets.PresetsCatalogListener;
+import me.phoenixra.visor.core.client.settings.presets.VRSettingsPresetRegistry;
 import me.phoenixra.visor.core.client.utils.LangHelper;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -27,21 +28,29 @@ import java.util.Objects;
 
 import me.phoenixra.visor.core.client.ClientContext;
 
-public class VRClientSettingsHandler {
-    public static VRClientSettingsHandler instance;
+public class VRClientSettingsManager {
+    public static VRClientSettingsManager instance;
 
     private final Map<String, VROptionRecord> allOptions = new HashMap<>();
     private final Map<String, VROptionWidgetType> optionWidgets = new HashMap<>();
 
+    @Getter
     private final ConfigFile settings;
     private Config defaultSettings;
+
 
     @Getter
     private final OverlayConfigsManager overlayConfigsAccessor;
 
-    private boolean wasInit;
 
-    public VRClientSettingsHandler() {
+    @Getter
+    private final VRSettingsPresetRegistry presetsRegistry;
+
+    @Getter
+    private ConfigCatalog presetsCatalog;
+
+
+    public VRClientSettingsManager() {
         instance = this;
 
         ConfigManager configManager = ClientContext.visor.getConfigManager();
@@ -53,7 +62,7 @@ public class VRClientSettingsHandler {
                     false
             );
         }catch (Exception e){
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
 
         initOptionFields();
@@ -67,7 +76,17 @@ public class VRClientSettingsHandler {
 
         overlayConfigsAccessor = new OverlayConfigsManager();
 
-        wasInit = true;
+        presetsRegistry = new VRSettingsPresetRegistry();
+
+        presetsCatalog = ClientContext.visor
+                .getConfigManager()
+                .createCatalog(
+                        ConfigType.YAML,
+                        "custom_presets",
+                        Path.of("custom_presets"),
+                        true,
+                        new PresetsCatalogListener()
+                );
     }
 
     public void saveOptions() {
@@ -84,6 +103,9 @@ public class VRClientSettingsHandler {
 
     public void loadOptions() {
         loadOptionsFrom(settings);
+    }
+    public void loadDefaults() {
+        loadOptionsFrom(defaultSettings);
     }
 
 
@@ -375,7 +397,7 @@ public class VRClientSettingsHandler {
                 allOptions.put(optionKey, optionRecord);
             }
         } catch (Exception ex) {
-            throw new RuntimeException(ex);
+            throw new VRException(ex);
         }
     }
 
@@ -448,5 +470,6 @@ public class VRClientSettingsHandler {
         return configValue;
 
     }
+
 }
 

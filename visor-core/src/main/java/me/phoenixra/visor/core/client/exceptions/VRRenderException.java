@@ -1,5 +1,6 @@
 package me.phoenixra.visor.core.client.exceptions;
 
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

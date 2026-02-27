@@ -145,7 +145,7 @@ public class OptionWidgetEntry {
             onPress = (button) -> {
                 try {
 
-                    ClientContext.settingsHandler.saveOptions();
+                    ClientContext.settingsManager.saveOptions();
                     Minecraft.getInstance().setScreen(
                             opensScreen
                                     .getConstructor(Screen.class)
@@ -157,7 +157,7 @@ public class OptionWidgetEntry {
             };
         }else if(opensOptions != null){
             onPress = (button) -> {
-                ClientContext.settingsHandler.saveOptions();
+                ClientContext.settingsManager.saveOptions();
                 owner.getScreen().switchOptions(opensOptions);
             };
         }
@@ -203,7 +203,7 @@ public class OptionWidgetEntry {
     public String getButtonText() {
         return this.buttonText.isEmpty()
                 && this.optionType != null
-                ? ClientContext.settingsHandler.getOptionButtonName(this.optionType)
+                ? ClientContext.settingsManager.getOptionButtonName(this.optionType)
                 : this.buttonText;
     }
 

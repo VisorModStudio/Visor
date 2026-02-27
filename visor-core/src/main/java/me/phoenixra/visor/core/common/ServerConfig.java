@@ -6,6 +6,7 @@ import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.server.SendSettingToClient;
 import me.phoenixra.visor.api.server.VRServerSettings;
 
@@ -85,7 +86,7 @@ public class ServerConfig{
                 }
             }
         }catch (Exception e){
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
     }
 
@@ -118,7 +119,7 @@ public class ServerConfig{
             }
             return INSTANCE.configForClients;
         }catch (Exception e){
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
     }
 

@@ -6,6 +6,7 @@ import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalogListener;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlayTemplateRecord;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.addon.VisorAddon;
 import me.phoenixra.visor.api.common.utils.LoggerUtils;
 import me.phoenixra.visor.core.client.ClientContext;
@@ -20,8 +21,6 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
     private final OverlayConfigsManager manager;
 
     @Setter
-    private ConfigCatalog catalog;
-    @Setter
     private VisorAddon addon;
 
     @Getter
@@ -33,16 +32,19 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
         this.builtIn = builtIn;
     }
 
+    @Override
+    public void onClear(@NotNull ConfigCatalog catalog) {
+        manager.onCatalogCleared(catalog);
+    }
 
     @Override
-    public void onConfigLoaded(@NotNull ConfigFile config) {
+    public void onConfigLoaded(@NotNull ConfigCatalog catalog, @NotNull ConfigFile config) {
         manager.addConfig(addon, config, builtIn);
     }
 
 
-
     @Override
-    public void afterReload() {
+    public void afterReload(@NotNull ConfigCatalog catalog) {
         if(builtIn){
             loadBuiltInOverlaysOptions();
         }else {
@@ -51,17 +53,7 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
     }
 
     @Override
-    public void afterLoadDefaults() {
-        //@TODO replace this fix with newer AtumConfiguration
-        Path baseDir = catalog.getConfigManager()
-                .getDirectory().resolve(catalog.getDirectory());
-        if (Files.notExists(baseDir)) {
-            try {
-                Files.createDirectories(baseDir);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    public void afterLoadDefaults(@NotNull ConfigCatalog catalog) {
         if(builtIn){
             return;
         }
@@ -81,13 +73,8 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
         }catch (Throwable e){
             VisorState.destroyVRWithErrorScreen(e);
         }
-
     }
 
-    @Override
-    public void onClear() {
-        manager.onCatalogCleared(catalog);
-    }
 
     private void loadBuiltInOverlaysOptions(){
         var overlaysRegistry = ClientContext.overlayManager
@@ -136,4 +123,5 @@ public class OverlayCatalogListener implements ConfigCatalogListener {
             }
         }
     }
+
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.visor.api.client.gui.overlays.VROverlay;
+import me.phoenixra.visor.api.common.VRException;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +53,7 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
             try{
                 overlayConfig.reload();
             }catch (Throwable e){
-                throw new RuntimeException(e);
+                throw new VRException(e);
             }
         }
         onLoad(getConfigSection());
@@ -112,7 +113,7 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
             overlayConfig.save();
             changesNotSaved = false;
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            throw new VRException(e);
         }
     }
 

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import me.phoenixra.visor.api.ModLoader;
 import me.phoenixra.visor.api.VisorAPI;
+import me.phoenixra.visor.api.common.VRException;
 import me.phoenixra.visor.api.common.network.toclient.VisorPayloadToClient;
 import me.phoenixra.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.core.BlockPos;
@@ -131,7 +132,7 @@ public class ForgeModLoader implements ModLoader {
                         Thread.currentThread().getContextClassLoader());
                 result.add(cls);
             } catch (ClassNotFoundException e) {
-               throw new RuntimeException(e);
+               throw new VRException(e);
             }
         }
 

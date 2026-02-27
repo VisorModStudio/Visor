@@ -1,9 +1,7 @@
 package me.phoenixra.visor.core.client.gui.screens.settings;
 
 import lombok.Getter;
-import lombok.Setter;
 import me.phoenixra.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
-import me.phoenixra.visor.api.client.gui.widgets.sets.WidgetSet;
 import me.phoenixra.visor.core.client.ClientContext;
 import me.phoenixra.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.gui.GuiGraphics;
@@ -148,6 +146,9 @@ public abstract class VROptionsSet extends DynamicWidgetSet {
             screen.switchOptions(previousOptions);
         }
     }
+    public boolean canOpenPreviousPage(){
+        return getPreviousOptions() != null;
+    }
 
     public void loadDefaults(){
         for (var child : getWidgets()) {
@@ -156,12 +157,12 @@ public abstract class VROptionsSet extends DynamicWidgetSet {
             }
             var optionType = getTypeFromWidget(widget);
             if(optionType == null) continue;
-            ClientContext.settingsHandler
+            ClientContext.settingsManager
                     .loadDefaultOptionValue(
                             optionType.getKey()
                     );
         }
-        ClientContext.settingsHandler.saveOptions();
+        ClientContext.settingsManager.saveOptions();
         reinit();
     }
 

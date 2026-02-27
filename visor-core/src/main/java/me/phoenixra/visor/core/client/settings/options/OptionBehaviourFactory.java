@@ -32,17 +32,17 @@ public class OptionBehaviourFactory {
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
                         .setTooltip(getTooltip(optionWidget))
                         .setText(Component.literal(
-                                ClientContext.settingsHandler.getOptionButtonName(
+                                ClientContext.settingsManager.getOptionButtonName(
                                 optionWidget
                                 )
                         )),
                 (button) -> {
-                    ClientContext.settingsHandler
+                    ClientContext.settingsManager
                             .nextOptionValue(
                                     optionWidget.getKey()
                             );
                     button.setMessage(Component.literal(
-                            ClientContext.settingsHandler.getOptionButtonName(
+                            ClientContext.settingsManager.getOptionButtonName(
                                     optionWidget
                             ))
                     );
@@ -66,13 +66,13 @@ public class OptionBehaviourFactory {
                     entries,
                     (it) -> {
                         var selected = it.getSelected();
-                        ClientContext.settingsHandler
+                        ClientContext.settingsManager
                                 .setOptionValue(
                                         optionWidget.getKey(),
                                         selected
                                 );
                         it.setText(Component.literal(
-                                ClientContext.settingsHandler.getOptionButtonName(
+                                ClientContext.settingsManager.getOptionButtonName(
                                         optionWidget
                                 ))
                         );
@@ -80,7 +80,7 @@ public class OptionBehaviourFactory {
             );
             widget.setSelectedIndex(indexSupplier.get(), false);
             widget.setText(Component.literal(
-                    ClientContext.settingsHandler.getOptionButtonName(
+                    ClientContext.settingsManager.getOptionButtonName(
                             optionWidget
                     ))
             );

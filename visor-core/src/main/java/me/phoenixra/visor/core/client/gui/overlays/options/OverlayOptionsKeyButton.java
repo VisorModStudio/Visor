@@ -68,10 +68,16 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
                         "customizationType", CustomizationType.COLOR.name())
         );
 
-        color = parseColor(config.getStringOrDefault("color", colorToString(AtumColor.GRAY)));
-
-        textColor = parseColor(config.getStringOrDefault("textColor", colorToString(AtumColor.WHITE)));
-
+        try {
+            color = AtumColor.immutableFromString(config.getStringOrDefault("color", AtumColor.GRAY.asString()));
+        }catch (Exception e){
+            color = AtumColor.GRAY;
+        }
+        try {
+            textColor = AtumColor.immutableFromString(config.getStringOrDefault("textColor", AtumColor.WHITE.asString()));
+        }catch (Exception e){
+            textColor = AtumColor.WHITE;
+        }
         worldOnly = config.getBool("world_only");
 
         var defaultTexture = VisorAddon.MISSING_ICON.getResourceLocation();
@@ -96,8 +102,8 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
         config.set("customizationType", customizationType.name());
 
-        config.set("color", colorToString(color));
-        config.set("textColor", colorToString(textColor));
+        config.set("color", color.asString());
+        config.set("textColor", textColor.asString());
         config.set("text", text);
 
         config.set("texturePath", rawTexturePath);
@@ -147,27 +153,7 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
         changesNotSaved = true;
     }
-    private static String colorToString(@Nullable AtumColor color) {
-        if (color == null) return "128;128;128";
-        return color.getRedInt() + ";" + color.getGreenInt() + ";" + color.getBlueInt();
-    }
 
-    private static @Nullable AtumColor parseColor(@Nullable String text) {
-        if (text == null || text.isBlank()) return null;
-        String[] parts = text.split(";");
-        if (parts.length != 3) return null;
-        try {
-            int r = clampComponent(Integer.parseInt(parts[0].trim()));
-            int g = clampComponent(Integer.parseInt(parts[1].trim()));
-            int b = clampComponent(Integer.parseInt(parts[2].trim()));
-            return AtumColor.immutable(r, g, b, 255);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-    private static int clampComponent(int value) {
-        return Math.max(0, Math.min(255, value));
-    }
 
     public GuiTexture getTexture(){
         return customizationType == CustomizationType.TEXTURE

@@ -32,7 +32,7 @@ public class VRSettingsScreen extends Screen {
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;
-    private static final int RESOURCE_HEIGHT = 107;
+    private static final int RESOURCE_HEIGHT = 260;
 
     public static final GuiTexture BACKGROUND = new GuiTexture(
             new ResourceLocation(
@@ -41,6 +41,25 @@ public class VRSettingsScreen extends Screen {
             0, 0,
             256, 159,
             256, 159
+    );
+
+    public static final GuiTexture PRESETS_BUTTON = new GuiTexture(
+            RESOURCE,
+            0, 108,
+            208, 51,
+            RESOURCE_WIDTH, RESOURCE_HEIGHT
+    );
+    public static final GuiTexture PRESETS_BUTTON_HOVERED = new GuiTexture(
+            RESOURCE,
+            0, 159,
+            208, 50,
+            RESOURCE_WIDTH, RESOURCE_HEIGHT
+    );
+    public static final GuiTexture PRESETS_BUTTON_SELECTED = new GuiTexture(
+            RESOURCE,
+            0, 210,
+            208, 50,
+            RESOURCE_WIDTH, RESOURCE_HEIGHT
     );
 
     public static final GuiTexture LOAD_DEFAULTS = new GuiTexture(
@@ -156,7 +175,7 @@ public class VRSettingsScreen extends Screen {
     private ButtonImaged buttonJoinCommunity;
 
     //
-    private VRSettingsType settingsType = VRSettingsType.RENDERING;
+    private VRSettingsCategory settingsCategory = VRSettingsCategory.PRESETS;
     private VROptionsSet options;
 
     private List<ButtonImaged> settingsButtons;
@@ -205,7 +224,7 @@ public class VRSettingsScreen extends Screen {
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT),
                 (it)->{
-                    ClientContext.settingsHandler.saveOptions();
+                    ClientContext.settingsManager.saveOptions();
                     MC.setScreen(this.previousScreen);
                 }
         );
@@ -293,41 +312,66 @@ public class VRSettingsScreen extends Screen {
         settingsButtons = new ArrayList<>();
 
         int yOffset = 0;
-        for(var type : VRSettingsType.values()){
-            var button = new ButtonImaged(
-                    new WidgetInfoButtonImaged()
-                            .pos(scaleHelper.scaledX(4), scaleHelper.scaledY(27 + yOffset))
-                            .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
-                            .setTexture(OptionTextures.BLACK_TEXTURE)
-                            .setInactiveOnSelected(false)
-                            .setDynamicTextScale(true)
-                            .setHighlightEnabled(true)
-                            .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
-                            .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                            .setText(Component.translatable("visor.options."+type.getCategory().getKey()+".button")),
-                    (it)->{
-                        for(var b : settingsButtons){
-                            b.setSelected(false);
-                        }
-                        openCategory(type);
-                        it.setSelected(true);
+        for(var category : VRSettingsCategory.values()){
+            ButtonImaged button;
+            if(category == VRSettingsCategory.PRESETS){
+                button = new ButtonImaged(
+                        new WidgetInfoButtonImaged()
+                                .pos(scaleHelper.scaledX(4), scaleHelper.scaledY(27 + yOffset))
+                                .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
+                                .setTexture(PRESETS_BUTTON)
+                                .setTextureHovered(PRESETS_BUTTON_HOVERED)
+                                .setTextureSelected(PRESETS_BUTTON_SELECTED)
+                                .setInactiveOnSelected(false)
+                                .setDynamicTextScale(true)
+                                .setText(Component.translatable("visor.options.presets.button")),
+                        (it)->{
+                            for(var b : settingsButtons){
+                                b.setSelected(false);
+                            }
+                            openCategory(category);
+                            it.setSelected(true);
 
-                    }
-            );
-            if(type == settingsType){
+                        }
+                );
+                yOffset += 18;
+            }else {
+                button = new ButtonImaged(
+                        new WidgetInfoButtonImaged()
+                                .pos(scaleHelper.scaledX(4), scaleHelper.scaledY(27 + yOffset))
+                                .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
+                                .setTexture(OptionTextures.BLACK_TEXTURE)
+                                .setInactiveOnSelected(false)
+                                .setDynamicTextScale(true)
+                                .setHighlightEnabled(true)
+                                .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                                .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                                .setText(Component.translatable("visor.options." + category.getCategory().getKey() + ".button")),
+                        (it) -> {
+                            for (var b : settingsButtons) {
+                                b.setSelected(false);
+                            }
+                            openCategory(category);
+                            it.setSelected(true);
+
+                        }
+                );
+                yOffset += 14;
+            }
+            if(category == settingsCategory){
                 button.setSelected(true);
             }
-            yOffset += 14;
+
             settingsButtons.add(button);
         }
 
 
         options = initialized
                 ? options
-                : settingsType.getSupplier().apply(this);
+                : settingsCategory.getSupplier().apply(this);
         options.initWidgets();
 
-        buttonBack.active = options.getPreviousOptions() != null;
+        buttonBack.active = options.canOpenPreviousPage();
 
         initialized = true;
         repopulateWidgets();
@@ -378,11 +422,11 @@ public class VRSettingsScreen extends Screen {
     }
 
 
-    public void openCategory(@NotNull VRSettingsType type){
-        this.settingsType = type;
-        this.options = settingsType.getSupplier().apply(this);
+    public void openCategory(@NotNull VRSettingsCategory category){
+        this.settingsCategory = category;
+        this.options = settingsCategory.getSupplier().apply(this);
         this.options.initWidgets();
-        buttonBack.active = options.getPreviousOptions() != null;
+        buttonBack.active = options.canOpenPreviousPage();
         buttonLoadDefaults.active = options.canLoadDefaults();
         repopulateWidgets();
 
@@ -390,7 +434,7 @@ public class VRSettingsScreen extends Screen {
     public void switchOptions(@NotNull VROptionsSet options){
         this.options = options;
         this.options.initWidgets();
-        buttonBack.active = options.getPreviousOptions() != null;
+        buttonBack.active = options.canOpenPreviousPage();
         buttonLoadDefaults.active = options.canLoadDefaults();
         repopulateWidgets();
     }
