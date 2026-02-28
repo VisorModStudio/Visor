@@ -16,7 +16,7 @@
   "visor.options.presets.apply_preset": "Apply",
   "visor.options.presets.apply_preset.tooltip": "§bApply preset§r\n\nApplies the selected preset instantly\n\n§7For built-in presets, some addons may open a different menu for extra configuration before applying",
   "visor.options.presets.create_preset.tooltip": "§bCreate preset",
-  "visor.options.presets.presets_folder.tooltip": "§bOpen Presets folder§r\n\nIt will open the folder where custom presets are saved\n\n§7You can share presets with your friends! Just send your preset and ask friend to move it to this folder and relaunch the game",
+  "visor.options.presets.presets_folder.tooltip": "§bOpen Presets folder§r\n\nIt will open the folder where custom presets are saved\n\n§7You can share presets with your friends! Just send your preset and ask friend to drop it to this folder and relaunch the game",
   "visor.options.presets.built_in": "Built-in",
   "visor.options.presets.custom": "Custom",
   "visor.options.presets.id": "Id",

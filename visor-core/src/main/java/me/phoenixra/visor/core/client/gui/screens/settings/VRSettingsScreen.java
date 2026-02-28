@@ -381,6 +381,7 @@ public class VRSettingsScreen extends Screen {
     public void tick() {
         super.tick();
         options.onTick();
+        buttonBack.active = options.canOpenPreviousPage();
     }
 
     @Override

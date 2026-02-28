@@ -574,7 +574,7 @@ public class VRSettingsPresets extends VROptionsSet {
                             .setHighlightEnabled(true)
                             .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                             .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                            .setTextScale(VRClientSettings.getSettingsTextScale())
+                            .setDynamicTextScale(true)
                             .setText(Component.translatable(
                                     "visor.options.presets.remove"
                             )),
@@ -591,7 +591,7 @@ public class VRSettingsPresets extends VROptionsSet {
                             .setHighlightEnabled(true)
                             .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                             .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
-                            .setTextScale(VRClientSettings.getSettingsTextScale())
+                            .setDynamicTextScale(true)
                             .setText(Component.translatable(
                                     "visor.options.presets.confirm_remove"
                             )),
@@ -890,6 +890,9 @@ public class VRSettingsPresets extends VROptionsSet {
                             .setTextScale(0.8f)
 
             );
+
+            confirmButton.active = false;
+
             return List.of();
         }
 
