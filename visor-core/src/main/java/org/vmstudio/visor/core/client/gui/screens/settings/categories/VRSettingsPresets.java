@@ -53,24 +53,24 @@ public class VRSettingsPresets extends VROptionsSet {
                     "visor:textures/gui/settings/presets_built_in_background.png"
             ),
             0, 0,
-            144, 124,
-            144, 124
+            144, 125,
+            144, 125
     );
     public static final GuiTexture BACKGROUND_CUSTOM = new GuiTexture(
             new ResourceLocation(
                     "visor:textures/gui/settings/presets_custom_background.png"
             ),
             0, 0,
-            144, 124,
-            144, 124
+            144, 125,
+            144, 125
     );
     public static final GuiTexture BACKGROUND_CREATE = new GuiTexture(
             new ResourceLocation(
                     "visor:textures/gui/settings/presets_create_background.png"
             ),
             0, 0,
-            144, 124,
-            144, 124
+            144, 125,
+            144, 125
     );
 
 
@@ -338,7 +338,7 @@ public class VRSettingsPresets extends VROptionsSet {
             BACKGROUND_BUILT_IN.blit(
                     guiGraphics,
                     scaleHelper.scaledX(56),
-                    scaleHelper.scaledY(27),
+                    scaleHelper.scaledY(26),
                     scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getWidth()),
                     scaleHelper.scaledSize(BACKGROUND_BUILT_IN.getHeight())
             );
@@ -657,7 +657,7 @@ public class VRSettingsPresets extends VROptionsSet {
             BACKGROUND_CUSTOM.blit(
                     guiGraphics,
                     scaleHelper.scaledX(56),
-                    scaleHelper.scaledY(27),
+                    scaleHelper.scaledY(26),
                     scaleHelper.scaledSize(BACKGROUND_CUSTOM.getWidth()),
                     scaleHelper.scaledSize(BACKGROUND_CUSTOM.getHeight())
             );
@@ -922,7 +922,7 @@ public class VRSettingsPresets extends VROptionsSet {
             BACKGROUND_CREATE.blit(
                     guiGraphics,
                     scaleHelper.scaledX(56),
-                    scaleHelper.scaledY(27),
+                    scaleHelper.scaledY(26),
                     scaleHelper.scaledSize(BACKGROUND_CREATE.getWidth()),
                     scaleHelper.scaledSize(BACKGROUND_CREATE.getHeight())
             );
