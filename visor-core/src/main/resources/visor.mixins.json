@@ -1,7 +1,7 @@
 {
   "required": true,
-  "package": "me.phoenixra.visor.mixin",
-  "plugin": "me.phoenixra.visor.MixinConfig",
+  "package": "org.vmstudio.visor.mixin",
+  "plugin": "org.vmstudio.visor.MixinConfig",
   "compatibilityLevel": "JAVA_17",
   "client": [
     "client.MinecraftMixin",

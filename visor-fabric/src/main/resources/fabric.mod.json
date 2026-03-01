@@ -13,10 +13,10 @@
   "environment": "*",
   "entrypoints": {
     "mm:early_risers": [
-      "me.phoenixra.visor.loader.fabric.VisorEarlyEntry"
+      "org.vmstudio.visor.loader.fabric.VisorEarlyEntry"
     ],
     "main": [
-      "me.phoenixra.visor.loader.fabric.VisorMod"
+      "org.vmstudio.visor.loader.fabric.VisorMod"
     ]
   },
   "mixins": [

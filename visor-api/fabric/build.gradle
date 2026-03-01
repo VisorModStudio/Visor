@@ -64,13 +64,13 @@ shadowJar {
     ]
     archiveClassifier.set("dev")
 
-    relocate("org.yaml","me.phoenixra.libs.org.yaml")
-    relocate("org.tomlj","me.phoenixra.libs.org.tomlj")
-    relocate("org.checkerframework","me.phoenixra.libs.org.checkerframework")
-    relocate("org.antlr","me.phoenixra.libs.org.antlr")
+    relocate("org.yaml","${project.group}.libs.org.yaml")
+    relocate("org.tomlj","${project.group}.libs.org.tomlj")
+    relocate("org.checkerframework","${project.group}.libs.org.checkerframework")
+    relocate("org.antlr","${project.group}.libs.org.antlr")
 
-    relocate("com.google.gson","me.phoenixra.libs.com.google.gson")
-    relocate("redempt.crunch","me.phoenixra.libs.redempt.crunch")
+    relocate("com.google.gson","${project.group}.libs.com.google.gson")
+    relocate("redempt.crunch","${project.group}.libs.redempt.crunch")
 
 }
 
