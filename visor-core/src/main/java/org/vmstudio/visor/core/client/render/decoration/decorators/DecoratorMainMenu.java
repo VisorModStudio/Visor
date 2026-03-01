@@ -21,45 +21,21 @@ import java.util.List;
 public class DecoratorMainMenu extends VRDecorator {
     public static final String ID = "main_menu";
 
-
-
     public DecoratorMainMenu(@NotNull VisorAddon owner) {
         super(owner, ID);
     }
 
-
-
     @Override
     public void tick() {
-
     }
 
     @Override
-    public void render(PoseStack poseStack, float partialTicks) {
+    public void setupRendering(@NotNull PoseStack poseStack, float partialTicks) {
         RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), poseStack);
-
         renderPanorama(poseStack);
-
-
-        ClientContext.guiManager.renderGUI(
-                poseStack,
-                partialTicks
-        );
-
-        ClientContext.handRenderer.renderGuiHands(
-                this,
-                poseStack, partialTicks,
-                true, true
-        );
-
-        ClientContext.decorationRenderer.renderGameEffects(
-                this,
-                poseStack, partialTicks
-        );
     }
 
     private static void renderPanorama(PoseStack poseStack){
-
         LocalPlayerPose renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
         poseStack.pushPose();

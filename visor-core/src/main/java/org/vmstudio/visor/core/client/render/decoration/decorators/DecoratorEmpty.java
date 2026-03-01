@@ -22,10 +22,6 @@ public class DecoratorEmpty extends VRDecorator {
 
     }
 
-    @Override
-    public void render(PoseStack poseStack, float partialTicks) {
-
-    }
 
     @Override
     public boolean canActivate() {

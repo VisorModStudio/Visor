@@ -5,7 +5,6 @@ import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
@@ -14,45 +13,21 @@ import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-//When player enters portal after end dragon killed
 @RegisterVRDecorator
 public class DecoratorWinScreen extends VRDecorator {
     public static final String ID = "win_screen";
-
-
 
     public DecoratorWinScreen(@NotNull VisorAddon owner) {
         super(owner, ID);
     }
 
-
     @Override
     public void tick() {
-
     }
 
     @Override
-    public void render(PoseStack poseStack, float partialTicks) {
-        //For now its only have this effect.
+    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
         VREffectsHelper.renderInBlockEffect();
-        //planned to make it much more cool...
-
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
-
-
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks);
-
-        ClientContext.handRenderer.renderGuiHands(
-                this,
-                poseStack, partialTicks,
-                true, true
-        );
-
-
-        ClientContext.decorationRenderer.renderGameEffects(
-                this,
-                poseStack, partialTicks
-        );
     }
 
 
@@ -76,5 +51,4 @@ public class DecoratorWinScreen extends VRDecorator {
     public @NotNull ComponentPriority getPriority() {
         return ComponentPriority.NORMAL;
     }
-
 }

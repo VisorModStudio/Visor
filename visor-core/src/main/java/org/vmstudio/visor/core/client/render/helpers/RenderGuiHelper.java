@@ -96,11 +96,13 @@ public class RenderGuiHelper {
 
         if (depthAlways) {
             RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+            //disable mask to not mess up depth for something
+            RenderSystem.depthMask(false);
         } else {
             RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+            RenderSystem.depthMask(true);
         }
 
-        RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
 
         // --- Setup Pose ---
@@ -145,6 +147,7 @@ public class RenderGuiHelper {
         // --- Restore ---
         RenderSystem.setShaderFogStart(fogStartCache);
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableCull();

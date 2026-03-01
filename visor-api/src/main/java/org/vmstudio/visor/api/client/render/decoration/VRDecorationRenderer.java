@@ -12,6 +12,13 @@ public interface VRDecorationRenderer {
     @Nullable VRDecorator getDecorator(@NotNull String id);
 
 
+    /**
+     * Direct render call — used when no level exists
+     * (main menu) and pipeline events don't fire.
+     *
+     * <p>When a level exists, rendering is handled by
+     * the mod-loader pipeline stages instead.</p>
+     */
     void render(PoseStack poseStack, float partialTicks);
     void tick();
 

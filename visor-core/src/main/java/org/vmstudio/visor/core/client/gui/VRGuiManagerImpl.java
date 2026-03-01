@@ -38,13 +38,29 @@ public class VRGuiManagerImpl implements VRGuiManager {
 
 
 
-    public void renderGUI(PoseStack poseStack,
-                          float partialTicks) {
-        ClientContext.overlayManager.renderOverlays(
+
+    /**
+     * Render only depth-tested overlays (world-space overlays that participate in depth buffer).
+     * Should be called BEFORE hands.
+     */
+    public void renderDepthOverlays(PoseStack poseStack, float partialTicks) {
+        ClientContext.overlayManager.renderDepthOverlays(
                 partialTicks,
                 poseStack
         );
     }
+
+    /**
+     * Render only HUD overlays (always-on-top layer, no depth testing).
+     * Should be called AFTER hands.
+     */
+    public void renderHudOverlays(PoseStack poseStack, float partialTicks) {
+        ClientContext.overlayManager.renderHudOverlays(
+                partialTicks,
+                poseStack
+        );
+    }
+
     public int calculateScale(int scaleIn,
                               int guiWidth,
                               int guiHeight) {

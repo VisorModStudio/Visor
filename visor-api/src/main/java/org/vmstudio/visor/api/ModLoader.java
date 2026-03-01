@@ -3,6 +3,8 @@ package org.vmstudio.visor.api;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
+import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.core.BlockPos;
@@ -100,6 +102,27 @@ public interface ModLoader {
                                        @NotNull String modId,
                                        @NotNull String packagePath);
 
+
+    /**
+     * Register a callback to be invoked at a specific
+     * render pipeline stage.
+     *
+     * <p>The mod loader maps each {@link RenderPipelineStage}
+     * to its native render event (e.g. Fabric's
+     * {@code WorldRenderEvents.END} or Forge's
+     * {@code RenderLevelStageEvent}).</p>
+     *
+     * <p>This allows visor-core to inject rendering
+     * at the correct point in the pipeline without
+     * relying on mixin injection points that are
+     * fragile across MC versions.</p>
+     *
+     * @param stage    the pipeline stage to register at
+     * @param callback the callback to invoke at that stage
+     */
+    void addToRenderPipeline(@NotNull RenderPipelineStage stage,
+                             @NotNull RenderPipelineCallback callback);
+
     @ApiStatus.Internal
     boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget);
     @ApiStatus.Internal
@@ -110,6 +133,7 @@ public interface ModLoader {
     boolean renderWaterOverlay(Player player, PoseStack mat);
     @ApiStatus.Internal
     boolean renderFireOverlay(Player player, PoseStack mat);
+
 
 
 

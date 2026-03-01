@@ -5,11 +5,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
+import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -31,13 +35,20 @@ import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 public class FabricModLoader implements ModLoader {
     private final File configFolder = net.fabricmc.loader.api.FabricLoader.getInstance()
             .getConfigDir().toFile();
+
+    private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
+            = new EnumMap<>(RenderPipelineStage.class);
+
+    private boolean worldEventsRegistered = false;
+    private boolean hudEventRegistered = false;
+
     @Override
     public File getConfigFolder() {
         return configFolder;
@@ -67,6 +78,56 @@ public class FabricModLoader implements ModLoader {
     }
 
 
+    @Override
+    public void addToRenderPipeline(@NotNull RenderPipelineStage stage,
+                                    @NotNull RenderPipelineCallback callback) {
+        pipelineCallbacks
+                .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
+                .add(callback);
+
+        if (stage == RenderPipelineStage.HUD_OVERLAY) {
+            if (!hudEventRegistered) {
+                HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+                    List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(RenderPipelineStage.HUD_OVERLAY);
+                    if (callbacks == null) return;
+                    PoseStack poseStack = drawContext.pose();
+                    for (RenderPipelineCallback cb : callbacks) {
+                        cb.render(poseStack, tickDelta);
+                    }
+                });
+                hudEventRegistered = true;
+            }
+        } else {
+            if (!worldEventsRegistered) {
+                // Closest equivalent of AFTER_SOLID
+                WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
+                    fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(), context.tickDelta());
+                    return true; // don't cancel block outline
+                });
+
+                // AFTER_TRANSLUCENT
+                WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+                    fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(), context.tickDelta());
+                });
+
+                // AFTER_WORLD
+                WorldRenderEvents.END.register(context -> {
+                    fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(), context.tickDelta());
+                });
+
+                worldEventsRegistered = true;
+            }
+        }
+    }
+
+    private void fireCallbacks(RenderPipelineStage stage, PoseStack poseStack, float partialTicks) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+        for (RenderPipelineCallback cb : callbacks) {
+            cb.render(poseStack, partialTicks);
+        }
+    }
+
 
     @Override
     public boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget) {
@@ -87,17 +148,13 @@ public class FabricModLoader implements ModLoader {
         try {
             List<Class<?>> result = new ArrayList<>();
 
-            // Locate our mod container
             ModContainer container = FabricLoader.getInstance()
                     .getModContainer(modId)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown mod: " + modId));
 
-            // Convert package to path form
             String pkgPath = packagePath.replace('.', '/');
 
-            // Iterate every root (jar or folder)
             for (Path root : container.getRootPaths()) {
-                // resolve into each root
                 Path pkgRoot = root.resolve(pkgPath);
                 if (!Files.exists(pkgRoot)) continue;
 
@@ -112,7 +169,6 @@ public class FabricModLoader implements ModLoader {
                                         public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
                                             String found = Type.getType(desc).getClassName();
                                             if (found.equals(annotation.getName())) {
-                                                // reconstruct FQCN from path
                                                 Path rel = pkgRoot.relativize(classFile);
                                                 String className = packagePath + "."
                                                         + rel.toString()

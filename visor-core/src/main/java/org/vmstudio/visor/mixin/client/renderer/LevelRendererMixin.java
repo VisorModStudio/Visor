@@ -47,20 +47,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     /* ****************** *\
   //--------RENDERING--------\\
     \* ****************** */
-    @Inject(at = @At("RETURN"), method = "renderLevel")
-    public void visor$renderVRDecorations(PoseStack poseStack, float partialTicks, long l, boolean bl, Camera camera,
-                                          GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f,
-                                          CallbackInfo ci
-    ) {
-        if (VRRenderState.getPhase().isVanilla()) {
-            return;
-        }
-
-        ClientContext.decorationRenderer.render(
-                poseStack, partialTicks
-        );
-
-    }
 
 
     @Inject(at = @At("HEAD"), method = "renderEntity")

@@ -14,8 +14,6 @@ import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectC
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.jetbrains.annotations.NotNull;
 
-import org.vmstudio.visor.core.client.ClientContext;
-
 import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -24,47 +22,26 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class DecoratorGame extends VRDecorator {
     public static final String ID = "game";
 
-
-
     public DecoratorGame(@NotNull VisorAddon owner) {
         super(owner, ID);
     }
 
-
-
     @Override
     public void tick() {
-
     }
 
     @Override
-    public void render(PoseStack poseStack, float partialTicks) {
+    public boolean usesWorldHands() {
+        return true;
+    }
+
+    @Override
+    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
         if (insideBlock) {
             VREffectsHelper.renderInBlockEffect();
         }
-
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
-
-
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks);
-
-        ClientContext.handRenderer.renderWorldHands(
-                this,
-                poseStack, partialTicks,
-                true, true
-        );
-
-
-        ClientContext.decorationRenderer.renderGameEffects(
-                this,
-                poseStack, partialTicks
-        );
     }
-
-
-
-
 
     @Override
     public boolean canActivate() {

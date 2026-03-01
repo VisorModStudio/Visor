@@ -10,8 +10,6 @@ import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectVanill
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.jetbrains.annotations.NotNull;
 
-import org.vmstudio.visor.core.client.ClientContext;
-
 import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -20,42 +18,21 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class DecoratorGameMenu extends VRDecorator {
     public static final String ID = "game_menu";
 
-
-
     public DecoratorGameMenu(@NotNull VisorAddon owner) {
         super(owner, ID);
     }
 
-
     @Override
     public void tick() {
-
     }
 
     @Override
-    public void render(PoseStack poseStack, float partialTicks) {
+    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
         boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
         if (insideBlock) {
             VREffectsHelper.renderInBlockEffect();
         }
-
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
-
-        ClientContext.guiManager.renderGUI(poseStack, partialTicks);
-
-
-        ClientContext.handRenderer.renderGuiHands(
-                this,
-                poseStack, partialTicks,
-                true, true
-        );
-        ClientContext.decorationRenderer.renderGameEffects(
-                this,
-                poseStack, partialTicks
-        );
     }
-
-
     @Override
     public boolean canActivate() {
         return MC.player != null && MC.level != null && MC.screen != null;

@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
+import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
@@ -20,7 +22,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
+import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
@@ -34,14 +39,18 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class ForgeModLoader implements ModLoader {
     private File configFolder = FMLPaths.CONFIGDIR.get().toFile();
 
+    private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
+            = new EnumMap<>(RenderPipelineStage.class);
+
+    private boolean levelStageListenerRegistered = false;
+    private boolean guiOverlayListenerRegistered = false;
 
 
     @Override
@@ -70,6 +79,27 @@ public class ForgeModLoader implements ModLoader {
     @Override
     public boolean isDedicatedServer() {
         return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+    }
+
+
+    @Override
+    public void addToRenderPipeline(@NotNull RenderPipelineStage stage,
+                                    @NotNull RenderPipelineCallback callback) {
+        pipelineCallbacks
+                .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
+                .add(callback);
+
+        if (stage == RenderPipelineStage.HUD_OVERLAY) {
+            if (!guiOverlayListenerRegistered) {
+                MinecraftForge.EVENT_BUS.addListener(this::onRenderGuiOverlay);
+                guiOverlayListenerRegistered = true;
+            }
+        } else {
+            if (!levelStageListenerRegistered) {
+                MinecraftForge.EVENT_BUS.addListener(this::onRenderLevelStage);
+                levelStageListenerRegistered = true;
+            }
+        }
     }
 
 
@@ -132,7 +162,7 @@ public class ForgeModLoader implements ModLoader {
                         Thread.currentThread().getContextClassLoader());
                 result.add(cls);
             } catch (ClassNotFoundException e) {
-               throw new VRException(e);
+                throw new VRException(e);
             }
         }
 
@@ -167,4 +197,46 @@ public class ForgeModLoader implements ModLoader {
         return ForgeHooksClient.renderFireOverlay(player, mat);
     }
 
+
+    // ----- INNER -----
+
+    private void onRenderLevelStage(RenderLevelStageEvent event) {
+        RenderPipelineStage stage = mapForgeStage(event.getStage());
+        if (stage == null) return;
+
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = event.getPoseStack();
+        float partialTicks = event.getPartialTick();
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+
+    private void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(RenderPipelineStage.HUD_OVERLAY);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = event.getGuiGraphics().pose();
+        float partialTicks = event.getPartialTick();
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+
+    private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
+        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
+            return RenderPipelineStage.AFTER_SOLID;
+        }
+        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
+            return RenderPipelineStage.AFTER_TRANSLUCENT;
+        }
+        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            return RenderPipelineStage.AFTER_WORLD;
+        }
+        return null;
+    }
 }

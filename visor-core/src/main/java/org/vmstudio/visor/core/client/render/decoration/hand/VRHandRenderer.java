@@ -22,6 +22,7 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -41,14 +42,20 @@ import java.util.*;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-//@TODO there is no way to determine outside
-// when world hand or menu hand is rendered!!
+
 public class VRHandRenderer {
 
     private static final AtumColorImmutable GUI_HANDS_COLOR = new AtumColorImmutable(
             64, 64, 64,
             255
     );
+
+    private static final AtumColorImmutable CURSOR_DEFAULT_COLOR = new AtumColorImmutable(
+            228, 228, 228,
+            255
+    );
+
+    private static final float CURSOR_BOX_HALF_SIZE = 0.0016f;
 
     @Getter
     private final VRHandItemPoseRegistry itemPosesRegistry = new VRHandItemPoseRegistry();
@@ -166,6 +173,120 @@ public class VRHandRenderer {
         RenderSystem.restoreProjectionMatrix();
     }
 
+    /**
+     * Renders the cursor ray for all active cursor hands.
+     * <p>
+     * Called by decorators AFTER HUD overlays, but BEFORE Gui hands,
+     * so the cursor is always visually on top of everything, e
+     * except gui hands
+     */
+    public void renderCursor(@NotNull PoseStack poseStack,
+                             float partialTicks) {
+
+        if (!ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)) {
+            return;
+        }
+
+        VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
+
+        RenderSystem.backupProjectionMatrix();
+        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+
+        VRCameraType cameraType = VRRenderState.getCameraType();
+
+        boolean twoHanded = cursorHandler.isTwoHandedCursor();
+        HandType primaryCursor = cursorHandler.getCursorHand();
+
+        // Main hand
+        if (twoHanded || primaryCursor == HandType.MAIN) {
+            if (cursorHandler.isHandFocused(HandType.MAIN) && isTrackingHand(HandType.MAIN)) {
+                renderCursorLine(HandType.MAIN, cameraType, poseStack, cursorHandler);
+            }
+        }
+
+        // Offhand
+        if (twoHanded || primaryCursor == HandType.OFFHAND) {
+            if (cursorHandler.isHandFocused(HandType.OFFHAND) && isTrackingHand(HandType.OFFHAND)) {
+                renderCursorLine(HandType.OFFHAND, cameraType, poseStack, cursorHandler);
+            }
+        }
+
+        RenderSystem.restoreProjectionMatrix();
+    }
+
+    private void renderCursorLine(@NotNull HandType hand,
+                                  @NotNull VRCameraType cameraType,
+                                  @NotNull PoseStack poseStack,
+                                  @NotNull VRCursorHandlerImpl cursorHandler) {
+
+        float cursorLength = (float) cursorHandler.getCursorLineLength(hand);
+        if (cursorLength <= 0) {
+            return;
+        }
+
+        poseStack.pushPose();
+        poseStack.setIdentity();
+        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyHandPose(hand, poseStack);
+
+        Vector3f start = new Vector3f(0, 0, 0);
+        Vector3f end = new Vector3f(0, 0, -cursorLength);
+
+        // Compute brightness-tinted color
+        AtumColorImmutable color;
+        if (MC.level != null) {
+            float rawLight = MC.level.getMaxLocalRawBrightness(
+                    BlockPos.containing(
+                            new Vec3(
+                                    (Vector3f) ClientContext.localPlayer
+                                            .getPoseData(PlayerPoseType.RENDER)
+                                            .getHmd()
+                                            .getPosition()
+                            )
+                    )
+            );
+
+            float light = Math.max(rawLight, ShadersHelper.shaderLight());
+            float lightPercent = light / MC.level.getMaxLightLevel();
+            color = new AtumColorImmutable(
+                    Mth.floor(CURSOR_DEFAULT_COLOR.getRedInt() * lightPercent),
+                    Mth.floor(CURSOR_DEFAULT_COLOR.getGreenInt() * lightPercent),
+                    Mth.floor(CURSOR_DEFAULT_COLOR.getBlueInt() * lightPercent),
+                    255
+            );
+        } else {
+            color = CURSOR_DEFAULT_COLOR;
+        }
+
+        // --- GL setup ---
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        if (MC.getOverlay() == null) {
+            var whiteTex = TexturesHelper.getWhiteTexture();
+            MC.getTextureManager().bindForSetup(whiteTex);
+            RenderSystem.setShaderTexture(0, whiteTex);
+        }
+
+        // --- Render ---
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        RenderHelper.renderCuboid(
+                builder,
+                poseStack.last().pose(),
+                start, end,
+                -CURSOR_BOX_HALF_SIZE, CURSOR_BOX_HALF_SIZE,
+                -CURSOR_BOX_HALF_SIZE, CURSOR_BOX_HALF_SIZE,
+                color
+        );
+
+        // --- Restore GL ---
+        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+
+        poseStack.popPose();
+    }
+
+
     private void renderHand(HandType hand,
                             @NotNull PoseStack poseStack,
                             float partialTicks,
@@ -215,7 +336,6 @@ public class VRHandRenderer {
 
     private void renderGuiHand(PoseStack poseStack) {
 
-
         MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(
                 0,
@@ -240,8 +360,8 @@ public class VRHandRenderer {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.localPlayer
-                                                    .getPoseData(PlayerPoseType.RENDER)
-                                                    .getHmd().getPosition()
+                                            .getPoseData(PlayerPoseType.RENDER)
+                                            .getHmd().getPosition()
                             )
                     )
             );

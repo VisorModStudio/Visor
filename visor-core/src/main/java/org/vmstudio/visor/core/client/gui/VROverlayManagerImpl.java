@@ -48,6 +48,11 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
 
     private final List<VROverlay> preparedOverlays = new ArrayList<>();
+
+    // Separated overlay lists for staged rendering
+    private final List<VROverlay> preparedDepthOverlays = new ArrayList<>();
+    private final List<VROverlay> preparedHudOverlays = new ArrayList<>();
+
     public void tick(){
         for(VROverlay overlay : overlaysRegistry.getSortedComponents()){
             if(!overlay.isEnabled()) continue;
@@ -59,6 +64,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     public void prepareOverlaysAndCursor(float partialTicks){
         preparedOverlays.clear();
+        preparedDepthOverlays.clear();
+        preparedHudOverlays.clear();
+
         for (VROverlay overlay : overlaysRegistry.getSortedComponents()) {
             if(!overlay.isVisible()) continue;
             RenderTarget target = overlay.getRenderTarget();
@@ -78,6 +86,13 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             //ready to be rendered
             preparedOverlays.add(overlay);
+
+            // Split into depth vs HUD lists
+            if (overlay.supportsDepth()) {
+                preparedDepthOverlays.add(overlay);
+            } else {
+                preparedHudOverlays.add(overlay);
+            }
         }
         ClientContext.cursorHandler.process();
     }
@@ -165,13 +180,18 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     }
 
-    public void renderOverlays(float partialTicks,
-                               PoseStack poseStack) {
 
-        if(preparedOverlays.isEmpty()){
+
+    /**
+     * Render only overlays that support depth (GL_LEQUAL).
+     * These participate in proper depth testing with VR hands and world geometry.
+     */
+    public void renderDepthOverlays(float partialTicks,
+                                    PoseStack poseStack) {
+        if (preparedDepthOverlays.isEmpty()) {
             return;
         }
-        // --- Setup ---
+
         poseStack.pushPose();
         poseStack.setIdentity();
         RenderPoseHelper.applyCameraOrientation(
@@ -180,16 +200,15 @@ public class VROverlayManagerImpl implements VROverlayManager {
         );
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
-        GLUtils.checkGLError("before overlays");
-        // --- Render ---
-        for (VROverlay overlay : preparedOverlays) {
-            if(!overlay.isVisible()){
+        GLUtils.checkGLError("before depth overlays");
+
+        for (VROverlay overlay : preparedDepthOverlays) {
+            if (!overlay.isVisible()) {
                 continue;
             }
             var target = overlay.getRenderTarget();
-            if(target == null){
-                //shouldn't happen at all
-                throw new RuntimeException("Tried to render overlay quad with null renderTarget: "+overlay.getId());
+            if (target == null) {
+                throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
             }
 
             RenderGuiHelper.renderOverlayQuad(
@@ -197,17 +216,59 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     poseStack,
                     overlay.getPose().getPosition(),
                     overlay.getPose().getRotation(),
-                    !overlay.supportsDepth(),
+                    false, // depthAlways = false, use GL_LEQUAL
                     overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
-            GLUtils.checkGLError("post VROverlay quad: "+overlay.getId());
+            GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
         }
 
-        // --- Restore ---
         poseStack.popPose();
     }
 
+    /**
+     * Render only HUD overlays (no depth testing — GL_ALWAYS).
+     * These render as a top layer AFTER hands, preventing blending artifacts.
+     */
+    public void renderHudOverlays(float partialTicks,
+                                  PoseStack poseStack) {
+        if (preparedHudOverlays.isEmpty()) {
+            return;
+        }
+
+        poseStack.pushPose();
+        poseStack.setIdentity();
+        RenderPoseHelper.applyCameraOrientation(
+                VRRenderState.getCameraType(),
+                poseStack
+        );
+
+        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+        GLUtils.checkGLError("before hud overlays");
+
+        for (VROverlay overlay : preparedHudOverlays) {
+            if (!overlay.isVisible()) {
+                continue;
+            }
+            var target = overlay.getRenderTarget();
+            if (target == null) {
+                throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
+            }
+
+            RenderGuiHelper.renderOverlayQuad(
+                    overlay,
+                    poseStack,
+                    overlay.getPose().getPosition(),
+                    overlay.getPose().getRotation(),
+                    true, // depthAlways = true, use GL_ALWAYS
+                    overlay.supportsLight(),
+                    overlay.getPose().getScale()
+            );
+            GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
+        }
+
+        poseStack.popPose();
+    }
 
 
     @Override
