@@ -35,7 +35,7 @@ dependencies {
     modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
 
 
-
+    shadowCommon(libs.atumvr.api) { transitive = false }
     shadowCommon(libs.atumvr.core) { transitive = false }
     shadowCommon(libs.atumvr.config)
 

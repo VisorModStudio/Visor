@@ -49,7 +49,7 @@ dependencies {
     implementation(include("io.github.llamalad7:mixinextras-forge:${libs.versions.mixinExtras.get()}"))
 
 
-
+    shadowCommon(libs.atumvr.api) { transitive = false }
     shadowCommon(libs.atumvr.core) { transitive = false }
     shadowCommon(libs.atumvr.config)
 
