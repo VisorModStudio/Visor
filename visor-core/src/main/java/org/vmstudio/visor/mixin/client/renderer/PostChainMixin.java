@@ -93,10 +93,7 @@ public class PostChainMixin {
 
     @ModifyVariable(method = "addTempTarget", at = @At(value = "STORE"), ordinal = 0)
     private RenderTarget visor$tempTargetStencil(RenderTarget renderTarget) {
-        if (((RenderTargetModified) this.screenTarget).visor$isUsingStencil()) {
-            ((RenderTargetModified) renderTarget).visor$setUseStencil(true);
-            renderTarget.resize(renderTarget.width, renderTarget.height, Minecraft.ON_OSX);
-        }
+
         return renderTarget;
     }
 

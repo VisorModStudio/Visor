@@ -261,6 +261,7 @@ public class VRHandRenderer {
         // --- GL setup ---
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        RenderSystem.depthMask(false);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         if (MC.getOverlay() == null) {
@@ -282,6 +283,7 @@ public class VRHandRenderer {
 
         // --- Restore GL ---
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(true);
 
         poseStack.popPose();
     }
@@ -343,6 +345,7 @@ public class VRHandRenderer {
         );
 
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        RenderSystem.depthMask(false);
 
         AtumColorImmutable color;
 
@@ -391,6 +394,7 @@ public class VRHandRenderer {
                 color
         );
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(true);
 
     }
 

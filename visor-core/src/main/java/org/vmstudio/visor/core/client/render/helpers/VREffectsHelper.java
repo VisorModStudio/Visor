@@ -44,7 +44,7 @@ public class VREffectsHelper {
         RenderSystem.setShader(GameRenderer::getPositionShader);
         RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(true);
+        RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
 
@@ -58,6 +58,7 @@ public class VREffectsHelper {
 
         // --- Restore ---
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(true);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 

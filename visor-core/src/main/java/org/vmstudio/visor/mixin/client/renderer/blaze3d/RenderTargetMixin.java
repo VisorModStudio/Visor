@@ -45,7 +45,7 @@ public abstract class RenderTargetMixin implements RenderTargetModified {
     @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 2)
     public int visor$vrUseStencil1(int internalformat) {
         return visor$useStencil
-                ? GL30.GL_DEPTH32F_STENCIL8
+                ? GL30.GL_DEPTH24_STENCIL8
                 : internalformat;
     }
 
@@ -58,7 +58,7 @@ public abstract class RenderTargetMixin implements RenderTargetModified {
     @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 7)
     public int visor$vrUseStencil3(int type) {
         return visor$useStencil
-                ? GL30.GL_FLOAT_32_UNSIGNED_INT_24_8_REV : type;
+                ? GL30.GL_UNSIGNED_INT_24_8 : type;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false, ordinal = 1), method = "createBuffers", index = 1)
