@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.client.tasks.RegisterVisorTask;
 import org.vmstudio.visor.api.client.tasks.TaskType;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -97,6 +98,14 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
 
     @Override
     public void registerComponent(@NotNull VisorTask component) {
+        String validationError = ComponentIds.validate(component.getId());
+        if(validationError != null){
+            throw new RuntimeException(
+                    "Tried to register "+COMPONENT_NAME+" with ID '"
+                            + component.getId()
+                            + "'. From addon: '"+component.getOwner().getAddonId()
+                            + "'. The ID pattern is incorrect: " + validationError);
+        }
 
         VisorTask previous = componentsMap.put(component.getId(), component);
 

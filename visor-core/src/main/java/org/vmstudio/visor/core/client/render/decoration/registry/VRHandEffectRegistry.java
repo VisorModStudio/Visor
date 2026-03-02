@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -79,6 +80,15 @@ public class VRHandEffectRegistry implements ComponentRegistry<VRHandEffect> {
 
     @Override
     public void registerComponent(@NotNull VRHandEffect component) {
+        String validationError = ComponentIds.validate(component.getId());
+        if(validationError != null){
+            throw new RuntimeException(
+                    "Tried to register "+COMPONENT_NAME+" with ID '"
+                            + component.getId()
+                            + "'. From addon: '"+component.getOwner().getAddonId()
+                            + "'. The ID pattern is incorrect: " + validationError);
+        }
+
         var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {

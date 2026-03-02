@@ -15,7 +15,17 @@ import java.util.List;
  */
 public interface ComponentRegistry<T extends VisorComponent> {
 
-    String ID_REGEX = "[a-zA-Z0-9_]+";
+    /**
+     * Validate a component ID using the standard rules.
+     * Returns null if valid, or an error message if invalid.
+     *
+     * @param id the component id to validate
+     * @return error message or null if valid
+     */
+    @Nullable
+    default String validateId(@Nullable String id) {
+        return ComponentIds.validate(id);
+    }
 
     /**
      * Scan and register all found addon components for specified addon.

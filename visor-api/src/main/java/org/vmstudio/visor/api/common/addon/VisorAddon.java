@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 
 /**
  * Base interface for Visor addons.
@@ -49,7 +50,11 @@ public interface VisorAddon {
 
 
     /**
-     * @return ID of an addon
+     * Get the ID of this addon
+     * <p>
+     *     ID value must comply with {@link ComponentIds}
+     * </p>
+     * @return the addon ID
      */
     @NotNull
     String getAddonId();

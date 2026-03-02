@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.AddonManager;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.common.eventbus.VREventBusImpl;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +43,13 @@ public class AddonManagerImpl implements AddonManager {
 
 
         for(var addon : VisorAPI.Instance.getPreparedAddons().values()){
+            String validationError = ComponentIds.validate(addon.getAddonId());
+            if(validationError != null){
+                throw new RuntimeException(
+                        "Tried to register addon with ID '"
+                                + addon.getAddonId()
+                                + "'. The ID pattern is incorrect: " + validationError);
+            }
             addonsMap.put(addon.getAddonId(), addon);
             loadAddon(addon);
         }

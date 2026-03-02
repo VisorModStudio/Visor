@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.input.action.VisorActionKey;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -194,7 +195,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
         else if(parent.getActionSet().getAction(id) != null){
             canCreate = false;
             actionIdEdit.setTextColor(AtumColor.RED.asInt());
-        }else if(!id.matches(ComponentRegistry.ID_REGEX)){
+        }else if(!ComponentIds.isValid(id)){
             canCreate = false;
             actionIdEdit.setTextColor(AtumColor.RED.asInt());
         }else{

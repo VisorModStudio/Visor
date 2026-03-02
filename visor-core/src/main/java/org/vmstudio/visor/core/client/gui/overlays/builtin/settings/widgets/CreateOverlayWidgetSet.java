@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import org.vmstudio.visor.api.client.gui.widgets.sets.FiltersListWidgetSet;
 import org.vmstudio.visor.api.client.gui.widgets.sets.SearchableListWidgetSet;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -294,12 +295,12 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         if(id.isBlank()){
             return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.id");
         }
-        if(!id.matches(ComponentRegistry.ID_REGEX)){
-            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.regex");
+        if(!ComponentIds.isValid(id)){
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.pattern");
         }
         VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
         if(registry.getComponent(id) != null) {
-            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.id.exists");
+            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.exists");
         }
 
         if(setupIdentity.getNameWidget().getValue().isBlank()){

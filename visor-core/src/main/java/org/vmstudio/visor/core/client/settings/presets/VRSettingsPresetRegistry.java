@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.gui.settings.RegisterVRSettingsPreset;
 import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -74,6 +75,15 @@ public class VRSettingsPresetRegistry implements ComponentRegistry<VRSettingsPre
 
     @Override
     public void registerComponent(@NotNull VRSettingsPreset component) {
+        String validationError = ComponentIds.validate(component.getId());
+        if(validationError != null){
+            throw new RuntimeException(
+                    "Tried to register "+COMPONENT_NAME+" with ID '"
+                            + component.getId()
+                            + "'. From addon: '"+component.getOwner().getAddonId()
+                            + "'. The ID pattern is incorrect: " + validationError);
+        }
+
         var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {

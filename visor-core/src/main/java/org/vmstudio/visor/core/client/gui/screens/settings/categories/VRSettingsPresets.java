@@ -14,6 +14,7 @@ import org.vmstudio.visor.api.client.gui.widgets.lists.CheckboxList;
 import org.vmstudio.visor.api.client.gui.widgets.lists.TexturedSelectionList;
 import org.vmstudio.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import org.vmstudio.visor.api.common.VRException;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -1040,7 +1041,7 @@ public class VRSettingsPresets extends VROptionsSet {
             else if(registry.getComponent(id) != null){
                 confirmButton.active = false;
                 idEditBix.setTextColor(AtumColor.RED.asInt());
-            }else if(!id.matches(ComponentRegistry.ID_REGEX)){
+            }else if(ComponentIds.isValid(id)){
                 confirmButton.active = false;
                 idEditBix.setTextColor(AtumColor.RED.asInt());
             }else{

@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayTemplateRecord;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -84,6 +85,15 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
 
     @Override
     public void registerComponent(@NotNull VROverlayTemplateRecord component) {
+        String validationError = ComponentIds.validate(component.getId());
+        if(validationError != null){
+            throw new RuntimeException(
+                    "Tried to register "+COMPONENT_NAME+" with ID '"
+                            + component.getId()
+                            + "'. From addon: '"+component.getOwner().getAddonId()
+                            + "'. The ID pattern is incorrect: " + validationError);
+        }
+
         var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {

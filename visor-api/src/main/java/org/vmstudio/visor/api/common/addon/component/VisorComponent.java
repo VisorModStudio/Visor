@@ -23,9 +23,11 @@ public interface VisorComponent {
     void setEnabled(boolean flag);
 
     /**
-     * Get component id
-     *
-     * @return id
+     * Get component ID
+     * <p>
+     *     ID value must comply with {@link ComponentIds}
+     * </p>
+     * @return ID
      */
     @NotNull
     String getId();

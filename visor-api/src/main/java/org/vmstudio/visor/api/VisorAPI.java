@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRCameraType;
 import org.vmstudio.visor.api.common.addon.AddonManager;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.eventbus.VREventBus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -69,6 +70,14 @@ public interface VisorAPI {
                             + addon.getAddonId()
                             + "', that is already registered");
         }
+        String validationError = ComponentIds.validate(addon.getAddonId());
+        if(validationError != null){
+            throw new RuntimeException(
+                    "Tried to register addon with ID '"
+                            + addon.getAddonId()
+                            + "'. The ID pattern is incorrect: " + validationError);
+        }
+
         Instance.getPreparedAddons().put(addon.getAddonId(), addon);
     }
 
