@@ -274,6 +274,7 @@
   "visor.overlay.template.hud.description": "Vanilla HUD",
   "visor.overlay.template.chat.name": "Chat",
   "visor.overlay.template.chat.description": "Vanilla chat",
+  "visor.overlay.property.hud_layer": "HUD layer",
 
   "_comment16": "*--------OVERLAY OPTIONS--------*",
   "visor.overlay.options.overlays": "Overlays",
@@ -357,6 +358,8 @@
   "visor.overlay.options.key_button.text_color": "Text color",
   "visor.overlay.options.key_button.text": "Text",
   "visor.overlay.options.key_button.texture": "Texture",
+
+  "visor.overlay.options.general": "General",
 
   "_comment19": "*--------COMMON BUTTONS--------*",
   "visor.button.load_defaults": "Load Defaults",

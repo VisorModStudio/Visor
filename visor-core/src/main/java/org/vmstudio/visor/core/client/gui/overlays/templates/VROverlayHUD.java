@@ -2,8 +2,13 @@ package org.vmstudio.visor.core.client.gui.overlays.templates;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
+import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
+import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
 import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
@@ -17,6 +22,7 @@ import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL30;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 
 import java.util.List;
 
@@ -34,6 +40,7 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
     public static final String DESCRIPTION = "visor.overlay.template."+ID+".description";
 
     private OverlayOptionsScreenRegion optionsScreenRegion;
+    private PropertyBool hudLayerProperty;
 
     private RegionRenderTarget regionTarget;
 
@@ -77,6 +84,10 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
         return true;
     }
 
+    @Override
+    public boolean supportsDepth() {
+        return !hudLayerProperty.getValue();
+    }
 
     private void updateRegionTargetFromSource(RenderTarget src) {
         if (src == null) {
@@ -134,6 +145,25 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
 
     @Override
     protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
+        Component trueLabel = Component.literal(
+                Component.translatable("visor.overlay.property.hud_layer").getString()
+                + ": " + Component.translatable("options.on").getString()
+        );
+        Component falseLabel = Component.literal(
+                Component.translatable("visor.overlay.property.hud_layer").getString()
+                        + ": " + Component.translatable("options.off").getString()
+        );
+        hudLayerProperty = new PropertyBool(
+                "is_hud_layer",
+                true,
+                trueLabel,
+                falseLabel,
+                new WidgetInfoButtonImaged()
+                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                        .setTextColor(VROverlaySettings.TEXT_COLOR)
+        );
+
         optionsScreenRegion =  new OverlayOptionsScreenRegion(
                 this,
                 VisorAPI.client().getGuiManager().getGuiWidth(),
@@ -148,6 +178,10 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
                 }
         );
         return List.of(
+                new OverlayOptionsGeneral(
+                        this,
+                        List.of(hudLayerProperty)
+                ),
                 new OverlayOptionsPose(
                         this,
                         it->{
