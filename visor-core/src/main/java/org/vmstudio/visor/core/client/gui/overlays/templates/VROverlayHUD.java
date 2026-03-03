@@ -85,8 +85,8 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
     }
 
     @Override
-    public boolean supportsDepth() {
-        return !hudLayerProperty.getValue();
+    public boolean isHudLayer() {
+        return hudLayerProperty.getValue();
     }
 
     private void updateRegionTargetFromSource(RenderTarget src) {

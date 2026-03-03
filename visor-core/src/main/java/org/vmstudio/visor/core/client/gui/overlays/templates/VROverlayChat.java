@@ -68,8 +68,8 @@ public class VROverlayChat extends VROverlayTemplateScreen {
     }
 
     @Override
-    public boolean supportsDepth() {
-        return true;
+    public boolean isHudLayer() {
+        return false;
     }
 
     @Override

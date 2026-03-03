@@ -147,7 +147,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      *
      * <p>
      *     You can create your own option class,
-     *     or use already existing one from {@link me.phoenixra.visor.api.client.gui.overlays.options.types this package}
+     *     or use already existing one from {@link org.vmstudio.visor.api.client.gui.overlays.options.types this package}
      * </p>
      *
      * @param id the option id
@@ -162,7 +162,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      *
      * <p>
      *     You can create your own option class,
-     *     or use already existing one from {@link me.phoenixra.visor.api.client.gui.overlays.options.types this package}
+     *     or use already existing one from {@link org.vmstudio.visor.api.client.gui.overlays.options.types this package}
      * </p>
      *
      * @param id the option id
@@ -264,15 +264,14 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     }
 
     /**
-     * If overlay visibility is affected
-     * by solid blocks, entity models etc
-     *
-     * <p>When false, overlay is displayed on a layer above world</p>
-     *
+     * If overlay is on a HUD layer or on a world layer
+     * <p>
+     *     HUD layer means the overlay won't be occluded by world objects (blocks, hands, entities etc.)
+     * </p>
      * @return true/false
      */
-    default boolean supportsDepth(){
-        return false;
+    default boolean isHudLayer(){
+        return true;
     }
 
     /**

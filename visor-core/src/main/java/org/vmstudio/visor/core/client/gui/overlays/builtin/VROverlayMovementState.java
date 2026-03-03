@@ -151,8 +151,8 @@ public class VROverlayMovementState extends VROverlayScreen {
     }
 
     @Override
-    public boolean supportsDepth() {
-        return true;
+    public boolean isHudLayer() {
+        return false;
     }
 
 

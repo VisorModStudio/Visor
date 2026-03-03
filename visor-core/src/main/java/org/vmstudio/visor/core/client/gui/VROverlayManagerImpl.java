@@ -49,7 +49,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     private final List<VROverlay> preparedOverlays = new ArrayList<>();
 
-    // Separated overlay lists for staged rendering
     private final List<VROverlay> preparedDepthOverlays = new ArrayList<>();
     private final List<VROverlay> preparedHudOverlays = new ArrayList<>();
 
@@ -70,13 +69,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
         for (VROverlay overlay : overlaysRegistry.getSortedComponents()) {
             if(!overlay.isVisible()) continue;
             RenderTarget target = overlay.getRenderTarget();
-
-            //make sure renderTarget exists
             if(target == null){
                 continue;
             }
 
-            //update pose
             overlay.updatePose(partialTicks);
 
             //do not render overlay if out of view distance
@@ -87,11 +83,11 @@ public class VROverlayManagerImpl implements VROverlayManager {
             //ready to be rendered
             preparedOverlays.add(overlay);
 
-            // Split into depth vs HUD lists
-            if (overlay.supportsDepth()) {
-                preparedDepthOverlays.add(overlay);
-            } else {
+            // Split into depth and HUD layer lists
+            if (overlay.isHudLayer()) {
                 preparedHudOverlays.add(overlay);
+            } else {
+                preparedDepthOverlays.add(overlay);
             }
         }
         ClientContext.cursorHandler.process();
@@ -162,7 +158,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
                 // rendering is fully handled by VROverlayFrameBuffer,
-                // so, just call render(),
+                // so, just render() is called,
                 // and let it do the rest
                 overlayFrameBuffer.render(partialTicks);
             }else{
@@ -228,7 +224,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     /**
      * Render only HUD overlays (no depth testing — GL_ALWAYS).
-     * These render as a top layer AFTER hands, preventing blending artifacts.
+     * These render as a top layer, not occluded by world objects
      */
     public void renderHudOverlays(float partialTicks,
                                   PoseStack poseStack) {
