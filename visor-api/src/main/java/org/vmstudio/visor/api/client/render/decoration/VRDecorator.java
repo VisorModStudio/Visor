@@ -59,6 +59,30 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
     // ==========================================
 
     /**
+     * Unlike other methods, called once per game frame
+     * <p>
+     * Since in VR we render game multiple times,
+     * it is important in some cases to update
+     * data states one time right before the frame rendering
+     *
+     */
+    public void updateRenderState() {
+    }
+
+    /**
+     * Called before any pipeline stages, at the very beginning
+     * of the frame for this decorator.
+     *
+     * <p>Use for setup work like in-block effects, panorama
+     * rendering, light layer toggling, etc.</p>
+     *
+     * @param poseStack    the current pose stack
+     * @param partialTicks partial tick time
+     */
+    public void setupRendering(@NotNull PoseStack poseStack, float partialTicks) {
+    }
+
+    /**
      * Called at {@code AFTER_SOLID} — before translucents.
      *
      * <p>Render depth-tested elements that should be visible
@@ -109,18 +133,7 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
     }
 
 
-    /**
-     * Called before any pipeline stages, at the very beginning
-     * of the frame for this decorator.
-     *
-     * <p>Use for setup work like in-block effects, panorama
-     * rendering, light layer toggling, etc.</p>
-     *
-     * @param poseStack    the current pose stack
-     * @param partialTicks partial tick time
-     */
-    public void setupRendering(@NotNull PoseStack poseStack, float partialTicks) {
-    }
+
 
 
     public abstract boolean canActivate();

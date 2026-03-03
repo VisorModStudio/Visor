@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.render.VRCameraType;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
+import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
@@ -90,40 +91,29 @@ public class VRHandRenderer {
 
     public void renderWorldHands(@NotNull VRDecorator decorator,
                                  @NotNull PoseStack poseStack,
-                                 float partialTicks,
-                                 boolean renderMain,
-                                 boolean renderOffhand
+                                 @NotNull HandRenderState handStateMain,
+                                 @NotNull HandRenderState handStateOffhand,
+                                 float partialTicks
     ) {
-        renderHands(decorator, poseStack, partialTicks, renderMain, renderOffhand, false);
+        renderHands(decorator, poseStack, handStateMain, handStateOffhand, partialTicks,false);
     }
 
     public void renderGuiHands(@NotNull VRDecorator decorator,
                                @NotNull PoseStack poseStack,
-                               float partialTicks,
-                               boolean renderMain,
-                               boolean renderOffhand
+                               @NotNull HandRenderState handStateMain,
+                               @NotNull HandRenderState handStateOffhand,
+                               float partialTicks
     ) {
-        renderHands(decorator, poseStack, partialTicks, renderMain, renderOffhand, true);
+        renderHands(decorator, poseStack, handStateMain, handStateOffhand, partialTicks,true);
     }
 
 
     public void renderHands(@NotNull VRDecorator decorator,
                             @NotNull PoseStack poseStack,
+                            @NotNull HandRenderState handStateMain,
+                            @NotNull HandRenderState handStateOffhand,
                             float partialTicks,
-                            boolean renderMain,
-                            boolean renderOffhand,
-                            boolean isGui){
-        if (!ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            return;
-        }
-        //don't render world hands in third person
-        if(VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON){
-            if(VRClientSettings.getMirrorMode() != MirrorMode.MIXED_REALITY){
-                return;
-            }
-        }
-
-        var cursorHandler = ClientContext.cursorHandler;
+                            boolean isGuiStage){
         RenderSystem.backupProjectionMatrix();
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
@@ -131,42 +121,39 @@ public class VRHandRenderer {
         VRCameraType cameraType = VRRenderState.getCameraType();
         Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
 
-        if (renderMain && isTrackingHand(HandType.MAIN)) {
-            boolean isCursorHand = cursorHandler.isHandFocused(HandType.MAIN)
-                    && (cursorHandler.getCursorHand() == HandType.MAIN
-                    || cursorHandler.isTwoHandedCursor());
-            boolean isGuiHand = isGui
-                    || isCursorHand
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
-
+        if(handStateMain == HandRenderState.GUI_HAND
+                && isGuiStage){
             renderHand(
                     HandType.MAIN,
-                    poseStack,
-                    partialTicks,
-                    isGuiHand,
-                    cameraType,
-                    effects,
-                    decorator
+                    poseStack, partialTicks,
+                    true,
+                    cameraType, effects, decorator
+            );
+        } else if(handStateMain == HandRenderState.WORLD_HAND
+                && !isGuiStage){
+            renderHand(
+                    HandType.MAIN,
+                    poseStack, partialTicks,
+                    false,
+                    cameraType, effects, decorator
             );
         }
-        if (renderOffhand && isTrackingHand(HandType.OFFHAND)) {
-            boolean isCursorHand = cursorHandler.isHandFocused(HandType.OFFHAND)
-                    && (cursorHandler.getCursorHand() == HandType.OFFHAND
-                    || cursorHandler.isTwoHandedCursor());
-            boolean isGuiHand = isGui
-                    || isCursorHand
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
 
+        if(handStateOffhand == HandRenderState.GUI_HAND
+                && isGuiStage){
             renderHand(
                     HandType.OFFHAND,
-                    poseStack,
-                    partialTicks,
-                    isGuiHand,
-                    cameraType,
-                    effects,
-                    decorator
+                    poseStack, partialTicks,
+                    true,
+                    cameraType, effects, decorator
+            );
+        } else if(handStateOffhand == HandRenderState.WORLD_HAND
+                && !isGuiStage){
+            renderHand(
+                    HandType.OFFHAND,
+                    poseStack, partialTicks,
+                    false,
+                    cameraType, effects, decorator
             );
         }
 

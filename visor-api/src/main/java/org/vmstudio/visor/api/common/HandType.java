@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.common;
 
 import me.phoenixra.atumvr.api.enums.ControllerType;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.common.player.VRBodyPart;
 import net.minecraft.world.InteractionHand;
 
@@ -9,15 +10,16 @@ public enum HandType {
     OFFHAND;
 
 
-    public VRBodyPart asBodyPart(){
+    public @NotNull VRBodyPart asBodyPart(){
         return this == MAIN ? VRBodyPart.MAIN_HAND : VRBodyPart.OFFHAND;
     }
 
-    public InteractionHand asInteractionHand(){
+    public @NotNull InteractionHand asInteractionHand(){
         return this == MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
 
-    public ControllerType getControllerType(boolean leftHanded){
+
+    public @NotNull ControllerType asControllerType(boolean leftHanded){
         if(leftHanded){
             return this == MAIN ? ControllerType.LEFT : ControllerType.RIGHT;
         }else{
@@ -25,17 +27,26 @@ public enum HandType {
         }
     }
 
-    public HandType reversed(){
+    public @NotNull HandType reversed(){
         if(this == OFFHAND) return MAIN;
         else return OFFHAND;
     }
 
-    public static HandType fromInt(int id){
+    public static @NotNull HandType fromInt(int id){
         if(id == 0) return MAIN;
         return OFFHAND;
     }
-    public static HandType fromMc(InteractionHand mcHand){
+
+    public static @NotNull HandType fromMc(InteractionHand mcHand){
         return mcHand == InteractionHand.MAIN_HAND ? MAIN : OFFHAND;
     }
 
+    public static @NotNull HandType fromController(@NotNull ControllerType controllerType,
+                                                   boolean leftHanded){
+        if(leftHanded){
+            return controllerType == ControllerType.LEFT ? MAIN : OFFHAND;
+        }else{
+            return controllerType == ControllerType.LEFT ? OFFHAND : MAIN;
+        }
+    }
 }

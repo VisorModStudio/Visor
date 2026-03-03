@@ -111,7 +111,7 @@ public class VRInputManagerImpl implements VRInputManager {
             return;
         }
         String controllerId = VRDeviceController.getId(
-                hand.getControllerType(isLeftHanded())
+                hand.asControllerType(isLeftHanded())
         );
         ClientContext.visor.getVrProvider().getInputHandler()
                 .getDevice(controllerId, VRDeviceController.class)

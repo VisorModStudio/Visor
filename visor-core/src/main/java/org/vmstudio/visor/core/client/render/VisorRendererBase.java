@@ -92,7 +92,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
     public void render(RenderContext context) {
-
+        ClientContext.decorationRenderer.updateRenderState();
         renderFrame(context);
 
     }

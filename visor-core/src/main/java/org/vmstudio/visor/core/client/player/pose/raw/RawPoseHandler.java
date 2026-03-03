@@ -49,7 +49,7 @@ public abstract class RawPoseHandler {
 
 
     public RawControllerImpl getControllerData(HandType controller) {
-        if (controller.getControllerType(VRClientSettings.isLeftHanded()) == ControllerType.LEFT){
+        if (controller.asControllerType(VRClientSettings.isLeftHanded()) == ControllerType.LEFT){
             return controllerLeftData;
         }
         return controllerRightData;
