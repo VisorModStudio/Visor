@@ -36,10 +36,11 @@ public class GameActionSet extends VisorActionSet {
                 new ActionMiddleMouse(this, HandType.OFFHAND),
                 new ActionScrollMouse(this, HandType.OFFHAND),
 
+                new ActionShift(this),
+
                 new GameActionMovement(this),
                 new GameActionRotate(this),
                 new GameActionJump(this),
-                new GameActionShift(this),
 
                 new GameActionHotBar(this),
                 new ActionMenu(this)

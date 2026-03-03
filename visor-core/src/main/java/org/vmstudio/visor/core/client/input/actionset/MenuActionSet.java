@@ -35,6 +35,8 @@ public class MenuActionSet extends VisorActionSet {
                 new ActionMiddleMouse(this, HandType.OFFHAND),
                 new ActionScrollMouse(this, HandType.OFFHAND),
 
+                new ActionShift(this),
+
                 new ActionMenu(this)
 
         );

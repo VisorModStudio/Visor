@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.input.actions.game;
+package org.vmstudio.visor.core.client.input.actions;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
@@ -12,12 +12,12 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
-public class GameActionShift extends VisorActionButton {
+public class ActionShift extends VisorActionButton {
     public static final String ID = "shift";
 
 
 
-    public GameActionShift(VisorActionSet actionSet) {
+    public ActionShift(VisorActionSet actionSet) {
         super(actionSet, ID);
     }
 
