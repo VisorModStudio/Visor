@@ -31,7 +31,7 @@ public class DecoratorGame extends VRDecorator {
     }
 
     @Override
-    public boolean usesWorldHands() {
+    public boolean supportsWorldHands() {
         return true;
     }
 

@@ -41,15 +41,27 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
 
 
     /**
-     * Whether this decorator uses world hands (skinned, depth-tested)
-     * or gui hands (simple cuboid, GL_ALWAYS).
+     * If supports world hands
      *
      * <p>Override to return {@code true} for decorators
-     * where the player is in-game (e.g. DecoratorGame).</p>
+     * where the player is in-world
      *
-     * @return {@code true} for world hands, {@code false} for gui hands
+     * @return true/false
      */
-    public boolean usesWorldHands() {
+    public boolean supportsWorldHands() {
+        return false;
+    }
+
+    /**
+     * If this decorator fully controls the VR decoration rendering.
+     *
+     * <p>
+     *     When true, no hands, overlays etc will be rendered in {@link VRDecorationRenderer},
+     *     you will have full control.
+     * </p>
+     * @return true/false
+     */
+    public boolean isFullControl(){
         return false;
     }
 

@@ -26,7 +26,6 @@ import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.modified.client.render.GameRendererModified;
 
-import java.util.EnumMap;
 import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -110,6 +109,12 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
 
     public void updateRenderState(){
+        if (currentDecorator == null) return;
+        if(currentDecorator.isFullControl()){
+            currentDecorator.updateRenderState();
+            return;
+        }
+
         if (!ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
             handStateMain = HandRenderState.OFF;
             handStateOffhand = HandRenderState.OFF;
@@ -133,7 +138,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             boolean isCursorHand = cursorHandler.isHandFocused(HandType.MAIN)
                     && (cursorHandler.getCursorHand() == HandType.MAIN
                     || cursorHandler.isTwoHandedCursor());
-            boolean isGuiHand = !currentDecorator.usesWorldHands()
+            boolean isGuiHand = !currentDecorator.supportsWorldHands()
                     || isCursorHand
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
@@ -149,7 +154,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             boolean isCursorHand = cursorHandler.isHandFocused(HandType.OFFHAND)
                     && (cursorHandler.getCursorHand() == HandType.OFFHAND
                     || cursorHandler.isTwoHandedCursor());
-            boolean isGuiHand = !currentDecorator.usesWorldHands()
+            boolean isGuiHand = !currentDecorator.supportsWorldHands()
                     || isCursorHand
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
                     || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
@@ -172,6 +177,11 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private void renderAfterSolid(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
+        if(currentDecorator.isFullControl()){
+            currentDecorator.setupRendering(poseStack, partialTicks);
+            currentDecorator.renderAfterSolid(poseStack, partialTicks);
+            return;
+        }
 
         currentDecorator.setupRendering(poseStack, partialTicks);
 
@@ -192,6 +202,10 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private void renderAfterTranslucent(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
+        if(currentDecorator.isFullControl()){
+            currentDecorator.renderAfterTranslucent(poseStack, partialTicks);
+            return;
+        }
 
         currentDecorator.renderAfterTranslucent(poseStack, partialTicks);
 
@@ -201,6 +215,10 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private void renderAfterWorld(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
+        if(currentDecorator.isFullControl()){
+            currentDecorator.renderAfterWorld(poseStack, partialTicks);
+            return;
+        }
 
         renderGameEffects(currentDecorator, poseStack, partialTicks);
         ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
