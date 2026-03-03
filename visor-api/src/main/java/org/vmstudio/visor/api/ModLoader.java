@@ -128,8 +128,6 @@ public interface ModLoader {
     @ApiStatus.Internal
     double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot);
     @ApiStatus.Internal
-    boolean renderBlockOverlay(Player player, PoseStack mat, BlockState state, BlockPos pos);
-    @ApiStatus.Internal
     boolean renderWaterOverlay(Player player, PoseStack mat);
     @ApiStatus.Internal
     boolean renderFireOverlay(Player player, PoseStack mat);

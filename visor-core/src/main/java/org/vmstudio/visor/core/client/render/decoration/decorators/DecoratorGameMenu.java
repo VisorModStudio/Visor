@@ -26,13 +26,8 @@ public class DecoratorGameMenu extends VRDecorator {
     public void tick() {
     }
 
-    @Override
-    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
-        if (insideBlock) {
-            VREffectsHelper.renderInBlockEffect();
-        }
-    }
+
+
     @Override
     public boolean canActivate() {
         return MC.player != null && MC.level != null && MC.screen != null;

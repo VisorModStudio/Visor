@@ -217,10 +217,6 @@ public class FabricModLoader implements ModLoader {
         return ClientPlayNetworking.createC2SPacket(payload.id(), buffer);
     }
 
-    @Override
-    public boolean renderBlockOverlay(Player player, PoseStack mat, BlockState state, BlockPos pos) {
-        return false;
-    }
 
     @Override
     public boolean renderWaterOverlay(Player player, PoseStack mat) {

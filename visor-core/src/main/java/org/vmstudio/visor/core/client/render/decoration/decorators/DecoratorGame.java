@@ -35,13 +35,7 @@ public class DecoratorGame extends VRDecorator {
         return true;
     }
 
-    @Override
-    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
-        if (insideBlock) {
-            VREffectsHelper.renderInBlockEffect();
-        }
-    }
+
 
     @Override
     public boolean canActivate() {

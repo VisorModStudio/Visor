@@ -185,10 +185,6 @@ public class ForgeModLoader implements ModLoader {
     }
 
     @Override
-    public boolean renderBlockOverlay(Player player, PoseStack mat, BlockState state, BlockPos pos) {
-        return ForgeHooksClient.renderBlockOverlay(player, mat, RenderBlockScreenEffectEvent.OverlayType.BLOCK, state, pos);
-    }
-    @Override
     public boolean renderWaterOverlay(Player player, PoseStack mat) {
         return ForgeHooksClient.renderWaterOverlay(player, mat);
     }

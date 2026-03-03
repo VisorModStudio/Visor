@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
+import org.vmstudio.visor.modified.client.render.GameRendererModified;
 
 import java.util.List;
 
@@ -144,6 +146,11 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     poseStack, partialTicks,
                     true, true
             );
+        }
+
+        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock();
+        if (insideBlock && MC.level != null) {
+            VREffectsHelper.renderInBlockEffect();
         }
 
         currentDecorator.renderAfterWorld(poseStack, partialTicks);

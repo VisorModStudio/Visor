@@ -17,7 +17,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -276,18 +275,17 @@ public class RenderHelper {
 
     /**
      * Searches within a sphere of radius {@code radius} around {@code origin}
-     * for the nearest block whose {@code isSolidRender} is true.
+     * for any block whose {@code isSolidRender} is true.
      *
      * @param origin the center of the search in world coordinates
      * @param radius the search radius
-     * @return an Optional containing the nearest opaque block info, or empty if none found
+     * @return an Optional containing found opaque block info, or empty if none found
      */
-    public static Optional<VREffectsHelper.NearestOpaqueBlock> findNearestSolidBlock(Vec3 origin, double radius) {
+    public static Optional<VREffectsHelper.NearestOpaqueBlock> findAnySolidBlock(Vec3 origin, double radius) {
         ClientLevel level = MC.level;
         if (level == null) {
             return Optional.empty();
         }
-
 
         AABB box = new AABB(
                 origin.subtract(radius, radius, radius),
@@ -296,14 +294,13 @@ public class RenderHelper {
 
         return BlockPos
                 .betweenClosedStream(box)
-                // only those that actually render as solid
                 .filter(pos -> level.getBlockState(pos).isSolidRender(level, pos))
-                .map(pos -> {
-                    float dist = (float) Vec3.atCenterOf(pos).distanceTo(origin);
-                    return new VREffectsHelper.NearestOpaqueBlock(dist, level.getBlockState(pos), pos);
-                })
-                // pick the one with the minimum distance
-                .min(Comparator.comparingDouble(VREffectsHelper.NearestOpaqueBlock::distance));
+                .findFirst()
+                .map(pos -> new VREffectsHelper.NearestOpaqueBlock(
+                        1.0F,
+                        level.getBlockState(pos),
+                        pos
+                ));
     }
 
 

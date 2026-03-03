@@ -122,7 +122,7 @@ public abstract class GameRendererMixin
     @Unique
     public boolean visor$onfire;
     @Unique
-    public float visor$inBlock = 0.0F;
+    public boolean visor$inBlock = false;
 
     @Unique
     public VRCameraEntityCache visor$cameraEntityCache = new VRCameraEntityCache();
@@ -671,7 +671,7 @@ public abstract class GameRendererMixin
 
     @Override
     @Unique
-    public float visor$isInBlock() {
+    public boolean visor$isInBlock() {
         return visor$inBlock;
     }
 
@@ -707,7 +707,7 @@ public abstract class GameRendererMixin
     @Unique
     private void visor$setupOverlayStatus(float partialTicks) {
         //@TODO add post process for these effects
-        this.visor$inBlock = 0.0F;
+        this.visor$inBlock = false;
 
         this.visor$onfire = false;
 
@@ -721,27 +721,16 @@ public abstract class GameRendererMixin
                 ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
-                .findNearestSolidBlock(
+                .findAnySolidBlock(
                         new Vec3((Vector3f) cameraPos),
-                        this.visor$nearClipPlane
+                        visor$nearClipPlane * 2
                 );
 
         if(nearSolidBlock.isPresent()){
-            var solid = nearSolidBlock.get();
-            boolean renderOverlay = ModLoader.get()
-                    .renderBlockOverlay(
-                            this.minecraft.player,
-                            new PoseStack(),
-                            solid.state(),
-                            solid.position()
-                    );
-            if(!renderOverlay){
-                this.visor$inBlock = solid.distance();
-            }else {
-                this.visor$inBlock = 0f;
-            }
+
+            this.visor$inBlock = true;
         }else{
-            this.visor$inBlock = 0f;
+            this.visor$inBlock = false;
         }
 
 

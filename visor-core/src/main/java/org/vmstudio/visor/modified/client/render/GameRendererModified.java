@@ -45,7 +45,7 @@ public interface GameRendererModified {
 
     boolean visor$isInPortal();
 
-    float visor$isInBlock();
+    boolean visor$isInBlock();
 
 
     void visor$resetProjectionMatrix(float partialTicks);

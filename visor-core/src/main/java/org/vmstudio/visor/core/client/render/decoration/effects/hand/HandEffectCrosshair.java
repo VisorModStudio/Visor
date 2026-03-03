@@ -34,7 +34,7 @@ import org.lwjgl.opengl.GL11C;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-
+//@TODO fix: on forge for some reason one eye define that crosshair is bright, the other don't
 @RegisterVRHandEffect
 public class HandEffectCrosshair extends VRHandEffect {
     public static final String ID = "crosshair";
@@ -181,7 +181,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         if(hand != ClientContext.localPlayer.getActiveHand()){
             return false;
         }
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F;
+        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock();
         if(insideBlock){
             return false;
         }

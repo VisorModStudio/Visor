@@ -115,7 +115,7 @@ public class RenderGuiHelper {
         // --- Render ---
         if (MC.level != null && useLight) {
             if (RenderHelper.isInSolidBlock(position)
-                    || ((GameRendererModified) MC.gameRenderer).visor$isInBlock() > 0.0F) {
+                    || ((GameRendererModified) MC.gameRenderer).visor$isInBlock()) {
                 position = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
             }
 
