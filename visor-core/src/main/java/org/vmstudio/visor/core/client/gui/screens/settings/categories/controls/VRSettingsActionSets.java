@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSelectionList;
 import org.vmstudio.visor.api.client.gui.widgets.lists.TexturedSelectionList;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
@@ -53,11 +53,11 @@ public class VRSettingsActionSets extends VROptionsSet {
             & Renderable
             & NarratableEntry> List<T> initWidgets() {
         var scaleHelper = getScreen().getScaleHelper();
-        List<VisorActionSet> sets = ClientContext.inputManager
+        List<VRActionSet> sets = ClientContext.inputManager
                 .getActionSetRegistry()
                 .getSortedComponents();
         Map<String, String> rawEntries = new LinkedHashMap<>();
-        Map<String, VisorActionSet> entriesLink = new LinkedHashMap<>();
+        Map<String, VRActionSet> entriesLink = new LinkedHashMap<>();
         for(var set : sets){
             rawEntries.put(set.getId(), set.getName().getString());
             entriesLink.put(set.getId(), set);
@@ -82,7 +82,7 @@ public class VRSettingsActionSets extends VROptionsSet {
                     if(it == null){
                         return;
                     }
-                    VisorActionSet actionSet = ClientContext.inputManager
+                    VRActionSet actionSet = ClientContext.inputManager
                             .getActionSetRegistry()
                             .getComponent(
                                     it.getId()

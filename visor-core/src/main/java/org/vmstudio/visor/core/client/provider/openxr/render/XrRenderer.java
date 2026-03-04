@@ -2,15 +2,15 @@ package org.vmstudio.visor.core.client.provider.openxr.render;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
+import me.phoenixra.atumvr.api.input.device.AtumVRDeviceHMD;
 
-import me.phoenixra.atumvr.api.rendering.VRRenderContext;
+import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.core.client.provider.VisorScene;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
-import org.vmstudio.visor.core.client.render.VisorRendererBase;
+import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.PointerBuffer;
@@ -19,7 +19,7 @@ import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
 
-public class XrRenderer extends VisorRendererBase {
+public class XrRenderer extends VRRendererBase {
     @Getter
     private final XrProvider vrProvider;
 
@@ -96,7 +96,7 @@ public class XrRenderer extends VisorRendererBase {
     }
 
     @Override
-    public void renderFrame(@NotNull VRRenderContext context) {
+    public void renderFrame(@NotNull AtumVRRenderContext context) {
         if(!frameStarted) return;
 
 
@@ -146,7 +146,7 @@ public class XrRenderer extends VisorRendererBase {
             for (EyeType eyeType : EyeType.values()) {
                 int index = eyeType.getIndex();
                 XrView xrView = vrProvider.getInputHandler()
-                        .getDevice(VRDeviceHMD.ID, XRDeviceHMD.class)
+                        .getDevice(AtumVRDeviceHMD.ID, XRDeviceHMD.class)
                         .getXrView(eyeType);
                 XrSwapchainSubImage subImage = this.projectionLayerViews.get(index)
                         .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW)
@@ -202,7 +202,7 @@ public class XrRenderer extends VisorRendererBase {
     @Override
     public Matrix4f getProjectionMatrix(EyeType eyeType, float nearClip, float farClip) {
         XrFovf fov = vrProvider.getInputHandler()
-                .getDevice(VRDeviceHMD.ID, XRDeviceHMD.class)
+                .getDevice(AtumVRDeviceHMD.ID, XRDeviceHMD.class)
                 .getXrView(eyeType).fov();
 
         return new Matrix4f()

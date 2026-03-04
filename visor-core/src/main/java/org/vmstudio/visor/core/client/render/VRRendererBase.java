@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.render.VRCameraType;
-import org.vmstudio.visor.api.client.render.VisorRenderer;
+import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.VisorState;
@@ -35,7 +35,7 @@ import java.util.Map;
 import org.vmstudio.visor.core.client.ClientContext;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-public abstract class VisorRendererBase implements VisorRenderer {
+public abstract class VRRendererBase implements VRRenderer {
     public RenderTargetMain mainTarget;
 
     public RenderTargetGUI guiTarget;
@@ -73,7 +73,7 @@ public abstract class VisorRendererBase implements VisorRenderer {
 
 
 
-    public VisorRendererBase() {
+    public VRRendererBase() {
         hiddenArea.put(EyeType.LEFT, new float[0]);
         hiddenArea.put(EyeType.RIGHT, new float[0]);
         ClientContext.renderer = this;

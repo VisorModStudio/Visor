@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.client.input.action;
 
-import me.phoenixra.atumvr.api.input.action.VRAction;
+import me.phoenixra.atumvr.api.input.action.AtumVRAction;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
@@ -13,16 +13,16 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Base interface for visor actions.
+ * Base interface for VR actions.
  * <p>
  *     It is used to handle specific user interactions with VR
  *     (controller buttons, joystick...)
  * </p>
  * <p>
- *     It uses {@link VRAction} as an access point for VR data
+ *     It uses {@link AtumVRAction} as an access point for VR data
  * </p>
  */
-public interface VisorAction {
+public interface VRAction {
 
 
     /**
@@ -147,7 +147,7 @@ public interface VisorAction {
      * @return the action set
      */
     @NotNull
-    VisorActionSet getActionSet();
+    VRActionSet getActionSet();
 
 
     /**

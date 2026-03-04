@@ -1,116 +1,87 @@
 package org.vmstudio.visor.api.client.input.action.framework;
 
-
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
-import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
+import me.phoenixra.atumvr.api.input.action.data.VRActionDataVec2;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import org.vmstudio.visor.api.client.input.action.ActionKeyModifierType;
-import org.vmstudio.visor.api.client.input.action.VisorAction;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.ActionKeyModifierType;
+import org.vmstudio.visor.api.client.input.action.VRAction;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 
 import java.util.*;
 
-
-public abstract class VisorActionButton implements VisorAction {
+public abstract class VRActionVec2 implements VRAction {
 
     @Getter
-    private final VisorActionSet actionSet;
+    private final VRActionSet actionSet;
 
     @Getter
     private final String id;
 
     @Getter
-    protected boolean active;
+    private boolean active;
 
     @Getter
-    protected boolean changed;
+    private boolean changed;
 
     @Getter
-    protected boolean pressed = false;
+    private Vector2f state = new Vector2f();
 
-
-    protected boolean pressDelayed;
-
-    protected boolean releaseDelayed;
-
-    protected boolean forcedState;
 
 
 
     protected final Map<VRInteractionProfileType, ActionBinding> defaultBindings;
 
-    protected Map<VRInteractionProfileType, ActionBinding> bindings;
+    protected final Map<VRInteractionProfileType, ActionBinding> bindings;
 
 
-    public VisorActionButton(@NotNull VisorActionSet actionSet,
-                             @NotNull String id
+    public VRActionVec2(@NotNull VRActionSet actionSet,
+                        @NotNull String id
     ) {
         this.actionSet = actionSet;
         this.id = id.toLowerCase();
+
         this.defaultBindings = new EnumMap<>(VRInteractionProfileType.class);
         this.defaultBindings.putAll(getDefaultBindings());
         this.bindings = new EnumMap<>(defaultBindings);
+
     }
 
 
-    protected abstract void onPress();
-
-    protected abstract void onRelease();
+    protected abstract void onStateChanged(@NotNull Vector2f newState);
 
     protected void onClear(){
 
     }
 
-
-    protected @Nullable VRActionDataButton getButtonData(@NotNull ActionBinding actionBinding,
-                                                         @NotNull XRInteractionProfile currentProfile,
-                                                         boolean leftHanded){
-        return actionBinding.getButton(currentProfile, leftHanded);
+    protected @Nullable VRActionDataVec2 getVec2Data(@NotNull ActionBinding actionBinding,
+                                                     @NotNull XRInteractionProfile currentProfile,
+                                                     boolean leftHanded){
+        return actionBinding.getVec2(currentProfile, leftHanded);
     }
 
     @Override
     public void preTick() {
-        if(pressDelayed && !pressed){
-            pressed = true;
-            pressDelayed = false;
-            changed = true;
-            onPress();
-            return;
+        if(changed) {
+            onStateChanged(state);
+            changed = false;
         }
-        if(releaseDelayed && pressed){
-            forcedState = false;
-            pressed = false;
-            releaseDelayed = false;
-            changed = true;
-            onRelease();
-            return;
-        }
-        changed = false;
-
-
     }
 
     @Override
     public void updateState(@NotNull XRInteractionProfile currentProfile, boolean leftHanded) {
         ActionBinding actionBinding = bindings.get(currentProfile.getType());
-
         if(actionBinding == null){
             active = false;
-            if(pressed){
-                releaseDelayed = true;
-                pressDelayed = false;
-            }
-            return;
-        }
-
-        if(forcedState){
+            changed = true;
+            state.set(0,0);
             return;
         }
 
@@ -133,66 +104,44 @@ public abstract class VisorActionButton implements VisorAction {
             }
         }
 
-        var buttonData = getButtonData(actionBinding, currentProfile, leftHanded);
-
-        if(buttonData == null){
+        var vec2Data = getVec2Data(
+                actionBinding,
+                currentProfile,
+                leftHanded
+        );
+        if(vec2Data == null){
             if(active) {
                 clear();
             }
             return;
         }
 
-        active = buttonData.isActive();
-
+        active = vec2Data.isActive();
         if(!active){
-            if(pressed){
-                releaseDelayed = true;
-                pressDelayed = false;
-            }
             return;
         }
 
-
-        if(!buttonData.isButtonChanged()){
+        if(!vec2Data.isChanged()){
             return;
         }
+        changed = true;
+        state = vec2Data.getVec2Data();
 
-        if(buttonData.isPressed()){
-            pressed = false;
-            pressDelayed = true;
-            releaseDelayed = false;
-        }else if(pressed){
-            releaseDelayed = true;
-        }
 
     }
+
+
 
     @Override
     public void clear(){
-        if(pressed){
-            pressed = false;
-            releaseDelayed = false;
-            changed = true;
-            onRelease();
-        }
+        changed = true;
+        state.set(0,0);
+        onStateChanged(state);
 
-        pressed = false;
         active = false;
-        releaseDelayed = false;
-        pressDelayed = false;
         changed = false;
 
         onClear();
-    }
-
-    public void forcePress(){
-        forcedState = true;
-        pressDelayed = true;
-        releaseDelayed = false;
-    }
-    public void forceRelease(){
-        pressDelayed = false;
-        releaseDelayed = true;
     }
 
     public void setBinding(@NotNull VRInteractionProfileType profile, @NotNull ActionBinding binding){
@@ -209,24 +158,19 @@ public abstract class VisorActionButton implements VisorAction {
         return defaultBindings.get(profile);
     }
 
-
     @Override
     public @NotNull Collection<VRActionIdentifier> getSupportedBindingIds(@NotNull VRInteractionProfileType profileType,
                                                                           boolean keyModifiersActive) {
         var list = new ArrayList<VRActionIdentifier>();
         list.add(ActionBinding.ID_EMPTY);
         list.addAll(switch (profileType){
-            case VALVE_INDEX -> ValveIndexProfile.BUTTON_IDS;
-            case OCULUS_TOUCH -> OculusTouchProfile.BUTTON_IDS;
-            case VIVE -> ViveProfile.BUTTON_IDS;
-            case VIVE_COSMOS -> ViveCosmosProfile.BUTTON_IDS;
-            case HP_MIXED_REALITY -> HpMixedRealityProfile.BUTTON_IDS;
-            case WINDOWS_MOTION -> WindowsMotionProfile.BUTTON_IDS;
+            case VALVE_INDEX -> ValveIndexProfile.VEC2_IDS;
+            case OCULUS_TOUCH -> OculusTouchProfile.VEC2_IDS;
+            case VIVE -> ViveProfile.VEC2_IDS;
+            case VIVE_COSMOS -> ViveCosmosProfile.VEC2_IDS;
+            case HP_MIXED_REALITY -> HpMixedRealityProfile.VEC2_IDS;
+            case WINDOWS_MOTION -> WindowsMotionProfile.VEC2_IDS;
         });
-        if(keyModifiersActive){
-            list.removeIf(it-> it.getValue().contains("trigger"));
-        }
         return list;
     }
-
 }

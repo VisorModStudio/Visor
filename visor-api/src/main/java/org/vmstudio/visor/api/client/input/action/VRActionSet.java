@@ -22,13 +22,13 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * Base class for visor action sets.
+ * Base class for VR action sets.
  * <p>
  *     An action set groups actions and manages their bindings/configuration.<br>
  *     Only one action set is active at a time.
  * </p>
  */
-public abstract class VisorActionSet implements VisorComponent, PrioritySupporter {
+public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
 
     @Getter
     private final VisorAddon owner;
@@ -36,15 +36,15 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     @Setter @Getter
     private boolean enabled = true;
 
-    protected Map<String, VisorAction> actionsMap;
-    protected Map<String, VisorActionKey> keyActionsMap;
+    protected Map<String, VRAction> actionsMap;
+    protected Map<String, VRActionKey> keyActionsMap;
     protected Map<VRInteractionProfileType, Boolean> keyModifiersActiveMap;
 
 
     @Getter
     protected ConfigFile config;
 
-    public VisorActionSet(@NotNull VisorAddon owner){
+    public VRActionSet(@NotNull VisorAddon owner){
         this.owner = owner;
         this.actionsMap = new LinkedHashMap<>();
         this.keyActionsMap = new LinkedHashMap<>();
@@ -76,7 +76,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     /**
      * Loads actions that belong to this set.
      */
-    protected abstract List<VisorAction> loadActions();
+    protected abstract List<VRAction> loadActions();
 
     /**
      * Loads map of default boolean flags
@@ -118,7 +118,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      */
     public void preTick(){
         getActions().forEach(
-                VisorAction::preTick
+                VRAction::preTick
         );
     }
 
@@ -137,7 +137,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      */
     public void clear(){
         getActions().forEach(
-                VisorAction::clear
+                VRAction::clear
         );
     }
 
@@ -191,7 +191,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
             char character = subsection.getString(key+".key").charAt(0);
             String name = subsection.getString(key+".name");
 
-            var action = new VisorActionKey(key,this,  character, name);
+            var action = new VRActionKey(key,this,  character, name);
             actionsMap.put(key, action);
             keyActionsMap.put(key, action);
         }
@@ -210,11 +210,11 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     /**
      * Loads bindings for a specified action from config.
      *
-     * @param action the visor action to load
+     * @param action the VR action to load
      * @return If require to call {@link #save()} (after finished loading of other action bindings if loading the action list)
      */
     public boolean loadBinding(@NotNull Config config,
-                               @NotNull VisorAction action){
+                               @NotNull VRAction action){
         var subsection = config.getSubsection("bindings");
         var defaults = action.getDefaultBindings();
         boolean requireSave = false;
@@ -288,10 +288,10 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
     /**
      * Loads bindings for a specified action from config.
      *
-     * @param action the visor action to load
+     * @param action the VR action to load
      * @return If require to call {@link #save()} (after finished loading of other action bindings if loading the action list)
      */
-    public boolean loadBinding(@NotNull VisorAction action){
+    public boolean loadBinding(@NotNull VRAction action){
         return loadBinding(config, action);
     }
 
@@ -395,7 +395,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      *
      * @param action the key action
      */
-    public void addKeyAction(@NotNull VisorActionKey action){
+    public void addKeyAction(@NotNull VRActionKey action){
         keyActionsMap.put(action.getId(), action);
         actionsMap.put(action.getId(), action);
         if(loadBinding(action)){
@@ -432,7 +432,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * @param id the key action id
      * @return key action or null
      */
-    public @Nullable VisorActionKey getKeyAction(@NotNull String id){
+    public @Nullable VRActionKey getKeyAction(@NotNull String id){
         return keyActionsMap.get(id);
     }
 
@@ -441,7 +441,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      *
      * @return collection of key actions
      */
-    public Collection<VisorActionKey> getKeyActions(){
+    public Collection<VRActionKey> getKeyActions(){
         return keyActionsMap.values();
     }
 
@@ -452,7 +452,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      * @param id the action id
      * @return the action
      */
-    public @Nullable VisorAction getAction(@NotNull String id){
+    public @Nullable VRAction getAction(@NotNull String id){
         return actionsMap.get(id);
     }
 
@@ -461,7 +461,7 @@ public abstract class VisorActionSet implements VisorComponent, PrioritySupporte
      *
      * @return collection of actions
      */
-    public Collection<VisorAction> getActions(){
+    public Collection<VRAction> getActions(){
         return actionsMap.values();
     }
 

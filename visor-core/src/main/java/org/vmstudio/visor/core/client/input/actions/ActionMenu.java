@@ -5,8 +5,8 @@ import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionButton;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
@@ -16,11 +16,11 @@ import java.util.Map;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-public class ActionMenu extends VisorActionButton {
+public class ActionMenu extends VRActionButton {
     public static final String ID = "menu";
 
 
-    public ActionMenu(VisorActionSet actionSet) {
+    public ActionMenu(VRActionSet actionSet) {
         super(actionSet, ID);
     }
 

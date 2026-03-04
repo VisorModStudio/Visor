@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.client.input;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.common.HandType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +20,7 @@ public interface VRInputManager {
      */
     boolean isLeftHanded();
 
-    VisorActionSet getActiveSet();
+    VRActionSet getActiveSet();
 
     @NotNull
     XRProfileManager getProfileManager();

@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.provider.openxr;
 
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.input.device.VRDeviceController;
-import me.phoenixra.atumvr.api.input.device.VRDeviceHMD;
+import me.phoenixra.atumvr.api.input.device.AtumVRDeviceController;
+import me.phoenixra.atumvr.api.input.device.AtumVRDeviceHMD;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -24,7 +24,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
     public void updatePose() {
         //HND
         var hmdDevice = provider.getInputHandler().getDevice(
-                VRDeviceHMD.ID, XRDeviceHMD.class
+                AtumVRDeviceHMD.ID, XRDeviceHMD.class
         );
         hmdData.setTracking(hmdDevice.isActive());
 
@@ -59,7 +59,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
         //LEFT CONTROLLER
 
         var controllerLeftDevice = provider.getInputHandler().getDevice(
-                VRDeviceController.ID_LEFT, XRDeviceController.class
+                AtumVRDeviceController.ID_LEFT, XRDeviceController.class
         );
         controllerLeftData.setTracking(controllerLeftDevice.isActive());
 
@@ -94,7 +94,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
         //RIGHT CONTROLLER
         var controllerRightDevice = provider.getInputHandler().getDevice(
-                VRDeviceController.ID_RIGHT, XRDeviceController.class
+                AtumVRDeviceController.ID_RIGHT, XRDeviceController.class
         );
         controllerRightData.setTracking(controllerRightDevice.isActive());
 

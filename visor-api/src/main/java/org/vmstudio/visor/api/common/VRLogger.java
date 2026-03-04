@@ -1,15 +1,14 @@
 package org.vmstudio.visor.api.common;
 
-import lombok.AllArgsConstructor;
-import me.phoenixra.atumvr.api.VRLogger;
+import me.phoenixra.atumvr.api.AtumVRLogger;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-public class MCVRLogger implements VRLogger {
+public class VRLogger implements AtumVRLogger {
     private final Logger logger;
     private boolean debug;
 
-    public MCVRLogger(@NotNull Logger logger){
+    public VRLogger(@NotNull Logger logger){
         this.logger = logger;
     }
 

@@ -2,8 +2,9 @@ package org.vmstudio.visor.core.client.input.actionset;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.client.input.action.RegisterActionSet;
-import org.vmstudio.visor.api.client.input.action.VisorAction;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRAction;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +16,7 @@ import java.util.Map;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @RegisterActionSet
-public class MenuActionSet extends VisorActionSet {
+public class MenuActionSet extends VRActionSet {
     public final static String ID = "menu";
 
 
@@ -24,20 +25,20 @@ public class MenuActionSet extends VisorActionSet {
     }
 
     @Override
-    protected List<VisorAction> loadActions() {
+    protected List<VRAction> loadActions() {
         return List.of(
-                new ActionLeftMouse(this, HandType.MAIN),
-                new ActionRightMouse(this, HandType.MAIN),
-                new ActionMiddleMouse(this, HandType.MAIN),
-                new ActionScrollMouse(this, HandType.MAIN),
-                new ActionLeftMouse(this, HandType.OFFHAND),
-                new ActionRightMouse(this, HandType.OFFHAND),
-                new ActionMiddleMouse(this, HandType.OFFHAND),
-                new ActionScrollMouse(this, HandType.OFFHAND),
+                VRActions.createMouseLeft(this, HandType.MAIN),
+                VRActions.createMouseRight(this, HandType.MAIN),
+                VRActions.createMouseMiddle(this, HandType.MAIN),
+                VRActions.createMouseScroll(this, HandType.MAIN),
 
-                new ActionShift(this),
+                VRActions.createMouseLeft(this, HandType.OFFHAND),
+                VRActions.createMouseRight(this, HandType.OFFHAND),
+                VRActions.createMouseMiddle(this, HandType.OFFHAND),
+                VRActions.createMouseScroll(this, HandType.OFFHAND),
 
-                new ActionMenu(this)
+                VRActions.createShift(this),
+                VRActions.createMenu(this)
 
         );
     }

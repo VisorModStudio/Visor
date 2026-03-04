@@ -1,13 +1,13 @@
 package org.vmstudio.visor.core.client;
 
-import me.phoenixra.atumvr.api.input.VRInputHandler;
+import me.phoenixra.atumvr.api.input.AtumVRInputHandler;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawPoseHandler;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import org.vmstudio.visor.core.client.gui.VRGuiManagerImpl;
 import org.vmstudio.visor.core.client.gui.VROverlayManagerImpl;
 import org.vmstudio.visor.core.client.input.VRInputManagerImpl;
-import org.vmstudio.visor.core.client.render.VisorRendererBase;
+import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.vmstudio.visor.core.client.render.decoration.DecorationRendererImpl;
 import org.vmstudio.visor.core.client.render.decoration.hand.VRHandRenderer;
 import org.vmstudio.visor.core.client.settings.VRClientSettingsManager;
@@ -32,13 +32,13 @@ public class ClientContext {
 
     public static VRLocalPlayerImpl localPlayer;
 
-    public static VisorRendererBase renderer;
+    public static VRRendererBase renderer;
 
 
     public static VRInputManagerImpl inputManager;
 
     /** Input handler from VR provider */
-    public static VRInputHandler inputProvider;
+    public static AtumVRInputHandler inputProvider;
 
     public static VRGuiManagerImpl guiManager;
     public static VRCursorHandlerImpl cursorHandler;

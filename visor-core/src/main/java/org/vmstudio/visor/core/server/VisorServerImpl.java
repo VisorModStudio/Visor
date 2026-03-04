@@ -6,7 +6,7 @@ import me.phoenixra.atumconfig.core.AtumConfigManager;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorServer;
-import org.vmstudio.visor.api.common.MCVRLogger;
+import org.vmstudio.visor.api.common.VRLogger;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
@@ -48,7 +48,7 @@ public class VisorServerImpl implements VisorServer {
         this.configManager = new AtumConfigManager(
                 "visor_server",
                 VisorAPI.CONFIG_PATH,
-                new MCVRLogger(LOGGER),
+                new VRLogger(LOGGER),
                 true
         );
         // init server config

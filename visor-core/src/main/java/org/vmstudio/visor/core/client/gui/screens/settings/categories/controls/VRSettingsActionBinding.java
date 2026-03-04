@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 import org.vmstudio.visor.api.client.gui.widgets.lists.TexturedSelectionList;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.ActionKeyModifierType;
-import org.vmstudio.visor.api.client.input.action.VisorAction;
+import org.vmstudio.visor.api.client.input.action.VRAction;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -36,7 +36,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VRSettingsActionBinding extends VROptionsSet {
     private final VRSettingsActions parent;
-    private final VisorAction action;
+    private final VRAction action;
 
     private TexturedSelectionList listWidget;
     private ButtonImaged captureInputButton;
@@ -65,7 +65,7 @@ public class VRSettingsActionBinding extends VROptionsSet {
 
 
     public VRSettingsActionBinding(@NotNull VRSettingsActions parent,
-                                   @NotNull VisorAction action,
+                                   @NotNull VRAction action,
                                    @NotNull Runnable onWidgetsChanged) {
         super(parent.getScreen(), parent, onWidgetsChanged);
         this.parent = parent;

@@ -2,12 +2,12 @@ package org.vmstudio.visor.core.client.input;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.atumvr.api.input.device.VRDeviceController;
+import me.phoenixra.atumvr.api.input.device.AtumVRDeviceController;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import org.vmstudio.visor.api.client.input.VRInputManager;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -26,7 +26,7 @@ public class VRInputManagerImpl implements VRInputManager {
     private final ActionSetRegistry actionSetRegistry;
 
     @Getter
-    private VisorActionSet activeSet;
+    private VRActionSet activeSet;
 
     @Setter
     private long pausedActionsTicks = -1;
@@ -38,7 +38,7 @@ public class VRInputManagerImpl implements VRInputManager {
     }
 
     public void preTick(){
-        VisorActionSet newActiveSet = null;
+        VRActionSet newActiveSet = null;
         for(var entry : actionSetRegistry.getSortedComponents()){
             if(entry.isEnabledAndCanActivate()){
                 newActiveSet = entry;
@@ -110,11 +110,11 @@ public class VRInputManagerImpl implements VRInputManager {
         if(VisorState.get().isNotActive()){
             return;
         }
-        String controllerId = VRDeviceController.getId(
+        String controllerId = AtumVRDeviceController.getId(
                 hand.asControllerType(isLeftHanded())
         );
         ClientContext.visor.getVrProvider().getInputHandler()
-                .getDevice(controllerId, VRDeviceController.class)
+                .getDevice(controllerId, AtumVRDeviceController.class)
                 .triggerHapticPulse(frequency, amplitude, durationNanoSec);
     }
 

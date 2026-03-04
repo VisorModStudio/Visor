@@ -5,19 +5,19 @@ import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionButton;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.jetbrains.annotations.NotNull;
 
 
 import java.util.Map;
 
-public class GameActionHotBar extends VisorActionButton {
+public class GameActionHotBar extends VRActionButton {
     public static final String ID = "hotbar";
 
 
-    public GameActionHotBar(VisorActionSet actionSet) {
+    public GameActionHotBar(VRActionSet actionSet) {
         super(actionSet, ID);
     }
 

@@ -51,10 +51,10 @@ public class VRSettingsActions extends VROptionsSet {
 
 
     @Getter
-    private final VisorActionSet actionSet;
+    private final VRActionSet actionSet;
 
     @Getter
-    private final Map<VRInteractionProfileType, Map<VisorAction, ActionBinding>> newBindings;
+    private final Map<VRInteractionProfileType, Map<VRAction, ActionBinding>> newBindings;
     @Getter
     private final Map<VRInteractionProfileType, Boolean> newKeyModifiers;
 
@@ -68,7 +68,7 @@ public class VRSettingsActions extends VROptionsSet {
     private boolean modified;
 
 
-    public VRSettingsActions(@NotNull VisorActionSet actionSet,
+    public VRSettingsActions(@NotNull VRActionSet actionSet,
                              @NotNull VRSettingsScreen screen,
                              @Nullable VROptionsSet previousOptions,
                              @NotNull Runnable onWidgetsChanged) {
@@ -103,7 +103,7 @@ public class VRSettingsActions extends VROptionsSet {
 
         var scaleHelper = getScreen().getScaleHelper();
 
-        Map<VisorAction, ActionBinding> bindingMap = newBindings.get(profileType);
+        Map<VRAction, ActionBinding> bindingMap = newBindings.get(profileType);
 
         listWidget = new WidgetSetList(
                 new WidgetInfoWidgetSetList()
@@ -118,7 +118,7 @@ public class VRSettingsActions extends VROptionsSet {
 
         Map<String, VRActionEntry> listEntries = new LinkedHashMap<>();
         for(var entry : bindingMap.entrySet()){
-            VisorAction action = entry.getKey();
+            VRAction action = entry.getKey();
             ActionBinding binding = entry.getValue();
             var bindingKeyModifier = binding.getActionKeyModifier(useLeftHanded);
             var bindingId = binding.getActionId(useLeftHanded);
@@ -330,7 +330,7 @@ public class VRSettingsActions extends VROptionsSet {
         );
     }
 
-    public Map<VisorAction, ActionBinding> getNewBinds(){
+    public Map<VRAction, ActionBinding> getNewBinds(){
         return newBindings.get(profileType);
     }
 
@@ -338,7 +338,7 @@ public class VRSettingsActions extends VROptionsSet {
         return newKeyModifiers.get(profileType);
     }
 
-    public void changeBinding(VisorAction action,
+    public void changeBinding(VRAction action,
                               ActionKeyModifierType keyModifierType,
                               VRActionIdentifier id){
         var bindingsMap = getNewBinds();
@@ -401,7 +401,7 @@ public class VRSettingsActions extends VROptionsSet {
 
         newBindings.clear();
         for(var profile : VRInteractionProfileType.values()){
-            var map = new LinkedHashMap<VisorAction, ActionBinding>();
+            var map = new LinkedHashMap<VRAction, ActionBinding>();
             actionSet.getActions().forEach(
                             a -> map.put(a, new ActionBinding(a.getBindingOrEmpty(profile)))
                     );
@@ -409,13 +409,13 @@ public class VRSettingsActions extends VROptionsSet {
         }
     }
 
-    public void addedKeyAction(@NotNull VisorActionKey actionKey){
+    public void addedKeyAction(@NotNull VRActionKey actionKey){
         newBindings.forEach((
                 type,map) ->
                 map.put(actionKey, new ActionBinding(ActionBinding.ID_EMPTY, ActionBinding.ID_EMPTY))
         );
     }
-    public void removedKeyAction(@NotNull VisorActionKey actionKey){
+    public void removedKeyAction(@NotNull VRActionKey actionKey){
         newBindings.forEach((
                 type,map) ->
                 map.remove(actionKey)
@@ -536,7 +536,7 @@ public class VRSettingsActions extends VROptionsSet {
         );
         protected static final int SEPARATOR_HEIGHT = 1;
 
-        private final VisorAction action;
+        private final VRAction action;
         @Setter
         private VRActionIdentifier bindingId;
         @Setter
@@ -552,7 +552,7 @@ public class VRSettingsActions extends VROptionsSet {
         private ButtonImaged removeKeyActionButton;
 
         public VRActionEntry(@NotNull String id,
-                             @NotNull VisorAction action,
+                             @NotNull VRAction action,
                              @NotNull Runnable onWidgetsChanged) {
             super(id, onWidgetsChanged);
             this.action = action;
@@ -589,7 +589,7 @@ public class VRSettingsActions extends VROptionsSet {
                                 .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT),
                         it->{
                             actionSet.removeKeyAction(action.getId());
-                            removedKeyAction((VisorActionKey) action);
+                            removedKeyAction((VRActionKey) action);
                             reinit();
                         }
                 );

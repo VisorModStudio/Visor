@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.input;
 import lombok.Getter;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.input.action.RegisterActionSet;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
@@ -17,22 +17,22 @@ import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 
-public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
-    private static final String REGISTRY_NAME = "Visor Action Sets";
+public class ActionSetRegistry implements ComponentRegistry<VRActionSet> {
+    private static final String REGISTRY_NAME = "VR Action Sets";
 
-    private static final String COMPONENT_NAME = "VisorActionSet";
-    private static final String ANNOTATION_NAME = "@RegisterActionSet";
+    private static final String COMPONENT_NAME = "VRActionSet";
+    private static final String ANNOTATION_NAME = "@RegisterVRActionSet";
 
-    private final Map<String, VisorActionSet> componentsMap = new LinkedHashMap<>();
+    private final Map<String, VRActionSet> componentsMap = new LinkedHashMap<>();
 
-    private final List<VisorActionSet> sortedComponents = new ArrayList<>();
+    private final List<VRActionSet> sortedComponents = new ArrayList<>();
 
     @Getter
-    private final Collection<VisorActionSet> allComponents =
+    private final Collection<VRActionSet> allComponents =
             Collections.unmodifiableCollection(componentsMap.values());
 
 
-    public List<VisorActionSet> getSortedComponents() {
+    public List<VRActionSet> getSortedComponents() {
         return Collections.unmodifiableList(sortedComponents);
     }
 
@@ -54,7 +54,7 @@ public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
                 annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
-            if (!VisorActionSet.class.isAssignableFrom(clazz)) {
+            if (!VRActionSet.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
                         clazz.getName(), ANNOTATION_NAME, COMPONENT_NAME
@@ -63,8 +63,8 @@ public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
             }
             try {
                 @SuppressWarnings("unchecked")
-                Constructor<? extends VisorActionSet> constructor =
-                        ((Class<? extends VisorActionSet>) clazz)
+                Constructor<? extends VRActionSet> constructor =
+                        ((Class<? extends VRActionSet>) clazz)
                                 .getConstructor(VisorAddon.class);
 
                 var component = constructor.newInstance(addon);
@@ -80,7 +80,7 @@ public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
     }
 
     @Override
-    public void registerComponent(@NotNull VisorActionSet component) {
+    public void registerComponent(@NotNull VRActionSet component) {
         String validationError = ComponentIds.validate(component.getId());
         if(validationError != null){
             throw new RuntimeException(
@@ -109,7 +109,7 @@ public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
     }
 
     @Override
-    public @Nullable VisorActionSet unregisterComponent(@NotNull String id) {
+    public @Nullable VRActionSet unregisterComponent(@NotNull String id) {
         var removed = componentsMap.remove(id);;
         if(removed != null) {
             sortedComponents.remove(removed);
@@ -121,7 +121,7 @@ public class ActionSetRegistry implements ComponentRegistry<VisorActionSet> {
     }
 
     @Override
-    public @Nullable VisorActionSet getComponent(@NotNull String id) {
+    public @Nullable VRActionSet getComponent(@NotNull String id) {
         return componentsMap.get(id);
     }
 

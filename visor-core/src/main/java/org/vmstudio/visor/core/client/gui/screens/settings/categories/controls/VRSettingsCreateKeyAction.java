@@ -7,9 +7,8 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import org.vmstudio.visor.api.client.input.action.VisorActionKey;
+import org.vmstudio.visor.api.client.input.action.VRActionKey;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
-import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
@@ -163,7 +162,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
         var id = actionIdEdit.getValue();
         var name = actionNameEdit.getValue();
         var key = actionKeyEdit.getValue();
-        var keyAction = new VisorActionKey(
+        var keyAction = new VRActionKey(
                 id,
                 parent.getActionSet(),
                 key.charAt(0), name

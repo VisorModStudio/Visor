@@ -1,14 +1,14 @@
 package org.vmstudio.visor.api;
 
 import me.phoenixra.atumconfig.api.ConfigManager;
-import me.phoenixra.atumvr.api.VRProvider;
+import me.phoenixra.atumvr.api.AtumVRProvider;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.gui.VRGuiManager;
 import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
-import org.vmstudio.visor.api.client.render.VisorRenderer;
+import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorationRenderer;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +79,7 @@ public interface VisorClient {
      * @return VisorRenderer instance
      */
     @NotNull
-    VisorRenderer getRenderer();
+    VRRenderer getRenderer();
 
 
     /**
@@ -113,7 +113,7 @@ public interface VisorClient {
      *
      * @return VRProvider instance
      */
-    VRProvider getVrProvider();
+    AtumVRProvider getVrProvider();
 
     /**
      * Get Logger

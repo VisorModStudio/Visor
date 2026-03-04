@@ -4,8 +4,8 @@ import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionButton;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.input.mouse.MouseClickHandler;
@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-public class ActionLeftMouse extends VisorActionButton {
+public class ActionLeftMouse extends VRActionButton {
     public static final String ID_MAIN = "mouse_left_main";
     public static final String ID_OFFHAND = "mouse_left_offhand";
 
@@ -23,7 +23,7 @@ public class ActionLeftMouse extends VisorActionButton {
 
     private final HandType handType;
 
-    public ActionLeftMouse(@NotNull VisorActionSet actionSet,
+    public ActionLeftMouse(@NotNull VRActionSet actionSet,
                            @NotNull HandType handType) {
         super(actionSet, handType == HandType.MAIN ? ID_MAIN : ID_OFFHAND);
         this.handType = handType;

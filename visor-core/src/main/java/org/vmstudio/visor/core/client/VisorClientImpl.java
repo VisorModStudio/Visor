@@ -4,25 +4,29 @@ import lombok.Getter;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.core.AtumConfigManager;
 import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
-import me.phoenixra.atumvr.api.VRProvider;
-import me.phoenixra.atumvr.api.VRState;
+import me.phoenixra.atumvr.api.AtumVRProvider;
+import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.input.action.VRAction;
+import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
-import org.vmstudio.visor.api.common.MCVRLogger;
+import org.vmstudio.visor.api.common.VRLogger;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.gui.VRGuiManagerImpl;
 import org.vmstudio.visor.core.client.input.VRInputManagerImpl;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
-import org.vmstudio.visor.core.client.render.VisorRendererBase;
+import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.vmstudio.visor.core.client.render.decoration.DecorationRendererImpl;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VRClientSettingsManager;
@@ -50,7 +54,7 @@ public class VisorClientImpl implements VisorClient {
     public static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
 
 
-    private VRProvider vrProvider;
+    private AtumVRProvider vrProvider;
 
     private ConfigManager configManager;
 
@@ -66,7 +70,7 @@ public class VisorClientImpl implements VisorClient {
     protected void prepare(){
         vrProvider = new XrProvider(
                 VisorAPI.MOD_NAME,
-                new MCVRLogger(LOGGER)
+                new VRLogger(LOGGER)
         );
 
         featuresToggle = new ClientFeaturesToggle();
@@ -88,6 +92,38 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.inputManager = new VRInputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new VRGuiManagerImpl();
+
+        //-------API accessible VR actions-------
+        VRActions.Provider.setMouseLeftMain(
+                (actionSet -> new ActionLeftMouse(actionSet, HandType.MAIN))
+        );
+        VRActions.Provider.setMouseLeftOffhand(
+                (actionSet -> new ActionLeftMouse(actionSet, HandType.OFFHAND))
+        );
+
+        VRActions.Provider.setMouseRightMain(
+                (actionSet -> new ActionRightMouse(actionSet, HandType.MAIN))
+        );
+        VRActions.Provider.setMouseRightOffhand(
+                (actionSet -> new ActionRightMouse(actionSet, HandType.OFFHAND))
+        );
+
+        VRActions.Provider.setMouseMiddleMain(
+                (actionSet -> new ActionMiddleMouse(actionSet, HandType.MAIN))
+        );
+        VRActions.Provider.setMouseMiddleOffhand(
+                (actionSet -> new ActionMiddleMouse(actionSet, HandType.OFFHAND))
+        );
+
+        VRActions.Provider.setMouseScrollMain(
+                (actionSet -> new ActionScrollMouse(actionSet, HandType.MAIN))
+        );
+        VRActions.Provider.setMouseScrollOffhand(
+                (actionSet -> new ActionScrollMouse(actionSet, HandType.OFFHAND))
+        );
+
+        VRActions.Provider.setShift(ActionShift::new);
+        VRActions.Provider.setMenu(ActionMenu::new);
 
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
@@ -223,12 +259,12 @@ public class VisorClientImpl implements VisorClient {
 
 
     public boolean isActive(){
-        VRState state = vrProvider.getState();
+        AtumVRState state = vrProvider.getState();
         return state.isActive();
     }
 
     public boolean isFocused(){
-        VRState state = vrProvider.getState();
+        AtumVRState state = vrProvider.getState();
         return state.isFocused();
     }
 
@@ -240,7 +276,7 @@ public class VisorClientImpl implements VisorClient {
     }
 
     @Override
-    public @NotNull VisorRendererBase getRenderer() {
+    public @NotNull VRRendererBase getRenderer() {
         return ClientContext.renderer;
     }
 

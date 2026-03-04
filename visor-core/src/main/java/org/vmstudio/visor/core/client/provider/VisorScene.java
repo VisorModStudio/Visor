@@ -4,11 +4,12 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.rendering.VRRenderContext;
-import me.phoenixra.atumvr.api.rendering.VRRenderer;
-import me.phoenixra.atumvr.api.rendering.VRScene;
+import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
+import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
+import me.phoenixra.atumvr.api.rendering.AtumVRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRShaders;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import static org.vmstudio.visor.core.client.VisorClientImpl.*;
 
 
-public class VisorScene implements VRScene {
+public class VisorScene implements AtumVRScene {
 
     @Getter
     private VRRenderer renderer;
@@ -39,7 +40,7 @@ public class VisorScene implements VRScene {
     }
 
     @Override
-    public void render(@NotNull VRRenderContext context) {
+    public void render(@NotNull AtumVRRenderContext context) {
 
         var renderContext = (RenderContext) context;
         var profiler =  renderContext.profiler();

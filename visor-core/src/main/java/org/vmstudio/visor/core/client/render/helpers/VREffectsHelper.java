@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRCameraType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.VisorRendererBase;
+import org.vmstudio.visor.core.client.render.VRRendererBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
@@ -168,7 +168,7 @@ public class VREffectsHelper {
         if (eye != VRCameraType.EYE_LEFT && eye != VRCameraType.EYE_RIGHT) {
             return null;
         }
-        VisorRendererBase renderer = ClientContext.renderer;
+        VRRendererBase renderer = ClientContext.renderer;
         return (eye == VRCameraType.EYE_LEFT)
                 ? renderer.getHiddenAreaVertices(EyeType.LEFT)
                 : renderer.getHiddenAreaVertices(EyeType.RIGHT);

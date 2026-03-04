@@ -4,8 +4,8 @@ import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionVec2;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.input.mouse.MouseScrollHandler;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import org.joml.Vector2f;
 
 import java.util.Map;
 
-public class ActionScrollMouse extends VisorActionVec2 {
+public class ActionScrollMouse extends VRActionVec2 {
     public static final String ID_MAIN = "mouse_scroll_main";
     public static final String ID_OFFHAND = "mouse_scroll_offhand";
 
@@ -23,7 +23,7 @@ public class ActionScrollMouse extends VisorActionVec2 {
 
     private final HandType handType;
 
-    public ActionScrollMouse(@NotNull VisorActionSet actionSet,
+    public ActionScrollMouse(@NotNull VRActionSet actionSet,
                              @NotNull HandType handType) {
         super(actionSet, handType == HandType.MAIN ? ID_MAIN : ID_OFFHAND);
         this.handType = handType;

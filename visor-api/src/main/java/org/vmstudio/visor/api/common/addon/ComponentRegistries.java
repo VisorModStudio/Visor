@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.settings.RegisterVRSettingsPreset;
 import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
 import org.vmstudio.visor.api.client.input.action.RegisterActionSet;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
@@ -48,7 +48,7 @@ public interface ComponentRegistries {
      */
     @NotNull
     @Environment(EnvType.CLIENT)
-    ComponentRegistry<VisorActionSet> actionSets();
+    ComponentRegistry<VRActionSet> actionSets();
 
 
 

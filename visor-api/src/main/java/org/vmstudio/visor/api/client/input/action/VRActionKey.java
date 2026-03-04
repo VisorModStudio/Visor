@@ -3,19 +3,19 @@ package org.vmstudio.visor.api.client.input.action;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.client.input.InputHelper;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionButton;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 /**
- * Visor action that types a single character.
+ * VR action that types a single character.
  * <p>
  *     Users can create custom actions in settings based on this.
  * </p>
  */
-public class VisorActionKey extends VisorActionButton {
+public class VRActionKey extends VRActionButton {
 
 
     @Getter
@@ -28,10 +28,10 @@ public class VisorActionKey extends VisorActionButton {
     @Getter
     private final String nameKey;
 
-    public VisorActionKey(@NotNull String id,
-                          @NotNull VisorActionSet actionSet,
-                          char character,
-                          @NotNull String nameKey) {
+    public VRActionKey(@NotNull String id,
+                       @NotNull VRActionSet actionSet,
+                       char character,
+                       @NotNull String nameKey) {
         super(actionSet, id);
         this.character = character;
         this.name = Component.translatable(nameKey);

@@ -7,7 +7,7 @@ import me.phoenixra.atumconfig.core.config.AtumConfigFile;
 import me.phoenixra.atumconfig.core.config.AtumConfigSection;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -45,7 +45,7 @@ public enum VRPresetSettingsType {
             },
             (config) -> {
                 for(var entry : config.getAllSubsections().entrySet()){
-                    VisorActionSet actionSet =  VisorAPI.addonManager()
+                    VRActionSet actionSet =  VisorAPI.addonManager()
                             .getRegistries().actionSets().getComponent(entry.getKey());
                     if(actionSet == null) continue;
                     actionSet.load(entry.getValue());

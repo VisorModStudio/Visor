@@ -6,8 +6,8 @@ import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
-import org.vmstudio.visor.api.client.input.action.VisorActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VisorActionVec2;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-public class GameActionMovement extends VisorActionVec2 {
+public class GameActionMovement extends VRActionVec2 {
     public static final String ID = "movement";
 
 
@@ -33,7 +33,7 @@ public class GameActionMovement extends VisorActionVec2 {
 
     private static HandType handType = HandType.OFFHAND;
 
-    public GameActionMovement(VisorActionSet actionSet) {
+    public GameActionMovement(VRActionSet actionSet) {
         super(actionSet, ID);
     }
 

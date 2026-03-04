@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.provider.openxr;
 
-import me.phoenixra.atumvr.api.VRLogger;
-import me.phoenixra.atumvr.api.rendering.VRRenderer;
+import me.phoenixra.atumvr.api.AtumVRLogger;
+import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
 import me.phoenixra.atumvr.core.XRProvider;
 import me.phoenixra.atumvr.core.XRState;
 import me.phoenixra.atumvr.core.enums.XRSessionState;
@@ -14,7 +14,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class XrProvider extends XRProvider {
 
-    public XrProvider(@NotNull String appName, @NotNull VRLogger logger) {
+    public XrProvider(@NotNull String appName, @NotNull AtumVRLogger logger) {
         super(appName, logger);
 
         ClientContext.rawPoseHandler = new XrRawPoseHandler(this);
@@ -48,7 +48,7 @@ public class XrProvider extends XRProvider {
     }
 
     @Override
-    public @NotNull VRRenderer createRenderer() {
+    public @NotNull AtumVRRenderer createRenderer() {
         return new XrRenderer(this);
     }
 

@@ -8,11 +8,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to register your {@link VisorActionSet} automatically on addon load.
+ * Annotation to register your {@link VRActionSet} automatically on addon load.
  *
  * <p>
  *     Class have to:<br>
- *     1) Be a child of {@link VisorActionSet} <br>
+ *     1) Be a child of {@link VRActionSet} <br>
  *     2) Contain constructor with a single parameter:
  *     {@link VisorAddon}
  * </p>
