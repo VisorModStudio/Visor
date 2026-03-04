@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import org.vmstudio.visor.api.client.input.action.VRActionKey;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;

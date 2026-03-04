@@ -9,6 +9,7 @@ import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.component.PrioritySupporter;

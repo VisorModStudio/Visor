@@ -1,9 +1,10 @@
-package org.vmstudio.visor.api.client.input.action;
+package org.vmstudio.visor.api.client.input.action.framework;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.client.input.InputHelper;
-import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
+import org.vmstudio.visor.api.client.input.action.ActionBinding;
+import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 

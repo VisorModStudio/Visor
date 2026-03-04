@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoWidgetSetList;
 import org.vmstudio.visor.api.client.gui.widgets.lists.WidgetSetList;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
