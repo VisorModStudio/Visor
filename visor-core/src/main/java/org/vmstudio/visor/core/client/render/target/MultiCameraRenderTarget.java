@@ -29,9 +29,15 @@ public class MultiCameraRenderTarget extends RenderTarget {
     }
 
     private RenderTarget getCurrentTarget() {
-        return VRRenderState.getPhase().isVanilla()
-                ? mainTarget
-                : vrTargets.get(VRRenderState.getCameraType());
+        if (VRRenderState.getPhase().isVanilla()) {
+            return mainTarget;
+        }
+        VRCameraType camera = VRRenderState.getCameraType();
+        if (camera == null) {
+            return mainTarget;
+        }
+        RenderTarget target = vrTargets.get(camera);
+        return target != null ? target : mainTarget;
     }
 
     @Override

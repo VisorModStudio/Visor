@@ -68,8 +68,8 @@ public class VREffectsHelper {
 
     public static void drawEyeStencil() {
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
-
-        if ((VRRenderState.getCameraType().isEye())) {
+        VRCameraType camera = VRRenderState.getCameraType();
+        if (camera != null && camera.isEye()) {
             doStencil(false);
         }
     }

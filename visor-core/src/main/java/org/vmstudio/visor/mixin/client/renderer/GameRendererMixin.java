@@ -629,7 +629,7 @@ public abstract class GameRendererMixin
     @Override
     @Unique
     public void visor$restoreCameraEntity(Entity cameraEntity) {
-        if (cameraEntity != null) {
+        if (cameraEntity != null && this.visor$cameraEntityCached) {
             visor$cameraEntityCache.apply(cameraEntity);
             this.visor$cameraEntityCached = false;
         }
@@ -716,8 +716,12 @@ public abstract class GameRendererMixin
                 || VRRenderState.isInMainMenu()){
             return;
         }
+        VRCameraType cameraType = VRRenderState.getCameraType();
+        if (cameraType == null) {
+            return;
+        }
         var cameraPos = RenderPoseHelper.getCameraPosition(
-                VRRenderState.getCameraType(),
+                cameraType,
                 ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper

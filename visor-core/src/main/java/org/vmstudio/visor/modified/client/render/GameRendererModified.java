@@ -1,6 +1,7 @@
 package org.vmstudio.visor.modified.client.render;
 
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.render.VRCameraType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRCameraEntityCache;
@@ -20,10 +21,12 @@ public interface GameRendererModified {
     void visor$setupCameraEntity(VRPose vrPose);
 
     default void visor$setupCameraEntityAsVRCamera(){
+        VRCameraType cameraType = VRRenderState.getCameraType();
+        if (cameraType == null) return;
         visor$setupCameraEntity(
                 ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RENDER)
-                .getCameraPose(VRRenderState.getCameraType())
+                        .getPoseData(PlayerPoseType.RENDER)
+                        .getCameraPose(cameraType)
         );
     }
 

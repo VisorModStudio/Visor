@@ -3,8 +3,10 @@ package org.vmstudio.visor.mixin.client.renderer;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.render.VRCameraType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.modified.client.render.GameRendererModified;
@@ -31,6 +33,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import org.vmstudio.visor.core.client.ClientContext;
 
+import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+
 
 @Mixin(value = LevelRenderer.class, priority = 999)
 public abstract class LevelRendererMixin implements ResourceManagerReloadListener, AutoCloseable, LevelRendererModified {
@@ -43,6 +47,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Unique
     private Entity visor$renderedEntity;
 
+    @Unique
+    private RenderTarget visor$savedRenderTarget;
 
     /* ****************** *\
   //--------RENDERING--------\\
@@ -92,27 +98,30 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
-    public double visor$rainX(double x) {
+    public double visor$rainAndSnowX(double x) {
+        VRCameraType camera = VRRenderState.getCameraType();
         if (VRRenderState.getPhase().isNotVanilla()
-                && VRRenderState.getCameraType().isEye()) {
+                && camera != null && camera.isEye()) {
             return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().x();
         }
         return x;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
-    public double visor$rainY(double y) {
+    public double visor$rainAndSnowY(double y) {
+        VRCameraType camera = VRRenderState.getCameraType();
         if (VRRenderState.getPhase().isNotVanilla()
-                && VRRenderState.getCameraType().isEye()) {
+                && camera != null && camera.isEye()) {
             return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().y();
         }
         return y;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
-    public double visor$rainZ(double z) {
+    public double visor$rainAndSnowZ(double z) {
+        VRCameraType camera = VRRenderState.getCameraType();
         if (VRRenderState.getPhase().isNotVanilla()
-                && VRRenderState.getCameraType().isEye()) {
+                && camera != null && camera.isEye()) {
             return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().z();
         }
         return z;
@@ -127,8 +136,16 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
      */
     @Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
     private void visor$ensureVanillaPhase(CallbackInfo ci) {
-        if (VisorState.get().isActive()) {
-            VRRenderState.startVanillaPhase();
+        if (VisorState.get().isActive() && VRRenderState.getPhase().isNotVanilla()) {
+            this.visor$savedRenderTarget = MC.mainRenderTarget;
+            MC.mainRenderTarget = VRRenderState.getVanillaTarget();
+        }
+    }
+    @Inject(method = {"initOutline", "initTransparency"}, at = @At("TAIL"))
+    private void visor$restoreAfterInit(CallbackInfo ci) {
+        if (this.visor$savedRenderTarget != null) {
+            MC.mainRenderTarget = this.visor$savedRenderTarget;
+            this.visor$savedRenderTarget = null;
         }
     }
 
