@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -23,20 +23,20 @@ public class RenderPoseHelper {
 
 
 
-    public static void applyCameraPose(VRCameraType cameraType,
+    public static void applyCameraPose(VRRenderPass renderPass,
                                        PoseStack poseStack){
-        applyCameraOrientation(cameraType, poseStack);
-        applyCameraTranslation(cameraType, poseStack);
+        applyCameraOrientation(renderPass, poseStack);
+        applyCameraTranslation(renderPass, poseStack);
     }
 
-    public static void applyCameraOrientation(VRCameraType cameraType,
+    public static void applyCameraOrientation(VRRenderPass renderPass,
                                               PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         final Matrix4f rotationMatrix;
 
-        boolean smooth = cameraType == VRCameraType.FIRST_PERSON && mirrorSmooth > 0f;
+        boolean smooth = renderPass == VRRenderPass.CENTER && mirrorSmooth > 0f;
         if (smooth) {
 
             // average rotation over history
@@ -50,7 +50,7 @@ public class RenderPoseHelper {
         } else {
             // direct VR eye/head rotation
             rotationMatrix = renderPose
-                    .getCameraPose(cameraType)
+                    .getCameraPose(renderPass)
                     .getRotation()
                     .transpose(new Matrix4f());
         }
@@ -60,13 +60,13 @@ public class RenderPoseHelper {
         poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
     }
 
-    public static void applyCameraTranslation(VRCameraType cameraType,
+    public static void applyCameraTranslation(VRRenderPass renderPass,
                                               PoseStack poseStack) {
-        if (!cameraType.isEye()) {
+        if (!renderPass.isEye()) {
             return;
         }
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        var eyePos = renderPose.getCameraPose(cameraType).getPosition();
+        var eyePos = renderPose.getCameraPose(renderPass).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
 
@@ -83,7 +83,7 @@ public class RenderPoseHelper {
         // move origin to hand pos relative to camera
         var handPos = handPose.getPosition();
 
-        var cameraPos = getCameraPosition(VRRenderState.getCameraType(), renderPose);
+        var cameraPos = getCameraPosition(VRRenderState.getRenderPass(), renderPose);
         var relative = handPos.sub(cameraPos, new Vector3f());
         poseStack.translate(relative.x, relative.y, relative.z);
 
@@ -100,11 +100,11 @@ public class RenderPoseHelper {
     }
 
 
-    public static Vector3fc getCameraPosition(VRCameraType cameraTye,
+    public static Vector3fc getCameraPosition(VRRenderPass renderPass,
                                               PlayerPoseClient vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        boolean smooth = cameraTye == VRCameraType.FIRST_PERSON && mirrorSmooth > 0f;
+        boolean smooth = renderPass == VRRenderPass.CENTER && mirrorSmooth > 0f;
         if (smooth) {
             var avg = ClientContext.rawPoseHandler
                     .getHmdData()
@@ -117,7 +117,7 @@ public class RenderPoseHelper {
                     .add(vrPose.getOrigin());
         }
 
-        return vrPose.getCameraPose(cameraTye).getPosition();
+        return vrPose.getCameraPose(renderPass).getPosition();
     }
 
 

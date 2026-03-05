@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.render;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Camera;
@@ -45,7 +45,7 @@ public class VRGameCamera extends Camera {
         if (VRRenderState.getPhase().isVanilla()) {
             return super.isDetached();
         }
-        return VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON;
+        return VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON;
     }
 
 
@@ -55,15 +55,15 @@ public class VRGameCamera extends Camera {
         this.level = level;
         this.entity = entity;
 
-        VRCameraType cameraType = VRRenderState.getCameraType();
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
         VRPose cameraElement = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER)
-                .getCameraPose(cameraType);
+                .getCameraPose(renderPass);
 
         // Position
         this.setPosition(new Vec3(
                 (Vector3f) RenderPoseHelper.getCameraPosition(
-                        cameraType,
+                        renderPass,
                         ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
                 )
         ));

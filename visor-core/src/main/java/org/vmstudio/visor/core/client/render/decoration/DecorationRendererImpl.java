@@ -6,7 +6,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorationRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -121,7 +121,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             return;
         }
         //don't render world hands in third person
-        if(VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON){
+        if(VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON){
             if(VRClientSettings.getMirrorMode() != MirrorMode.MIXED_REALITY){
                 handStateMain = HandRenderState.OFF;
                 handStateOffhand = HandRenderState.OFF;
@@ -254,7 +254,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             if (!effect.isEnabledAndVisible(currentDecorator)) continue;
 
             effect.render(
-                    VRRenderState.getCameraType(),
+                    VRRenderState.getRenderPass(),
                     poseStack,
                     partialTick
             );

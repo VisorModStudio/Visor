@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayRadialSelector;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
@@ -313,7 +313,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     @Override
     public void onUpdatePose(float partialTicks) {
         var camPos = RenderPoseHelper.getCameraPosition(
-                VRCameraType.GUI,
+                VRRenderPass.GUI,
                 ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
 

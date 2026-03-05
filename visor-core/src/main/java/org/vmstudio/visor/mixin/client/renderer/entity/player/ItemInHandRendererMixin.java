@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.input.HandAction;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -138,7 +138,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
 
 
         boolean renderArm =
-                VRRenderState.getCameraType() != VRCameraType.THIRD_PERSON
+                VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON
                 || (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
                         && VRClientSettings.isMixedRealityRenderHands());
 

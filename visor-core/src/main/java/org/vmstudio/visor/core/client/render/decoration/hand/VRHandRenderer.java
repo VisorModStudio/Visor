@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
@@ -21,8 +21,6 @@ import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -118,7 +116,7 @@ public class VRHandRenderer {
 
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
-        VRCameraType cameraType = VRRenderState.getCameraType();
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
         Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
 
         if(handStateMain == HandRenderState.GUI_HAND
@@ -127,7 +125,7 @@ public class VRHandRenderer {
                     HandType.MAIN,
                     poseStack, partialTicks,
                     true,
-                    cameraType, effects, decorator
+                    renderPass, effects, decorator
             );
         } else if(handStateMain == HandRenderState.WORLD_HAND
                 && !isGuiStage){
@@ -135,7 +133,7 @@ public class VRHandRenderer {
                     HandType.MAIN,
                     poseStack, partialTicks,
                     false,
-                    cameraType, effects, decorator
+                    renderPass, effects, decorator
             );
         }
 
@@ -145,7 +143,7 @@ public class VRHandRenderer {
                     HandType.OFFHAND,
                     poseStack, partialTicks,
                     true,
-                    cameraType, effects, decorator
+                    renderPass, effects, decorator
             );
         } else if(handStateOffhand == HandRenderState.WORLD_HAND
                 && !isGuiStage){
@@ -153,7 +151,7 @@ public class VRHandRenderer {
                     HandType.OFFHAND,
                     poseStack, partialTicks,
                     false,
-                    cameraType, effects, decorator
+                    renderPass, effects, decorator
             );
         }
 
@@ -179,7 +177,7 @@ public class VRHandRenderer {
         RenderSystem.backupProjectionMatrix();
         ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
-        VRCameraType cameraType = VRRenderState.getCameraType();
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
 
         boolean twoHanded = cursorHandler.isTwoHandedCursor();
         HandType primaryCursor = cursorHandler.getCursorHand();
@@ -187,14 +185,14 @@ public class VRHandRenderer {
         // Main hand
         if (twoHanded || primaryCursor == HandType.MAIN) {
             if (cursorHandler.isHandFocused(HandType.MAIN) && isTrackingHand(HandType.MAIN)) {
-                renderCursorLine(HandType.MAIN, cameraType, poseStack, cursorHandler);
+                renderCursorLine(HandType.MAIN, renderPass, poseStack, cursorHandler);
             }
         }
 
         // Offhand
         if (twoHanded || primaryCursor == HandType.OFFHAND) {
             if (cursorHandler.isHandFocused(HandType.OFFHAND) && isTrackingHand(HandType.OFFHAND)) {
-                renderCursorLine(HandType.OFFHAND, cameraType, poseStack, cursorHandler);
+                renderCursorLine(HandType.OFFHAND, renderPass, poseStack, cursorHandler);
             }
         }
 
@@ -202,7 +200,7 @@ public class VRHandRenderer {
     }
 
     private void renderCursorLine(@NotNull HandType hand,
-                                  @NotNull VRCameraType cameraType,
+                                  @NotNull VRRenderPass renderPass,
                                   @NotNull PoseStack poseStack,
                                   @NotNull VRCursorHandlerImpl cursorHandler) {
 
@@ -213,7 +211,7 @@ public class VRHandRenderer {
 
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         RenderPoseHelper.applyHandPose(hand, poseStack);
 
         Vector3f start = new Vector3f(0, 0, 0);
@@ -280,14 +278,14 @@ public class VRHandRenderer {
                             @NotNull PoseStack poseStack,
                             float partialTicks,
                             boolean isGui,
-                            VRCameraType cameraType,
+                            VRRenderPass renderPass,
                             Collection<VRHandEffect> effects,
                             VRDecorator decorator) {
 
         poseStack.pushPose();
 
         poseStack.setIdentity();
-        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         RenderPoseHelper.applyHandPose(hand, poseStack);
 
         var stageEffects = groupEffectsByStage(effects, decorator, hand, isGui);
@@ -298,7 +296,7 @@ public class VRHandRenderer {
         renderHandEffects(
                 stageEffects.get(VRHandEffect.RenderStage.BEFORE_HANDS),
                 hand,
-                cameraType,
+                renderPass,
                 poseStack,
                 isGui,
                 partialTicks
@@ -313,7 +311,7 @@ public class VRHandRenderer {
         renderHandEffects(
                 stageEffects.get(VRHandEffect.RenderStage.AFTER_HANDS),
                 hand,
-                cameraType,
+                renderPass,
                 poseStack,
                 isGui,
                 partialTicks
@@ -422,14 +420,14 @@ public class VRHandRenderer {
 
     private void renderHandEffects(Collection<VRHandEffect> effects,
                                    HandType hand,
-                                   VRCameraType cameraType,
+                                   VRRenderPass renderPass,
                                    PoseStack poseStack,
                                    boolean isSimple,
                                    float partialTicks) {
         if (effects == null || effects.isEmpty()) return;
 
         effects.forEach(it->
-                it.render(hand, cameraType, poseStack, isSimple, partialTicks)
+                it.render(hand, renderPass, poseStack, isSimple, partialTicks)
         );
     }
 

@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.render.RenderPhase;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.AddonManager;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
@@ -159,7 +159,7 @@ public interface VisorAPI {
             @Override
             public @NotNull RenderPhase renderPhase() {return RenderPhase.VANILLA;}
             @Override
-            public @Nullable VRCameraType renderCameraType() {return null;}
+            public @Nullable VRRenderPass renderPass() {return null;}
         };
 
 

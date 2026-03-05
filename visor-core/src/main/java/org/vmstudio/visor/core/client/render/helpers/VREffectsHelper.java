@@ -6,7 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
@@ -68,8 +68,8 @@ public class VREffectsHelper {
 
     public static void drawEyeStencil() {
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
-        VRCameraType camera = VRRenderState.getCameraType();
-        if (camera != null && camera.isEye()) {
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
+        if (renderPass.isEye()) {
             doStencil(false);
         }
     }
@@ -101,7 +101,7 @@ public class VREffectsHelper {
             applyOrthoProjection(rt, inverse);
 
             // draw hidden‐area triangles into the stencil
-            VRCameraType eye = VRRenderState.getCameraType();
+            VRRenderPass eye = VRRenderState.getRenderPass();
             float[] maskVerts = getStencilMask(eye);
             drawStencilMask(maskVerts);
 
@@ -164,12 +164,12 @@ public class VREffectsHelper {
         RenderSystem.applyModelViewMatrix();
     }
 
-    private static float[] getStencilMask(VRCameraType eye) {
-        if (eye != VRCameraType.EYE_LEFT && eye != VRCameraType.EYE_RIGHT) {
+    private static float[] getStencilMask(VRRenderPass eye) {
+        if (eye != VRRenderPass.EYE_LEFT && eye != VRRenderPass.EYE_RIGHT) {
             return null;
         }
         VRRendererBase renderer = ClientContext.renderer;
-        return (eye == VRCameraType.EYE_LEFT)
+        return (eye == VRRenderPass.EYE_LEFT)
                 ? renderer.getHiddenAreaVertices(EyeType.LEFT)
                 : renderer.getHiddenAreaVertices(EyeType.RIGHT);
     }

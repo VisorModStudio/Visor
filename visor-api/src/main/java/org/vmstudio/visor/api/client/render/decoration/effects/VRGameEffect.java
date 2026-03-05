@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.VisorComponent;
@@ -35,7 +35,7 @@ public abstract class VRGameEffect implements VisorComponent {
         return false;
     }
 
-    public abstract void render(@NotNull VRCameraType cameraType,
+    public abstract void render(@NotNull VRRenderPass renderPass,
                                 @NotNull PoseStack poseStack,
                                 float partialTicks);
 

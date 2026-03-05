@@ -31,7 +31,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     @Override
     public void setupRendering(@NotNull PoseStack poseStack, float partialTicks) {
-        RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), poseStack);
+        RenderPoseHelper.applyCameraOrientation(VRRenderState.getRenderPass(), poseStack);
         renderPanorama(poseStack);
     }
 
@@ -40,7 +40,7 @@ public class DecoratorMainMenu extends VRDecorator {
                 .getPoseData(PlayerPoseType.RENDER);
         poseStack.pushPose();
         var eye = RenderPoseHelper.getCameraPosition(
-                VRRenderState.getCameraType(),
+                VRRenderState.getRenderPass(),
                 renderPose
         );
         var origin = renderPose.getOrigin();

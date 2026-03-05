@@ -50,7 +50,7 @@ public class RenderGuiHelper {
                 .getPoseData(PlayerPoseType.RENDER);
 
         var eye = RenderPoseHelper.getCameraPosition(
-                VRRenderState.getCameraType(),
+                VRRenderState.getRenderPass(),
                 renderPose
         );
         scale = scale * renderPose.getWorldScale();

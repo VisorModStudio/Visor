@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
@@ -270,7 +270,7 @@ public class VisorState implements VisorClientState {
     }
 
     @Override
-    public VRCameraType renderCameraType() {
-        return VRRenderState.getCameraType();
+    public VRRenderPass renderPass() {
+        return VRRenderState.getRenderPass();
     }
 }

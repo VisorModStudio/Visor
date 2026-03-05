@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
@@ -26,13 +26,13 @@ public abstract class VRHandEffect implements VisorComponent {
      * Render hand effect
      *
      * @param hand for which hand render the effect
-     * @param cameraType current VR camera type
+     * @param renderPass current VR render pass
      * @param poseStack used poseStack
      * @param simpleHand if hand is without skin (main menu)
      * @param partialTicks current partialTick
      */
     public abstract void render(@NotNull HandType hand,
-                                @NotNull VRCameraType cameraType,
+                                @NotNull VRRenderPass renderPass,
                                 @NotNull PoseStack poseStack,
                                 boolean simpleHand,
                                 float partialTicks);

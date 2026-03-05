@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.client.player.pose;
 
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.PlayerPose;
 import org.vmstudio.visor.api.common.player.VRPose;
@@ -88,13 +88,13 @@ public interface PlayerPoseClient extends PlayerPose {
     }
 
     /**
-     * Get the pose for camera type
+     * Get the pose for render pass
      *
-     * @param cameraType the camera type
+     * @param renderPass the render pass
      * @return the pose
      */
     @NotNull
-    VRPose getCameraPose(@Nullable VRCameraType cameraType);
+    VRPose getCameraPose(@Nullable VRRenderPass renderPass);
 
     /**
      * Converts <code>position</code> from the coordinate system of <code>originType</code>

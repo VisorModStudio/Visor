@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
@@ -170,7 +170,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
     @Override
     protected boolean updateVisibility() {
-        return VRRenderState.getActiveCameraTypes().contains(VRCameraType.THIRD_PERSON);
+        return VRRenderState.getActivePasses().contains(VRRenderPass.THIRD_PERSON);
     }
 
     @Override

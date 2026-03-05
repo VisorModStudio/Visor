@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -39,7 +39,7 @@ public class GameEffectOnFire extends VRGameEffect {
     }
 
     @Override
-    public void render(@NotNull VRCameraType cameraType,
+    public void render(@NotNull VRRenderPass renderPass,
                        @NotNull PoseStack stack,
                        float partialTicks) {
         // --- Prepare variables ---
@@ -66,7 +66,7 @@ public class GameEffectOnFire extends VRGameEffect {
 
         // --- GL setup ---
         RenderSystem.depthFunc(
-                cameraType == VRCameraType.THIRD_PERSON
+                renderPass == VRRenderPass.THIRD_PERSON
                         ? GL11C.GL_LEQUAL
                         : GL11C.GL_ALWAYS
         );
@@ -80,7 +80,7 @@ public class GameEffectOnFire extends VRGameEffect {
         // --- Pose setup ---
         stack.pushPose();
         stack.setIdentity();
-        RenderPoseHelper.applyCameraPose(cameraType, stack);
+        RenderPoseHelper.applyCameraPose(renderPass, stack);
 
         // --- Render ---
         BufferBuilder buf = Tesselator.getInstance().getBuilder();

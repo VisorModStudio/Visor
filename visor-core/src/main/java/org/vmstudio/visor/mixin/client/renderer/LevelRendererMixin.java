@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.modified.client.render.GameRendererModified;
@@ -99,29 +99,25 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
     public double visor$rainAndSnowX(double x) {
-        VRCameraType camera = VRRenderState.getCameraType();
-        if (VRRenderState.getPhase().isNotVanilla()
-                && camera != null && camera.isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().x();
+        if (VRRenderState.getRenderPass().isEye()) {
+            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                    .getHmd().getPosition().x();
         }
         return x;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
     public double visor$rainAndSnowY(double y) {
-        VRCameraType camera = VRRenderState.getCameraType();
-        if (VRRenderState.getPhase().isNotVanilla()
-                && camera != null && camera.isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().y();
+        if (VRRenderState.getRenderPass().isEye()) {
+            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                    .getHmd().getPosition().y();
         }
         return y;
     }
 
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
     public double visor$rainAndSnowZ(double z) {
-        VRCameraType camera = VRRenderState.getCameraType();
-        if (VRRenderState.getPhase().isNotVanilla()
-                && camera != null && camera.isEye()) {
+        if (VRRenderState.getRenderPass().isEye()) {
             return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().z();
         }
         return z;

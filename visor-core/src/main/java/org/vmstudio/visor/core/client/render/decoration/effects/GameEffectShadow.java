@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
@@ -51,7 +51,7 @@ public class GameEffectShadow extends VRGameEffect {
     }
 
     @Override
-    public void render(@NotNull VRCameraType cameraType,
+    public void render(@NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
                        float partialTicks) {
 
@@ -61,7 +61,7 @@ public class GameEffectShadow extends VRGameEffect {
         float playerWidth  = (float) box.getXsize();
         float playerLength = (float) box.getZsize();
 
-        Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(cameraType,
+        Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderPass,
                 ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER))
         );
         Vec3 worldPlayerPos = ((GameRendererModified) MC.gameRenderer)
@@ -85,7 +85,7 @@ public class GameEffectShadow extends VRGameEffect {
         poseStack.pushPose();
 
         poseStack.setIdentity();
-        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         poseStack.translate(shadowPos.x, shadowPos.y, shadowPos.z);
 
 
@@ -140,7 +140,7 @@ public class GameEffectShadow extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        if(VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON){
+        if(VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON){
             return false;
         }
         if (!MC.player.isAlive()) {

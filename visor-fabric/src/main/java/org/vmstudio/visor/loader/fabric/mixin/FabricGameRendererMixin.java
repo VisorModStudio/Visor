@@ -24,7 +24,7 @@ public class FabricGameRendererMixin {
         if (VRRenderState.getPhase().isVanilla()) {
             s.mulPose(quaternion);
         } else {
-            RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), s);
+            RenderPoseHelper.applyCameraOrientation(VRRenderState.getRenderPass(), s);
         }
     }
 

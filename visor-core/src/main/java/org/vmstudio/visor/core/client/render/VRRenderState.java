@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.render.RenderPhase;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.modified.client.WindowModified;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +26,8 @@ public class VRRenderState {
     @Getter @NotNull
     private static RenderPhase phase = RenderPhase.VANILLA;
 
-    @Getter @Nullable
-    private static VRCameraType cameraType = null;
+    @Getter
+    private static VRRenderPass renderPass = VRRenderPass.NULL;
 
 
 
@@ -46,45 +45,46 @@ public class VRRenderState {
 
     public static void startVanillaPhase() {
         phase = RenderPhase.VANILLA;
-        cameraType = null;
+        renderPass = VRRenderPass.NULL;
         MC.mainRenderTarget = vanillaTarget;
     }
 
     public static void startVRGuiPhase() {
         phase = RenderPhase.VR_GUI;
-        cameraType = VRCameraType.GUI;
-        MC.mainRenderTarget = getTargetForCamera(VRCameraType.GUI);
+        renderPass = VRRenderPass.GUI;
+        MC.mainRenderTarget = getTargetForPass(VRRenderPass.GUI);
     }
 
-    public static void startVRWorldPhase(@NotNull VRCameraType cameraType) {
-        if(!cameraType.isWorld()){
+    public static void startVRWorldPhase(@NotNull VRRenderPass renderPass) {
+        if(!renderPass.isWorld()){
             throw new RuntimeException(
                     "Tried to start VR_WORLD phase " +
-                            "for camera type that is not rendering world: "+cameraType
+                            "for render pass that is not rendering world: "+renderPass
             );
         }
         phase = RenderPhase.VR_WORLD;
-        VRRenderState.cameraType = cameraType;
-        MC.mainRenderTarget = getTargetForCamera(cameraType);
+        VRRenderState.renderPass = renderPass;
+        MC.mainRenderTarget = getTargetForPass(renderPass);
     }
 
     public static void startVRMirrorPhase(){
         phase = RenderPhase.VR_MIRROR;
-        cameraType = null;
+        renderPass = VRRenderPass.NULL;
         MC.mainRenderTarget = ClientContext.renderer.mainTarget.getMirrorTarget();
     }
 
-    public static RenderTarget getTargetForCamera(VRCameraType cameraType){
+    public static RenderTarget getTargetForPass(VRRenderPass renderPass){
         if(VisorState.get().isNotInitialized()
-                || cameraType == null){
+                || renderPass == null){
             return vanillaTarget;
         }
-        return switch (cameraType){
+        return switch (renderPass){
+            case NULL -> vanillaTarget;
             case GUI ->
                     ClientContext.renderer.guiTarget.getTarget();
             case EYE_LEFT, EYE_RIGHT ->
                     ClientContext.renderer.mainTarget.getTarget();
-            case FIRST_PERSON ->
+            case CENTER ->
                     ClientContext.renderer.firstPersonTarget.getTarget();
             case THIRD_PERSON ->
                     ClientContext.renderer.thirdPersonTarget.getTarget();
@@ -103,12 +103,12 @@ public class VRRenderState {
     }
 
 
-    public static List<VRCameraType> getActiveCameraTypes() {
+    public static List<VRRenderPass> getActivePasses() {
 
 
-        List<VRCameraType> list = new ArrayList<>();
-        list.add(VRCameraType.EYE_LEFT);
-        list.add(VRCameraType.EYE_RIGHT);
+        List<VRRenderPass> list = new ArrayList<>();
+        list.add(VRRenderPass.EYE_LEFT);
+        list.add(VRRenderPass.EYE_RIGHT);
 
         var windowModif =  ((WindowModified) (Object)
                 Minecraft.getInstance().getWindow());
@@ -117,15 +117,15 @@ public class VRRenderState {
                 && windowModif.visor$getActualScreenHeight() > 0) {
             MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
-                list.add(VRCameraType.FIRST_PERSON);
+                list.add(VRRenderPass.CENTER);
             } else if (mirrorMode == MirrorMode.THIRD_PERSON) {
-                list.add(VRCameraType.THIRD_PERSON);
+                list.add(VRRenderPass.THIRD_PERSON);
             } else if (mirrorMode == MirrorMode.MIXED_REALITY) {
                 if (VRClientSettings.isMixedRealityWithFirstPerson() && VRClientSettings.isMixedRealityAsGrid2x2()) {
-                    list.add(VRCameraType.FIRST_PERSON);
+                    list.add(VRRenderPass.CENTER);
                 }
 
-                list.add(VRCameraType.THIRD_PERSON);
+                list.add(VRRenderPass.THIRD_PERSON);
             }
         }
 

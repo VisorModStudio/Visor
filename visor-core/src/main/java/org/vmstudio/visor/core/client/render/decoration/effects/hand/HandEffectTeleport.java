@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
@@ -69,7 +69,7 @@ public class HandEffectTeleport extends VRHandEffect {
 
     @Override
     public void render(@NotNull HandType hand,
-                       @NotNull VRCameraType cameraType,
+                       @NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
                        boolean simpleHand,
                        float partialTicks) {
@@ -77,7 +77,7 @@ public class HandEffectTeleport extends VRHandEffect {
 
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
 
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
@@ -89,13 +89,13 @@ public class HandEffectTeleport extends VRHandEffect {
 
         // Render the teleport arc and landing pad effect
         RenderSystem.enableDepthTest();
-        renderTeleportArc(cameraType, poseStack);
+        renderTeleportArc(renderPass, poseStack);
 
         RenderSystem.defaultBlendFunc();
         poseStack.popPose();
     }
 
-    private void renderTeleportArc(VRCameraType cameraType,
+    private void renderTeleportArc(VRRenderPass renderPass,
                                    PoseStack poseStack) {
         MC.getProfiler().push("teleportArc");
 
@@ -161,7 +161,7 @@ public class HandEffectTeleport extends VRHandEffect {
         double segmentProgress = 1.0D / segments;
 
         var cameraPosition = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(
-                cameraType,
+                renderPass,
                 ClientContext.localPlayer
                         .getPoseData(PlayerPoseType.RENDER)
         ));

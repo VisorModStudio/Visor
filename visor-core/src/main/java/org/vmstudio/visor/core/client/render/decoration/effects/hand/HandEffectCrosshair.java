@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHandEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
@@ -52,7 +52,7 @@ public class HandEffectCrosshair extends VRHandEffect {
 
     @Override
     public void render(@NotNull HandType hand,
-                       @NotNull VRCameraType cameraType,
+                       @NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
                        boolean simpleHand,
                        float partialTicks) {
@@ -97,7 +97,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- Pose setup ---
         poseStack.pushPose();
         poseStack.setIdentity();
-        RenderPoseHelper.applyCameraOrientation(cameraType, poseStack);
+        RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
 
         Vector3f camPos = MC.getCameraEntity().position().toVector3f();
         Vector3f translate = crossPos.sub(camPos);

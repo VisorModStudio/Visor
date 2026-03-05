@@ -2,7 +2,7 @@ package org.vmstudio.visor.loader.forge.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
@@ -19,9 +19,8 @@ public class ForgeGameRendererVRMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setAnglesInternal(FF)V", remap = false), method = "renderLevel")
     public void removeAnglesInternal(Camera cam, float yaw, float pitch) {
-        VRCameraType camera = VRRenderState.getCameraType();
         if (VRRenderState.getPhase().isVanilla()
-                || camera == null || !camera.isEye()) {
+                || !VRRenderState.getRenderPass().isEye()) {
             cam.setAnglesInternal(yaw, pitch);
         }
 
@@ -29,9 +28,8 @@ public class ForgeGameRendererVRMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionf;)V", ordinal = 2), method = "renderLevel")
     public void removeMulPosXRotation(PoseStack poseStack, Quaternionf quaternion) {
-        VRCameraType camera = VRRenderState.getCameraType();
         if (VRRenderState.getPhase().isVanilla()
-                || camera == null || !camera.isEye()) {
+                || !VRRenderState.getRenderPass().isEye()) {
             poseStack.mulPose(quaternion);
         }
     }
@@ -48,7 +46,7 @@ public class ForgeGameRendererVRMixin {
         if (VRRenderState.getPhase().isVanilla()) {
             s.mulPose(quaternion);
         } else {
-            RenderPoseHelper.applyCameraOrientation(VRRenderState.getCameraType(), s);
+            RenderPoseHelper.applyCameraOrientation(VRRenderState.getRenderPass(), s);
         }
     }
 

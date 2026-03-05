@@ -3,7 +3,7 @@ package org.vmstudio.visor.api;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,10 +40,10 @@ public interface VisorClientState {
     RenderPhase renderPhase();
 
     /**
-     * Get VR Camera type that is currently rendered
+     * Get VR render pass that is currently rendered
      *
-     * @return the current {@link VRCameraType} or null
+     * @return the current {@link VRRenderPass} or null
      */
     @Nullable
-    VRCameraType renderCameraType();
+    VRRenderPass renderPass();
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -234,7 +234,7 @@ public class RemotePlayerPose implements PlayerPoseClient {
 
 
     @Override
-    public @NotNull VRPose getCameraPose(@Nullable VRCameraType cameraType) {
+    public @NotNull VRPose getCameraPose(@Nullable VRRenderPass renderPass) {
         return hmd;
     }
 

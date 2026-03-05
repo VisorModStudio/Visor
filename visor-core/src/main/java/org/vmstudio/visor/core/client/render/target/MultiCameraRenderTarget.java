@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.render.target;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
 import java.util.EnumMap;
@@ -10,9 +10,9 @@ import java.util.EnumMap;
 public class MultiCameraRenderTarget extends RenderTarget {
 
     private final RenderTarget mainTarget;
-    private final EnumMap<VRCameraType, RenderTarget> vrTargets;
+    private final EnumMap<VRRenderPass, RenderTarget> vrTargets;
 
-    public MultiCameraRenderTarget(RenderTarget mainTarget, EnumMap<VRCameraType, RenderTarget> vrTargets) {
+    public MultiCameraRenderTarget(RenderTarget mainTarget, EnumMap<VRRenderPass, RenderTarget> vrTargets) {
         super(mainTarget.useDepth);
 
         this.mainTarget = mainTarget;
@@ -32,11 +32,11 @@ public class MultiCameraRenderTarget extends RenderTarget {
         if (VRRenderState.getPhase().isVanilla()) {
             return mainTarget;
         }
-        VRCameraType camera = VRRenderState.getCameraType();
-        if (camera == null) {
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
+        if (renderPass.isNull()) {
             return mainTarget;
         }
-        RenderTarget target = vrTargets.get(camera);
+        RenderTarget target = vrTargets.get(renderPass);
         return target != null ? target : mainTarget;
     }
 

@@ -1,6 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer;
 
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -25,7 +25,7 @@ public class VRLightsMixins {
         @Inject(at = @At("HEAD"), method = "pollLightUpdates", cancellable = true)
         public void visor$noUpdateOncePerFrame(CallbackInfo info){
             if(VisorState.get().isNotActive()) return;
-            if (VRRenderState.getCameraType() != VRCameraType.worldUpdater()) {
+            if (VRRenderState.getRenderPass() != VRRenderPass.worldUpdater()) {
                 info.cancel();
             }
         }
@@ -48,7 +48,7 @@ public class VRLightsMixins {
         public void visor$noUpdateOncePerFrame(CallbackInfoReturnable<Integer> callbackInfo){
             if(VisorState.get().isNotActive()) return;
             if(!visor$redirect) return;
-            if (VRRenderState.getCameraType() == VRCameraType.worldUpdater()) {
+            if (VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
                 visor$redirect = false;
                 callbackInfo.setReturnValue(runLightUpdates());
                 visor$redirect = true;

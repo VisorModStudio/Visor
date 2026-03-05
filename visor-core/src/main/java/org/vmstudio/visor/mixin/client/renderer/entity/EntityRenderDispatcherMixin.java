@@ -2,7 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.entity;
 
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.modified.client.entity.EntityRenderDispatcherVRModified;
 import org.vmstudio.visor.modified.client.render.LevelRendererModified;
@@ -61,9 +61,9 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             return;
         }
         var cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
-        if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
+        if (VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON) {
             cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getCameraPose(VRCameraType.THIRD_PERSON)
+                    .getCameraPose(VRRenderPass.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCamera = entity.position().add(0.0D, entity.getBbHeight() / 2.0F, 0.0D)
@@ -105,9 +105,9 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
                 .getPoseData(PlayerPoseType.RENDER)
                 .getHmd()
                 .getPosition();
-        if (VRRenderState.getCameraType() == VRCameraType.THIRD_PERSON) {
+        if (VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON) {
             cameraPos = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getCameraPose(VRCameraType.THIRD_PERSON)
+                    .getCameraPose(VRRenderPass.THIRD_PERSON)
                     .getPosition();
         }
         Vec3 entityToCameraDirection = entity.position().add(

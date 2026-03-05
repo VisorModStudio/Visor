@@ -6,7 +6,7 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.compatibility.ShadersHelper;
@@ -170,8 +170,8 @@ public abstract class VRRendererBase implements VRRenderer {
         int eyeRenderWidth = (int) Math.ceil(eyeWidth * this.renderScale);
         int eyeRenderHeight = (int) Math.ceil(eyeHeight * this.renderScale);
 
-        List<VRCameraType> list = VRRenderState.getActiveCameraTypes();
-        for (VRCameraType renderStage : list) {
+        List<VRRenderPass> list = VRRenderState.getActivePasses();
+        for (VRRenderPass renderStage : list) {
             VisorClientImpl.LOGGER.info("VR Displays: {}", renderStage.toString());
         }
 
@@ -183,7 +183,7 @@ public abstract class VRRendererBase implements VRRenderer {
         );
 
         firstPersonTarget = new RenderTargetFirst();
-        if(list.contains(VRCameraType.FIRST_PERSON)
+        if(list.contains(VRRenderPass.CENTER)
                 || ShadersHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             firstPersonTarget.init(
@@ -192,7 +192,7 @@ public abstract class VRRendererBase implements VRRenderer {
         }
 
         thirdPersonTarget = new RenderTargetThird();
-        if(list.contains(VRCameraType.THIRD_PERSON)
+        if(list.contains(VRRenderPass.THIRD_PERSON)
                 || ShadersHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             thirdPersonTarget.init(
@@ -233,7 +233,7 @@ public abstract class VRRendererBase implements VRRenderer {
         long windowPixels = (long) windowModif.visor$getActualScreenWidth() * windowModif.visor$getActualScreenHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
-        if (list.contains(VRCameraType.FIRST_PERSON)) {
+        if (list.contains(VRRenderPass.CENTER)) {
             vrPixels += windowPixels;
         }
 

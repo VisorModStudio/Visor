@@ -5,7 +5,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.pose.raw.RawControllerImpl;
@@ -326,12 +326,12 @@ public class LocalPlayerPose implements PlayerPoseClient {
     }
 
     @Override
-    public @NotNull VRPose getCameraPose(@Nullable VRCameraType cameraType) {
-        if(cameraType == null){
+    public @NotNull VRPose getCameraPose(@Nullable VRRenderPass renderPass) {
+        if(renderPass == null){
             return hmd;
         }
-        return switch (cameraType) {
-            case FIRST_PERSON -> this.hmd;
+        return switch (renderPass) {
+            case CENTER -> this.hmd;
             case THIRD_PERSON -> this.thirdPersonCamera;
             case EYE_LEFT -> this.eyeLeft;
             case EYE_RIGHT -> this.eyeRight;

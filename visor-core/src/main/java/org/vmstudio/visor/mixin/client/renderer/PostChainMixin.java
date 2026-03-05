@@ -1,12 +1,10 @@
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import org.vmstudio.visor.modified.client.render.RenderTargetModified;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.target.MultiCameraRenderTarget;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
@@ -32,7 +30,7 @@ public class PostChainMixin {
     private RenderTarget screenTarget;
 
     @Unique @Final
-    private final EnumMap<VRCameraType, PostChain> visor$vrPostChains = new EnumMap<>(VRCameraType.class);
+    private final EnumMap<VRRenderPass, PostChain> visor$vrPostChains = new EnumMap<>(VRRenderPass.class);
 
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
@@ -46,10 +44,12 @@ public class PostChainMixin {
                 || this.screenTarget != VRRenderState.getVanillaTarget()){
             return;
         }
-        for (VRCameraType cameraType : VRCameraType.values()) {
-            var target = VRRenderState.getTargetForCamera(cameraType);
+        for (VRRenderPass renderPass : VRRenderPass.values()) {
+            if(renderPass.isNull()) continue;
+
+            var target = VRRenderState.getTargetForPass(renderPass);
             if(target == null) continue;
-            visor$vrPostChains.put(cameraType,
+            visor$vrPostChains.put(renderPass,
                     new PostChain(
                             textureManager,
                             resourceManager,
@@ -65,7 +65,7 @@ public class PostChainMixin {
         if(VRRenderState.getPhase().isNotVRWorld()){
             return;
         }
-        PostChain vrChain = this.visor$vrPostChains.get(VRRenderState.getCameraType());
+        PostChain vrChain = this.visor$vrPostChains.get(VRRenderState.getRenderPass());
         if(vrChain == null){
             return;
         }
@@ -80,7 +80,7 @@ public class PostChainMixin {
                 || visor$vrPostChains.isEmpty()) {
             return;
         }
-        var vrTempTargets = new EnumMap<VRCameraType, RenderTarget>(VRCameraType.class);
+        var vrTempTargets = new EnumMap<VRRenderPass, RenderTarget>(VRRenderPass.class);
         visor$vrPostChains.forEach((d, pc) -> {
             vrTempTargets.put(d, pc.getTempTarget(attributeName));
         });
@@ -105,8 +105,8 @@ public class PostChainMixin {
 
     @Inject(method = "resize", at = @At("TAIL"))
     private void visor$onResize(CallbackInfo ci) {
-        visor$vrPostChains.forEach((cameraType, pc) -> {
-            RenderTarget target = VRRenderState.getTargetForCamera(cameraType);
+        visor$vrPostChains.forEach((renderPass, pc) -> {
+            RenderTarget target = VRRenderState.getTargetForPass(renderPass);
             if(target == null){
                 return;
             }

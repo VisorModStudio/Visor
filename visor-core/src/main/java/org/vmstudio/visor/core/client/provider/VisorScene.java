@@ -5,10 +5,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
-import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
 import me.phoenixra.atumvr.api.rendering.AtumVRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import org.vmstudio.visor.api.client.render.VRCameraType;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -69,18 +68,18 @@ public class VisorScene implements AtumVRScene {
         profiler.pop();
         GLUtils.checkGLError("post VR Overlays texturing");
 
-        for (VRCameraType cameraType : VRRenderState.getActiveCameraTypes()) {
-            profiler.push("VR camera type: "+cameraType.name());
+        for (VRRenderPass renderPass : VRRenderState.getActivePasses()) {
+            profiler.push("VR render pass: "+renderPass.name());
 
-            renderCamera(
-                    cameraType,
+            renderPass(
+                    renderPass,
                     renderContext
             );
-            GLUtils.checkGLError("post VR camera type render: " + cameraType.name());
+            GLUtils.checkGLError("post VR render pass: " + renderPass.name());
 
 
             if (ClientContext.renderer.isAskedForScreenShot()) {
-                takeScreenshot(cameraType);
+                takeScreenshot(renderPass);
             }
             profiler.pop();
         }
@@ -96,15 +95,15 @@ public class VisorScene implements AtumVRScene {
 
     }
 
-    private void takeScreenshot(VRCameraType currentStage) {
+    private void takeScreenshot(VRRenderPass currentStage) {
 
         boolean flag;
-        if (currentStage == VRCameraType.FIRST_PERSON) {
+        if (currentStage == VRRenderPass.CENTER) {
             flag = true;
         } else {
             flag = VRClientSettings.getMirrorEye() == EyeType.LEFT ?
-                    currentStage == VRCameraType.EYE_LEFT
-                    : currentStage == VRCameraType.EYE_RIGHT;
+                    currentStage == VRRenderPass.EYE_LEFT
+                    : currentStage == VRRenderPass.EYE_RIGHT;
         }
 
         if (flag) {
@@ -122,10 +121,10 @@ public class VisorScene implements AtumVRScene {
 
     }
 
-    private void renderCamera(VRCameraType cameraType,
-                              RenderContext context
+    private void renderPass(VRRenderPass renderPass,
+                            RenderContext context
     ) {
-        VRRenderState.startVRWorldPhase(cameraType);
+        VRRenderState.startVRWorldPhase(renderPass);
 
         MC.mainRenderTarget.bindWrite(true);
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
@@ -138,9 +137,9 @@ public class VisorScene implements AtumVRScene {
                 context.renderLevel()
         );
 
-        if (cameraType.isEye()) {
+        if (renderPass.isEye()) {
 
-            if (cameraType == VRCameraType.EYE_LEFT) {
+            if (renderPass == VRRenderPass.EYE_LEFT) {
                 ClientContext.renderer.getTextureLeftEye()
                         .getRenderTarget().bindWrite(true);
             } else {
@@ -149,7 +148,7 @@ public class VisorScene implements AtumVRScene {
             }
 
             VRShaders.getPostProcess().finishEye(
-                    cameraType == VRCameraType.EYE_LEFT
+                    renderPass == VRRenderPass.EYE_LEFT
                             ? EyeType.LEFT : EyeType.RIGHT,
                     MC.mainRenderTarget,
                     context.partialTicks()
