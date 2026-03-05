@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
-import org.vmstudio.visor.modified.common.ServerPlayerModified;
+import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 
@@ -90,7 +90,7 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
     public void updateRotationY(float rotationY){
         this.rotationY = rotationY;
-        ((ServerPlayerModified)mcPlayer).visor$setRotationYCached(rotationY);
+        ((ServerPlayerExtension)mcPlayer).visor$setRotationYCached(rotationY);
     }
 
     @Override

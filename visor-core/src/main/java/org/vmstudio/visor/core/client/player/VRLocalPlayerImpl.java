@@ -19,8 +19,8 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomCrawl;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
-import org.vmstudio.visor.modified.client.entity.LocalPlayerModified;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
@@ -248,7 +248,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         }
 
         boolean canAutoClimb = (VRClientSettings.isWalkUpEnabled()
-                && ((LocalPlayerModified) player).visor$getJumpFactor() == 1.0F);
+                && ((LocalPlayerExtension) player).visor$getJumpFactor() == 1.0F);
 
         if (canAutoClimb && player.fallDistance == 0.0F) {
             // Reduce the collision box width for climbing checks.
@@ -293,7 +293,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                     );
 
                     player.fallDistance = 0.0F;
-                    ((LocalPlayerModified) MC.player).visor$stepSound(
+                    ((LocalPlayerExtension) MC.player).visor$stepSound(
                             BlockPos.containing(player.position()),
                             player.position()
                     );
@@ -352,10 +352,10 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
 
-        if (((GameRendererModified) MC.gameRenderer).visor$getCrossVec() != null) {
+        if (((GameRendererExtension) MC.gameRenderer).visor$getCrossVec() != null) {
             //Look AT the crosshair by default, most compatible with mods.
             Vec3 playerToCrosshair = player.getEyePosition(1)
-                    .subtract(((GameRendererModified) MC.gameRenderer)
+                    .subtract(((GameRendererExtension) MC.gameRenderer)
                             .visor$getCrossVec()); //backwards
             double what = playerToCrosshair.y / playerToCrosshair.length();
             if (what > 1) {
@@ -393,7 +393,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         float x = (float) (cameraEntity.getX() - headPivot.x());
         float z = (float) (cameraEntity.getZ() - headPivot.z());
         float y = (float) (cameraEntity.getY());
-        if (cameraEntity instanceof LocalPlayerModified p) {
+        if (cameraEntity instanceof LocalPlayerExtension p) {
             y += (float) p.visor$getRoomYOffset();
         }
         this.setOrigin(x, y, z, reset);

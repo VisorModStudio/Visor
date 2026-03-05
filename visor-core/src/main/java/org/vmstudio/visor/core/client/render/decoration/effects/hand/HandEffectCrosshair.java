@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GameRenderer;
@@ -59,7 +59,7 @@ public class HandEffectCrosshair extends VRHandEffect {
 
         // --- Prepare variables ---
         PlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        var rawCross = ((GameRendererModified)MC.gameRenderer).visor$getCrossVec().toVector3f();
+        var rawCross = ((GameRendererExtension)MC.gameRenderer).visor$getCrossVec().toVector3f();
         var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
         float scale = BASE_SCALE * worldScale;
@@ -181,7 +181,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         if(hand != ClientContext.localPlayer.getActiveHand()){
             return false;
         }
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock();
+        boolean insideBlock = ((GameRendererExtension) MC.gameRenderer).visor$isInBlock();
         if(insideBlock){
             return false;
         }

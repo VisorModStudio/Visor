@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayPose;
 import org.vmstudio.visor.compatibility.ShadersHelper;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
@@ -115,7 +115,7 @@ public class RenderGuiHelper {
         // --- Render ---
         if (MC.level != null && useLight) {
             if (RenderHelper.isInSolidBlock(position)
-                    || ((GameRendererModified) MC.gameRenderer).visor$isInBlock()) {
+                    || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
                 position = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
             }
 

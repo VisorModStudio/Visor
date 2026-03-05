@@ -11,8 +11,8 @@ import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
 import org.vmstudio.visor.mixin.common.player.Common_PlayerMixin;
-import org.vmstudio.visor.modified.client.entity.LocalPlayerModified;
-import org.vmstudio.visor.modified.client.render.ItemInHandRendererModified;
+import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
+import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -43,7 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends Common_PlayerMixin implements LocalPlayerModified {
+public abstract class LocalPlayerMixin extends Common_PlayerMixin implements LocalPlayerExtension {
 
 
     @Final
@@ -403,7 +403,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     @Unique
     public void visor$swingArm(InteractionHand interactionhand, HandAction interact) {
-        ((ItemInHandRendererModified) this.minecraft
+        ((ItemInHandRendererExtension) this.minecraft
                 .getEntityRenderDispatcher()
                 .getItemInHandRenderer()
         ).visor$setSwingType(interact);

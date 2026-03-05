@@ -1,6 +1,6 @@
-package org.vmstudio.visor.modified.client;
+package org.vmstudio.visor.extensions.client;
 
-public interface WindowModified {
+public interface WindowExtension {
     int visor$getActualScreenHeight();
 
     int visor$getActualScreenWidth();

@@ -18,7 +18,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.modified.client.entity.LocalPlayerModified;
+import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -438,7 +438,7 @@ public class TaskRoomClimb extends VisorTask
             handStates.get(otherHand).isAnchored = false;
 
             ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HAPTIC_PULSE);
-            ((LocalPlayerModified) MC.player).visor$stepSound(handBlockPos, state.anchoredPos);
+            ((LocalPlayerExtension) MC.player).visor$stepSound(handBlockPos, state.anchoredPos);
         }
         state.wasInsideBlock = state.isInsideBlock;
     }

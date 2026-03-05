@@ -1,7 +1,7 @@
-package org.vmstudio.visor.modified.client.render;
+package org.vmstudio.visor.extensions.client.render;
 
 
-public interface RenderTargetModified {
+public interface RenderTargetExtension {
 
 
 

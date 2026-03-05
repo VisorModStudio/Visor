@@ -1,6 +1,6 @@
-package org.vmstudio.visor.modified.common;
+package org.vmstudio.visor.extensions.common;
 
-public interface ServerPlayerModified {
+public interface ServerPlayerExtension {
 
 
     void visor$setRotationYCached(float value);

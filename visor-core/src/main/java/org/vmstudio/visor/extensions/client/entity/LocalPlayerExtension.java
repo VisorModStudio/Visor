@@ -1,4 +1,4 @@
-package org.vmstudio.visor.modified.client.entity;
+package org.vmstudio.visor.extensions.client.entity;
 
 
 import org.vmstudio.visor.api.client.input.HandAction;
@@ -7,7 +7,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-public interface LocalPlayerModified {
+public interface LocalPlayerExtension {
 
 
     void visor$setUsingItem(ItemStack itemstack1, InteractionHand interactionhand);

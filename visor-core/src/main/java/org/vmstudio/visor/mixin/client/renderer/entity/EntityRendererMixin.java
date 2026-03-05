@@ -1,6 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer.entity;
 
-import org.vmstudio.visor.modified.client.entity.EntityRenderDispatcherVRModified;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import org.joml.Quaternionf;
@@ -19,7 +19,7 @@ public class EntityRendererMixin {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;cameraOrientation()Lorg/joml/Quaternionf;"), method = "renderNameTag")
     public Quaternionf visor$vrNameTagCameraOrient(EntityRenderDispatcher instance) {
-        return ((EntityRenderDispatcherVRModified) this.entityRenderDispatcher)
+        return ((EntityRenderDispatcherExtension) this.entityRenderDispatcher)
                 .visor$getCameraOrientationOffset(0.5f);
     }
 }

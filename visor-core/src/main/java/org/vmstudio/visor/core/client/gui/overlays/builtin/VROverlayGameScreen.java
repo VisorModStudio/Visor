@@ -12,7 +12,7 @@ import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.modified.client.WindowModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
@@ -217,9 +217,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         var guiManager = ClientContext.guiManager;
 
 
-        int screenWidth = ((WindowModified) (Object) mcWindow)
+        int screenWidth = ((WindowExtension) (Object) mcWindow)
                 .visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) mcWindow)
+        int screenHeight = ((WindowExtension) (Object) mcWindow)
                 .visor$getActualScreenHeight();
 
         int guiScaledWidth = guiManager.getGuiScaledWidth();

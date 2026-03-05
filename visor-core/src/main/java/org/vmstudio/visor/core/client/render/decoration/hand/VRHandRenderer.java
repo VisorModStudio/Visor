@@ -14,7 +14,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
@@ -114,7 +114,7 @@ public class VRHandRenderer {
                             boolean isGuiStage){
         RenderSystem.backupProjectionMatrix();
 
-        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+        ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
@@ -175,7 +175,7 @@ public class VRHandRenderer {
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
         RenderSystem.backupProjectionMatrix();
-        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+        ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
 

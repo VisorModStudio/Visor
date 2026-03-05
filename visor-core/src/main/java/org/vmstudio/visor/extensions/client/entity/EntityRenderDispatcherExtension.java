@@ -1,11 +1,11 @@
-package org.vmstudio.visor.modified.client.entity;
+package org.vmstudio.visor.extensions.client.entity;
 
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import org.joml.Quaternionf;
 
 import java.util.Map;
 
-public interface EntityRenderDispatcherVRModified {
+public interface EntityRenderDispatcherExtension {
 
     Quaternionf visor$getCameraOrientationOffset(float offset);
 

@@ -7,7 +7,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.modified.client.WindowModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
@@ -110,7 +110,7 @@ public class VRRenderState {
         list.add(VRRenderPass.EYE_LEFT);
         list.add(VRRenderPass.EYE_RIGHT);
 
-        var windowModif =  ((WindowModified) (Object)
+        var windowModif =  ((WindowExtension) (Object)
                 Minecraft.getInstance().getWindow());
 
         if (windowModif.visor$getActualScreenWidth() > 0

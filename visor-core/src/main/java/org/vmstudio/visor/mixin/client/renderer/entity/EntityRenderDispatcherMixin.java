@@ -4,8 +4,8 @@ import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.modified.client.entity.EntityRenderDispatcherVRModified;
-import org.vmstudio.visor.modified.client.render.LevelRendererModified;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
+import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import net.minecraft.client.Camera;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 
 @Mixin(EntityRenderDispatcher.class)
-public abstract class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherVRModified {
+public abstract class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherExtension {
 
 
     @Shadow
@@ -54,7 +54,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
             return;
         }
 
-        Entity entity = ((LevelRendererModified) Minecraft.getInstance().levelRenderer)
+        Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer)
                 .visor$getRenderedEntity();
         if(entity == null){
             cir.setReturnValue(this.camera.rotation());
@@ -96,7 +96,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
         if (VRRenderState.getPhase().isNotVRWorld()) {
             return cameraOrientation;
         }
-        Entity entity = ((LevelRendererModified) Minecraft.getInstance().levelRenderer)
+        Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer)
                 .visor$getRenderedEntity();
         if (entity == null) {
             return this.camera.rotation();

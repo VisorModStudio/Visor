@@ -5,7 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
-import org.vmstudio.visor.modified.common.ServerPlayerModified;
+import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin
-        extends Common_PlayerMixin implements ServerPlayerModified {
+        extends Common_PlayerMixin implements ServerPlayerExtension {
 
     @Shadow
     @Final

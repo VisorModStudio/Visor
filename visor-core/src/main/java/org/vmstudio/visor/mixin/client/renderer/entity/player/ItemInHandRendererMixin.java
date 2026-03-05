@@ -8,8 +8,8 @@ import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.modified.client.entity.EntityRenderDispatcherVRModified;
-import org.vmstudio.visor.modified.client.render.ItemInHandRendererModified;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
+import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(value = ItemInHandRenderer.class, priority = 999)
-public abstract class ItemInHandRendererMixin implements ItemInHandRendererModified {
+public abstract class ItemInHandRendererMixin implements ItemInHandRendererExtension {
     @Final
     @Shadow
     private Minecraft minecraft;
@@ -214,7 +214,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererModif
                 0,
                 player.getSkinTextureLocation()
         );
-        VRPlayerRendererArms rendererArms = ((EntityRenderDispatcherVRModified) entityRenderDispatcher)
+        VRPlayerRendererArms rendererArms = ((EntityRenderDispatcherExtension) entityRenderDispatcher)
                 .visor$getArmSkinMap()
                 .get(player.getModelName());
 

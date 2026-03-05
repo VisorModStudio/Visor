@@ -6,11 +6,10 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
-import org.vmstudio.visor.modified.client.render.LevelRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
+import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
@@ -37,7 +36,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
 @Mixin(value = LevelRenderer.class, priority = 999)
-public abstract class LevelRendererMixin implements ResourceManagerReloadListener, AutoCloseable, LevelRendererModified {
+public abstract class LevelRendererMixin implements ResourceManagerReloadListener, AutoCloseable, LevelRendererExtension {
 
     @Final
     @Shadow
@@ -63,7 +62,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         if (VRRenderState.getPhase().isNotVanilla()
                 && entity == minecraft.getCameraEntity()) {
             capturedEntity.set(entity);
-            ((GameRendererModified) minecraft.gameRenderer)
+            ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$restoreCameraEntity(entity);
         }
         this.visor$renderedEntity = entity;
@@ -75,9 +74,9 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                                   @Share("capturedEntity") LocalRef<Entity> capturedEntity
     ) {
         if (capturedEntity.get() != null) {
-            ((GameRendererModified) minecraft.gameRenderer)
+            ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$cacheCameraEntity(capturedEntity.get());
-            ((GameRendererModified) minecraft.gameRenderer)
+            ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$setupCameraEntityAsVRCamera();
         }
         this.visor$renderedEntity = null;

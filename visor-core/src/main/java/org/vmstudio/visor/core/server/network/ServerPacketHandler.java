@@ -17,7 +17,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
-import org.vmstudio.visor.modified.common.ServerPlayerModified;
+import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
@@ -195,7 +195,7 @@ public class ServerPacketHandler {
         );
         packetConsumer.accept(
                 new RotationYPayloadToClient(
-                        ((ServerPlayerModified)player).visor$getRotationYCached()
+                        ((ServerPlayerExtension)player).visor$getRotationYCached()
                 )
         );
     }

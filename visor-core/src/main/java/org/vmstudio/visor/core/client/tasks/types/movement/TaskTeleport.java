@@ -17,7 +17,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MovementMode;
-import org.vmstudio.visor.modified.client.entity.LocalPlayerModified;
+import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -211,13 +211,13 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     private void performTeleport(LocalPlayer player) {
         distance = destination.distanceTo(player.position());
 
-        LocalPlayerModified modified = (LocalPlayerModified) player;
+        LocalPlayerExtension modified = (LocalPlayerExtension) player;
         modified.visor$setTeleported(true);
 
         player.moveTo(destination);
         onTeleportEffects(player);
 
-        ((LocalPlayerModified) MC.player)
+        ((LocalPlayerExtension) MC.player)
                 .visor$stepSound(BlockPos.containing(destination), destination);
     }
 
@@ -326,7 +326,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
             double upLimit = VRServerSettings.getTeleportUpLimit();
             double forwardLimit = VRServerSettings.getTeleportForwardLimit();
 
-            LocalPlayerModified modified = (LocalPlayerModified) player;
+            LocalPlayerExtension modified = (LocalPlayerExtension) player;
 
             boolean exceedsDownLimit = downLimit > 0
                     && verticalDelta > downLimit + 0.2;

@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import org.vmstudio.visor.modified.client.WindowModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -45,8 +45,8 @@ public class MirrorHelper {
     private static void drawGuiMirror(){
         RenderTarget source = ClientContext.renderer.guiTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -66,8 +66,8 @@ public class MirrorHelper {
         float xCrop = VRClientSettings.getMirrorCrop();
         float yCrop = VRClientSettings.getMirrorCrop();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
 
         blitCropped(
                 source,
@@ -85,8 +85,8 @@ public class MirrorHelper {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
         }
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -101,8 +101,8 @@ public class MirrorHelper {
     private static void drawFirstPersonMirror(){
         RenderTarget source = ClientContext.renderer.firstPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -112,8 +112,8 @@ public class MirrorHelper {
     private static void drawThirdPersonMirror(){
         RenderTarget source = ClientContext.renderer.thirdPersonTarget.getTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
         blit(
                 source,
                 0,0,
@@ -126,8 +126,8 @@ public class MirrorHelper {
         RenderTarget rightEye = ClientContext.renderer
                 .getTextureRightEye().getRenderTarget();
 
-        int screenWidth = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenWidth() / 2;
-        int screenHeight = ((WindowModified) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth() / 2;
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
 
         blit(
                 leftEye,
@@ -158,7 +158,7 @@ public class MirrorHelper {
         final float TEXT_SCALE     = 2f;
 
         // 1) get the VR mirror dimensions
-        var window  = (WindowModified)(Object)MC.getWindow();
+        var window  = (WindowExtension)(Object)MC.getWindow();
         int vrWidth = window.visor$getActualScreenWidth();
         int vrHeight= window.visor$getActualScreenHeight();
 

@@ -5,8 +5,8 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorClientImpl;
-import org.vmstudio.visor.modified.client.WindowModified;
-import org.vmstudio.visor.modified.client.render.RenderTargetModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
+import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
 import org.vmstudio.visor.core.client.render.target.RenderTargetHolder;
 import org.vmstudio.visor.core.client.render.target.VRRenderTarget;
 import net.minecraft.client.Minecraft;
@@ -33,7 +33,7 @@ public class RenderTargetMain implements RenderTargetHolder {
         GLUtils.checkGLError("Main VR target setup");
         VisorClientImpl.LOGGER.info(this.target.toString());
 
-        var mcWindow = (WindowModified) (Object) MC.getWindow();
+        var mcWindow = (WindowExtension) (Object) MC.getWindow();
         this.mirrorTarget = new VRRenderTarget(
                 "Mirror",
                 mcWindow.visor$getActualScreenWidth(),
@@ -51,7 +51,7 @@ public class RenderTargetMain implements RenderTargetHolder {
 
     @Override
     public void resize(int width, int height) throws Exception {
-        ((RenderTargetModified) target).visor$setUseStencil(
+        ((RenderTargetExtension) target).visor$setUseStencil(
                 true
         );
         target.resize(width, height, Minecraft.ON_OSX);

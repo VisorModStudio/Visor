@@ -3,7 +3,7 @@ package org.vmstudio.visor.mixin.client.gui;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.modified.client.GuiModified;
+import org.vmstudio.visor.extensions.client.GuiExtension;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(Gui.class)
-public abstract class GuiMixin implements GuiModified {
+public abstract class GuiMixin implements GuiExtension {
 
     @Final
     @Shadow

@@ -11,7 +11,7 @@ import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGam
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -45,7 +45,7 @@ public class GameEffectOnFire extends VRGameEffect {
         // --- Prepare variables ---
         PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         float fireHeight = (float)(renderPose.getHeadPivot().y()
-                - ((GameRendererModified)MC.gameRenderer)
+                - ((GameRendererExtension)MC.gameRenderer)
                 .visor$getCameraEntityCache()
                 .getY());
 
@@ -115,7 +115,7 @@ public class GameEffectOnFire extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
-        return ((GameRendererModified) MC.gameRenderer).visor$isOnFire();
+        return ((GameRendererExtension) MC.gameRenderer).visor$isOnFire();
     }
 
     @Override

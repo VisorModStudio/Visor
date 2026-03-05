@@ -20,7 +20,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayRegistry;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayTemplateRegistry;
 import org.vmstudio.visor.core.client.gui.screens.overlayoptions.*;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderGuiHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
@@ -195,7 +195,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 poseStack
         );
 
-        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+        ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
         GLUtils.checkGLError("before depth overlays");
 
         for (VROverlay overlay : preparedDepthOverlays) {
@@ -239,7 +239,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 poseStack
         );
 
-        ((GameRendererModified) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
+        ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
         GLUtils.checkGLError("before hud overlays");
 
         for (VROverlay overlay : preparedHudOverlays) {

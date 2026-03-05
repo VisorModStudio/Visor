@@ -1,4 +1,4 @@
-package org.vmstudio.visor.modified.client.render;
+package org.vmstudio.visor.extensions.client.render;
 
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-public interface GameRendererModified {
+public interface GameRendererExtension {
 
 
     boolean visor$isVRGuiVisible();

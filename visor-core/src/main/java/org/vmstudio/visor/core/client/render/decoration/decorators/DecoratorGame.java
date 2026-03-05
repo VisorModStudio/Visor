@@ -1,17 +1,14 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators;
 
-import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectTeleport;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectOnFire;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectShadow;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectVanilla;
 import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectCrosshair;
-import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

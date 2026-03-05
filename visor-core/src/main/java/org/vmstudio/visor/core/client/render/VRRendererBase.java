@@ -13,8 +13,8 @@ import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.gui.VRGuiManagerImpl;
-import org.vmstudio.visor.modified.client.WindowModified;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.provider.VisorScene;
 import org.vmstudio.visor.core.client.render.target.types.RenderTargetFirst;
 import org.vmstudio.visor.core.client.render.target.types.RenderTargetGUI;
@@ -119,7 +119,7 @@ public abstract class VRRendererBase implements VRRenderer {
         // push pose to pop it in scene
         RenderSystem.getModelViewStack().pushPose();
 
-        ((GameRendererModified)MC.gameRenderer).visor$setVRGuiVisible(
+        ((GameRendererExtension)MC.gameRenderer).visor$setVRGuiVisible(
                 renderLevel && MC.getEntityRenderDispatcher().camera != null
         );
     }
@@ -210,7 +210,7 @@ public abstract class VRRendererBase implements VRRenderer {
         );
 
 
-        ((GameRendererModified) minecraft.gameRenderer)
+        ((GameRendererExtension) minecraft.gameRenderer)
                 .visor$setupClipPlanes();
         updateProjection();
 
@@ -229,7 +229,7 @@ public abstract class VRRendererBase implements VRRenderer {
             minecraft.screen.init(minecraft, screenWidth, screenHeight);
         }
 
-        var windowModif = (WindowModified) (Object) minecraft.getWindow();
+        var windowModif = (WindowExtension) (Object) minecraft.getWindow();
         long windowPixels = (long) windowModif.visor$getActualScreenWidth() * windowModif.visor$getActualScreenHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
@@ -313,9 +313,9 @@ public abstract class VRRendererBase implements VRRenderer {
     }
 
     public void updateProjection() {
-        float nearClipPlane = ((GameRendererModified) MC.gameRenderer)
+        float nearClipPlane = ((GameRendererExtension) MC.gameRenderer)
                 .visor$getNearClipPlane();
-        float farClipPlane = ((GameRendererModified) MC.gameRenderer)
+        float farClipPlane = ((GameRendererExtension) MC.gameRenderer)
                 .visor$getFarClipPlane();
         VRClientSettings.setEyeFovChanged(false);
         this.eyeProjection[0] = this.getProjectionMatrix(EyeType.LEFT,
@@ -330,7 +330,7 @@ public abstract class VRRendererBase implements VRRenderer {
     }
 
     private void updateMirrorSize(int eyeWidth, int eyeHeight) {
-        var windowModif =  ((WindowModified) (Object)
+        var windowModif =  ((WindowExtension) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
                 windowModif.visor$getActualScreenWidth()

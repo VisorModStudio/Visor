@@ -8,8 +8,8 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.modified.client.WindowModified;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -50,7 +50,7 @@ public class VRShaderMixedReality implements VRShader{
 
 
     public void drawMirror(){
-        var mcWindow = ((WindowModified) (Object) MC.getWindow());
+        var mcWindow = ((WindowExtension) (Object) MC.getWindow());
         RenderSystem.viewport(0, 0,
                 mcWindow.visor$getActualScreenWidth(),
                 mcWindow.visor$getActualScreenHeight()
@@ -75,7 +75,7 @@ public class VRShaderMixedReality implements VRShader{
 
         // --- Update Uniforms ---
 
-        var proj = ((GameRendererModified) MC.gameRenderer).visor$getThirdPersonProjection();
+        var proj = ((GameRendererExtension) MC.gameRenderer).visor$getThirdPersonProjection();
         Matrix4f invProjView = new Matrix4f(proj)
                 .mul(cameraRotation)
                 .invert();

@@ -1,8 +1,8 @@
-package org.vmstudio.visor.modified.client.render;
+package org.vmstudio.visor.extensions.client.render;
 
 
 import org.vmstudio.visor.api.client.input.HandAction;
 
-public interface ItemInHandRendererModified {
+public interface ItemInHandRendererExtension {
     void visor$setSwingType(HandAction interact);
 }

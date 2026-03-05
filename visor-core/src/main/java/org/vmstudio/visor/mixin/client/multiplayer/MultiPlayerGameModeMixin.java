@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -99,7 +99,7 @@ public abstract class MultiPlayerGameModeMixin {
         Vec3 lookDirection = player.getLookAngle();
 
         // If a custom cross vector is available, adjust the look direction accordingly.
-        GameRendererModified renderer = (GameRendererModified) MC.gameRenderer;
+        GameRendererExtension renderer = (GameRendererExtension) MC.gameRenderer;
         Vec3 crossVector = renderer.visor$getCrossVec();
         if (crossVector != null) {
             lookDirection = player.getEyePosition(1.0F)

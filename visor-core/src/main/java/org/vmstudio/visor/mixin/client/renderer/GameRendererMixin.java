@@ -16,7 +16,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRCameraEntityCache;
 import org.vmstudio.visor.core.client.render.VRGameCamera;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
@@ -62,7 +62,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin
-        implements ResourceManagerReloadListener, AutoCloseable, GameRendererModified {
+        implements ResourceManagerReloadListener, AutoCloseable, GameRendererExtension {
     @Shadow
     @Final
     Minecraft minecraft;

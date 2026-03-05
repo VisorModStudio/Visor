@@ -24,7 +24,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
-import org.vmstudio.visor.modified.client.render.GameRendererModified;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 
 import java.util.List;
 
@@ -231,7 +231,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 partialTicks
         );
 
-        boolean insideBlock = ((GameRendererModified) MC.gameRenderer).visor$isInBlock();
+        boolean insideBlock = ((GameRendererExtension) MC.gameRenderer).visor$isInBlock();
         if (insideBlock && MC.level != null) {
             VREffectsHelper.renderInBlockEffect();
         }

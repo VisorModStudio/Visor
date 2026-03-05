@@ -1,10 +1,10 @@
-package org.vmstudio.visor.modified.client.render;
+package org.vmstudio.visor.extensions.client.render;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 
-public interface LevelRendererSwingingModified {
+public interface LevelRendererSwingingExtension {
     void visor$damageBlockProgress(@NotNull Player player,
                                   @NotNull BlockPos blockPos,
                                   int destroyStage);

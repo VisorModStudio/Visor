@@ -2,7 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.TextureUtil;
-import org.vmstudio.visor.modified.client.render.RenderTargetModified;
+import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.*;
 
 
 @Mixin(RenderTarget.class)
-public abstract class RenderTargetMixin implements RenderTargetModified {
+public abstract class RenderTargetMixin implements RenderTargetExtension {
     @Shadow
     public int frameBufferId;
     @Shadow

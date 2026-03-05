@@ -10,8 +10,8 @@ import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
-import org.vmstudio.visor.modified.client.MinecraftModified;
-import org.vmstudio.visor.modified.client.entity.LocalPlayerModified;
+import org.vmstudio.visor.extensions.client.MinecraftExtension;
+import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.*;
@@ -38,7 +38,7 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.ClientContext;
 
 @Mixin(Minecraft.class)
-public abstract class MinecraftMixin implements MinecraftModified {
+public abstract class MinecraftMixin implements MinecraftExtension {
 
 
     @Final
@@ -362,7 +362,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "handleKeybinds()V")
     public void visor$swingDrop(LocalPlayer instance, InteractionHand interactionHand) {
         if (VisorState.get().isActive()) {
-            ((LocalPlayerModified) player).visor$swingArm(
+            ((LocalPlayerExtension) player).visor$swingArm(
                     interactionHand, HandAction.ATTACK
             );
         } else {
@@ -388,7 +388,7 @@ public abstract class MinecraftMixin implements MinecraftModified {
             instance.swing(interactionHand);
             return;
         }
-        ((LocalPlayerModified) instance).visor$swingArm(
+        ((LocalPlayerExtension) instance).visor$swingArm(
                 interactionHand, HandAction.USE
         );
     }

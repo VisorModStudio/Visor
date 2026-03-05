@@ -2,7 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.platform.Window;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.modified.client.WindowModified;
+import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,7 +16,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(Window.class)
-public abstract class WindowMixin implements WindowModified {
+public abstract class WindowMixin implements WindowExtension {
 
     @Shadow
     private int width;

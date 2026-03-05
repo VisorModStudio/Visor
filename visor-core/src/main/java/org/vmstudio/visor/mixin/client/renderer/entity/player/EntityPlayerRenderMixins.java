@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
-import org.vmstudio.visor.modified.client.entity.EntityRenderDispatcherPlayerModified;
-import org.vmstudio.visor.modified.client.render.RenderLayerModified;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherPlayerExtension;
+import org.vmstudio.visor.extensions.client.render.RenderLayerExtension;
 import org.vmstudio.visor.core.client.render.player.RenderLayerType;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderer;
 import org.vmstudio.visor.core.common.CommonUtils;
@@ -43,7 +43,7 @@ import java.util.Map;
 
 public class EntityPlayerRenderMixins {
     @Mixin(EntityRenderDispatcher.class)
-    public abstract static class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherPlayerModified {
+    public abstract static class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherPlayerExtension {
 
         @Unique
         private final Map<String, VRPlayerRenderer> visor$skinMapVR = new HashMap<>();
@@ -147,7 +147,7 @@ public class EntityPlayerRenderMixins {
             // also check that the VRPlayerRenderers were created, this method also gets called in the constructor,
             // those default Layers already are added to the VRPlayerRenderer there
             if ((Object) this.getClass() == PlayerRenderer.class
-                    && !((EntityRenderDispatcherPlayerModified) Minecraft.getInstance()
+                    && !((EntityRenderDispatcherPlayerExtension) Minecraft.getInstance()
                     .getEntityRenderDispatcher()).visor$getSkinMapVR().isEmpty()) {
 
                 // try to find a suitable constructor, so we can create a new Object without issues
@@ -180,13 +180,13 @@ public class EntityPlayerRenderMixins {
                     if (((PlayerModel<?>) model).slim) {
                         visor$addLayerClone(
                                 renderLayer,
-                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerModified) entityRenderDispatcher)
+                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerExtension) entityRenderDispatcher)
                                         .visor$getSkinMapVR().get("slim")
                         );
                     } else {
                         visor$addLayerClone(
                                 renderLayer,
-                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerModified) entityRenderDispatcher)
+                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerExtension) entityRenderDispatcher)
                                         .visor$getSkinMapVR().get("default")
                         );
                     }
@@ -195,13 +195,13 @@ public class EntityPlayerRenderMixins {
                     if (((PlayerModel<?>) model).slim) {
                         visor$addLayerConstructor(
                                 constructor, type,
-                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerModified) entityRenderDispatcher)
+                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerExtension) entityRenderDispatcher)
                                         .visor$getSkinMapVR().get("slim")
                         );
                     } else {
                         visor$addLayerConstructor(
                                 constructor, type,
-                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerModified) entityRenderDispatcher)
+                                (LivingEntityRenderer<T, M>) ((EntityRenderDispatcherPlayerExtension) entityRenderDispatcher)
                                         .visor$getSkinMapVR().get("default")
                         );
                     }
@@ -220,7 +220,7 @@ public class EntityPlayerRenderMixins {
                                 "this could cause issues",
                         renderLayer.getClass()
                 );
-                RenderLayer<T, M> newLayer = (RenderLayer<T, M>) ((RenderLayerModified) renderLayer).clone();
+                RenderLayer<T, M> newLayer = (RenderLayer<T, M>) ((RenderLayerExtension) renderLayer).clone();
                 newLayer.renderer = target;
                 target.addLayer(newLayer);
             } catch (CloneNotSupportedException e) {
