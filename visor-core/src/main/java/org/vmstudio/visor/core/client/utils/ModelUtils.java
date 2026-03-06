@@ -92,6 +92,9 @@ public class ModelUtils {
     {
         out.set(position);
 
+        // convert from absolute world coordinates to entity-relative coordinates
+        out.sub((float) player.getX(), (float) player.getY(), (float) player.getZ());
+
         if (player.isAutoSpinAttack()) {
             out.y += 1F;
         }
@@ -151,6 +154,9 @@ public class ModelUtils {
                 out.mul(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
             }
         }
+
+        // convert from entity-relative coordinates to absolute world coordinates
+        out.add((float) player.getX(), (float) player.getY(), (float) player.getZ());
 
         return out;
     }
