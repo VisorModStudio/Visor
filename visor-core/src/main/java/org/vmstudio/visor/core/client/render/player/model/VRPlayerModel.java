@@ -70,14 +70,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         return meshDefinition;
     }
 
-    @Override
-    public void setupAnim(
-            T player, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
-    {
-        super.setupAnim(player, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        this.vrHMD.visible = true;
-        this.vrHMD.copyFrom(this.head);
-    }
+
 
     public static void animateVRModel(
             PlayerModel<LivingEntity> model,
@@ -399,10 +392,6 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             vrModel.legScale = legScale;
             vrModel.xRot = xRot;
         }
-    }
-
-    public void renderHMD(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay) {
-        this.vrHMD.render(poseStack, vertexConsumer, packedLight, packedOverlay);
     }
 
     public void hideLeftArm(boolean completeArm) {

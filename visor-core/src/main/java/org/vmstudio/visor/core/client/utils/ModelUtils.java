@@ -289,6 +289,9 @@ public class ModelUtils {
             HumanoidArm arm, float attackTime, boolean isMainPlayer,
             Matrix3f tempM, Vector3f tempV)
     {
+        if(handAction == null) {
+            return;
+        }
         // zero it always, since it's supposed to have the offset at the end
         tempV.zero();
         if (attackTime > 0.0F) {

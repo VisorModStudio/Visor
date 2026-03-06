@@ -220,6 +220,6 @@ public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
         }
 
         // vanilla below here
-        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+        super.setupRotations(player, poseStack, ageInTicks, rotationYaw * Mth.RAD_TO_DEG, partialTick);
     }
 }
