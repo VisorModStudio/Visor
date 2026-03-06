@@ -90,6 +90,10 @@
   "visor.options.rendering.third_person.reposition_camera": "Reposition camera",
   "visor.options.rendering.third_person.fov": "Third Person FOV",
 
+  "_comment.vr_body": "----VR Body Settings----",
+  "visor.options.vr_body.button": "VR Body",
+  "visor.options.vr_body.type": "Body Type",
+
   "_comment.controls": "----Controls Settings----",
   "visor.options.controls.button": "Controls",
   "visor.options.controls.left_handed": "Left Handed",
@@ -152,6 +156,8 @@
   "visor.options.enums.ShaderGUIRenderMode.AFTER_SHADER": "After Shader",
   "visor.options.enums.ShaderGUIRenderMode.AFTER_TRANSLUCENT": "Translucent",
   "visor.options.enums.ShaderGUIRenderMode.BEFORE_TRANSLUCENT_SOLID": "Opaque",
+  "visor.options.enums.VRBodyType.HANDS_ONLY": "Hands Only",
+  "visor.options.enums.VRBodyType.FULL_BODY": "Full Body",
 
   "_comment14": "*--------ACTIONS--------*",
   "visor.action_sets.menu": "Menu actions",

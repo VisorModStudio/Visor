@@ -160,6 +160,10 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             (it) -> null
     ),
+    VR_BODY_TYPE(
+            VROptionCategory.VR_BODY,
+            (it) -> null
+    ),
     ROTATION_MODE(
             VROptionCategory.MOVEMENT,
             (it) -> null

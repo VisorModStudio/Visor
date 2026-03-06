@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.vmstudio.visor.api.common.player.VRBodyType;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
@@ -133,6 +134,64 @@ public class VRClientSettings {
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.PUMPKIN_EFFECT, key = "pumpkin")
     protected static boolean pumpkinEffectEnabled = true;
+
+
+    // ---- VR Body rendering
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.VR_BODY_TYPE, key = "type")
+    protected static VRBodyType vrBodyType = VRBodyType.HANDS_ONLY;
+
+    @Getter
+    @VROptionField
+    protected static DataSource mainPlayerDataSource = DataSource.REALTIME;
+    @Getter
+    @VROptionField
+    protected static PlayerModelType playerModelType = PlayerModelType.VANILLA;
+    @Getter
+    @VROptionField
+    protected static ModelArmsMode modelArmsMode = ModelArmsMode.COMPLETE;
+    @Getter
+    @VROptionField
+    protected static boolean showPlayerHands = true;
+    @Getter
+    @VROptionField
+    protected static boolean playerLimbsConnected = true;
+    @Getter
+    @VROptionField
+    protected static boolean playerLimbsLimit = false;
+    @Getter
+    @VROptionField
+    protected static boolean playerWalkAnim = true;
+    @Getter
+    @VROptionField
+    protected static boolean playerArmAnim = true;
+    @Getter
+    @VROptionField
+    protected static float playerModelArmsScale = 0.5F;
+    @Getter
+    @VROptionField
+    protected static float playerModelBodyScale = 1.0F;
+    @Getter
+    @VROptionField
+    protected static float playerModelLegScale = 1.0F;
+
+    public enum PlayerModelType {
+        VANILLA,
+        SPLIT_ARMS,
+        SPLIT_ARMS_LEGS
+    }
+
+    public enum ModelArmsMode {
+        OFF,
+        SHOULDERS,
+        COMPLETE
+    }
+
+    public enum DataSource {
+        REALTIME,
+        LOCAL,
+        SERVER
+    }
 
 
     //----Main menu panorama

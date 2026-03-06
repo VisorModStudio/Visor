@@ -10,6 +10,8 @@ loom{
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
 
+    compileOnly(project(path: ':visor-core:stubs', configuration: 'namedElements'))
+
     // @Environment annotation and mixin extras
     modImplementation(libs.fabric.loader)
 

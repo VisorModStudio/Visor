@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.player.pose;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.common.player.VRBodyType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -44,6 +45,14 @@ public class LocalPlayerPose implements PlayerPoseClient {
 
     protected final VRPoseImpl thirdPersonCamera;
 
+    protected final VRPoseImpl leftElbow;
+    protected final VRPoseImpl rightElbow;
+    protected final VRPoseImpl waist;
+    protected final VRPoseImpl leftKnee;
+    protected final VRPoseImpl rightKnee;
+    protected final VRPoseImpl leftFoot;
+    protected final VRPoseImpl rightFoot;
+
     private final List<VRPoseImpl> elements;
 
     private Vector3fc origin;
@@ -65,6 +74,14 @@ public class LocalPlayerPose implements PlayerPoseClient {
         this.gripOffhand = new VRPoseImpl();
         this.gripMainHand = new VRPoseImpl();
 
+        this.leftElbow = new VRPoseImpl();
+        this.rightElbow = new VRPoseImpl();
+        this.waist = new VRPoseImpl();
+        this.leftKnee = new VRPoseImpl();
+        this.rightKnee = new VRPoseImpl();
+        this.leftFoot = new VRPoseImpl();
+        this.rightFoot = new VRPoseImpl();
+
         this.thirdPersonCamera = new VRPoseImpl();
 
 
@@ -78,6 +95,11 @@ public class LocalPlayerPose implements PlayerPoseClient {
 
         update(VRMathUtils.ZERO_VECTOR, 1.0f, 1.0f, 0f);
 
+    }
+
+    @Override
+    public @NotNull VRBodyType getBodyType() {
+        return VRClientSettings.getVrBodyType();
     }
 
     public void update(Vector3fc origin,
@@ -244,6 +266,15 @@ public class LocalPlayerPose implements PlayerPoseClient {
         offhand.copyFrom(other.offhand);
         gripMainHand.copyFrom(other.gripMainHand);
         gripOffhand.copyFrom(other.gripOffhand);
+
+        leftElbow.copyFrom(other.leftElbow);
+        rightElbow.copyFrom(other.rightElbow);
+        waist.copyFrom(other.waist);
+        leftKnee.copyFrom(other.leftKnee);
+        rightKnee.copyFrom(other.rightKnee);
+        leftFoot.copyFrom(other.leftFoot);
+        rightFoot.copyFrom(other.rightFoot);
+
         thirdPersonCamera.copyFrom(other.thirdPersonCamera);
     }
 

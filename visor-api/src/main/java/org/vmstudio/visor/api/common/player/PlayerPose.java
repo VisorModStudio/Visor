@@ -49,6 +49,28 @@ public interface PlayerPose {
     @NotNull
     VRPose getOffhand();
 
+
+    @NotNull
+    VRPose getLeftElbow();
+    @NotNull
+    VRPose getRightElbow();
+
+    @NotNull
+    VRPose getWaist();
+
+    @NotNull
+    VRPose getLeftKnee();
+    @NotNull
+    VRPose getRightKnee();
+
+    @NotNull
+    VRPose getLeftFoot();
+    @NotNull
+    VRPose getRightFoot();
+
+    @NotNull
+    VRBodyType getBodyType();
+
     /**
      * Get the hand pose for the given hand type.
      * <p>
@@ -76,6 +98,13 @@ public interface PlayerPose {
             case HEAD -> getHmd();
             case MAIN_HAND -> getMainHand();
             case OFFHAND -> getOffhand();
+            case LEFT_ELBOW -> getLeftElbow();
+            case RIGHT_ELBOW -> getRightElbow();
+            case WAIST -> getWaist();
+            case LEFT_KNEE -> getLeftKnee();
+            case RIGHT_KNEE -> getRightKnee();
+            case LEFT_FOOT -> getLeftFoot();
+            case RIGHT_FOOT -> getRightFoot();
         };
     }
 

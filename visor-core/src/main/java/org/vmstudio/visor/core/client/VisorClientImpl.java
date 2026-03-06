@@ -62,6 +62,10 @@ public class VisorClientImpl implements VisorClient {
 
     private ClientFeaturesToggle featuresToggle;
 
+
+    @Getter
+    private float partialTicks;
+
     public VisorClientImpl() {
         MC = Minecraft.getInstance();
 
@@ -228,6 +232,8 @@ public class VisorClientImpl implements VisorClient {
 
     public void preRenderVR(PreRenderContext context){
         try{
+            partialTicks = context.partialTicks();
+
             featuresToggle.preRender();
             
             VRClientPlayers.preRender(context.partialTicks());
@@ -247,6 +253,7 @@ public class VisorClientImpl implements VisorClient {
     public void renderVR(RenderContext context){
         try {
             context.profiler().push("VR render");
+            partialTicks = context.partialTicks();
             ClientContext.renderer
                     .render(context);
             context.profiler().pop();

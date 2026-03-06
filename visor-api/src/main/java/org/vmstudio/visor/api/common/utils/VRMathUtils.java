@@ -23,6 +23,7 @@ public class VRMathUtils {
     public static final Vector3fc DOWN_VECTOR = new Vector3f(0.0F, -1.0F, 0.0F);
 
     public static final Vector3fc LEFT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
+    public static final Vector3fc RIGHT_VECTOR = new Vector3f(-1.0F, 0.0F, 0.0F);
 
     public static final Matrix4fc EMPTY_MATRIX = new Matrix4f();
 

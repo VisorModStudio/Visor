@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.common.player.VRBodyType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -35,7 +36,13 @@ public class RemotePlayerPose implements PlayerPoseClient {
     protected final VRPoseImpl mainHand;
     protected final VRPoseImpl offhand;
 
-
+    protected final VRPoseImpl leftElbow;
+    protected final VRPoseImpl rightElbow;
+    protected final VRPoseImpl waist;
+    protected final VRPoseImpl leftKnee;
+    protected final VRPoseImpl rightKnee;
+    protected final VRPoseImpl leftFoot;
+    protected final VRPoseImpl rightFoot;
 
     private final List<VRPoseImpl> elements;
 
@@ -56,7 +63,13 @@ public class RemotePlayerPose implements PlayerPoseClient {
         this.mainHand = new VRPoseImpl();
         this.offhand = new VRPoseImpl();
 
-
+        this.leftElbow = new VRPoseImpl();
+        this.rightElbow = new VRPoseImpl();
+        this.waist = new VRPoseImpl();
+        this.leftKnee = new VRPoseImpl();
+        this.rightKnee = new VRPoseImpl();
+        this.leftFoot = new VRPoseImpl();
+        this.rightFoot = new VRPoseImpl();
 
         elements = List.of(
                 hmd,
@@ -65,6 +78,10 @@ public class RemotePlayerPose implements PlayerPoseClient {
         );
 
 
+    }
+    @Override
+    public @NotNull VRBodyType getBodyType() {
+        return VRBodyType.HANDS_ONLY;
     }
 
     public void update(Vector3fc hmdPos,
@@ -185,6 +202,14 @@ public class RemotePlayerPose implements PlayerPoseClient {
         hmd.copyFrom(other.hmd);
         mainHand.copyFrom(other.mainHand);
         offhand.copyFrom(other.offhand);
+
+        leftElbow.copyFrom(other.leftElbow);
+        rightElbow.copyFrom(other.rightElbow);
+        waist.copyFrom(other.waist);
+        leftKnee.copyFrom(other.leftKnee);
+        rightKnee.copyFrom(other.rightKnee);
+        leftFoot.copyFrom(other.leftFoot);
+        rightFoot.copyFrom(other.rightFoot);
     }
 
 

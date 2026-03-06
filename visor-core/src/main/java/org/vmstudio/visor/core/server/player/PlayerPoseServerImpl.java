@@ -1,6 +1,8 @@
 package org.vmstudio.visor.core.server.player;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.common.player.VRBodyType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -19,6 +21,14 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     protected final VRPoseImpl hmd;
     protected final VRPoseImpl mainHand;
     protected final VRPoseImpl offhand;
+
+    protected final VRPoseImpl leftElbow;
+    protected final VRPoseImpl rightElbow;
+    protected final VRPoseImpl waist;
+    protected final VRPoseImpl leftKnee;
+    protected final VRPoseImpl rightKnee;
+    protected final VRPoseImpl leftFoot;
+    protected final VRPoseImpl rightFoot;
 
     private final List<VRPoseImpl> elements;
 
@@ -39,6 +49,14 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.mainHand = new VRPoseImpl();
         this.offhand = new VRPoseImpl();
 
+        this.leftElbow = new VRPoseImpl();
+        this.rightElbow = new VRPoseImpl();
+        this.waist = new VRPoseImpl();
+        this.leftKnee = new VRPoseImpl();
+        this.rightKnee = new VRPoseImpl();
+        this.leftFoot = new VRPoseImpl();
+        this.rightFoot = new VRPoseImpl();
+
         origin = VRMathUtils.ZERO_VECTOR;
         headPivot = VRMathUtils.ZERO_VECTOR;
 
@@ -47,6 +65,11 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
                 mainHand, offhand
         );
 
+    }
+
+    @Override
+    public @NotNull VRBodyType getBodyType() {
+        return VRBodyType.HANDS_ONLY;
     }
 
     public void update(PoseDataBuffer poseData,
