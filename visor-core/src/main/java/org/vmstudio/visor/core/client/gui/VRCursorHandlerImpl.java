@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.VRCursorHandler;
@@ -38,7 +38,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private final CursorState offhandState = new CursorState();
 
     public void process() {
-        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
         updateCursorState(HandType.MAIN, mainHandState, renderPose);
         updateCursorState(HandType.OFFHAND, offhandState, renderPose);
@@ -47,7 +47,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         updateOverlays();
     }
 
-    private void updateCursorState(@NotNull HandType hand, @NotNull CursorState state, @NotNull PlayerPoseClient renderPose) {
+    private void updateCursorState(@NotNull HandType hand, @NotNull CursorState state, @NotNull VRPlayerPoseClient renderPose) {
         VROverlay previouslyFocused = state.focusedOverlay;
 
         CursorResult result;
@@ -111,7 +111,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
 
     public @NotNull CursorResult getCursorResult(@NotNull HandType hand,
-                                                 @NotNull PlayerPoseClient poseData,
+                                                 @NotNull VRPlayerPoseClient poseData,
                                                  @Nullable Function<VROverlay, Boolean> overlayFilter,
                                                  boolean checkForceFocused) {
         VROverlay collidingOverlay = null;
@@ -267,7 +267,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                                                   float guiScale,
                                                   float guiAspectRatio
     ) {
-        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = VROverlayPose.QUAD_SCALE * guiScale * worldScale;
 

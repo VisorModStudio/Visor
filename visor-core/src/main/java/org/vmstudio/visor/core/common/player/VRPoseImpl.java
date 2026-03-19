@@ -1,13 +1,14 @@
 package org.vmstudio.visor.core.common.player;
 
 import lombok.Getter;
-import org.vmstudio.visor.api.common.player.VRPose;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.api.common.player.VRPose;
+
 
 @Getter
 public class VRPoseImpl implements VRPose {
@@ -29,9 +30,9 @@ public class VRPoseImpl implements VRPose {
     private Vector3fc rawDirection;
     private Matrix4fc rawRotation;
 
-    private Vector3fc originCache;
-    private float rotationYCache;
-    private float worldScaleCache;
+    private Vector3fc usedOrigin;
+    private float usedRotationY;
+    private float usedWorldScale;
 
 
     public VRPoseImpl() {
@@ -41,7 +42,7 @@ public class VRPoseImpl implements VRPose {
         rotation = new Matrix4f();
         invertedRotation = new Matrix4f();
 
-        originCache = new Vector3f(0, 0, 0);
+        usedOrigin = new Vector3f(0, 0, 0);
 
         rawPosition = new Vector3f();
         rawDirection = new Vector3f();
@@ -49,59 +50,61 @@ public class VRPoseImpl implements VRPose {
 
     }
 
-    public void update(Vector3fc origin,
+    @Override
+    public void update(@NotNull Vector3fc rawPosition,
+                       @NotNull Matrix4fc rawMatrix,
+                       @NotNull Vector3fc rawDirection,
+                       @NotNull Vector3fc origin,
                        float rotationY,
-                       float worldScale,
-                       Vector3fc position,
-                       Matrix4fc rotationMatrix,
-                       Vector3fc direction) {
-        this.originCache = origin;
-        this.rotationYCache = rotationY;
-        this.worldScaleCache = worldScale;
-        this.rawRotation = rotationMatrix;
-        this.rawPosition = position;
-        this.rawDirection = direction;
+                       float worldScale) {
+        this.usedOrigin = origin;
+        this.usedRotationY = rotationY;
+        this.usedWorldScale = worldScale;
+        this.rawRotation = rawMatrix;
+        this.rawPosition = rawPosition;
+        this.rawDirection = rawDirection;
 
         this.rotation = new Matrix4f().rotationY(rotationY).mul(
-                rotationMatrix,
+                rawMatrix,
                 new Matrix4f()
         );
         this.invertedRotation = this.rotation.invert(new Matrix4f());
 
 
-        this.relativePosition = position
+        this.relativePosition = rawPosition
                 .mul(worldScale, new Vector3f())
                 .rotateY(rotationY);
         this.position = this.relativePosition
                 .add(origin, new Vector3f());
 
-        this.direction = direction.rotateY(rotationY, new Vector3f());
+        this.direction = rawDirection.rotateY(rotationY, new Vector3f());
 
 
         this.yaw = (float) Mth.atan2(-this.direction.x(), this.direction.z());
         this.pitch = (float) Math.asin(this.direction.y() / this.direction.length());
-        this.roll = (float) -Math.atan2(rotationMatrix.m01(), rotationMatrix.m11());
+        this.roll = (float) -Math.atan2(rawMatrix.m01(), rawMatrix.m11());
 
 
     }
 
-    public void update(Vector3fc newOrigin,
-                       float newRotationY,
-                       float newWorldScale) {
+    @Override
+    public void updateModifiers(@NotNull Vector3fc newOrigin,
+                                float newRotationY,
+                                float newWorldScale) {
 
-        boolean yawChanged = newRotationY != rotationYCache;
-        boolean scaleChanged = newWorldScale != worldScaleCache;
-        boolean originChanged = !originCache.equals(newOrigin);
+        boolean rotationYChanged = newRotationY != usedRotationY;
+        boolean scaleChanged = newWorldScale != usedWorldScale;
+        boolean originChanged = !usedOrigin.equals(newOrigin);
 
-        if (!yawChanged && !scaleChanged && !originChanged) {
+        if (!rotationYChanged && !scaleChanged && !originChanged) {
             return;
         }
 
-        this.originCache = newOrigin;
-        this.rotationYCache = newRotationY;
-        this.worldScaleCache = newWorldScale;
+        this.usedOrigin = newOrigin;
+        this.usedRotationY = newRotationY;
+        this.usedWorldScale = newWorldScale;
 
-        if (!yawChanged && !scaleChanged) {
+        if (!rotationYChanged && !scaleChanged) {
             onOriginChanged(newOrigin);
             return;
         }
@@ -131,29 +134,28 @@ public class VRPoseImpl implements VRPose {
         this.roll = (float) -Mth.atan2(rawRotation.m10(), rawRotation.m11());
     }
 
-    public void copyFrom(VRPoseImpl element) {
-        this.originCache = new Vector3f(element.originCache);
-        this.rotationYCache = element.rotationYCache;
-        this.worldScaleCache = element.worldScaleCache;
-        this.rawRotation = new Matrix4f(element.rawRotation);
-        this.rawPosition = new Vector3f(element.rawPosition);
-        this.rawDirection = new Vector3f(element.rawDirection);
+    public void copyFrom(@NotNull VRPose pose) {
+        this.usedOrigin = new Vector3f(pose.getUsedOrigin());
+        this.usedRotationY = pose.getUsedRotationY();
+        this.usedWorldScale = pose.getUsedWorldScale();
+        this.rawRotation = new Matrix4f(pose.getRawRotation());
+        this.rawPosition = new Vector3f(pose.getRawPosition());
+        this.rawDirection = new Vector3f(pose.getRawDirection());
 
-        this.position = new Vector3f(element.position);
-        this.relativePosition = new Vector3f(element.relativePosition);
-        this.direction = new Vector3f(element.direction);
-        this.rotation = new Matrix4f(element.rotation);
-        this.invertedRotation = new Matrix4f(element.invertedRotation);
+        this.position = new Vector3f(pose.getPosition());
+        this.relativePosition = new Vector3f(pose.getRelativePosition());
+        this.direction = new Vector3f(pose.getDirection());
+        this.rotation = new Matrix4f(pose.getRotation());
+        this.invertedRotation = new Matrix4f(pose.getInvertedRotation());
 
-        this.yaw = element.yaw;
-        this.pitch = element.pitch;
-        this.roll = element.roll;
-
+        this.yaw = pose.getYaw();
+        this.pitch = pose.getPitch();
+        this.roll = pose.getRoll();
     }
 
     public void onOriginChanged(Vector3fc newOrigin) {
         this.position = this.relativePosition.add(newOrigin, new Vector3f());
-        this.originCache = newOrigin;
+        this.usedOrigin = newOrigin;
     }
 
 
@@ -177,11 +179,13 @@ public class VRPoseImpl implements VRPose {
     }
 
 
-    public Vector3f getScalePosOffset(float rotaionY, float oldWorldScale, float newWorldScale) {
+    public Vector3f getScaledPosDelta(float rotationY,
+                                      float oldWorldScale,
+                                      float newWorldScale) {
         Vector3f oldPos = position.mul(oldWorldScale, new Vector3f())
-                .rotateY(rotaionY);
+                .rotateY(rotationY);
         Vector3f newPos = position.mul(newWorldScale, new Vector3f())
-                .rotateY(rotaionY);
+                .rotateY(rotationY);
         return newPos.sub(oldPos);
     }
 
@@ -189,7 +193,7 @@ public class VRPoseImpl implements VRPose {
     @Override
     public String toString() {
         return String.format(
-                "VRPoseElement [position=%s, direction=%s,  yaw=%.2f°, pitch=%.2f°, roll=%.2f°]",
+                "VRPose [position=%s, direction=%s,  yaw=%.2f°, pitch=%.2f°, roll=%.2f°]",
                 getPosition(), getDirection(), yaw, pitch, roll
         );
     }

@@ -1,7 +1,9 @@
 package org.vmstudio.visor.core.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
@@ -21,15 +23,15 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.function.Supplier;
+
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VisorState implements VisorClientState {
 
 
     private static VRStateMode state = VRStateMode.OFF;
-    public static VRStateMode get(){
-        return state;
-    }
+
 
     public static int TICK_COUNT;
 
@@ -40,6 +42,13 @@ public class VisorState implements VisorClientState {
     private static boolean minecraftLoaded = false;
 
     private static Runnable delayedErrorHandling = null;
+
+    @Getter @Setter
+    private static EntityRendererProvider.Context delayedVrBodyInit = null;
+
+    public static VRStateMode get(){
+        return state;
+    }
 
     public static void updateState() {
 
@@ -198,6 +207,7 @@ public class VisorState implements VisorClientState {
 
     private static void deactivate() {
         state = VRStateMode.INITIALIZED;
+        VRRenderState.startVanillaPhase();
 
         if (MC.gameRenderer != null) {
             MC.gameRenderer.checkEntityPostEffect(

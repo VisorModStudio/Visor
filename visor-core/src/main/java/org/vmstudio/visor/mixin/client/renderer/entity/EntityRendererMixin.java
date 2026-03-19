@@ -20,6 +20,6 @@ public class EntityRendererMixin {
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;cameraOrientation()Lorg/joml/Quaternionf;"), method = "renderNameTag")
     public Quaternionf visor$vrNameTagCameraOrient(EntityRenderDispatcher instance) {
         return ((EntityRenderDispatcherExtension) this.entityRenderDispatcher)
-                .visor$getCameraOrientationOffset(0.5f);
+                .visor$getCameraOrientationOffset(1.0f,0.5f);
     }
 }

@@ -7,6 +7,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.core.client.player.body.VRBodyHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.core.client.settings.options.enums.MovementMode;
@@ -77,9 +78,6 @@ public class VRClientSettings {
     @VROptionField(widgetType = VROptionWidgetType.WALK_UP, key = "walk_up")
     protected static boolean walkUpEnabled = true;
 
-    @Getter
-    @VROptionField(key = "movement.walkMultiplier")
-    protected static float walkMultiplier = 1;
 
 
     @Getter
@@ -134,6 +132,44 @@ public class VRClientSettings {
     @VROptionField(widgetType = VROptionWidgetType.PUMPKIN_EFFECT, key = "pumpkin")
     protected static boolean pumpkinEffectEnabled = true;
 
+    // ---- VR Body rendering
+    @Getter @Setter
+    @VROptionField
+    protected static String defaultVrBody = VRBodyHandsOnly.ID;
+
+    @Getter
+    @VROptionField
+    protected static PlayerModelType playerModelType = PlayerModelType.SPLIT_ARMS_LEGS;
+    @Getter
+    @VROptionField
+    protected static ModelArmsMode modelArmsMode = ModelArmsMode.COMPLETE;
+    @Getter
+    @VROptionField
+    protected static boolean playerWalkAnim = true;
+    @Getter
+    @VROptionField
+    protected static boolean playerArmAnim = true;
+    @Getter
+    @VROptionField
+    protected static float playerModelArmsScale = 0.5F;
+    @Getter
+    @VROptionField
+    protected static float playerModelBodyScale = 1.0F;
+    @Getter
+    @VROptionField
+    protected static float playerModelLegScale = 1.0F;
+
+    public enum PlayerModelType {
+        VANILLA,
+        SPLIT_ARMS,
+        SPLIT_ARMS_LEGS
+    }
+
+    public enum ModelArmsMode {
+        OFF,
+        SHOULDERS,
+        COMPLETE
+    }
 
     //----Main menu panorama
     @Getter

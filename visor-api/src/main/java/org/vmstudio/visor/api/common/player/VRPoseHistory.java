@@ -12,7 +12,7 @@ import java.util.List;
  * Implementations treat index {@code 0} as the most recent pose,
  * with increasing indices going further back in time.
  */
-public interface PoseHistory {
+public interface VRPoseHistory {
 
     /**
      * Maximum number of pose samples that can be stored in the history.
@@ -24,7 +24,7 @@ public interface PoseHistory {
      *
      * @return list of player poses ordered from newest to oldest
      */
-    List<PlayerPose> getAllHistory();
+    List<VRPlayerPose> getAllHistory();
 
     /**
      * Returns a pose from the history by its age in ticks.
@@ -33,7 +33,7 @@ public interface PoseHistory {
      * @return the pose at the given offset
      * @throws IndexOutOfBoundsException if {@code ticksBack} is outside the stored range
      */
-    PlayerPose getEntry(int ticksBack);
+    VRPlayerPose getEntry(int ticksBack);
 
     /**
      * Returns the number of stored pose samples.
@@ -52,7 +52,7 @@ public interface PoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    Vector3f netMovement(VRBodyPart bodyPart,
+    Vector3f netMovement(VRTrackableBodyPart bodyPart,
                          int maxTicksBack);
 
     /**
@@ -77,7 +77,7 @@ public interface PoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    double averageSpeed(VRBodyPart bodyPart,
+    double averageSpeed(VRTrackableBodyPart bodyPart,
                         int maxTicksBack);
 
     /**
@@ -101,7 +101,7 @@ public interface PoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    Vector3f averagePosition(VRBodyPart bodyPart,
+    Vector3f averagePosition(VRTrackableBodyPart bodyPart,
                              int maxTicksBack);
 
     /**

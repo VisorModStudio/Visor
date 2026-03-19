@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.server.player;
 
 
-import org.vmstudio.visor.api.common.player.PoseHistory;
+import org.vmstudio.visor.api.common.player.VRPoseHistory;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,10 +14,10 @@ public interface VRServerPlayer {
     PlayerPoseServer getPoseDataRelative();
 
     @NotNull
-    PoseHistory getPoseHistoryRelative();
+    VRPoseHistory getPoseHistoryRelative();
 
     @NotNull
-    PoseHistory getPoseHistoryTick();
+    VRPoseHistory getPoseHistoryTick();
 
     boolean isCrawling();
 

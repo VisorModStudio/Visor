@@ -1,7 +1,9 @@
 package org.vmstudio.visor.core.client.player;
 
 import lombok.Getter;
+import net.minecraft.world.entity.Entity;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
@@ -98,13 +100,23 @@ public class VRClientPlayers {
         }
         return remotePlayers.get(uuid);
     }
+    public static VRClientPlayer getPlayer(Entity entity) {
+        return getPlayer(entity.getUUID());
+    }
     public static boolean isTracked(UUID uuid) {
         return getPlayer(uuid) != null;
+    }
+    public static boolean isTracked(Entity entity) {
+        return getPlayer(entity.getUUID()) != null;
     }
 
     public static void removePlayer(UUID uuid) {
         remotePlayers.remove(uuid);
         remotePlayersReceived.remove(uuid);
+    }
+
+    public static Collection<VRRemotePlayerImpl> getRemotePlayers(){
+        return remotePlayers.values();
     }
 
 

@@ -25,6 +25,10 @@ public enum VRRenderPass {
         return this == EYE_LEFT || this == EYE_RIGHT || this == CENTER;
     }
 
+    public boolean isThirdPerson(){
+        return this == THIRD_PERSON;
+    }
+
     public boolean isNull(){
         return this == NULL;
     }

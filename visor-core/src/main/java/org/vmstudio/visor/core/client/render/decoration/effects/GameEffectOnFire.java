@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.render.decoration.effects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
@@ -43,7 +43,7 @@ public class GameEffectOnFire extends VRGameEffect {
                        @NotNull PoseStack stack,
                        float partialTicks) {
         // --- Prepare variables ---
-        PlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         float fireHeight = (float)(renderPose.getHeadPivot().y()
                 - ((GameRendererExtension)MC.gameRenderer)
                 .visor$getCameraEntityCache()

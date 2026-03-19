@@ -1,19 +1,22 @@
 package org.vmstudio.visor.api.common.network.buffer;
 
 
+import com.google.common.base.Charsets;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import net.minecraft.network.FriendlyByteBuf;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.vmstudio.visor.api.common.network.VisorPayload;
 
 
 public record PoseDataBuffer(PoseElementBuffer hmd,
                              PoseElementBuffer mainHand,
                              PoseElementBuffer offhand,
-                             boolean leftHanded) implements BufferSerializable {
+                             boolean leftHanded,
+                             String bodyType) implements BufferSerializable {
 
 
     @Override
@@ -22,6 +25,9 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
         this.mainHand.serialize(buffer);
         this.offhand.serialize(buffer);
         buffer.writeBoolean(this.leftHanded);
+        buffer.writeBytes(
+                bodyType.getBytes(Charsets.UTF_8)
+        );
     }
 
 
@@ -30,23 +36,26 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
                 PoseElementBuffer.deserialize(byteBuf),
                 PoseElementBuffer.deserialize(byteBuf),
                 PoseElementBuffer.deserialize(byteBuf),
-                byteBuf.readBoolean()
+                byteBuf.readBoolean(),
+                VisorPayload.readString(byteBuf)
         );
     }
 
     public static PoseDataBuffer create(VRLocalPlayer vrPlayer,
-                                        boolean leftHanded) {
+                                        boolean leftHanded,
+                                        String bodyType) {
         return new PoseDataBuffer(
                 getHmdPose(vrPlayer),
                 getHandPose(vrPlayer, HandType.MAIN),
                 getHandPose(vrPlayer, HandType.OFFHAND),
-                leftHanded
+                leftHanded,
+                bodyType
         );
     }
 
     private static PoseElementBuffer getHmdPose(VRLocalPlayer vrPlayer) {
 
-        PlayerPoseClient postTickPose = vrPlayer
+        VRPlayerPoseClient postTickPose = vrPlayer
                 .getPoseData(PlayerPoseType.TICK);
         var hmd = postTickPose
                 .getHmd();
@@ -61,7 +70,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
     private static PoseElementBuffer getHandPose(VRLocalPlayer vrPlayer,
                                                  HandType handType
     ) {
-        PlayerPoseClient postTickPose = vrPlayer
+        VRPlayerPoseClient postTickPose = vrPlayer
             .getPoseData(PlayerPoseType.TICK);
         var handPose = postTickPose
                 .getHand(handType);

@@ -7,6 +7,8 @@ import org.vmstudio.visor.api.client.gui.settings.RegisterVRSettingsPreset;
 import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
 import org.vmstudio.visor.api.client.input.action.RegisterActionSet;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.player.body.RegisterVRBody;
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
@@ -62,6 +64,17 @@ public interface ComponentRegistries {
     @NotNull
     @Environment(EnvType.CLIENT)
     ComponentRegistry<VRDecorator> decorators();
+
+    /**
+     * Get VR Body registry
+     *
+     * <p>Annotation to auto-register on load: {@link RegisterVRBody}</p>
+     *
+     * @return VR body registry instance
+     */
+    @NotNull
+    @Environment(EnvType.CLIENT)
+    ComponentRegistry<VRBody> vrBodies();
 
     /**
      * Get VR Game Effect registry

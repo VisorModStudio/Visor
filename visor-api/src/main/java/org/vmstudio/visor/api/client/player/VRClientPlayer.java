@@ -1,14 +1,21 @@
 package org.vmstudio.visor.api.client.player;
 
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.common.player.PoseHistory;
+import org.vmstudio.visor.api.common.player.VRPoseHistory;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * The common class for VR client players, both local and remote
  */
 public interface VRClientPlayer {
+    /**
+     * Get VR body
+     *
+     * @return the VR body
+     */
+    VRBody getBody();
 
     /**
      * Get pose data of specified type
@@ -18,7 +25,7 @@ public interface VRClientPlayer {
      * @return pose data
      */
     @NotNull
-    PlayerPoseClient getPoseData(@NotNull PlayerPoseType type);
+    VRPlayerPoseClient getPoseData(@NotNull PlayerPoseType type);
 
     /**
      * get pose history for relative type
@@ -26,7 +33,7 @@ public interface VRClientPlayer {
      * @return pose history
      */
     @NotNull
-    PoseHistory getPoseHistoryRelative();
+    VRPoseHistory getPoseHistoryRelative();
 
     /**
      * get pose history for tick type
@@ -34,7 +41,7 @@ public interface VRClientPlayer {
      * @return pose history
      */
     @NotNull
-    PoseHistory getPoseHistoryTick();
+    VRPoseHistory getPoseHistoryTick();
 
 
     /**

@@ -6,7 +6,7 @@ import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import me.phoenixra.atumvr.api.utils.MathUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
@@ -329,7 +329,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         PoseAnchor posAnchor = (getUsedHand() == HandType.OFFHAND ?
                 PoseAnchor.OFFHAND : PoseAnchor.MAIN_HAND);
 
-        PlayerPoseClient renderPose = ClientContext
+        VRPlayerPoseClient renderPose = ClientContext
                 .localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
 

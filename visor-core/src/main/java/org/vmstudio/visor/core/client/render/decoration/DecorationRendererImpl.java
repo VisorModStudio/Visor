@@ -16,6 +16,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.decoration.hand.VRHandRenderer;
 import org.vmstudio.visor.core.client.render.decoration.registry.DecoratorRegistry;
+import org.vmstudio.visor.core.client.render.decoration.registry.VRBodyRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRGameEffectRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +37,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     private final DecoratorRegistry registry;
     @Getter
     private final VRGameEffectRegistry effectsRegistry;
+    @Getter
+    private final VRBodyRegistry vrBodyRegistry;
 
 
     @Getter
@@ -48,6 +51,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     public DecorationRendererImpl(){
         this.registry = new DecoratorRegistry();
+        this.vrBodyRegistry = new VRBodyRegistry();
         this.effectsRegistry = new VRGameEffectRegistry();
 
         ClientContext.handRenderer = new VRHandRenderer();
@@ -187,13 +191,11 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
         ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
-        //WORLD HANDS
-        ClientContext.handRenderer.renderWorldHands(
-                currentDecorator,
-                poseStack,
-                handStateMain, handStateOffhand,
-                partialTicks
-        );
+        //VR BODY
+        ClientContext.localPlayer
+                .getBody()
+                .getRenderer()
+                .renderDecoration(currentDecorator, poseStack, partialTicks);
 
         currentDecorator.renderAfterSolid(poseStack, partialTicks);
 
@@ -275,6 +277,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     public List<ComponentRegistry<?>> getComponentRegistries(){
         return List.of(
                 registry,
+                vrBodyRegistry,
                 effectsRegistry,
                 ClientContext.handRenderer.getItemPosesRegistry(),
                 ClientContext.handRenderer.getEffectsRegistry()

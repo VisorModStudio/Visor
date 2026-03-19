@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.settings;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
@@ -225,7 +225,7 @@ public class VROverlayDemo extends VROverlayScreen {
         if(!isEnabled()) return;
         emulatingPose = true;
 
-        PlayerPoseClient renderPose = ClientContext.localPlayer
+        VRPlayerPoseClient renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
 
         PoseAnchor posAnchor = targetPoseOptions.getPositionAnchor();

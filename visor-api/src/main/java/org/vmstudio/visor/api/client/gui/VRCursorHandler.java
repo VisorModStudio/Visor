@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.client.gui;
 
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
@@ -173,7 +173,7 @@ public interface VRCursorHandler {
      * @return result
      */
     @NotNull CursorResult getCursorResult(@NotNull HandType hand,
-                                          @NotNull PlayerPoseClient poseData,
+                                          @NotNull VRPlayerPoseClient poseData,
                                           @Nullable Function<VROverlay, Boolean> overlayFilter,
                                           boolean checkForceFocused);
     /**

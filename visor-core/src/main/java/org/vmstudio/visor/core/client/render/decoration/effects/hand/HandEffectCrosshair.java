@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
@@ -58,7 +58,7 @@ public class HandEffectCrosshair extends VRHandEffect {
                        float partialTicks) {
 
         // --- Prepare variables ---
-        PlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var rawCross = ((GameRendererExtension)MC.gameRenderer).visor$getCrossVec().toVector3f();
         var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
@@ -143,7 +143,7 @@ public class HandEffectCrosshair extends VRHandEffect {
 
     private void applyCrossHairRotation(PoseStack poseStack,
                                         HandType hand,
-                                        PlayerPoseClient pose) {
+                                        VRPlayerPoseClient pose) {
         if (MC.hitResult instanceof BlockHitResult bhr) {
             switch (bhr.getDirection()) {
                 case DOWN -> {

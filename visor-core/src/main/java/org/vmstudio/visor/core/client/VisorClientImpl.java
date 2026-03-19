@@ -10,14 +10,17 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.input.action.VRAction;
 import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
+import org.vmstudio.visor.core.client.player.body.VRBodyFull;
+import org.vmstudio.visor.core.client.player.body.VRBodyHandsOnly;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -41,8 +44,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.common.player.VRPoseImpl;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 
@@ -62,6 +67,10 @@ public class VisorClientImpl implements VisorClient {
 
     private ClientFeaturesToggle featuresToggle;
 
+
+    @Getter
+    private float partialTicks;
+
     public VisorClientImpl() {
         MC = Minecraft.getInstance();
 
@@ -74,6 +83,8 @@ public class VisorClientImpl implements VisorClient {
         );
 
         featuresToggle = new ClientFeaturesToggle();
+
+        VRPose.Instance.supplier = VRPoseImpl::new;
 
         //-------Configuration-------
         configManager = new AtumConfigManager(
@@ -143,6 +154,16 @@ public class VisorClientImpl implements VisorClient {
         );
 
         ClientContext.settingsManager.getPresetsCatalog().reload();
+
+
+        ClientContext.localPlayer.setBody(ClientContext.decorationRenderer.getVrBodyRegistry()
+                .getComponent(VRBodyHandsOnly.ID));
+        var delayedBodyInit = VisorState.getDelayedVrBodyInit();
+        if(delayedBodyInit != null){
+            ClientContext.decorationRenderer.getVrBodyRegistry().getAllComponents()
+                    .forEach(it->it.getRenderer().initModels(delayedBodyInit));
+        }
+
     }
 
 
@@ -228,6 +249,8 @@ public class VisorClientImpl implements VisorClient {
 
     public void preRenderVR(PreRenderContext context){
         try{
+            partialTicks = context.partialTicks();
+
             featuresToggle.preRender();
             
             VRClientPlayers.preRender(context.partialTicks());
@@ -247,6 +270,7 @@ public class VisorClientImpl implements VisorClient {
     public void renderVR(RenderContext context){
         try {
             context.profiler().push("VR render");
+            partialTicks = context.partialTicks();
             ClientContext.renderer
                     .render(context);
             context.profiler().pop();

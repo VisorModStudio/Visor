@@ -3,17 +3,6 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import org.vmstudio.visor.api.client.input.HandAction;
-import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
-import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
-import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
@@ -33,6 +22,18 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.api.client.input.HandAction;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.render.VRRenderState;
+
+import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
+import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
 
 @Mixin(value = ItemInHandRenderer.class, priority = 999)

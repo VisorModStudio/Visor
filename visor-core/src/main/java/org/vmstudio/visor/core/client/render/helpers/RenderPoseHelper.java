@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
 import com.mojang.blaze3d.vertex.*;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -101,7 +101,7 @@ public class RenderPoseHelper {
 
 
     public static Vector3fc getCameraPosition(VRRenderPass renderPass,
-                                              PlayerPoseClient vrPose) {
+                                              VRPlayerPoseClient vrPose) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         boolean smooth = renderPass == VRRenderPass.CENTER && mirrorSmooth > 0f;

@@ -1,0 +1,11 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.vmstudio'
+version = version+"-stubs"
+
+repositories {
+    mavenCentral()
+}
+

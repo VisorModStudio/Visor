@@ -26,28 +26,28 @@ public enum PoseAnchor {
     /**
      * Anchored to HMD
      */
-    HMD(PlayerPoseClient::getHmd),
+    HMD(VRPlayerPoseClient::getHmd),
 
     /**
      * Anchored to Main Hand
      */
-    MAIN_HAND(PlayerPoseClient::getMainHand),
+    MAIN_HAND(VRPlayerPoseClient::getMainHand),
 
     /**
      * Anchored to Offhand
      */
-    OFFHAND(PlayerPoseClient::getOffhand);
+    OFFHAND(VRPlayerPoseClient::getOffhand);
 
 
     @Getter
-    private final @NotNull Function<PlayerPoseClient, VRPose> supplier;
+    private final @NotNull Function<VRPlayerPoseClient, VRPose> supplier;
 
-    PoseAnchor(@NotNull Function<PlayerPoseClient, VRPose> supplier){
+    PoseAnchor(@NotNull Function<VRPlayerPoseClient, VRPose> supplier){
         this.supplier = supplier;
     }
 
 
-    public @NotNull VRPose getAnchor(@NotNull PlayerPoseClient poseData){
+    public @NotNull VRPose getAnchor(@NotNull VRPlayerPoseClient poseData){
         return this.supplier.apply(poseData);
     }
 
@@ -55,7 +55,7 @@ public enum PoseAnchor {
         return Component.translatable("visor.options.enums.PoseAnchor."+name());
     }
 
-    public @NotNull Vector3f anchorPos(@NotNull PlayerPoseClient poseData,
+    public @NotNull Vector3f anchorPos(@NotNull VRPlayerPoseClient poseData,
                                        @NotNull Vector3fc offset){
         var anchor = getAnchor(poseData);
         float worldScale = poseData.getWorldScale();
@@ -74,7 +74,7 @@ public enum PoseAnchor {
 
     }
 
-    public @NotNull Matrix4f anchorRotation(@NotNull PlayerPoseClient poseData,
+    public @NotNull Matrix4f anchorRotation(@NotNull VRPlayerPoseClient poseData,
                                             @NotNull Vector3fc offset){
         var anchor = getAnchor(poseData);
         if(anchor == VRPose.EMPTY){
@@ -91,7 +91,7 @@ public enum PoseAnchor {
     }
 
 
-    public @NotNull Matrix4f anchorRotationAim(@NotNull PlayerPoseClient poseData,
+    public @NotNull Matrix4f anchorRotationAim(@NotNull VRPlayerPoseClient poseData,
                                                @NotNull Vector3fc offset,
                                                @NotNull Vector3fc objPosition){
         var anchor = getAnchor(poseData);
@@ -144,7 +144,7 @@ public enum PoseAnchor {
     public static Vector3f getAnchorPos(@NotNull Vector3fc anchorPosition,
                                         @NotNull Matrix4fc anchorRotation,
                                         @NotNull Vector3fc offset){
-        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
                 .getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
 

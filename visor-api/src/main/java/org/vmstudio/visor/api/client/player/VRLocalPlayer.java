@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.player;
 
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
@@ -16,6 +17,29 @@ public interface VRLocalPlayer extends VRClientPlayer{
      * @return mc player
      */
     LocalPlayer getMcPlayer();
+
+    /**
+     * Set VR body to use.
+     *
+     * @param vrBody the VR body
+     */
+    void setBody(@NotNull VRBody vrBody);
+
+    /**
+     * Set if player can change the selected VR body.
+     * <p>
+     * On false, the VR body selection will be blocked for player
+     *
+     * @param flag true/false
+     */
+    void setBodyChangeable(boolean flag);
+
+    /**
+     * If player can change the selected VR body.
+     * @return true/false
+     */
+    boolean isBodyChangeable();
+
 
     /**
      * Get hand type which is currently used

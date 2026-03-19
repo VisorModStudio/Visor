@@ -1,7 +1,9 @@
 package org.vmstudio.visor.core.client.player;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -27,6 +29,9 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
     @Getter
     private RemotePlayer mcPlayer;
+
+    @Getter @Setter
+    private VRBody body;
 
 
     private PoseDataBuffer poseBufferReceived;
@@ -112,7 +117,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
 
     public void postTick() {
-        this.pose.update(
+        this.pose.updateModifiers(
                 mcPlayer.getPosition(1.0f).toVector3f(),
                 this.pose.getWorldScale()
         );
@@ -217,7 +222,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
             this.prevPose.resetOrigin(newOrigin);
         }
 
-        this.pose.update(
+        this.pose.updateModifiers(
                 newOrigin,
                 pose.getWorldScale()
         );

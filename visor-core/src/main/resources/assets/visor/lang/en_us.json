@@ -90,6 +90,10 @@
   "visor.options.rendering.third_person.reposition_camera": "Reposition camera",
   "visor.options.rendering.third_person.fov": "Third Person FOV",
 
+  "_comment.vr_body": "----VR Body Settings----",
+  "visor.options.vr_body.button": "VR Body",
+  "visor.options.vr_body.select": "Select body",
+
   "_comment.controls": "----Controls Settings----",
   "visor.options.controls.button": "Controls",
   "visor.options.controls.left_handed": "Left Handed",

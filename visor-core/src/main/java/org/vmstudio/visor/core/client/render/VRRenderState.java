@@ -3,6 +3,8 @@ package org.vmstudio.visor.core.client.render;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.render.RenderPhase;
@@ -89,6 +91,47 @@ public class VRRenderState {
             case THIRD_PERSON ->
                     ClientContext.renderer.thirdPersonTarget.getTarget();
         };
+    }
+
+    public static boolean isVRBodyLocalRender(Entity entity) {
+        return canRenderVRBody(entity) && isVRBodyAllowed();
+    }
+
+    public static boolean isVRBodyRendering() {
+        if(!canRenderVRBody(MC.getCameraEntity())){
+            return false;
+        }
+        return isVRBodyAllowed()
+                || renderPass.isThirdPerson();
+    }
+    public static boolean isVRBodyLocalPlayer(Entity entity) {
+        if(VisorState.get().isNotActive()){
+            return false;
+        }
+        if(entity == null){
+            return false;
+        }
+        return entity == MC.player
+                && entity == MC.getCameraEntity();
+    }
+
+    private static boolean canRenderVRBody(Entity entity) {
+        if(VisorState.get().isNotActive()){
+            return false;
+        }
+        if(entity != MC.player
+                || entity != MC.getCameraEntity()){
+            return false;
+        }
+        if(entity == null){
+            return false;
+        }
+        return !((LivingEntity) entity).isSleeping();
+    }
+
+    private static boolean isVRBodyAllowed() {
+        return ClientContext.localPlayer.getBody().isFullBody()
+                && renderPass.isFirstPerson();
     }
 
     public static boolean isInMainMenu(){

@@ -9,7 +9,7 @@ import org.joml.Vector3fc;
 /**
  * Provides pose data for VR player
  */
-public interface PlayerPose {
+public interface VRPlayerPose {
 
     /**
      * Get player associated with this instance
@@ -71,7 +71,7 @@ public interface PlayerPose {
      * @return pose
      */
     @NotNull
-    default VRPose getPoseElement(@NotNull VRBodyPart bodyPart){
+    default VRPose getPose(@NotNull VRTrackableBodyPart bodyPart){
         return switch (bodyPart){
             case HEAD -> getHmd();
             case MAIN_HAND -> getMainHand();

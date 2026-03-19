@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.client.gui.overlays;
 
 import lombok.*;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.jetbrains.annotations.NotNull;
@@ -80,7 +80,7 @@ public class VROverlayPose {
         this.scale = overlayScale;
 
 
-        PlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = QUAD_SCALE * scale * worldScale;
         float aspect = owner.getAspectRatio();
@@ -181,7 +181,7 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        PlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
         return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 
@@ -229,7 +229,7 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        PlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
         return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 }

@@ -66,29 +66,29 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
                 .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
 
         this.hmd.update(
-                this.origin,
-                0,
-                1.0f,
                 hmdPose.position(),
                 hmdPose.orientation().get(new Matrix4f()),
-                hmdDir
+                hmdDir,
+                this.origin,
+                0,
+                1.0f
         );
 
         this.mainHand.update(
-                this.origin,
-                0,
-                1.0f,
                 mainHandPose.position(),
                 mainHandPose.orientation().get(new Matrix4f()),
-                mainHandDir
-        );
-        this.offhand.update(
+                mainHandDir,
                 this.origin,
                 0,
-                1.0f,
+                1.0f
+        );
+        this.offhand.update(
                 offhandPose.position(),
                 offhandPose.orientation().get(new Matrix4f()),
-                offhandDir
+                offhandDir,
+                this.origin,
+                0,
+                1.0f
         );
 
         this.bodyYaw = calcBodyYaw();

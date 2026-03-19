@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.client.player.pose;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.api.common.player.PlayerPose;
+import org.vmstudio.visor.api.common.player.VRPlayerPose;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +16,7 @@ import org.joml.Vector3fc;
  * Provides pose data for the client-side
  * VR player
  */
-public interface PlayerPoseClient extends PlayerPose {
+public interface VRPlayerPoseClient extends VRPlayerPose {
 
     /**
      * Get the pose type used by this instance.

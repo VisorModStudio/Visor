@@ -103,7 +103,8 @@ public class ClientNetworking {
 
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
                 localPlayer,
-                localPlayer.isLeftHanded()
+                localPlayer.isLeftHanded(),
+                localPlayer.getBody().getId()
         );
         sendVRPacket(
                 new PoseDataPayloadToServer(vrPlayerState)

@@ -1,6 +1,6 @@
 package org.vmstudio.visor.mixin.client.multiplayer;
 
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.compatibility.ItemClassifier;
@@ -122,7 +122,7 @@ public abstract class MultiPlayerGameModeMixin {
 
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
-            PlayerPoseClient preTickPose = ClientContext
+            VRPlayerPoseClient preTickPose = ClientContext
                     .localPlayer.getPoseData(PlayerPoseType.TICK);
             lookDirection = new Vec3(
                     (Vector3f) preTickPose.getHand(handType).getDirection()

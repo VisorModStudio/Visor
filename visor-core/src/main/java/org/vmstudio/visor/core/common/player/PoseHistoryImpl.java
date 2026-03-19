@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.common.player;
 
-import org.vmstudio.visor.api.common.player.PlayerPose;
-import org.vmstudio.visor.api.common.player.PoseHistory;
-import org.vmstudio.visor.api.common.player.VRBodyPart;
+import org.vmstudio.visor.api.common.player.VRPlayerPose;
+import org.vmstudio.visor.api.common.player.VRPoseHistory;
+import org.vmstudio.visor.api.common.player.VRTrackableBodyPart;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
@@ -12,18 +12,18 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PoseHistoryImpl implements PoseHistory {
+public class PoseHistoryImpl implements VRPoseHistory {
 
-    private final LinkedList<PlayerPose> history = new LinkedList<>();
+    private final LinkedList<VRPlayerPose> history = new LinkedList<>();
 
-    private final PlayerPose currentPose;
-    public PoseHistoryImpl(PlayerPose currentPose){
+    private final VRPlayerPose currentPose;
+    public PoseHistoryImpl(VRPlayerPose currentPose){
         this.currentPose = currentPose;
         history.addFirst(currentPose);
     }
 
     @Override
-    public Vector3f netMovement(VRBodyPart bodyPart, int maxTicksBack) {
+    public Vector3f netMovement(VRTrackableBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.size() <= 1) {
             return (Vector3f) VRMathUtils.ZERO_VECTOR;
@@ -31,9 +31,9 @@ public class PoseHistoryImpl implements PoseHistory {
 
         maxTicksBack = clampTicksBack(maxTicksBack);
 
-        var last = history.getFirst().getPoseElement(bodyPart).getPosition();
+        var last = history.getFirst().getPose(bodyPart).getPosition();
 
-        var old = history.get(maxTicksBack).getPoseElement(bodyPart).getPosition();
+        var old = history.get(maxTicksBack).getPose(bodyPart).getPosition();
 
         return last.sub(old, new Vector3f());
     }
@@ -55,7 +55,7 @@ public class PoseHistoryImpl implements PoseHistory {
     }
 
     @Override
-    public double averageSpeed(VRBodyPart bodyPart, int maxTicksBack) {
+    public double averageSpeed(VRTrackableBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.size() <= 1) {
             return 0;
@@ -63,8 +63,8 @@ public class PoseHistoryImpl implements PoseHistory {
         maxTicksBack = clampTicksBack(maxTicksBack);
         List<Float> deltas = new ArrayList<>(maxTicksBack);
         for (int i = 0; i < maxTicksBack; i++) {
-            var newer = history.get(i).getPoseElement(bodyPart).getPosition();
-            var older = history.get(i + 1).getPoseElement(bodyPart).getPosition();
+            var newer = history.get(i).getPose(bodyPart).getPosition();
+            var older = history.get(i + 1).getPose(bodyPart).getPosition();
 
             deltas.add(newer.distance(older));
         }
@@ -95,7 +95,7 @@ public class PoseHistoryImpl implements PoseHistory {
     }
 
     @Override
-    public Vector3f averagePosition(VRBodyPart bodyPart, int maxTicksBack) {
+    public Vector3f averagePosition(VRTrackableBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.isEmpty()) {
             return null;
@@ -104,7 +104,7 @@ public class PoseHistoryImpl implements PoseHistory {
         List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
         int i = 0;
         for (var pose : this.history) {
-            var pos = pose.getPoseElement(bodyPart).getPosition();
+            var pos = pose.getPose(bodyPart).getPosition();
             positions.add(pos);
             if (++i >= maxTicksBack) break;
         }
@@ -142,7 +142,7 @@ public class PoseHistoryImpl implements PoseHistory {
         );
     }
 
-    public void addEntry(PlayerPose entry){
+    public void addEntry(VRPlayerPose entry){
         history.removeFirst();
         history.addFirst(entry);
         history.addFirst(currentPose);
@@ -153,12 +153,12 @@ public class PoseHistoryImpl implements PoseHistory {
 
 
     @Override
-    public PlayerPose getEntry(int ticksBack) {
+    public VRPlayerPose getEntry(int ticksBack) {
         return history.get(ticksBack);
     }
 
     @Override
-    public List<PlayerPose> getAllHistory() {
+    public List<VRPlayerPose> getAllHistory() {
         return List.copyOf(history);
     }
 

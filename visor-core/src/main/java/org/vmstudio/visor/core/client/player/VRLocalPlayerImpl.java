@@ -6,7 +6,8 @@ import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseClient;
+import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
@@ -53,6 +54,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
+    @Getter @Setter
+    private VRBody body;
+
     @Getter
     private HandType activeHand = HandType.MAIN;
 
@@ -60,6 +64,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     private float rotationYRaw;
 
     private boolean isTicking;
+
+    @Getter @Setter
+    private boolean bodyChangeable = true;
 
     @Getter
     private final Vector2f movement = new Vector2f();
@@ -77,9 +84,8 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void onGameLoopStart(){
-        this.roomRelativePose.update(
+        this.roomRelativePose.updateTracking(
                 VRMathUtils.ZERO_VECTOR,
-                VRClientSettings.getWalkMultiplier(),
                 1.0f, 0.0f
         );
     }
@@ -95,9 +101,8 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 ? 1.0f
                 : VRClientSettings.getWorldScale();
 
-        this.pose.update(
+        this.pose.updateTracking(
                 pose.getOrigin(),
-                VRClientSettings.getWalkMultiplier(),
                 preWorldScale,
                 this.pose.getRotationY()
         );
@@ -134,7 +139,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void postTick() {
-        this.pose.update(
+        this.pose.updateSimple(
                 pose.getOrigin(),
                 pose.getWorldScale(),
                 rotationYRaw
@@ -190,9 +195,8 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 + preTickWorld * (1.0f - partialTicks);
 
         //Applying
-        this.renderPose.update(
+        this.renderPose.updateTracking(
                 originPartial,
-                VRClientSettings.getWalkMultiplier(),
                 worldScalePartial,
                 rotationPartial
         );
@@ -375,7 +379,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         }
 
         //use HMD if no other option found
-        player.setYRot(data.getHmd().getRotationYCache());
+        player.setYRot(data.getHmd().getUsedRotationY());
         player.setYHeadRot(player.getYRot());
         player.setXRot(-data.getHmd().getPitchDegrees());
     }
@@ -409,7 +413,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             this.prevPose.resetOrigin(newOrigin);
         }
 
-        this.pose.update(
+        this.pose.updateSimple(
                 newOrigin,
                 pose.getWorldScale(),
                 pose.getRotationY()
@@ -449,7 +453,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType){
-        PlayerPoseClient playerPose = getPoseData(poseType);
+        VRPlayerPoseClient playerPose = getPoseData(poseType);
         return switch (VRClientSettings.getRotationMode()) {
             case MAIN_HAND -> playerPose.getHand(
                     HandType.MAIN
