@@ -436,13 +436,13 @@ public class VRHandRenderer {
 
 
     private void renderWorldArmWithItem(AbstractClientPlayer pPlayer,
-                                           float pPartialTicks,
-                                           InteractionHand pHand,
-                                           float pSwingProgress,
-                                           ItemStack itemStack,
-                                           PoseStack poseStack,
-                                           MultiBufferSource pBuffer,
-                                           int pCombinedLight
+                                        float pPartialTicks,
+                                        InteractionHand pHand,
+                                        float pSwingProgress,
+                                        ItemStack itemStack,
+                                        PoseStack poseStack,
+                                        MultiBufferSource pBuffer,
+                                        int pCombinedLight
     ) {
         boolean mainHand = pHand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = mainHand
@@ -483,6 +483,15 @@ public class VRHandRenderer {
             );
         }
 
+        // Apply vanilla ItemInHandLayer base transforms
+        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
+        poseStack.translate((float)(isLeftHand ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+
+        // Let addons modify item pose
+        HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
+        applyItemHandPose(pPlayer, handType, itemStack, poseStack, equipProgress, pPartialTicks);
 
         if (itemStack.getItem() instanceof MapItem) {
             RenderSystem.disableCull();
