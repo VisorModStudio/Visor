@@ -44,7 +44,7 @@ public class VRBodyHandsOnly extends VRBody {
 
     @Override
     public boolean isSelfModelVisible() {
-        return true;
+        return false;
     }
 
 

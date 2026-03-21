@@ -2,14 +2,17 @@ package org.vmstudio.visor.core.client.render.player;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
@@ -118,5 +121,33 @@ public class VRPlayerRendererTest extends PlayerRenderer {    // Vanilla model
 
         // vanilla below here
         super.setupRotations(player, poseStack, ageInTicks, rotationYaw * Mth.RAD_TO_DEG, partialTick);
+    }
+
+
+    @Override
+    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
+        renderVRHand(poseStack, buffer, combinedLight, player, this.model.rightArm, this.model.rightSleeve);
+    }
+
+    @Override
+    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
+        renderVRHand(poseStack, buffer, combinedLight, player, this.model.leftArm, this.model.leftSleeve);
+    }
+
+    private void renderVRHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+                              AbstractClientPlayer player, ModelPart arm, ModelPart armwear) {
+        this.setModelProperties(player);
+
+        // Reset arm to neutral — caller controls transform via poseStack
+        arm.setPos(0, 0, 0);
+        arm.setRotation(0, 0, 0);
+        armwear.copyFrom(arm);
+
+        arm.render(poseStack, buffer.getBuffer(
+                        RenderType.entitySolid(player.getSkinTextureLocation())),
+                combinedLight, OverlayTexture.NO_OVERLAY);
+        armwear.render(poseStack, buffer.getBuffer(
+                        RenderType.entityTranslucent(player.getSkinTextureLocation())),
+                combinedLight, OverlayTexture.NO_OVERLAY);
     }
 }

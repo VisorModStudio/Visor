@@ -20,13 +20,13 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     private final List<PlayerRenderer> models = new ArrayList<>();
 
 
-    private final Map<String, VRPlayerRendererTest> modelsMapVanilla = new HashMap<>();
-    private final Map<String, VRPlayerRendererTest> modelsMapArms = new HashMap<>();
-    private final Map<String, VRPlayerRendererTest> modelsMapArmsLegs = new HashMap<>();
+    private final Map<String, VRPlayerRenderer> modelsMapVanilla = new HashMap<>();
+    private final Map<String, VRPlayerRenderer> modelsMapArms = new HashMap<>();
+    private final Map<String, VRPlayerRenderer> modelsMapArmsLegs = new HashMap<>();
 
-    private VRPlayerRendererTest vanillaRenderer;
-    private VRPlayerRendererTest armsRenderer;
-    private VRPlayerRendererTest armsLegsRenderer;
+    private VRPlayerRenderer vanillaRenderer;
+    private VRPlayerRenderer armsRenderer;
+    private VRPlayerRenderer armsLegsRenderer;
 
     @Override
     public void renderDecoration(@NotNull VRDecorator decorator,
@@ -37,23 +37,23 @@ public class VRBodyRendererFull implements VRBodyRenderer {
 
     @Override
     public void initModels(EntityRendererProvider.Context context) {
-        this.vanillaRenderer = new VRPlayerRendererTest(context, false,
+        this.vanillaRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.VANILLA);
         this.modelsMapVanilla.put("default", this.vanillaRenderer);
-        this.modelsMapVanilla.put("slim", new VRPlayerRendererTest(context, true,
+        this.modelsMapVanilla.put("slim", new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.VANILLA)
         );
 
-        this.armsRenderer = new VRPlayerRendererTest(context, false,
+        this.armsRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS);
         this.modelsMapArms.put("default", this.armsRenderer);
-        this.modelsMapArms.put("slim", new VRPlayerRendererTest(context, true,
+        this.modelsMapArms.put("slim", new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS));
 
-        this.armsLegsRenderer = new VRPlayerRendererTest(context, false,
+        this.armsLegsRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS);
         this.modelsMapArmsLegs.put("default", this.armsLegsRenderer);
-        this.modelsMapArmsLegs.put("slim", new VRPlayerRendererTest(context, true,
+        this.modelsMapArmsLegs.put("slim", new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS)
         );
 

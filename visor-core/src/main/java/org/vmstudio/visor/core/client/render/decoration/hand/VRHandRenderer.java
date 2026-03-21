@@ -2,9 +2,16 @@ package org.vmstudio.visor.core.client.render.decoration.hand;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Axis;
 import lombok.Getter;
+import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.MapItem;
+import org.spongepowered.asm.mixin.Unique;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
@@ -14,6 +21,10 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
@@ -36,6 +47,7 @@ import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
 import java.util.*;
 
@@ -61,6 +73,10 @@ public class VRHandRenderer {
 
     @Getter
     private final VRHandEffectRegistry effectsRegistry = new VRHandEffectRegistry();
+
+
+    @Getter @Setter
+    private HandAction swingType = HandAction.ATTACK;
 
 
     public void applyItemHandPose(@NotNull AbstractClientPlayer player,
@@ -399,11 +415,12 @@ public class VRHandRenderer {
 
         MC.gameRenderer.lightTexture().turnOnLightLayer();
         MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
-        MC.gameRenderer.itemInHandRenderer.renderArmWithItem(
-                MC.player, partialTicks, 0.0F,
+
+        renderWorldArmWithItem(
+                MC.player, partialTicks,
                 interactionHand,
                 MC.player.getAttackAnim(partialTicks),
-                item, 0.0F, poseStack,
+                item,  poseStack,
                 bufferSource,
                 MC.getEntityRenderDispatcher().getPackedLightCoords(
                         MC.player,
@@ -417,6 +434,202 @@ public class VRHandRenderer {
 
     }
 
+
+    private void renderWorldArmWithItem(AbstractClientPlayer pPlayer,
+                                           float pPartialTicks,
+                                           InteractionHand pHand,
+                                           float pSwingProgress,
+                                           ItemStack itemStack,
+                                           PoseStack poseStack,
+                                           MultiBufferSource pBuffer,
+                                           int pCombinedLight
+    ) {
+        boolean mainHand = pHand == InteractionHand.MAIN_HAND;
+        HumanoidArm humanoidarm = mainHand
+                ? pPlayer.getMainArm()
+                : pPlayer.getMainArm().getOpposite();
+        var equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
+                .visor$getEquipProgress(pHand, pPartialTicks);
+
+
+        boolean renderArm =
+                VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON
+                        || (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
+                        && VRClientSettings.isMixedRealityRenderHands());
+
+        poseStack.pushPose();
+        if (renderArm && !pPlayer.isInvisible()) {
+            renderWorldArm(
+                    poseStack,
+                    pBuffer,
+                    pCombinedLight,
+                    equipProgress,
+                    pSwingProgress,
+                    humanoidarm
+            );
+        }
+
+        if (itemStack.isEmpty()) {
+            poseStack.popPose();
+            return;
+        }
+
+        if (pPlayer.swingingArm == pHand) {
+            applySwingPose(
+                    swingType,
+                    poseStack,
+                    humanoidarm,
+                    pSwingProgress
+            );
+        }
+
+
+        if (itemStack.getItem() instanceof MapItem) {
+            RenderSystem.disableCull();
+            ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
+                    .visor$renderMap(
+                            poseStack,
+                            pBuffer,
+                            pCombinedLight,
+                            itemStack
+                    );
+        } else {
+            MC.gameRenderer.itemInHandRenderer.renderItem(
+                    pPlayer,
+                    itemStack,
+                    ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
+                    false,
+                    poseStack,
+                    pBuffer,
+                    pCombinedLight
+            );
+        }
+
+        poseStack.popPose();
+    }
+
+    private void renderWorldArm(PoseStack poseStack,
+                                MultiBufferSource multiBufferSource,
+                                int i, float equipProgress, float swingProgress,
+                                HumanoidArm humanoidArm
+    ) {
+        boolean mainHand = humanoidArm != HumanoidArm.LEFT;
+        float handFactor = mainHand ? 1.0F : -1.0F;
+        AbstractClientPlayer player = MC.player;
+        RenderSystem.setShaderTexture(
+                0,
+                player.getSkinTextureLocation()
+        );
+        VRPlayerRendererArms rendererArms = ((EntityRenderDispatcherExtension) MC.getEntityRenderDispatcher())
+                .visor$getArmSkinMap()
+                .get(player.getModelName());
+
+        poseStack.pushPose();
+
+        boolean swingingArm = (player.swingingArm == InteractionHand.OFF_HAND
+                && !mainHand)
+                || (player.swingingArm == InteractionHand.MAIN_HAND
+                && mainHand);
+        if (swingingArm) {
+            applySwingPose(swingType, poseStack, humanoidArm, swingProgress);
+        }
+
+        poseStack.scale(0.4f, 0.4F, 0.4F);
+        boolean slim = player.getModelName()
+                .equals("slim");
+
+
+        poseStack.translate(
+                (slim ? -0.34375F : -0.375F) * handFactor,
+                0.0F,
+                slim ? 0.78125F : 0.75F
+        );
+        poseStack.mulPose(Axis.XP.rotationDegrees(-90));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180));
+        if (mainHand) {
+            rendererArms.renderRightHand(
+                    poseStack, multiBufferSource,
+                    i, player
+            );
+        } else {
+            rendererArms.renderLeftHand(
+                    poseStack, multiBufferSource,
+                    i, player
+            );
+        }
+        poseStack.popPose();
+    }
+
+    @Unique
+    private void applySwingPose(HandAction handAction,
+                                PoseStack matrixStackIn,
+                                HumanoidArm hand,
+                                float swingProgress) {
+        if (swingProgress == 0.0F) {
+            return;
+        }
+        switch (handAction) {
+            case ATTACK ->{
+                float swingAngle;
+                if ((double) swingProgress > 0.5D) {
+                    swingAngle = Mth.sin(
+                            (float) ((double) swingProgress * Math.PI + Math.PI)
+                    );
+                } else {
+                    swingAngle = Mth.sin(
+                            (float) ((double) (swingProgress * 3.0F) * Math.PI)
+                    );
+                }
+
+                matrixStackIn.translate(
+                        0.0D, 0.0D, 0.2F
+                );
+                matrixStackIn.mulPose(
+                        Axis.XP.rotationDegrees(
+                                swingAngle * 30.0F
+                        )
+                );
+                matrixStackIn.translate(
+                        0.0D, 0.0D, -0.2F
+                );
+            }
+            case INTERACT -> {
+                float swingAngle;
+
+                if ((double) swingProgress > 0.5D) {
+                    swingAngle = Mth.sin(
+                            (float) ((double) swingProgress * Math.PI + Math.PI)
+                    );
+                } else {
+                    swingAngle = Mth.sin(
+                            (float) ((double) (swingProgress * 3.0F) * Math.PI)
+                    );
+                }
+
+                matrixStackIn.mulPose(
+                        Axis.ZP.rotationDegrees(
+                                (float) (hand == HumanoidArm.RIGHT ? -1 : 1) * swingAngle * 45.0F
+                        )
+                );
+            }
+            case USE -> {
+                float swingOffset;
+
+                if ((double) swingProgress > 0.25D) {
+                    swingOffset = Mth.sin((float) ((double) (swingProgress / 2.0F) * Math.PI + Math.PI));
+                } else {
+                    swingOffset = Mth.sin(
+                            (float) ((double) (swingProgress * 2.0F) * Math.PI)
+                    );
+                }
+                matrixStackIn.translate(
+                        0.0D,
+                        0.0D,
+                        -(1.0F + swingOffset) * 0.1F
+                );
+            }
+        }
+    }
 
     private void renderHandEffects(Collection<VRHandEffect> effects,
                                    HandType hand,

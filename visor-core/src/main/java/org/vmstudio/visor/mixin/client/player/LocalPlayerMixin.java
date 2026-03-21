@@ -403,10 +403,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     @Unique
     public void visor$swingArm(InteractionHand interactionhand, HandAction interact) {
-        ((ItemInHandRendererExtension) this.minecraft
-                .getEntityRenderDispatcher()
-                .getItemInHandRenderer()
-        ).visor$setSwingType(interact);
+        ClientContext.handRenderer.setSwingType(interact);
         this.swing(interactionhand);
     }
 

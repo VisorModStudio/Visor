@@ -39,6 +39,7 @@ public class VRBodyRendererHandsOnly implements VRBodyRenderer {
                 ClientContext.decorationRenderer.getHandRenderState(HandType.OFFHAND),
                 partialTicks
         );
+
     }
 
 
