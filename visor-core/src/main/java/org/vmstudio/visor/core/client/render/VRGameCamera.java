@@ -1,7 +1,6 @@
 package org.vmstudio.visor.core.client.render;
 
 import com.mojang.math.Axis;
-import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -46,7 +45,7 @@ public class VRGameCamera extends Camera {
         if (VRRenderState.getPhase().isVanilla()) {
             return super.isDetached();
         }
-        return VRRenderState.isVRBodyRendering();
+        return VRRenderState.isSelfModelRenderCamera();
     }
 
 

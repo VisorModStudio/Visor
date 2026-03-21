@@ -1,5 +1,7 @@
 package org.vmstudio.visor.api.client.player;
 
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -10,6 +12,14 @@ import org.jetbrains.annotations.NotNull;
  * The common class for VR client players, both local and remote
  */
 public interface VRClientPlayer {
+
+    /**
+     * Get local player associated with this instance
+     *
+     * @return mc player
+     */
+    AbstractClientPlayer getMcPlayer();
+
     /**
      * Get VR body
      *

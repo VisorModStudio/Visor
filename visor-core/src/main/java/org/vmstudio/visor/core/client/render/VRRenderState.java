@@ -93,18 +93,18 @@ public class VRRenderState {
         };
     }
 
-    public static boolean isVRBodyLocalRender(Entity entity) {
-        return canRenderVRBody(entity) && isVRBodyAllowed();
+    public static boolean isSelfModelRender(Entity entity) {
+        return canRenderSelfModel(entity) && isSelfModelAllowed();
     }
 
-    public static boolean isVRBodyRendering() {
-        if(!canRenderVRBody(MC.getCameraEntity())){
+    public static boolean isSelfModelRenderCamera() {
+        if(!canRenderSelfModel(MC.getCameraEntity())){
             return false;
         }
-        return isVRBodyAllowed()
+        return isSelfModelAllowed()
                 || renderPass.isThirdPerson();
     }
-    public static boolean isVRBodyLocalPlayer(Entity entity) {
+    public static boolean isSelfModelPlayer(Entity entity) {
         if(VisorState.get().isNotActive()){
             return false;
         }
@@ -115,7 +115,7 @@ public class VRRenderState {
                 && entity == MC.getCameraEntity();
     }
 
-    private static boolean canRenderVRBody(Entity entity) {
+    private static boolean canRenderSelfModel(Entity entity) {
         if(VisorState.get().isNotActive()){
             return false;
         }
@@ -129,8 +129,8 @@ public class VRRenderState {
         return !((LivingEntity) entity).isSleeping();
     }
 
-    private static boolean isVRBodyAllowed() {
-        return ClientContext.localPlayer.getBody().isFullBody()
+    private static boolean isSelfModelAllowed() {
+        return ClientContext.localPlayer.getBody().isSelfModelVisible()
                 && renderPass.isFirstPerson();
     }
 

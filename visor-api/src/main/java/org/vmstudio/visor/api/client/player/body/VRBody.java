@@ -50,11 +50,11 @@ public abstract class VRBody implements VisorComponent {
     public abstract boolean isSelectable();
 
     /**
-     * If First person body is used
+     * If self player model is visible (local player's model)
      *
      * @return true/false
      */
-    public abstract boolean isFullBody();
+    public abstract boolean isSelfModelVisible();
 
 
     public abstract Component getName();

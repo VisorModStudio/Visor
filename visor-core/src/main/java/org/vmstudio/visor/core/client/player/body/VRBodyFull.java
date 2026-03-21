@@ -42,7 +42,7 @@ public class VRBodyFull extends VRBody {
     }
 
     @Override
-    public boolean isFullBody() {
+    public boolean isSelfModelVisible() {
         return true;
     }
 

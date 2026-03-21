@@ -43,8 +43,8 @@ public class VRBodyHandsOnly extends VRBody {
     }
 
     @Override
-    public boolean isFullBody() {
-        return false;
+    public boolean isSelfModelVisible() {
+        return true;
     }
 
 

@@ -20,7 +20,7 @@ public class HumanoidArmorLayerMixin {
         CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) EquipmentSlot slot)
     {
         if (slot == EquipmentSlot.HEAD &&
-            VRRenderState.isVRBodyLocalRender(entity))
+            VRRenderState.isSelfModelRender(entity))
         {
             ci.cancel();
         }
@@ -32,7 +32,7 @@ public class HumanoidArmorLayerMixin {
         @Local(argsOnly = true) HumanoidModel model)
     {
         if (slot == EquipmentSlot.CHEST &&
-            VRRenderState.isVRBodyLocalRender(entity))
+            VRRenderState.isSelfModelRender(entity))
         {
             var mode = VRClientSettings.getModelArmsMode();
 

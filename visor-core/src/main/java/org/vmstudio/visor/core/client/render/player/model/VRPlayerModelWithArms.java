@@ -249,13 +249,13 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             boolean useWorldScale)
     {
         // place lower directly at the lower point
-        ModelUtils.worldToModel(player, lowerPos, this.vrPlayer, this.bodyYaw, useWorldScale, this.tempV);
+        ModelUtils.worldToModel(this.vrPlayer, lowerPos, this.bodyYaw, useWorldScale, this.tempV);
         lower.setPos(this.tempV.x, this.tempV.y, this.tempV.z);
 
         // joint estimation
         // point the elbow away from the hand direction
-        ModelUtils.estimateJointDir(upper, lower, lowerRot, this.bodyYaw, jointDown, jointPos, player,
-                this.vrPlayer, useWorldScale, this.tempV2, this.tempV);
+        ModelUtils.estimateJointDir(this.vrPlayer, upper, lower, lowerRot, this.bodyYaw, jointDown, jointPos,
+                useWorldScale, this.tempV2, this.tempV);
 
         // get joint
         ModelUtils.estimateJoint(
@@ -307,7 +307,7 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
             float lowerXOffset, Vector3fc jointPos, boolean jointDown, HumanoidArm arm, boolean useWorldScale)
     {
         // position lower
-        ModelUtils.worldToModel(player, lowerPos, this.vrPlayer, this.bodyYaw, useWorldScale, this.tempV);
+        ModelUtils.worldToModel(this.vrPlayer, lowerPos, this.bodyYaw, useWorldScale, this.tempV);
         float armLength = 10F;
         if (arm != null) {
             // increase arm length to the front, feels better, since human shoulders can move forward
@@ -327,8 +327,8 @@ public class VRPlayerModelWithArms<T extends LivingEntity> extends VRPlayerModel
         lower.setPos(this.tempV.x, this.tempV.y, this.tempV.z);
 
         // point the elbow away from the hand direction
-        ModelUtils.estimateJointDir(upper, lower, lowerRot, this.bodyYaw, jointDown, jointPos, player,
-                this.vrPlayer, useWorldScale, this.tempV2, this.tempV);
+        ModelUtils.estimateJointDir(this.vrPlayer, upper, lower, lowerRot, this.bodyYaw, jointDown, jointPos,
+                useWorldScale, this.tempV2, this.tempV);
 
         // get joint
         ModelUtils.estimateJoint(

@@ -68,7 +68,7 @@ public class ModelUtils {
         if (entity.isAutoSpinAttack()) return 0.0F;
 
         // default player eye height, -0.2 neck offset
-        float eyeHeight = 1.42F * clientPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale();
+        float eyeHeight = 1.42F * clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale();
 
         float heightOffset = Mth.clamp(headPivot.y() - eyeHeight * clientPlayer.getFullHeightScale(), -eyeHeight, 0F);
 
@@ -86,24 +86,25 @@ public class ModelUtils {
 
 
     public static void worldToModel(
-            LivingEntity player, Vector3fc position, VRClientPlayer clientPlayer, float bodyYaw,
+            VRClientPlayer vrPlayer,
+            Vector3fc position, float bodyYaw,
             boolean useWorldScale, Vector3f out)
     {
         out.set(position);
 
-        if (player.isAutoSpinAttack()) {
+        if (vrPlayer.getMcPlayer().isAutoSpinAttack()) {
             out.y += 1F;
         }
 
         // worldscale includes entity scale
         if (useWorldScale) {
-            out.div(clientPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale());
+            out.div(vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
         } else {
-            out.div(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
+            out.div(ScaleHelper.getEntityEyeHeightScale(vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
         }
 
 
-        final float scale = 0.9375F * clientPlayer.getFullHeightScale();
+        final float scale = 0.9375F * vrPlayer.getFullHeightScale();
         out.sub(0.0F, 1.501F * scale, 0.0F) // move to player center
                 .rotateY(-Mth.PI + bodyYaw) // apply player rotation
                 .mul(16.0F / scale)
@@ -145,7 +146,7 @@ public class ModelUtils {
         if (applyScale) {
             // worldscale includes entity scale
             if (useWorldScale) {
-                out.mul(clientPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale());
+                out.mul(clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
             } else {
                 out.mul(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
             }
@@ -156,11 +157,11 @@ public class ModelUtils {
 
 
     public static void pointModelAtLocal(
-            LivingEntity player, ModelPart part, Vector3fc target, Quaternionfc targetRot, VRClientPlayer clientPlayer,
+            VRClientPlayer vrPlayer, ModelPart part, Vector3fc target, Quaternionfc targetRot,
             float bodyYaw, boolean useWorldScale, Vector3f tempVDir, Vector3f tempVUp, Matrix3f tempM)
     {
         // convert target to model
-        worldToModel(player, target, clientPlayer, bodyYaw, useWorldScale, tempVDir);
+        worldToModel(vrPlayer, target, bodyYaw, useWorldScale, tempVDir);
 
         // calculate direction
         tempVDir.sub(part.x, part.y, part.z);
@@ -242,15 +243,16 @@ public class ModelUtils {
     }
 
     public static void estimateJointDir(
+            VRClientPlayer vrPlayer,
             ModelPart upper, ModelPart lower, Quaternionfc lowerRot, float bodyYaw, boolean jointDown,
-            @Nullable Vector3fc jointPos, LivingEntity player, VRClientPlayer clientPlayer, boolean useWorldScale,
+            @Nullable Vector3fc jointPos, boolean useWorldScale,
             Vector3f tempV, Vector3f tempV2)
     {
         if (jointPos != null) {
             // use mid arm point to joint direction
             tempV.set(upper.x + lower.x, upper.y + lower.y, upper.z + lower.z)
                     .mul(0.5F);
-            ModelUtils.worldToModel(player, jointPos, clientPlayer, bodyYaw, useWorldScale, tempV2);
+            ModelUtils.worldToModel(vrPlayer, jointPos, bodyYaw, useWorldScale, tempV2);
             tempV2.sub(tempV, tempV);
         } else {
             // point the elbow away from the hand direction

@@ -21,7 +21,7 @@ public class PlayerItemInHandLayerMixin {
         CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) HumanoidArm arm,
         @Local(argsOnly = true) ItemStack itemStack)
     {
-        if (VRRenderState.isVRBodyLocalRender(entity) &&
+        if (VRRenderState.isSelfModelRender(entity) &&
            VRClientSettings.getModelArmsMode() != VRClientSettings.ModelArmsMode.COMPLETE)
         {
             ci.cancel();
@@ -32,6 +32,6 @@ public class PlayerItemInHandLayerMixin {
     private boolean visor$noSpyglassInFirstPerson(
         boolean isSpyglass, @Local(argsOnly = true) LivingEntity livingEntity)
     {
-        return isSpyglass && !VRRenderState.isVRBodyLocalRender(livingEntity);
+        return isSpyglass && !VRRenderState.isSelfModelRender(livingEntity);
     }
 }

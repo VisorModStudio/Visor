@@ -53,7 +53,7 @@ public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
         VR_LAYER_DEF_ARMS_SLIM = LayerDefinition.create(
                 VRPlayerModelWithArms.createMesh(CubeDeformation.NONE, true), 64, 64);
 
-        // split arms/legs model
+        // split arms/legs
         VR_LAYER_DEF_ARMS_LEGS = LayerDefinition.create(
                 VRPlayerModelWithArmsLegs.createMesh(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_DEF_ARMS_LEGS_SLIM = LayerDefinition.create(
@@ -147,7 +147,7 @@ public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
     public Vec3 getRenderOffset(AbstractClientPlayer player, float partialTick) {
         // idk why we do this anymore
         // this changes the offset to only apply when swimming, instead of crouching
-        if (VRRenderState.isVRBodyLocalPlayer(player)) {
+        if (VRRenderState.isSelfModelPlayer(player)) {
             return player.isVisuallySwimming() ?
                     new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.TICK).getWorldScale(), 0.0F) : Vec3.ZERO;
         } else {
@@ -162,10 +162,16 @@ public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
         // no crouch hip movement when roomscale crawling
         this.getModel().crouching &= !player.isVisuallySwimming();
 
-        if (VRRenderState.isVRBodyLocalRender(player)) {
+        if (VRRenderState.isSelfModelRender(player)) {
             // hide the head or you won't see anything
-            this.getModel().head.visible = false;
-            this.getModel().hat.visible = false;
+            this.model.body.visible = false;
+            this.model.jacket.visible = false;
+            this.model.leftLeg.visible = false;
+            this.model.rightLeg.visible = false;
+            this.model.leftPants.visible = false;
+            this.model.rightPants.visible = false;
+            this.model.head.visible = false;
+            this.model.hat.visible = false;
 
             // hide model arms when not using them
             if (VRClientSettings.getModelArmsMode() !=

@@ -15,7 +15,7 @@ public class CustomHeadLayerMixin {
     private void visor$noHelmetInFirstPerson(CallbackInfo ci,
                                              @Local(argsOnly = true) LivingEntity entity)
     {
-        if (VRRenderState.isVRBodyLocalRender(entity)) {
+        if (VRRenderState.isSelfModelRender(entity)) {
             ci.cancel();
         }
     }

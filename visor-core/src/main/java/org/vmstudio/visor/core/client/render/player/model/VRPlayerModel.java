@@ -98,7 +98,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         }
 
         float partialTick = ClientContext.visor.getPartialTicks();
-        boolean isMainPlayer = VRRenderState.isVRBodyLocalPlayer(player);
+        boolean isMainPlayer = VRRenderState.isSelfModelPlayer(player);
 
         HumanoidArm mainArm = vrPlayer.isLeftHanded()
                 ? HumanoidArm.LEFT
@@ -133,7 +133,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
 
         // this check is similar to VREffectsHelper#isFirstPersonEntityPass,
         // but does different stuff for shaders shadow pass
-        if (isMainPlayer && ClientContext.localPlayer.getBody().isFullBody())
+        if (isMainPlayer && ClientContext.localPlayer.getBody().isSelfModelVisible())
         {
             bodyScale = VRClientSettings.getPlayerModelBodyScale();
             armScale = VRClientSettings.getPlayerModelArmsScale();
@@ -171,7 +171,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
                 .rotateLocalY(bodyYaw + Mth.PI)
                 .rotateLocalX(-xRot);
         ModelUtils.setRotation(model.head, tempM, tempV);
-        ModelUtils.worldToModel(player, tempV2, vrPlayer, bodyYaw, true, tempV);
+        ModelUtils.worldToModel(vrPlayer, tempV2, bodyYaw, true, tempV);
 
         if (swimming) {
             // move the head in front of the body when swimming
@@ -277,7 +277,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             float offset = (vrPlayer.isLeftHanded() ? -1F : 1f) * (model.slim ? 0.016F : 0.032F) * Mth.PI * armScale;
 
             // main hand
-            ModelUtils.worldToModel(player, mainHandPose.getPosition(), vrPlayer, bodyYaw,
+            ModelUtils.worldToModel(vrPlayer, mainHandPose.getPosition(), bodyYaw,
                     isMainPlayer, tempV);
             tempV.sub(mainHand.x, mainHand.y, mainHand.z);
             // move shoulders up when having the arms up, since the rotation point is slightly offset
@@ -304,7 +304,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             ModelUtils.setRotation(mainHand, tempM, tempV);
 
             // offhand
-            ModelUtils.worldToModel(player, offhandPose.getPosition(), vrPlayer, bodyYaw,
+            ModelUtils.worldToModel(vrPlayer, offhandPose.getPosition(), bodyYaw,
                     isMainPlayer, tempV);
             tempV.sub(offHand.x, offHand.y, offHand.z);
             // move shoulders up when having the arms up, since the rotation point is slightly offset
