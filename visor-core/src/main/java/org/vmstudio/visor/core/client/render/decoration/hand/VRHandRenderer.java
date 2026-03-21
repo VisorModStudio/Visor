@@ -24,6 +24,7 @@ import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.core.client.utils.ModelUtils;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
@@ -435,7 +436,7 @@ public class VRHandRenderer {
     }
 
 
-    private void renderWorldArmWithItem(AbstractClientPlayer pPlayer,
+    private void renderWorldArmWithItem(AbstractClientPlayer player,
                                         float pPartialTicks,
                                         InteractionHand pHand,
                                         float pSwingProgress,
@@ -446,8 +447,8 @@ public class VRHandRenderer {
     ) {
         boolean mainHand = pHand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = mainHand
-                ? pPlayer.getMainArm()
-                : pPlayer.getMainArm().getOpposite();
+                ? player.getMainArm()
+                : player.getMainArm().getOpposite();
         var equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
                 .visor$getEquipProgress(pHand, pPartialTicks);
 
@@ -458,7 +459,7 @@ public class VRHandRenderer {
                         && VRClientSettings.isMixedRealityRenderHands());
 
         poseStack.pushPose();
-        if (renderArm && !pPlayer.isInvisible()) {
+        if (renderArm && !player.isInvisible()) {
             renderWorldArm(
                     poseStack,
                     pBuffer,
@@ -474,7 +475,7 @@ public class VRHandRenderer {
             return;
         }
 
-        if (pPlayer.swingingArm == pHand) {
+        if (player.swingingArm == pHand) {
             applySwingPose(
                     swingType,
                     poseStack,
@@ -483,15 +484,18 @@ public class VRHandRenderer {
             );
         }
 
-        // Apply vanilla ItemInHandLayer base transforms
+
+        poseStack.scale(0.4f, 0.4F, 0.4F);
+        ModelUtils.controllerToModelOrientation(poseStack);
+
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
-        poseStack.translate((float)(isLeftHand ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+        poseStack.translate(0,
+                0.125F, 0);
 
-        // Let addons modify item pose
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
-        applyItemHandPose(pPlayer, handType, itemStack, poseStack, equipProgress, pPartialTicks);
+        applyItemHandPose(player, handType, itemStack, poseStack, equipProgress, pPartialTicks);
+
 
         if (itemStack.getItem() instanceof MapItem) {
             RenderSystem.disableCull();
@@ -503,14 +507,13 @@ public class VRHandRenderer {
                             itemStack
                     );
         } else {
+            boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
+            ItemDisplayContext displayCtx = isLeftHand
+                    ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
+                    : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
             MC.gameRenderer.itemInHandRenderer.renderItem(
-                    pPlayer,
-                    itemStack,
-                    ItemDisplayContext.FIRST_PERSON_RIGHT_HAND,
-                    false,
-                    poseStack,
-                    pBuffer,
-                    pCombinedLight
+                    player, itemStack, displayCtx, isLeftHand,
+                    poseStack, pBuffer, pCombinedLight
             );
         }
 
@@ -553,8 +556,8 @@ public class VRHandRenderer {
                 0.0F,
                 slim ? 0.78125F : 0.75F
         );
-        poseStack.mulPose(Axis.XP.rotationDegrees(-90));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180));
+        ModelUtils.controllerToModelOrientation(poseStack);
+
         if (mainHand) {
             rendererArms.renderRightHand(
                     poseStack, multiBufferSource,

@@ -1,5 +1,7 @@
 package org.vmstudio.visor.core.client.utils;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
@@ -385,4 +387,17 @@ public class ModelUtils {
         }
     }
 
+    /**
+     * Rotates the PoseStack from VR controller coordinate frame to model coordinate frame.
+     * <p>
+     * VR controller: Z-negative = forward (pointing), Y = up, X = right.
+     * Model space: Y-positive = down-arm, with flipped axes per model conventions.
+     * <p>
+     * Use this before applying model-space transforms (like vanilla item positioning)
+     * when rendering in VR controller space.
+     */
+    public static void controllerToModelOrientation(PoseStack poseStack) {
+        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+    }
 }

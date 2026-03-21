@@ -44,9 +44,121 @@ public class VRItemPoseDefault extends VRHandItemPose {
                           @NotNull ItemStack item,
                           float equipProgress,
                           float partialTicks) {
-        // empty
+        InteractionHand mcHand = hand == HandType.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+        int handDir = hand == HandType.MAIN ? 1 : -1;
+
+
+        PoseParams params = computeParams(item, player, mcHand, handDir, equipProgress, partialTicks);
+
+
+        stack.mulPose(params.preRotation);
+        stack.translate(params.offsetX, params.offsetY, params.offsetZ);
+        stack.mulPose(params.rotation);
+        stack.scale(params.scale, params.scale, params.scale);
     }
 
+
+    private PoseParams computeParams(ItemStack item,
+                                     AbstractClientPlayer player,
+                                     InteractionHand mcHand,
+                                     int handDir,
+                                     float equipProgress,
+                                     float partialTicks) {
+        float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
+        HandType handType = HandType.fromMc(mcHand);
+        // defaults
+        float scale = 0.7f;
+        float translateX = 0, translateY = 0.005f, translateZ = 0f;
+        Quaternionf preRotation = Axis.YP.rotationDegrees(0);
+        Quaternionf rotation = Axis.XP.rotationDegrees(0);
+
+        var transformType = getTransformType(item, player, MC.getItemRenderer());
+        switch (transformType) {
+            case BLOCK_ITEM, DEFAULT -> {
+                translateZ -= 0.08f;
+            }
+            case BLOCK_3D -> {
+                translateZ -= 0.1f;
+            }
+        }
+        return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
+    }
+    public static TransformType getTransformType(ItemStack itemStack,
+                                                 AbstractClientPlayer player,
+                                                 ItemRenderer itemRenderer) {
+        TransformType transformType = TransformType.DEFAULT;
+        Item item = itemStack.getItem();
+
+        if (itemStack.getUseAnimation() == UseAnim.EAT
+                || itemStack.getUseAnimation() == UseAnim.DRINK) {
+            return TransformType.CONSUMABLE;
+        }
+        if (item instanceof BlockItem) {
+            Block block = ((BlockItem) item).getBlock();
+
+            if (block instanceof TorchBlock) {
+                transformType = TransformType.BLOCK_STICK;
+            } else {
+                BakedModel model = itemRenderer.getModel(
+                        itemStack, MC.level, MC.player, 0
+                );
+
+                if (model.isGui3d()) {
+                    transformType = TransformType.BLOCK_3D;
+                } else {
+                    transformType = TransformType.BLOCK_ITEM;
+                }
+            }
+        } else if (item instanceof MapItem) {
+            transformType = TransformType.MAP;
+        } else if (item instanceof BowItem) {
+            transformType = TransformType.BOW;
+
+        } else if (itemStack.getUseAnimation() == UseAnim.TOOT_HORN) {
+            transformType = TransformType.HORN;
+        } else if (ItemClassifier.SWORD.is(item)) {
+            transformType = TransformType.SWORD;
+        } else if (ItemClassifier.SHIELD.is(item)) {
+            transformType = TransformType.SHIELD;
+        } else if (ItemClassifier.SPEAR.is(item)) {
+            transformType = TransformType.SPEAR;
+        } else if (item instanceof CrossbowItem) {
+            transformType = TransformType.CROSSBOW;
+        } else if (item instanceof CompassItem || item == Items.CLOCK) {
+            transformType = TransformType.COMPASS;
+        } else {
+            if (isTool(item)) {
+                transformType = TransformType.TOOL;
+
+                if (item instanceof FoodOnAStickItem
+                        || item instanceof FishingRodItem) {
+                    transformType = TransformType.FISHING_ROD;
+                }
+            }
+        }
+        return transformType;
+    }
+
+    public static boolean isTool(final Item item) {
+        return item instanceof DiggerItem
+                || item instanceof ArrowItem
+                || item instanceof FishingRodItem
+                || item instanceof FoodOnAStickItem
+                || item instanceof ShearsItem
+                || item == Items.BONE
+                || item == Items.BLAZE_ROD
+                || item == Items.BAMBOO
+                || item == Items.TORCH
+                || item == Items.REDSTONE_TORCH
+                || item == Items.STICK
+                || item instanceof DebugStickItem
+                || item instanceof FlintAndSteelItem
+                || item instanceof BrushItem
+                || item instanceof HoeItem
+                || item instanceof AxeItem
+                || item instanceof PickaxeItem
+                || item instanceof ShovelItem;
+    }
     @Override
     public boolean canApplyPose(@NotNull AbstractClientPlayer player,
                                 @NotNull HandType hand,
@@ -62,5 +174,31 @@ public class VRItemPoseDefault extends VRHandItemPose {
     @Override
     public @NotNull String getId() {
         return ID;
+    }
+
+    private record PoseParams(Quaternionf preRotation,
+                              Quaternionf rotation,
+                              float offsetX,
+                              float offsetY,
+                              float offsetZ,
+                              float scale) {}
+    public enum TransformType {
+        DEFAULT,
+        BLOCK_3D,
+        BLOCK_STICK,
+        BLOCK_ITEM,
+        SHIELD,
+        SWORD,
+        TOOL,
+        FISHING_ROD,
+        BOW,
+        BOW_DRAWING,
+        SPEAR,
+        MAP,
+        CONSUMABLE,
+        CROSSBOW,
+        TELESCOPE,
+        COMPASS,
+        HORN
     }
 }
