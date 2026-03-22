@@ -1,7 +1,11 @@
 package org.vmstudio.visor.core.client.render.player;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -13,6 +17,7 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.phys.Vec3;
@@ -29,10 +34,6 @@ import org.vmstudio.visor.core.client.utils.ScaleHelper;
 public class VRPlayerRendererTest extends PlayerRenderer {    // Vanilla model
 
     // split arms model
-    private static final LayerDefinition VR_LAYER_DEF = LayerDefinition.create(
-            VRPlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
-    private static final LayerDefinition VR_LAYER_DEF_SLIM = LayerDefinition.create(
-            VRPlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
 
 
     static {
@@ -46,7 +47,6 @@ public class VRPlayerRendererTest extends PlayerRenderer {    // Vanilla model
 
     public VRPlayerRendererTest(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
         super(context, slim);
-        model  = new VRPlayerModelTest<>(slim ? VR_LAYER_DEF.bakeRoot() : VR_LAYER_DEF_SLIM.bakeRoot(), slim);
 
         VRArmorLayerTest.createLayers();
     }
@@ -124,30 +124,58 @@ public class VRPlayerRendererTest extends PlayerRenderer {    // Vanilla model
     }
 
 
+
     @Override
-    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        renderVRHand(poseStack, buffer, combinedLight, player, this.model.rightArm, this.model.rightSleeve);
+    public void renderRightHand(
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
+    {
+        this.renderHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player, this.model.rightArm,
+                this.model.rightSleeve);
     }
 
     @Override
-    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        renderVRHand(poseStack, buffer, combinedLight, player, this.model.leftArm, this.model.leftSleeve);
+    public void renderLeftHand(
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
+    {
+        this.renderHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player, this.model.leftArm,
+                this.model.leftSleeve);
     }
 
-    private void renderVRHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-                              AbstractClientPlayer player, ModelPart arm, ModelPart armwear) {
+
+    private void renderHand(
+            ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+            AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear)
+    {
+        PlayerModel<AbstractClientPlayer> playerModel = this.getModel();
         this.setModelProperties(player);
 
-        // Reset arm to neutral — caller controls transform via poseStack
-        arm.setPos(0, 0, 0);
-        arm.setRotation(0, 0, 0);
-        armwear.copyFrom(arm);
+        // blending, since we render the arm translucent
+        RenderSystem.enableBlend();
+        RenderSystem.enableCull();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        arm.render(poseStack, buffer.getBuffer(
-                        RenderType.entitySolid(player.getSkinTextureLocation())),
-                combinedLight, OverlayTexture.NO_OVERLAY);
-        armwear.render(poseStack, buffer.getBuffer(
-                        RenderType.entityTranslucent(player.getSkinTextureLocation())),
-                combinedLight, OverlayTexture.NO_OVERLAY);
+        // in case some mod messes with it
+        rendererArm.setPos(side == ControllerType.LEFT ? 5F : -5F, 2F, 0F);
+        rendererArm.setRotation(0F, 0F, 0F);
+        rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
+
+        // make sure they have the same state
+        rendererArmwear.copyFrom(rendererArm);
+
+        float alpha = player.getAttackStrengthScale(0.0F) * 0.75F + 0.25F;
+        ResourceLocation playerSkin = this.getTextureLocation(player);
+
+        // render hand
+        rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+
+        // render armor
+        rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+
+        RenderSystem.disableBlend();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

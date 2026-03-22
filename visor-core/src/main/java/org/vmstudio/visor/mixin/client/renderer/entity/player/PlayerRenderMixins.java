@@ -23,7 +23,6 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 
@@ -33,9 +32,6 @@ import java.util.Map;
 public class PlayerRenderMixins {
     @Mixin(EntityRenderDispatcher.class)
     public abstract static class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherExtension {
-        @Unique
-        private final Map<String, VRPlayerRendererArms> visor$armSkinMap = new HashMap<>();
-
 
         @Shadow
         public Camera camera;
@@ -70,7 +66,7 @@ public class PlayerRenderMixins {
                 if(vrPlayer == null){
                     return;
                 }
-                var model = vrPlayer.getBody().getRenderer().getModel(
+                var model = vrPlayer.getBody().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );
                 cir.setReturnValue(model);
@@ -91,9 +87,6 @@ public class PlayerRenderMixins {
 
         @Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
         private void visor$reloadVRPlayerRenderer(CallbackInfo ci, @Local EntityRendererProvider.Context context) {
-            this.visor$armSkinMap.put("default", new VRPlayerRendererArms(context, false));
-            this.visor$armSkinMap.put("slim", new VRPlayerRendererArms(context, true));
-
             if(ClientContext.visor == null) {
                 VisorState.setDelayedVrBodyInit(context);
                 return;
@@ -128,11 +121,7 @@ public class PlayerRenderMixins {
             }
         }
 
-        @Override
-        @Unique
-        public Map<String, VRPlayerRendererArms> visor$getArmSkinMap() {
-            return this.visor$armSkinMap;
-        }
+
     }
 
 

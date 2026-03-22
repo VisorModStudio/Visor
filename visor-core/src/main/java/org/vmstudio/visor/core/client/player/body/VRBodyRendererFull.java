@@ -9,7 +9,6 @@ import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderer;
-import org.vmstudio.visor.core.client.render.player.VRPlayerRendererTest;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 import java.util.*;
@@ -17,7 +16,7 @@ import java.util.*;
 public class VRBodyRendererFull implements VRBodyRenderer {
 
     @Getter
-    private final List<PlayerRenderer> models = new ArrayList<>();
+    private final List<PlayerRenderer> modelRenderers = new ArrayList<>();
 
 
     private final Map<String, VRPlayerRenderer> modelsMapVanilla = new HashMap<>();
@@ -39,27 +38,27 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     public void initModels(EntityRendererProvider.Context context) {
         this.vanillaRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.VANILLA);
-        this.modelsMapVanilla.put("default", this.vanillaRenderer);
-        this.modelsMapVanilla.put("slim", new VRPlayerRenderer(context, true,
+        this.modelsMapVanilla.put(MODEL_NAME_DEFAULT, this.vanillaRenderer);
+        this.modelsMapVanilla.put(MODEL_NAME_SLIM, new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.VANILLA)
         );
 
         this.armsRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS);
-        this.modelsMapArms.put("default", this.armsRenderer);
-        this.modelsMapArms.put("slim", new VRPlayerRenderer(context, true,
+        this.modelsMapArms.put(MODEL_NAME_DEFAULT, this.armsRenderer);
+        this.modelsMapArms.put(MODEL_NAME_SLIM, new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS));
 
         this.armsLegsRenderer = new VRPlayerRenderer(context, false,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS);
-        this.modelsMapArmsLegs.put("default", this.armsLegsRenderer);
-        this.modelsMapArmsLegs.put("slim", new VRPlayerRenderer(context, true,
+        this.modelsMapArmsLegs.put(MODEL_NAME_DEFAULT, this.armsLegsRenderer);
+        this.modelsMapArmsLegs.put(MODEL_NAME_SLIM, new VRPlayerRenderer(context, true,
                 VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS)
         );
 
-        models.addAll(modelsMapVanilla.values());
-        models.addAll(modelsMapArms.values());
-        models.addAll(modelsMapArmsLegs.values());
+        modelRenderers.addAll(modelsMapVanilla.values());
+        modelRenderers.addAll(modelsMapArms.values());
+        modelRenderers.addAll(modelsMapArmsLegs.values());
     }
 
     @Override
@@ -71,7 +70,7 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     }
 
     @Override
-    public PlayerRenderer getModel(@NotNull VRClientPlayer player, @NotNull String modelName) {
+    public PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player, @NotNull String modelName) {
         VRClientSettings.PlayerModelType type = VRClientSettings.getPlayerModelType();
         if (type == VRClientSettings.PlayerModelType.VANILLA) {
             return modelsMapVanilla.getOrDefault(modelName, vanillaRenderer);

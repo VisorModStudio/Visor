@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.client.render.decoration;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +9,8 @@ import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import java.util.Collection;
 
 public interface VRBodyRenderer {
+    String MODEL_NAME_DEFAULT = "default";
+    String MODEL_NAME_SLIM = "slim";
 
     void renderDecoration(@NotNull VRDecorator decorator,
                           @NotNull PoseStack poseStack,
@@ -18,7 +19,7 @@ public interface VRBodyRenderer {
     void initModels(EntityRendererProvider.Context context);
 
     default void clearModels(){
-        getModels().clear();
+        getModelRenderers().clear();
     }
 
 
@@ -28,9 +29,9 @@ public interface VRBodyRenderer {
      * @param player the client player
      * @param modelName default or slim or smth else from mods
      */
-    PlayerRenderer getModel(@NotNull VRClientPlayer player,
-                            @NotNull String modelName);
+    PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player,
+                                    @NotNull String modelName);
 
     @NotNull
-    Collection<PlayerRenderer> getModels();
+    Collection<PlayerRenderer> getModelRenderers();
 }

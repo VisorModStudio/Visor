@@ -51,10 +51,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
         PoseParams params = computeParams(item, player, mcHand, handDir, equipProgress, partialTicks);
 
 
-        stack.mulPose(params.preRotation);
-        stack.translate(params.offsetX, params.offsetY, params.offsetZ);
-        stack.mulPose(params.rotation);
-        stack.scale(params.scale, params.scale, params.scale);
+
     }
 
 
@@ -67,7 +64,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
         float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
         // defaults
-        float scale = 0.7f;
+        float scale = 0.6f;
         float translateX = 0, translateY = 0.005f, translateZ = 0f;
         Quaternionf preRotation = Axis.YP.rotationDegrees(0);
         Quaternionf rotation = Axis.XP.rotationDegrees(0);
@@ -76,9 +73,11 @@ public class VRItemPoseDefault extends VRHandItemPose {
         switch (transformType) {
             case BLOCK_ITEM, DEFAULT -> {
                 translateZ -= 0.08f;
+                scale = 0.3f;
             }
             case BLOCK_3D -> {
                 translateZ -= 0.1f;
+                scale = 0.3f;
             }
         }
         return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);

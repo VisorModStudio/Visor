@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
@@ -21,7 +22,6 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
-import org.vmstudio.visor.core.client.render.player.VRPlayerRendererArms;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
@@ -485,17 +485,21 @@ public class VRHandRenderer {
         }
 
 
-        poseStack.scale(0.4f, 0.4F, 0.4F);
         ModelUtils.controllerToModelOrientation(poseStack);
 
+         float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        poseStack.scale(armsScale, 1.0F, armsScale);
+        poseStack.translate(0.0F, 0.65F, 0.0F);
+        poseStack.scale(1.0F, armsScale, 1.0F);
+        poseStack.translate(0.0F, -0.65F, 0.0F);
+
+        boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        poseStack.translate(0,
-                0.125F, 0);
+        poseStack.translate((float)(isLeftHand ? -1 : 1) / 16.0F, 0.125F, 0);
 
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
         applyItemHandPose(player, handType, itemStack, poseStack, equipProgress, pPartialTicks);
-
 
         if (itemStack.getItem() instanceof MapItem) {
             RenderSystem.disableCull();
@@ -507,7 +511,6 @@ public class VRHandRenderer {
                             itemStack
                     );
         } else {
-            boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
             ItemDisplayContext displayCtx = isLeftHand
                     ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                     : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
@@ -532,9 +535,7 @@ public class VRHandRenderer {
                 0,
                 player.getSkinTextureLocation()
         );
-        VRPlayerRendererArms rendererArms = ((EntityRenderDispatcherExtension) MC.getEntityRenderDispatcher())
-                .visor$getArmSkinMap()
-                .get(player.getModelName());
+
 
         poseStack.pushPose();
 
@@ -558,13 +559,20 @@ public class VRHandRenderer {
         );
         ModelUtils.controllerToModelOrientation(poseStack);
 
+        var bodyRenderer = ClientContext.localPlayer.getBody().getRenderer()
+                .getModelRenderer(
+                        ClientContext.localPlayer,
+                        slim
+                                ? VRBodyRenderer.MODEL_NAME_SLIM
+                                : VRBodyRenderer.MODEL_NAME_DEFAULT
+                );
         if (mainHand) {
-            rendererArms.renderRightHand(
+            bodyRenderer.renderRightHand(
                     poseStack, multiBufferSource,
                     i, player
             );
         } else {
-            rendererArms.renderLeftHand(
+            bodyRenderer.renderLeftHand(
                     poseStack, multiBufferSource,
                     i, player
             );

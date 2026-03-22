@@ -13,7 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 
-//@TODO move to remote player rendering maybe or make "general" rendering for VR players?
+/**
+ * Modifies the vanilla pose for hand item in VR hands (including player model)
+ */
 public abstract class VRHandItemPose implements VisorComponent, PrioritySupporter {
     @Getter
     private final VisorAddon owner;
