@@ -410,7 +410,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         this.getArm(side).translateAndRotate(poseStack);
 
         if (this.slim) {
-            poseStack.translate(side == HumanoidArm.RIGHT ? 0.03125F : -0.03125F, 0.0F, 0.0F);
+            poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, 0.0F, 0.0F);
         }
 
         doAttackAnim(side, poseStack);

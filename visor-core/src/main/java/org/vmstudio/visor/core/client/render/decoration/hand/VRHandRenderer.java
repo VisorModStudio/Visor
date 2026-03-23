@@ -485,9 +485,13 @@ public class VRHandRenderer {
         }
 
 
+        float entityScale = 0.9375F;
+        float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        poseStack.scale(entityScale, entityScale, entityScale);
+
         ModelUtils.controllerToModelOrientation(poseStack);
 
-         float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        //match ItemInHandLayerMixin pose
         poseStack.scale(armsScale, 1.0F, armsScale);
         poseStack.translate(0.0F, 0.65F, 0.0F);
         poseStack.scale(1.0F, armsScale, 1.0F);
@@ -496,7 +500,11 @@ public class VRHandRenderer {
         boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        poseStack.translate((float)(isLeftHand ? -1 : 1) / 16.0F, 0.125F, 0);
+        poseStack.translate(
+                0,
+                0.125F,
+                0.625F
+        );
 
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
         applyItemHandPose(player, handType, itemStack, poseStack, equipProgress, pPartialTicks);
