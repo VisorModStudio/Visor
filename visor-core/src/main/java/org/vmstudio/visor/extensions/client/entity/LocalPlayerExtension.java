@@ -18,7 +18,6 @@ public interface LocalPlayerExtension {
 
     void visor$stepSound(BlockPos blockpos, Vec3 vec3);
 
-    void visor$swingArm(InteractionHand interactionhand, HandAction interact);
 
 
     float visor$getSpeedFactor();

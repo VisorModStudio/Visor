@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayTemplateRecord;
 import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
-import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
@@ -40,8 +40,8 @@ public class VisorRegistriesImpl implements ComponentRegistries {
     }
 
     @Override
-    public @NotNull ComponentRegistry<VRBody> vrBodies() {
-        return ClientContext.decorationRenderer.getVrBodyRegistry();
+    public @NotNull ComponentRegistry<VRBodyType> vrBodyTypes() {
+        return ClientContext.decorationRenderer.getVrBodyTypeRegistry();
     }
 
     @Override

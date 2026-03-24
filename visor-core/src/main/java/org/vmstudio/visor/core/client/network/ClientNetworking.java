@@ -2,14 +2,13 @@ package org.vmstudio.visor.core.client.network;
 
 import lombok.Getter;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.FullHeightPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.PoseDataPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.RotationYPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.WorldScalePayloadToServer;
+import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -33,6 +32,9 @@ public class ClientNetworking {
     private static float heightLastSent = 0.0F;
     private static float worldScaleLastSent = 1.0F;
     private static float rotationYLastSent = 0;
+
+    private static boolean leftHandedLastSent = false;
+    private static VRBodyType vrBodyLastSent = null;
 
 
 
@@ -67,7 +69,7 @@ public class ClientNetworking {
         );
     }
 
-    public static void sendVRPlayerPose() {
+    public static void sendVRPlayerState() {
         ClientPacketListener connection = MC.getConnection();
         if (connection == null) {
             return;
@@ -101,10 +103,25 @@ public class ClientNetworking {
             rotationYLastSent = rotationY;
         }
 
+        boolean leftHanded = localPlayer.isLeftHanded();
+        if(leftHanded != leftHandedLastSent){
+            sendVRPacket(
+                    new LeftHandedPayloadToServer(leftHanded)
+            );
+            leftHandedLastSent = leftHanded;
+        }
+
+        VRBodyType vrBody = localPlayer.getBodyType();
+        if(vrBody != vrBodyLastSent){
+            sendVRPacket(
+                    new VRBodyTypePayloadToServer(vrBody.getId())
+            );
+            vrBodyLastSent = vrBody;
+        }
+
+
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
-                localPlayer,
-                localPlayer.isLeftHanded(),
-                localPlayer.getBody().getId()
+                localPlayer
         );
         sendVRPacket(
                 new PoseDataPayloadToServer(vrPlayerState)

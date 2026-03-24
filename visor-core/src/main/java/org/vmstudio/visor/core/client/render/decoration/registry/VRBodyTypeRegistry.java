@@ -4,8 +4,9 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.api.client.player.body.RegisterVRBody;
+import org.vmstudio.visor.api.client.player.body.RegisterVRBodyType;
 import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
@@ -16,18 +17,18 @@ import java.util.*;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
 
-public class VRBodyRegistry implements ComponentRegistry<VRBody> {
-    private static final String REGISTRY_NAME = "VR Body Item Poses";
+public class VRBodyTypeRegistry implements ComponentRegistry<VRBodyType> {
+    private static final String REGISTRY_NAME = "VR Body Type";
 
-    private static final String COMPONENT_NAME = "VRBody";
-    private static final String ANNOTATION_NAME = "@RegisterVRBody";
-
-    @Getter
-    private final HashMap<String, VRBody> componentsMap = new HashMap<>();
-
+    private static final String COMPONENT_NAME = "VRBodyType";
+    private static final String ANNOTATION_NAME = "@RegisterVRBodyType";
 
     @Getter
-    private final Collection<VRBody> allComponents =
+    private final HashMap<String, VRBodyType> componentsMap = new HashMap<>();
+
+
+    @Getter
+    private final Collection<VRBodyType> allComponents =
             Collections.unmodifiableCollection(componentsMap.values());
 
 
@@ -40,7 +41,7 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
             return;
         }
         List<Class<?>> annotated = ModLoader.get().getClassesAnnotated(
-                RegisterVRBody.class,
+                RegisterVRBodyType.class,
                 addon.getModId(),
                 path
         );
@@ -49,7 +50,7 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
                 annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
-            if (!VRBody.class.isAssignableFrom(clazz)) {
+            if (!VRBodyType.class.isAssignableFrom(clazz)) {
                 LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
                         clazz.getName(), ANNOTATION_NAME, COMPONENT_NAME
@@ -58,8 +59,8 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
             }
             try {
                 @SuppressWarnings("unchecked")
-                Constructor<? extends VRBody> constructor =
-                        ((Class<? extends VRBody>) clazz)
+                Constructor<? extends VRBodyType> constructor =
+                        ((Class<? extends VRBodyType>) clazz)
                                 .getConstructor(VisorAddon.class);
 
                 var component = constructor.newInstance(addon);
@@ -75,7 +76,7 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
     }
 
     @Override
-    public void registerComponent(@NotNull VRBody component) {
+    public void registerComponent(@NotNull VRBodyType component) {
         String validationError = ComponentIds.validate(component.getId());
         if(validationError != null){
             throw new RuntimeException(
@@ -101,7 +102,7 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
     }
 
     @Override
-    public VRBody unregisterComponent(@NotNull String id) {
+    public VRBodyType unregisterComponent(@NotNull String id) {
         var removed = componentsMap.remove(id);
         if(removed != null) {
             LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
@@ -110,7 +111,7 @@ public class VRBodyRegistry implements ComponentRegistry<VRBody> {
     }
 
     @Override
-    public @Nullable VRBody getComponent(@NotNull String id) {
+    public @Nullable VRBodyType getComponent(@NotNull String id) {
         return componentsMap.get(id);
     }
 

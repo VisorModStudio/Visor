@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.player;
 
 import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
@@ -23,7 +24,7 @@ public interface VRLocalPlayer extends VRClientPlayer{
      *
      * @param vrBody the VR body
      */
-    void setBody(@NotNull VRBody vrBody);
+    void setBodyType(@NotNull VRBodyType vrBody);
 
     /**
      * Set if player can change the selected VR body.

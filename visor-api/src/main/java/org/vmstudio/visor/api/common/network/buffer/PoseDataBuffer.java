@@ -14,9 +14,7 @@ import org.vmstudio.visor.api.common.network.VisorPayload;
 
 public record PoseDataBuffer(PoseElementBuffer hmd,
                              PoseElementBuffer mainHand,
-                             PoseElementBuffer offhand,
-                             boolean leftHanded,
-                             String bodyType) implements BufferSerializable {
+                             PoseElementBuffer offhand) implements BufferSerializable {
 
 
     @Override
@@ -24,10 +22,6 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
         this.hmd.serialize(buffer);
         this.mainHand.serialize(buffer);
         this.offhand.serialize(buffer);
-        buffer.writeBoolean(this.leftHanded);
-        buffer.writeBytes(
-                bodyType.getBytes(Charsets.UTF_8)
-        );
     }
 
 
@@ -35,21 +29,15 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
         return new PoseDataBuffer(
                 PoseElementBuffer.deserialize(byteBuf),
                 PoseElementBuffer.deserialize(byteBuf),
-                PoseElementBuffer.deserialize(byteBuf),
-                byteBuf.readBoolean(),
-                VisorPayload.readString(byteBuf)
+                PoseElementBuffer.deserialize(byteBuf)
         );
     }
 
-    public static PoseDataBuffer create(VRLocalPlayer vrPlayer,
-                                        boolean leftHanded,
-                                        String bodyType) {
+    public static PoseDataBuffer create(VRLocalPlayer vrPlayer) {
         return new PoseDataBuffer(
                 getHmdPose(vrPlayer),
                 getHandPose(vrPlayer, HandType.MAIN),
-                getHandPose(vrPlayer, HandType.OFFHAND),
-                leftHanded,
-                bodyType
+                getHandPose(vrPlayer, HandType.OFFHAND)
         );
     }
 

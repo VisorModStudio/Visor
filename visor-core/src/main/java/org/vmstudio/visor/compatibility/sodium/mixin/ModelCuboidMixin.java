@@ -25,7 +25,7 @@ public class ModelCuboidMixin implements ModelCuboidExtension {
             this.visor$overrides = new float[6][5];
         }
         this.visor$overrides[overrideFaceIndex][0] = 1F;
-        // order taken from me.jellysquid.mods.sodium.client.render.immediate.model.EntityRenderer.prepareVertices
+        // order is from me.jellysquid.mods.sodium.client.render.immediate.model.EntityRenderer.prepareVertices
         switch (sourceFaceIndex) {
             case 1 -> {
                 this.visor$overrides[overrideFaceIndex][1] = source[0][2];

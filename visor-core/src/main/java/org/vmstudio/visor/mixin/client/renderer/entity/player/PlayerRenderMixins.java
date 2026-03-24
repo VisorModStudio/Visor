@@ -26,9 +26,6 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class PlayerRenderMixins {
     @Mixin(EntityRenderDispatcher.class)
     public abstract static class EntityRenderDispatcherMixin implements ResourceManagerReloadListener, EntityRenderDispatcherExtension {
@@ -66,7 +63,7 @@ public class PlayerRenderMixins {
                 if(vrPlayer == null){
                     return;
                 }
-                var model = vrPlayer.getBody().getRenderer().getModelRenderer(
+                var model = vrPlayer.getBodyType().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );
                 cir.setReturnValue(model);
@@ -79,7 +76,7 @@ public class PlayerRenderMixins {
             if(ClientContext.visor == null) {
                 return;
             }
-            ClientContext.decorationRenderer.getVrBodyRegistry().getAllComponents().forEach(
+            ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents().forEach(
                     it-> it.getRenderer().clearModels()
             );
 
@@ -91,7 +88,7 @@ public class PlayerRenderMixins {
                 VisorState.setDelayedVrBodyInit(context);
                 return;
             }
-            ClientContext.decorationRenderer.getVrBodyRegistry().getAllComponents().forEach(
+            ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents().forEach(
                     it-> it.getRenderer().initModels(context)
             );
 

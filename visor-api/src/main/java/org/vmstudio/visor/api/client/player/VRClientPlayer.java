@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.client.player;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPoseHistory;
@@ -25,7 +26,7 @@ public interface VRClientPlayer {
      *
      * @return the VR body
      */
-    VRBody getBody();
+    VRBodyType getBodyType();
 
     /**
      * Get pose data of specified type

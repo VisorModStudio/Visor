@@ -3,9 +3,7 @@ package org.vmstudio.visor.api.common.network.toclient;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.VisorPayload;
 import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.VROtherActivePayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import net.minecraft.network.FriendlyByteBuf;
 
 public interface VisorPayloadToClient extends VisorPayload {
@@ -20,7 +18,9 @@ public interface VisorPayloadToClient extends VisorPayload {
                 case SETTINGS -> SettingsPayloadToClient.read(buffer);
                 case ROTATION_Y -> RotationYPayloadToClient.read(buffer);
                 case OTHER_VR_ACTIVE -> VROtherActivePayloadToClient.read(buffer);
-                case OTHER_VR_STATE -> VROtherStatePayloadToClient.read(buffer);
+                case OTHER_VR_LEFT_HANDED -> VROtherLeftHandedPayloadToClient.read(buffer);
+                case OTHER_VR_BODY_TYPE -> VROtherBodyTypePayloadToClient.read(buffer);
+                case OTHER_VR_POSE_DATA -> VROtherPoseDataPayloadToClient.read(buffer);
                 default -> {
                     VisorAPI.client().getLogger().error(
                             "Visor: Got unexpected payload identifier on client: {}", id

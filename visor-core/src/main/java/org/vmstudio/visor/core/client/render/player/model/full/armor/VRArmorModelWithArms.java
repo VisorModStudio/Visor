@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.render.player.model.armor;
+package org.vmstudio.visor.core.client.render.player.model.full.armor;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -10,9 +10,8 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.LivingEntity;
-import org.vmstudio.visor.core.client.render.player.model.VRPlayerModelWithArms;
-import org.vmstudio.visor.core.client.render.player.model.models.HandModel;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelWithArms;
+import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
 public class VRArmorModelWithArms<T extends LivingEntity> extends HumanoidArmorModel<T> implements HandModel {

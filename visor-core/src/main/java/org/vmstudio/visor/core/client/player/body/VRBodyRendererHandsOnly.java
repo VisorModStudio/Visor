@@ -10,8 +10,7 @@ import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.render.player.VRPlayerRendererTest;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.render.player.VRPlayerRendererHandsOnly;
 
 import java.util.*;
 
@@ -20,14 +19,10 @@ public class VRBodyRendererHandsOnly implements VRBodyRenderer {
     @Getter
     private final List<PlayerRenderer> modelRenderers = new ArrayList<>();
 
+    private final Map<String, VRPlayerRendererHandsOnly> modelsMap = new HashMap<>();
 
-    private final Map<String, VRPlayerRendererTest> modelsMapVanilla = new HashMap<>();
-    private final Map<String, VRPlayerRendererTest> modelsMapArms = new HashMap<>();
-    private final Map<String, VRPlayerRendererTest> modelsMapArmsLegs = new HashMap<>();
+    private VRPlayerRendererHandsOnly defaultRenderer;
 
-    private VRPlayerRendererTest vanillaRenderer;
-    private VRPlayerRendererTest armsRenderer;
-    private VRPlayerRendererTest armsLegsRenderer;
 
     @Override
     public void renderDecoration(@NotNull VRDecorator decorator, @NotNull PoseStack poseStack, float partialTicks) {
@@ -44,51 +39,28 @@ public class VRBodyRendererHandsOnly implements VRBodyRenderer {
 
     @Override
     public void initModels(EntityRendererProvider.Context context) {
-        this.vanillaRenderer = new VRPlayerRendererTest(context, false,
-                VRClientSettings.PlayerModelType.VANILLA);
-        this.modelsMapVanilla.put(MODEL_NAME_DEFAULT, this.vanillaRenderer);
-        this.modelsMapVanilla.put(MODEL_NAME_SLIM, new VRPlayerRendererTest(context, true,
-                VRClientSettings.PlayerModelType.VANILLA)
+        this.defaultRenderer = new VRPlayerRendererHandsOnly(context, false);
+        this.modelsMap.put(
+                MODEL_NAME_DEFAULT,
+                this.defaultRenderer
+        );
+        this.modelsMap.put(
+                MODEL_NAME_SLIM,
+                new VRPlayerRendererHandsOnly(context, true)
         );
 
-        this.armsRenderer = new VRPlayerRendererTest(context, false,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS);
-        this.modelsMapArms.put(MODEL_NAME_DEFAULT, this.armsRenderer);
-        this.modelsMapArms.put(MODEL_NAME_SLIM, new VRPlayerRendererTest(context, true,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS));
 
-        this.armsLegsRenderer = new VRPlayerRendererTest(context, false,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS);
-        this.modelsMapArmsLegs.put(MODEL_NAME_DEFAULT, this.armsLegsRenderer);
-        this.modelsMapArmsLegs.put(MODEL_NAME_SLIM, new VRPlayerRendererTest(context, true,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS_LEGS)
-        );
-
-        modelRenderers.addAll(modelsMapVanilla.values());
-        modelRenderers.addAll(modelsMapArms.values());
-        modelRenderers.addAll(modelsMapArmsLegs.values());
+        modelRenderers.addAll(modelsMap.values());
     }
 
     @Override
     public void clearModels() {
         VRBodyRenderer.super.clearModels();
-        modelsMapVanilla.clear();
-        modelsMapArms.clear();
-        modelsMapArmsLegs.clear();
+        modelsMap.clear();
     }
 
     @Override
     public PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player, @NotNull String modelName) {
-        VRClientSettings.PlayerModelType type = VRClientSettings.getPlayerModelType();
-        if (type == VRClientSettings.PlayerModelType.VANILLA) {
-            return modelsMapVanilla.getOrDefault(modelName, vanillaRenderer);
-        } else if (type == VRClientSettings.PlayerModelType.SPLIT_ARMS) {
-            return modelsMapArms.getOrDefault(modelName, armsRenderer);
-        } else {
-            return modelsMapArmsLegs.getOrDefault(modelName, armsLegsRenderer);
-        }
+        return modelsMap.getOrDefault(modelName, defaultRenderer);
     }
-
-
-
 }

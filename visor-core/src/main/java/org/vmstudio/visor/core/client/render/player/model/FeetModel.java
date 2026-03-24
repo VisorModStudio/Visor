@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.render.player.model.models;
+package org.vmstudio.visor.core.client.render.player.model;
 
 import net.minecraft.client.model.geom.ModelPart;
 

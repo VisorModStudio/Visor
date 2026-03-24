@@ -9,6 +9,13 @@ import org.vmstudio.visor.api.common.player.VRPose;
 @Getter
 public abstract class VRBodyPart {
 
+    public static VRBodyPart SIMPLE_HEAD = new VRBodyPart("head") {
+        @Override
+        public void update(VRPlayerPoseClient poseClient) {
+            this.pose.copyFrom(poseClient.getHmd());
+        }
+    };
+
     public static VRBodyPart SIMPLE_MAIN_HAND = new VRBodyPart("main_hand") {
         @Override
         public void update(VRPlayerPoseClient poseClient) {

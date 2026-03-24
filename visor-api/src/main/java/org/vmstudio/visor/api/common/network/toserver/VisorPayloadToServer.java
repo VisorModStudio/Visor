@@ -18,6 +18,8 @@ public interface VisorPayloadToServer extends VisorPayload {
                 case FULL_HEIGHT -> FullHeightPayloadToServer.read(buffer);
                 case ROTATION_Y -> RotationYPayloadToServer.read(buffer);
                 case VR_ACTIVE -> VRActivePayloadToServer.read(buffer);
+                case LEFT_HANDED -> LeftHandedPayloadToServer.read(buffer);
+                case VR_BODY_TYPE -> VRBodyTypePayloadToServer.read(buffer);
                 case POSE_DATA -> PoseDataPayloadToServer.read(buffer);
                 case WORLD_SCALE -> WorldScalePayloadToServer.read(buffer);
                 case CRAWLING -> CrawlingPayloadToServer.read(buffer);

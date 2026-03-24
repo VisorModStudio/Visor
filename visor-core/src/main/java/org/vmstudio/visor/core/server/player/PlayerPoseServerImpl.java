@@ -23,9 +23,6 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     private final List<VRPoseImpl> elements;
 
 
-    private PoseDataBuffer buffer;
-
-
     private Vector3fc origin;
 
 
@@ -52,7 +49,6 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     public void update(PoseDataBuffer poseData,
                        Vector3fc origin){
         this.origin = origin;
-        this.buffer = poseData;
 
         var hmdPose = poseData.hmd();
         var mainHandPose = poseData.mainHand();

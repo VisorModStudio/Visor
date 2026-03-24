@@ -10,8 +10,8 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.model.VRPlayerModel;
-import org.vmstudio.visor.core.client.render.player.model.VRPlayerModelWithArms;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModel;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelWithArms;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -19,80 +19,52 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.phys.Vec3;
-import org.vmstudio.visor.core.client.render.player.model.VRPlayerModelWithArmsLegs;
-import org.vmstudio.visor.core.client.render.player.model.armor.VRArmorLayer;
-import org.vmstudio.visor.core.client.render.player.model.armor.VRArmorModelWithArms;
-import org.vmstudio.visor.core.client.render.player.model.armor.VRArmorModelWithArmsLegs;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorLayer;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModelWithArms;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
 
 
-public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
-    private static final LayerDefinition VR_LAYER_DEF = LayerDefinition.create(
-            VRPlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
-    private static final LayerDefinition VR_LAYER_DEF_SLIM = LayerDefinition.create(
-            VRPlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
-
+public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     // split arms model
-    private static LayerDefinition VR_LAYER_DEF_ARMS;
-    private static LayerDefinition VR_LAYER_DEF_ARMS_SLIM;
-
-    // split arms/legs model
-    private static LayerDefinition VR_LAYER_DEF_ARMS_LEGS;
-    private static LayerDefinition VR_LAYER_DEF_ARMS_LEGS_SLIM;
+    private static LayerDefinition VR_LAYER_DEFAULT;
+    private static LayerDefinition VR_LAYER_SLIM;
 
     static {
-        // need to make these not final, because they change depending on settings
         createLayers();
     }
 
     public static void createLayers() {
         // split arms model
-        VR_LAYER_DEF_ARMS = LayerDefinition.create(
+        VR_LAYER_DEFAULT = LayerDefinition.create(
                 VRPlayerModelWithArms.createMesh(CubeDeformation.NONE, false), 64, 64);
-        VR_LAYER_DEF_ARMS_SLIM = LayerDefinition.create(
+        VR_LAYER_SLIM = LayerDefinition.create(
                 VRPlayerModelWithArms.createMesh(CubeDeformation.NONE, true), 64, 64);
 
-        // split arms/legs
-        VR_LAYER_DEF_ARMS_LEGS = LayerDefinition.create(
-                VRPlayerModelWithArmsLegs.createMesh(CubeDeformation.NONE, false), 64, 64);
-        VR_LAYER_DEF_ARMS_LEGS_SLIM = LayerDefinition.create(
-                VRPlayerModelWithArmsLegs.createMesh(CubeDeformation.NONE, true), 64, 64);
     }
 
 
-    public VRPlayerRenderer(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
+    public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
         super(context, slim);
-        this.model = switch (type) {
-            case VANILLA -> new VRPlayerModel<>(slim ? VR_LAYER_DEF_SLIM.bakeRoot() : VR_LAYER_DEF.bakeRoot(), slim);
-            case SPLIT_ARMS ->
-                    new VRPlayerModelWithArms<>(slim ? VR_LAYER_DEF_ARMS_SLIM.bakeRoot() : VR_LAYER_DEF_ARMS.bakeRoot(),
-                            slim);
-            case SPLIT_ARMS_LEGS -> new VRPlayerModelWithArmsLegs<>(
-                    slim ? VR_LAYER_DEF_ARMS_LEGS_SLIM.bakeRoot() : VR_LAYER_DEF_ARMS_LEGS.bakeRoot(), slim);
-        };
+        this.model = new VRPlayerModelWithArms<>(
+                slim ? VR_LAYER_SLIM.bakeRoot()
+                        : VR_LAYER_DEFAULT.bakeRoot(),
+                slim
+        );
 
 
         VRArmorLayer.createLayers();
-        if (type != VRClientSettings.PlayerModelType.VANILLA) {
-            // remove vanilla armor layer
-            this.layers.stream()
-                    .filter(layer -> layer.getClass() == HumanoidArmorLayer.class)
-                    .findFirst()
-                    .ifPresent(this.layers::remove);
-            // add split armor layer
-            if (type == VRClientSettings.PlayerModelType.SPLIT_ARMS) {
-                this.addLayer(new VRArmorLayer<>(this,
-                        new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
-                        new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
-                        context.getModelManager()));
-            } else {
-                this.addLayer(new VRArmorLayer<>(this,
-                        new VRArmorModelWithArmsLegs<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_LEGS_INNER.bakeRoot()),
-                        new VRArmorModelWithArmsLegs<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_LEGS_OUTER.bakeRoot()),
-                        context.getModelManager()));
-            }
-        }
+
+        // remove vanilla armor layer
+        this.layers.stream()
+                .filter(layer -> layer.getClass() == HumanoidArmorLayer.class)
+                .findFirst()
+                .ifPresent(this.layers::remove);
+        //add custom armor layer
+        this.addLayer(new VRArmorLayer<>(this,
+                new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
+                new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
+                context.getModelManager()));
     }
 
     /**
@@ -164,33 +136,8 @@ public class VRPlayerRenderer extends PlayerRenderer {    // Vanilla model
 
         if (VRRenderState.isSelfModelRender(player)) {
             // hide the head or you won't see anything
-            this.model.body.visible = false;
-            this.model.jacket.visible = false;
-            this.model.leftLeg.visible = false;
-            this.model.rightLeg.visible = false;
-            this.model.leftPants.visible = false;
-            this.model.rightPants.visible = false;
             this.model.head.visible = false;
             this.model.hat.visible = false;
-
-            // hide model arms when not using them
-            if (VRClientSettings.getModelArmsMode() !=
-                    VRClientSettings.ModelArmsMode.COMPLETE)
-            {
-                // keep the shoulders when in shoulder mode
-                hideHand(HumanoidArm.LEFT, VRClientSettings.getModelArmsMode() ==
-                        VRClientSettings.ModelArmsMode.OFF);
-                hideHand(HumanoidArm.RIGHT, VRClientSettings.getModelArmsMode() ==
-                        VRClientSettings.ModelArmsMode.OFF);
-            } else {
-                /*boolean leftHanded = VRClientSettings.isLeftHanded();
-                if (ClientDataHolderVR.getInstance().menuHandOff) {
-                    hideHand(leftHanded ? HumanoidArm.RIGHT : HumanoidArm.LEFT, false);
-                }
-                if (ClientDataHolderVR.getInstance().menuHandMain) {
-                    hideHand(leftHanded ? HumanoidArm.LEFT : HumanoidArm.RIGHT, false);
-                }*/
-            }
         }
     }
 

@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
-import org.vmstudio.visor.core.client.player.body.VRBodyHandsOnly;
+import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.core.client.settings.options.enums.MovementMode;
@@ -135,11 +135,11 @@ public class VRClientSettings {
     // ---- VR Body rendering
     @Getter @Setter
     @VROptionField
-    protected static String defaultVrBody = VRBodyHandsOnly.ID;
+    protected static String defaultVrBody = VRBodyTypeHandsOnly.ID;
 
     @Getter
     @VROptionField
-    protected static PlayerModelType playerModelType = PlayerModelType.SPLIT_ARMS_LEGS;
+    protected static PlayerModelType playerModelType = PlayerModelType.SPLIT_ARMS;
     @Getter
     @VROptionField
     protected static ModelArmsMode modelArmsMode = ModelArmsMode.COMPLETE;
@@ -161,8 +161,7 @@ public class VRClientSettings {
 
     public enum PlayerModelType {
         VANILLA,
-        SPLIT_ARMS,
-        SPLIT_ARMS_LEGS
+        SPLIT_ARMS
     }
 
     public enum ModelArmsMode {

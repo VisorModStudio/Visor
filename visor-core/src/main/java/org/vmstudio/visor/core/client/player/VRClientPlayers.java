@@ -3,7 +3,6 @@ package org.vmstudio.visor.core.client.player;
 import lombok.Getter;
 import net.minecraft.world.entity.Entity;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
-import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
@@ -57,40 +56,44 @@ public class VRClientPlayers {
     }
 
 
-    public static void receivedPacket(UUID uuid,
-                                      PoseDataBuffer poseBuffer,
-                                      float worldScale,
-                                      float fullHeight) {
-        if(localPlayer.getMcPlayer() != null
-                && localPlayer.getMcPlayer().getUUID().equals(uuid)){
+    public static void handlePosePacket(UUID uuid,
+                                        PoseDataBuffer poseBuffer) {
+        var remotePlayer = getValidPacketReceiverMc(uuid);
+        if(remotePlayer == null){
             return;
         }
-
-        Level level = Minecraft.getInstance().level;
-
-        if(level == null) return;
-        var player = level.getPlayerByUUID(uuid);
-        if(!(player instanceof RemotePlayer remotePlayer)){
-            return;
-        }
-
         var vrPlayer = remotePlayers.get(uuid);
+
         if(vrPlayer == null){
             vrPlayer = new VRRemotePlayerImpl(
                     remotePlayer,
-                    poseBuffer,
-                    worldScale,
-                    fullHeight
+                    poseBuffer
             );
+            receivedNewPlayer(vrPlayer);
         }else{
-            vrPlayer.receivedPacked(
+            vrPlayer.receivedPosePacked(
                     remotePlayer,
-                    poseBuffer,
-                    worldScale,
-                    fullHeight
+                    poseBuffer
             );
         }
-        remotePlayersReceived.put(uuid, vrPlayer);
+    }
+
+
+
+    public static RemotePlayer getValidPacketReceiverMc(UUID uuid){
+        if(localPlayer.getMcPlayer() != null
+                && localPlayer.getMcPlayer().getUUID().equals(uuid)){
+            return null;
+        }
+        Level level = Minecraft.getInstance().level;
+
+        if(level == null) return null;
+        var player = level.getPlayerByUUID(uuid);
+        if(!(player instanceof RemotePlayer remotePlayer)){
+            return null;
+        }
+
+        return remotePlayer;
     }
 
     public static VRClientPlayer getPlayer(UUID uuid) {
@@ -99,6 +102,13 @@ public class VRClientPlayers {
             return localPlayer;
         }
         return remotePlayers.get(uuid);
+    }
+    public static VRRemotePlayerImpl getPacketReceiver(UUID uuid) {
+        var receiver = remotePlayers.get(uuid);
+        if(receiver == null){
+            receiver = remotePlayersReceived.get(uuid);
+        }
+        return receiver;
     }
     public static VRClientPlayer getPlayer(Entity entity) {
         return getPlayer(entity.getUUID());
@@ -113,6 +123,9 @@ public class VRClientPlayers {
     public static void removePlayer(UUID uuid) {
         remotePlayers.remove(uuid);
         remotePlayersReceived.remove(uuid);
+    }
+    public static void receivedNewPlayer(VRRemotePlayerImpl vrPlayer){
+        remotePlayersReceived.put(vrPlayer.getMcPlayer().getUUID(), vrPlayer);
     }
 
     public static Collection<VRRemotePlayerImpl> getRemotePlayers(){

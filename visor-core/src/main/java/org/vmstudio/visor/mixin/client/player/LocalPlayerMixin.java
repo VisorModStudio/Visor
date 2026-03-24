@@ -400,12 +400,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     /* ************************ *\
   //--------PUBLIC METHODS--------\\
     \* ************************ */
-    @Override
-    @Unique
-    public void visor$swingArm(InteractionHand interactionhand, HandAction interact) {
-        ClientContext.handRenderer.setSwingType(interact);
-        this.swing(interactionhand);
-    }
+
 
     @Override
     @Unique

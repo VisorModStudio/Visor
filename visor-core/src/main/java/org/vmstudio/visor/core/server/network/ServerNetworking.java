@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.server.network;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.VROtherStatePayloadToClient;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
@@ -75,7 +75,7 @@ public class ServerNetworking {
 
 
 
-    public static void sendPacketVRStateOf(ServerPlayer serverPlayer) {
+    public static void sendVRStatePacketOf(ServerPlayer serverPlayer) {
         Map<UUID, VRServerPlayer> playersWithVR = VisorServerImpl.INSTANCE.getPlayersWithVR();
         VRServerPlayerImpl vrPlayer = (VRServerPlayerImpl) playersWithVR.get(serverPlayer.getUUID());
         if (vrPlayer == null) {
@@ -85,18 +85,71 @@ public class ServerNetworking {
             playersWithVR.remove(serverPlayer.getUUID());
         }
         if (!vrPlayer.isVRActive()
-                || vrPlayer.getPoseData().getBuffer() == null) {
+                || vrPlayer.getPoseDataBuffer() == null) {
             return;
         }
         sendPacketToTrackedVRPlayers(
                 serverPlayer,
-                new VROtherStatePayloadToClient(
+                new VROtherPoseDataPayloadToClient(
                         serverPlayer.getUUID(),
-                        vrPlayer.getPoseData().getBuffer(),
+                        vrPlayer.getPoseDataBuffer(),
                         vrPlayer.getWorldScale(),
                         vrPlayer.getFullHeight()
                 )
         );
+
+
+        boolean leftHanded = vrPlayer.isLeftHanded();
+        boolean leftHandedLastSent = vrPlayer.isLeftHandedLastSent();
+        if(leftHanded != leftHandedLastSent){
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    new VROtherLeftHandedPayloadToClient(
+                            serverPlayer.getUUID(),
+                            leftHanded
+                    )
+            );
+            vrPlayer.setLeftHandedLastSent(leftHanded);
+        }
+
+        String vrBody = vrPlayer.getVrBodyType();
+        String vrBodyLastSent = vrPlayer.getVrBodyLastSent();
+        if(!vrBody.equals(vrBodyLastSent)){
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    new VROtherBodyTypePayloadToClient(
+                            serverPlayer.getUUID(),
+                            vrBody
+                    )
+            );
+            vrPlayer.setVrBodyLastSent(vrBody);
+        }
+
+        var worldScale = vrPlayer.getWorldScale();
+        var worldScaleLastSent = vrPlayer.getWorldScaleLastSent();
+        if(worldScale != worldScaleLastSent){
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    new VROtherWorldScalePayloadToClient(
+                            serverPlayer.getUUID(),
+                            worldScale
+                    )
+            );
+            vrPlayer.setWorldScaleLastSent(worldScale);
+        }
+
+        var fullHeight = vrPlayer.getFullHeight();
+        var fullHeightLastSent = vrPlayer.getFullHeightLastSent();
+        if(fullHeight != fullHeightLastSent){
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    new VROtherFullHeightPayloadToClient(
+                            serverPlayer.getUUID(),
+                            fullHeight
+                    )
+            );
+            vrPlayer.setFullHeightLastSent(fullHeight);
+        }
     }
 
 

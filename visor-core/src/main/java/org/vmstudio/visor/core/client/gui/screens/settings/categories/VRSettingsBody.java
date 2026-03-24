@@ -13,13 +13,11 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSelectionList;
 import org.vmstudio.visor.api.client.gui.widgets.lists.TexturedSelectionList;
-import org.vmstudio.visor.api.client.input.action.VRActionSet;
-import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.gui.screens.settings.categories.controls.VRSettingsActions;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 
@@ -56,11 +54,11 @@ public class VRSettingsBody extends VROptionsSet {
             & Renderable
             & NarratableEntry> List<T> initWidgets() {
         var scaleHelper = getScreen().getScaleHelper();
-        Collection<VRBody> sets = ClientContext.decorationRenderer
-                .getVrBodyRegistry()
+        Collection<VRBodyType> sets = ClientContext.decorationRenderer
+                .getVrBodyTypeRegistry()
                 .getAllComponents();
         Map<String, String> rawEntries = new LinkedHashMap<>();
-        Map<String, VRBody> entriesLink = new LinkedHashMap<>();
+        Map<String, VRBodyType> entriesLink = new LinkedHashMap<>();
         for(var body : sets){
             if(!body.isSelectable()) continue;
 
@@ -88,15 +86,15 @@ public class VRSettingsBody extends VROptionsSet {
                         return;
                     }
 
-                    VRBody body = entriesLink.get(it.getId());
+                    VRBodyType body = entriesLink.get(it.getId());
 
                     if (body == null) return;
-                    ClientContext.localPlayer.setBody(body);
+                    ClientContext.localPlayer.setBodyType(body);
                     VRClientSettings.setDefaultVrBody(body.getId());
                     ClientContext.settingsManager.saveOptions();
                 }
         );
-        listWidget.setSelectedEntry(ClientContext.localPlayer.getBody().getId());
+        listWidget.setSelectedEntry(ClientContext.localPlayer.getBodyType().getId());
 
         return getWidgets();
     }

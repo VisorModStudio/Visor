@@ -352,46 +352,23 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     }
 
 
-    /**
-     * Uses VR method for hand swinging on item drop
-     * instead of vanilla
-     *
-     * @param instance        s
-     * @param interactionHand s
-     */
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "handleKeybinds()V")
-    public void visor$swingDrop(LocalPlayer instance, InteractionHand interactionHand) {
+
+    @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+    private void visor$swingArmAttack(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
         if (VisorState.get().isActive()) {
-            ((LocalPlayerExtension) player).visor$swingArm(
-                    interactionHand, HandAction.ATTACK
-            );
-        } else {
-            instance.swing(interactionHand);
+            ClientContext.handRenderer.setSwingType(HandAction.ATTACK);
         }
+        original.call(instance, hand);
     }
 
-
-     /* ************************************* *\
-   //--------IF OFFHAND SUPPORT DISABLED--------\\
-     \* ************************************* */
-
-
-    /**
-     * Replaces vanilla swing with VR swing
-     * (USE)
-     * @param instance s
-     * @param interactionHand s
-     */
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"), method = "startUseItem")
-    public void visor$swingUse(LocalPlayer instance, InteractionHand interactionHand) {
-        if (VisorState.get().isNotActive()) {
-            instance.swing(interactionHand);
-            return;
+    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+        if (VisorState.get().isActive()) {
+            ClientContext.handRenderer.setSwingType(HandAction.USE);
         }
-        ((LocalPlayerExtension) instance).visor$swingArm(
-                interactionHand, HandAction.USE
-        );
+        original.call(instance, hand);
     }
+
 
 
      /* ****************** *\

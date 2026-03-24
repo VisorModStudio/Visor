@@ -14,13 +14,10 @@ import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
-import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
-import org.vmstudio.visor.core.client.player.body.VRBodyFull;
-import org.vmstudio.visor.core.client.player.body.VRBodyHandsOnly;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -47,7 +44,6 @@ import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.core.common.player.VRPoseImpl;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -156,11 +152,11 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.settingsManager.getPresetsCatalog().reload();
 
 
-        ClientContext.localPlayer.setBody(ClientContext.decorationRenderer.getVrBodyRegistry()
-                .getComponent(VRBodyHandsOnly.ID));
+        ClientContext.localPlayer.setBodyType(ClientContext.decorationRenderer.getVrBodyTypeRegistry()
+                .getComponent(VRClientSettings.getDefaultVrBody()));
         var delayedBodyInit = VisorState.getDelayedVrBodyInit();
         if(delayedBodyInit != null){
-            ClientContext.decorationRenderer.getVrBodyRegistry().getAllComponents()
+            ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents()
                     .forEach(it->it.getRenderer().initModels(delayedBodyInit));
         }
 

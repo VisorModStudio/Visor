@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.common.network.VisorPayload;
 import org.vmstudio.visor.api.common.network.VisorPayloadID;
 import net.minecraft.network.FriendlyByteBuf;
 
-public record SettingsPayloadToClient(String config)  implements VisorPayloadToClient{
+public record SettingsPayloadToClient(String config) implements VisorPayloadToClient{
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeBytes(

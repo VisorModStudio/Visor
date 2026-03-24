@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.render.player.model.armor;
+package org.vmstudio.visor.core.client.render.player.model.full.armor;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
@@ -31,11 +31,6 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
         VR_ARMOR_DEF_ARMS_OUTER = LayerDefinition.create(
             VRArmorModelWithArms.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
 
-        // split arms/legs model
-        VR_ARMOR_DEF_ARMS_LEGS_INNER = LayerDefinition.create(
-            VRArmorModelWithArmsLegs.createBodyLayer(new CubeDeformation(0.5F)), 64, 32);
-        VR_ARMOR_DEF_ARMS_LEGS_OUTER = LayerDefinition.create(
-            VRArmorModelWithArmsLegs.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
     }
 
     public VRArmorLayer(RenderLayerParent<T, M> renderer, A innerModel, A outerModel, ModelManager modelManager) {
@@ -53,20 +48,10 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
                 }
             }
             case LEGS -> {
-                if (model instanceof VRArmorModelWithArmsLegs<?> legsModel) {
-                    legsModel.leftFoot.visible = true;
-                    legsModel.rightFoot.visible = true;
-                }
+
             }
             case FEET -> {
-                if (model instanceof VRArmorModelWithArmsLegs<?> legsModel) {
-                    // don't show the upper half for the feet
-                    legsModel.leftLeg.visible = false;
-                    legsModel.rightLeg.visible = false;
 
-                    legsModel.leftFoot.visible = true;
-                    legsModel.rightFoot.visible = true;
-                }
             }
         }
     }

@@ -12,6 +12,7 @@ import net.minecraft.world.item.MapItem;
 import org.spongepowered.asm.mixin.Unique;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.input.HandAction;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
@@ -25,7 +26,6 @@ import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
-import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
@@ -104,6 +104,10 @@ public class VRHandRenderer {
 
     }
 
+    /**
+     * Uses {@link VRBodyRenderer#getModelRenderer(VRClientPlayer, String) player renderer} to render hands
+     *
+     */
     public void renderWorldHands(@NotNull VRDecorator decorator,
                                  @NotNull PoseStack poseStack,
                                  @NotNull HandRenderState handStateMain,
@@ -567,7 +571,7 @@ public class VRHandRenderer {
         );
         ModelUtils.controllerToModelOrientation(poseStack);
 
-        var bodyRenderer = ClientContext.localPlayer.getBody().getRenderer()
+        var bodyRenderer = ClientContext.localPlayer.getBodyType().getRenderer()
                 .getModelRenderer(
                         ClientContext.localPlayer,
                         slim

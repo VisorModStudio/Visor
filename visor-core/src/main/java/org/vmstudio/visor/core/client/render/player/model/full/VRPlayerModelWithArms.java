@@ -1,30 +1,23 @@
-package org.vmstudio.visor.core.client.render.player.model;
+package org.vmstudio.visor.core.client.render.player.model.full;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import lombok.Getter;
 import net.minecraft.client.model.HumanoidModel;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.ModelPart.Polygon;
-import net.minecraft.client.model.geom.ModelPart.Vertex;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.vmstudio.visor.core.client.render.player.model.models.HandModel;
+import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 

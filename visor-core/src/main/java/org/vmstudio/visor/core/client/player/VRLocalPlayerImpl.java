@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
@@ -55,7 +56,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     private final PoseHistoryImpl poseHistoryTick;
 
     @Getter @Setter
-    private VRBody body;
+    private VRBodyType bodyType;
 
     @Getter
     private HandType activeHand = HandType.MAIN;
@@ -147,7 +148,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
 
-        ClientNetworking.sendVRPlayerPose();
+        ClientNetworking.sendVRPlayerState();
 
         isTicking = false;
         rotationYRaw = pose.getRotationY();

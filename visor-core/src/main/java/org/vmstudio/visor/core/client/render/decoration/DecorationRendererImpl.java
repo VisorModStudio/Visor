@@ -16,7 +16,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.decoration.hand.VRHandRenderer;
 import org.vmstudio.visor.core.client.render.decoration.registry.DecoratorRegistry;
-import org.vmstudio.visor.core.client.render.decoration.registry.VRBodyRegistry;
+import org.vmstudio.visor.core.client.render.decoration.registry.VRBodyTypeRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRGameEffectRegistry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +38,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     @Getter
     private final VRGameEffectRegistry effectsRegistry;
     @Getter
-    private final VRBodyRegistry vrBodyRegistry;
+    private final VRBodyTypeRegistry vrBodyTypeRegistry;
 
 
     @Getter
@@ -51,7 +51,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     public DecorationRendererImpl(){
         this.registry = new DecoratorRegistry();
-        this.vrBodyRegistry = new VRBodyRegistry();
+        this.vrBodyTypeRegistry = new VRBodyTypeRegistry();
         this.effectsRegistry = new VRGameEffectRegistry();
 
         ClientContext.handRenderer = new VRHandRenderer();
@@ -193,7 +193,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         //VR BODY
         ClientContext.localPlayer
-                .getBody()
+                .getBodyType()
                 .getRenderer()
                 .renderDecoration(currentDecorator, poseStack, partialTicks);
 
@@ -277,7 +277,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     public List<ComponentRegistry<?>> getComponentRegistries(){
         return List.of(
                 registry,
-                vrBodyRegistry,
+                vrBodyTypeRegistry,
                 effectsRegistry,
                 ClientContext.handRenderer.getItemPosesRegistry(),
                 ClientContext.handRenderer.getEffectsRegistry()

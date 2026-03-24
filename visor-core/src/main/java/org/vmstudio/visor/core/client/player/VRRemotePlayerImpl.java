@@ -2,11 +2,14 @@ package org.vmstudio.visor.core.client.player;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.player.pose.RemotePlayerPose;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
 import net.minecraft.client.player.RemotePlayer;
@@ -31,7 +34,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     private RemotePlayer mcPlayer;
 
     @Getter @Setter
-    private VRBody body;
+    private VRBodyType bodyType;
 
 
     private PoseDataBuffer poseBufferReceived;
@@ -45,44 +48,55 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
-                              PoseDataBuffer poseBuffer,
-                              float worldScale,
-                              float fullHeight) {
+                              PoseDataBuffer poseBuffer) {
         this.poseBufferReceived = poseBuffer;
-        this.worldScaleReceived = worldScale;
-        this.fullHeight = fullHeight;
-        this.leftHanded = poseBuffer.leftHanded();
+        this.worldScaleReceived = 1.0f;
+        this.fullHeight = 1.0f;
+
+        this.bodyType = VRBodyTypeHandsOnly.getInstance();
 
         this.playerRelativePose = new RemotePlayerPose(mcPlayer, PlayerPoseType.RELATIVE);
-        this.playerRelativePose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+        this.playerRelativePose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
         this.prevPose = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK);
-        this.prevPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+        this.prevPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
         this.pose = new RemotePlayerPose(mcPlayer, PlayerPoseType.TICK);
-        this.pose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+        this.pose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
         this.renderPose  = new RemotePlayerPose(mcPlayer, PlayerPoseType.RENDER);
-        this.renderPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, worldScale);
+        this.renderPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
         this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
     }
 
 
-    public void receivedPacked(RemotePlayer mcPlayer,
-                               PoseDataBuffer poseBuffer,
-                               float worldScale,
-                               float fullHeight){
+    public void receivedPosePacked(RemotePlayer mcPlayer,
+                                   PoseDataBuffer poseBuffer){
         this.mcPlayer = mcPlayer;
         this.poseBufferReceived = poseBuffer;
-        this.worldScaleReceived = worldScale;
-        this.fullHeight = fullHeight;
-        this.leftHanded = poseBuffer.leftHanded();
         this.playerRelativePose.setMcPlayer(mcPlayer);
         this.prevPose.setMcPlayer(mcPlayer);
         this.pose.setMcPlayer(mcPlayer);
         this.renderPose.setMcPlayer(mcPlayer);
+    }
+    public void receivedLeftHandedPacket(boolean leftHanded){
+        this.leftHanded = leftHanded;
+    }
+    public void receivedBodyTypePacket(String vrBodyType){
+        var registry = VisorAPI.addonManager().getRegistries()
+                .vrBodyTypes();
+        this.bodyType = registry.getComponent(vrBodyType);
+        if(this.bodyType == null){
+            this.bodyType = registry.getComponent(VRBodyTypeHandsOnly.ID);
+        }
+    }
+    public void receivedWorldScalePacket(float worldScale){
+        this.worldScaleReceived = worldScale;
+    }
+    public void receivedFullHeightPacket(float fullHeight){
+        this.fullHeight = fullHeight;
     }
 
 

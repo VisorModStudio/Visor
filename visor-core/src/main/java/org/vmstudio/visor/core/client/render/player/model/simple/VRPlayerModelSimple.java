@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.render.player.modeltest;
+package org.vmstudio.visor.core.client.render.player.model.simple;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -10,7 +10,6 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Matrix3f;
@@ -19,51 +18,24 @@ import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRPlayerModelTest<T extends LivingEntity> extends PlayerModel<T> {
-    public ModelPart vrHMD;
+public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> {
 
     protected VRClientPlayer vrPlayer;
 
     protected float bodyYaw;
-    protected boolean laying;
-    protected float xRot;
-    protected float layAmount;
-    protected HumanoidArm attackArm = null;
     protected HumanoidArm mainArm = HumanoidArm.RIGHT;
     protected boolean isMainPlayer;
-    protected float bodyScale;
-    protected float armScale;
-    protected float legScale;
 
-    // temp vec for most math
-    protected final Vector3f tempV = new Vector3f();
-    protected final Vector3f tempV2 = new Vector3f();
-    // temp mat3 for rotations
-    protected final Matrix3f tempM = new Matrix3f();
+    protected HumanoidArm attackArm = null;
 
 
-    public VRPlayerModelTest(ModelPart root, boolean isSlim) {
+    public VRPlayerModelSimple(ModelPart root, boolean isSlim) {
         super(root, isSlim);
-        this.vrHMD = root.getChild("vrHMD");
 
-    }
-
-    public static MeshDefinition createMesh(CubeDeformation cubeDeformation, boolean slim) {
-        MeshDefinition meshDefinition = PlayerModel.createMesh(cubeDeformation, slim);
-        PartDefinition root = meshDefinition.getRoot();
-        root.addOrReplaceChild("vrHMD", CubeListBuilder.create()
-                        .texOffs(0, 0)
-                        .addBox(-3.5F, -6.0F, -7.5F,
-                                7.0F, 4.0F, 5.0F, cubeDeformation),
-                PartPose.ZERO);
-
-        return meshDefinition;
     }
 
 
@@ -72,13 +44,13 @@ public class VRPlayerModelTest<T extends LivingEntity> extends PlayerModel<T> {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
         if (VRClientPlayers.isTracked(entity)) {
-            VRPlayerModelTest.animateVRModel(this, entity, limbSwing, limbSwingAmount);
+            animateVRModel(this, entity, limbSwing, limbSwingAmount);
 
         }
     }
 
-    public static void animateVRModel(
-            VRPlayerModelTest<?> model,
+    private void animateVRModel(
+            VRPlayerModelSimple<?> model,
             LivingEntity player,
             float limbSwing, float limbSwingAmount
     ) {
@@ -135,6 +107,7 @@ public class VRPlayerModelTest<T extends LivingEntity> extends PlayerModel<T> {
         ModelUtils.toModelDir(bodyYaw, rot, tempM);
         ModelUtils.setRotation(arm, tempM, tempV);
     }
+
 
 
     @Override

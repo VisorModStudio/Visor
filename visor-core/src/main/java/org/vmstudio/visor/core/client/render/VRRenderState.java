@@ -130,7 +130,7 @@ public class VRRenderState {
     }
 
     private static boolean isSelfModelAllowed() {
-        return ClientContext.localPlayer.getBody().isSelfModelVisible()
+        return ClientContext.localPlayer.getBodyType().isSelfModelVisible()
                 && renderPass.isFirstPerson();
     }
 

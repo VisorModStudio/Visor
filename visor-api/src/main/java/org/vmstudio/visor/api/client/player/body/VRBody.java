@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.VisorComponent;
@@ -13,61 +14,57 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class VRBody implements VisorComponent {
+public class VRBody {
 
     @Getter
-    @NotNull
-    private final VisorAddon owner;
-    @Getter @Setter
-    private boolean enabled = true;
+    private final VRBodyType type;
+
+    @Getter
+    private final VRClientPlayer vrPlayer;
 
 
     private final Map<String, VRBodyPart> bodyPartsMap;
 
-    public VRBody(@NotNull VisorAddon owner){
-        Objects.requireNonNull(owner);
-        this.owner = owner;
+
+    @Getter
+    private VRBodyPart head;
+    @Getter
+    private VRBodyPart mainHand;
+    @Getter
+    private VRBodyPart offhand;
+
+    public VRBody(@NotNull VRBodyType type,
+                  @NotNull VRClientPlayer vrPlayer){
+        this.type = type;
+        this.vrPlayer = vrPlayer;
         bodyPartsMap = new HashMap<>();
     }
 
-    public abstract void onInit();
+    public void onInit(){
+        //override
+    }
 
-    @NotNull
-    public abstract VRBodyPart getMainHand();
-    @NotNull
-    public abstract VRBodyPart getOffhand();
-
-
-    @NotNull
-    public abstract VRBodyRenderer getRenderer();
-
-    /**
-     * If player can select this body.
-     * When false, only selectable
-     *
-     * @return true/false
-     */
-    public abstract boolean isSelectable();
-
-    /**
-     * If self player model is visible (local player's model)
-     *
-     * @return true/false
-     */
-    public abstract boolean isSelfModelVisible();
-
-
-    public abstract Component getName();
 
     public final void init(){
         clearBody();
+
+        head = VRBodyPart.SIMPLE_HEAD;
+        mainHand = VRBodyPart.SIMPLE_MAIN_HAND;
+        offhand = VRBodyPart.SIMPLE_OFFHAND;
+        addBodyPart(mainHand);
+        addBodyPart(offhand);
+
         onInit();
     }
 
+    public float getBodyYaw(){
+        return head.pose.getYaw();
+    }
 
     protected void addBodyPart(@NotNull VRBodyPart bodyPart){
         bodyPartsMap.put(bodyPart.getId(), bodyPart);
     }
+
     protected void clearBody(){
         bodyPartsMap.clear();
     }

@@ -75,9 +75,19 @@ public class ServerPacketHandler {
             case POSE_DATA -> {
                 var payload = (PoseDataPayloadToServer) payloadToServer;
 
-                vrPlayer.poseUpdateReceived(
+                vrPlayer.receivedPosePacket(
                         payload.pose()
                 );
+            }
+            case LEFT_HANDED -> {
+                var payload = (LeftHandedPayloadToServer) payloadToServer;
+
+                vrPlayer.setLeftHanded(payload.leftHanded());
+            }
+            case VR_BODY_TYPE -> {
+                var payload = (VRBodyTypePayloadToServer) payloadToServer;
+
+                vrPlayer.setVrBodyType(payload.bodyType());
             }
             case WORLD_SCALE -> {
                 var payload = (WorldScalePayloadToServer) payloadToServer;

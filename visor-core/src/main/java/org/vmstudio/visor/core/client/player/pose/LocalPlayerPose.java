@@ -266,18 +266,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
     }
 
     private float calcBodyYaw() {
-        Vector3f bodyPos = this.offhand.getPosition()
-                .sub(this.mainHand.getPosition(), new Vector3f())
-                .normalize()
-                .rotateY((-(float) Math.PI / 2F));
-        var hmdDirection = this.hmd.getDirection();
-
-        if (bodyPos.dot(hmdDirection) < 0.0D) {
-            bodyPos = bodyPos.mul(-1);
-        }
-
-        bodyPos = hmdDirection.lerp(bodyPos, 0.7f, new Vector3f());
-        return (float) Mth.atan2(-bodyPos.x, bodyPos.z);
+        return hmd.getYaw();
     }
 
     private Vector3f calcHeadPivot() {

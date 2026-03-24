@@ -3,38 +3,34 @@ package org.vmstudio.visor.core.client.player.body;
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.api.client.player.body.RegisterVRBody;
+import org.vmstudio.visor.api.client.player.body.RegisterVRBodyType;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyPart;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 
-@RegisterVRBody
-public class VRBodyFull extends VRBody {
+@RegisterVRBodyType
+public class VRBodyTypeHandsOnly extends VRBodyType {
 
-    public static final String ID = "full_body";
-    public static final Component NAME = Component.literal("Full Body");
-
-    @Getter
-    private final VRBodyRendererFull renderer;
+    public static final String ID = "hands_only";
+    public static final Component NAME = Component.literal("Hands only");
 
     @Getter
-    private VRBodyPart mainHand;
-    @Getter
-    private VRBodyPart offhand;
+    private static VRBodyTypeHandsOnly instance;
 
-    public VRBodyFull(@NotNull VisorAddon owner) {
+
+    @Getter
+    private final VRBodyRendererHandsOnly renderer;
+
+
+    public VRBodyTypeHandsOnly(@NotNull VisorAddon owner) {
         super(owner);
-        renderer = new VRBodyRendererFull();
+        instance = this;
+        renderer = new VRBodyRendererHandsOnly();
     }
 
-    @Override
-    public void onInit() {
-        mainHand = VRBodyPart.SIMPLE_MAIN_HAND;
-        offhand = VRBodyPart.SIMPLE_OFFHAND;
 
-        addBodyPart(mainHand);
-        addBodyPart(offhand);
-    }
 
     @Override
     public boolean isSelectable() {
@@ -43,7 +39,7 @@ public class VRBodyFull extends VRBody {
 
     @Override
     public boolean isSelfModelVisible() {
-        return true;
+        return false;
     }
 
 
@@ -51,9 +47,9 @@ public class VRBodyFull extends VRBody {
     public Component getName() {
         return NAME;
     }
+
     @Override
     public @NotNull String getId() {
         return ID;
     }
-
 }

@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.client.player.body;
 
-import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 
 import java.lang.annotation.ElementType;
@@ -26,5 +25,5 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RegisterVRBody {
+public @interface RegisterVRBodyType {
 }

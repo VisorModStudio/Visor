@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.render.player.model;
+package org.vmstudio.visor.core.client.render.player.model.full;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -13,11 +13,6 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -25,7 +20,6 @@ import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
 public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
-    public ModelPart vrHMD;
 
     protected VRClientPlayer vrPlayer;
 
@@ -52,20 +46,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
     private final Matrix3f tempAnimM = new Matrix3f();
     public VRPlayerModel(ModelPart root, boolean isSlim) {
         super(root, isSlim);
-        this.vrHMD = root.getChild("vrHMD");
 
-    }
-
-    public static MeshDefinition createMesh(CubeDeformation cubeDeformation, boolean slim) {
-        MeshDefinition meshDefinition = PlayerModel.createMesh(cubeDeformation, slim);
-        PartDefinition root = meshDefinition.getRoot();
-        root.addOrReplaceChild("vrHMD", CubeListBuilder.create()
-                        .texOffs(0, 0)
-                        .addBox(-3.5F, -6.0F, -7.5F,
-                                7.0F, 4.0F, 5.0F, cubeDeformation),
-                PartPose.ZERO);
-
-        return meshDefinition;
     }
 
 
@@ -74,13 +55,13 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
         if (VRClientPlayers.isTracked(entity)) {
-            VRPlayerModel.animateVRModel(this, entity, limbSwing, limbSwingAmount,
+            animateVRModel(this, entity, limbSwing, limbSwingAmount,
                     this.tempAnimV, this.tempAnimV2, this.tempAnimM);
 
         }
     }
 
-    public static void animateVRModel(
+    private void animateVRModel(
             VRPlayerModel<?> model,
             LivingEntity player,
             float limbSwing, float limbSwingAmount,
@@ -133,7 +114,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
 
         // this check is similar to VREffectsHelper#isFirstPersonEntityPass,
         // but does different stuff for shaders shadow pass
-        if (isMainPlayer && ClientContext.localPlayer.getBody().isSelfModelVisible())
+        if (isMainPlayer && ClientContext.localPlayer.getBodyType().isSelfModelVisible())
         {
             bodyScale = VRClientSettings.getPlayerModelBodyScale();
             armScale = VRClientSettings.getPlayerModelArmsScale();
@@ -191,7 +172,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         } else {
             // with only arms simply rotate the body in place
             model.body.setRotation(
-                    Mth.PI * Math.max(0F, model.body.y / 22F) * (model instanceof VRPlayerModelWithArmsLegs ? 0.5F : 1F),
+                    Mth.PI * Math.max(0F, model.body.y / 22F),
                     0F, 0F);
             if (laying) {
                 float bodyXRot;
@@ -253,9 +234,6 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             // move legs back with bend
             float newLegY = 12F + Math.min(model.body.y, 0F);
             float newLegZ = model.body.z + 10F * Mth.sin(model.body.xRot);
-            if (model instanceof VRPlayerModelWithArmsLegs) {
-                newLegY += 10F * Mth.sin(model.body.xRot);
-            }
 
             model.leftLeg.y = Mth.lerp(layAmount, newLegY, model.leftLeg.y);
             model.leftLeg.z = Mth.lerp(layAmount, newLegZ, model.leftLeg.z);
@@ -338,19 +316,9 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             // with a waist tracker the rotation is already done before
             model.body.xRot += xRot;
 
-            if (model instanceof VRPlayerModelWithArmsLegs) {
-                ModelUtils.applySwimRotationOffset(player, xRot, tempV, tempV2,
-                        model.head, model.body);
-            } else if (model instanceof VRPlayerModelWithArms) {
-                ModelUtils.applySwimRotationOffset(player, xRot, tempV, tempV2,
-                        model.head, model.body,
-                        model.leftLeg, model.rightLeg);
-            } else {
-                ModelUtils.applySwimRotationOffset(player, xRot, tempV, tempV2,
-                        model.head, model.body,
-                        model.leftArm, model.rightArm,
-                        model.leftLeg, model.rightLeg);
-            }
+            ModelUtils.applySwimRotationOffset(player, xRot, tempV, tempV2,
+                    model.head, model.body,
+                    model.leftLeg, model.rightLeg);
         }
 
         model.leftArm.xScale = model.leftArm.zScale = model.rightArm.xScale = model.rightArm.zScale = armScale;
@@ -362,9 +330,6 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
             spinOffset(model.head, model.body);
             if (!(model instanceof VRPlayerModelWithArms)) {
                 spinOffset(model.leftArm, model.rightArm);
-            }
-            if (!(model instanceof VRPlayerModelWithArmsLegs)) {
-                spinOffset(model.leftLeg, model.rightLeg);
             }
         }
 

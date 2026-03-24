@@ -1,8 +1,8 @@
-package org.vmstudio.visor.core.client.render.player.modeltest.models;
+package org.vmstudio.visor.core.client.render.player.model;
 
 import net.minecraft.client.model.geom.ModelPart;
 
-public interface HandModelTest {
+public interface HandModel {
     ModelPart getLeftHand();
 
     ModelPart getRightHand();

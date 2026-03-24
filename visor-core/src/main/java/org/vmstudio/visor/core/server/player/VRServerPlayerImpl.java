@@ -3,6 +3,8 @@ package org.vmstudio.visor.core.server.player;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.network.toserver.vrstate.LeftHandedPayloadToServer;
+import org.vmstudio.visor.api.common.network.toserver.vrstate.VRBodyTypePayloadToServer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
@@ -15,6 +17,9 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter @Setter
     private ServerPlayer mcPlayer;
 
+
+    @Getter
+    private PoseDataBuffer poseDataBuffer;
 
     @Getter
     private final PlayerPoseServerImpl poseDataPrev = new PlayerPoseServerImpl();
@@ -30,9 +35,11 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
+    @Getter @Setter
+    private String vrBodyType = "null";
+
     @Setter
     private boolean vrActive = false;
-
 
     @Getter @Setter
     private float worldScale = 1.0F;
@@ -44,11 +51,22 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     @Getter @Setter
     private float bowTension;
 
-    @Getter
+    @Getter @Setter
     private boolean leftHanded;
 
     @Getter
     private boolean crawling;
+
+
+
+    @Getter @Setter
+    private boolean leftHandedLastSent = false;
+    @Getter @Setter
+    private String vrBodyLastSent = null;
+    @Getter @Setter
+    private float worldScaleLastSent = 1.0f;
+    @Getter @Setter
+    private float fullHeightLastSent = 1.0F;
 
     public VRServerPlayerImpl(ServerPlayer player) {
         this.mcPlayer = player;
@@ -58,15 +76,17 @@ public class VRServerPlayerImpl implements VRServerPlayer {
 
 
 
-    public void poseUpdateReceived(PoseDataBuffer buffer){
+    public void receivedPosePacket(PoseDataBuffer poseDataBuffer){
         poseDataPrev.copyFrom(poseData);
 
+        this.poseDataBuffer = poseDataBuffer;
+
         poseDataRelative.update(
-                buffer,
+                poseDataBuffer,
                 VRMathUtils.ZERO_VECTOR
         );
         poseData.update(
-                buffer,
+                poseDataBuffer,
                 mcPlayer.position().toVector3f()
         );
 
@@ -78,7 +98,6 @@ public class VRServerPlayerImpl implements VRServerPlayer {
         historyEntry.copyFrom(poseDataPrev);
         poseHistoryTick.addEntry(historyEntry);
 
-        leftHanded = poseData.getBuffer().leftHanded();
     }
 
     public void setCrawling(boolean crawling) {
