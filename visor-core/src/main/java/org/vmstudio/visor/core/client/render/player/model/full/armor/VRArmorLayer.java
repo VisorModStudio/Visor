@@ -15,9 +15,6 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
     public static LayerDefinition VR_ARMOR_DEF_ARMS_INNER;
     public static LayerDefinition VR_ARMOR_DEF_ARMS_OUTER;
 
-    // split arms/legs model
-    public static LayerDefinition VR_ARMOR_DEF_ARMS_LEGS_INNER;
-    public static LayerDefinition VR_ARMOR_DEF_ARMS_LEGS_OUTER;
 
     static {
         // need to make these not final, because they change depending on settings
@@ -27,9 +24,9 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
     public static void createLayers() {
         // split arms model
         VR_ARMOR_DEF_ARMS_INNER = LayerDefinition.create(
-            VRArmorModelWithArms.createBodyLayer(new CubeDeformation(0.5F)), 64, 32);
+            VRArmorModel.createBodyLayer(new CubeDeformation(0.5F)), 64, 32);
         VR_ARMOR_DEF_ARMS_OUTER = LayerDefinition.create(
-            VRArmorModelWithArms.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
+            VRArmorModel.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
 
     }
 
@@ -42,7 +39,7 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
         super.setPartVisibility(model, slot);
         switch (slot) {
             case CHEST -> {
-                if (model instanceof VRArmorModelWithArms<?> armsModel) {
+                if (model instanceof VRArmorModel<?> armsModel) {
                     armsModel.leftHand.visible = true;
                     armsModel.rightHand.visible = true;
                 }

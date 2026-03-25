@@ -4,11 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -94,7 +89,9 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         ModelUtils.worldToModel(
                 vrPlayer,
                 pose.getRelativePosition(),
-                bodyYaw, true, pos
+                bodyYaw,
+                true,
+                pos
         );
         arm.x = pos.x();
         arm.y = pos.y();

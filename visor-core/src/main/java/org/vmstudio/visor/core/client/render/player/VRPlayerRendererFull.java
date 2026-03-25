@@ -11,7 +11,6 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModel;
-import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelWithArms;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -20,13 +19,12 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorLayer;
-import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModelWithArms;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModel;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
 
 
 public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
-    // split arms model
     private static LayerDefinition VR_LAYER_DEFAULT;
     private static LayerDefinition VR_LAYER_SLIM;
 
@@ -37,16 +35,16 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     public static void createLayers() {
         // split arms model
         VR_LAYER_DEFAULT = LayerDefinition.create(
-                VRPlayerModelWithArms.createMesh(CubeDeformation.NONE, false), 64, 64);
+                VRPlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_SLIM = LayerDefinition.create(
-                VRPlayerModelWithArms.createMesh(CubeDeformation.NONE, true), 64, 64);
+                VRPlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
 
     }
 
 
     public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
         super(context, slim);
-        this.model = new VRPlayerModelWithArms<>(
+        this.model = new VRPlayerModel<>(
                 slim ? VR_LAYER_SLIM.bakeRoot()
                         : VR_LAYER_DEFAULT.bakeRoot(),
                 slim
@@ -62,15 +60,11 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
                 .ifPresent(this.layers::remove);
         //add custom armor layer
         this.addLayer(new VRArmorLayer<>(this,
-                new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
-                new VRArmorModelWithArms<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
+                new VRArmorModel<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
+                new VRArmorModel<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
                 context.getModelManager()));
     }
 
-    /**
-     * @param renderLayer RenderLayer to check
-     * @return if a layer of the given class is already registered
-     */
     public boolean hasLayerType(RenderLayer<?, ?> renderLayer) {
         return this.layers.stream().anyMatch(layer -> {
             if (renderLayer.getClass() == HumanoidArmorLayer.class) {
@@ -91,7 +85,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
 
         if (vrPlayer != null) {
-            var pose = vrPlayer.getPoseData(PlayerPoseType.TICK);
+            var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
             float scale = vrPlayer.getFullHeightScale();
             if ((VisorState.get().isActive()
@@ -121,7 +115,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
         // this changes the offset to only apply when swimming, instead of crouching
         if (VRRenderState.isSelfModelPlayer(player)) {
             return player.isVisuallySwimming() ?
-                    new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.TICK).getWorldScale(), 0.0F) : Vec3.ZERO;
+                    new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
         } else {
             return player.isVisuallySwimming() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
         }
@@ -141,15 +135,14 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
         }
     }
 
-    private void hideHand(HumanoidArm arm, boolean completeArm) {
+    private void hideHand(HumanoidArm arm) {
         if (this.getModel() instanceof VRPlayerModel<?> vrModel) {
             if (arm == HumanoidArm.LEFT) {
-                vrModel.hideLeftArm(completeArm);
+                vrModel.hideLeftArm();
             } else {
-                vrModel.hideRightArm(completeArm);
+                vrModel.hideRightArm();
             }
         } else {
-            // this is just for the case someone replaces the model
             if (arm == HumanoidArm.LEFT) {
                 getModel().leftArm.visible = false;
                 getModel().leftSleeve.visible = false;
@@ -169,7 +162,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
             if(vrPlayer == null) {
                 return;
             }
-            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.TICK).getBodyYaw();
+            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw();
         }
 
         // vanilla below here

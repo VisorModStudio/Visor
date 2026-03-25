@@ -10,29 +10,29 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.LivingEntity;
-import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelWithArms;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModel;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRArmorModelWithArms<T extends LivingEntity> extends HumanoidArmorModel<T> implements HandModel {
+public class VRArmorModel<T extends LivingEntity> extends HumanoidArmorModel<T> implements HandModel {
 
     public final ModelPart leftHand;
     public final ModelPart rightHand;
 
-    public VRArmorModelWithArms(ModelPart root) {
+    public VRArmorModel(ModelPart root) {
         super(root);
         this.leftHand = root.getChild("left_hand");
         this.rightHand = root.getChild("right_hand");
-        ModelUtils.textureHack(this.leftArm, this.leftHand);
-        ModelUtils.textureHack(this.rightArm, this.rightHand);
+        ModelUtils.copyTextures(this.leftArm, this.leftHand);
+        ModelUtils.copyTextures(this.rightArm, this.rightHand);
     }
 
     public static MeshDefinition createBodyLayer(CubeDeformation cubeDeformation) {
         MeshDefinition meshDefinition = HumanoidArmorModel.createBodyLayer(cubeDeformation);
         PartDefinition partDefinition = meshDefinition.getRoot();
 
-        int upperExtension = VRPlayerModelWithArms.UPPER_EXTENSION;
-        int lowerExtension = VRPlayerModelWithArms.LOWER_EXTENSION;
+        int upperExtension = VRPlayerModel.UPPER_EXTENSION;
+        int lowerExtension = VRPlayerModel.LOWER_EXTENSION;
         float lowerShrinkage = -0.05F;
 
         partDefinition.addOrReplaceChild("left_hand", CubeListBuilder.create()

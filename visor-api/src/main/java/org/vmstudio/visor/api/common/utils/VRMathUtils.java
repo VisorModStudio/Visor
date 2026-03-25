@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.common.utils;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.api.placeholders.PlaceholderHandler;
 import me.phoenixra.atumconfig.core.AtumConfigManager;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
@@ -29,6 +30,9 @@ public class VRMathUtils {
 
     public static @NotNull Vector3f extractUpDir(@NotNull Matrix4fc rotation, boolean normalize) {
         var out = new Vector3f(rotation.m10(), rotation.m11(), rotation.m12());
+        Vector3fc vec = new Vector3f();
+
+        new Vec3((Vector3f) vec);
         return normalize ? out.normalize() : out;
     }
 

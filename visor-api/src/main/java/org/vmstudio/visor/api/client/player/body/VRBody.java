@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+//TODO make it both sided? for later cool usage
+// (server will calculate positioning, no extra network usage will be needed)
 public class VRBody {
 
     @Getter

@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModelWithArms;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModel;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 @Mixin(HumanoidArmorLayer.class)
@@ -37,7 +37,7 @@ public class HumanoidArmorLayerMixin {
             var mode = VRClientSettings.getModelArmsMode();
 
             // hide the arm armor, when not showing the arms in first person
-            if (model instanceof VRArmorModelWithArms<?> armsModel) {
+            if (model instanceof VRArmorModel<?> armsModel) {
                 // shoulders when not off
                 armsModel.leftArm.visible &= mode != VRClientSettings.ModelArmsMode.OFF;
                 armsModel.rightArm.visible &= mode != VRClientSettings.ModelArmsMode.OFF;

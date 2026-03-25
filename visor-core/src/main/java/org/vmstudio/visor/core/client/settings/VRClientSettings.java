@@ -143,9 +143,7 @@ public class VRClientSettings {
     @Getter
     @VROptionField
     protected static ModelArmsMode modelArmsMode = ModelArmsMode.COMPLETE;
-    @Getter
-    @VROptionField
-    protected static boolean playerWalkAnim = true;
+
     @Getter
     @VROptionField
     protected static boolean playerArmAnim = true;

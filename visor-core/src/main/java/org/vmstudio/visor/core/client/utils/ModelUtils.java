@@ -18,9 +18,8 @@ import javax.annotation.Nullable;
 import java.lang.Math;
 
 public class ModelUtils {
-    public static HandAction handAction = null;
 
-    public static void textureHack(ModelPart source, ModelPart target) {
+    public static void copyTextures(ModelPart source, ModelPart target) {
         // some mods remove the base parts
         if (source.cubes.isEmpty()) return;
 
@@ -34,7 +33,7 @@ public class ModelUtils {
         }
     }
 
-    public static void textureHackUpper(ModelPart source, ModelPart target) {
+    public static void copyTexturesUpper(ModelPart source, ModelPart target) {
         // some mods remove the base parts
         if (source.cubes.isEmpty()) return;
 
@@ -292,9 +291,7 @@ public class ModelUtils {
             HumanoidArm arm, float attackTime, boolean isMainPlayer,
             Matrix3f tempM, Vector3f tempV)
     {
-        if(handAction == null) {
-            return;
-        }
+        var handAction = ClientContext.handRenderer.getSwingType();
         // zero it always, since it's supposed to have the offset at the end
         tempV.zero();
         if (attackTime > 0.0F) {
