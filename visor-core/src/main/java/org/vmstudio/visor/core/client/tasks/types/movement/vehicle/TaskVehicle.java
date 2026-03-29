@@ -29,12 +29,12 @@ import org.joml.Vector3fc;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVisorTask
-public class TasVehicle extends VisorTask {
+public class TaskVehicle extends VisorTask {
 
     private static final String ID = "movement_vehicle";
 
     @Getter
-    private static TasVehicle instance;
+    private static TaskVehicle instance;
 
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
 
@@ -45,7 +45,7 @@ public class TasVehicle extends VisorTask {
     private int minecartTimer = 0;
     public int dismountDelay = 0;
 
-    public TasVehicle(@NotNull VisorAddon owner) {
+    public TaskVehicle(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
     }
