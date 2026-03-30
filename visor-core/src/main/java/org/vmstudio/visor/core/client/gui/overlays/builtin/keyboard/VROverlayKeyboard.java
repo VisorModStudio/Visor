@@ -1,21 +1,6 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
-
 import lombok.Getter;
-import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
-import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
-import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
-import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
-import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
-import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -24,7 +9,20 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
+import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
+import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
+import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
+import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
+import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
+import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
 
 public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         implements VRKeyboardAccessor, VREventListener {
@@ -38,6 +36,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     @Getter
     private boolean shiftPressed = false;
+
+    @Getter
+    private KeyboardLayoutId activeLayoutId = KeyboardLayoutId.EN_US;
 
     @Getter
     @Nullable
@@ -113,7 +114,6 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         return shown;
     }
 
-
     @Override
     public void onUpdatePose(float partialTicks) {
         VROverlayHelper.applyRelativePose(
@@ -123,8 +123,6 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 relativeRotation
         );
     }
-
-
 
     @Override
     public boolean supportsTwoCursors() {
@@ -139,6 +137,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         if (shown) {
             orient(attachedTo);
             shiftPressed = false;
+            activeLayoutId = KeyboardLayoutId.EN_US;
             initAgain = true;
         } else {
             getScreen().clearPress();
@@ -150,6 +149,17 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     public void setShiftPressed(boolean shift) {
         if (shift != this.shiftPressed) {
             this.shiftPressed = shift;
+            this.initAgain = true;
+        }
+    }
+
+    public void cycleLayout() {
+        setActiveLayoutId(activeLayoutId.next());
+    }
+
+    public void setActiveLayoutId(@NotNull KeyboardLayoutId activeLayoutId) {
+        if (this.activeLayoutId != activeLayoutId) {
+            this.activeLayoutId = activeLayoutId;
             this.initAgain = true;
         }
     }
@@ -187,5 +197,4 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     public @NotNull Component getDescription() {
         return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
-
 }

@@ -2,24 +2,29 @@ package org.vmstudio.visor.core.client.gui.screens;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.vmstudio.visor.api.client.input.InputHelper;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardButton;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
-
+import org.vmstudio.visor.api.client.input.InputHelper;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardButton;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardKey;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 
 public class VRKeyboardScreen extends Screen {
-    @Getter @Setter
+    @Getter
+    @Setter
     private VROverlayKeyboard overlayKeyboard;
-    @Getter @Setter
+    @Getter
+    @Setter
     private Runnable pressedTask;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private int pressTick;
 
     public VRKeyboardScreen(Component component) {
@@ -28,63 +33,65 @@ public class VRKeyboardScreen extends Screen {
 
     @Override
     public void init() {
-        String keys = VRClientSettings.getKeyboardKeys();
-        String keysShift = VRClientSettings.getKeyboardKeysShift();
         this.clearWidgets();
 
-        if (overlayKeyboard.isShiftPressed()) {
-            keys = keysShift;
-        }
+        int gridStart = 32;
+        int keyGap = 2;
+        int keyWidth = 25;
+        int keyHeight = 20;
+        int smallButtonWidth = 30;
+        int sideButtonWidth = 35;
+        int shiftButtonWidth = 50;
+        int languageButtonWidth = 38;
+        int spaceX;
 
-        int keysPerRow = 13;
-        int rows;
-        int yPos = 32;
-        int l = 2;
-        int i1 = 25;
-        double preRows = (double) keys.length() / (double) keysPerRow;
+        KeyboardLayout layout = KeyboardLayouts.get(overlayKeyboard.getActiveLayoutId());
+        KeyboardKey[][] rows = layout.getLayer(overlayKeyboard.isShiftPressed());
+        int maxColumns = layout.getMaxColumns();
+        int gridRightX = gridStart + maxColumns * (keyWidth + keyGap);
 
-        if (Math.floor(preRows) == preRows) {
-            rows = (int) preRows;
-        } else {
-            rows = (int) (preRows + 1.0D);
-        }
+        for (int row = 0; row < rows.length; ++row) {
+            KeyboardKey[] rowKeys = rows[row];
+            int rowStartX = gridStart + ((maxColumns - rowKeys.length) * (keyWidth + keyGap)) / 2;
+            int rowY = gridStart + row * (keyHeight + keyGap);
 
-        for (int row = 0; row < rows; ++row) {
-            for (int column = 0; column < keysPerRow; ++column) {
-                int index = row * keysPerRow + column;
-                char keyChar = ' ';
-
-                if (index < keys.length()) {
-                    keyChar = keys.charAt(index);
-                }
-
-                String label = String.valueOf(keyChar);
+            for (int column = 0; column < rowKeys.length; ++column) {
+                KeyboardKey key = rowKeys[column];
                 KeyboardButton button = new KeyboardButton.Builder(
                         this,
-                        Component.literal(label), (p) -> {
-
-                            InputHelper.typeChars(label);
-
-                }).size(i1, 20)
-                        .pos(yPos + column * (i1 + l), yPos + row * (20 + l))
+                        Component.literal(key.getLabel()),
+                        (p) -> pressKeyboardKey(key)
+                ).size(keyWidth, keyHeight)
+                        .pos(rowStartX + column * (keyWidth + keyGap), rowY)
                         .build();
                 this.addRenderableWidget(button);
             }
         }
 
+        int bottomY = gridStart + rows.length * (keyHeight + keyGap);
+        spaceX = gridStart + ((maxColumns - 5) / 2) * (keyWidth + keyGap);
+
         //SHIFT
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
-                        Component.literal(overlayKeyboard.isShiftPressed()
-                                ? "SHIFT"
-                                : "Shift"),
-                        (p) ->
-                        {
-                            overlayKeyboard
-                                    .setShiftPressed(!overlayKeyboard.isShiftPressed());
-                        })
-                        .size(overlayKeyboard.isShiftPressed() ? 32 : 30, 20)
-                        .pos(0, yPos + 3 * (20 + l))
+                        Component.literal(
+                                overlayKeyboard.isShiftPressed()
+                                        ? "SHIFT"
+                                        : "Shift"
+                        ),
+                        (p) -> overlayKeyboard.setShiftPressed(!overlayKeyboard.isShiftPressed()))
+                        .size(overlayKeyboard.isShiftPressed() ? (shiftButtonWidth + 2) : shiftButtonWidth, keyHeight)
+                        .pos(0, gridStart + (rows.length - 1) * (keyHeight + keyGap))
+                        .usePressTask(false)
+                        .build()
+        );
+        //LANGUAGE
+        this.addRenderableWidget(
+                new KeyboardButton.Builder(this,
+                        Component.literal(layout.getSwitchLabel()),
+                        (p) -> overlayKeyboard.cycleLayout())
+                        .size(languageButtonWidth, keyHeight)
+                        .pos(3 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
@@ -92,38 +99,27 @@ public class VRKeyboardScreen extends Screen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal(" "),
-                        (p) ->
-                        {
-                            InputHelper.typeChars(" ");
-                        })
-                        .size(5 * (i1 + l), 20)
-                        .pos(yPos + 4 * (i1 + l), yPos + rows * (20 + l))
+                        (p) -> pressSpace())
+                        .size(5 * (keyWidth + keyGap), keyHeight)
+                        .pos(spaceX, bottomY)
                         .build()
         );
         //BACKSPACE
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("BKSP"),
-                        (p) ->
-                        {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_BACKSPACE);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_BACKSPACE);
-                        })
-                        .size(35, 20)
-                        .pos(keysPerRow * (i1 + l) + yPos, yPos)
+                        (p) -> pressKeyAction(GLFW.GLFW_KEY_BACKSPACE))
+                        .size(sideButtonWidth, keyHeight)
+                        .pos(gridRightX, gridStart)
                         .build()
         );
         //ENTER
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("ENTER"),
-                        (p) ->
-                        {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_ENTER);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_ENTER);
-                        })
-                        .size(35, 20)
-                        .pos(keysPerRow * (i1 + l) + yPos, yPos + 2 * (20 + l))
+                        (p) -> pressKeyAction(GLFW.GLFW_KEY_ENTER))
+                        .size(sideButtonWidth, keyHeight)
+                        .pos(gridRightX, gridStart + 2 * (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
@@ -131,118 +127,70 @@ public class VRKeyboardScreen extends Screen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("TAB"),
-                        (p) ->
-                        {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_TAB);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_TAB);
-                        })
-                        .size(30, 20)
-                        .pos(0, yPos + 20 + l)
+                        (p) -> pressKeyAction(GLFW.GLFW_KEY_TAB))
+                        .size(smallButtonWidth, keyHeight)
+                        .pos(0, gridStart + keyHeight + keyGap)
                         .usePressTask(false)
                         .build()
         );
-
         //CLOSE
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("§cx"),
                         (p) ->
                         {
-                            var keyboardAccessor = ClientContext.overlayManager
-                                    .getKeyboardAccessor();
+                            var keyboardAccessor = ClientContext.overlayManager.getKeyboardAccessor();
                             keyboardAccessor.setVisible(false);
                         })
-                        .size(30, 20)
-                        .pos(0, yPos + -1 * (20 + l))
+                        .size(smallButtonWidth, keyHeight)
+                        .pos(0, gridStart - (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
-
         //ESCAPE
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("ESC"),
-                        (p) ->
-                        {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
-                        })
-                        .size(30, 20)
-                        .pos(0, yPos)
+                        (p) -> pressKeyAction(GLFW.GLFW_KEY_ESCAPE))
+                        .size(smallButtonWidth, keyHeight)
+                        .pos(0, gridStart)
                         .usePressTask(false)
                         .build()
         );
         //ARROW UP
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
-                        Component.literal("\u2191"),
-                        (p) ->
-                        {
-                            if(overlayKeyboard.isShiftPressed()){
-                                InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                            }
-
-                            InputHelper.pressKey(GLFW.GLFW_KEY_UP);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_UP);
-
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                        })
-                        .size(i1, 20)
-                        .pos((keysPerRow - 1) * (i1 + l) + yPos, yPos + rows * (20 + l))
+                        Component.literal("↑"),
+                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_UP))
+                        .size(keyWidth, keyHeight)
+                        .pos((maxColumns - 1) * (keyWidth + keyGap) + gridStart, bottomY)
                         .build()
         );
         //ARROW DOWN
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
-                        Component.literal("\u2193"),
-                        (p) ->
-                        {
-                            if(overlayKeyboard.isShiftPressed()){
-                                InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                            }
-                            InputHelper.pressKey(GLFW.GLFW_KEY_DOWN);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_DOWN);
-
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                        })
-                        .size(i1, 20)
-                        .pos((keysPerRow - 1) * (i1 + l) + yPos, yPos + (rows + 1) * (20 + l))
+                        Component.literal("↓"),
+                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_DOWN))
+                        .size(keyWidth, keyHeight)
+                        .pos((maxColumns - 1) * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
         );
         //ARROW LEFT
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
-                        Component.literal("\u2190"),
-                        (p) ->
-                        {
-                            if(overlayKeyboard.isShiftPressed()){
-                                InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                            }
-                            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT);
-
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                        })
-                        .size(i1, 20)
-                        .pos((keysPerRow - 2) * (i1 + l) + yPos, yPos + (rows + 1) * (20 + l))
+                        Component.literal("←"),
+                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_LEFT))
+                        .size(keyWidth, keyHeight)
+                        .pos((maxColumns - 2) * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
         );
         //ARROW RIGHT
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
-                        Component.literal("\u2192"),
-                        (p) ->
-                        {
-                            if(overlayKeyboard.isShiftPressed()){
-                                InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                            }
-                            InputHelper.pressKey(GLFW.GLFW_KEY_RIGHT);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_RIGHT);
-
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
-                        })
-                        .size(i1, 20)
-                        .pos(keysPerRow * (i1 + l) + yPos, yPos + (rows + 1) * (20 + l))
+                        Component.literal("→"),
+                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_RIGHT))
+                        .size(keyWidth, keyHeight)
+                        .pos(maxColumns * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
         );
         //CUT
@@ -256,8 +204,8 @@ public class VRKeyboardScreen extends Screen {
                             InputHelper.releaseKey(GLFW.GLFW_KEY_X);
                             InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
                         })
-                        .size(35, 20)
-                        .pos(yPos, yPos + -1 * (20 + l))
+                        .size(sideButtonWidth, keyHeight)
+                        .pos(gridStart, gridStart - (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
@@ -272,8 +220,8 @@ public class VRKeyboardScreen extends Screen {
                             InputHelper.releaseKey(GLFW.GLFW_KEY_C);
                             InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
                         })
-                        .size(35, 20)
-                        .pos(35 + l + yPos, yPos + -1 * (20 + l))
+                        .size(sideButtonWidth, keyHeight)
+                        .pos(sideButtonWidth + keyGap + gridStart, gridStart - (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
@@ -288,11 +236,73 @@ public class VRKeyboardScreen extends Screen {
                             InputHelper.releaseKey(GLFW.GLFW_KEY_V);
                             InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
                         })
-                        .size(35, 20)
-                        .pos(2 * (35 + l) + yPos, yPos + -1 * (20 + l))
+                        .size(sideButtonWidth, keyHeight)
+                        .pos(2 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))
                         .usePressTask(false)
                         .build()
         );
+    }
+
+    private void pressKeyboardKey(KeyboardKey key) {
+        if (canTypeText()) {
+            InputHelper.typeChars(key.getInput());
+            return;
+        }
+
+        pressFallbackKey(key);
+    }
+
+    private void pressFallbackKey(KeyboardKey key) {
+        if (!key.hasFallback()) {
+            return;
+        }
+
+        pressKeyAction(key.getFallbackKey(), key.getFallbackModifiers());
+    }
+
+    private void pressSpace() {
+        if (canTypeText()) {
+            InputHelper.typeChars(" ");
+            return;
+        }
+
+        pressKeyAction(GLFW.GLFW_KEY_SPACE);
+    }
+
+    private void pressNavigationKey(int key) {
+        int modifiers = overlayKeyboard.isShiftPressed()
+                ? GLFW.GLFW_MOD_SHIFT
+                : 0;
+        pressKeyAction(key, modifiers);
+    }
+
+    private void pressKeyAction(int key) {
+        pressKeyAction(key, 0);
+    }
+
+    private void pressKeyAction(int key,
+                                int temporaryModifiers) {
+        pressModifiers(temporaryModifiers);
+        InputHelper.pressKey(key, temporaryModifiers);
+        InputHelper.releaseKey(key, temporaryModifiers);
+        releaseModifiers(temporaryModifiers);
+    }
+
+    private boolean canTypeText() {
+        return overlayKeyboard.getAttachedTo() != null
+                || Minecraft.getInstance().screen != null;
+    }
+
+    private void pressModifiers(int modifiers) {
+        if ((modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
+            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
+        }
+    }
+
+    private void releaseModifiers(int modifiers) {
+        if ((modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
+            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
+        }
     }
 
     @Override
