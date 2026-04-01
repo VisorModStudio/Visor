@@ -25,7 +25,7 @@ import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
+import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -317,7 +317,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         LocalPlayerPose data = getPoseData(stage);
 
         if (player.isPassenger()) {
-            var vehicleLookDir = TasVehicle.getVehicleLookDirection(player);
+            var vehicleLookDir = TaskVehicle.getVehicleLookDirection(player);
 
             if (vehicleLookDir != null) {
                 player.setXRot((float) Math.toDegrees(

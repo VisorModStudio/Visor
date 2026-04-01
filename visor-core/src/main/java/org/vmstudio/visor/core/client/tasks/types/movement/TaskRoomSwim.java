@@ -16,6 +16,9 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -33,8 +36,12 @@ public class TaskRoomSwim extends VisorTask {
     private static final float SWIM_SPEED = 1.3f;
     private static final float FRICTION = 0.9f;
     private static final float SWIM_MOTION_SCALE = 0.12f;
-    private static final float MIN_SWIM_THRESHOLD = 0.3f;
-    private static final float SPRINTING_THRESHOLD = 1.0f;
+    private static final float WATER_SPEED_CAP = 0.10f;
+    private static final float WATER_SWIMMING_SPEED_CAP = 0.13f;
+    private static final float LAVA_SPEED_CAP = 0.02f;
+    private static final float LAVA_SWIMMING_SPEED_CAP = 0.03f;
+    private static final float MIN_SWIM_THRESHOLD = 0.075f;
+    private static final float SPRINTING_THRESHOLD = 0.115f;
 
     private Vector3fc motion = new Vector3f();
     private float lastDist;
@@ -81,9 +88,15 @@ public class TaskRoomSwim extends VisorTask {
             this.motion = this.motion.add(swimMotion.mul(SWIM_MOTION_SCALE), new Vector3f());
         }
 
-        this.lastDist = handDistance;
+        float maxSwimSpeed = getMaxSwimSpeed(player);
+        float motionLength = this.motion.length();
+        if (motionLength > maxSwimSpeed) {
+            this.motion = this.motion.normalize(new Vector3f())
+                .mul(maxSwimSpeed);
+            motionLength = maxSwimSpeed;
+        }
 
-        double motionLength = this.motion.length();
+        this.lastDist = handDistance;
 
         player.setSwimming(motionLength > MIN_SWIM_THRESHOLD);
         player.setSprinting(motionLength > SPRINTING_THRESHOLD);
@@ -94,7 +107,8 @@ public class TaskRoomSwim extends VisorTask {
 
     @Override
     protected void onClear(@Nullable LocalPlayer player) {
-
+        this.motion = new Vector3f();
+        this.lastDist = 0.0f;
     }
 
 
@@ -107,8 +121,21 @@ public class TaskRoomSwim extends VisorTask {
         if (MC.screen != null) return false;
         if (MC.gameMode == null) return false;
         if (p == null || !p.isAlive()) return false;
+        if (p.isPassenger()) return false;
         if (!p.isInWater() && !p.isInLava()) return false;
-        if (p.zza > 0.0F || p.xxa > 0.0F) return false;
+        if (p.zza != 0.0F || p.xxa != 0.0F) return false;
+
+        BlockPos playerBlockPos = p.blockPosition();
+        boolean hasFluidAtBody = p.level()
+            .getFluidState(playerBlockPos)
+            .is(FluidTags.WATER)
+            || p.level().getFluidState(playerBlockPos).is(FluidTags.LAVA);
+        boolean hasFluidAboveBody = p.level()
+            .getFluidState(playerBlockPos.above())
+            .is(FluidTags.WATER)
+            || p.level().getFluidState(playerBlockPos.above()).is(FluidTags.LAVA);
+
+        if (!hasFluidAtBody || !hasFluidAboveBody) return false;
         return true;
     }
 
@@ -120,5 +147,13 @@ public class TaskRoomSwim extends VisorTask {
     @Override
     public @NotNull String getId() {
         return ID;
+    }
+
+    private float getMaxSwimSpeed(LocalPlayer player) {
+        boolean swimmingPose = player.isSwimming() || player.getPose() == Pose.SWIMMING;
+        if (player.isInLava()) {
+            return swimmingPose ? LAVA_SWIMMING_SPEED_CAP : LAVA_SPEED_CAP;
+        }
+        return swimmingPose ? WATER_SWIMMING_SPEED_CAP : WATER_SPEED_CAP;
     }
 }
