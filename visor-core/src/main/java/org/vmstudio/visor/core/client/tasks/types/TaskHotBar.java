@@ -207,7 +207,24 @@ public class TaskHotBar extends VisorTask {
 
     @Override
     protected void onClear(@Nullable LocalPlayer player) {
+        VROverlayHotBar hotBarOffhand = (VROverlayHotBar)
+            ClientContext.overlayManager
+                .getOverlay(VROverlayHotBar.ID_OFFHAND);
+        VROverlayHotBar hotBarMainHand = (VROverlayHotBar)
+            ClientContext.overlayManager
+                .getOverlay(VROverlayHotBar.ID_MAIN);
 
+        hotBarMainHand.setEnabled(false);
+        hotBarOffhand.setEnabled(false);
+
+        inputPressedMain = false;
+        inputPressedOffhand = false;
+        pressedMain = false;
+        pressedOffhand = false;
+        previousStateMain = null;
+        previousStateOffhand = null;
+        currentStateOffhand = HotBarSlice.NOT_SELECTED;
+        resetData = true;
     }
 
     @Override
