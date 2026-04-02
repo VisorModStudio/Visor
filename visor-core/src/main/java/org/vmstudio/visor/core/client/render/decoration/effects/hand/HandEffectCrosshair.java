@@ -75,8 +75,8 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- GL setup ---
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
 
         RenderSystem.enableBlend();
@@ -129,7 +129,6 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- Restore GL & pose ---
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
-        RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         poseStack.popPose();
