@@ -80,18 +80,17 @@ public class HandEffectTeleport extends VRHandEffect {
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
 
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-        );
+        RenderSystem.defaultBlendFunc();
 
         // Render the teleport arc and landing pad effect
         RenderSystem.enableDepthTest();
+
+        RenderSystem.depthMask(false);
+
         renderTeleportArc(renderPass, poseStack);
 
-        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+
         poseStack.popPose();
     }
 
