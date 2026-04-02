@@ -20,6 +20,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL30;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
@@ -138,6 +139,7 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
 
         // Unbind
         GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        RenderStateHelper.restoreAfterExternalRender();
 
         // Use the cropped texture as the overlay render target
         this.renderTarget = regionTarget;
