@@ -9,7 +9,7 @@ import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
-import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
+import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -423,9 +423,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
              }
              if (entity != this.player) {
                  // ride the new camera entity
-                 TasVehicle.getInstance().onStartRiding(entity);
+                 TaskVehicle.getInstance().onStartRiding(entity);
              } else {
-                 TasVehicle.getInstance().onStopRiding();
+                 TaskVehicle.getInstance().onStopRiding();
              }
          }
      }

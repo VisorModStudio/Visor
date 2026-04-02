@@ -9,7 +9,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TasVehicle;
+import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.mixin.common.player.Common_PlayerMixin;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
@@ -82,7 +82,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TasVehicle.getInstance()
+        TaskVehicle.getInstance()
                 .onStartRiding(
                         entity
                 );
@@ -95,7 +95,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isLocalPlayer(this)) {
             return;
         }
-        TasVehicle.getInstance()
+        TaskVehicle.getInstance()
                 .onStopRiding();
     }
 
@@ -285,7 +285,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
         boolean shouldReset = (x + y + z) == 0;
         if (this.isPassenger()) {
-            Vec3 premountPos = TasVehicle.getInstance().premountPosRoom;
+            Vec3 premountPos = TaskVehicle.getInstance().premountPosRoom;
             premountPos = premountPos
                     .yRot(
                             ClientContext.localPlayer
