@@ -252,6 +252,11 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
         var rotationElement = ClientContext.localPlayer
                 .getRotationElement(PlayerPoseType.TICK);
+        if (this.isSwimming()) {
+            rotationElement = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK)
+                .getHmd();
+        }
 
         //SWIMMING OR FLYING
         if (!this.isPassenger()
