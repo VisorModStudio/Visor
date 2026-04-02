@@ -12,13 +12,12 @@ import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHan
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -66,9 +65,10 @@ public class HandEffectCrosshair extends VRHandEffect {
         // nudge back for correct lighting
         var crossPos = rawCross.add(aim.normalize().mul(LIGHT_OFFSET));
 
-        float brightness = (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
+        float baseBrightness = (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
                 ? MISS_BRIGHTNESS
                 : FULL_BRIGHTNESS;
+        float brightness = getBrightness(crossPos) * baseBrightness;
 
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
 
@@ -162,6 +162,16 @@ public class HandEffectCrosshair extends VRHandEffect {
         pose.mulPose(new Quaternionf(new AxisAngle4f(
                 angle * Mth.DEG_TO_RAD, x, y, z
         )));
+    }
+
+    private float getBrightness(Vector3f crossPos) {
+        if (MC.level == null) return 1.0f; // how you can get this? idk, just notnull check for myself =)
+
+        float rawLight = MC.level.getMaxLocalRawBrightness(
+                BlockPos.containing(new Vec3(crossPos))
+        );
+        float light =Math.max(rawLight, ShadersHelper.shaderLight());
+        return light / (float) MC.level.getMaxLightLevel();
     }
 
     @Override
