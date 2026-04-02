@@ -163,6 +163,7 @@ public class MirrorHelper {
         int vrHeight= window.visor$getActualScreenHeight();
 
         // 2) viewport + projection
+        RenderSystem.backupProjectionMatrix();
         RenderSystem.viewport(0, 0, vrWidth, vrHeight);
         var proj = new Matrix4f().setOrtho(0, vrWidth, vrHeight, 0, NEAR_PLANE, FAR_PLANE);
         RenderSystem.setProjectionMatrix(proj, VertexSorting.ORTHOGRAPHIC_Z);
@@ -203,6 +204,8 @@ public class MirrorHelper {
         } finally {
             mv.popPose();
             RenderSystem.applyModelViewMatrix();
+            RenderSystem.restoreProjectionMatrix();
+            RenderStateHelper.restoreAfterExternalRender();
         }
     }
 
@@ -216,6 +219,7 @@ public class MirrorHelper {
                 left, top, right, bottom,
                 GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
         _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+        RenderStateHelper.restoreAfterExternalRender();
     }
 
     public static void blitCropped(RenderTarget source,
@@ -246,6 +250,7 @@ public class MirrorHelper {
                 left, top, right, bottom,
                 GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
         _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);
+        RenderStateHelper.restoreAfterExternalRender();
     }
 
 

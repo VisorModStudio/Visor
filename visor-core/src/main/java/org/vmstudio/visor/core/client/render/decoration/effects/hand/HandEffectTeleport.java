@@ -17,6 +17,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
+import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
 import net.minecraft.client.renderer.GameRenderer;
@@ -227,38 +228,18 @@ public class HandEffectTeleport extends VRHandEffect {
 
 
     private void drawQuad(Vec3 center, float size, PoseStack poseStack) {
-        Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder buffer = tessellator.getBuilder();
         float halfSize = size / 2.0F;
-        // Get the current transformation matrix from the pose stack.
         Matrix4f matrix = poseStack.last().pose();
 
-        buffer.begin(VertexFormat.Mode.QUADS,
-                VRShaders.getTeleportPoint().getHandle().getVertexFormat()
+        RenderShaderHelper.renderQuad(
+                VRShaders.getTeleportPoint().getHandle().getVertexFormat(),
+                matrix,
+                (float) center.x - halfSize,
+                (float) center.y,
+                (float) center.z - halfSize,
+                (float) center.x + halfSize,
+                (float) center.z + halfSize
         );
-
-
-        // Lower-left vertex (with texture coordinates (0, 0))
-        buffer.vertex(matrix, (float) center.x - halfSize, (float) center.y, (float) center.z - halfSize)
-                .uv(0.0F, 0.0F)
-                .endVertex();
-
-        // Lower-right vertex (with texture coordinates (1, 0))
-        buffer.vertex(matrix, (float) center.x + halfSize, (float) center.y, (float) center.z - halfSize)
-                .uv(1.0F, 0.0F)
-                .endVertex();
-
-        // Upper-right vertex (with texture coordinates (1, 1))
-        buffer.vertex(matrix, (float) center.x + halfSize, (float) center.y, (float) center.z + halfSize)
-                .uv(1.0F, 1.0F)
-                .endVertex();
-
-        // Upper-left vertex (with texture coordinates (0, 1))
-        buffer.vertex(matrix, (float) center.x - halfSize, (float) center.y, (float) center.z + halfSize)
-                .uv(0.0F, 1.0F)
-                .endVertex();
-
-        BufferUploader.draw(buffer.end());
     }
 
     private float getAnimationTick(float partialTicks) {

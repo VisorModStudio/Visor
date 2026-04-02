@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 public class RenderShaderHelper {
     private RenderShaderHelper() {
@@ -43,26 +44,67 @@ public class RenderShaderHelper {
     private static final float[]  UV_V   = {  0.0F,  0.0F,  1.0F,  1.0F };
 
     public static void renderFullscreenQuad(VertexFormat format) {
-        if(format != DefaultVertexFormat.POSITION_TEX
-                && format != DefaultVertexFormat.POSITION_TEX_COLOR){
-            throw new RuntimeException("Unexpected vertex format " + format);
-        }
-
-        boolean needColor = format == DefaultVertexFormat.POSITION_TEX_COLOR;
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
 
 
         buf.begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
         for (int i = 0; i < 4; i++) {
-            var v = buf
-                    .vertex(POS_X[i], POS_Y[i], 0.0)
-                    .uv(UV_U[i], UV_V[i]);
-            if (needColor) {
-                v.color(255, 255, 255, 255);
-            }
-            v.endVertex();
+            putFullscreenVertex(buf, format, i);
         }
 
         BufferUploader.draw(buf.end());
+    }
+
+    public static void renderQuad(VertexFormat format,
+                                  Matrix4f matrix,
+                                  float x0,
+                                  float y,
+                                  float z0,
+                                  float x1,
+                                  float z1) {
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS, format);
+
+        putQuadVertex(buf, format, matrix, x0, y, z0, 0.0F, 0.0F);
+        putQuadVertex(buf, format, matrix, x1, y, z0, 1.0F, 0.0F);
+        putQuadVertex(buf, format, matrix, x1, y, z1, 1.0F, 1.0F);
+        putQuadVertex(buf, format, matrix, x0, y, z1, 0.0F, 1.0F);
+
+        BufferUploader.draw(buf.end());
+    }
+
+    private static void putFullscreenVertex(BufferBuilder buf, VertexFormat format, int index) {
+        var vertex = buf.vertex(POS_X[index], POS_Y[index], 0.0);
+        if (format == DefaultVertexFormat.POSITION_TEX) {
+            vertex.uv(UV_U[index], UV_V[index]).endVertex();
+        } else if (format == DefaultVertexFormat.POSITION_TEX_COLOR) {
+            vertex.uv(UV_U[index], UV_V[index])
+                    .color(255, 255, 255, 255)
+                    .endVertex();
+        } else {
+            throw new IllegalArgumentException("Unexpected vertexx format " + format);
+        }
+    }
+
+    private static void putQuadVertex(BufferBuilder buf,
+                                      VertexFormat format,
+                                      Matrix4f matrix,
+                                      float x,
+                                      float y,
+                                      float z,
+                                      float u,
+                                      float v) {
+        var vertex = buf.vertex(matrix, x, y, z);
+        if (format == DefaultVertexFormat.POSITION) {
+            vertex.endVertex();
+        } else if (format == DefaultVertexFormat.POSITION_TEX) {
+            vertex.uv(u, v).endVertex();
+        } else if (format == DefaultVertexFormat.POSITION_TEX_COLOR) {
+            vertex.uv(u, v)
+                    .color(255, 255, 255, 255)
+                    .endVertex();
+        } else {
+            throw new IllegalArgumentException("Unexpected vertexx format " + format);
+        }
     }
 }

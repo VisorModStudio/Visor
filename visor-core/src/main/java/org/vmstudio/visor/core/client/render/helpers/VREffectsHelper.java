@@ -1,7 +1,6 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
@@ -17,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
-import org.lwjgl.opengl.GL43;
 
 public class VREffectsHelper {
     private VREffectsHelper() {
@@ -57,9 +55,7 @@ public class VREffectsHelper {
         tesselator.end();
 
         // --- Restore ---
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderStateHelper.restoreAfterExternalRender();
     }
 
 
@@ -88,7 +84,6 @@ public class VREffectsHelper {
         RenderTarget rt = mc.getMainRenderTarget();
 
         // 1) backup shader + matrices
-        int prevProgram = GL11.glGetInteger(GL43.GL_CURRENT_PROGRAM);
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getModelViewStack().pushPose();
 
@@ -108,10 +103,11 @@ public class VREffectsHelper {
         } finally {
             // 2) restore matrices
             RenderSystem.getModelViewStack().popPose();
+            RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
 
             // 3) restore GL state for regular rendering
-            restorePostStencilState(prevProgram);
+            restorePostStencilState();
         }
     }
 
@@ -196,22 +192,11 @@ public class VREffectsHelper {
         BufferUploader.drawWithShader(buf.end());
     }
 
-    private static void restorePostStencilState(int prevProgram) {
-        // restore program & color
-        ProgramManager.glUseProgram(prevProgram);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
+    private static void restorePostStencilState() {
         // stencil: only pass where stencil != 255
         RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 255, 0xFF);
         RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderSystem.stencilMask(0);
-
-        // depth back to normal
-        RenderSystem.depthFunc(GL11.GL_LEQUAL);
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
-
-        RenderSystem.enableCull();
-        GL11.glDisable(GL11.GL_STENCIL_TEST);
+        RenderStateHelper.restoreAfterExternalRender(true);
     }
 }
