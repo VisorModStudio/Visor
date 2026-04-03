@@ -7,9 +7,7 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsMisc;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
-
 import org.vmstudio.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
-import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,7 +15,6 @@ import net.minecraft.world.entity.player.ChatVisiblity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
 
 @RegisterVROverlayTemplate(
         id = VROverlayChat.ID,
@@ -51,11 +48,6 @@ public class VROverlayChat extends VROverlayTemplateScreen {
         if(minecraft.level == null) return false;
         if(minecraft.isPaused()
                 || ClientContext.overlayManager.getKeyboardAccessor().isVisible()) return false;
-        if (!ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND)
-                .isTracking()) {
-            return false;
-        }
-
 
         return !minecraft.gui.getChat().trimmedMessages.isEmpty() &&
                 minecraft.options.chatVisibility().get() != ChatVisiblity.HIDDEN;
@@ -69,7 +61,7 @@ public class VROverlayChat extends VROverlayTemplateScreen {
 
     @Override
     public boolean isHudLayer() {
-        return false;
+        return true;
     }
 
     @Override
@@ -87,23 +79,22 @@ public class VROverlayChat extends VROverlayTemplateScreen {
                             it.setTickPose(true);
                             it.setAimedRotation(false);
 
-                            it.setPositionAnchor(PoseAnchor.OFFHAND);
+                            it.setPositionAnchor(PoseAnchor.HMD);
                             it.setPositionOffset(
-                                    -0.15f,
-                                    0.06f,
-                                    -0.13f + 0.06f
+                                    0.0f,
+                                    0.0f,
+                                    -2.5f
                             );
-                            it.setRotationAnchor(PoseAnchor.OFFHAND);
+                            it.setRotationAnchor(PoseAnchor.HMD);
                             it.setRotationOffset(
-                                    (float) (-Math.PI / 2),
-                                    (float) (Math.PI / 2),
+                                    0,
+                                    0,
                                     0
                             );
-                            it.setScale(0.5f);
+                            it.setScale(1.2f);
                         }
 
                 )
         );
     }
-
 }
