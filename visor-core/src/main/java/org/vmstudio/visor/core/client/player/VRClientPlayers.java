@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
+import org.vmstudio.visor.core.client.VisorState;
 
 import java.util.*;
 
@@ -99,7 +100,10 @@ public class VRClientPlayers {
     public static VRClientPlayer getPlayer(UUID uuid) {
         if(localPlayer.getMcPlayer() != null
                 && localPlayer.getMcPlayer().getUUID().equals(uuid)){
-            return localPlayer;
+            if (VisorState.get().isActive()) {
+                return localPlayer;
+            }
+            return null;
         }
         return remotePlayers.get(uuid);
     }
