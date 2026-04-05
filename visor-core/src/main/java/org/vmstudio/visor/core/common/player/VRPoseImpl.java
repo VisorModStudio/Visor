@@ -182,9 +182,9 @@ public class VRPoseImpl implements VRPose {
     public Vector3f getScaledPosDelta(float rotationY,
                                       float oldWorldScale,
                                       float newWorldScale) {
-        Vector3f oldPos = position.mul(oldWorldScale, new Vector3f())
+        Vector3f oldPos = rawPosition.mul(oldWorldScale, new Vector3f())
                 .rotateY(rotationY);
-        Vector3f newPos = position.mul(newWorldScale, new Vector3f())
+        Vector3f newPos = rawPosition.mul(newWorldScale, new Vector3f())
                 .rotateY(rotationY);
         return newPos.sub(oldPos);
     }
