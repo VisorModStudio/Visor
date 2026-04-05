@@ -28,13 +28,6 @@ public class TaskHotBar extends VisorTask {
     @Getter
     private static TaskHotBar instance;
 
-    @Setter
-    private boolean inputPressedMain;
-    @Setter
-    private boolean inputPressedOffhand;
-
-    private boolean pressedMain;
-    private boolean pressedOffhand;
     @Getter
     private static HotBarSlice currentStateMain = HotBarSlice.CENTER;
     @Getter @Setter
@@ -46,6 +39,16 @@ public class TaskHotBar extends VisorTask {
 
     @Setter
     private static boolean resetData = true;
+
+
+    @Setter
+    private boolean inputPressedMain;
+    @Setter
+    private boolean inputPressedOffhand;
+
+    private boolean pressedMain;
+    private boolean pressedOffhand;
+
 
     public TaskHotBar(@NotNull VisorAddon owner) {
         super(owner);
