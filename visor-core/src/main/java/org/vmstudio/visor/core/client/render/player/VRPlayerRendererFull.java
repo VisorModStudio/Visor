@@ -42,7 +42,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     }
 
 
-    public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
+    public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim) {
         super(context, slim);
         this.model = new VRPlayerModelFull<>(
                 slim ? VR_LAYER_SLIM.bakeRoot()

@@ -9,7 +9,6 @@ import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererFull;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 import java.util.*;
 
@@ -32,11 +31,10 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     @Override
     public void initModels(EntityRendererProvider.Context context) {
 
-        this.defaultRenderer = new VRPlayerRendererFull(context, false,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS);
+        this.defaultRenderer = new VRPlayerRendererFull(context, false);
         this.modelsMap.put(MODEL_NAME_DEFAULT, this.defaultRenderer);
-        this.modelsMap.put(MODEL_NAME_SLIM, new VRPlayerRendererFull(context, true,
-                VRClientSettings.PlayerModelType.SPLIT_ARMS));
+        this.modelsMap.put(MODEL_NAME_SLIM,
+                new VRPlayerRendererFull(context, true));
 
         modelRenderers.addAll(modelsMap.values());
     }

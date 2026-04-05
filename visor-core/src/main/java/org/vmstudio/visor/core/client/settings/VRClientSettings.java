@@ -139,13 +139,6 @@ public class VRClientSettings {
 
     @Getter
     @VROptionField
-    protected static PlayerModelType playerModelType = PlayerModelType.SPLIT_ARMS;
-
-    @Getter
-    @VROptionField
-    protected static boolean playerArmAnim = true;
-    @Getter
-    @VROptionField
     protected static float playerModelArmsScale = 0.5F;
     @Getter
     @VROptionField
@@ -154,10 +147,6 @@ public class VRClientSettings {
     @VROptionField
     protected static float playerModelLegScale = 1.0F;
 
-    public enum PlayerModelType {
-        VANILLA,
-        SPLIT_ARMS
-    }
 
 
     //----Main menu panorama
