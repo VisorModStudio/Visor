@@ -50,7 +50,6 @@
     "client.renderer.entity.player.layers.CapeLayerMixin",
     "client.renderer.entity.player.layers.CustomHeadLayerMixin",
     "client.renderer.entity.player.layers.ElytraLayerMixin",
-    "client.renderer.entity.player.layers.HumanoidArmorLayerMixin",
     "client.renderer.entity.player.layers.ItemInHandLayerMixin",
     "client.renderer.entity.player.layers.PlayerItemInHandLayerMixin",
     "client.renderer.particle.ItemPickupParticleMixin",
