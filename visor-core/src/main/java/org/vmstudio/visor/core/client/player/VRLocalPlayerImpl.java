@@ -29,6 +29,7 @@ import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -331,16 +332,19 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
         if (player.isBlocking()) {
-            //block direction
-            if (ClientContext.localPlayer.getActiveHand() == HandType.MAIN) {
-                player.setYRot(data.getHand(HandType.MAIN).getYawDegrees());
-                player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getHand(HandType.MAIN).getPitchDegrees());
-            } else {
-                player.setYRot(data.getHand(HandType.OFFHAND).getYawDegrees());
-                player.setYHeadRot(player.getYRot());
-                player.setXRot(-data.getHand(HandType.OFFHAND).getPitchDegrees());
-            }
+            HandType activeHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN
+                    ? HandType.MAIN
+                    : HandType.OFFHAND;
+            visor$applyPoseLook(player, data.getHand(activeHand));
+            return;
+        }
+
+        if (VRClientSettings.isCompatibleLookDirection()
+                && player.isUsingItem()) {
+            HandType usingHand = player.getUsedItemHand() == InteractionHand.MAIN_HAND
+                    ? HandType.MAIN
+                    : HandType.OFFHAND;
+            visor$applyPoseLook(player, data.getHand(usingHand));
             return;
         }
 
@@ -351,38 +355,21 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 && player.zza > 0.0F) {
 
             VRPose rotationElement = getRotationElement(data.getType());
-            player.setYRot(rotationElement.getYawDegrees());
-            player.setYHeadRot(player.getYRot());
-            player.setXRot(-rotationElement.getPitchDegrees());
+            visor$applyPoseLook(player, rotationElement);
             return;
         }
 
-        if (((GameRendererExtension) MC.gameRenderer).visor$getCrossVec() != null) {
-            //Look AT the crosshair by default, most compatible with mods.
-            Vec3 playerToCrosshair = player.getEyePosition(1)
-                    .subtract(((GameRendererExtension) MC.gameRenderer)
-                            .visor$getCrossVec()); //backwards
-            double what = playerToCrosshair.y / playerToCrosshair.length();
-            if (what > 1) {
-                what = 1;
-            }
-            if (what < -1) {
-                what = -1;
-            }
-            float pitch = (float) Math.toDegrees(Math.asin(what));
-            float yaw = (float) Math.toDegrees(
-                    Mth.atan2(playerToCrosshair.x, -playerToCrosshair.z)
+        Vec3 crossVec = ((GameRendererExtension) MC.gameRenderer).visor$getCrossVec();
+        if (!VRClientSettings.isCompatibleLookDirection()
+                && crossVec != null) {
+            visor$applyVectorLook(
+                    player,
+                    crossVec.subtract(player.getEyePosition(1.0F)).normalize()
             );
-            player.setXRot(pitch);
-            player.setYRot(yaw);
-            player.setYHeadRot(yaw);
             return;
         }
 
-        //use HMD if no other option found
-        player.setYRot(data.getHmd().getUsedRotationY());
-        player.setYHeadRot(player.getYRot());
-        player.setXRot(-data.getHmd().getPitchDegrees());
+        visor$applyPoseLook(player, data.getHmd());
     }
 
     public void recenterOrigin(@NotNull Entity cameraEntity,
@@ -517,6 +504,29 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 this.pose,
                 this.renderPose
         );
+    }
+
+    private void visor$applyPoseLook(@NotNull LocalPlayer player,
+                                     @NotNull VRPose pose) {
+        player.setYRot(pose.getYawDegrees());
+        player.setYHeadRot(player.getYRot());
+        player.setXRot(-pose.getPitchDegrees());
+    }
+
+    private void visor$applyVectorLook(@NotNull LocalPlayer player,
+                                       @NotNull Vec3 view) {
+        double length = view.length();
+        if (length < 1.0E-6D) {
+            return;
+        }
+
+        double normalizedY = Mth.clamp(-view.y / length, -1.0D, 1.0D);
+        float pitch = (float) Math.toDegrees(Math.asin(normalizedY));
+        float yaw = (float) Math.toDegrees(Mth.atan2(-view.x, view.z));
+
+        player.setXRot(pitch);
+        player.setYRot(yaw);
+        player.setYHeadRot(yaw);
     }
 
 

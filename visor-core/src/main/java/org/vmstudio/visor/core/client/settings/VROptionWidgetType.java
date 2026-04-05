@@ -172,6 +172,10 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             (it) -> null
     ),
+    COMPATIBLE_LOOK_DIRECTION(
+            VROptionCategory.MOVEMENT,
+            (it) -> null
+    ),
     WORLD_ROTATION_STEP(
             VROptionCategory.MOVEMENT,
             (it) -> {

@@ -53,6 +53,9 @@
   "visor.options.movement.walk_up.tooltip": "§bWalk Up§r\n\nAutomatically step up onto blocks while walking.",
 
 
+  "visor.options.movement.compatible_look_direction": "Compatible Look",
+  "visor.options.movement.compatible_look_direction.tooltip": "§bCompatible Look Direction§r\n\nUses the §eHMD direction§r as your default reported look direction.\n\nWhen you actively use an item, the look direction temporarily follows the §eusing hand§r instead.\n\n§7This can help mods that depend on player look direction, but it is a best-effort compatibility mode and may change aiming behavior.§r",
+
   "_comment.gui": "----GUI Settings----",
   "visor.options.gui.button": "GUI",
   "visor.options.gui.shader_gui_render": "Shaders GUI",
