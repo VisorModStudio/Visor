@@ -13,6 +13,7 @@ import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
@@ -70,8 +71,9 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         ModelPart mainHand = vrPlayer.isLeftHanded() ? model.leftArm : model.rightArm;
         ModelPart offHand = vrPlayer.isLeftHanded() ? model.rightArm : model.leftArm;
 
-        applyHandPose(vrPlayer, mainHand, mainHandPose, bodyYaw);
-        applyHandPose(vrPlayer, offHand, offhandPose, bodyYaw);
+        var modelOrigin = ModelUtils.getModelOrigin(player);
+        applyHandPose(vrPlayer, modelOrigin, mainHand, mainHandPose, bodyYaw);
+        applyHandPose(vrPlayer, modelOrigin, offHand, offhandPose, bodyYaw);
 
         // copy to sleeves
         model.leftSleeve.copyFrom(model.leftArm);
@@ -84,11 +86,14 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
     }
 
     private static void applyHandPose(VRClientPlayer vrPlayer,
+                                      Vector3f modelOrigin,
                                       ModelPart arm, VRPose pose, float bodyYaw) {
         var pos = new Vector3f();
+        Vector3f relativePos = pose.getPosition().sub(modelOrigin, new Vector3f());
+
         ModelUtils.worldToModel(
                 vrPlayer,
-                pose.getRelativePosition(),
+                relativePos,
                 bodyYaw,
                 true,
                 pos
@@ -96,7 +101,6 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         arm.x = pos.x();
         arm.y = pos.y();
         arm.z = pos.z();
-
 
         Matrix3f tempM = new Matrix3f();
         Vector3f tempV = new Vector3f();

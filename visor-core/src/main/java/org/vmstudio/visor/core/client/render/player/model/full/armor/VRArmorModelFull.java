@@ -9,17 +9,20 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModel;
+import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelFull;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRArmorModel<T extends LivingEntity> extends HumanoidArmorModel<T> implements HandModel {
+public class VRArmorModelFull<T extends LivingEntity> extends HumanoidArmorModel<T> implements HandModel {
 
     public final ModelPart leftHand;
     public final ModelPart rightHand;
 
-    public VRArmorModel(ModelPart root) {
+    public VRArmorModelFull(ModelPart root) {
         super(root);
         this.leftHand = root.getChild("left_hand");
         this.rightHand = root.getChild("right_hand");
@@ -31,8 +34,8 @@ public class VRArmorModel<T extends LivingEntity> extends HumanoidArmorModel<T> 
         MeshDefinition meshDefinition = HumanoidArmorModel.createBodyLayer(cubeDeformation);
         PartDefinition partDefinition = meshDefinition.getRoot();
 
-        int upperExtension = VRPlayerModel.UPPER_EXTENSION;
-        int lowerExtension = VRPlayerModel.LOWER_EXTENSION;
+        int upperExtension = VRPlayerModelFull.UPPER_EXTENSION;
+        int lowerExtension = VRPlayerModelFull.LOWER_EXTENSION;
         float lowerShrinkage = -0.05F;
 
         partDefinition.addOrReplaceChild("left_hand", CubeListBuilder.create()
@@ -59,6 +62,7 @@ public class VRArmorModel<T extends LivingEntity> extends HumanoidArmorModel<T> 
         );
         return meshDefinition;
     }
+
 
     @Override
     protected Iterable<ModelPart> bodyParts() {

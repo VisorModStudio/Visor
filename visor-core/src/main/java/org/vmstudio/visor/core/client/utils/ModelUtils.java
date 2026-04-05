@@ -3,9 +3,11 @@ package org.vmstudio.visor.core.client.utils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
@@ -62,27 +64,13 @@ public class ModelUtils {
 
 
 
-    public static float getBendProgress(LivingEntity entity,
-                                        VRClientPlayer clientPlayer,
-                                        Vector3fc headPivot) {
-        // no bending when spinning
-        if (entity.isAutoSpinAttack()) return 0.0F;
-
-        // default player eye height, -0.2 neck offset
-        float eyeHeight = 1.42F * clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale();
-
-        float heightOffset = Mth.clamp(headPivot.y() - eyeHeight * clientPlayer.getFullHeightScale(), -eyeHeight, 0F);
-
-        float progress = heightOffset / -eyeHeight;
-
-        if (entity.isCrouching()) {
-            progress = Math.max(progress, 0.125F);
-        }
-        if (entity.isPassenger()) {
-            // don't go below sitting position
-            progress = Math.min(progress, 0.5F);
-        }
-        return progress;
+    public static Vector3f getModelOrigin(@NotNull LivingEntity entity){
+        float partialTicks = ClientContext.visor.getPartialTicks();
+        return new Vector3f(
+                (float) Mth.lerp(partialTicks, entity.xo, entity.getX()),
+                (float) Mth.lerp(partialTicks, entity.yo, entity.getY()),
+                (float) Mth.lerp(partialTicks, entity.zo, entity.getZ())
+        );
     }
 
 

@@ -17,6 +17,7 @@ import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -26,7 +27,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
+public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
     public static final int LOWER_EXTENSION = 2;
     public static final int UPPER_EXTENSION = 3;
 
@@ -43,7 +44,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
     public ModelPart leftHandSleeve;
     public ModelPart rightHandSleeve;
 
-    public VRPlayerModel(ModelPart root, boolean isSlim) {
+    public VRPlayerModelFull(ModelPart root, boolean isSlim) {
         super(root, isSlim);
         this.leftHandSleeve = root.getChild("left_hand_sleeve");
         this.rightHandSleeve = root.getChild("right_hand_sleeve");
@@ -153,7 +154,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
     }
 
     private void animateVRModel(
-            VRPlayerModel<?> model,
+            VRPlayerModelFull<?> model,
             LivingEntity player,
             float limbSwing, float limbSwingAmount
     ) {
@@ -180,8 +181,10 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         ModelPart offUpperArm  = vrPlayer.isLeftHanded() ? model.rightArm : model.leftArm;
         ModelPart offLowerArm  = vrPlayer.isLeftHanded() ? model.rightHand : model.leftHand;
 
-        applyArm(vrPlayer, mainUpperArm, mainLowerArm, mainHandPose, bodyYaw);
-        applyArm(vrPlayer, offUpperArm, offLowerArm, offhandPose, bodyYaw);
+
+        var modelOrigin = ModelUtils.getModelOrigin(player);
+        applyArm(vrPlayer, modelOrigin, mainUpperArm, mainLowerArm, mainHandPose, bodyYaw);
+        applyArm(vrPlayer, modelOrigin, offUpperArm, offLowerArm, offhandPose, bodyYaw);
 
         // copy to sleeves
         model.leftSleeve.copyFrom(model.leftArm);
@@ -199,6 +202,7 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
 
     private static void applyArm(
             VRClientPlayer vrPlayer,
+            Vector3f modelOrigin,
             ModelPart upperArm, ModelPart lowerArm,
             VRPose handPose, float bodyYaw
     ) {
@@ -206,9 +210,11 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         Matrix3f tempM = new Matrix3f();
 
         Vector3f handPos = new Vector3f();
+        Vector3f relativePos = handPose.getPosition().sub(modelOrigin, new Vector3f());
+
         ModelUtils.worldToModel(
                 vrPlayer,
-                handPose.getRelativePosition(),
+                relativePos,
                 bodyYaw,
                 true,
                 handPos
@@ -220,7 +226,6 @@ public class VRPlayerModel<T extends LivingEntity> extends PlayerModel<T> {
         Quaternionf handRot = handPose.getRotation().getNormalizedRotation(new Quaternionf());
         ModelUtils.toModelDir(bodyYaw, handRot, tempM);
         ModelUtils.setRotation(lowerArm, tempM, temp);
-
 
         ModelUtils.pointModelAtModelForward(
                 upperArm,

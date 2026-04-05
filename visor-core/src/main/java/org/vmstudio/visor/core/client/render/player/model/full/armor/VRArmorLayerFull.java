@@ -9,7 +9,7 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 
-public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends HumanoidArmorLayer<T, M, A> {
+public class VRArmorLayerFull<T extends LivingEntity, M extends HumanoidModel<T>, A extends HumanoidModel<T>> extends HumanoidArmorLayer<T, M, A> {
 
     // split arms model
     public static LayerDefinition VR_ARMOR_DEF_ARMS_INNER;
@@ -24,13 +24,13 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
     public static void createLayers() {
         // split arms model
         VR_ARMOR_DEF_ARMS_INNER = LayerDefinition.create(
-            VRArmorModel.createBodyLayer(new CubeDeformation(0.5F)), 64, 32);
+            VRArmorModelFull.createBodyLayer(new CubeDeformation(0.5F)), 64, 32);
         VR_ARMOR_DEF_ARMS_OUTER = LayerDefinition.create(
-            VRArmorModel.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
+            VRArmorModelFull.createBodyLayer(new CubeDeformation(1.0F)), 64, 32);
 
     }
 
-    public VRArmorLayer(RenderLayerParent<T, M> renderer, A innerModel, A outerModel, ModelManager modelManager) {
+    public VRArmorLayerFull(RenderLayerParent<T, M> renderer, A innerModel, A outerModel, ModelManager modelManager) {
         super(renderer, innerModel, outerModel, modelManager);
     }
 
@@ -39,7 +39,7 @@ public class VRArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>, A 
         super.setPartVisibility(model, slot);
         switch (slot) {
             case CHEST -> {
-                if (model instanceof VRArmorModel<?> armsModel) {
+                if (model instanceof VRArmorModelFull<?> armsModel) {
                     armsModel.leftHand.visible = true;
                     armsModel.rightHand.visible = true;
                 }

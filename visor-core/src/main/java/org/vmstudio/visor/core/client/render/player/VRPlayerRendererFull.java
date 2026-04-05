@@ -10,7 +10,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModel;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelFull;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -18,8 +18,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.phys.Vec3;
-import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorLayer;
-import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModel;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorLayerFull;
+import org.vmstudio.visor.core.client.render.player.model.full.armor.VRArmorModelFull;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
 
@@ -35,23 +35,23 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     public static void createLayers() {
         // split arms model
         VR_LAYER_DEFAULT = LayerDefinition.create(
-                VRPlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
+                VRPlayerModelFull.createMesh(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_SLIM = LayerDefinition.create(
-                VRPlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
+                VRPlayerModelFull.createMesh(CubeDeformation.NONE, true), 64, 64);
 
     }
 
 
     public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim, VRClientSettings.PlayerModelType type) {
         super(context, slim);
-        this.model = new VRPlayerModel<>(
+        this.model = new VRPlayerModelFull<>(
                 slim ? VR_LAYER_SLIM.bakeRoot()
                         : VR_LAYER_DEFAULT.bakeRoot(),
                 slim
         );
 
 
-        VRArmorLayer.createLayers();
+        VRArmorLayerFull.createLayers();
 
         // remove vanilla armor layer
         this.layers.stream()
@@ -59,16 +59,16 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
                 .findFirst()
                 .ifPresent(this.layers::remove);
         //add custom armor layer
-        this.addLayer(new VRArmorLayer<>(this,
-                new VRArmorModel<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
-                new VRArmorModel<>(VRArmorLayer.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
+        this.addLayer(new VRArmorLayerFull<>(this,
+                new VRArmorModelFull<>(VRArmorLayerFull.VR_ARMOR_DEF_ARMS_INNER.bakeRoot()),
+                new VRArmorModelFull<>(VRArmorLayerFull.VR_ARMOR_DEF_ARMS_OUTER.bakeRoot()),
                 context.getModelManager()));
     }
 
     public boolean hasLayerType(RenderLayer<?, ?> renderLayer) {
         return this.layers.stream().anyMatch(layer -> {
             if (renderLayer.getClass() == HumanoidArmorLayer.class) {
-                return layer.getClass() == renderLayer.getClass() || layer.getClass() == VRArmorLayer.class;
+                return layer.getClass() == renderLayer.getClass() || layer.getClass() == VRArmorLayerFull.class;
             }
             return layer.getClass() == renderLayer.getClass();
         });
@@ -136,7 +136,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     }
 
     private void hideHand(HumanoidArm arm) {
-        if (this.getModel() instanceof VRPlayerModel<?> vrModel) {
+        if (this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
             if (arm == HumanoidArm.LEFT) {
                 vrModel.hideLeftArm();
             } else {

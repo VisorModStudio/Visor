@@ -140,9 +140,6 @@ public class VRClientSettings {
     @Getter
     @VROptionField
     protected static PlayerModelType playerModelType = PlayerModelType.SPLIT_ARMS;
-    @Getter
-    @VROptionField
-    protected static ModelArmsMode modelArmsMode = ModelArmsMode.COMPLETE;
 
     @Getter
     @VROptionField
@@ -162,11 +159,6 @@ public class VRClientSettings {
         SPLIT_ARMS
     }
 
-    public enum ModelArmsMode {
-        OFF,
-        SHOULDERS,
-        COMPLETE
-    }
 
     //----Main menu panorama
     @Getter
