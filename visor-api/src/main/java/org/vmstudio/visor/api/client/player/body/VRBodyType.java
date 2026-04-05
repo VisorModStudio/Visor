@@ -1,22 +1,27 @@
 package org.vmstudio.visor.api.client.player.body;
 
+
 import lombok.Getter;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.VisorComponent;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public abstract class VRBodyType implements VisorComponent {
+    /**
+     * We want the body type to be always not null, so,
+     * the fallback is for cases when body type not found by specified ID.
+     */
+    public static VRBodyType FALLBACK_BODY_TYPE;
+
     @Getter
     @NotNull
     private final VisorAddon owner;
-
 
 
     public VRBodyType(@NotNull VisorAddon owner){
@@ -44,8 +49,9 @@ public abstract class VRBodyType implements VisorComponent {
     public abstract boolean isSelfModelVisible();
 
 
-    public @NotNull VRBody createBody(@NotNull VRClientPlayer vrPlayer){
-        return new VRBody(this, vrPlayer);
+    public @NotNull VRBody createBody(@NotNull VRClientPlayer vrPlayer,
+                                      @NotNull VRPlayerPoseClient vrPlayerPose){
+        return new VRBody(this, vrPlayer, vrPlayerPose);
     }
 
 

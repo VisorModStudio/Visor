@@ -14,6 +14,7 @@ import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.input.actions.*;
@@ -152,8 +153,12 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.settingsManager.getPresetsCatalog().reload();
 
 
-        ClientContext.localPlayer.setBodyType(ClientContext.decorationRenderer.getVrBodyTypeRegistry()
-                .getComponent(VRClientSettings.getDefaultVrBody()));
+        var bodyType = ClientContext.decorationRenderer.getVrBodyTypeRegistry()
+                .getComponent(VRClientSettings.getDefaultVrBody());
+        if(bodyType == null){
+            bodyType = VRBodyType.FALLBACK_BODY_TYPE;
+        }
+        ClientContext.localPlayer.setBodyType(bodyType);
         var delayedBodyInit = VisorState.getDelayedVrBodyInit();
         if(delayedBodyInit != null){
             ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents()

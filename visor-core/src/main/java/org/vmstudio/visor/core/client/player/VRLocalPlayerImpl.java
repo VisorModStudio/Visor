@@ -6,7 +6,6 @@ import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
-import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -55,7 +54,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
-    @Getter @Setter
+    @Getter
     private VRBodyType bodyType;
 
     @Getter
@@ -75,13 +74,26 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     private boolean moving;
 
     public VRLocalPlayerImpl() {
-        this.roomRelativePose = new LocalPlayerPose(PlayerPoseType.RELATIVE);
-        this.prevPose = new LocalPlayerPose(PlayerPoseType.PREV_TICK);
-        this.pose = new LocalPlayerPose(PlayerPoseType.TICK);
-        this.renderPose  = new LocalPlayerPose(PlayerPoseType.RENDER);
+        this.roomRelativePose = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
+        this.prevPose = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
+        this.pose = new LocalPlayerPose(this, PlayerPoseType.TICK);
+        this.renderPose  = new LocalPlayerPose(this, PlayerPoseType.RENDER);
 
         this.poseHistoryRelative = new PoseHistoryImpl(roomRelativePose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
+    }
+
+    @Override
+    public void setBodyType(@NotNull VRBodyType bodyType) {
+        this.bodyType = bodyType;
+
+        this.roomRelativePose.bodyTypeChanged(bodyType);
+        this.prevPose.bodyTypeChanged(bodyType);
+        this.pose.bodyTypeChanged(bodyType);
+        this.renderPose.bodyTypeChanged(bodyType);
+
+        this.poseHistoryRelative.clear();
+        this.poseHistoryTick.clear();
     }
 
     public void onGameLoopStart(){
@@ -108,11 +120,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 this.pose.getRotationY()
         );
 
-        var historyEntry = new LocalPlayerPose(PlayerPoseType.RELATIVE);
+        var historyEntry = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
         historyEntry.copyFrom(roomRelativePose);
         poseHistoryRelative.addEntry(historyEntry);
 
-        historyEntry = new LocalPlayerPose(PlayerPoseType.PREV_TICK);
+        historyEntry = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
         historyEntry.copyFrom(prevPose);
         poseHistoryTick.addEntry(historyEntry);
 
@@ -140,7 +152,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void postTick() {
-        this.pose.updateSimple(
+        this.pose.updateModifiers(
                 pose.getOrigin(),
                 pose.getWorldScale(),
                 rotationYRaw
@@ -414,7 +426,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             this.prevPose.resetOrigin(newOrigin);
         }
 
-        this.pose.updateSimple(
+        this.pose.updateModifiers(
                 newOrigin,
                 pose.getWorldScale(),
                 pose.getRotationY()

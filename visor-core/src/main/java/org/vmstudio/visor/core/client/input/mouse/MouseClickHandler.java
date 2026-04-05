@@ -226,6 +226,7 @@ public class MouseClickHandler {
         }
         if (press) {
             if (MC.level != null) {
+                //clicked outside of overlay screen, close the screen
                 InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
                 InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
             }

@@ -2,12 +2,15 @@ package org.vmstudio.visor.core.client.player.pose;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
+import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawControllerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawHmdImpl;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -19,6 +22,7 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.vmstudio.visor.core.client.ClientContext;
@@ -30,6 +34,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 @Getter
 public class LocalPlayerPose implements VRPlayerPoseClient {
 
+    private final VRLocalPlayerImpl vrPlayer;
     private final PlayerPoseType type;
 
     protected final VRPoseImpl hmd;
@@ -44,7 +49,9 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
     protected final VRPoseImpl thirdPersonCamera;
 
-    private final List<VRPoseImpl> elements;
+    private final List<VRPose> elements;
+
+    private VRBody body;
 
     private Vector3fc origin;
     private float rotationY;
@@ -53,7 +60,9 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public LocalPlayerPose(PlayerPoseType type) {
+    public LocalPlayerPose(VRLocalPlayerImpl vrPlayer,
+                           PlayerPoseType type) {
+        this.vrPlayer = vrPlayer;
         this.type = type;
 
         this.hmd = new VRPoseImpl();
@@ -67,18 +76,54 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
         this.thirdPersonCamera = new VRPoseImpl();
 
+        var bodyType = vrPlayer.getBodyType();
+        if(bodyType != null) {
+            this.body = vrPlayer.getBodyType().createBody(
+                    vrPlayer,
+                    this
+            );
+            this.body.init();
+        }
 
-        elements = List.of(
-                hmd,
-                eyeLeft, eyeRight,
-                mainHand, offhand,
-                gripOffhand, gripMainHand,
-                thirdPersonCamera
+        elements = new ArrayList<>();
+        elements.addAll(
+                List.of(
+                        hmd,
+                        eyeLeft, eyeRight,
+                        mainHand, offhand,
+                        gripOffhand, gripMainHand,
+                        thirdPersonCamera
+                )
         );
+        if(body != null) {
+            elements.addAll(body.getAllPoses());
+        }
 
         updateTracking(VRMathUtils.ZERO_VECTOR,1.0f, 0f);
 
     }
+
+    public void bodyTypeChanged(@NotNull VRBodyType bodyType){
+        this.body = bodyType.createBody(
+                vrPlayer,
+                this
+        );
+        this.body.init();
+        this.body.update();
+
+        elements.clear();
+        elements.addAll(
+                List.of(
+                        hmd,
+                        eyeLeft, eyeRight,
+                        mainHand, offhand,
+                        gripOffhand, gripMainHand,
+                        thirdPersonCamera
+                )
+        );
+        elements.addAll(body.getAllPoses());
+    }
+
 
     public void updateTracking(Vector3fc origin,
                                float worldScale,
@@ -175,11 +220,15 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
         this.bodyYaw = calcBodyYaw();
         this.headPivot = calcHeadPivot();
+
+        if(body != null) {
+            this.body.update();
+        }
     }
 
-    public void updateSimple(Vector3fc newOrigin,
-                             float newWorldScale,
-                             float newRotationY){
+    public void updateModifiers(Vector3fc newOrigin,
+                                float newWorldScale,
+                                float newRotationY){
         if (newWorldScale == this.worldScale
                 && newRotationY == this.rotationY
                 && newOrigin.equals(this.origin)) {
@@ -217,7 +266,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         this.rotationY = newRotationY;
         this.worldScale = newWorldScale;
 
-        for (VRPoseImpl it : elements) {
+        for (VRPose it : elements) {
             it.updateModifiers(
                     this.origin,
                     this.rotationY,
@@ -244,6 +293,12 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         gripMainHand.copyFrom(other.gripMainHand);
         gripOffhand.copyFrom(other.gripOffhand);
         thirdPersonCamera.copyFrom(other.thirdPersonCamera);
+
+        if(body.getType() != other.body.getType()) {
+            bodyTypeChanged(other.body.getType());
+        }else {
+            body.copyFrom(other.body);
+        }
     }
 
     public Vector3f createNewHeadPivot(Vector3fc newOrigin, float newWorldScale) {

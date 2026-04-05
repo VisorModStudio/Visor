@@ -1,18 +1,15 @@
 package org.vmstudio.visor.api.client.player.body;
 
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
-import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
-import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.api.common.addon.component.VisorComponent;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
+import org.vmstudio.visor.api.common.VRException;
+import org.vmstudio.visor.api.common.player.VRPose;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 //TODO make it both sided? for later cool usage
 // (server will calculate positioning, no extra network usage will be needed)
@@ -24,9 +21,14 @@ public class VRBody {
     @Getter
     private final VRClientPlayer vrPlayer;
 
+    @Getter
+    private final VRPlayerPoseClient vrPlayerPose;
 
-    private final Map<String, VRBodyPart> bodyPartsMap;
 
+    private Map<String, VRBodyPart> bodyPartsMap;
+
+    @Getter
+    private List<VRPose> allPoses;
 
     @Getter
     private VRBodyPart head;
@@ -36,10 +38,13 @@ public class VRBody {
     private VRBodyPart offhand;
 
     public VRBody(@NotNull VRBodyType type,
-                  @NotNull VRClientPlayer vrPlayer){
+                  @NotNull VRClientPlayer vrPlayer,
+                  @NotNull VRPlayerPoseClient vrPlayerPose){
         this.type = type;
         this.vrPlayer = vrPlayer;
-        bodyPartsMap = new HashMap<>();
+        this.vrPlayerPose = vrPlayerPose;
+        this.bodyPartsMap = new HashMap<>();
+        this.allPoses = new ArrayList<>();
     }
 
     public void onInit(){
@@ -48,15 +53,38 @@ public class VRBody {
 
 
     public final void init(){
-        clearBody();
+        clear();
 
         head = VRBodyPart.SIMPLE_HEAD;
         mainHand = VRBodyPart.SIMPLE_MAIN_HAND;
         offhand = VRBodyPart.SIMPLE_OFFHAND;
+        addBodyPart(head);
         addBodyPart(mainHand);
         addBodyPart(offhand);
 
         onInit();
+    }
+
+    public void update(){
+        bodyPartsMap.values().forEach(it->it.update(vrPlayerPose));
+    }
+
+    public void copyFrom(@NotNull VRBody other){
+        if(other.getType() != type){
+            throw new VRException(
+                    Component.literal("Failed VRBody copying"),
+                    Component.literal("Tried to copyFrom VRBody that has different type")
+            );
+        }
+        for(var bodyPart : bodyPartsMap.values()){
+            var otherBodyPart = other.getBodyPart(bodyPart.getId());
+            if(otherBodyPart == null) continue;
+            bodyPart.copyFrom(otherBodyPart);
+        }
+    }
+    protected void clear(){
+        bodyPartsMap.clear();
+        allPoses.clear();
     }
 
     public float getBodyYaw(){
@@ -65,14 +93,11 @@ public class VRBody {
 
     protected void addBodyPart(@NotNull VRBodyPart bodyPart){
         bodyPartsMap.put(bodyPart.getId(), bodyPart);
-    }
-
-    protected void clearBody(){
-        bodyPartsMap.clear();
+        allPoses.add(bodyPart.pose);
     }
 
 
-    @NotNull
+    @Nullable
     public VRBodyPart getBodyPart(@NotNull String id){
         return bodyPartsMap.get(id);
     }

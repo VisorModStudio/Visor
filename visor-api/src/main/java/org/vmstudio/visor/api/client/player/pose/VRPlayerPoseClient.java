@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.player.pose;
 
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPlayerPose;
@@ -25,6 +26,11 @@ public interface VRPlayerPoseClient extends VRPlayerPose {
      */
     PlayerPoseType getType();
 
+    /**
+     * Get VR body
+     * @return the VR body
+     */
+    VRBody getBody();
 
     /**
      * Get the left eye pose.

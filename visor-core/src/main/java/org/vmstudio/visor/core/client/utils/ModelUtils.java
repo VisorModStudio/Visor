@@ -145,40 +145,6 @@ public class ModelUtils {
     }
 
 
-    public static void pointModelAtLocal(
-            VRClientPlayer vrPlayer, ModelPart part, Vector3fc target, Quaternionfc targetRot,
-            float bodyYaw, boolean useWorldScale, Vector3f tempVDir, Vector3f tempVUp, Matrix3f tempM)
-    {
-        // convert target to model
-        worldToModel(vrPlayer, target, bodyYaw, useWorldScale, tempVDir);
-
-        // calculate direction
-        tempVDir.sub(part.x, part.y, part.z);
-
-        // get the up vector the ModelPart should face
-        targetRot.transform(VRMathUtils.RIGHT_VECTOR, tempVUp);
-        worldToModelDirection(tempVUp, bodyYaw, tempVUp);
-
-        tempVDir.cross(tempVUp, tempVUp);
-
-        // rotate model
-        pointAtModel(tempVDir, tempVUp, tempM);
-    }
-
-
-    public static void pointAtModelWithLocal(
-            Quaternionfc targetRot, float bodyYaw, Vector3fc dir, Vector3f tempVUp, Matrix3f tempM)
-    {
-
-        // get the up vector the ModelPart should face
-        targetRot.transform(VRMathUtils.RIGHT_VECTOR, tempVUp);
-        worldToModelDirection(tempVUp, bodyYaw, tempVUp);
-
-        dir.cross(tempVUp, tempVUp);
-
-        // rotate model
-        pointAtModel(dir, tempVUp, tempM);
-    }
 
 
     public static void pointModelAtModelForward(
@@ -231,48 +197,6 @@ public class ModelUtils {
         part.setRotation(-tempV.x, Float.isNaN(tempV.y) ? 0F : -tempV.y, tempV.z);
     }
 
-    public static void estimateJointDir(
-            VRClientPlayer vrPlayer,
-            ModelPart upper, ModelPart lower, Quaternionfc lowerRot, float bodyYaw, boolean jointDown,
-            @Nullable Vector3fc jointPos, boolean useWorldScale,
-            Vector3f tempV, Vector3f tempV2)
-    {
-        if (jointPos != null) {
-            // use mid arm point to joint direction
-            tempV.set(upper.x + lower.x, upper.y + lower.y, upper.z + lower.z)
-                    .mul(0.5F);
-            ModelUtils.worldToModel(vrPlayer, jointPos, bodyYaw, useWorldScale, tempV2);
-            tempV2.sub(tempV, tempV);
-        } else {
-            // point the elbow away from the hand direction
-            // hand direction, up forward/down back
-            lowerRot.transform(0F, jointDown ? -1F : 1F, jointDown ? 1F : -1F, tempV);
-            ModelUtils.worldToModelDirection(tempV, bodyYaw, tempV);
-        }
-        // arm dir
-        tempV2.set(lower.x - upper.x, lower.y - upper.y, lower.z - upper.z);
-
-        // calculate the vector perpendicular to the arm dir
-        float dot = tempV2.dot(tempV) / tempV2.dot(tempV2);
-        tempV2.mul(dot);
-        tempV.sub(tempV2).normalize();
-    }
-
-    public static void estimateJoint(
-            float startX, float startY, float startZ, float endX, float endY, float endZ, Vector3fc preferredDirection,
-            float limbLength, Vector3f tempV)
-    {
-        tempV.set(startX, startY, startZ);
-        float distance = tempV.distance(endX, endY, endZ);
-        tempV.add(endX, endY, endZ).mul(0.5F);
-        if (distance < limbLength) {
-            // move the mid point outwards so that the limb length is reached
-            float offsetDistance = (float) Math.sqrt((limbLength * limbLength - distance * distance) * 0.25F);
-            tempV.add(preferredDirection.x() * offsetDistance,
-                    preferredDirection.y() * offsetDistance,
-                    preferredDirection.z() * offsetDistance);
-        }
-    }
 
 
     public static void swingAnimation(
@@ -322,65 +246,6 @@ public class ModelUtils {
     }
 
 
-    public static void swingAnimation(
-            ModelPart part, HumanoidArm arm, float offset, float attackTime, boolean isMainPlayer, Matrix3f tempM,
-            Vector3f tempV, Vector3f tempV2)
-    {
-        if (attackTime > 0.0F) {
-            // need to get the pre and post rotation point, to offset the modelPart correctly
-            tempM.transform(0, offset, 0, tempV2);
-
-            swingAnimation(arm, attackTime, isMainPlayer, tempM, tempV);
-            // apply offset from the animation
-            part.x -= tempV.x;
-            part.y -= tempV.y;
-            part.z += tempV.z;
-
-            tempM.transform(0, offset, 0, tempV);
-
-            // apply the offset from the rotation point
-            part.x += tempV2.x - tempV.x;
-            part.y += tempV2.y - tempV.y;
-            part.z -= tempV2.z - tempV.z;
-        }
-    }
-
-
-    public static void applySwimRotationOffset(
-            LivingEntity player, float xRot, Vector3f tempV, Vector3f tempV2, ModelPart... parts)
-    {
-        // calculate rotation offset, since the player model is offset while swimming
-        if (player.isVisuallySwimming() && !player.isAutoSpinAttack() && !player.isFallFlying()) {
-            tempV2.set(0.0F, 17.06125F, 5.125F);
-            tempV2.rotateX(-xRot);
-            tempV2.y += 2;
-        } else {
-            // make sure this one is empty
-            tempV2.set(0, 0, 0);
-        }
-
-        for (ModelPart part : parts) {
-            tempV.set(part.x, part.y, part.z);
-
-            tempV.sub(tempV2);
-
-            // apply swimming rotation to the offset
-            tempV.y -= 24F;
-            tempV.rotateX(xRot);
-            tempV.y += 24F;
-            part.setPos(tempV.x, tempV.y, tempV.z);
-        }
-    }
-
-    /**
-     * Rotates the PoseStack from VR controller coordinate frame to model coordinate frame.
-     * <p>
-     * VR controller: Z-negative = forward (pointing), Y = up, X = right.
-     * Model space: Y-positive = down-arm, with flipped axes per model conventions.
-     * <p>
-     * Use this before applying model-space transforms (like vanilla item positioning)
-     * when rendering in VR controller space.
-     */
     public static void controllerToModelOrientation(PoseStack poseStack) {
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));

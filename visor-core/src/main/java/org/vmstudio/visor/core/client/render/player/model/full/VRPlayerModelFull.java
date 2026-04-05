@@ -23,6 +23,7 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
+import org.vmstudio.visor.core.client.player.body.VRBodyFull;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
@@ -172,8 +173,11 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
                 : HumanoidArm.RIGHT;
 
         var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
-        var mainHandPose = poseRender.getMainHand();
-        var offhandPose = poseRender.getOffhand();
+
+        VRBodyFull vrBody = (VRBodyFull) poseRender.getBody();
+
+        var mainHandPose = vrBody.getMainHand().getPose();
+        var offhandPose = vrBody.getOffhand().getPose();
         float bodyYaw = poseRender.getBodyYaw();
 
         ModelPart mainUpperArm = vrPlayer.isLeftHanded() ? model.leftArm : model.rightArm;

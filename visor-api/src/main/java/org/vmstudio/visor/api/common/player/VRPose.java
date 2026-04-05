@@ -22,6 +22,7 @@ public interface VRPose {
     VRPose EMPTY = new VRPose() {
         @Override public void update(@NotNull Vector3fc rawPosition, @NotNull Matrix4fc rawMatrix, @NotNull Vector3fc rawDirection, @NotNull Vector3fc origin, float rotationY, float worldScale) {}
         @Override public void updateModifiers(@NotNull Vector3fc newOrigin, float newRotationY, float newWorldScale) {}
+        @Override public void onOriginChanged(Vector3fc newOrigin) {}
         @Override public void copyFrom(@NotNull VRPose pose) {}
         @Override public @NotNull Vector3fc getPosition() {return VRMathUtils.ZERO_VECTOR;}
         @Override public @NotNull Vector3fc getRelativePosition() {return VRMathUtils.ZERO_VECTOR;}
@@ -58,6 +59,7 @@ public interface VRPose {
                          float newRotationY,
                          float newWorldScale);
 
+    void onOriginChanged(Vector3fc newOrigin);
 
     void copyFrom(@NotNull VRPose pose);
 

@@ -2,6 +2,8 @@ package org.vmstudio.visor.core.client.player.pose;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vmstudio.visor.api.client.player.body.VRBody;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -17,8 +19,11 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
+import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.common.player.VRPoseImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -28,6 +33,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     @Setter
     private RemotePlayer mcPlayer;
 
+    private final VRRemotePlayerImpl vrPlayer;
     private final PlayerPoseType type;
 
     protected final VRPoseImpl hmd;
@@ -37,7 +43,9 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
 
 
 
-    private final List<VRPoseImpl> elements;
+    private final List<VRPose> elements;
+
+    private VRBody body;
 
     private Vector3fc origin;
     private final float rotationY = 0.0f;
@@ -46,9 +54,11 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public RemotePlayerPose(RemotePlayer mcPlayer,
+    public RemotePlayerPose(VRRemotePlayerImpl vrPlayer,
                             PlayerPoseType type) {
-        this.mcPlayer = mcPlayer;
+        this.mcPlayer = vrPlayer.getMcPlayer();
+
+        this.vrPlayer = vrPlayer;
         this.type = type;
 
         this.hmd = new VRPoseImpl();
@@ -57,14 +67,45 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         this.offhand = new VRPoseImpl();
 
 
+        var bodyType = vrPlayer.getBodyType();
+        if(bodyType != null) {
+            this.body = vrPlayer.getBodyType().createBody(
+                    vrPlayer,
+                    this
+            );
+            this.body.init();
+        }
 
-        elements = List.of(
-                hmd,
-                mainHand,
-                offhand
+        elements = new ArrayList<>();
+        elements.addAll(
+                List.of(
+                        hmd,
+                        mainHand, offhand
+                )
         );
+        if(body != null) {
+            elements.addAll(body.getAllPoses());
+        }
 
 
+    }
+
+    public void bodyTypeChanged(@NotNull VRBodyType bodyType){
+        this.body = bodyType.createBody(
+                vrPlayer,
+                this
+        );
+        this.body.init();
+        this.body.update();
+
+        elements.clear();
+        elements.addAll(
+                List.of(
+                        hmd,
+                        mainHand, offhand
+                )
+        );
+        elements.addAll(body.getAllPoses());
     }
 
     public void update(Vector3fc hmdPos,
@@ -110,6 +151,10 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
 
         this.bodyYaw = calcBodyYaw();
         this.headPivot = calcHeadPivot();
+
+        if(body != null) {
+            this.body.update();
+        }
     }
     public void update(PoseDataBuffer poseBuffer,
                        Vector3fc origin,
@@ -164,7 +209,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         this.origin = adjustedOrigin;
         this.worldScale = newWorldScale;
 
-        for (VRPoseImpl it : elements) {
+        for (VRPose it : elements) {
             it.updateModifiers(
                     this.origin,
                     this.rotationY,
@@ -185,6 +230,12 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         hmd.copyFrom(other.hmd);
         mainHand.copyFrom(other.mainHand);
         offhand.copyFrom(other.offhand);
+
+        if(body.getType() != other.body.getType()) {
+            bodyTypeChanged(other.body.getType());
+        } else {
+            body.copyFrom(other.body);
+        }
     }
 
 
@@ -195,7 +246,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     private Vector3f calcHeadPivot() {
         var hmdPosition = this.hmd.getPosition();
         Vector3f transform = this.hmd.getRotation()
-                .transformPosition(
+                .transformDirection(
                         new Vector3f(
                                 0.0F,
                                 -0.1F * worldScale,

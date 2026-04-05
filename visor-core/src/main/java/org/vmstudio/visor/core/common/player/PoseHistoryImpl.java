@@ -16,12 +16,16 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
     private final LinkedList<VRPlayerPose> history = new LinkedList<>();
 
-    private final VRPlayerPose currentPose;
-    public PoseHistoryImpl(VRPlayerPose currentPose){
-        this.currentPose = currentPose;
-        history.addFirst(currentPose);
+    private final VRPlayerPose relevantPose;
+    public PoseHistoryImpl(VRPlayerPose relevantPose){
+        this.relevantPose = relevantPose;
+        history.addFirst(relevantPose);
     }
 
+    public void clear(){
+        history.clear();
+        history.addFirst(relevantPose);
+    }
     @Override
     public Vector3f netMovement(VRTrackableBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
@@ -145,7 +149,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
     public void addEntry(VRPlayerPose entry){
         history.removeFirst();
         history.addFirst(entry);
-        history.addFirst(currentPose);
+        history.addFirst(relevantPose);
         if (history.size() > HISTORY_LIMIT) {
             history.removeLast();
         }

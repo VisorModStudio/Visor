@@ -11,6 +11,7 @@ import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -64,8 +65,11 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
                 : HumanoidArm.RIGHT;
 
         var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
-        var mainHandPose = poseRender.getMainHand();
-        var offhandPose = poseRender.getOffhand();
+
+        VRBody vrBody = poseRender.getBody();
+
+        var mainHandPose = vrBody.getMainHand().getPose();
+        var offhandPose = vrBody.getOffhand().getPose();
         float bodyYaw = poseRender.getBodyYaw();
 
         ModelPart mainHand = vrPlayer.isLeftHanded() ? model.leftArm : model.rightArm;

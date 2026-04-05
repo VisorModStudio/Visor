@@ -28,6 +28,8 @@ public class VRBodyTypeHandsOnly extends VRBodyType {
         super(owner);
         instance = this;
         renderer = new VRBodyRendererHandsOnly();
+
+        FALLBACK_BODY_TYPE = this;
     }
 
 

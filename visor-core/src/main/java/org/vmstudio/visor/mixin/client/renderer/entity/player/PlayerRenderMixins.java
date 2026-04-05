@@ -66,7 +66,9 @@ public class PlayerRenderMixins {
                 var model = vrPlayer.getBodyType().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );
-                cir.setReturnValue(model);
+                if(model != null) {
+                    cir.setReturnValue(model);
+                }
             }
         }
 

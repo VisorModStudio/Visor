@@ -3,10 +3,12 @@ package org.vmstudio.visor.core.client.player.body;
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.body.RegisterVRBodyType;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyPart;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 
 @RegisterVRBodyType
@@ -39,6 +41,10 @@ public class VRBodyTypeFull extends VRBodyType {
         return true;
     }
 
+    @Override
+    public @NotNull VRBody createBody(@NotNull VRClientPlayer vrPlayer, @NotNull VRPlayerPoseClient vrPlayerPose) {
+        return new VRBodyFull(this, vrPlayer, vrPlayerPose);
+    }
 
     @Override
     public Component getName() {

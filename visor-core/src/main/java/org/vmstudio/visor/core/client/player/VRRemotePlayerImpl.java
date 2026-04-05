@@ -49,22 +49,23 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer) {
+        this.mcPlayer = mcPlayer;
         this.poseBufferReceived = poseBuffer;
         this.worldScaleReceived = 1.0f;
         this.fullHeight = 1.0f;
 
         this.bodyType = VRBodyTypeHandsOnly.getInstance();
 
-        this.playerRelativePose = new RemotePlayerPose(mcPlayer, PlayerPoseType.RELATIVE);
+        this.playerRelativePose = new RemotePlayerPose(this, PlayerPoseType.RELATIVE);
         this.playerRelativePose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
-        this.prevPose = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK);
+        this.prevPose = new RemotePlayerPose(this, PlayerPoseType.PREV_TICK);
         this.prevPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
-        this.pose = new RemotePlayerPose(mcPlayer, PlayerPoseType.TICK);
+        this.pose = new RemotePlayerPose(this, PlayerPoseType.TICK);
         this.pose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
-        this.renderPose  = new RemotePlayerPose(mcPlayer, PlayerPoseType.RENDER);
+        this.renderPose  = new RemotePlayerPose(this, PlayerPoseType.RENDER);
         this.renderPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
 
         this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
@@ -89,8 +90,15 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 .vrBodyTypes();
         this.bodyType = registry.getComponent(vrBodyType);
         if(this.bodyType == null){
-            this.bodyType = registry.getComponent(VRBodyTypeHandsOnly.ID);
+            this.bodyType = VRBodyType.FALLBACK_BODY_TYPE;
         }
+
+        this.prevPose.bodyTypeChanged(bodyType);
+        this.pose.bodyTypeChanged(bodyType);
+        this.renderPose.bodyTypeChanged(bodyType);
+
+        this.poseHistoryRelative.clear();
+        this.poseHistoryTick.clear();
     }
     public void receivedWorldScalePacket(float worldScale){
         this.worldScaleReceived = worldScale;
@@ -120,11 +128,11 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 1.0f
         );
 
-        var historyEntry = new RemotePlayerPose(mcPlayer, PlayerPoseType.RELATIVE);
+        var historyEntry = new RemotePlayerPose(this, PlayerPoseType.RELATIVE);
         historyEntry.copyFrom(playerRelativePose);
         poseHistoryRelative.addEntry(historyEntry);
 
-        historyEntry = new RemotePlayerPose(mcPlayer, PlayerPoseType.PREV_TICK);
+        historyEntry = new RemotePlayerPose(this, PlayerPoseType.PREV_TICK);
         historyEntry.copyFrom(prevPose);
         poseHistoryTick.addEntry(historyEntry);
     }
