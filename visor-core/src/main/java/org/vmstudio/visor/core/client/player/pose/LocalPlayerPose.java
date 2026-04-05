@@ -255,7 +255,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                         new Vector3f()
                 );
         Vector3f headPivotOffset = this.hmd.getRotation()
-                .transformPosition(
+                .transformDirection(
                         new Vector3f(
                                 0.0F,
                                 -0.1F * newWorldScale,
@@ -272,7 +272,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
     private Vector3f calcHeadPivot() {
         var hmdPosition = this.hmd.getPosition();
         Vector3f transform = this.hmd.getRotation()
-                .transformPosition(
+                .transformDirection(
                         new Vector3f(
                                 0.0F,
                                 -0.1F * worldScale,
