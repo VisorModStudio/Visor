@@ -78,6 +78,11 @@ public class VRClientSettings {
     @VROptionField(widgetType = VROptionWidgetType.WALK_UP, key = "walk_up")
     protected static boolean walkUpEnabled = true;
 
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.COMPATIBLE_LOOK_DIRECTION,
+            key = "compatible_look_direction")
+    protected static boolean compatibleLookDirection = false;
+
 
 
     @Getter
