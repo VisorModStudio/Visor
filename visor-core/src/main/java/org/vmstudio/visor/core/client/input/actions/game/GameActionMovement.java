@@ -53,8 +53,8 @@ public class GameActionMovement extends VRActionVec2 {
         Vector2f movement = ClientContext.localPlayer.getMovement();
 
         if(VRClientSettings.getMoveMode(MC.player) == MovementMode.TELEPORT){
+            resetMovementState();
             movement.set(rawMove);
-            ClientContext.localPlayer.setMoving(false);
             TaskTeleport.getInstance().updateInputState(
                     handType,
                     rawMove
@@ -163,7 +163,7 @@ public class GameActionMovement extends VRActionVec2 {
 
         input.x = 0;
         input.y = 0;
-        ClientContext.localPlayer.setMoving(false);
+        resetMovementState();
 
     }
 
@@ -191,6 +191,21 @@ public class GameActionMovement extends VRActionVec2 {
         } else {
             return 0F;
         }
+    }
+
+    private void resetMovementState() {
+        ClientUtils.updateKeyMappingState(MC.options.keyUp, false);
+        ClientUtils.updateKeyMappingState(MC.options.keyDown, false);
+        ClientUtils.updateKeyMappingState(MC.options.keyLeft, false);
+        ClientUtils.updateKeyMappingState(MC.options.keyRight, false);
+
+        this.wasMovement = false;
+
+        if (this.wasAutoSprinting && MC.player != null) {
+            MC.player.setSprinting(false);
+        }
+        this.wasAutoSprinting = false;
+        ClientContext.localPlayer.setMoving(false);
     }
 
     private Vector2f toDigital(Vector2f value, float deadzone) {
