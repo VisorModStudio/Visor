@@ -16,26 +16,26 @@ import java.util.*;
 public class VRBody {
 
     @Getter
-    private final VRBodyType type;
+    protected final VRBodyType type;
 
     @Getter
-    private final VRClientPlayer vrPlayer;
+    protected final VRClientPlayer vrPlayer;
 
     @Getter
-    private final VRPlayerPoseClient vrPlayerPose;
+    protected final VRPlayerPoseClient vrPlayerPose;
 
 
-    private Map<String, VRBodyPart> bodyPartsMap;
+    protected Map<String, VRBodyPart> bodyPartsMap;
 
     @Getter
-    private List<VRPose> allPoses;
+    protected List<VRPose> allPoses;
 
     @Getter
-    private VRBodyPart head;
+    protected VRBodyPart head;
     @Getter
-    private VRBodyPart mainHand;
+    protected VRBodyPart mainHand;
     @Getter
-    private VRBodyPart offhand;
+    protected VRBodyPart offhand;
 
     public VRBody(@NotNull VRBodyType type,
                   @NotNull VRClientPlayer vrPlayer,
