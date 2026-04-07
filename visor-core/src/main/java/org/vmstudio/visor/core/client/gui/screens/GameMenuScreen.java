@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 
@@ -85,7 +86,7 @@ public class GameMenuScreen extends Screen {
         // dont touch this please 🤞
         y += BTN_H + GAP + 2;
         y = buildContent(cx, y);
-        y += 6;
+        y += 4;
 
         addRenderableWidget(
                 Button.builder(Component.literal("Back to Game"), b -> this.minecraft.setScreen(null))
@@ -113,8 +114,10 @@ public class GameMenuScreen extends Screen {
                 }));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeFullBtn("Vanilla Pause Menu", left, y,
+                addRenderableWidget(makeHalfBtn("Vanilla Pause Menu", left, y,
                         b -> this.minecraft.setScreen(new PauseScreen(true))));
+                addRenderableWidget(makeHalfBtn("VR Settings", right, y,
+                        b -> this.minecraft.setScreen(new VRSettingsScreen(this))));
                 y += BTN_H + GAP;
             }
 
