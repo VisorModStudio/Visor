@@ -7,6 +7,8 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayoutId;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
@@ -24,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
+
+import java.util.Collection;
+import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -47,6 +52,12 @@ public class VRClientSettings {
     @Getter
     @VROptionField(key = "keyboard.keysShift")
     protected static String keyboardKeysShift = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;':\"ZXCVBNM,./?<>";
+
+    @Getter
+    @VROptionField(key = "keyboard.layouts", category = VROptionCategory.CONTROLS)
+    protected static String keyboardLayouts = KeyboardLayouts.serializeEnabled(
+            List.of(KeyboardLayoutId.EN_US)
+    );
     //---
 
 
@@ -364,6 +375,16 @@ public class VRClientSettings {
             return rotationFlyMode;
         }
         return rotationMode;
+    }
+
+    public static @NotNull List<KeyboardLayoutId> getEnabledKeyboardLayouts() {
+        return KeyboardLayouts.getEnabled(keyboardLayouts);
+    }
+
+    public static void setEnabledKeyboardLayouts(
+            @NotNull Collection<KeyboardLayoutId> layouts
+    ) {
+        keyboardLayouts = KeyboardLayouts.serializeEnabled(layouts);
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,

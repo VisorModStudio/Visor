@@ -1,10 +1,15 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 public final class KeyboardLayouts {
 
@@ -206,6 +211,47 @@ public final class KeyboardLayouts {
 
     public static @NotNull KeyboardLayout getDefault() {
         return get(KeyboardLayoutId.EN_US);
+    }
+
+    public static @NotNull List<KeyboardLayoutId> getSelectableLayouts() {
+        return List.of(KeyboardLayoutId.values());
+    }
+
+    public static @NotNull List<KeyboardLayoutId> getEnabled(
+            @Nullable String rawValue
+    ) {
+        LinkedHashSet<KeyboardLayoutId> result = new LinkedHashSet<>();
+        if (rawValue != null && !rawValue.isBlank()) {
+            for (String part : rawValue.split(",")) {
+                String trimmed = part.trim();
+                if (trimmed.isEmpty()) {
+                    continue;
+                }
+                KeyboardLayoutId layoutId = KeyboardLayoutId.byName(trimmed);
+                if (layoutId != null) {
+                    result.add(layoutId);
+                }
+            }
+        }
+
+        return List.copyOf(result);
+    }
+
+    public static @NotNull String serializeEnabled(
+            @NotNull Iterable<KeyboardLayoutId> layoutIds
+    ) {
+        LinkedHashSet<KeyboardLayoutId> normalized = new LinkedHashSet<>();
+        for (KeyboardLayoutId layoutId : layoutIds) {
+            if (layoutId != null) {
+                normalized.add(layoutId);
+            }
+        }
+
+        StringJoiner joiner = new StringJoiner(",");
+        for (KeyboardLayoutId layoutId : normalized) {
+            joiner.add(layoutId.name());
+        }
+        return joiner.toString();
     }
 
     private static void register(@NotNull KeyboardLayout layout) {

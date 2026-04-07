@@ -86,15 +86,15 @@ public class VRKeyboardScreen extends Screen {
                         .build()
         );
         //LANGUAGE
-        this.addRenderableWidget(
-                new KeyboardButton.Builder(this,
-                        Component.literal(layout.getSwitchLabel()),
-                        (p) -> overlayKeyboard.cycleLayout())
-                        .size(languageButtonWidth, keyHeight)
-                        .pos(3 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))
-                        .usePressTask(false)
-                        .build()
-        );
+        KeyboardButton languageButton = new KeyboardButton.Builder(this,
+                Component.literal(layout.getSwitchLabel()),
+                (p) -> overlayKeyboard.cycleLayout())
+                .size(languageButtonWidth, keyHeight)
+                .pos(3 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))
+                .usePressTask(false)
+                .build();
+        languageButton.active = overlayKeyboard.hasMultipleLayouts();
+        this.addRenderableWidget(languageButton);
         //SPACE
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,

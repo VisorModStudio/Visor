@@ -23,6 +23,9 @@ import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
+
+import java.util.List;
 
 public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         implements VRKeyboardAccessor, VREventListener {
@@ -137,7 +140,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         if (shown) {
             orient(attachedTo);
             shiftPressed = false;
-            activeLayoutId = KeyboardLayoutId.EN_US;
+            activeLayoutId = getEnabledLayoutIds().get(0);
             initAgain = true;
         } else {
             getScreen().clearPress();
@@ -154,7 +157,15 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     public void cycleLayout() {
-        setActiveLayoutId(activeLayoutId.next());
+        List<KeyboardLayoutId> enabledLayouts = getEnabledLayoutIds();
+        int currentIndex = enabledLayouts.indexOf(activeLayoutId);
+        if (currentIndex < 0) {
+            setActiveLayoutId(enabledLayouts.get(0));
+            return;
+        }
+        setActiveLayoutId(
+                enabledLayouts.get((currentIndex + 1) % enabledLayouts.size())
+        );
     }
 
     public void setActiveLayoutId(@NotNull KeyboardLayoutId activeLayoutId) {
@@ -162,6 +173,18 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
             this.activeLayoutId = activeLayoutId;
             this.initAgain = true;
         }
+    }
+
+    public @NotNull List<KeyboardLayoutId> getEnabledLayoutIds() {
+        List<KeyboardLayoutId> enabledLayouts = VRClientSettings.getEnabledKeyboardLayouts();
+        if (enabledLayouts.isEmpty()) {
+            return List.of(KeyboardLayoutId.EN_US);
+        }
+        return enabledLayouts;
+    }
+
+    public boolean hasMultipleLayouts() {
+        return getEnabledLayoutIds().size() > 1;
     }
 
     private void orient(@Nullable Screen attachedTo) {
