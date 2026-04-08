@@ -106,7 +106,8 @@ public class VisorClientImpl implements VisorClient {
         VisorAPI.Instance.setVrPlayerFunction(
                 mcPlayer->{
                     if(mcPlayer instanceof ServerPlayer serverPlayer){
-                        return VisorAPI.server().getVrPlayer(serverPlayer);
+                        var server = VisorAPI.server();
+                        return server != null ? server.getVrPlayer(serverPlayer) : null;
                     }
                     return VRClientPlayers.getPlayer(mcPlayer);
                 }

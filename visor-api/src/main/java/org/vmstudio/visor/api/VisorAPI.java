@@ -131,6 +131,7 @@ public interface VisorAPI {
      */
     @Nullable
     static VRPlayer getVRPlayer(@NotNull Player mcPlayer){
+        if(Instance.vrPlayerFunction == null) return null;
         return Instance.vrPlayerFunction.apply(mcPlayer);
     }
 
