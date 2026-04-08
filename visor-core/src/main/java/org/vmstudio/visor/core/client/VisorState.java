@@ -4,9 +4,9 @@ import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
@@ -16,16 +16,14 @@ import org.vmstudio.visor.api.client.render.VRRenderPass;
 
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.function.Supplier;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -138,6 +136,17 @@ public class VisorState implements VisorClientState {
                     ClientContext.visor
             );
             ClientContext.visor.prepare();
+
+            //-------Common staff-------
+            VisorAPI.Instance.setVrPlayerSupplier(
+                    mcPlayer->{
+                        if(mcPlayer instanceof ServerPlayer serverPlayer){
+                            var server = VisorAPI.server();
+                            return server != null ? server.getVrPlayer(serverPlayer) : null;
+                        }
+                        return VRClientPlayers.getPlayer(mcPlayer);
+                    }
+            );
 
             VisorClientImpl.LOGGER.info(
                     "Current VR Play Mode: {}",
