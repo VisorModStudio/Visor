@@ -32,6 +32,7 @@ public class ClientNetworking {
     private static float heightLastSent = 0.0F;
     private static float worldScaleLastSent = 1.0F;
     private static float rotationYLastSent = 0;
+    private static int offhandSlotLastSent = -1;
 
     private static boolean leftHandedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
@@ -120,6 +121,14 @@ public class ClientNetworking {
             activeHandLastSent = activeHamd;
         }
 
+        int offhandSlot = localPlayer.getOffhandSlot();
+        if(offhandSlot != offhandSlotLastSent){
+            sendVRPacket(
+                    new OffhandSlotPayloadToServer(offhandSlot)
+            );
+            offhandSlotLastSent = offhandSlot;
+        }
+
         VRBodyType vrBody = localPlayer.getBodyType();
         if(vrBody != vrBodyLastSent){
             sendVRPacket(
@@ -160,6 +169,9 @@ public class ClientNetworking {
         serverSupportsVisor = false;
         heightLastSent = 0.0F;
         worldScaleLastSent = 1.0F;
+        offhandSlotLastSent = -1;
+        vrBodyLastSent = null;
+        activeHandLastSent = HandType.MAIN;
         rotationYLastSent = 0;
         VRClientPlayers.dispose();
     }
