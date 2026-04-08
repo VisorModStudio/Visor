@@ -65,7 +65,7 @@ public class VisorServerImpl implements VisorServer {
         //init common stuff if on dedicated server
         if (ModLoader.get().isDedicatedServer()) {
 
-            VisorAPI.Instance.setVrPlayerFunction(
+            VisorAPI.Instance.setVrPlayerSupplier(
                     mcPlayer-> getVrPlayer((ServerPlayer) mcPlayer)
             );
             addonManager = new AddonManagerImpl(LOGGER);

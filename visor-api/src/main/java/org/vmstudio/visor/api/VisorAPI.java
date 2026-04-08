@@ -209,7 +209,7 @@ public interface VisorAPI {
         }
 
         @ApiStatus.Internal
-        public static void setVrPlayerFunction(final Function<Player, VRPlayer> api) {
+        public static void setVrPlayerSupplier(final Function<Player, VRPlayer> api) {
             Instance.vrPlayerFunction = api;
         }
         @ApiStatus.Internal

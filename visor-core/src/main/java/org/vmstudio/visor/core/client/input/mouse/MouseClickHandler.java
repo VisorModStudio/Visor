@@ -29,8 +29,9 @@ public class MouseClickHandler {
     private boolean offhandChanged;
 
     private VROverlay previousFocus;
-    private boolean wasPressed;
+    private boolean wasPressedOverlay;
     private boolean ignoreSingleClick;
+    private boolean ignoreSingleRelease;
 
     // only used by left-click
     private final boolean isLeftClick;
@@ -69,7 +70,7 @@ public class MouseClickHandler {
             InputHelper.releaseMouse(buttonType);
         } else if (focusedOverlay == null
                 && previousFocus != null
-                && wasPressed) {
+                && wasPressedOverlay) {
             previousFocus.mouseReleased(
                     previousFocus.getMouseX(),
                     previousFocus.getMouseY(),
@@ -78,11 +79,11 @@ public class MouseClickHandler {
             if (previousFocus instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
-            wasPressed = false;
+            wasPressedOverlay = false;
         } else if (focusedOverlay != null
                 && previousFocus != null
                 && focusedOverlay != previousFocus
-                && wasPressed) {
+                && wasPressedOverlay) {
             previousFocus.mouseReleased(
                     previousFocus.getMouseX(),
                     previousFocus.getMouseY(),
@@ -91,7 +92,7 @@ public class MouseClickHandler {
             if (previousFocus instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
-            wasPressed = false;
+            wasPressedOverlay = false;
         }
         previousFocus = focusedOverlay;
 
@@ -189,7 +190,7 @@ public class MouseClickHandler {
 
     public void onClear() {
         InputHelper.releaseMouse(buttonType);
-        if (previousFocus != null && wasPressed) {
+        if (previousFocus != null && wasPressedOverlay) {
             previousFocus.mouseReleased(
                     previousFocus.getMouseX(),
                     previousFocus.getMouseY(),
@@ -200,7 +201,7 @@ public class MouseClickHandler {
             }
         }
         previousFocus = null;
-        wasPressed = false;
+        wasPressedOverlay = false;
         ignoreSingleClick = false;
     }
 
@@ -229,8 +230,8 @@ public class MouseClickHandler {
             if (isLeftClick && overlay instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.startDragMouse();
             }
-            wasPressed = true;
-        } else if (wasPressed) {
+            wasPressedOverlay = true;
+        } else if (wasPressedOverlay) {
             overlay.mouseReleased(
                     overlay.getMouseX(), overlay.getMouseY(),
                     buttonType.getId()
@@ -238,7 +239,7 @@ public class MouseClickHandler {
             if (overlay instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
-            wasPressed = false;
+            wasPressedOverlay = false;
         }
     }
 
@@ -260,12 +261,24 @@ public class MouseClickHandler {
 
         if (press) {
             //update active hand if only one hand is pressed
-            if((mainHandPressed && !offhandPressed)
-                    || (!mainHandPressed && offhandPressed)) {
-                ClientContext.localPlayer.setActiveHand(handType);
+            var activeHand = ClientContext.localPlayer.getActiveHand();
+            if(activeHand != handType) {
+                if ((mainHandPressed && !offhandPressed)
+                        || (!mainHandPressed && offhandPressed)) {
+                    ClientContext.localPlayer.setActiveHand(handType);
+                    ignoreSingleRelease = true;
+                    return;
+                }
+                if (ignoreSingleRelease) {
+                    return;
+                }
             }
             InputHelper.pressMouse(buttonType);
         } else {
+            if(ignoreSingleRelease){
+                ignoreSingleRelease = false;
+                return;
+            }
             InputHelper.releaseMouse(buttonType);
         }
     }

@@ -30,7 +30,10 @@ public class ActionMiddleMouse extends VRActionButton {
 
     @Override
     public void preTick() {
-        handler.updateState(handType, pressed, changed);
+        handler.updateState(handType,
+                pressDelayed || (pressed && !releaseDelayed),
+                (pressDelayed && !pressed) || (releaseDelayed && pressed)
+        );
 
         if (handType == HandType.MAIN) {
             handler.preTick();

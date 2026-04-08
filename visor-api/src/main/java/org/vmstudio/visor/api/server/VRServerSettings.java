@@ -61,6 +61,7 @@ public class VRServerSettings {
         pvpVRvsVanilla = true;
         pvpVRvsVR = true;
         notifyPvpBlocked = false;
+        offhandUsable = true;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
     }
