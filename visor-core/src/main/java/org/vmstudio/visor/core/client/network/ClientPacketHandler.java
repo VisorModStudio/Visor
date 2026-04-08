@@ -36,13 +36,6 @@ public class ClientPacketHandler {
                         payload.rotationY()
                 );
             }
-            case OTHER_VR_ACTIVE -> {
-                var payload = (VROtherActivePayloadToClient) payloadClient;
-                if (!payload.vrActive()) {
-                    VRClientPlayers
-                            .removePlayer(payload.playerUUID());
-                }
-            }
             case OTHER_VR_POSE_DATA -> {
                 var payload = (VROtherPoseDataPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());

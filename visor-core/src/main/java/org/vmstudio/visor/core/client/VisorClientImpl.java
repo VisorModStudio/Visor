@@ -7,6 +7,7 @@ import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import net.minecraft.server.level.ServerPlayer;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -100,6 +101,16 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.inputManager = new VRInputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new VRGuiManagerImpl();
+
+        //-------Common staff-------
+        VisorAPI.Instance.setVrPlayerFunction(
+                mcPlayer->{
+                    if(mcPlayer instanceof ServerPlayer serverPlayer){
+                        return VisorAPI.server().getVrPlayer(serverPlayer);
+                    }
+                    return VRClientPlayers.getPlayer(mcPlayer);
+                }
+        );
 
         //-------API accessible VR actions-------
         VRActions.Provider.setMouseLeftMain(

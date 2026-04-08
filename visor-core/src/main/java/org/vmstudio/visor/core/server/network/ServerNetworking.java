@@ -62,7 +62,7 @@ public class ServerNetworking {
                 return;
             }
 
-            if (vrPlayer == null || !vrPlayer.isVRActive()) {
+            if (vrPlayer == null) {
                 serverPlayer.connection.disconnect(
                         Component.literal(
                                 "Server For VR player only!"
@@ -82,7 +82,7 @@ public class ServerNetworking {
             return;
         }
         if (serverPlayer.hasDisconnected()) {
-            playersWithVR.remove(serverPlayer.getUUID());
+            VisorServerImpl.INSTANCE.removePlayer(serverPlayer);
         }
         if (!vrPlayer.isVRActive()
                 || vrPlayer.getPoseDataBuffer() == null) {
@@ -169,7 +169,7 @@ public class ServerNetworking {
 
     public static Set<ServerPlayerConnection> getTrackedVRPlayers(ServerPlayer trackedBy) {
         ChunkMap chunkMap = trackedBy.serverLevel().getChunkSource().chunkMap;
-        var vrPlayers = VisorServerImpl.INSTANCE.getPlayersWithVR();
+        var vrPlayers = VisorServerImpl.INSTANCE.getVisorPacketReceivers();
 
         TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getTrackedEntities()
                 .get(trackedBy.getId());

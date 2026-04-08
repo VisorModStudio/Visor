@@ -1,12 +1,12 @@
 package org.vmstudio.visor.core.server.network;
 
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadID;
 import org.vmstudio.visor.api.common.network.toclient.HandshakePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.VROtherActivePayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.TeleportMovePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.UnknownPayloadToServer;
@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
+import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,44 +34,35 @@ public class ServerPacketHandler {
                                     Consumer<VisorPayloadToClient> packetConsumer){
         if (payloadToServer instanceof UnknownPayloadToServer) return;
 
+        VisorPacketReceiver packetReceiver = VisorServerImpl.INSTANCE.getPacketReceiver(serverPlayer);
+
         VRServerPlayerImpl vrPlayer = VisorServerImpl.INSTANCE.getVrPlayer(serverPlayer);
 
         if (vrPlayer == null) {
             if(payloadToServer.payloadId() != VisorPayloadID.HANDSHAKE) {
                 return;
-            }else{
-                vrPlayer = new VRServerPlayerImpl(serverPlayer);
+            } else{
+                if(packetReceiver == null){
+                    var payload = (HandshakePayloadToServer) payloadToServer;
+                    handleHandshake(
+                            serverPlayer,
+                            packetConsumer,
+                            payload.vrActive(),
+                            payload.networkVersion(),
+                            payload.visorVersion()
+                    );
+                }else{
+                    //packets for nonVR
+                }
             }
+            return;
         }
 
         VisorServerImpl.INSTANCE.updateVrPlayer(serverPlayer);
 
         switch (payloadToServer.payloadId()) {
             case HANDSHAKE -> {
-                var payload = (HandshakePayloadToServer) payloadToServer;
-                handleHandshake(
-                        serverPlayer, vrPlayer,
-                        packetConsumer,
-                        payload.vrActive(),
-                        payload.networkVersion(),
-                        payload.visorVersion()
-                );
-            }
-            case VR_ACTIVE -> {
-                var payload = (VRActivePayloadToServer) payloadToServer;
-                if (vrPlayer.isVRActive() == payload.vrActive()) {
-                    return;
-                }
-                boolean hasVR = !vrPlayer.isVRActive();
-                vrPlayer.setVrActive(hasVR);
-                if (hasVR) return;
-                ServerNetworking.sendPacketToTrackedVRPlayers(
-                        serverPlayer,
-                        new VROtherActivePayloadToClient(
-                                vrPlayer.getMcPlayer().getUUID(),
-                                vrPlayer.isVRActive()
-                        )
-                );
+
             }
             case POSE_DATA -> {
                 var payload = (PoseDataPayloadToServer) payloadToServer;
@@ -83,6 +75,21 @@ public class ServerPacketHandler {
                 var payload = (LeftHandedPayloadToServer) payloadToServer;
 
                 vrPlayer.setLeftHanded(payload.leftHanded());
+            }
+            case ACTIVE_HAND -> {
+                var payload = (ActiveHandPayloadToServer) payloadToServer;
+
+                vrPlayer.setActiveHand(
+                        payload.activeHandMain()
+                        ? HandType.MAIN : HandType.OFFHAND
+                );
+            }
+            case OFFHAND_SLOT -> {
+                var payload = (OffhandSlotPayloadToServer) payloadToServer;
+
+                vrPlayer.setOffhandSlot(
+                        payload.slot()
+                );
             }
             case VR_BODY_TYPE -> {
                 var payload = (VRBodyTypePayloadToServer) payloadToServer;
@@ -130,7 +137,6 @@ public class ServerPacketHandler {
     }
 
     private static void handleHandshake(ServerPlayer player,
-                                        VRServerPlayerImpl vrPlayer,
                                         Consumer<VisorPayloadToClient> packetConsumer,
                                         boolean vrActive,
                                         int networkVersion,
@@ -179,35 +185,60 @@ public class ServerPacketHandler {
             }
             return;
         }
-        vrPlayer.setVrActive(vrActive);
+        VRServerPlayerImpl vrPlayer;
+        VisorPacketReceiver packetReceiver;
+        if(vrActive){
+            vrPlayer = new VRServerPlayerImpl(player);
+            if (VRServerSettings.isServerDebug()) {
+                VisorServerImpl.LOGGER.info(
+                        "VR: player '{}' joined with {}",
+                        vrPlayer.getMcPlayer().getName().getString(),
+                        visorVersion
+                );
+            }
+            VisorServerImpl.INSTANCE.addVrPlayer(vrPlayer);
 
-        if (VRServerSettings.isServerDebug()) {
-            VisorServerImpl.LOGGER.info(
-                    "VR: player '{}' joined with {}",
-                    vrPlayer.getMcPlayer().getName().getString(),
-                    visorVersion
+            packetConsumer.accept(
+                    new HandshakePayloadToClient()
+            );
+            packetConsumer.accept(
+                    new SettingsPayloadToClient(
+                            ServerConfig
+                                    .getSettingsForClient()
+                                    .toPlaintext()
+                    )
+            );
+            packetConsumer.accept(
+                    new RotationYPayloadToClient(
+                            ((ServerPlayerExtension)player).visor$getRotationYCached()
+                    )
+            );
+        }else{
+            packetReceiver = new VisorPacketReceiver(player);
+            if (VRServerSettings.isServerDebug()) {
+                VisorServerImpl.LOGGER.info(
+                        "NonVR: player '{}' joined with {}",
+                        packetReceiver.getMcPlayer().getName().getString(),
+                        visorVersion
+                );
+            }
+            VisorServerImpl.INSTANCE.addPacketReceiver(packetReceiver);
+
+            packetConsumer.accept(
+                    new HandshakePayloadToClient()
+            );
+            packetConsumer.accept(
+                    new SettingsPayloadToClient(
+                            ServerConfig
+                                    .getSettingsForClient()
+                                    .toPlaintext()
+                    )
             );
         }
 
 
 
-        VisorServerImpl.INSTANCE.putVrPlayer(vrPlayer);
 
-        packetConsumer.accept(
-                new HandshakePayloadToClient()
-        );
-        packetConsumer.accept(
-                new SettingsPayloadToClient(
-                        ServerConfig
-                                .getSettingsForClient()
-                                .toPlaintext()
-                )
-        );
-        packetConsumer.accept(
-                new RotationYPayloadToClient(
-                        ((ServerPlayerExtension)player).visor$getRotationYCached()
-                )
-        );
     }
 
 }

@@ -1,24 +1,24 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
+import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.common.network.VisorPayloadID;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
-import net.minecraft.network.FriendlyByteBuf;
 
-public record VRActivePayloadToServer(boolean vrActive) implements VisorPayloadToServer {
+public record ActiveHandPayloadToServer(boolean activeHandMain) implements VisorPayloadToServer {
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(vrActive);
+        buffer.writeBoolean(activeHandMain);
     }
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.VR_ACTIVE;
+        return VisorPayloadID.ACTIVE_HAND;
     }
 
 
-    public static VRActivePayloadToServer read(FriendlyByteBuf buffer) {
-        return new VRActivePayloadToServer(
+    public static ActiveHandPayloadToServer read(FriendlyByteBuf buffer) {
+        return new ActiveHandPayloadToServer(
                 buffer.readBoolean()
         );
     }

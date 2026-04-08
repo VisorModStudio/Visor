@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.player;
 
 import net.minecraft.client.player.RemotePlayer;
+import org.jetbrains.annotations.NotNull;
 
 public interface VRRemotePlayer extends VRClientPlayer{
 
@@ -9,7 +10,7 @@ public interface VRRemotePlayer extends VRClientPlayer{
      *
      * @return mc player
      */
-    RemotePlayer getMcPlayer();
+    @NotNull RemotePlayer getMcPlayer();
 
 
 

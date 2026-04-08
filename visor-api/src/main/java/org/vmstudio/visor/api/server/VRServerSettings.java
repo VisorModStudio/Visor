@@ -13,6 +13,9 @@ public class VRServerSettings {
     private static boolean vrOnly = false;
 
     @Getter
+    private static boolean offhandUsable = true;
+
+    @Getter
     private static boolean roomCrawlingSupported = true;
 
     @Getter

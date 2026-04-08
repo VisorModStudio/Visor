@@ -3,14 +3,16 @@ package org.vmstudio.visor.core.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.VRActivePayloadToServer;
 
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
@@ -96,6 +98,12 @@ public class VisorState implements VisorClientState {
 
         boolean changed = updateActive(vrActive);
         if(changed){
+            var connection = Minecraft.getInstance().getConnection();
+            if(connection != null){
+                connection.getConnection().disconnect(
+                        Component.literal("VR state changed")
+                );
+            }
             return;
         }
 
@@ -169,11 +177,6 @@ public class VisorState implements VisorClientState {
             deactivate();
         }
 
-        ClientNetworking.sendVRPacket(
-                new VRActivePayloadToServer(
-                        state.isActive()
-                )
-        );
 
         if (!MC.getSoundManager()
                 .getAvailableSounds().isEmpty()) {

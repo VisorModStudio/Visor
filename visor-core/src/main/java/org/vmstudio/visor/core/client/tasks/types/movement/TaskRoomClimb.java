@@ -117,7 +117,7 @@ public class TaskRoomClimb extends VisorTask
         anchoredThisTick = false;
 
         var tickPose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.TICK);
+                .getPose(PlayerPoseType.TICK);
         // Reset flags for all hands
         for (HandType hand : HandType.values()) {
             HandClimbState state = handStates.get(hand);
@@ -213,8 +213,8 @@ public class TaskRoomClimb extends VisorTask
 
     private void applyAnchorState(Player player) {
         if (anchoredHand == null) return;
-        var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
-        var roomPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var tickPose = ClientContext.localPlayer.getPose(PlayerPoseType.TICK);
+        var roomPose = ClientContext.localPlayer.getPose(PlayerPoseType.RELATIVE);
 
         HandClimbState state = handStates.get(anchoredHand);
 
@@ -378,7 +378,7 @@ public class TaskRoomClimb extends VisorTask
             state.anchoredPos = handPositions[hand.ordinal()];
             state.anchoredPosRoom = new Vec3(
                     (Vector3f) ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RELATIVE)
+                    .getPose(PlayerPoseType.RELATIVE)
                     .getHand(hand).getPosition()
             );
             state.anchoredPosPlayer = player.position();
@@ -424,7 +424,7 @@ public class TaskRoomClimb extends VisorTask
             state.anchoredPos = handPositions[hand.ordinal()];
             state.anchoredPosRoom = new Vec3(
                     (Vector3f) ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RELATIVE)
+                    .getPose(PlayerPoseType.RELATIVE)
                     .getHand(hand).getPosition()
             );
             state.anchoredPosPlayer = player.position();

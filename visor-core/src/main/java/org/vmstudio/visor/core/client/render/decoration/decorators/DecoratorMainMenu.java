@@ -37,7 +37,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     private static void renderPanorama(PoseStack poseStack){
         LocalPlayerPose renderPose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RENDER);
+                .getPose(PlayerPoseType.RENDER);
         poseStack.pushPose();
         var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getRenderPass(),

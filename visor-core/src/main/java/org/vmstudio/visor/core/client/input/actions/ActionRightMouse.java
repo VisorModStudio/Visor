@@ -42,32 +42,12 @@ public class ActionRightMouse extends VRActionButton {
 
     @Override
     protected void onPress() {
-        HandType activeHand;
-        if (!ClientContext.cursorHandler.isCursorHandFocused()
-                && MC.screen == null && MC.player != null) {
-            activeHand = ClientContext.localPlayer.getActiveHand();
-        } else {
-            activeHand = ClientContext.cursorHandler.getCursorHand();
-        }
-        if (handType != activeHand) {
-            return;
-        }
         handler.onPress(handType);
     }
 
     @Override
     protected void onRelease() {
-        HandType activeHand;
-        if (!ClientContext.cursorHandler.isCursorHandFocused()
-                && MC.screen == null && MC.player != null) {
-            activeHand = ClientContext.localPlayer.getActiveHand();
-        } else {
-            activeHand = ClientContext.cursorHandler.getCursorHand();
-        }
-        if (handType != activeHand) {
-            return;
-        }
-        handler.onRelease();
+        handler.onRelease(handType);
     }
 
     @Override

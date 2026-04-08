@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.player.body;
+package org.vmstudio.visor.core.client.player.body.full;
 
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;

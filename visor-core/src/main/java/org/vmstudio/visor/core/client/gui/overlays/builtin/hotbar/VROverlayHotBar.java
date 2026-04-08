@@ -314,7 +314,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     public void onUpdatePose(float partialTicks) {
         var camPos = RenderPoseHelper.getCameraPosition(
                 VRRenderPass.GUI,
-                ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
         );
 
         getPose().updateOnlyPosition(new Vector3f(
@@ -331,7 +331,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
         VRPlayerPoseClient renderPose = ClientContext
                 .localPlayer
-                .getPoseData(PlayerPoseType.RENDER);
+                .getPose(PlayerPoseType.RENDER);
 
         VROverlayHelper.applyPose(
                 this,

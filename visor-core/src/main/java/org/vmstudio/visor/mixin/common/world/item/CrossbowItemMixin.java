@@ -18,10 +18,10 @@ public class CrossbowItemMixin {
     private static Vec3 visor$vrAim(LivingEntity instance, float partialTicks, Operation<Vec3> original) {
         if (instance instanceof ServerPlayer player) {
             VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
-            if (vrPlayer == null || !vrPlayer.isVRActive()) {
+            if (vrPlayer == null) {
                 return original.call(instance, partialTicks);
             }
-            return vrPlayer.getPoseData()
+            return vrPlayer.getPose()
                     .getActiveHand()
                     .getDirectionVec3();
         }

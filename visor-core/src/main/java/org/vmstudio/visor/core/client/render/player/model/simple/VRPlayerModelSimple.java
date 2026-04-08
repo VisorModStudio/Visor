@@ -14,7 +14,6 @@ import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
@@ -64,7 +63,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
                 ? HumanoidArm.LEFT
                 : HumanoidArm.RIGHT;
 
-        var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
+        var poseRender = vrPlayer.getPose(PlayerPoseType.RENDER);
 
         VRBody vrBody = poseRender.getBody();
 

@@ -36,7 +36,7 @@ public class ItemPickupParticleMixin {
         if (VisorState.get().isActive()
                 && target == MC.player) {
             visor$playerPos = ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RENDER)
+                    .getPose(PlayerPoseType.RENDER)
                     .getHmd().getPosition();
             oldValue = newValue = visor$playerPos.x();
         }

@@ -2,9 +2,8 @@ package org.vmstudio.visor.core.server.player;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.LeftHandedPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.vrstate.VRBodyTypePayloadToServer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
@@ -13,89 +12,82 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 
 
-public class VRServerPlayerImpl implements VRServerPlayer {
-    @Getter @Setter
-    private ServerPlayer mcPlayer;
+@Getter
+public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerPlayer {
 
 
-    @Getter
+
     private PoseDataBuffer poseDataBuffer;
 
-    @Getter
-    private final PlayerPoseServerImpl poseDataPrev = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl posePrevious = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl poseRelative = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl pose = new PlayerPoseServerImpl();
 
-    @Getter
-    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl();
 
-    @Getter
-    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl();
-
-    @Getter
     private final PoseHistoryImpl poseHistoryRelative;
-    @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
-    @Getter @Setter
+    @Setter
     private String vrBodyType = "null";
 
     @Setter
-    private boolean vrActive = false;
+    private boolean VRActive = false;
 
-    @Getter @Setter
+    @Setter
     private float worldScale = 1.0F;
-    @Getter @Setter
+    @Setter
     private float fullHeight = 1.0F;
-    @Getter
     private float rotationY;
 
-    @Getter @Setter
-    private float bowTension;
+    @Setter
+    private HandType activeHand;
 
-    @Getter @Setter
+    @Setter
     private boolean leftHanded;
 
-    @Getter
     private boolean crawling;
 
+    @Setter
+    private int offhandSlot;
 
 
-    @Getter @Setter
+    @Setter
     private boolean leftHandedLastSent = false;
-    @Getter @Setter
+    @Setter
     private String vrBodyLastSent = null;
-    @Getter @Setter
+    @Setter
     private float worldScaleLastSent = 1.0f;
-    @Getter @Setter
+    @Setter
     private float fullHeightLastSent = 1.0F;
 
     public VRServerPlayerImpl(ServerPlayer player) {
-        this.mcPlayer = player;
-        poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);
-        poseHistoryTick = new PoseHistoryImpl(poseData);
+        super(player);
+        poseHistoryRelative = new PoseHistoryImpl(poseRelative);
+        poseHistoryTick = new PoseHistoryImpl(pose);
     }
 
 
 
     public void receivedPosePacket(PoseDataBuffer poseDataBuffer){
-        poseDataPrev.copyFrom(poseData);
+        posePrevious.copyFrom(pose);
 
         this.poseDataBuffer = poseDataBuffer;
 
-        poseDataRelative.update(
+        poseRelative.update(
                 poseDataBuffer,
                 VRMathUtils.ZERO_VECTOR
         );
-        poseData.update(
+        pose.update(
                 poseDataBuffer,
                 mcPlayer.position().toVector3f()
         );
 
         var historyEntry = new PlayerPoseServerImpl();
-        historyEntry.copyFrom(poseDataRelative);
+        historyEntry.copyFrom(poseRelative);
         poseHistoryRelative.addEntry(historyEntry);
 
         historyEntry = new PlayerPoseServerImpl();
-        historyEntry.copyFrom(poseDataPrev);
+        historyEntry.copyFrom(posePrevious);
         poseHistoryTick.addEntry(historyEntry);
 
     }
@@ -110,10 +102,5 @@ public class VRServerPlayerImpl implements VRServerPlayer {
     public void updateRotationY(float rotationY){
         this.rotationY = rotationY;
         ((ServerPlayerExtension)mcPlayer).visor$setRotationYCached(rotationY);
-    }
-
-    @Override
-    public boolean isVRActive() {
-        return vrActive;
     }
 }

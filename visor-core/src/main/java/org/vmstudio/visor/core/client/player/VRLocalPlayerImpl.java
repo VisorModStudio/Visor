@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.player;
 import lombok.Getter;
 
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
@@ -13,10 +14,13 @@ import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.network.toserver.vrstate.ActiveHandPayloadToServer;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
+import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomCrawl;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
@@ -95,6 +99,21 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         this.poseHistoryRelative.clear();
         this.poseHistoryTick.clear();
+    }
+
+    @Override
+    public void setActiveHand(@NotNull HandType activeHand) {
+        if (!VRServerSettings.isOffhandUsable()) {
+            activeHand = HandType.MAIN;
+        }
+        if(this.activeHand == activeHand){
+            return;
+        }
+        this.activeHand = activeHand;
+
+        ClientNetworking.sendVRPacket(
+                new ActiveHandPayloadToServer(this.activeHand == HandType.MAIN)
+        );
     }
 
     public void onGameLoopStart(){
@@ -327,7 +346,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         if (player == null) {
             return;
         }
-        LocalPlayerPose data = getPoseData(stage);
+        LocalPlayerPose data = getPose(stage);
 
         if (player.isPassenger()) {
             var vehicleLookDir = TaskVehicle.getVehicleLookDirection(player);
@@ -433,11 +452,14 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     @Override
-    public LocalPlayer getMcPlayer() {
+    public @Nullable LocalPlayer getMcPlayer() {
         return MC.player;
     }
 
-
+    @Override
+    public int getOffhandSlot() {
+        return Math.max(TaskHotBar.getCurrentStateOffhand().getSlot(), 0);
+    }
 
 
     @Override
@@ -453,7 +475,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType){
-        VRPlayerPoseClient playerPose = getPoseData(poseType);
+        VRPlayerPoseClient playerPose = getPose(poseType);
         return switch (VRClientSettings.getRotationMode()) {
             case MAIN_HAND -> playerPose.getHand(
                     HandType.MAIN
@@ -466,7 +488,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     @Override
-    public @NotNull LocalPlayerPose getPoseData(@NotNull PlayerPoseType stage) {
+    public @NotNull LocalPlayerPose getPose(@NotNull PlayerPoseType stage) {
         return switch (stage){
             case PREV_TICK -> prevPose;
             case TICK -> pose;

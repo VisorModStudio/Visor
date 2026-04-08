@@ -21,11 +21,11 @@ public class ThrownTridentMixin {
         }
         VRServerPlayer vrPlayer = VisorAPI.server()
                 .getVrPlayer(player);
-        if (vrPlayer == null || !vrPlayer.isVRActive()) {
+        if (vrPlayer == null) {
             return eyePosition;
         }
 
-        return vrPlayer.getPoseData()
+        return vrPlayer.getPose()
                 .getMainHand()
                 .getPositionVec3();
     }

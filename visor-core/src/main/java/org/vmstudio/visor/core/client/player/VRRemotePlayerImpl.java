@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
@@ -253,7 +254,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
 
     @Override
-    public @NotNull RemotePlayerPose getPoseData(@NotNull PlayerPoseType stage) {
+    public @NotNull RemotePlayerPose getPose(@NotNull PlayerPoseType stage) {
         return switch (stage){
             case PREV_TICK -> prevPose;
             case TICK -> pose;
@@ -275,5 +276,17 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 this.pose,
                 this.renderPose
         );
+    }
+
+
+
+    @Override
+    public int getOffhandSlot() {
+        return -1;
+    }
+
+    @Override
+    public @NotNull HandType getActiveHand() {
+        return HandType.MAIN;
     }
 }

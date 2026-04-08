@@ -98,7 +98,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
             return;
         }
-        var renderData = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        var renderData = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
         var camPosition = renderData
                 .getThirdPersonCamera().getPosition();
         var camRotation =  renderData
@@ -126,7 +126,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     }
 
     private void updateCameraPose(boolean save){
-        var roomData = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var roomData = ClientContext.localPlayer.getPose(PlayerPoseType.RELATIVE);
         var newPosition = roomData
                 .convertPositionFrom(
                         PlayerPoseType.RENDER,

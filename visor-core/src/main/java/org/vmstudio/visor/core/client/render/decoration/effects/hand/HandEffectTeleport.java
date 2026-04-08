@@ -1,6 +1,5 @@
 package org.vmstudio.visor.core.client.render.decoration.effects.hand;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
@@ -135,7 +134,7 @@ public class HandEffectTeleport extends VRHandEffect {
                             validLocation
                                     ? dest
                                     : new Vec3((Vector3f) ClientContext.localPlayer
-                                    .getPoseData(PlayerPoseType.RENDER)
+                                    .getPose(PlayerPoseType.RENDER)
                                     .getHmd()
                                     .getPosition())
                     )
@@ -163,7 +162,7 @@ public class HandEffectTeleport extends VRHandEffect {
         var cameraPosition = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(
                 renderPass,
                 ClientContext.localPlayer
-                        .getPoseData(PlayerPoseType.RENDER)
+                        .getPose(PlayerPoseType.RENDER)
         ));
 
         Vec3i colorInt = new Vec3i(

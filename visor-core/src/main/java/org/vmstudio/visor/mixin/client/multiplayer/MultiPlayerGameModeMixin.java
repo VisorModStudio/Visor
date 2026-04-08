@@ -1,8 +1,15 @@
 package org.vmstudio.visor.mixin.client.multiplayer;
 
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.prediction.PredictiveAction;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ServerGamePacketListener;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -34,6 +41,54 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(MultiPlayerGameMode.class)
 public abstract class MultiPlayerGameModeMixin {
+
+    @Shadow
+    private ItemStack destroyingItem;
+
+
+
+    @Shadow
+    public abstract void startPrediction(ClientLevel arg, PredictiveAction arg2);
+
+
+    /* ************************* *\
+  //--------OFFHAND SUPPORT--------\\
+    \* ************************* */
+
+    @Redirect(method = "sameDestroyTarget", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+    public ItemStack visor$sameDestroyTarget(LocalPlayer player) {
+        return visor$getUsedItem(player);
+    }
+
+    @Redirect(
+            method = "startDestroyBlock", // Target the synthetic lambda method
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V"
+            )
+    )
+    public void visor$startDestroyBlock(MultiPlayerGameMode instance,
+                                        ClientLevel clientLevel,
+                                        PredictiveAction predictiveAction
+    ) {
+        if(VisorState.get().isNotActive()) {
+            instance.startPrediction(clientLevel,predictiveAction);
+            return;
+        }
+        startPrediction(clientLevel, (i) -> {
+            Packet<ServerGamePacketListener> packet = predictiveAction.predict(i);
+            destroyingItem = visor$getUsedItem(MC.player);
+            return packet;
+        });
+    }
+
+    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/player/LocalPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+    public ItemStack visor$destroyBlock(LocalPlayer player) {
+        return visor$getUsedItem(player);
+    }
+
 
 
     /* ************************** *\
@@ -93,6 +148,16 @@ public abstract class MultiPlayerGameModeMixin {
     \* ************************* */
 
     @Unique
+    public ItemStack visor$getUsedItem(Player player) {
+        if(VisorState.get().isNotActive()) return player.getMainHandItem();
+        if (VRServerSettings.isOffhandUsable()
+                && ClientContext.localPlayer.getActiveHand() == HandType.OFFHAND) {
+            return player.getOffhandItem();
+        }
+        return player.getMainHandItem();
+    }
+
+    @Unique
     public Vec3 visor$getRightClickLook(Player player,
                                        HandType handType) {
         // Start with the player's default look direction.
@@ -123,7 +188,7 @@ public abstract class MultiPlayerGameModeMixin {
         // If the held item affects aiming, update the look direction.
         if (isThrowable || isPotion || isBow || isChargedCrossbow) {
             VRPlayerPoseClient preTickPose = ClientContext
-                    .localPlayer.getPoseData(PlayerPoseType.TICK);
+                    .localPlayer.getPose(PlayerPoseType.TICK);
             lookDirection = new Vec3(
                     (Vector3f) preTickPose.getHand(handType).getDirection()
             );

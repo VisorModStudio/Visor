@@ -80,7 +80,7 @@ public class VROverlayPose {
         this.scale = overlayScale;
 
 
-        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPose(PlayerPoseType.RENDER);
         float worldScale = renderPose.getWorldScale();
         float effectiveScale = QUAD_SCALE * scale * worldScale;
         float aspect = owner.getAspectRatio();
@@ -181,7 +181,7 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPose(returnType);
         return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 
@@ -229,7 +229,7 @@ public class VROverlayPose {
                         new Vector3f()))
                 .add(new Vector3f(upDir).mul(halfHeight * yNorm,
                         new Vector3f()));
-        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPoseData(returnType);
+        VRPlayerPoseClient targetPose = VisorAPI.client().getVRLocalPlayer().getPose(returnType);
         return targetPose.convertPositionFrom(PlayerPoseType.RENDER, pointInRender);
     }
 }

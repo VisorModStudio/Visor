@@ -5,6 +5,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
@@ -79,6 +85,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Shadow
     public LocalPlayer player;
+
     @Shadow
     public abstract Entity getCameraEntity();
 
@@ -110,7 +117,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     }
 
     @Inject(method = "onGameLoadFinished", at = @At("TAIL"))
-    public void visor$onGameLoadFinish(CallbackInfo ci){
+    public void visor$onGameLoadFinish(CallbackInfo ci) {
         VisorState.setMinecraftLoaded(true);
 
     }
@@ -123,6 +130,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Pre Ticks Visor right before mc tick() is called
+     *
      * @param ci s
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V"), method = "runTick")
@@ -134,6 +142,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Ticks Visor (before mc tick methods called)
+     *
      * @param info s
      */
     @Inject(at = @At("HEAD"), method = "tick()V")
@@ -145,6 +154,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Post Ticks Visor right after mc tick() is called
+     *
      * @param ci s
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V", shift = Shift.AFTER), method = "runTick")
@@ -162,20 +172,21 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Calls pre render task at the beginning of a frame
-     * @param tick s
+     *
+     * @param tick     s
      * @param callback s
      */
-     @Inject(at = @At("HEAD"), method = "runTick(Z)V")
-     public void visor$runVR(boolean tick, CallbackInfo callback) {
-         VisorState.updateState();
-         if (VisorState.get().isActive()) {
-             ++VisorState.FRAME_COUNT;
+    @Inject(at = @At("HEAD"), method = "runTick(Z)V")
+    public void visor$runVR(boolean tick, CallbackInfo callback) {
+        VisorState.updateState();
+        if (VisorState.get().isActive()) {
+            ++VisorState.FRAME_COUNT;
 
-             ClientContext.visor
-                     .onGameLoopStart();
+            ClientContext.visor
+                    .onGameLoopStart();
 
-         }
-     }
+        }
+    }
 
     @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=render"))
     public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
@@ -193,6 +204,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     /**
      * Modifies vanilla GameRenderer.render() call
      * to update renderer state and start VRGui phase instead
+     *
      * @param renderLevel s
      * @return s
      */
@@ -215,23 +227,22 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * Calls VR rendering after mc rendered
      *
      * @param renderLevel s
-     * @param ci s
-     * @param nanoTime s
+     * @param ci          s
+     * @param nanoTime    s
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
         if (VisorState.get().isActive()) {
             ClientContext.visor
                     .renderVR(new RenderContext(
-                            profiler,
-                            renderLevel,
-                            nanoTime,
-                            visor$getPartialTicks()
+                                    profiler,
+                                    renderLevel,
+                                    nanoTime,
+                                    visor$getPartialTicks()
                             )
                     );
         }
     }
-
 
 
     /**
@@ -256,7 +267,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * call in vanilla when waiting for world to finish loading.
      * <p>
      * FPS has to be handled only by VR related features
-     *
      */
     @WrapOperation(at = @At(value = "INVOKE", target = "Ljava/lang/Thread;sleep(J)V"), method = "doWorldLoad", expect = 0)
     private void visor$noFPSLimitOnWorldLoad(long l, Operation<Void> original) {
@@ -275,11 +285,11 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * Handles screen changes
      *
      * @param pGuiScreen s
-     * @param info s
+     * @param info       s
      */
     @Inject(at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;", shift = Shift.BEFORE, ordinal = 0), method = "setScreen(Lnet/minecraft/client/gui/screens/Screen;)V")
     public void visor$onOpenScreen(Screen pGuiScreen, CallbackInfo info) {
-        if(VisorState.get().isNotActive()) return;
+        if (VisorState.get().isNotActive()) return;
 
         ClientContext.overlayManager
                 .getOverlay(VROverlayGameScreen.ID, VROverlayGameScreen.class)
@@ -290,11 +300,11 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * Handles overlay changes
      *
      * @param overlay s
-     * @param ci s
+     * @param ci      s
      */
     @Inject(at = @At("TAIL"), method = "setOverlay")
     public void visor$onOverlaySet(Overlay overlay, CallbackInfo ci) {
-        if(VisorState.get().isNotActive()) return;
+        if (VisorState.get().isNotActive()) return;
 
         ClientContext.overlayManager
                 .getOverlay(VROverlayGameScreen.ID, VROverlayGameScreen.class)
@@ -303,11 +313,12 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Ticks VR overlays right after mc ticked screen
+     *
      * @param ci s
      */
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;tick(Z)V"))
     private void visor$tickVrOverlays(CallbackInfo ci) {
-        if(VisorState.get().isNotActive()) return;
+        if (VisorState.get().isNotActive()) return;
 
         if (ClientContext.overlayManager == null) return;
         ClientContext.overlayManager.tick();
@@ -353,23 +364,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
 
 
-    @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$swingArmAttack(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
-        if (VisorState.get().isActive()) {
-            ClientContext.handRenderer.setSwingType(HandAction.ATTACK);
-        }
-        original.call(instance, hand);
-    }
-
-    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
-        if (VisorState.get().isActive()) {
-            ClientContext.handRenderer.setSwingType(HandAction.USE);
-        }
-        original.call(instance, hand);
-    }
-
-
 
      /* ****************** *\
    //--------VR MOUSE--------\\
@@ -399,7 +393,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * Resets room origin when world changed
      *
      * @param pLevelClient s
-     * @param info s
+     * @param info         s
      */
     @Inject(at = @At("HEAD"), method = "setLevel")
     public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
@@ -410,25 +404,71 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         }
     }
 
+     /* ************************* *\
+   //--------OFFHAND SUPPORT--------\\
+     \* ************************* */
 
-     /* ************** *\
-   //--------MISC--------\\
-     \* ************** */
-     @Inject(method = "setCameraEntity", at = @At("HEAD"))
-     private void visor$rideEntity(Entity entity, CallbackInfo ci) {
-         if (VisorState.get().isInitialized() && entity != null) {
-             if (entity != this.getCameraEntity()) {
-                 // snap to entity, if it changed
-                 ClientContext.localPlayer.recenterOrigin(entity, true);
-             }
-             if (entity != this.player) {
-                 // ride the new camera entity
-                 TaskVehicle.getInstance().onStartRiding(entity);
-             } else {
-                 TaskVehicle.getInstance().onStopRiding();
-             }
-         }
-     }
+    @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+    private void visor$swingArmAttack(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+        if (VisorState.get().isActive()) {
+            ClientContext.handRenderer.setSwingType(HandAction.ATTACK);
+            original.call(instance,
+                    ClientContext.localPlayer.getActiveHand()
+                            .asInteractionHand()
+            );
+            return;
+        }
+        original.call(instance, hand);
+    }
+
+    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+        if (VisorState.get().isActive()) {
+            ClientContext.handRenderer.setSwingType(HandAction.USE);
+        }
+        original.call(instance, hand);
+    }
+
+    @WrapOperation(
+            method = "startAttack",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"
+            )
+    )
+    private ItemStack visor$getItemInHand(LocalPlayer instance,
+                                        InteractionHand hand,
+                                        Operation<ItemStack> original) {
+        if (VisorState.get().isActive()) {
+            return original.call(instance,
+                    ClientContext.localPlayer.getActiveHand()
+                            .asInteractionHand()
+            );
+        }
+        return original.call(instance, hand);
+    }
+
+
+
+    /* ************** *\
+  //--------MISC--------\\
+    \* ************** */
+    @Inject(method = "setCameraEntity", at = @At("HEAD"))
+    private void visor$rideEntity(Entity entity, CallbackInfo ci) {
+        if (VisorState.get().isInitialized() && entity != null) {
+            if (entity != this.getCameraEntity()) {
+                // snap to entity, if it changed
+                ClientContext.localPlayer.recenterOrigin(entity, true);
+            }
+            if (entity != this.player) {
+                // ride the new camera entity
+                TaskVehicle.getInstance().onStartRiding(entity);
+            } else {
+                TaskVehicle.getInstance().onStopRiding();
+            }
+        }
+    }
+
     /**
      * Disables vanilla hit result calculation on tick.
      *
@@ -446,7 +486,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      /* ************************ *\
    //--------PUBLIC METHODS--------\\
      \* ************************ */
-
 
 
     @Override

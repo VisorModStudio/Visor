@@ -399,7 +399,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         }
 
         LocalPlayerPose originPose = ClientContext.localPlayer
-                .getPoseData(originType);
+                .getPose(originType);
 
         Vector3f roomPose = position
                 .sub(originPose.origin, new Vector3f())
@@ -430,7 +430,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         }
 
 
-        LocalPlayerPose originPose = ClientContext.localPlayer.getPoseData(originType);
+        LocalPlayerPose originPose = ClientContext.localPlayer.getPose(originType);
 
         if (this.type == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);

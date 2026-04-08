@@ -32,7 +32,7 @@ public class MobRendererMixin {
 
         return new Vec3(
                 new Vector3f(
-                        vrPlayer.getPoseData(PlayerPoseType.RENDER)
+                        vrPlayer.getPose(PlayerPoseType.RENDER)
                                 .getHand(HandType.MAIN)
                                 .getPosition()
                 )

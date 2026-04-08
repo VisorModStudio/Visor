@@ -147,22 +147,44 @@ public class MouseClickHandler {
     }
 
     public void onPress(@NotNull HandType handType) {
+
         if (!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)) {
             return;
         }
+
+        if (ClientContext.cursorHandler.isCursorHandFocused()
+                || MC.screen != null
+                || MC.player == null) {
+            var activeHand = ClientContext.cursorHandler.getCursorHand();
+            if (handType != activeHand) {
+                return;
+            }
+        }
+
         ClientContext.inputManager.triggerHapticPulseClick(handType);
         if (isLeftClick && ignoreSingleClick) {
             return;
         }
-        process(true);
+        process(handType,true);
     }
 
-    public void onRelease() {
+    public void onRelease(@NotNull HandType handType) {
+        HandType activeHand;
+        if (!ClientContext.cursorHandler.isCursorHandFocused()
+                && MC.screen == null && MC.player != null) {
+            activeHand = ClientContext.localPlayer.getActiveHand();
+        } else {
+            activeHand = ClientContext.cursorHandler.getCursorHand();
+        }
+        if (handType != activeHand) {
+            return;
+        }
+
         if (isLeftClick && ignoreSingleClick) {
             ignoreSingleClick = false;
             return;
         }
-        process(false);
+        process(handType,false);
     }
 
     public void onClear() {
@@ -182,7 +204,7 @@ public class MouseClickHandler {
         ignoreSingleClick = false;
     }
 
-    private void process(boolean press) {
+    private void process(@NotNull HandType handType, boolean press) {
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
 
         if (focusedOverlay != null) {
@@ -194,7 +216,7 @@ public class MouseClickHandler {
             return;
         }
         if (MC.player != null) {
-            processGame(press);
+            processGame(handType, press);
         }
     }
 
@@ -233,8 +255,15 @@ public class MouseClickHandler {
         }
     }
 
-    private void processGame(boolean press) {
+    private void processGame(@NotNull HandType handType, boolean press) {
+
+
         if (press) {
+            //update active hand if only one hand is pressed
+            if((mainHandPressed && !offhandPressed)
+                    || (!mainHandPressed && offhandPressed)) {
+                ClientContext.localPlayer.setActiveHand(handType);
+            }
             InputHelper.pressMouse(buttonType);
         } else {
             InputHelper.releaseMouse(buttonType);

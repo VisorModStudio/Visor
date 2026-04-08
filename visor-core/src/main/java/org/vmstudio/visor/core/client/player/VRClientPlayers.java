@@ -57,29 +57,6 @@ public class VRClientPlayers {
     }
 
 
-    public static void handlePosePacket(UUID uuid,
-                                        PoseDataBuffer poseBuffer) {
-        var remotePlayer = getValidPacketReceiverMc(uuid);
-        if(remotePlayer == null){
-            return;
-        }
-        var vrPlayer = remotePlayers.get(uuid);
-
-        if(vrPlayer == null){
-            vrPlayer = new VRRemotePlayerImpl(
-                    remotePlayer,
-                    poseBuffer
-            );
-            receivedNewPlayer(vrPlayer);
-        }else{
-            vrPlayer.receivedPosePacked(
-                    remotePlayer,
-                    poseBuffer
-            );
-        }
-    }
-
-
 
     public static RemotePlayer getValidPacketReceiverMc(UUID uuid){
         if(localPlayer.getMcPlayer() != null

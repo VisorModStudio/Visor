@@ -99,7 +99,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
     public double visor$rainAndSnowX(double x) {
         if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+            return ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
                     .getHmd().getPosition().x();
         }
         return x;
@@ -108,7 +108,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
     public double visor$rainAndSnowY(double y) {
         if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+            return ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
                     .getHmd().getPosition().y();
         }
         return y;
@@ -117,7 +117,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
     public double visor$rainAndSnowZ(double z) {
         if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().z();
+            return ClientContext.localPlayer.getPose(PlayerPoseType.RENDER).getHmd().getPosition().z();
         }
         return z;
     }

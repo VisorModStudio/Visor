@@ -70,6 +70,8 @@
     "common.player.Common_EntityMixin",
     "common.player.Common_LivingEntityMixin",
     "common.player.Common_PlayerMixin",
+    "common.player.InventoryMixin",
+    "common.player.ServerPlayerGameModeMixin",
     "common.player.ServerPlayerMixin",
     "common.world.entity.EndermanMixins$EndermanFreezeWhenLookedAtMixin",
     "common.world.entity.EndermanMixins$EndermanMixin",

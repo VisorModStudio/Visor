@@ -36,10 +36,10 @@ public abstract class FishingHookMixin extends Entity {
         visor$vrPlayer = VisorAPI.server().getVrPlayer(
                 (ServerPlayer) player
         );
-        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
+        if (visor$vrPlayer == null) {
             return xRot;
         }
-        var activeHand = visor$vrPlayer.getPoseData().getActiveHand();
+        var activeHand = visor$vrPlayer.getPose().getActiveHand();
 
         visor$savedHandPos = activeHand.getPositionVec3();
         visor$savedHandDir = activeHand.getDirectionVec3();
@@ -51,7 +51,7 @@ public abstract class FishingHookMixin extends Entity {
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 1)
     private float visor$vrRotationY(float yRot) {
-        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
+        if (visor$vrPlayer == null) {
             return yRot;
         }
         return (float) Math.toDegrees(
@@ -64,7 +64,7 @@ public abstract class FishingHookMixin extends Entity {
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/FishingHook;moveTo(DDDFF)V"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V")
     private void visor$vrMoveTo(FishingHook instance, double x, double y, double z, float yRot, float xRot) {
-        if (visor$vrPlayer == null || !visor$vrPlayer.isVRActive()) {
+        if (visor$vrPlayer == null) {
             this.moveTo(x, y, z, yRot, xRot);
             visor$vrPlayer = null;
             return;

@@ -12,14 +12,12 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.common.player.VRPoseImpl;
 
@@ -324,7 +322,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
             );
         }
 
-        VRPlayerPoseClient originPose = vrPlayer.getPoseData(originType);
+        VRPlayerPoseClient originPose = vrPlayer.getPose(originType);
 
         Vector3f roomPose = position
                 .sub(originPose.getOrigin(), new Vector3f())
@@ -360,7 +358,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
             return new Matrix4f(rotationMatrix);
         }
 
-        VRPlayerPoseClient originPose = vrPlayer.getPoseData(originType);
+        VRPlayerPoseClient originPose = vrPlayer.getPose(originType);
 
         if (this.type == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(-originPose.getRotationY()).mul(rotationMatrix);

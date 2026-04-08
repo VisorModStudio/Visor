@@ -226,7 +226,7 @@ public class VROverlayDemo extends VROverlayScreen {
         emulatingPose = true;
 
         VRPlayerPoseClient renderPose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RENDER);
+                .getPose(PlayerPoseType.RENDER);
 
         PoseAnchor posAnchor = targetPoseOptions.getPositionAnchor();
 

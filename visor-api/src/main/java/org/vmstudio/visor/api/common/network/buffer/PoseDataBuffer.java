@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.common.network.buffer;
 
 
-import com.google.common.base.Charsets;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
@@ -9,7 +8,6 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import net.minecraft.network.FriendlyByteBuf;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.vmstudio.visor.api.common.network.VisorPayload;
 
 
 public record PoseDataBuffer(PoseElementBuffer hmd,
@@ -44,7 +42,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
     private static PoseElementBuffer getHmdPose(VRLocalPlayer vrPlayer) {
 
         VRPlayerPoseClient postTickPose = vrPlayer
-                .getPoseData(PlayerPoseType.TICK);
+                .getPose(PlayerPoseType.TICK);
         var hmd = postTickPose
                 .getHmd();
         var position = hmd.getPosition()
@@ -59,7 +57,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
                                                  HandType handType
     ) {
         VRPlayerPoseClient postTickPose = vrPlayer
-            .getPoseData(PlayerPoseType.TICK);
+            .getPose(PlayerPoseType.TICK);
         var handPose = postTickPose
                 .getHand(handType);
         var position = handPose

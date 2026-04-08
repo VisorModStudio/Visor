@@ -17,13 +17,12 @@ import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import org.vmstudio.visor.core.client.player.body.VRBodyFull;
+import org.vmstudio.visor.core.client.player.body.full.VRBodyFull;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
@@ -172,7 +171,7 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
                 ? HumanoidArm.LEFT
                 : HumanoidArm.RIGHT;
 
-        var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
+        var poseRender = vrPlayer.getPose(PlayerPoseType.RENDER);
 
         VRBodyFull vrBody = (VRBodyFull) poseRender.getBody();
 

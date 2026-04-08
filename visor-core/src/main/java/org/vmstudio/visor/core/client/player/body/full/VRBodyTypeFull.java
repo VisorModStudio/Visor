@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.player.body;
+package org.vmstudio.visor.core.client.player.body.full;
 
 import lombok.Getter;
 import net.minecraft.network.chat.Component;
@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.body.RegisterVRBodyType;
 import org.vmstudio.visor.api.client.player.body.VRBody;
-import org.vmstudio.visor.api.client.player.body.VRBodyPart;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.addon.VisorAddon;

@@ -2,9 +2,9 @@ package org.vmstudio.visor.core.client.network;
 
 import lombok.Getter;
 import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
@@ -34,6 +34,7 @@ public class ClientNetworking {
     private static float rotationYLastSent = 0;
 
     private static boolean leftHandedLastSent = false;
+    private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
 
 
@@ -88,14 +89,14 @@ public class ClientNetworking {
             heightLastSent = height;
         }
 
-        float worldScale = localPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale();
+        float worldScale = localPlayer.getPose(PlayerPoseType.TICK).getWorldScale();
         if (worldScale != worldScaleLastSent) {
             sendVRPacket(
                     new WorldScalePayloadToServer(worldScale)
             );
             worldScaleLastSent = worldScale;
         }
-        float rotationY = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
+        float rotationY = localPlayer.getPose(PlayerPoseType.TICK).getRotationY();
         if(rotationY != rotationYLastSent){
             sendVRPacket(
                     new RotationYPayloadToServer(rotationY)
@@ -109,6 +110,14 @@ public class ClientNetworking {
                     new LeftHandedPayloadToServer(leftHanded)
             );
             leftHandedLastSent = leftHanded;
+        }
+
+        HandType activeHamd = localPlayer.getActiveHand();
+        if(activeHamd != activeHandLastSent){
+            sendVRPacket(
+                    new ActiveHandPayloadToServer(activeHamd == HandType.MAIN)
+            );
+            activeHandLastSent = activeHamd;
         }
 
         VRBodyType vrBody = localPlayer.getBodyType();

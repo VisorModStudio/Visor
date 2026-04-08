@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.player;
 
-import org.vmstudio.visor.api.client.player.body.VRBody;
+
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
@@ -17,7 +18,7 @@ public interface VRLocalPlayer extends VRClientPlayer{
      *
      * @return mc player
      */
-    LocalPlayer getMcPlayer();
+    @Nullable LocalPlayer getMcPlayer();
 
     /**
      * Set VR body to use.
@@ -43,13 +44,9 @@ public interface VRLocalPlayer extends VRClientPlayer{
 
 
     /**
-     * Get hand type which is currently used
-     * by player for attack/mining
-     *
-     * @return hand type
+     * Set active hand type
      */
-    @NotNull
-    HandType getActiveHand();
+    void setActiveHand(@NotNull HandType handType);
 
     /**
      * Get pose that affects client rotation

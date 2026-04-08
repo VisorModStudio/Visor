@@ -56,7 +56,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
             return value;
         }
         var renderPose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RENDER);
+                .getPose(PlayerPoseType.RENDER);
 
         HandType handType = HandType.OFFHAND;
         if (fishingHook.getPlayerOwner().getMainHandItem().getItem() instanceof FishingRodItem) {

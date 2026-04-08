@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.player.body;
+package org.vmstudio.visor.core.client.player.body.full;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;

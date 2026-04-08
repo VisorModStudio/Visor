@@ -3,7 +3,6 @@ package org.vmstudio.visor.core.client.utils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,9 +14,6 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
 import org.vmstudio.visor.core.client.ClientContext;
-
-import javax.annotation.Nullable;
-import java.lang.Math;
 
 public class ModelUtils {
 
@@ -87,7 +83,7 @@ public class ModelUtils {
 
         // worldscale includes entity scale
         if (useWorldScale) {
-            out.div(vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
+            out.div(vrPlayer.getPose(PlayerPoseType.RENDER).getWorldScale());
         } else {
             out.div(ScaleHelper.getEntityEyeHeightScale(vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
         }
@@ -135,7 +131,7 @@ public class ModelUtils {
         if (applyScale) {
             // worldscale includes entity scale
             if (useWorldScale) {
-                out.mul(clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
+                out.mul(clientPlayer.getPose(PlayerPoseType.RENDER).getWorldScale());
             } else {
                 out.mul(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
             }

@@ -2,9 +2,11 @@ package org.vmstudio.visor.api;
 
 
 import lombok.Getter;
+import net.minecraft.world.entity.player.Player;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.AddonManager;
@@ -17,9 +19,12 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.api.server.player.VRServerPlayer;
 
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 
 
 /**
@@ -118,6 +123,18 @@ public interface VisorAPI {
 
 
     /**
+     * Get VR player interface that may represent
+     * {@link VRServerPlayer} or {@link VRClientPlayer}
+     *
+     * @param mcPlayer the minecraft player instance
+     * @return the VR player
+     */
+    @Nullable
+    static VRPlayer getVRPlayer(@NotNull Player mcPlayer){
+        return Instance.vrPlayerFunction.apply(mcPlayer);
+    }
+
+    /**
      * Get the Visor Addon manager.
      *
      * @return the addon manager
@@ -165,6 +182,7 @@ public interface VisorAPI {
 
         private static VisorServer server;
 
+        private static Function<Player, VRPlayer> vrPlayerFunction;
         private static AddonManager addonManager;
         private static VREventBus eventBus;
 
@@ -189,6 +207,10 @@ public interface VisorAPI {
             Instance.server = api;
         }
 
+        @ApiStatus.Internal
+        public static void setVrPlayerFunction(final Function<Player, VRPlayer> api) {
+            Instance.vrPlayerFunction = api;
+        }
         @ApiStatus.Internal
         public static void setAddonManager(final AddonManager api) {
             Instance.addonManager = api;

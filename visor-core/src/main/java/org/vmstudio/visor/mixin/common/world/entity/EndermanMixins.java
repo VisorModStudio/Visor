@@ -48,9 +48,9 @@ public class EndermanMixins {
                         .getVrPlayer(
                                 player
                         );
-                if(vrPlayer == null || !vrPlayer.isVRActive()) return;
+                if(vrPlayer == null) return;
                 this.enderman.getLookControl().setLookAt(
-                        vrPlayer.getPoseData().getHmd()
+                        vrPlayer.getPose().getHmd()
                                 .getPositionVec3()
                 );
             }else{
@@ -89,7 +89,7 @@ public class EndermanMixins {
                         .getVrPlayer(player);
                 if (vrPlayer == null) return false;
 
-                var hmd = vrPlayer.getPoseData().getHmd();
+                var hmd = vrPlayer.getPose().getHmd();
 
                 Vec3 hmdPos = hmd.getPositionVec3();
                 Vec3 relativePos = new Vec3(
