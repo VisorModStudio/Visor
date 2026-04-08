@@ -31,9 +31,6 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private String vrBodyType = "null";
 
     @Setter
-    private boolean VRActive = false;
-
-    @Setter
     private float worldScale = 1.0F;
     @Setter
     private float fullHeight = 1.0F;

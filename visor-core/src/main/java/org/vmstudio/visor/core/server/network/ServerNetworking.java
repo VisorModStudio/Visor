@@ -84,8 +84,7 @@ public class ServerNetworking {
         if (serverPlayer.hasDisconnected()) {
             VisorServerImpl.INSTANCE.removePlayer(serverPlayer);
         }
-        if (!vrPlayer.isVRActive()
-                || vrPlayer.getPoseDataBuffer() == null) {
+        if (vrPlayer.getPoseDataBuffer() == null) {
             return;
         }
         sendPacketToTrackedVRPlayers(
