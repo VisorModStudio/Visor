@@ -46,6 +46,9 @@ public abstract class ServerPlayerMixin
     @Unique
     private float visor$rotationYCached;
 
+    @Unique
+    private int visor$offhandSlotCached;
+
 
 
 
@@ -58,11 +61,17 @@ public abstract class ServerPlayerMixin
     protected void visor$wrapReadData(CompoundTag compound, Operation<Void> original) {
         original.call(compound);
         visor$rotationYCached = compound.getFloat("visor$rotation_y");
+        if(compound.contains("visor$offhand_slot")){
+            visor$offhandSlotCached = compound.getInt("visor$offhand_slot");
+        }else{
+            visor$offhandSlotCached = -1;
+        }
     }
     @WrapMethod(method = "addAdditionalSaveData")
     protected void visor$wrapSaveData(CompoundTag compound, Operation<Void> original) {
         original.call(compound);
         compound.putFloat("visor$rotation_y", visor$rotationYCached);
+        compound.putFloat("visor$offhand_slot", visor$offhandSlotCached);
     }
 
     @Override
@@ -296,10 +305,20 @@ public abstract class ServerPlayerMixin
     public void visor$setRotationYCached(float visor$rotationY) {
         this.visor$rotationYCached = visor$rotationY;
     }
-
     @Unique
     public float visor$getRotationYCached() {
         return visor$rotationYCached;
+    }
+
+    @Unique
+    @Override
+    public void visor$setOffhandSlotCached(int slot) {
+        this.visor$offhandSlotCached = slot;
+    }
+    @Unique
+    @Override
+    public int visor$getOffhandSlotCached() {
+        return visor$offhandSlotCached;
     }
 
 }

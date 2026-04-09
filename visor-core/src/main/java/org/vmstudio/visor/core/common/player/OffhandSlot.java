@@ -1,91 +1,97 @@
 package org.vmstudio.visor.core.common.player;
 
-import lombok.Setter;
-import net.minecraft.core.NonNullList;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.api.server.VRServerSettings;
 
-import java.util.List;
-
-public class OffhandSlot extends NonNullList<ItemStack> {
-    public Player player;
-
-    @Setter
-    private boolean useVanilla;
-
-    public OffhandSlot(Player player,
-                       List<ItemStack> list,
-                       @Nullable ItemStack object
-    ) {
-        super(list, object);
-        this.player = player;
+public class OffhandSlot extends Slot {
+    private Player owner;
+    public OffhandSlot(Player owner, Container container, int slot, int x, int y) {
+        super(container, slot, x, y);
+        this.owner = owner;
     }
 
-    @NotNull
+    //-----COPY FROM VANILLA
     @Override
-    public ItemStack get(int i) {
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla){
-            return super.get(i);
+    public void setByPlayer(ItemStack stack) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            Equipable equipable = Equipable.get(stack);
+            if (equipable != null) {
+                owner.onEquipItem(EquipmentSlot.OFFHAND, this.getItem(), stack);
+            }
+            super.setByPlayer(stack);
         }
-        if (vrPlayer.getOffhandSlot() < 0) {
-            return ItemStack.EMPTY;
-        }
-        return player.getInventory().getItem(vrPlayer.getOffhandSlot());
-
-    }
-
-
-    @Override
-    public @NotNull ItemStack set(int i, @NotNull ItemStack itemStack) {
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if (vrPlayer == null || useVanilla){
-            return super.set(i, itemStack);
-        }
-
-        if(vrPlayer.getOffhandSlot() < 0) {
-            return ItemStack.EMPTY;
-        }
-
-        ItemStack previous = player.getInventory()
-                .getItem(vrPlayer.getOffhandSlot());
-        player.getInventory().setItem(
-                vrPlayer.getOffhandSlot(),
-                itemStack
-        );
-        return previous;
 
     }
 
     @Override
-    public void add(int i, ItemStack object) {
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla){
-            super.add(i, object);
+    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+        return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
+    }
+
+
+    //-----DISABLE SLOT
+    @Override
+    public boolean isActive() {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            return super.isActive();
         }
+        return false;
+    }
+
+    //-----EXTRA CHECKS FOR SAFETY
+    @Override
+    public void set(@NotNull ItemStack stack) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            super.set(stack);
+        }
+    }
+    @Override
+    public @NotNull ItemStack remove(int amount) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            return super.remove(amount);
+        }
+        return ItemStack.EMPTY;
+    }
+    @Override
+    public @NotNull ItemStack getItem() {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            return super.getItem();
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
-    public ItemStack remove(int i) {
-        VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla){
-            return super.remove(i);
+    public boolean mayPlace(ItemStack stack) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            return super.mayPlace(stack);
         }
+        return false;
+    }
 
-        if (vrPlayer.getOffhandSlot() < 0) {
-            return ItemStack.EMPTY;
+    @Override
+    public boolean mayPickup(@NotNull Player player) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
+        if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
+            return super.mayPickup(player);
         }
-
-        ItemStack previous = player.getInventory()
-                .getItem(vrPlayer.getOffhandSlot());
-        player.getInventory().setItem(
-                vrPlayer.getOffhandSlot(),
-                ItemStack.EMPTY
-        );
-        return previous;
+        return false;
     }
 }

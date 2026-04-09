@@ -10,10 +10,8 @@ import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.HotBarSlice;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,17 +23,19 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class TaskHotBar extends VisorTask {
 
     private static final String ID = "hotbar";
+    public static final int NOT_SELECTED = -1;
+    public static final int NULL = -2;
     @Getter
     private static TaskHotBar instance;
 
     @Getter
-    private static HotBarSlice currentStateMain = HotBarSlice.CENTER;
+    private static int slotMain = 0;
     @Getter @Setter
-    private static HotBarSlice currentStateOffhand = HotBarSlice.NOT_SELECTED;
+    private static int slotOffhand = NOT_SELECTED;
 
 
-    private static HotBarSlice previousStateMain = null;
-    private static HotBarSlice previousStateOffhand = null;
+    private static int slotMainBack = NULL;
+    private static int slotOffhandBack = NULL;
 
     @Setter
     private static boolean resetData = true;
@@ -55,26 +55,37 @@ public class TaskHotBar extends VisorTask {
         instance = this;
     }
 
+    public void setOffhandSlot(int slot){
+        if(slot == slotOffhand){
+            return;
+        }
+        onClear(MC.player);
+        slotOffhand = slot;
+        if(slotMain == slotOffhand){
+            handleSlotCollision(HandType.MAIN, false);
+        }
+    }
+
     @Override
     public void onRun(@Nullable LocalPlayer player) {
-
-        if(resetData
-                || player.getInventory().selected
-                != currentStateMain.getSlot()){
-            currentStateMain = HotBarSlice.fromSlot(
-                    player.getInventory().selected
-            );
+        var inventory = player.getInventory();
+        int slotMainNew = inventory.selected;
+        if (resetData || slotMainNew != slotMain) {
+            slotMain = slotMainNew;
             resetData = false;
         }
 
         VROverlayHotBar hotBarOffhand = (VROverlayHotBar)
                 ClientContext.overlayManager
-                .getOverlay(VROverlayHotBar.ID_OFFHAND);
+                        .getOverlay(VROverlayHotBar.ID_OFFHAND);
         VROverlayHotBar hotBarMainHand = (VROverlayHotBar)
                 ClientContext.overlayManager
-                .getOverlay(VROverlayHotBar.ID_MAIN);
+                        .getOverlay(VROverlayHotBar.ID_MAIN);
+        if (hotBarOffhand == null || hotBarMainHand == null) {
+            throw new RuntimeException("hotbar overlay offhand or main hand not found");
+        }
 
-        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)){
+        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)) {
             hotBarMainHand.setEnabled(
                     false
             );
@@ -83,13 +94,13 @@ public class TaskHotBar extends VisorTask {
             );
             return;
         }
-        //offhand
-        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND)){
+        //OFFHAND
+        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND)) {
             hotBarOffhand.setEnabled(
                     false
             );
 
-        }else {
+        } else {
             if (inputPressedOffhand && !pressedOffhand) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
@@ -103,24 +114,18 @@ public class TaskHotBar extends VisorTask {
             }
 
             if (pressedOffhand) {
-                currentStateOffhand = HotBarSlice.fromSlot(
-                        hotBarOffhand.getSelectedSlice()
-                );
-                int slot = currentStateOffhand.getSlot();
-                if (slot != -1) {
+                slotOffhand = hotBarOffhand.getSelectedSlice();
+                if (slotOffhand != NOT_SELECTED) {
 
-                    //if selected item in main hand
-                    if (previousStateMain != null
-                            && slot != previousStateMain.getSlot()) {
-                        currentStateMain = previousStateMain;
-                        player.getInventory().selected = currentStateMain.getSlot();
-                        previousStateMain = null;
-                    } else if (slot == currentStateMain.getSlot()) {
-                        previousStateMain = currentStateMain;
-                        player.getInventory().selected = slot == 8 ? 0 : slot + 1;
-                        currentStateMain = HotBarSlice.fromSlot(
-                                player.getInventory().selected
-                        );
+                    if (slotMainBack != NULL
+                            && slotOffhand != slotMainBack) {
+                        //switching back
+                        slotMain = slotMainBack;
+                        inventory.selected = slotMain;
+                        slotMainBack = NULL;
+                    } else if (slotOffhand == slotMain) {
+                        //switching if collide
+                        handleSlotCollision(HandType.MAIN, true);
                     }
 
                 }
@@ -133,23 +138,18 @@ public class TaskHotBar extends VisorTask {
                             false
                     );
                     pressedOffhand = false;
-                    previousStateOffhand = null;
-                    previousStateMain = null;
-
-                    if (previousStateOffhand != currentStateOffhand) {
-
-
-                    }
+                    slotOffhandBack = NULL;
+                    slotMainBack = NULL;
                 }
             }
         }
-        //mainhand
-        if(VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN)){
+        //MAIN HAND
+        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN)) {
             hotBarMainHand.setEnabled(
                     false
             );
 
-        }else {
+        } else {
             if (inputPressedMain && !pressedMain) {
                 ClientContext.inputManager
                         .triggerHapticPulse(
@@ -163,25 +163,23 @@ public class TaskHotBar extends VisorTask {
 
             if (pressedMain) {
 
-                currentStateMain = HotBarSlice.fromSlot(
-                        hotBarMainHand.getSelectedSlice()
-                );
+                slotMain = hotBarMainHand.getSelectedSlice();
 
-                int slot = currentStateMain.getSlot();
-                if (slot != -1) {
-                    player.getInventory().selected = slot;
+                if (slotMain != NOT_SELECTED) {
+                    inventory.selected = slotMain;
 
                     //if selected item in offhand
-                    if (previousStateOffhand != null
-                            && slot != previousStateOffhand.getSlot()) {
-                        currentStateOffhand = previousStateOffhand;
-                        previousStateOffhand = null;
-                    } else if (slot == currentStateOffhand.getSlot()) {
-                        previousStateOffhand = currentStateOffhand;
-                        currentStateOffhand = HotBarSlice.NOT_SELECTED;
+                    if (slotOffhandBack != NULL
+                            && slotMain != slotOffhandBack) {
+                        //switching back
+                        slotOffhand = slotOffhandBack;
+                        slotOffhandBack = NULL;
+                    } else if (slotMain == slotOffhand) {
+                        //switching if collide
+                        handleSlotCollision(HandType.OFFHAND, true);
                     }
                 }
-                if (!inputPressedMain) { //isNotDown
+                if (!inputPressedMain) {
                     ClientContext.inputManager
                             .triggerHapticPulse(
                                     HandType.MAIN, 0.003f
@@ -190,22 +188,32 @@ public class TaskHotBar extends VisorTask {
                             false
                     );
                     pressedMain = false;
-                    previousStateOffhand = null;
-                    previousStateMain = null;
+                    slotOffhandBack = NULL;
+                    slotMainBack = NULL;
 
-                    if (previousStateOffhand != currentStateOffhand) {
-
-                    }
                 }
             }
+            if (slotOffhand == slotMain) {
+                slotOffhand = NOT_SELECTED;
+            }
         }
-        if(currentStateOffhand.getSlot() == currentStateMain.getSlot()){
-            currentStateOffhand = HotBarSlice.NOT_SELECTED;
+    }
+    private void handleSlotCollision(HandType handType, boolean switchableBack){
+        var inventory = MC.player.getInventory();
+        if(handType == HandType.MAIN) {
+            if(switchableBack){
+                slotMainBack = slotMain;
+            }
+            inventory.selected = slotOffhand == 8
+                    ? 0
+                    : slotOffhand + 1;
+            slotMain = inventory.selected;
+        }else{
+            if(switchableBack) {
+                slotOffhandBack = slotOffhand;
+            }
+            slotOffhand = NOT_SELECTED;
         }
-
-
-
-
     }
 
     @Override
@@ -224,9 +232,8 @@ public class TaskHotBar extends VisorTask {
         inputPressedOffhand = false;
         pressedMain = false;
         pressedOffhand = false;
-        previousStateMain = null;
-        previousStateOffhand = null;
-        currentStateOffhand = HotBarSlice.NOT_SELECTED;
+        slotMainBack = NULL;
+        slotOffhandBack = NULL;
         resetData = true;
     }
 
@@ -240,29 +247,6 @@ public class TaskHotBar extends VisorTask {
     @Override
     public @NotNull TaskType getType() {
         return TaskType.VR_PLAYER_TICK;
-    }
-
-
-    public static ItemStack getOffhandItem(){
-        if(currentStateOffhand == HotBarSlice.NOT_SELECTED
-                || MC.player == null){
-            return ItemStack.EMPTY;
-        }
-        return MC.player.getInventory()
-                .getItem(currentStateOffhand.getSlot());
-    }
-
-    public static ItemStack getHandItem(HandType hand){
-        if(hand == HandType.OFFHAND){
-            return getOffhandItem();
-        }
-        //main
-        if(currentStateMain == HotBarSlice.NOT_SELECTED
-                || MC.player == null){
-            return ItemStack.EMPTY;
-        }
-        return MC.player.getInventory()
-                .getItem(currentStateMain.getSlot());
     }
 
     @Override

@@ -7,4 +7,7 @@ public interface ServerPlayerExtension {
 
     float visor$getRotationYCached();
 
+    void visor$setOffhandSlotCached(int slot);
+    int visor$getOffhandSlotCached();
+
 }

@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.common.network.VisorPayloadID;
 import org.vmstudio.visor.api.common.network.toclient.HandshakePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.OffhandSlotPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.TeleportMovePayloadToServer;
@@ -87,7 +88,7 @@ public class ServerPacketHandler {
             case OFFHAND_SLOT -> {
                 var payload = (OffhandSlotPayloadToServer) payloadToServer;
 
-                vrPlayer.setOffhandSlot(
+                vrPlayer.updateOffhandSlot(
                         payload.slot()
                 );
             }
@@ -213,6 +214,13 @@ public class ServerPacketHandler {
                             ((ServerPlayerExtension)player).visor$getRotationYCached()
                     )
             );
+            if(VRServerSettings.isTwoHandedVR()) {
+                packetConsumer.accept(
+                        new OffhandSlotPayloadToClient(
+                                ((ServerPlayerExtension) player).visor$getOffhandSlotCached()
+                        )
+                );
+            }
         }else{
             packetReceiver = new VisorPacketReceiver(player);
             if (VRServerSettings.isServerDebug()) {

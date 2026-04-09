@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
+import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
 
@@ -35,6 +36,10 @@ public class ClientPacketHandler {
                 ClientContext.localPlayer.setRotationY(
                         payload.rotationY()
                 );
+            }
+            case OFFHAND_SLOT -> {
+                var payload = (OffhandSlotPayloadToClient) payloadClient;
+                TaskHotBar.getInstance().setOffhandSlot(payload.slot());
             }
             case OTHER_VR_POSE_DATA -> {
                 var payload = (VROtherPoseDataPayloadToClient) payloadClient;

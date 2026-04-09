@@ -103,7 +103,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public void setActiveHand(@NotNull HandType activeHand) {
-        if (!VRServerSettings.isOffhandUsable()) {
+        if (!VRServerSettings.isTwoHandedVR()) {
             activeHand = HandType.MAIN;
         }
         if(this.activeHand == activeHand){
@@ -458,7 +458,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public int getOffhandSlot() {
-        return Math.max(TaskHotBar.getCurrentStateOffhand().getSlot(), 0);
+        return TaskHotBar.getInstance().getSlotOffhand();
     }
 
 

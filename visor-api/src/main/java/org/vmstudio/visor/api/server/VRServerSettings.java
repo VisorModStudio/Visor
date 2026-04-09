@@ -13,7 +13,7 @@ public class VRServerSettings {
     private static boolean vrOnly = false;
 
     @Getter
-    private static boolean offhandUsable = true;
+    private static boolean twoHandedVR = true;
 
     @Getter
     private static boolean roomCrawlingSupported = true;
@@ -61,7 +61,7 @@ public class VRServerSettings {
         pvpVRvsVanilla = true;
         pvpVRvsVR = true;
         notifyPvpBlocked = false;
-        offhandUsable = true;
+        twoHandedVR = true;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
     }

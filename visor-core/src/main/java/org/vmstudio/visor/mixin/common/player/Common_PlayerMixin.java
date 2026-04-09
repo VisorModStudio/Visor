@@ -5,13 +5,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,13 +48,13 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin {
     }
 
 
-    /* ************************* *\
-  //--------OFFHAND SUPPORT--------\\
-    \* ************************* */
+    /* ***************************************** *\
+  //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
+    \* ***************************************** */
     @Redirect(method = "getDestroySpeed", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack visor$getActiveHandItem1(Player player) {
-        if (!VRServerSettings.isOffhandUsable()) {
+        if (!VRServerSettings.isTwoHandedVR()) {
             return player.getMainHandItem();
         }
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
@@ -75,7 +72,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin {
     @Redirect(method = "blockActionRestricted", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack visor$getActiveHandItem2(Player player) {
-        if (!VRServerSettings.isOffhandUsable()) {
+        if (!VRServerSettings.isTwoHandedVR()) {
             return player.getMainHandItem();
         }
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
@@ -95,7 +92,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin {
     public void visor$hasCorrectToolForDrops(BlockState blockState,
                                              CallbackInfoReturnable<Boolean> ci
     ) {
-        if (!VRServerSettings.isOffhandUsable()) {
+        if (!VRServerSettings.isTwoHandedVR()) {
             return;
         }
         Player player = (Player) (Object) this;

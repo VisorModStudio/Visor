@@ -70,6 +70,7 @@
     "common.player.Common_EntityMixin",
     "common.player.Common_LivingEntityMixin",
     "common.player.Common_PlayerMixin",
+    "common.player.InventoryMenuMixin",
     "common.player.InventoryMixin",
     "common.player.ServerPlayerGameModeMixin",
     "common.player.ServerPlayerMixin",

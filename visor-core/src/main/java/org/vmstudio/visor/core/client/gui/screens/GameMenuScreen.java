@@ -29,7 +29,7 @@ public class GameMenuScreen extends Screen {
         create();
         //@TODO temporary. Get rid of it when player tick tasks
         // start to reset on player world leave
-        TaskHotBar.setResetData(true);
+        TaskHotBar.getInstance().setResetData(true);
         var keyboardAccessor = ClientContext.overlayManager
                 .getKeyboardAccessor();
         keyboardAccessor.setVisible(false);

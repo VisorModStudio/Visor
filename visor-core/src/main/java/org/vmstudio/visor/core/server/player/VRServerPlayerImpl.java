@@ -44,7 +44,6 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
 
     private boolean crawling;
 
-    @Setter
     private int offhandSlot;
 
 
@@ -99,5 +98,9 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     public void updateRotationY(float rotationY){
         this.rotationY = rotationY;
         ((ServerPlayerExtension)mcPlayer).visor$setRotationYCached(rotationY);
+    }
+    public void updateOffhandSlot(int slot){
+        this.offhandSlot = slot;
+        ((ServerPlayerExtension)mcPlayer).visor$setOffhandSlotCached(slot);
     }
 }

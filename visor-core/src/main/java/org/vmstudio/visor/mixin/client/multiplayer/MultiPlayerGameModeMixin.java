@@ -51,9 +51,9 @@ public abstract class MultiPlayerGameModeMixin {
     public abstract void startPrediction(ClientLevel arg, PredictiveAction arg2);
 
 
-    /* ************************* *\
-  //--------OFFHAND SUPPORT--------\\
-    \* ************************* */
+    /* ***************************************** *\
+  //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
+    \* ***************************************** */
 
     @Redirect(method = "sameDestroyTarget", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/player/LocalPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
@@ -150,7 +150,7 @@ public abstract class MultiPlayerGameModeMixin {
     @Unique
     public ItemStack visor$getUsedItem(Player player) {
         if(VisorState.get().isNotActive()) return player.getMainHandItem();
-        if (VRServerSettings.isOffhandUsable()
+        if (VRServerSettings.isTwoHandedVR()
                 && ClientContext.localPlayer.getActiveHand() == HandType.OFFHAND) {
             return player.getOffhandItem();
         }

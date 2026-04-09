@@ -19,7 +19,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
-import org.vmstudio.visor.core.common.player.OffhandSlot;
+import org.vmstudio.visor.core.common.player.OffhandNonNullList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,9 +49,9 @@ public abstract class InventoryMixin implements Container, Nameable {
     public Player player;
 
 
-    /* ************************* *\
-  //--------OFFHAND SUPPORT--------\\
-    \* ************************* */
+    /* ***************************************** *\
+  //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
+    \* ***************************************** */
 
     /**
      * Replaces vanilla offhand list with a custom one,
@@ -70,23 +70,23 @@ public abstract class InventoryMixin implements Container, Nameable {
     //LOAD
     @Inject( method = "load", at = @At(value = "HEAD"))
     public void visor$loadHead(ListTag listTag, CallbackInfo ci) {
-        var offhand = (OffhandSlot) this.offhand;
+        var offhand = (OffhandNonNullList) this.offhand;
         offhand.setUseVanilla(true);
     }
     @Inject( method = "load", at = @At(value = "TAIL"))
     public void visor$loadTail(ListTag listTag, CallbackInfo ci) {
-        var offhand = (OffhandSlot) this.offhand;
+        var offhand = (OffhandNonNullList) this.offhand;
         offhand.setUseVanilla(false);
     }
     //SAVE
     @Inject( method = "save", at = @At(value = "HEAD"))
     public void visor$saveHead(ListTag listTag, CallbackInfoReturnable<ListTag> cir) {
-        var offhand = (OffhandSlot) this.offhand;
+        var offhand = (OffhandNonNullList) this.offhand;
         offhand.setUseVanilla(true);
     }
     @Inject( method = "save", at = @At(value = "TAIL"))
     public void visor$saveTail(ListTag listTag, CallbackInfoReturnable<ListTag> cir) {
-        var offhand = (OffhandSlot) this.offhand;
+        var offhand = (OffhandNonNullList) this.offhand;
         offhand.setUseVanilla(false);
     }
 
@@ -95,7 +95,7 @@ public abstract class InventoryMixin implements Container, Nameable {
     public void visor$offhandDestroySpeed(BlockState blockState,
                                           CallbackInfoReturnable<Float> ci
     ) {
-        if (!VRServerSettings.isOffhandUsable()) {
+        if (!VRServerSettings.isTwoHandedVR()) {
             return;
         }
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
@@ -115,11 +115,11 @@ public abstract class InventoryMixin implements Container, Nameable {
     }
 
     @Unique
-    public OffhandSlot visor$createOffhandList(int i, ItemStack object) {
+    public OffhandNonNullList visor$createOffhandList(int i, ItemStack object) {
         Validate.notNull(object);
         ItemStack[] objects = new ItemStack[i];
         Arrays.fill(objects, object);
-        return new OffhandSlot(
+        return new OffhandNonNullList(
                 player,
                 Arrays.asList(objects),
                 object

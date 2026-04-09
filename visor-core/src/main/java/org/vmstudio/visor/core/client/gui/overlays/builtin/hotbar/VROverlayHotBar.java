@@ -253,7 +253,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
 
         //----Highlighting for selected slots
-        HotBarSlice slice = TaskHotBar.getCurrentStateMain();
+        HotBarSlice slice = HotBarSlice.fromSlot(TaskHotBar.getInstance().getSlotMain());
         if (slice == HotBarSlice.NOT_SELECTED) return;
         SelectionBoxHotBar selectionBox = (SelectionBoxHotBar)selectionBoxes.get(slice.slot);
         int itemX = selectionBox.getItemX();
@@ -275,7 +275,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
             );
         }
 
-        slice = TaskHotBar.getCurrentStateOffhand();
+        slice = HotBarSlice.fromSlot(TaskHotBar.getInstance().getSlotOffhand());
         if (slice == HotBarSlice.NOT_SELECTED) return;
         selectionBox = (SelectionBoxHotBar) selectionBoxes.get(slice.slot);
         itemX = selectionBox.getItemX();

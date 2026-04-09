@@ -404,9 +404,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         }
     }
 
-     /* ************************* *\
-   //--------OFFHAND SUPPORT--------\\
-     \* ************************* */
+    /* ***************************************** *\
+  //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
+    \* ***************************************** */
 
     @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
     private void visor$swingArmAttack(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
