@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
@@ -421,13 +422,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         original.call(instance, hand);
     }
 
-    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
-        if (VisorState.get().isActive()) {
-            ClientContext.handRenderer.setSwingType(HandAction.USE);
-        }
-        original.call(instance, hand);
-    }
 
     @WrapOperation(
             method = "startAttack",
@@ -448,7 +442,29 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         return original.call(instance, hand);
     }
 
+    @WrapOperation(
+            method = "startUseItem",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/InteractionHand;values()[Lnet/minecraft/world/InteractionHand;"
+            )
+    )
+    private InteractionHand[] visor$useItemOnlyActive(Operation<InteractionHand[]> original) {
+        if (VisorState.get().isActive() && VRServerSettings.isTwoHandedVR()) {
+            return new InteractionHand[] {
+                    ClientContext.localPlayer.getActiveHand().asInteractionHand()
+            };
+        }
+        return original.call();
+    }
 
+    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
+    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+        if (VisorState.get().isActive()) {
+            ClientContext.handRenderer.setSwingType(HandAction.USE);
+        }
+        original.call(instance, hand);
+    }
 
     /* ************** *\
   //--------MISC--------\\
