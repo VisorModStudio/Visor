@@ -322,7 +322,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
             );
         }
 
-        VRPlayerPoseClient originPose = vrPlayer.getPose(originType);
+        VRPlayerPoseClient originPose = vrPlayer.getPoseData(originType);
 
         Vector3f roomPose = position
                 .sub(originPose.getOrigin(), new Vector3f())
@@ -358,7 +358,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
             return new Matrix4f(rotationMatrix);
         }
 
-        VRPlayerPoseClient originPose = vrPlayer.getPose(originType);
+        VRPlayerPoseClient originPose = vrPlayer.getPoseData(originType);
 
         if (this.type == PlayerPoseType.RELATIVE) {
             return new Matrix4f().rotationY(-originPose.getRotationY()).mul(rotationMatrix);

@@ -56,7 +56,7 @@ public class HandEffectCrosshair extends VRHandEffect {
                        float partialTicks) {
 
         // --- Prepare variables ---
-        VRPlayerPoseClient pose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
+        VRPlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var rawCross = ((GameRendererExtension)MC.gameRenderer).visor$getCrossVec().toVector3f();
         var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());

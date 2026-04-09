@@ -84,7 +84,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
 
         if (vrPlayer != null) {
-            var pose = vrPlayer.getPose(PlayerPoseType.RENDER);
+            var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
             float scale = vrPlayer.getFullHeightScale();
             if ((VisorState.get().isActive()
@@ -114,7 +114,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
         // this changes the offset to only apply when swimming, instead of crouching
         if (VRRenderState.isSelfModelPlayer(player)) {
             return player.isVisuallySwimming() ?
-                    new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPose(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
+                    new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
         } else {
             return player.isVisuallySwimming() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
         }
@@ -161,7 +161,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
             if(vrPlayer == null) {
                 return;
             }
-            rotationYaw = vrPlayer.getPose(PlayerPoseType.RENDER).getBodyYaw();
+            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw();
         }
 
         // vanilla below here

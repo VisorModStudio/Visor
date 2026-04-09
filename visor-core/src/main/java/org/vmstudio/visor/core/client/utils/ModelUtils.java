@@ -83,7 +83,7 @@ public class ModelUtils {
 
         // worldscale includes entity scale
         if (useWorldScale) {
-            out.div(vrPlayer.getPose(PlayerPoseType.RENDER).getWorldScale());
+            out.div(vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
         } else {
             out.div(ScaleHelper.getEntityEyeHeightScale(vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
         }
@@ -131,7 +131,7 @@ public class ModelUtils {
         if (applyScale) {
             // worldscale includes entity scale
             if (useWorldScale) {
-                out.mul(clientPlayer.getPose(PlayerPoseType.RENDER).getWorldScale());
+                out.mul(clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
             } else {
                 out.mul(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
             }

@@ -47,7 +47,7 @@ public class RenderGuiHelper {
     ) {
         // --- Prepare variables ---
         VRPlayerPoseClient renderPose = ClientContext.localPlayer
-                .getPose(PlayerPoseType.RENDER);
+                .getPoseData(PlayerPoseType.RENDER);
 
         var eye = RenderPoseHelper.getCameraPosition(
                 VRRenderState.getRenderPass(),
@@ -116,7 +116,7 @@ public class RenderGuiHelper {
         if (MC.level != null && useLight) {
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
-                position = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER).getHmd().getPosition();
+                position = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
             }
 
             int minLight = ShadersHelper.shaderLight();

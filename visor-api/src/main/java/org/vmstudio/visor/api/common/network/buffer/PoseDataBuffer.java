@@ -42,7 +42,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
     private static PoseElementBuffer getHmdPose(VRLocalPlayer vrPlayer) {
 
         VRPlayerPoseClient postTickPose = vrPlayer
-                .getPose(PlayerPoseType.TICK);
+                .getPoseData(PlayerPoseType.TICK);
         var hmd = postTickPose
                 .getHmd();
         var position = hmd.getPosition()
@@ -57,7 +57,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
                                                  HandType handType
     ) {
         VRPlayerPoseClient postTickPose = vrPlayer
-            .getPose(PlayerPoseType.TICK);
+            .getPoseData(PlayerPoseType.TICK);
         var handPose = postTickPose
                 .getHand(handType);
         var position = handPose

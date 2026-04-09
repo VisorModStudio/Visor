@@ -346,7 +346,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         if (player == null) {
             return;
         }
-        LocalPlayerPose data = getPose(stage);
+        LocalPlayerPose data = getPoseData(stage);
 
         if (player.isPassenger()) {
             var vehicleLookDir = TaskVehicle.getVehicleLookDirection(player);
@@ -475,7 +475,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType){
-        VRPlayerPoseClient playerPose = getPose(poseType);
+        VRPlayerPoseClient playerPose = getPoseData(poseType);
         return switch (VRClientSettings.getRotationMode()) {
             case MAIN_HAND -> playerPose.getHand(
                     HandType.MAIN
@@ -488,7 +488,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     @Override
-    public @NotNull LocalPlayerPose getPose(@NotNull PlayerPoseType stage) {
+    public @NotNull LocalPlayerPose getPoseData(@NotNull PlayerPoseType stage) {
         return switch (stage){
             case PREV_TICK -> prevPose;
             case TICK -> pose;

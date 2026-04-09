@@ -11,9 +11,9 @@ public interface VRServerPlayer extends VRPlayer {
     @NotNull
     ServerPlayer getMcPlayer();
 
-    @NotNull PlayerPoseServer getPosePrevious();
-    @NotNull PlayerPoseServer getPoseRelative();
-    @NotNull PlayerPoseServer getPose();
+    @NotNull PlayerPoseServer getPoseDataPrevious();
+    @NotNull PlayerPoseServer getPoseDataRelative();
+    @NotNull PlayerPoseServer getPoseData();
 
 
     boolean isCrawling();

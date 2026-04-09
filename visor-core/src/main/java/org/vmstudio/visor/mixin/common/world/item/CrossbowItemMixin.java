@@ -21,7 +21,7 @@ public class CrossbowItemMixin {
             if (vrPlayer == null) {
                 return original.call(instance, partialTicks);
             }
-            return vrPlayer.getPose()
+            return vrPlayer.getPoseData()
                     .getActiveHand()
                     .getDirectionVec3();
         }

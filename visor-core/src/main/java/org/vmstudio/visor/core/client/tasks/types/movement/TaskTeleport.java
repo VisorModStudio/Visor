@@ -245,7 +245,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
     /* ---------------------------------------------------------------------- */
 
     private void updateTeleportArc(LocalPlayer player, HandType usedHand) {
-        var renderPose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
+        var renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var hand = renderPose.getHand(usedHand);
 
         // starting position

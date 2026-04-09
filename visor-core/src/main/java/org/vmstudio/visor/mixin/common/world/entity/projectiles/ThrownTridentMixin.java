@@ -25,7 +25,7 @@ public class ThrownTridentMixin {
             return eyePosition;
         }
 
-        return vrPlayer.getPose()
+        return vrPlayer.getPoseData()
                 .getMainHand()
                 .getPositionVec3();
     }

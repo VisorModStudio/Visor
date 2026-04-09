@@ -19,9 +19,9 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
 
     private PoseDataBuffer poseDataBuffer;
 
-    private final PlayerPoseServerImpl posePrevious = new PlayerPoseServerImpl();
-    private final PlayerPoseServerImpl poseRelative = new PlayerPoseServerImpl();
-    private final PlayerPoseServerImpl pose = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl poseDataPrevious = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl();
 
 
     private final PoseHistoryImpl poseHistoryRelative;
@@ -58,32 +58,32 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
 
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
-        poseHistoryRelative = new PoseHistoryImpl(poseRelative);
-        poseHistoryTick = new PoseHistoryImpl(pose);
+        poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);
+        poseHistoryTick = new PoseHistoryImpl(poseData);
     }
 
 
 
     public void receivedPosePacket(PoseDataBuffer poseDataBuffer){
-        posePrevious.copyFrom(pose);
+        poseDataPrevious.copyFrom(poseData);
 
         this.poseDataBuffer = poseDataBuffer;
 
-        poseRelative.update(
+        poseDataRelative.update(
                 poseDataBuffer,
                 VRMathUtils.ZERO_VECTOR
         );
-        pose.update(
+        poseData.update(
                 poseDataBuffer,
                 mcPlayer.position().toVector3f()
         );
 
         var historyEntry = new PlayerPoseServerImpl();
-        historyEntry.copyFrom(poseRelative);
+        historyEntry.copyFrom(poseDataRelative);
         poseHistoryRelative.addEntry(historyEntry);
 
         historyEntry = new PlayerPoseServerImpl();
-        historyEntry.copyFrom(posePrevious);
+        historyEntry.copyFrom(poseDataPrevious);
         poseHistoryTick.addEntry(historyEntry);
 
     }

@@ -39,7 +39,7 @@ public abstract class FishingHookMixin extends Entity {
         if (visor$vrPlayer == null) {
             return xRot;
         }
-        var activeHand = visor$vrPlayer.getPose().getActiveHand();
+        var activeHand = visor$vrPlayer.getPoseData().getActiveHand();
 
         visor$savedHandPos = activeHand.getPositionVec3();
         visor$savedHandDir = activeHand.getDirectionVec3();

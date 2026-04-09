@@ -36,7 +36,7 @@ public abstract class ThrowableProjectileMixin extends Entity {
         if (vrPlayer == null) {
             return;
         }
-        var activeHand = vrPlayer.getPose().getActiveHand();
+        var activeHand = vrPlayer.getPoseData().getActiveHand();
 
         Vec3 handPos = activeHand.getPositionVec3();
         Vec3 handDir = activeHand.getDirectionVec3()

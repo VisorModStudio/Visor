@@ -48,7 +48,7 @@ public abstract class AbstractArrowMixin extends Entity {
             return;
         }
 
-        var activeHand = vrPlayer.getPose()
+        var activeHand = vrPlayer.getPoseData()
                 .getActiveHand();
         Vec3 handPos = activeHand.getPositionVec3();
         Vec3 handDir = activeHand.getDirectionVec3();

@@ -254,7 +254,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
 
     @Override
-    public @NotNull RemotePlayerPose getPose(@NotNull PlayerPoseType stage) {
+    public @NotNull RemotePlayerPose getPoseData(@NotNull PlayerPoseType stage) {
         return switch (stage){
             case PREV_TICK -> prevPose;
             case TICK -> pose;

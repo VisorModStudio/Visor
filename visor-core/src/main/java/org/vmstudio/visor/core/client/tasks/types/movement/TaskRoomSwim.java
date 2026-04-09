@@ -56,7 +56,7 @@ public class TaskRoomSwim extends VisorTask {
     protected void onRun(LocalPlayer player) {
 
         LocalPlayerPose preTickPose = ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK);
+                .getPoseData(PlayerPoseType.TICK);
         var mainHand = preTickPose.getHand(HandType.MAIN);
         var offhand = preTickPose.getHand(HandType.OFFHAND);
 

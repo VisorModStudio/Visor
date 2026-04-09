@@ -90,14 +90,14 @@ public class ClientNetworking {
             heightLastSent = height;
         }
 
-        float worldScale = localPlayer.getPose(PlayerPoseType.TICK).getWorldScale();
+        float worldScale = localPlayer.getPoseData(PlayerPoseType.TICK).getWorldScale();
         if (worldScale != worldScaleLastSent) {
             sendVRPacket(
                     new WorldScalePayloadToServer(worldScale)
             );
             worldScaleLastSent = worldScale;
         }
-        float rotationY = localPlayer.getPose(PlayerPoseType.TICK).getRotationY();
+        float rotationY = localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY();
         if(rotationY != rotationYLastSent){
             sendVRPacket(
                     new RotationYPayloadToServer(rotationY)

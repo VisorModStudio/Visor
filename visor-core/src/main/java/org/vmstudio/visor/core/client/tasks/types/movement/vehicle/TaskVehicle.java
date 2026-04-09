@@ -92,10 +92,10 @@ public class TaskVehicle extends VisorTask {
 
     public void onStartRiding(Entity vehicle) {
         VRLocalPlayerImpl localPlayer = ClientContext.localPlayer;
-        LocalPlayerPose tickPose = localPlayer.getPose(PlayerPoseType.TICK);
+        LocalPlayerPose tickPose = localPlayer.getPoseData(PlayerPoseType.TICK);
 
         final Vector3fc headPivot = localPlayer
-                .getPose(PlayerPoseType.RELATIVE)
+                .getPoseData(PlayerPoseType.RELATIVE)
                 .getHeadPivot();
         premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
 
@@ -128,7 +128,7 @@ public class TaskVehicle extends VisorTask {
 
         Vector3fc mountPos = player.getVehicle().position().toVector3f();
         Vector3fc headPivot = ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK)
+                .getPoseData(PlayerPoseType.TICK)
                 .getHeadPivot();
 
         double dx = headPivot.x() - mountPos.x();
@@ -241,7 +241,7 @@ public class TaskVehicle extends VisorTask {
                     ? HandType.MAIN
                     : HandType.OFFHAND;
             final VRPose handPose = ClientContext.localPlayer
-                    .getPose(PlayerPoseType.TICK)
+                    .getPoseData(PlayerPoseType.TICK)
                     .getHand(handWithFood);
             return handPose.getDirection().normalize(new Vector3f());
         }

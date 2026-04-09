@@ -64,7 +64,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      */
     default boolean isInViewDistance(){
         var hmdPos = VisorAPI.client().getVRLocalPlayer()
-                .getPose(PlayerPoseType.TICK)
+                .getPoseData(PlayerPoseType.TICK)
                 .getHmd().getPosition();
         return hmdPos.distance(getPose().getPosition()) < 5;
     }

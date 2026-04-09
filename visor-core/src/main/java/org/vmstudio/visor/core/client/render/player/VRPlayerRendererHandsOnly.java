@@ -62,7 +62,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
 
         if (vrPlayer != null) {
-            var pose = vrPlayer.getPose(PlayerPoseType.RENDER);
+            var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
             float scale = vrPlayer.getFullHeightScale();
             if ((VisorState.get().isActive()
@@ -94,7 +94,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
             if(vrPlayer == null) {
                 return;
             }
-            rotationYaw = vrPlayer.getPose(PlayerPoseType.RENDER).getBodyYaw();
+            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw();
         }
 
         // vanilla below here

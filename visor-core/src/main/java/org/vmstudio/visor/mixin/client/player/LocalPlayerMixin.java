@@ -169,7 +169,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         boolean canMoveY = true;
 
         Vector3fc origin = ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK)
+                .getPoseData(PlayerPoseType.TICK)
                 .getOrigin();
 
         if ((this.zza != 0.0F
@@ -252,7 +252,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 .getRotationElement(PlayerPoseType.TICK);
         if (this.isSwimming()) {
             rotationElement = ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK)
+                .getPoseData(PlayerPoseType.TICK)
                 .getHmd();
         }
 
@@ -292,7 +292,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             premountPos = premountPos
                     .yRot(
                             ClientContext.localPlayer
-                                    .getPose(PlayerPoseType.PREV_TICK)
+                                    .getPoseData(PlayerPoseType.PREV_TICK)
                                     .getRotationY()
                     );
             x = x - premountPos.x;
@@ -330,7 +330,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.get().isActive()
                 ? ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK).getBodyYaw()
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
     }
 
@@ -338,7 +338,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     private float visor$vrAutoJumpCos(float original) {
         return VisorState.get().isActive()
                 ? ClientContext.localPlayer
-                .getPose(PlayerPoseType.TICK).getBodyYaw()
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
     }
 

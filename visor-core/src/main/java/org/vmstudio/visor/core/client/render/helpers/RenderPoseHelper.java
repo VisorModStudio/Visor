@@ -33,7 +33,7 @@ public class RenderPoseHelper {
                                               PoseStack poseStack) {
         float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
-        LocalPlayerPose renderPose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         final Matrix4f rotationMatrix;
 
         boolean smooth = renderPass == VRRenderPass.CENTER && mirrorSmooth > 0f;
@@ -65,7 +65,7 @@ public class RenderPoseHelper {
         if (!renderPass.isEye()) {
             return;
         }
-        LocalPlayerPose renderPose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var eyePos = renderPose.getCameraPose(renderPass).getPosition();
         var hmdOrigin = renderPose.getHmd().getPosition();
         var offset = eyePos.sub(hmdOrigin, new Vector3f());
@@ -77,7 +77,7 @@ public class RenderPoseHelper {
 
     public static void applyHandPose(HandType hand,
                                      PoseStack poseStack) {
-        LocalPlayerPose renderPose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER);
+        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
         var handPose = renderPose.getHand(hand);
         // move origin to hand pos relative to camera
@@ -126,7 +126,7 @@ public class RenderPoseHelper {
     public static Vector3fc getHandPosition(HandType hand) {
         return ClientContext
                 .localPlayer
-                .getPose(PlayerPoseType.RENDER)
+                .getPoseData(PlayerPoseType.RENDER)
                 .getHand(hand)
                 .getPosition();
     }

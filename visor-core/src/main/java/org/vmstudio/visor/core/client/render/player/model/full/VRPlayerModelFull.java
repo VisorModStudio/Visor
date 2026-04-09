@@ -171,7 +171,7 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
                 ? HumanoidArm.LEFT
                 : HumanoidArm.RIGHT;
 
-        var poseRender = vrPlayer.getPose(PlayerPoseType.RENDER);
+        var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
         VRBodyFull vrBody = (VRBodyFull) poseRender.getBody();
 

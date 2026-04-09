@@ -123,7 +123,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || relativePosition == null
                 || relativeRotation == null) {
             VRPose hmd = ClientContext.localPlayer
-                    .getPose(PlayerPoseType.RELATIVE)
+                    .getPoseData(PlayerPoseType.RELATIVE)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 

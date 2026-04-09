@@ -332,7 +332,7 @@ public abstract class GameRendererMixin
         this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
         this.visor$setupCameraEntity(
                 ClientContext.localPlayer
-                        .getPose(PlayerPoseType.RENDER)
+                        .getPoseData(PlayerPoseType.RENDER)
                         .getHand(ClientContext.localPlayer.getActiveHand())
         );
         // move the bounding box as well, this is used for entity hits
@@ -390,7 +390,7 @@ public abstract class GameRendererMixin
             return original;
         }
         LocalPlayerPose renderPose = ClientContext.localPlayer
-                .getPose(PlayerPoseType.RENDER);
+                .getPoseData(PlayerPoseType.RENDER);
 
         HandType activeHand = ClientContext.localPlayer.getActiveHand();
 
@@ -415,7 +415,7 @@ public abstract class GameRendererMixin
         HandType activeHand = ClientContext.localPlayer.getActiveHand();
 
         return new Vec3(
-                (Vector3f) ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
+                (Vector3f) ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
                         .getHand(activeHand).getDirection()
         );
     }
@@ -505,7 +505,7 @@ public abstract class GameRendererMixin
             return;
         }
         VRRenderPass currentCamera = VRRenderState.getRenderPass();
-        var cameraPose = ClientContext.localPlayer.getPose(PlayerPoseType.RENDER).getCameraPose(currentCamera);
+        var cameraPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera);
         // need to do stuff twice, because redirects have no access to locals
         int i = 40 - this.itemActivationTicks;
         float g = ((float) i + partialTicks) / 40.0f;
@@ -722,7 +722,7 @@ public abstract class GameRendererMixin
         }
         var cameraPos = RenderPoseHelper.getCameraPosition(
                 renderPass,
-                ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
+                ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
         Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
                 .findAnySolidBlock(

@@ -134,7 +134,7 @@ public class HandEffectTeleport extends VRHandEffect {
                             validLocation
                                     ? dest
                                     : new Vec3((Vector3f) ClientContext.localPlayer
-                                    .getPose(PlayerPoseType.RENDER)
+                                    .getPoseData(PlayerPoseType.RENDER)
                                     .getHmd()
                                     .getPosition())
                     )
@@ -162,7 +162,7 @@ public class HandEffectTeleport extends VRHandEffect {
         var cameraPosition = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(
                 renderPass,
                 ClientContext.localPlayer
-                        .getPose(PlayerPoseType.RENDER)
+                        .getPoseData(PlayerPoseType.RENDER)
         ));
 
         Vec3i colorInt = new Vec3i(

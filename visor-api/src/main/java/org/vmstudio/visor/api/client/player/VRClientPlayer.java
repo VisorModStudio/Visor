@@ -5,8 +5,6 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPlayer;
-import org.vmstudio.visor.api.common.player.VRPlayerPose;
-import org.vmstudio.visor.api.common.player.VRPoseHistory;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,19 +34,19 @@ public interface VRClientPlayer extends VRPlayer {
      * @return pose data
      */
     @NotNull
-    VRPlayerPoseClient getPose(@NotNull PlayerPoseType type);
+    VRPlayerPoseClient getPoseData(@NotNull PlayerPoseType type);
 
     @Override
-    default @NotNull VRPlayerPoseClient getPosePrevious() {
-        return getPose(PlayerPoseType.PREV_TICK);
+    default @NotNull VRPlayerPoseClient getPoseDataPrevious() {
+        return getPoseData(PlayerPoseType.PREV_TICK);
     }
     @Override
-    default @NotNull VRPlayerPoseClient getPoseRelative() {
-        return getPose(PlayerPoseType.RELATIVE);
+    default @NotNull VRPlayerPoseClient getPoseDataRelative() {
+        return getPoseData(PlayerPoseType.RELATIVE);
     }
     @Override
-    default @NotNull VRPlayerPoseClient getPose() {
-        return getPose(PlayerPoseType.TICK);
+    default @NotNull VRPlayerPoseClient getPoseData() {
+        return getPoseData(PlayerPoseType.TICK);
     }
 
 

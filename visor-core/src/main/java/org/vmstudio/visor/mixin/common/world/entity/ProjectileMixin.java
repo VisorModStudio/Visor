@@ -38,7 +38,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
         if (vrPlayer == null) {
             return pVelocity;
         }
-        var poseData = vrPlayer.getPose();
+        var poseData = vrPlayer.getPoseData();
         this.visor$savedHandDir = poseData.getActiveHand()
                 .getDirectionVec3();
 

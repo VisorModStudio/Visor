@@ -65,7 +65,7 @@ public abstract class BoatMixin extends Entity {
 
         if (this.inputUp) {
             float yaw = ClientContext.localPlayer
-                    .getPose(PlayerPoseType.TICK)
+                    .getPoseData(PlayerPoseType.TICK)
                     .getHand(HandType.OFFHAND).getYawDegrees();
             float end = this.getYRot() % 360;
             float start = yaw;

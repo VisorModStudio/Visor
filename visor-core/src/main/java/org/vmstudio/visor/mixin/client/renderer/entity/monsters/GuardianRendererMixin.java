@@ -33,9 +33,9 @@ public abstract class GuardianRendererMixin {
 
         float worldScale = ClientContext
                 .localPlayer
-                .getPose(PlayerPoseType.TICK).getWorldScale();;
+                .getPoseData(PlayerPoseType.TICK).getWorldScale();;
         Vector3f beamPos = ClientContext.localPlayer
-                .getPose(PlayerPoseType.RENDER)
+                .getPoseData(PlayerPoseType.RENDER)
                 .getHmd().getPosition()
                 .sub(
                         0.0f,

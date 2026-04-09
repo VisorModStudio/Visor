@@ -78,7 +78,7 @@ public abstract class ServerPlayerMixin
     protected void visor$injectSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         VRServerPlayer vrPlayer = visor$getVrPlayer();
         if(vrPlayer != null){
-            vrPlayer.getPose().resetOrigin(
+            vrPlayer.getPoseData().resetOrigin(
                     visor$getPlayer().position().toVector3f()
             );
         }
@@ -108,7 +108,7 @@ public abstract class ServerPlayerMixin
             return;
         }
 
-        var mainHand = vrPlayer.getPose().getMainHand();
+        var mainHand = vrPlayer.getPoseData().getMainHand();
         var handDir = mainHand.getDirection()
                 .mul(0.3F, new Vector3f());
         var handPos = mainHand.getPosition();
@@ -173,7 +173,7 @@ public abstract class ServerPlayerMixin
         VRServerPlayer vrPlayer = visor$getVrPlayer();
 
         if (vrPlayer != null) {
-            var mainHand = vrPlayer.getPose().getMainHand();
+            var mainHand = vrPlayer.getPoseData().getMainHand();
 
             var handDir = mainHand.getDirection();
             var handPos = mainHand.getPosition();
@@ -230,11 +230,11 @@ public abstract class ServerPlayerMixin
                 InteractionHand interactionhand = player.getUsedItemHand();
 
                 if (interactionhand == InteractionHand.MAIN_HAND) {
-                    particlePos = vrPlayer.getPose()
+                    particlePos = vrPlayer.getPoseData()
                             .getMainHand()
                             .getPositionVec3();
                 } else {
-                    particlePos = vrPlayer.getPose()
+                    particlePos = vrPlayer.getPoseData()
                             .getOffhand()
                             .getPositionVec3();
                 }

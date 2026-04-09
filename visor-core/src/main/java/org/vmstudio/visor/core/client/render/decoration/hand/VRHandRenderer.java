@@ -245,7 +245,7 @@ public class VRHandRenderer {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.localPlayer
-                                            .getPose(PlayerPoseType.RENDER)
+                                            .getPoseData(PlayerPoseType.RENDER)
                                             .getHmd()
                                             .getPosition()
                             )
@@ -369,7 +369,7 @@ public class VRHandRenderer {
                     BlockPos.containing(
                             new Vec3(
                                     (Vector3f) ClientContext.localPlayer
-                                            .getPose(PlayerPoseType.RENDER)
+                                            .getPoseData(PlayerPoseType.RENDER)
                                             .getHmd().getPosition()
                             )
                     )

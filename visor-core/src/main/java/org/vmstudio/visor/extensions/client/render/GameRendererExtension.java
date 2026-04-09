@@ -25,7 +25,7 @@ public interface GameRendererExtension {
         if (renderPass == null) return;
         visor$setupCameraEntity(
                 ClientContext.localPlayer
-                        .getPose(PlayerPoseType.RENDER)
+                        .getPoseData(PlayerPoseType.RENDER)
                         .getCameraPose(renderPass)
         );
     }

@@ -45,7 +45,7 @@ public class FireworkRocketEntityMixin {
                 : HandType.OFFHAND;
 
         var handElement = ClientContext.localPlayer
-                .getPose(PlayerPoseType.RENDER).getGripHand(
+                .getPoseData(PlayerPoseType.RENDER).getGripHand(
                         handWithFirework
                 );
         Vector3f position = new Vector3f(handElement.getPosition());

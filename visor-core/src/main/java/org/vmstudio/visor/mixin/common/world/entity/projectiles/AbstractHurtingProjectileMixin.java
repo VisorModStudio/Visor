@@ -24,7 +24,7 @@ public abstract class AbstractHurtingProjectileMixin {
             return instance.getLookAngle();
         }
 
-        return vrPlayer.getPose()
+        return vrPlayer.getPoseData()
                 .getHmd()
                 .getDirectionVec3();
     }

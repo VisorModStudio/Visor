@@ -57,14 +57,14 @@ public class VRGameCamera extends Camera {
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         VRPose cameraElement = ClientContext.localPlayer
-                .getPose(PlayerPoseType.RENDER)
+                .getPoseData(PlayerPoseType.RENDER)
                 .getCameraPose(renderPass);
 
         // Position
         this.setPosition(new Vec3(
                 (Vector3f) RenderPoseHelper.getCameraPosition(
                         renderPass,
-                        ClientContext.localPlayer.getPose(PlayerPoseType.RENDER)
+                        ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
                 )
         ));
 
