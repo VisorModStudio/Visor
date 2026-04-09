@@ -25,7 +25,7 @@ public class PlayerListenerMixins {
         @Redirect(method = "respawn", at = @At(value = "INVOKE",
                 target = "Lnet/minecraft/server/level/ServerPlayer;initInventoryMenu()V"))
         private void visor$onPlayerRespawn(ServerPlayer serverPlayer) {
-            VisorServerImpl.INSTANCE.updateVrPlayer(serverPlayer);
+            VisorServerImpl.INSTANCE.updateMcPlayer(serverPlayer);
             serverPlayer.initInventoryMenu();
         }
     }

@@ -59,7 +59,7 @@ public class ServerPacketHandler {
             return;
         }
 
-        VisorServerImpl.INSTANCE.updateVrPlayer(serverPlayer);
+        VisorServerImpl.INSTANCE.updateMcPlayer(serverPlayer);
 
         switch (payloadToServer.payloadId()) {
             case HANDSHAKE -> {

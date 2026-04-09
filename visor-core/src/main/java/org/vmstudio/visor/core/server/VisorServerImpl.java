@@ -29,9 +29,9 @@ public class VisorServerImpl implements VisorServer {
 
 
     @Getter
-    private final Map<UUID, VRServerPlayer> playersWithVR = new HashMap<>();
-    @Getter
     private final Map<UUID, VisorPacketReceiver> visorPacketReceivers = new HashMap<>();
+    @Getter
+    private final Map<UUID, VRServerPlayer> playersWithVR = new HashMap<>();
 
     @Getter
     private ConfigManager configManager;
@@ -81,20 +81,11 @@ public class VisorServerImpl implements VisorServer {
 
     }
     public void onServerStop(){
-        playersWithVR.clear();
         visorPacketReceivers.clear();
+        playersWithVR.clear();
         VisorAPI.Instance.setServer(null);
         INSTANCE = null;
         LOGGER.info("VR Server Core cleared");
-    }
-
-    @Override
-    public VRServerPlayerImpl getVrPlayer(@NotNull ServerPlayer player) {
-        VRServerPlayerImpl out = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
-        if(out != null && out.getMcPlayer() != player){
-            out.setMcPlayer(player);
-        }
-        return out;
     }
 
     public VisorPacketReceiver getPacketReceiver(@NotNull ServerPlayer player) {
@@ -104,16 +95,25 @@ public class VisorServerImpl implements VisorServer {
         }
         return out;
     }
-
     @Override
-    public @NotNull Collection<VRServerPlayer> getVrPlayers(){
-        return playersWithVR.values();
+    public VRServerPlayerImpl getVrPlayer(@NotNull ServerPlayer player) {
+        VRServerPlayerImpl out = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
+        if(out != null && out.getMcPlayer() != player){
+            out.setMcPlayer(player);
+        }
+        return out;
     }
 
 
     public @NotNull Collection<VisorPacketReceiver> getPacketReceiver(){
         return visorPacketReceivers.values();
     }
+
+    @Override
+    public @NotNull Collection<VRServerPlayer> getVrPlayers(){
+        return playersWithVR.values();
+    }
+
 
     @Override
     public boolean isVRPlayer(@NotNull ServerPlayer player) {
@@ -124,23 +124,24 @@ public class VisorServerImpl implements VisorServer {
         return true;
     }
 
-    public void addVrPlayer(VRServerPlayerImpl player) {
-        playersWithVR.put(player.getMcPlayer().getUUID(), player);
-        visorPacketReceivers.put(player.getMcPlayer().getUUID(), player);
-    }
-
     public void addPacketReceiver(VisorPacketReceiver packetReceiver) {
         visorPacketReceivers.put(
                 packetReceiver.getMcPlayer().getUUID(),
                 packetReceiver
         );
     }
+    public void addVrPlayer(VRServerPlayerImpl player) {
+        playersWithVR.put(player.getMcPlayer().getUUID(), player);
+        visorPacketReceivers.put(player.getMcPlayer().getUUID(), player);
+    }
+
+
 
     public void removePlayer(ServerPlayer player) {
         playersWithVR.remove(player.getUUID());
         visorPacketReceivers.remove(player.getUUID());
     }
-    public void updateVrPlayer(ServerPlayer player) {
+    public void updateMcPlayer(ServerPlayer player) {
         VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
         if (vrServerPlayer != null) {
             vrServerPlayer.setMcPlayer(player);
