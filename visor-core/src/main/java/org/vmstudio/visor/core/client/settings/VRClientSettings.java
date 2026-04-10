@@ -207,13 +207,13 @@ public class VRClientSettings {
     @VROptionField(widgetType = VROptionWidgetType.THIRD_PERSON_FOV, key = "fov")
     protected static float thirdPersonFov = 40;
     @Getter
-    @VROptionField(key = "camera.pos.x", category = VROptionCategory.RENDERING_THIRD_PERSON)
+    @VROptionField(key = "camera.blockPos.x", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosX = -1.0f;
     @Getter
-    @VROptionField(key = "camera.pos.y", category = VROptionCategory.RENDERING_THIRD_PERSON)
+    @VROptionField(key = "camera.blockPos.y", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosY = 2.4f;
     @Getter
-    @VROptionField(key = "camera.pos.z", category = VROptionCategory.RENDERING_THIRD_PERSON)
+    @VROptionField(key = "camera.blockPos.z", category = VROptionCategory.RENDERING_THIRD_PERSON)
     protected static float thirdPersonCameraPosZ = 2.75f;
 
     @Getter

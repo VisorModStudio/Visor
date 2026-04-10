@@ -89,6 +89,7 @@ public class ServerNetworking {
         }
         sendPacketToTrackedVRPlayers(
                 serverPlayer,
+                false,
                 new VROtherPoseDataPayloadToClient(
                         serverPlayer.getUUID(),
                         vrPlayer.getPoseDataBuffer(),
@@ -103,6 +104,7 @@ public class ServerNetworking {
         if(leftHanded != leftHandedLastSent){
             sendPacketToTrackedVRPlayers(
                     serverPlayer,
+                    false,
                     new VROtherLeftHandedPayloadToClient(
                             serverPlayer.getUUID(),
                             leftHanded
@@ -116,6 +118,7 @@ public class ServerNetworking {
         if(!vrBody.equals(vrBodyLastSent)){
             sendPacketToTrackedVRPlayers(
                     serverPlayer,
+                    false,
                     new VROtherBodyTypePayloadToClient(
                             serverPlayer.getUUID(),
                             vrBody
@@ -129,6 +132,7 @@ public class ServerNetworking {
         if(worldScale != worldScaleLastSent){
             sendPacketToTrackedVRPlayers(
                     serverPlayer,
+                    false,
                     new VROtherWorldScalePayloadToClient(
                             serverPlayer.getUUID(),
                             worldScale
@@ -142,6 +146,7 @@ public class ServerNetworking {
         if(fullHeight != fullHeightLastSent){
             sendPacketToTrackedVRPlayers(
                     serverPlayer,
+                    false,
                     new VROtherFullHeightPayloadToClient(
                             serverPlayer.getUUID(),
                             fullHeight
@@ -153,12 +158,13 @@ public class ServerNetworking {
 
 
 
-    public static void sendPacketToTrackedVRPlayers(ServerPlayer trackedBy,
+    public static void sendPacketToTrackedVRPlayers(ServerPlayer tracked,
+                                                    boolean sendSelf,
                                                     VisorPayloadToClient payload) {
         Packet<?> packet = ModLoader.get().createPacketToClient(payload);
 
-        for (var players : getTrackedVRPlayers(trackedBy)) {
-            if (players.getPlayer() == trackedBy) {
+        for (var players : getTrackedVRPlayers(tracked)) {
+            if (players.getPlayer() == tracked && !sendSelf) {
                 continue;
             }
             players.send(packet);
@@ -168,7 +174,7 @@ public class ServerNetworking {
 
     public static Set<ServerPlayerConnection> getTrackedVRPlayers(ServerPlayer trackedBy) {
         ChunkMap chunkMap = trackedBy.serverLevel().getChunkSource().chunkMap;
-        var vrPlayers = VisorServerImpl.INSTANCE.getVisorPacketReceivers();
+        var packetReceivers = VisorServerImpl.INSTANCE.getVisorPacketReceivers();
 
         TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getTrackedEntities()
                 .get(trackedBy.getId());
@@ -177,7 +183,7 @@ public class ServerNetworking {
         }
         return entityAccessor.getPlayersTracking().stream()
                 .filter(it->
-                        vrPlayers.containsKey(it.getPlayer().getUUID())
+                        packetReceivers.containsKey(it.getPlayer().getUUID())
                 )
                 .collect(Collectors.toSet());
     }

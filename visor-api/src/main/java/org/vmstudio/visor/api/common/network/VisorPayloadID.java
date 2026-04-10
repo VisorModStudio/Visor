@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.common.network;
 
 public enum VisorPayloadID {
     HANDSHAKE,
-    SETTINGS,
+    SERVER_SETTINGS,
     FULL_HEIGHT,
     POSE_DATA,
     VR_BODY_TYPE,
@@ -13,12 +13,15 @@ public enum VisorPayloadID {
     ROTATION_Y,
     CRAWLING,
     CLIMBING,
+    TELEPORT,
+    SWING_ATTACK,
+    SWING_BLOCK,
+    BLOCK_DAMAGE,
     OTHER_VR_POSE_DATA,
     OTHER_VR_LEFT_HANDED,
     OTHER_VR_BODY_TYPE,
     OTHER_VR_WORLD_SCALE,
-    OTHER_VR_FULL_HEIGHT,
-    TELEPORT
+    OTHER_VR_FULL_HEIGHT
 
 
 }

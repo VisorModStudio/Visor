@@ -1,6 +1,8 @@
 package org.vmstudio.visor.core.client.network;
 
+import net.minecraft.world.entity.player.Player;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
@@ -11,6 +13,7 @@ import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
+import org.vmstudio.visor.extensions.client.render.LevelRendererSwingingExtension;
 
 public class ClientPacketHandler {
 
@@ -23,7 +26,7 @@ public class ClientPacketHandler {
             case HANDSHAKE -> {
                 ClientNetworking.receivedHandShake();
             }
-            case SETTINGS -> {
+            case SERVER_SETTINGS -> {
                 var payload = (SettingsPayloadToClient) payloadClient;
 
                 ServerConfig.updateSettings(
@@ -40,6 +43,20 @@ public class ClientPacketHandler {
             case OFFHAND_SLOT -> {
                 var payload = (OffhandSlotPayloadToClient) payloadClient;
                 TaskHotBar.getInstance().setOffhandSlot(payload.slot());
+            }
+            case BLOCK_DAMAGE -> {
+                var payload = (BlockDamagePayloadToClient) payloadClient;
+
+                Player player = mc.level.getPlayerByUUID(payload.playerUUID());
+                if(player == null){
+                    return;
+                }
+                ((LevelRendererSwingingExtension)Minecraft.getInstance().levelRenderer)
+                        .visor$damageBlockProgress(
+                                player,
+                                payload.blockPos(),
+                                payload.destroyStage()
+                        );
             }
             case OTHER_VR_POSE_DATA -> {
                 var payload = (VROtherPoseDataPayloadToClient) payloadClient;

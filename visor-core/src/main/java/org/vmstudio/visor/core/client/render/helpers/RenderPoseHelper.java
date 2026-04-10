@@ -55,7 +55,7 @@ public class RenderPoseHelper {
                     .transpose(new Matrix4f());
         }
 
-        // apply to both pos & normal
+        // apply to both blockPos & normal
         poseStack.last().pose().mul(rotationMatrix);
         poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
     }
@@ -80,7 +80,7 @@ public class RenderPoseHelper {
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
         var handPose = renderPose.getHand(hand);
-        // move origin to hand pos relative to camera
+        // move origin to hand blockPos relative to camera
         var handPos = handPose.getPosition();
 
         var cameraPos = getCameraPosition(VRRenderState.getRenderPass(), renderPose);

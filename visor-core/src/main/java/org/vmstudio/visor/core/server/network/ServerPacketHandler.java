@@ -1,5 +1,14 @@
 package org.vmstudio.visor.core.server.network;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.AABB;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadID;
@@ -8,10 +17,7 @@ import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.OffhandSlotPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.TeleportMovePayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.UnknownPayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.toserver.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
@@ -19,12 +25,16 @@ import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
+import org.vmstudio.visor.extensions.common.PlayerExtension;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
+import org.vmstudio.visor.extensions.common.ServerPlayerGameModeExtension;
 
 import java.util.function.Consumer;
+
+import static net.minecraft.server.network.ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
 
 public class ServerPacketHandler {
 
@@ -133,6 +143,73 @@ public class ServerPacketHandler {
                         player.getYRot(),
                         player.getXRot()
                 );
+            }
+            case SWING_ATTACK -> {
+                if(!VRServerSettings.isBetterVrSwinging()){
+                    return;
+                }
+                var payload = (SwingAttackPayloadToServer) payloadToServer;
+
+                ServerLevel serverLevel = serverPlayer.serverLevel();
+                HandType handType = payload.mainHand() ? HandType.MAIN : HandType.OFFHAND;
+
+                Entity entity = serverLevel.getEntityOrPart(
+                        payload.entityId()
+                );
+
+                serverPlayer.resetLastActionTime();
+                serverPlayer.setShiftKeyDown(payload.shiftKeyDown());
+                if (entity != null) {
+                    if (!serverLevel.getWorldBorder().isWithinBounds(entity.blockPosition())) {
+                        return;
+                    }
+
+                    AABB aABB = entity.getBoundingBox();
+                    if (aABB.distanceToSqr(serverPlayer.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
+
+                        if (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrb)
+                                && !(entity instanceof AbstractArrow) && entity != serverPlayer) {
+                            ItemStack itemStack = serverPlayer.getItemInHand(
+                                    handType.asInteractionHand()
+                            );
+                            if (itemStack.isItemEnabled(serverLevel.enabledFeatures())) {
+                                if (serverPlayer.gameMode.getGameModeForPlayer()
+                                        == GameType.SPECTATOR) {
+                                    serverPlayer.setCamera(entity);
+                                }else {
+                                    ((PlayerExtension)serverPlayer)
+                                            .visor$swingAttack(entity, handType);
+                                }
+                            }
+                        } else {
+                            serverPlayer.connection.disconnect(Component.translatable("multiplayer.disconnect.invalid_entity_attacked"));
+                            VisorAPI.server().getLogger().warn("Player {} tried to attack an invalid entity", serverPlayer.getName().getString());
+                        }
+
+                    }
+                }
+            }
+            case SWING_BLOCK -> {
+                if(!VRServerSettings.isBetterVrSwinging()){
+                    return;
+                }
+                var payload = (SwingBlockPayloadToServer) payloadToServer;
+
+                HandType handType = payload.mainHand() ? HandType.MAIN : HandType.OFFHAND;
+
+                ItemStack itemStack = serverPlayer.getItemInHand(
+                        handType.asInteractionHand()
+                );
+                serverPlayer.resetLastActionTime();
+                ((ServerPlayerGameModeExtension) serverPlayer.gameMode)
+                        .visor$handleVrBlockDamage(
+                                payload.blockPos(),
+                                payload.direction(),
+                                serverPlayer.level().getMaxBuildHeight(),
+                                payload.sequence(),
+                                itemStack
+                        );
+                serverPlayer.connection.ackBlockChangesUpTo(payload.sequence());
             }
         }
     }

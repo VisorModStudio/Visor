@@ -15,7 +15,7 @@ public record SettingsPayloadToClient(String config) implements VisorPayloadToCl
 
     @Override
     public VisorPayloadID payloadId() {
-        return VisorPayloadID.SETTINGS;
+        return VisorPayloadID.SERVER_SETTINGS;
     }
 
 

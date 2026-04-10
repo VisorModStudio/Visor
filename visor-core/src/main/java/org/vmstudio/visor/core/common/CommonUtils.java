@@ -9,10 +9,29 @@ import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.Supplier;
+
 public class CommonUtils {
+
+    public static final ThreadLocal<ItemStack> FORCED_HAND_ITEM = new ThreadLocal<>();
+
+    public static <T> T withForcedHand(ItemStack item, Supplier<T> action) {
+        FORCED_HAND_ITEM.set(item);
+        try { return action.get(); }
+        finally { FORCED_HAND_ITEM.remove(); }
+    }
+
+    public static void withForcedHand(ItemStack item, Runnable action) {
+        FORCED_HAND_ITEM.set(item);
+        try { action.run(); }
+        finally { FORCED_HAND_ITEM.remove(); }
+    }
+
+
 
     public static AABB getEntityHeadHitBox(Entity entity, double inflate) {
         if ((entity instanceof Player player && !player.isSwimming()) || // swimming players hitbox is just a box around their butt

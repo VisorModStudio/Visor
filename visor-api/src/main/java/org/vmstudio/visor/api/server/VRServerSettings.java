@@ -14,6 +14,11 @@ public class VRServerSettings {
 
     @Getter
     private static boolean twoHandedVR = true;
+    @Getter
+    private static boolean betterVrSwinging = true;
+
+    @Getter
+    private static long swingingRepairDelay = 400;
 
     @Getter
     private static boolean roomCrawlingSupported = true;

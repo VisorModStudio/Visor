@@ -186,7 +186,7 @@ public class ValueEditorInt implements WidgetSet{
 
         /**
          * Provide widget info for edit box. <br>
-         * Don't specify pos and size, it will be overwritten
+         * Don't specify blockPos and size, it will be overwritten
          */
         public Builder editBox(WidgetInfoEditBox widgetInfo){
             widgetInfoEditBox = widgetInfo;
@@ -195,7 +195,7 @@ public class ValueEditorInt implements WidgetSet{
 
         /**
          * Provide widget info for left arrow. <br>
-         * Don't specify pos, size, direction, adapter. They will be overwritten
+         * Don't specify blockPos, size, direction, adapter. They will be overwritten
          */
         public Builder leftArrow(WidgetInfoValueDrag widgetInfo){
             widgetInfoLeftArrow = widgetInfo;
@@ -204,7 +204,7 @@ public class ValueEditorInt implements WidgetSet{
 
         /**
          * Provide widget info for right arrow. <br>
-         * Don't specify pos, size, direction, adapter. They will be overwritten
+         * Don't specify blockPos, size, direction, adapter. They will be overwritten
          */
         public Builder rightArrow(WidgetInfoValueDrag widgetInfo){
             widgetInfoRightArrow = widgetInfo;
