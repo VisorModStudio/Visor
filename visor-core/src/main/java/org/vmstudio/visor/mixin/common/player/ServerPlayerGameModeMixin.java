@@ -214,6 +214,13 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                         onlyVrData ? -2 : -1
                 )
         );
+        if (!onlyVrData) {
+            player.connection.send(
+                    new ClientboundBlockDestructionPacket(
+                            this.player.getId(), blockPos, -1
+                    )
+            );
+        }
     }
 
     @Unique
@@ -297,7 +304,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             double e = (double) blockPos.getY() - player.getY();
             double f = (double) blockPos.getZ() - player.getZ();
             if (d * d + e * e + f * f < 1024.0) {
-                player.connection.send(new ClientboundBlockDestructionPacket(i, blockPos, j));
+                player.connection.send(new ClientboundBlockDestructionPacket(this.player.getId(), blockPos, blockDamageInt));
             }
             ServerNetworking.sendPacketToTrackedVRPlayers(
                     player,

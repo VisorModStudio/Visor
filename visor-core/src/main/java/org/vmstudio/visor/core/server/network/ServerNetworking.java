@@ -163,11 +163,16 @@ public class ServerNetworking {
                                                     VisorPayloadToClient payload) {
         Packet<?> packet = ModLoader.get().createPacketToClient(payload);
 
-        for (var players : getTrackedVRPlayers(tracked)) {
-            if (players.getPlayer() == tracked && !sendSelf) {
+        boolean wasSentSelf = false;
+        for (var playerConnection : getTrackedVRPlayers(tracked)) {
+            if (playerConnection.getPlayer() == tracked && !sendSelf) {
+                wasSentSelf = true;
                 continue;
             }
-            players.send(packet);
+            playerConnection.send(packet);
+        }
+        if(!wasSentSelf && sendSelf){
+            tracked.connection.send(packet);
         }
     }
 
