@@ -1,4 +1,4 @@
-package org.vmstudio.visor.compatibility.immptl;
+package org.vmstudio.visor.compatibility.immportals;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -19,7 +19,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ImmPtlCompatHelper {
+//IMMERSIVE PORTALS COMPATIBILITY CLASS
+public final class ImmPortalsCompatHelper {
     public static final String MOD_ID = "imm_ptl_core";
 
     private static boolean reflectionInitialized;
@@ -36,7 +37,7 @@ public final class ImmPtlCompatHelper {
     private static boolean renderModeOverridden;
     private static @Nullable PortalAwareControllerHit controllerHit;
 
-    private ImmPtlCompatHelper() {
+    private ImmPortalsCompatHelper() {
         throw new UnsupportedOperationException("Utility class");
     }
 

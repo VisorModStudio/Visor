@@ -23,7 +23,7 @@
     "visor.mixins.json",
     "visor.sodium.mixins.json",
     "visor.mixins.fabric.json",
-    "visor.immptl.mixins.json"
+    "visor.immportals.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.14",

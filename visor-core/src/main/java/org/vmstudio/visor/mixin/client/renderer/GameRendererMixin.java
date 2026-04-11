@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.compatibility.immptl.ImmPtlCompatHelper;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
@@ -776,7 +776,7 @@ public abstract class GameRendererMixin
                                      double blockReachDistance,
                                      boolean fluid
     ) {
-        return ImmPtlCompatHelper.pickBlock(MC.level, vrPose, blockReachDistance, fluid, MC.player);
+        return ImmPortalsCompatHelper.pickBlock(MC.level, vrPose, blockReachDistance, fluid, MC.player);
     }
 
 }

@@ -5,7 +5,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import org.vmstudio.visor.compatibility.immptl.ImmPtlCompatHelper;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.render.RenderPhase;
@@ -65,7 +65,7 @@ public class VRRenderState {
                             "for render pass that is not rendering world: "+renderPass
             );
         }
-        ImmPtlCompatHelper.onBeginVrWorldPass(renderPass);
+        ImmPortalsCompatHelper.onBeginVrWorldPass(renderPass);
         phase = RenderPhase.VR_WORLD;
         VRRenderState.renderPass = renderPass;
         MC.mainRenderTarget = getTargetForPass(renderPass);
