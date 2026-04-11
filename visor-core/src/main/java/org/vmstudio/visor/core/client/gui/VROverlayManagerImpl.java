@@ -216,6 +216,16 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
+
+            if(overlay.isDraggable()) {
+                RenderGuiHelper.renderDragHandle(
+                        overlay,
+                        poseStack,
+                        overlay.getPose().getPosition(),
+                        overlay.getPose().getRotation(),
+                        overlay.getPose().getScale()
+                );
+            }
             GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
         }
 
@@ -260,6 +270,15 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
+            if(overlay.isDraggable()) {
+                RenderGuiHelper.renderDragHandle(
+                        overlay,
+                        poseStack,
+                        overlay.getPose().getPosition(),
+                        overlay.getPose().getRotation(),
+                        overlay.getPose().getScale()
+                );
+            }
             GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
         }
 

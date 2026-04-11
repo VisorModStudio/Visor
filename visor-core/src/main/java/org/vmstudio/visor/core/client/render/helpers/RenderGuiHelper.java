@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import net.minecraft.client.renderer.GameRenderer;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
@@ -157,6 +158,48 @@ public class RenderGuiHelper {
 
     }
 
+    // todo: redesign
+    public static void renderDragHandle(VROverlay overlay, PoseStack poseStack, Vector3fc position, Matrix4fc orientation, float scale) {
+        VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        var eye = RenderPoseHelper.getCameraPosition(VRRenderState.getRenderPass(), renderPose);
+        float finalScale = scale * renderPose.getWorldScale();
 
+        AtumColor color = overlay.isBeingDragged()
+                ? AtumColor.immutable(150, 150, 150, 255)
+                : AtumColor.immutable(100, 100, 100, 255);
+
+        RenderSystem.disableCull();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+
+        poseStack.pushPose();
+        poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
+        poseStack.mulPoseMatrix((Matrix4f) orientation);
+        poseStack.scale(finalScale, finalScale, finalScale);
+
+        float aspect = overlay.getAspectRatio();
+        float halfSize = VROverlayPose.QUAD_SCALE * 0.5f;
+        float halfHeight = halfSize * aspect;
+
+        float handleTop = -halfHeight;
+        float handleBottom = -halfHeight - (halfHeight * 0.3f);
+
+        float r = color.getRed(), g = color.getGreen(), b = color.getBlue(), a = color.getAlpha();
+
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        buf.vertex(poseStack.last().pose(), -halfSize, handleBottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(poseStack.last().pose(),  halfSize, handleBottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(poseStack.last().pose(),  halfSize, handleTop,    0f).color(r, g, b, a).endVertex();
+        buf.vertex(poseStack.last().pose(), -halfSize, handleTop,    0f).color(r, g, b, a).endVertex();
+
+        BufferUploader.drawWithShader(buf.end());
+
+        RenderSystem.enableCull();
+        poseStack.popPose();
+    }
 
 }

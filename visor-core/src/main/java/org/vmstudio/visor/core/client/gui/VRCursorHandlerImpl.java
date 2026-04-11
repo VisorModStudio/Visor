@@ -180,7 +180,10 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     cursorPos.x(),
                     cursorPos.y()
             );
-            if (withinBounds) {
+
+            boolean onDragHandle = overlay.isCursorOnDragHandle(cursorPos.x(), cursorPos.y());
+
+            if (withinBounds || onDragHandle) {
                 finalCursorPos = cursorPos;
                 collidingOverlay = overlay;
                 closestDistance = cursorPos.z();

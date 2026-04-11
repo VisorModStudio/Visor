@@ -18,7 +18,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.io.IOException;
 import java.util.*;
@@ -88,6 +91,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     private static long mouseDragDelay;
+
+    private boolean beingDragged = false;
+    private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
+    private Matrix4f dragRotationMatrix = new Matrix4f();
 
 
 
@@ -249,15 +256,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public final void updatePose(float partialTicks) {
         if(forcedAnchor != null) {
-            VROverlayHelper.applyPose(
-                    this,
-                    forcedAnchor,
-                    forcedAnchor,
-                    getPose().getScale(),
-                    false,
-                    new Vector3f(0,0,-0.3f),
-                    new Vector3f(0,0,0)
-            );
+            applyDraggedPose();
             return;
         }
         onUpdatePose(partialTicks);
@@ -314,9 +313,11 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public void updateCursorData(boolean activeCursor, float rawX, float rawY) {
         if (!enabled) return;
-        if (rawX < 0f || rawX > 1f
-                || rawY < 0f || rawY > 1f) {
-             return;
+        boolean withinGui = rawX >= 0f && rawX <= 1f
+                && rawY >= 0f && rawY <= 1f;
+        boolean onDragHandle = isCursorOnDragHandle(rawX, rawY);
+        if (!withinGui && !onDragHandle) {
+            return;
         }
 
         // ---- Preparing
@@ -342,6 +343,10 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             return;
         }
 
+        if (!withinGui) {
+            return;
+        }
+
         // ---- Move and Drag events
         mouseMoved(cursorData.getCursorX(), cursorData.getCursorY());
 
@@ -357,7 +362,35 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     }
 
+    @Override
+    public boolean isBeingDragged() {
+        return beingDragged;
+    }
 
+    @Override
+    public void setBeingDragged(boolean dragging) {
+        this.beingDragged = dragging;
+    }
+
+    @Override
+    public @NotNull Vector3f getDragPositionOffset() {
+        return new Vector3f(dragPositionOffset);
+    }
+
+    @Override
+    public void setDragPositionOffset(@NotNull Vector3fc offset) {
+        this.dragPositionOffset.set(offset);
+    }
+
+    @Override
+    public @NotNull Matrix4f getDragRotationMatrix() {
+        return new Matrix4f(dragRotationMatrix);
+    }
+
+    @Override
+    public void setDragRotationMatrix(@NotNull Matrix4fc rotationMatrix) {
+        this.dragRotationMatrix.set(rotationMatrix);
+    }
 
 
     public boolean isVisible() {
@@ -372,10 +405,18 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
+        if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
+            startDragging();
+            return true;
+        }
         return super.mouseClicked(mouseX, mouseY, buttonType);
     }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if (isBeingDragged() && buttonType == 0) {
+            stopDragging();
+            return true;
+        }
         return super.mouseReleased(mouseX, mouseY, buttonType);
     }
     @Override

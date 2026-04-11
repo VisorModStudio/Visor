@@ -7,11 +7,19 @@ import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.addon.component.PrioritySupporter;
 import org.vmstudio.visor.api.common.addon.component.VisorComponent;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.player.VRPose;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.Collection;
 
@@ -78,6 +86,168 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return true/false
      */
     boolean isVisible();
+
+
+    /**
+     * If overlay is draggable/movable
+     *
+     * @return true/false
+     */
+    default boolean isDraggable() {
+        return false;
+    }
+
+    /**
+     * If overlay is being dragged rightt now
+     *
+     * @return true/false
+     */
+    default boolean isBeingDragged() {
+        return false;
+    }
+
+    /**
+     * Update dragging state
+     *
+     * @param dragging true/false
+     */
+    default void setBeingDragged(boolean dragging) {
+    }
+
+    /**
+     * Drag position offset relative to the dragging anchor
+     *
+     * @return offset
+     */
+    default @NotNull Vector3f getDragPositionOffset() {
+        return new Vector3f(0, 0, -0.3f);
+    }
+
+    /**
+     * Update drag position offset relative to the dragging anchor
+     *
+     * @param offset new offset
+     */
+    default void setDragPositionOffset(@NotNull Vector3fc offset) {
+    }
+
+    /**
+     * Drag rotation matrix relative to the dragging anchor
+     *
+     * @return local rotation matrix
+     */
+    default @NotNull Matrix4f getDragRotationMatrix() {
+        return new Matrix4f();
+    }
+
+    /**
+     * Update drag rotation matrix relative to the dragging anchor
+     *
+     * @param rotationMatrix new local rotation matrix
+     */
+    default void setDragRotationMatrix(@NotNull Matrix4fc rotationMatrix) {
+    }
+
+    /**
+     * If specified raw cursor position is over the drag handle
+     *
+     * @param rawX raw cursor x
+     * @param rawY raw cursor y
+     * @return true/false
+     */
+    default boolean isCursorOnDragHandle(float rawX, float rawY) {
+        return isDraggable()
+                && rawX >= 0f && rawX <= 1f
+                && rawY > 1.0f && rawY <= 1.15f;
+    }
+
+    /**
+     * Start dragging this overlay with the currently active cursor hand
+     */
+    default void startDragging() {
+        HandType cursorHand = VisorAPI.client().getGuiManager().getCursorHandler().getCursorHand();
+        PoseAnchor dragAnchor = cursorHand == HandType.MAIN ? PoseAnchor.MAIN_HAND : PoseAnchor.OFFHAND;
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPose anchorPose = dragAnchor.getSupplier().apply(renderPose);
+
+        Vector3f dragPositionOffset = anchorPose.reverseCustomVector(
+                getPose().getPosition().sub(anchorPose.getPosition(), new Vector3f())
+        ).div(renderPose.getWorldScale());
+        Matrix4f dragRotationMatrix = anchorPose.getRotation()
+                .invert(new Matrix4f())
+                .mul(getPose().getRotation(), new Matrix4f());
+
+        setDragPositionOffset(dragPositionOffset);
+        setDragRotationMatrix(dragRotationMatrix);
+        setForcedAnchor(dragAnchor);
+        setBeingDragged(true);
+    }
+
+    /**
+     * Stop dragging and persist the pose back into pose options when available
+     */
+    default void stopDragging() {
+        setForcedAnchor(null);
+        setBeingDragged(false);
+        onDragStopped();
+
+        OverlayOptionsPose poseOptions = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
+        if (poseOptions == null) {
+            return;
+        }
+
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+
+        PoseAnchor posAnchor = poseOptions.getPositionAnchor();
+        VRPose posAnchorPose = posAnchor.getSupplier().apply(renderPose);
+        Vector3f offsetPos = posAnchorPose.reverseCustomVector(
+                getPose().getPosition().sub(posAnchorPose.getPosition(), new Vector3f())
+        ).div(renderPose.getWorldScale());
+
+        poseOptions.setPositionOffset(offsetPos);
+
+        if (!poseOptions.isAimedRotation()) {
+            PoseAnchor rotAnchor = poseOptions.getRotationAnchor();
+            VRPose rotAnchorPose = rotAnchor.getSupplier().apply(renderPose);
+            Vector3f rotOffset = rotAnchor.reverseAnchoredRotation(
+                    rotAnchorPose.getRotation(), getPose().getRotation()
+            );
+            poseOptions.setRotationOffset(rotOffset);
+        }
+
+        poseOptions.save();
+    }
+
+    /**
+     * Hook called when dragging stops, before pose options are persisted
+     */
+    default void onDragStopped() {
+    }
+
+    /**
+     * Apply current drag transform from forced anchor
+     */
+    default void applyDraggedPose() {
+        PoseAnchor dragAnchor = getForcedAnchor();
+        if (dragAnchor == null) {
+            return;
+        }
+
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPose anchorPose = dragAnchor.getSupplier().apply(renderPose);
+
+        Vector3f positionOffset = new Vector3f(getDragPositionOffset()).mul(renderPose.getWorldScale());
+        Vector3f newPosition = anchorPose.getCustomVector(positionOffset)
+                .add(anchorPose.getPosition());
+        Matrix4f newRotation = new Matrix4f(anchorPose.getRotation())
+                .mul(getDragRotationMatrix(), new Matrix4f());
+
+        getPose().update(
+                newPosition,
+                newRotation,
+                getPose().getScale()
+        );
+    }
 
     /**
      * If this overlay is custom,

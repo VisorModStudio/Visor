@@ -204,8 +204,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if (!isEnabled()) return;
         if(!activeCursor) return;
 
-        if (rawX < 0f || rawX > 1f
-                || rawY < 0f || rawY > 1f) {
+        boolean withinGui = rawX >= 0f && rawX <= 1f
+                && rawY >= 0f && rawY <= 1f;
+        boolean onDragHandle = isCursorOnDragHandle(rawX, rawY);
+        if (!withinGui && !onDragHandle) {
             //do nothing. If we change mouse position here
             // to emulate mouse exiting the screen, bugs appear
             // (todo find a way to emulate without bugs)
@@ -235,6 +237,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         cursorData.setCursorX((int)(rawX * (double) guiScaledWidth));
         cursorData.setCursorY((int)(rawY * (double) guiScaledHeight));
 
+        if (!withinGui) {
+            return;
+        }
+
         //here as an input it requires NOT SCALED position
         InputHelper.setMousePos(
                 (int)(rawX * (double) screenWidth),
@@ -259,7 +265,25 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
+    public void onDragStopped() {
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        relativePosition = relativePose.convertPositionFrom(
+                PlayerPoseType.RENDER,
+                getPose().getPosition()
+        );
+        relativeRotation = relativePose.convertRotationFrom(
+                PlayerPoseType.RENDER,
+                getPose().getRotation()
+        );
+        overlayScale = getPose().getScale();
+    }
+
+    @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
+        if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
+            startDragging();
+            return true;
+        }
         //we need it to go through minecraft
         InputHelper.pressMouse(MouseButtonType.fromId(buttonType));
         return true;
@@ -267,6 +291,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if (buttonType == 0 && isBeingDragged()) {
+            stopDragging();
+            return true;
+        }
         //we need it to go through minecraft
         InputHelper.releaseMouse(MouseButtonType.fromId(buttonType));
         return true;
@@ -299,4 +327,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
 
+    @Override
+    public boolean isDraggable() {
+        return true;
+    }
 }

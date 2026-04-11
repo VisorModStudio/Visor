@@ -61,12 +61,18 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
+        if (super.mouseClicked(mouseX, mouseY, buttonType)) {
+            return true;
+        }
         if(screen==null) return true;
         return screen.mouseClicked(mouseX, mouseY, buttonType);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if (super.mouseReleased(mouseX, mouseY, buttonType)) {
+            return true;
+        }
         if(screen==null) return true;
         return screen.mouseReleased(mouseX, mouseY, buttonType);
     }

@@ -13,7 +13,10 @@ import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,6 +68,10 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     private boolean enabled = false;
     @Getter
     private boolean visible = false;
+
+    private boolean beingDragged = false;
+    private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
+    private Matrix4f dragRotationMatrix = new Matrix4f();
 
 
     public VROverlayFrameBuffer(@NotNull VisorAddon owner,
@@ -174,15 +181,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Override
     public final void updatePose(float partialTicks) {
         if(forcedAnchor != null) {
-            VROverlayHelper.applyPose(
-                    this,
-                    forcedAnchor,
-                    forcedAnchor,
-                    getPose().getScale(),
-                    false,
-                    new Vector3f(0,0,-0.3f),
-                    new Vector3f(0,0,0)
-            );
+            applyDraggedPose();
             return;
         }
         onUpdatePose(partialTicks);
@@ -206,6 +205,36 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Override
     public @Nullable OverlayOptionGroup<?> getOption(@NotNull String id) {
         return optionsMap.get(id);
+    }
+
+    @Override
+    public boolean isBeingDragged() {
+        return beingDragged;
+    }
+
+    @Override
+    public void setBeingDragged(boolean dragging) {
+        this.beingDragged = dragging;
+    }
+
+    @Override
+    public @NotNull Vector3f getDragPositionOffset() {
+        return new Vector3f(dragPositionOffset);
+    }
+
+    @Override
+    public void setDragPositionOffset(@NotNull Vector3fc offset) {
+        this.dragPositionOffset.set(offset);
+    }
+
+    @Override
+    public @NotNull Matrix4f getDragRotationMatrix() {
+        return new Matrix4f(dragRotationMatrix);
+    }
+
+    @Override
+    public void setDragRotationMatrix(@NotNull Matrix4fc rotationMatrix) {
+        this.dragRotationMatrix.set(rotationMatrix);
     }
 
     @Override

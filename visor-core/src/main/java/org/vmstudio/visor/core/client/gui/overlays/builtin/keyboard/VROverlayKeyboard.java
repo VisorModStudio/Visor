@@ -128,7 +128,25 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
+    public void onDragStopped() {
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        relativePosition = relativePose.convertPositionFrom(
+                PlayerPoseType.RENDER,
+                getPose().getPosition()
+        );
+        relativeRotation = relativePose.convertRotationFrom(
+                PlayerPoseType.RENDER,
+                getPose().getRotation()
+        );
+    }
+
+    @Override
     public boolean supportsTwoCursors() {
+        return true;
+    }
+
+    @Override
+    public boolean isDraggable() {
         return true;
     }
 
