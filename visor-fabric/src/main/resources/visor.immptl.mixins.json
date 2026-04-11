@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "package": "org.vmstudio.visor.compatibility.immptl.mixin",
+  "plugin": "org.vmstudio.visor.MixinConfig",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "WorldRenderInfoMixin"
+  ],
+  "minVersion": "0.8.4"
+}

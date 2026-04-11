@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.compatibility.immptl.ImmPtlCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
@@ -65,7 +66,7 @@ public class VREffectsHelper {
     public static void drawEyeStencil() {
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        if (renderPass.isEye()) {
+        if (renderPass.isEye() && !ImmPtlCompatHelper.isRenderingPortalWorld()) {
             doStencil(false);
         }
     }
