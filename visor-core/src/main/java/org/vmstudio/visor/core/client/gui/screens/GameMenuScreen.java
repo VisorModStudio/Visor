@@ -1,11 +1,11 @@
 package org.vmstudio.visor.core.client.gui.screens;
 
+import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
@@ -89,7 +89,7 @@ public class GameMenuScreen extends Screen {
         y += 4;
 
         addRenderableWidget(
-                Button.builder(Component.literal("Back to Game"), b -> this.minecraft.setScreen(null))
+                Button.builder(Component.literal("Save and Quit to Title"), b -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::onDisconnect, true))
                         .pos(cx - COLUMN_W / 2, y).width(COLUMN_W).build()
         );
     }
@@ -251,6 +251,28 @@ public class GameMenuScreen extends Screen {
         if (this.minecraft.player != null) {
             this.minecraft.player.connection.sendCommand(command);
         }
+    }
+
+    // took from PauseScreen
+    private void onDisconnect() {
+        boolean bl = this.minecraft.isLocalServer();
+        boolean bl2 = this.minecraft.isConnectedToRealms();
+        this.minecraft.level.disconnect();
+        if (bl) {
+            this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.literal("Saving world")));
+        } else {
+            this.minecraft.clearLevel();
+        }
+
+        TitleScreen titleScreen = new TitleScreen();
+        if (bl) {
+            this.minecraft.setScreen(titleScreen);
+        } else if (bl2) {
+            this.minecraft.setScreen(new RealmsMainScreen(titleScreen));
+        } else {
+            this.minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
+        }
+
     }
 
     @Override
