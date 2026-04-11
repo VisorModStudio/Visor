@@ -1,23 +1,17 @@
 package org.vmstudio.visor.core.client.utils;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.SnowGolem;
-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.monster.*;
-import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
-import net.minecraft.world.entity.npc.AbstractVillager;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 
 import java.util.ArrayList;
@@ -131,4 +125,27 @@ public class ClientUtils {
         });
     }
 
+    public static void disconnect(String message) {
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean bl = minecraft.isLocalServer();
+        boolean bl2 = minecraft.isConnectedToRealms();
+        var connection = minecraft.getConnection();
+        if(connection != null){
+            connection.getConnection().disconnect(Component.literal(message));
+        }
+        if (bl) {
+            minecraft.clearLevel(new GenericDirtMessageScreen(Component.literal("Saving world. " + message)));
+        } else {
+            minecraft.clearLevel();
+        }
+
+        TitleScreen titleScreen = new TitleScreen();
+        if (bl) {
+            minecraft.setScreen(titleScreen);
+        } else if (bl2) {
+            minecraft.setScreen(new RealmsMainScreen(titleScreen));
+        } else {
+            minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
+        }
+    }
 }

@@ -24,6 +24,7 @@ import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
+import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -96,33 +97,7 @@ public class VisorState implements VisorClientState {
 
         boolean changed = updateActive(vrActive);
         if(changed){
-            if (MC.level != null) {
-                boolean isLocal = MC.isLocalServer();
-                boolean isRealms = MC.isConnectedToRealms();
-
-                MC.level.disconnect();
-                if (isLocal) {
-                    MC.clearLevel(new GenericDirtMessageScreen(Component.literal("Saving world. VR state changed")));
-                } else {
-                    MC.clearLevel();
-                }
-
-                TitleScreen titleScreen = new TitleScreen();
-                if (isLocal) {
-                    MC.setScreen(titleScreen);
-                } else if (isRealms) {
-                    MC.setScreen(new RealmsMainScreen(titleScreen));
-                } else {
-                    MC.setScreen(new JoinMultiplayerScreen(titleScreen));
-                }
-            } else {
-                var connection = MC.getConnection();
-                if(connection != null){
-                    connection.getConnection().disconnect(
-                            Component.literal("VR state changed")
-                    );
-                }
-            }
+            ClientUtils.disconnect("VR state changed");
             return;
         }
 
