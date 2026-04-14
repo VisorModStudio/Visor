@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
@@ -37,7 +38,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -128,6 +128,8 @@ public abstract class GameRendererMixin
     public VRCameraEntityCache visor$cameraEntityCache = new VRCameraEntityCache();
     @Unique
     private boolean visor$cameraEntityCached;
+    @Unique
+    private int visor$cameraEntityCacheDepth;
 
 
 
@@ -394,15 +396,19 @@ public abstract class GameRendererMixin
 
         HandType activeHand = ClientContext.localPlayer.getActiveHand();
 
-        this.minecraft.hitResult = visor$pickBlock(
+        HitResult hitResult = visor$pickBlock(
                 renderPose.getHand(activeHand),
                 this.minecraft.gameMode.getPickRange(),
                 false
         );
-        this.visor$crossVec = visor$aimedPointAtDistance(
+        this.minecraft.hitResult = hitResult;
+        Vec3 fallbackCrossVec = visor$aimedPointAtDistance(
                 renderPose.getHand(activeHand),
                 this.minecraft.gameMode.getPickRange()
         );
+        this.visor$crossVec = hitResult != null && hitResult.getType() != HitResult.Type.MISS
+                ? hitResult.getLocation()
+                : fallbackCrossVec;
 
         return new Vec3((Vector3f) renderPose.getHand(activeHand).getPosition());
     }
@@ -601,6 +607,7 @@ public abstract class GameRendererMixin
     @Unique
     public void visor$cacheCameraEntity(Entity cameraEntity) {
         if (this.minecraft.getCameraEntity() != null) {
+            this.visor$cameraEntityCacheDepth++;
             if (!this.visor$cameraEntityCached) {
                 LivingEntity livingEntity = cameraEntity instanceof LivingEntity ent ? ent : null;
                 visor$cameraEntityCache = new VRCameraEntityCache(
@@ -629,7 +636,12 @@ public abstract class GameRendererMixin
     @Override
     @Unique
     public void visor$restoreCameraEntity(Entity cameraEntity) {
-        if (cameraEntity != null && this.visor$cameraEntityCached) {
+        if (this.visor$cameraEntityCacheDepth > 0) {
+            this.visor$cameraEntityCacheDepth--;
+        }
+        if (cameraEntity != null
+                && this.visor$cameraEntityCached
+                && this.visor$cameraEntityCacheDepth == 0) {
             visor$cameraEntityCache.apply(cameraEntity);
             this.visor$cameraEntityCached = false;
         }
@@ -764,19 +776,7 @@ public abstract class GameRendererMixin
                                      double blockReachDistance,
                                      boolean fluid
     ) {
-        var position = vrPose.getPosition();
-        Vec3 aimedPointAtDistance = visor$aimedPointAtDistance(vrPose, blockReachDistance);
-        return MC.level.clip(
-                new ClipContext(
-                        new Vec3((Vector3f) position),
-                        aimedPointAtDistance,
-                        ClipContext.Block.OUTLINE,
-                        fluid
-                                ? ClipContext.Fluid.ANY
-                                : ClipContext.Fluid.NONE,
-                        MC.player
-                )
-        );
+        return ImmPortalsCompatHelper.pickBlock(MC.level, vrPose, blockReachDistance, fluid, MC.player);
     }
 
 }
