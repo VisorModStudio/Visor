@@ -325,7 +325,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At("HEAD"), method = "levelEvent")
     public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
-        if(!VisorState.get().isNotActive()) return;
+        if(VisorState.get().isNotActive()) return;
 
         if (this.minecraft.player != null
                 && this.minecraft.player.isAlive()
