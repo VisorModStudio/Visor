@@ -127,6 +127,7 @@ public class ClientUtils {
 
     public static void disconnect(String message) {
         Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) return;
         boolean bl = minecraft.isLocalServer();
         boolean bl2 = minecraft.isConnectedToRealms();
         var connection = minecraft.getConnection();
