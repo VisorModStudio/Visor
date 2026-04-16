@@ -141,6 +141,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         }
     }
 
+    // 1. replace getMainHand with getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
@@ -173,7 +174,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
-    // 3. ATTACK_DAMAGE attribute
+    // 3. ATTACK_DAMAGE attribute for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
     private double visor$attackDamage(Player instance, Attribute attribute, Operation<Double> original) {
@@ -187,7 +188,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return original.call(instance, attribute);
     }
 
-    // 4. EnchantmentHelper
+    // 4. EnchantmentHelper for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
     private int visor$knockback(LivingEntity self, Operation<Integer> original) {

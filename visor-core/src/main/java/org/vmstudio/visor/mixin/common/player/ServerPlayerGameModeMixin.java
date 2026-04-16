@@ -127,7 +127,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void visor$tickCleanupForVanillaMining(CallbackInfo ci) {
-        if (!visor$isBetterSwingingActive()) return;
+        if (visor$isBetterSwingingNotActive()) return;
         if (this.hasDelayedDestroy) {
             visor$blockDamage.remove(this.delayedDestroyPos.asLong());
             visor$sendSwingDamageCleanUp(this.delayedDestroyPos, true);
@@ -139,7 +139,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void visor$tickDecayVrDamage(CallbackInfo ci) {
-        if (!visor$isBetterSwingingActive()) return;
+        if (visor$isBetterSwingingNotActive()) return;
         List<Long> remove = new ArrayList<>();
         for (var entry : visor$blockDamage.entrySet()) {
             long delay = entry.getValue().first();
@@ -158,34 +158,6 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         });
     }
 
-
-    @Unique
-    private boolean visor$isBetterSwingingActive() {
-        if (!VRServerSettings.isBetterSwinging()) return false;
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
-        return vrPlayer != null;
-    }
-
-    @Unique
-    private void visor$sendSwingDamageCleanUp(BlockPos blockPos, boolean onlyVrData) {
-        ServerNetworking.sendPacketToTrackedVRPlayers(
-                player,
-                true,
-                new BlockDamagePayloadToClient(
-                        player.getUUID(),
-                        blockPos,
-                        onlyVrData ? -2 : -1
-                )
-        );
-        if (!onlyVrData) {
-            player.connection.send(
-                    new ClientboundBlockDestructionPacket(
-                            this.player.getId(), blockPos, -1
-                    )
-            );
-        }
-    }
-
     @Unique
     @Override
     public void visor$handleVrBlockDamage(BlockPos blockPos,
@@ -193,7 +165,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                                           int i, int j,
                                           ItemStack usedItem
     ) {
-        if (!VRServerSettings.isBetterSwinging()){
+        if (visor$isBetterSwingingNotActive()){
             VisorAPI.server().getLogger().info("Received BlockSwingDamage " +
                     "packet while this feature is disabled!");
             return;
@@ -309,6 +281,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             this.debugLogging(blockPos, false, i, string);
         }
     }
+
 
     @Unique
     public boolean visor$destroyBlock(BlockPos blockPos, ItemStack usedItem) {
@@ -431,4 +404,32 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         return f;
     }
 
+
+
+    @Unique
+    private void visor$sendSwingDamageCleanUp(BlockPos blockPos, boolean onlyVrData) {
+        ServerNetworking.sendPacketToTrackedVRPlayers(
+                player,
+                true,
+                new BlockDamagePayloadToClient(
+                        player.getUUID(),
+                        blockPos,
+                        onlyVrData ? -2 : -1
+                )
+        );
+        if (!onlyVrData) {
+            player.connection.send(
+                    new ClientboundBlockDestructionPacket(
+                            this.player.getId(), blockPos, -1
+                    )
+            );
+        }
+    }
+
+    @Unique
+    private boolean visor$isBetterSwingingNotActive() {
+        if (!VRServerSettings.isBetterSwinging()) return true;
+        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        return vrPlayer == null;
+    }
 }
