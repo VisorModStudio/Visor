@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.player.VRPose;
 
@@ -108,5 +109,8 @@ public class VRBody {
     }
 
 
+    public VRBodyPart getHand(@NotNull HandType handType){
+        return handType == HandType.MAIN ? mainHand : offhand;
+    }
 
 }

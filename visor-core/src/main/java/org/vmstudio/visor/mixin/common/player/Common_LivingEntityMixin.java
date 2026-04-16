@@ -1,4 +1,5 @@
 package org.vmstudio.visor.mixin.common.player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +19,8 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
     @Shadow public abstract boolean isFallFlying();
 
     @Shadow public float zza;
+
+    @Shadow public abstract void remove(Entity.RemovalReason reason);
 
     @Inject(at = @At("HEAD"), method = "spawnItemParticles", cancellable = true)
     protected void visor$spawnVRItemParticles(ItemStack itemStack,

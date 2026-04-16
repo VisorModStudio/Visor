@@ -76,6 +76,17 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Unique
     private List<Runnable> visor$swingTasks;
+
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void visor$initFields(Minecraft mc, EntityRenderDispatcher erd,
+                                  BlockEntityRenderDispatcher berd,
+                                  RenderBuffers rb, CallbackInfo ci) {
+        visor$damagedBlocksVr = Collections.synchronizedMap(new HashMap<>());
+        visor$damagedBlocksVrSave = Collections.synchronizedMap(new HashMap<>());
+        visor$swingTasks = Collections.synchronizedList(new ArrayList<>());
+    }
+
     /* ****************** *\
   //--------RENDERING--------\\
     \* ****************** */
@@ -204,20 +215,12 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At("HEAD"), method = "renderLevel")
     private void visor$betterSwinging(CallbackInfo ci) {
-        if (!VRServerSettings.isBetterVrSwinging()
+        if (!VRServerSettings.isBetterSwinging()
                 || !VisorState.get().isActive()) {
             return;
         }
 
         try {
-            if(visor$damagedBlocksVr == null){
-                //for some reason mixin don't init these fields
-                //a usual way
-                visor$damagedBlocksVr = Collections.synchronizedMap(new HashMap<>());
-                visor$damagedBlocksVrSave = Collections.synchronizedMap(new HashMap<>());
-                visor$swingTasks = Collections.synchronizedList(new ArrayList<>());
-            }
-
             List<Runnable> remove = new ArrayList<>();
             visor$swingTasks.forEach(it -> {
                 it.run();
@@ -274,8 +277,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                                           @NotNull BlockPos blockPos,
                                           int destroyStage
     ) {
-        if (!VRServerSettings.isBetterVrSwinging()
-                || !VisorState.get().isActive()) return;
+        if (!VRServerSettings.isBetterSwinging()
+                || VisorState.get().isNotActive()) return;
 
         //tasks handled on render thread not to cause async issues
         visor$swingTasks.add(() -> {

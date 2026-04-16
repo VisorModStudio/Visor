@@ -11,7 +11,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -336,8 +335,8 @@ public class TaskSwing extends VisorTask {
     }
 
     private void swingAttack(final Player player, final Entity entity, final HandType handType) {
-        if (VRServerSettings.isBetterVrSwinging()) {
-            attackVR(player, entity, handType);
+        if (VRServerSettings.isBetterSwinging()) {
+            attackBetter(player, entity, handType);
         } else {
             attackVanilla(player, entity);
         }
@@ -345,7 +344,7 @@ public class TaskSwing extends VisorTask {
         handData.get(handType).lastSwingBlock = true;
     }
 
-    public static void attackVR(final Player player, final Entity entity, HandType handType) {
+    public static void attackBetter(final Player player, final Entity entity, HandType handType) {
         ClientNetworking.sendVRPacket(new SwingAttackPayloadToServer(entity.getId(), player.isShiftKeyDown(), handType==HandType.MAIN));
         if (MC.gameMode.getPlayerMode() != GameType.SPECTATOR) {
             ((PlayerExtension) player).visor$swingAttack(entity, handType);
@@ -361,8 +360,8 @@ public class TaskSwing extends VisorTask {
                              final BlockState blockState,
                              final int totalHits,
                              final HandType handType) {
-        if (VRServerSettings.isBetterVrSwinging()) {
-            mineVR(blockHit, blockState, totalHits, handType);
+        if (VRServerSettings.isBetterSwinging()) {
+            mineBetter(blockHit, blockState, totalHits, handType);
         } else {
             mineVanilla(blockHit, totalHits);
         }
@@ -377,10 +376,10 @@ public class TaskSwing extends VisorTask {
         );
     }
 
-    private void mineVR(final BlockHitResult blockHit,
-                        final BlockState blockState,
-                        final int totalHits,
-                        HandType handType) {
+    private void mineBetter(final BlockHitResult blockHit,
+                            final BlockState blockState,
+                            final int totalHits,
+                            HandType handType) {
         for (int hit = 0; hit < totalHits; ++hit) {
             startPrediction(MC.level, sequence -> new SwingBlockPayloadToServer(
                     blockHit.getBlockPos(),

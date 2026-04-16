@@ -1,14 +1,11 @@
 package org.vmstudio.visor.mixin.common.player;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -40,11 +37,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.SwingBlockPayloadToServer;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
-import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.core.server.network.ServerNetworking;
 import org.vmstudio.visor.extensions.common.ServerPlayerGameModeExtension;
 
@@ -130,77 +125,45 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
   //--------BETTER SWINGING--------\\
     \* ************************* */
 
-    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
-    public void visor$tick(CallbackInfo ci) {
-        if (!VRServerSettings.isBetterVrSwinging()){
-            return;
-        }
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
-        if (vrPlayer == null) return;
-        ci.cancel();
-        ++this.gameTicks;
-        BlockState blockState;
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void visor$tickCleanupForVanillaMining(CallbackInfo ci) {
+        if (!visor$isBetterSwingingActive()) return;
         if (this.hasDelayedDestroy) {
-            //clean vr swinging staff for this block
-            // since vanilla mining used
-            visor$blockDamage.remove(delayedDestroyPos.asLong());
-            visor$sendSwingDamageCleanUp(delayedDestroyPos, true);
-
-
-            blockState = this.level.getBlockState(this.delayedDestroyPos);
-            if (blockState.isAir()) {
-                this.hasDelayedDestroy = false;
-            } else {
-                float f = this.incrementDestroyProgress(blockState, this.delayedDestroyPos, this.delayedTickStart);
-                if (f >= 1.0F) {
-                    this.hasDelayedDestroy = false;
-                    this.destroyBlock(this.delayedDestroyPos);
-                }
-            }
-
+            visor$blockDamage.remove(this.delayedDestroyPos.asLong());
+            visor$sendSwingDamageCleanUp(this.delayedDestroyPos, true);
         } else if (this.isDestroyingBlock) {
-            //clean vr swinging staff for this block
-            // since vanilla mining used
-            visor$blockDamage.remove(destroyPos.asLong());
-            visor$sendSwingDamageCleanUp(destroyPos, true);
-
-            blockState = this.level.getBlockState(this.destroyPos);
-            if (blockState.isAir()) {
-                this.level.destroyBlockProgress(this.player.getId(), this.destroyPos, -1);
-                this.lastSentState = -1;
-                this.isDestroyingBlock = false;
-            } else {
-                this.incrementDestroyProgress(blockState, this.destroyPos, this.destroyProgressStart);
-            }
-
+            visor$blockDamage.remove(this.destroyPos.asLong());
+            visor$sendSwingDamageCleanUp(this.destroyPos, true);
         }
+    }
 
-        //VR Swinging
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void visor$tickDecayVrDamage(CallbackInfo ci) {
+        if (!visor$isBetterSwingingActive()) return;
         List<Long> remove = new ArrayList<>();
-        for (Map.Entry<Long, PairRecord<Long, Float>> entry
-                : visor$blockDamage.entrySet()) {
+        for (var entry : visor$blockDamage.entrySet()) {
             long delay = entry.getValue().first();
-            BlockPos blockPos = BlockPos.of(entry.getKey());
-            BlockState state = level.getBlockState(blockPos);
+            BlockPos pos = BlockPos.of(entry.getKey());
+            BlockState state = level.getBlockState(pos);
             if (state.isAir() || delay <= 0) {
-                this.level.destroyBlockProgress(
-                        this.player.getId(),
-                        blockPos,
-                        -1
-                );
-
+                this.level.destroyBlockProgress(this.player.getId(), pos, -1);
                 remove.add(entry.getKey());
                 continue;
             }
-            //tick delay
             entry.getValue().setFirst(delay - 1);
         }
-        remove.forEach(it -> {
-            visor$blockDamage.remove(it);
-            BlockPos blockPos = BlockPos.of(it);
-            visor$sendSwingDamageCleanUp(blockPos, false);
+        remove.forEach(key -> {
+            visor$blockDamage.remove(key);
+            visor$sendSwingDamageCleanUp(BlockPos.of(key), false);
         });
+    }
 
+
+    @Unique
+    private boolean visor$isBetterSwingingActive() {
+        if (!VRServerSettings.isBetterSwinging()) return false;
+        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        return vrPlayer != null;
     }
 
     @Unique
@@ -230,7 +193,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                                           int i, int j,
                                           ItemStack usedItem
     ) {
-        if (!VRServerSettings.isBetterVrSwinging()){
+        if (!VRServerSettings.isBetterSwinging()){
             VisorAPI.server().getLogger().info("Received BlockSwingDamage " +
                     "packet while this feature is disabled!");
             return;

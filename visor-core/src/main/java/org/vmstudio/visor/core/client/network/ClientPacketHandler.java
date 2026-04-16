@@ -13,7 +13,7 @@ import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
-import org.vmstudio.visor.extensions.client.render.LevelRendererSwingingExtension;
+import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 
 public class ClientPacketHandler {
 
@@ -51,7 +51,7 @@ public class ClientPacketHandler {
                 if(player == null){
                     return;
                 }
-                ((LevelRendererSwingingExtension)Minecraft.getInstance().levelRenderer)
+                ((LevelRendererExtension)Minecraft.getInstance().levelRenderer)
                         .visor$damageBlockProgress(
                                 player,
                                 payload.blockPos(),

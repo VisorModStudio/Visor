@@ -79,7 +79,7 @@ public class RenderPoseHelper {
                                      PoseStack poseStack) {
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        var handPose = renderPose.getHand(hand);
+        var handPose = renderPose.getBody().getHand(hand).getPose();
         // move origin to hand blockPos relative to camera
         var handPos = handPose.getPosition();
 

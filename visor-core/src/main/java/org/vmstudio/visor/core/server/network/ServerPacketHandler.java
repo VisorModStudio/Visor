@@ -145,7 +145,7 @@ public class ServerPacketHandler {
                 );
             }
             case SWING_ATTACK -> {
-                if(!VRServerSettings.isBetterVrSwinging()){
+                if(!VRServerSettings.isBetterSwinging()){
                     return;
                 }
                 var payload = (SwingAttackPayloadToServer) payloadToServer;
@@ -190,7 +190,7 @@ public class ServerPacketHandler {
                 }
             }
             case SWING_BLOCK -> {
-                if(!VRServerSettings.isBetterVrSwinging()){
+                if(!VRServerSettings.isBetterSwinging()){
                     return;
                 }
                 var payload = (SwingBlockPayloadToServer) payloadToServer;
