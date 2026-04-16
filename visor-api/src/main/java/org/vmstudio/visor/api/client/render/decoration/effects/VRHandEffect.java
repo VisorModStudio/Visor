@@ -54,9 +54,6 @@ public abstract class VRHandEffect implements VisorComponent {
         return false;
     }
 
-    public RenderStage renderAtStage(){
-        return RenderStage.AFTER_HANDS;
-    }
 
 
 
@@ -65,24 +62,4 @@ public abstract class VRHandEffect implements VisorComponent {
                                        boolean simpleHand){
         return enabled && isVisible(currentDecorator, hand, simpleHand);
     }
-
-
-
-
-
-
-
-    public enum RenderStage {
-        /**
-         * Effect is rendered right before hands
-         */
-        BEFORE_HANDS,
-
-        /**
-         * Effect is rendered right after hands
-         */
-        AFTER_HANDS,
-
-    }
-
 }

@@ -196,7 +196,12 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 .getBodyType()
                 .getRenderer()
                 .renderDecoration(currentDecorator, poseStack, partialTicks);
-
+        ClientContext.handRenderer.renderHandEffectsOnly(
+                currentDecorator,
+                poseStack,
+                handStateMain, handStateOffhand,
+                partialTicks
+        );
         currentDecorator.renderAfterSolid(poseStack, partialTicks);
 
         GLUtils.checkGLError("post AFTER_SOLID stage");

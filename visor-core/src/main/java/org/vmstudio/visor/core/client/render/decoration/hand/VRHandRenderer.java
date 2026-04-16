@@ -104,6 +104,43 @@ public class VRHandRenderer {
 
     }
 
+    public void renderHandEffectsOnly(@NotNull VRDecorator decorator,
+                                      @NotNull PoseStack poseStack,
+                                      @NotNull HandRenderState handStateMain,
+                                      @NotNull HandRenderState handStateOffhand,
+                                      float partialTicks){
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
+
+        poseStack.pushPose();
+
+        for(HandType hand : HandType.values()) {
+            HandRenderState handState = hand == HandType.MAIN
+                    ? handStateMain
+                    : handStateOffhand;
+            if(handState == HandRenderState.OFF) continue;
+
+            poseStack.setIdentity();
+            RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
+            RenderPoseHelper.applyHandPose(hand, poseStack);
+
+            Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
+            var activeEffects = findActiveEffects(effects, decorator, hand, handState == HandRenderState.GUI_HAND);
+
+            RenderSystem.enableDepthTest();
+            RenderSystem.defaultBlendFunc();
+
+            renderHandEffects(
+                    activeEffects,
+                    hand,
+                    renderPass,
+                    poseStack,
+                    handState == HandRenderState.GUI_HAND,
+                    partialTicks
+            );
+        }
+        poseStack.popPose();
+    }
+
     /**
      * Uses {@link VRBodyRenderer#getModelRenderer(VRClientPlayer, String) player renderer} to render hands
      *
@@ -309,19 +346,10 @@ public class VRHandRenderer {
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         RenderPoseHelper.applyHandPose(hand, poseStack);
 
-        var stageEffects = groupEffectsByStage(effects, decorator, hand, isGui);
+        var activeEffects = findActiveEffects(effects, decorator, hand, isGui);
 
         RenderSystem.enableDepthTest();
         RenderSystem.defaultBlendFunc();
-
-        renderHandEffects(
-                stageEffects.get(VRHandEffect.RenderStage.BEFORE_HANDS),
-                hand,
-                renderPass,
-                poseStack,
-                isGui,
-                partialTicks
-        );
 
         if (isGui) {
             renderGuiHand(poseStack);
@@ -330,7 +358,7 @@ public class VRHandRenderer {
         }
 
         renderHandEffects(
-                stageEffects.get(VRHandEffect.RenderStage.AFTER_HANDS),
+                activeEffects,
                 hand,
                 renderPass,
                 poseStack,
@@ -677,20 +705,20 @@ public class VRHandRenderer {
     }
 
 
-    private Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> groupEffectsByStage(
+    private Collection<VRHandEffect> findActiveEffects(
             Collection<VRHandEffect> effects, VRDecorator decorator, HandType hand, boolean isSimple) {
 
-        Map<VRHandEffect.RenderStage, Collection<VRHandEffect>> map = new EnumMap<>(VRHandEffect.RenderStage.class);
+        Collection<VRHandEffect> list = new ArrayList<>();
         for (VRHandEffect effect : effects) {
             if(!effect.isGlobal()
                     && !decorator.handEffects().contains(effect.getId())){
                 continue;
             }
             if (effect.isEnabledAndVisible(decorator, hand, isSimple)) {
-                map.computeIfAbsent(effect.renderAtStage(), k -> new java.util.ArrayList<>()).add(effect);
+                list.add(effect);
             }
         }
-        return map;
+        return list;
     }
 
     private boolean isTrackingHand(HandType hand) {
