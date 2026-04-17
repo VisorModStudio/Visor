@@ -69,7 +69,7 @@ public interface VRPlayer {
      * @return actual height
      */
     default float getActualHeight(){
-        return getPoseData().getHeadPivot().y();
+        return getPoseDataRelative().getHeadPivot().y();
     }
 
     /**
