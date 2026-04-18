@@ -158,13 +158,12 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
     {
         if (!VRRenderState.getPhase().isVRGui()){
             var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-            if(vrPlayer == null) {
-                return;
+            if (vrPlayer != null) {
+                rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
             }
-            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw();
         }
 
         // vanilla below here
-        super.setupRotations(player, poseStack, ageInTicks, rotationYaw * Mth.RAD_TO_DEG, partialTick);
+        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 }
