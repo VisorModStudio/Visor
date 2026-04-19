@@ -728,6 +728,10 @@ public abstract class GameRendererMixin
                 || VRRenderState.isInMainMenu()){
             return;
         }
+        // shitty check for immersive portals, be careful with this
+        if (this.minecraft.level != this.minecraft.player.level()) {
+            return;
+        }
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         if (renderPass == null) {
             return;
