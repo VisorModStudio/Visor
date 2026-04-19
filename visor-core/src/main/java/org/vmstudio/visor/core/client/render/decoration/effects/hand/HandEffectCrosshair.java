@@ -52,7 +52,7 @@ public class HandEffectCrosshair extends VRHandEffect {
     public void render(@NotNull HandType hand,
                        @NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
-                       boolean simpleHand,
+                       boolean guiHand,
                        float partialTicks) {
 
         // --- Prepare variables ---
@@ -127,6 +127,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         BufferUploader.drawWithShader(buf.end());
 
         // --- Restore GL & pose ---
+        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();
@@ -177,8 +178,8 @@ public class HandEffectCrosshair extends VRHandEffect {
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator,
                              @NotNull HandType hand,
-                             boolean simpleHand) {
-        if(simpleHand){
+                             boolean guiHand) {
+        if(guiHand){
             return false;
         }
         if(hand != ClientContext.localPlayer.getActiveHand()){

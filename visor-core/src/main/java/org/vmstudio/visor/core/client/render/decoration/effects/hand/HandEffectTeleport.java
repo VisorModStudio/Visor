@@ -71,7 +71,7 @@ public class HandEffectTeleport extends VRHandEffect {
     public void render(@NotNull HandType hand,
                        @NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
-                       boolean simpleHand,
+                       boolean guiHand,
                        float partialTicks) {
         timer = getAnimationTick(partialTicks);
 
@@ -323,7 +323,7 @@ public class HandEffectTeleport extends VRHandEffect {
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator,
                              @NotNull HandType hand,
-                             boolean simpleHand) {
+                             boolean guiHand) {
         return TaskTeleport.isAiming()
                 && TaskTeleport.getInstance().getUsingHand() == hand
                 && TaskTeleport.getInstance().getArcSteps() > 1;

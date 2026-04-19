@@ -108,6 +108,7 @@ public class VRHandRenderer {
                                       @NotNull PoseStack poseStack,
                                       @NotNull HandRenderState handStateMain,
                                       @NotNull HandRenderState handStateOffhand,
+                                      boolean isGuiStage,
                                       float partialTicks){
         VRRenderPass renderPass = VRRenderState.getRenderPass();
 
@@ -118,6 +119,8 @@ public class VRHandRenderer {
                     ? handStateMain
                     : handStateOffhand;
             if(handState == HandRenderState.OFF) continue;
+            if(!isGuiStage && handState == HandRenderState.GUI_HAND) continue;
+            if(isGuiStage && handState == HandRenderState.WORLD_HAND) continue;
 
             poseStack.setIdentity();
             RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
@@ -145,27 +148,24 @@ public class VRHandRenderer {
      * Uses {@link VRBodyRenderer#getModelRenderer(VRClientPlayer, String) player renderer} to render hands
      *
      */
-    public void renderWorldHands(@NotNull VRDecorator decorator,
-                                 @NotNull PoseStack poseStack,
+    public void renderWorldHands(@NotNull PoseStack poseStack,
                                  @NotNull HandRenderState handStateMain,
                                  @NotNull HandRenderState handStateOffhand,
                                  float partialTicks
     ) {
-        renderHands(decorator, poseStack, handStateMain, handStateOffhand, partialTicks,false);
+        renderHands(poseStack, handStateMain, handStateOffhand, partialTicks,false);
     }
 
-    public void renderGuiHands(@NotNull VRDecorator decorator,
-                               @NotNull PoseStack poseStack,
+    public void renderGuiHands(@NotNull PoseStack poseStack,
                                @NotNull HandRenderState handStateMain,
                                @NotNull HandRenderState handStateOffhand,
                                float partialTicks
     ) {
-        renderHands(decorator, poseStack, handStateMain, handStateOffhand, partialTicks,true);
+        renderHands(poseStack, handStateMain, handStateOffhand, partialTicks,true);
     }
 
 
-    public void renderHands(@NotNull VRDecorator decorator,
-                            @NotNull PoseStack poseStack,
+    public void renderHands(@NotNull PoseStack poseStack,
                             @NotNull HandRenderState handStateMain,
                             @NotNull HandRenderState handStateOffhand,
                             float partialTicks,
@@ -175,15 +175,13 @@ public class VRHandRenderer {
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
-
         if(handStateMain == HandRenderState.GUI_HAND
                 && isGuiStage){
             renderHand(
                     HandType.MAIN,
                     poseStack, partialTicks,
                     true,
-                    renderPass, effects, decorator
+                    renderPass
             );
         } else if(handStateMain == HandRenderState.WORLD_HAND
                 && !isGuiStage){
@@ -191,7 +189,7 @@ public class VRHandRenderer {
                     HandType.MAIN,
                     poseStack, partialTicks,
                     false,
-                    renderPass, effects, decorator
+                    renderPass
             );
         }
 
@@ -201,7 +199,7 @@ public class VRHandRenderer {
                     HandType.OFFHAND,
                     poseStack, partialTicks,
                     true,
-                    renderPass, effects, decorator
+                    renderPass
             );
         } else if(handStateOffhand == HandRenderState.WORLD_HAND
                 && !isGuiStage){
@@ -209,7 +207,7 @@ public class VRHandRenderer {
                     HandType.OFFHAND,
                     poseStack, partialTicks,
                     false,
-                    renderPass, effects, decorator
+                    renderPass
             );
         }
 
@@ -336,9 +334,7 @@ public class VRHandRenderer {
                             @NotNull PoseStack poseStack,
                             float partialTicks,
                             boolean isGui,
-                            VRRenderPass renderPass,
-                            Collection<VRHandEffect> effects,
-                            VRDecorator decorator) {
+                            VRRenderPass renderPass) {
 
         poseStack.pushPose();
 
@@ -346,7 +342,6 @@ public class VRHandRenderer {
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         RenderPoseHelper.applyHandPose(hand, poseStack);
 
-        var activeEffects = findActiveEffects(effects, decorator, hand, isGui);
 
         RenderSystem.enableDepthTest();
         RenderSystem.defaultBlendFunc();
@@ -356,15 +351,6 @@ public class VRHandRenderer {
         } else {
             renderWorldHand(poseStack, hand, partialTicks);
         }
-
-        renderHandEffects(
-                activeEffects,
-                hand,
-                renderPass,
-                poseStack,
-                isGui,
-                partialTicks
-        );
 
         poseStack.popPose();
     }
@@ -695,12 +681,12 @@ public class VRHandRenderer {
                                    HandType hand,
                                    VRRenderPass renderPass,
                                    PoseStack poseStack,
-                                   boolean isSimple,
+                                   boolean isGui,
                                    float partialTicks) {
         if (effects == null || effects.isEmpty()) return;
 
         effects.forEach(it->
-                it.render(hand, renderPass, poseStack, isSimple, partialTicks)
+                it.render(hand, renderPass, poseStack, isGui, partialTicks)
         );
     }
 

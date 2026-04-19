@@ -200,6 +200,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 currentDecorator,
                 poseStack,
                 handStateMain, handStateOffhand,
+                false,
                 partialTicks
         );
         currentDecorator.renderAfterSolid(poseStack, partialTicks);
@@ -232,9 +233,15 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
         //GUI HANDS
         ClientContext.handRenderer.renderGuiHands(
+                poseStack,
+                handStateMain, handStateOffhand,
+                partialTicks
+        );
+        ClientContext.handRenderer.renderHandEffectsOnly(
                 currentDecorator,
                 poseStack,
                 handStateMain, handStateOffhand,
+                true,
                 partialTicks
         );
 

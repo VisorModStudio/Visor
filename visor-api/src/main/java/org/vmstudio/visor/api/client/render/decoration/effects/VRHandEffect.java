@@ -28,19 +28,19 @@ public abstract class VRHandEffect implements VisorComponent {
      * @param hand for which hand render the effect
      * @param renderPass current VR render pass
      * @param poseStack used poseStack
-     * @param simpleHand if hand is without skin (main menu)
+     * @param guiHand if hand is without skin (main menu)
      * @param partialTicks current partialTick
      */
     public abstract void render(@NotNull HandType hand,
                                 @NotNull VRRenderPass renderPass,
                                 @NotNull PoseStack poseStack,
-                                boolean simpleHand,
+                                boolean guiHand,
                                 float partialTicks);
 
 
     public abstract boolean isVisible(@NotNull VRDecorator currentDecorator,
                                       @NotNull HandType hand,
-                                      boolean simpleHand);
+                                      boolean guiHand);
 
     /**
      * If effect is allowed to be visible on all decorators.
@@ -59,7 +59,7 @@ public abstract class VRHandEffect implements VisorComponent {
 
     public boolean isEnabledAndVisible(@NotNull VRDecorator currentDecorator,
                                        @NotNull HandType hand,
-                                       boolean simpleHand){
-        return enabled && isVisible(currentDecorator, hand, simpleHand);
+                                       boolean guiHand){
+        return enabled && isVisible(currentDecorator, hand, guiHand);
     }
 }

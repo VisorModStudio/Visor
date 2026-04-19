@@ -27,7 +27,6 @@ public class VRBodyRendererHandsOnly implements VRBodyRenderer {
     @Override
     public void renderDecoration(@NotNull VRDecorator decorator, @NotNull PoseStack poseStack, float partialTicks) {
         ClientContext.handRenderer.renderWorldHands(
-                decorator,
                 poseStack,
                 ClientContext.decorationRenderer.getHandRenderState(HandType.MAIN),
                 ClientContext.decorationRenderer.getHandRenderState(HandType.OFFHAND),
