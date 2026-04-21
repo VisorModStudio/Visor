@@ -20,7 +20,7 @@ import org.vmstudio.visor.core.client.settings.VRClientSettings;
 public class PlayerItemInHandLayerMixin {
 
     @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
-    private void vivecraft$noItemInGui(
+    private void visor$noItemInGui(
             CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) HumanoidArm arm,
             @Local(argsOnly = true) ItemStack itemStack)
     {
