@@ -521,7 +521,7 @@ public class VRHandRenderer {
         poseStack.translate(
                 0,
                 0.125F,
-                0.125F
+                0.625F
         );
 
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
