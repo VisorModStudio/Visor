@@ -20,6 +20,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.helpers.ItemHandTransformHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
@@ -51,10 +52,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
             CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) PoseStack poseStack)
     {
         if (VRRenderState.isSelfModelRender(entity)) {
-            // make the item scale equal in all directions
-            poseStack.translate(0.0F, 0.65F, 0.0F);
-            poseStack.scale(1F, VRClientSettings.getPlayerModelArmsScale(), 1f);
-            poseStack.translate(0.0F, -0.65F, 0.0F);
+            ItemHandTransformHelper.applyArmScaleCorrection(poseStack);
         }
     }
 

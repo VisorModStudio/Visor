@@ -25,9 +25,10 @@ import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.core.client.player.body.full.VRBodyFull;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
+import org.vmstudio.visor.core.client.render.player.model.ControllerSpaceItemAnchorModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
+public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> implements ControllerSpaceItemAnchorModel {
     public static final int LOWER_EXTENSION = 2;
     public static final int UPPER_EXTENSION = 3;
 
@@ -293,6 +294,11 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, -0.65F, 0.0F);
 
         doAttackAnim(side, poseStack);
+    }
+
+    @Override
+    public void applyLocalHandItemAnchor(HumanoidArm side, PoseStack poseStack) {
+        poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, -0.65F, 0.0F);
     }
 
     protected void doAttackAnim(HumanoidArm side, PoseStack poseStack) {

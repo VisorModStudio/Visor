@@ -20,6 +20,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelFull;
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
 import org.vmstudio.visor.core.client.render.player.model.simple.armor.VRArmorLayerSimple;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
@@ -27,6 +28,7 @@ import org.vmstudio.visor.core.client.utils.ScaleHelper;
 public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     private static LayerDefinition VR_LAYER_DEFAULT;
     private static LayerDefinition VR_LAYER_SLIM;
+    private final boolean slimArms;
     static {
         createLayers();
     }
@@ -34,15 +36,16 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     public static void createLayers() {
         // split arms model
         VR_LAYER_DEFAULT = LayerDefinition.create(
-                VRPlayerModelSimple.createMesh(CubeDeformation.NONE, false), 64, 64);
+                VRPlayerModelFull.createMesh(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_SLIM = LayerDefinition.create(
-                VRPlayerModelSimple.createMesh(CubeDeformation.NONE, true), 64, 64);
+                VRPlayerModelFull.createMesh(CubeDeformation.NONE, true), 64, 64);
 
     }
 
 
     public VRPlayerRendererHandsOnly(EntityRendererProvider.Context context, boolean slim) {
         super(context, slim);
+        this.slimArms = slim;
         this.model = new VRPlayerModelSimple<>(
                 slim ? VR_LAYER_SLIM.bakeRoot()
                         : VR_LAYER_DEFAULT.bakeRoot(),
@@ -106,22 +109,46 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     public void renderRightHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
     {
-        this.renderHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player, this.model.rightArm,
-                this.model.rightSleeve);
+        VRPlayerModelSimple<?> model = (VRPlayerModelSimple<?>) this.model;
+        this.renderHand(
+                ControllerType.RIGHT,
+                poseStack,
+                buffer,
+                combinedLight,
+                player,
+                model.rightHand,
+                model.rightHandSleeve,
+                model.rightArm,
+                model.rightSleeve
+        );
     }
 
     @Override
     public void renderLeftHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
     {
-        this.renderHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player, this.model.leftArm,
-                this.model.leftSleeve);
+        VRPlayerModelSimple<?> model = (VRPlayerModelSimple<?>) this.model;
+        this.renderHand(
+                ControllerType.LEFT,
+                poseStack,
+                buffer,
+                combinedLight,
+                player,
+                model.leftHand,
+                model.leftHandSleeve,
+                model.leftArm,
+                model.leftSleeve
+        );
     }
 
 
     private void renderHand(
             ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear)
+            AbstractClientPlayer player,
+            ModelPart rendererHand,
+            ModelPart rendererHandwear,
+            ModelPart fallbackArm,
+            ModelPart fallbackArmwear)
     {
         this.setModelProperties(player);
 
@@ -131,11 +158,19 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        rendererArm.setPos(side == ControllerType.LEFT ? 5F : -5F, 2F, 0F);
+        ModelPart rendererArm = rendererHand != null ? rendererHand : fallbackArm;
+        ModelPart rendererArmwear = rendererHandwear != null ? rendererHandwear : fallbackArmwear;
+        boolean usingLowerHand = rendererHand != null && rendererHandwear != null;
+
+        if (!usingLowerHand) {
+            rendererArm.setPos(side == ControllerType.LEFT ? 5F : -5F, this.slimArms ? 2.0F : 2.5F, 0F);
+        }
+        rendererArm.visible = fallbackArm.visible;
         rendererArm.setRotation(0F, 0F, 0F);
         rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
 
         rendererArmwear.copyFrom(rendererArm);
+        rendererArmwear.visible = fallbackArmwear.visible;
 
         float alpha = player.getAttackStrengthScale(0.0F) * 0.75F + 0.25F;
         ResourceLocation playerSkin = this.getTextureLocation(player);

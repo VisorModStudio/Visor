@@ -25,12 +25,15 @@ import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.core.client.player.body.full.VRBodyTypeFull;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandItemPoseRegistry;
+import org.vmstudio.visor.core.client.render.helpers.ItemHandTransformHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
+import org.vmstudio.visor.core.client.render.player.model.ControllerSpaceItemAnchorModel;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
@@ -56,7 +59,6 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
 public class VRHandRenderer {
-
     private static final AtumColorImmutable GUI_HANDS_COLOR = new AtumColorImmutable(
             64, 64, 64,
             255
@@ -503,26 +505,13 @@ public class VRHandRenderer {
         }
 
 
-        float entityScale = 0.9375F;
-        float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        float entityScale = getDecoratorItemBaseScale(player);
         poseStack.scale(entityScale, entityScale, entityScale);
 
         ModelUtils.controllerToModelOrientation(poseStack);
-
-        //match ItemInHandLayerMixin pose
-        poseStack.scale(armsScale, 1.0F, armsScale);
-        poseStack.translate(0.0F, 0.65F, 0.0F);
-        poseStack.scale(1.0F, armsScale, 1.0F);
-        poseStack.translate(0.0F, -0.65F, 0.0F);
+        applyControllerSpaceItemBaseline(player, humanoidarm, poseStack);
 
         boolean isLeftHand = humanoidarm == HumanoidArm.LEFT;
-        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        poseStack.translate(
-                0,
-                0.125F,
-                0.125F
-        );
 
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
         applyItemHandPose(player, handType, itemStack, poseStack, equipProgress, pPartialTicks);
@@ -573,7 +562,8 @@ public class VRHandRenderer {
             applySwingPose(swingType, poseStack, humanoidArm, swingProgress);
         }
 
-        poseStack.scale(0.4f, 0.4F, 0.4F);
+        float handBaseScale = getDecoratorItemBaseScale(player);
+        poseStack.scale(handBaseScale, handBaseScale, handBaseScale);
         boolean slim = player.getModelName()
                 .equals("slim");
 
@@ -604,6 +594,51 @@ public class VRHandRenderer {
             );
         }
         poseStack.popPose();
+    }
+
+    private float getDecoratorItemBaseScale(AbstractClientPlayer player) {
+        return 0.9375F * ClientContext.localPlayer.getFullHeightScale();
+    }
+
+    private void applyControllerSpaceItemBaseline(AbstractClientPlayer player,
+                                                  HumanoidArm humanoidArm,
+                                                  PoseStack poseStack) {
+        ControllerSpaceItemAnchorModel anchorModel = resolveControllerSpaceAnchorModel(player);
+        if (anchorModel != null) {
+            anchorModel.applyLocalHandItemAnchor(humanoidArm, poseStack);
+            ItemHandTransformHelper.applyArmScaleCorrection(poseStack);
+            ItemHandTransformHelper.applyVanillaThirdPersonItemTransform(poseStack, humanoidArm);
+            return;
+        }
+
+        applyLegacyDecoratorItemBaseline(humanoidArm, poseStack);
+    }
+
+    private ControllerSpaceItemAnchorModel resolveControllerSpaceAnchorModel(AbstractClientPlayer player) {
+        boolean slim = "slim".equals(player.getModelName());
+        var bodyType = ClientContext.localPlayer.getBodyType();
+        if (!bodyType.isSelfModelVisible() && VRBodyTypeFull.getInstance() != null) {
+            bodyType = VRBodyTypeFull.getInstance();
+        }
+
+        var playerRenderer = bodyType.getRenderer().getModelRenderer(
+                ClientContext.localPlayer,
+                slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
+        );
+        var model = playerRenderer.getModel();
+        if (model instanceof ControllerSpaceItemAnchorModel anchorModel) {
+            return anchorModel;
+        }
+        return null;
+    }
+
+    private void applyLegacyDecoratorItemBaseline(HumanoidArm humanoidArm, PoseStack poseStack) {
+        float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        poseStack.scale(armsScale, 1.0F, armsScale);
+        ItemHandTransformHelper.applyArmScaleCorrection(poseStack);
+        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        poseStack.translate(0.0F, 0.125F, 0.625F);
     }
 
     @Unique

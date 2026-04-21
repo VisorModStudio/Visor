@@ -16,9 +16,10 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.player.model.ControllerSpaceItemAnchorModel;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
-public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> {
+public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> implements ControllerSpaceItemAnchorModel {
 
     protected VRClientPlayer vrPlayer;
 
@@ -29,9 +30,22 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
     protected HumanoidArm attackArm = null;
 
 
+    public final ModelPart leftHand;
+    public final ModelPart rightHand;
+    public final ModelPart leftHandSleeve;
+    public final ModelPart rightHandSleeve;
+
+
     public VRPlayerModelSimple(ModelPart root, boolean isSlim) {
         super(root, isSlim);
-
+        this.leftHand = root.getChild("left_hand");
+        this.rightHand = root.getChild("right_hand");
+        this.leftHandSleeve = root.getChild("left_hand_sleeve");
+        this.rightHandSleeve = root.getChild("right_hand_sleeve");
+        ModelUtils.copyTextures(this.leftArm, this.leftHand);
+        ModelUtils.copyTextures(this.rightArm, this.rightHand);
+        ModelUtils.copyTextures(this.leftSleeve, this.leftHandSleeve);
+        ModelUtils.copyTextures(this.rightSleeve, this.rightHandSleeve);
     }
 
 
@@ -124,6 +138,13 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         }
 
         doAttackAnim(side, poseStack);
+    }
+
+    @Override
+    public void applyLocalHandItemAnchor(HumanoidArm side, PoseStack poseStack) {
+        if (this.slim) {
+            poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, 0.0F, 0.0F);
+        }
     }
 
     protected void doAttackAnim(HumanoidArm side, PoseStack poseStack) {
