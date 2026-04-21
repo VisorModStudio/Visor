@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.common;
 
 import me.phoenixra.atumvr.api.enums.ControllerType;
+import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.common.player.VRTrackableBodyPart;
 import net.minecraft.world.InteractionHand;
@@ -39,6 +40,14 @@ public enum HandType {
 
     public static @NotNull HandType fromMc(InteractionHand mcHand){
         return mcHand == InteractionHand.MAIN_HAND ? MAIN : OFFHAND;
+    }
+    public static @NotNull HandType fromMcArm(HumanoidArm mcArm,
+                                              boolean leftHanded){
+        if(leftHanded){
+            return mcArm == HumanoidArm.LEFT ? MAIN : OFFHAND;
+        }else{
+            return mcArm == HumanoidArm.RIGHT ? MAIN : OFFHAND;
+        }
     }
 
     public static @NotNull HandType fromController(@NotNull ControllerType controllerType,

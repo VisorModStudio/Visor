@@ -6,7 +6,11 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -131,7 +135,22 @@ public class VRPlayerRendererFull extends PlayerRenderer {    // Vanilla model
             // hide the head or you won't see anything
             this.model.head.visible = false;
             this.model.hat.visible = false;
+            if(ClientContext.decorationRenderer
+                    .getHandRenderState(HandType.MAIN) != HandRenderState.WORLD_HAND){
+                hideHand(ClientContext.localPlayer.isLeftHanded()
+                        ? HumanoidArm.LEFT
+                        : HumanoidArm.RIGHT
+                );
+            }
+            if(ClientContext.decorationRenderer
+                    .getHandRenderState(HandType.OFFHAND) != HandRenderState.WORLD_HAND){
+                hideHand(ClientContext.localPlayer.isLeftHanded()
+                        ? HumanoidArm.RIGHT
+                        : HumanoidArm.LEFT
+                );
+            }
         }
+
     }
 
     private void hideHand(HumanoidArm arm) {
