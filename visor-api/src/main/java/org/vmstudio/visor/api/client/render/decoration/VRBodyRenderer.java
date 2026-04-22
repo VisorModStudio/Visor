@@ -5,7 +5,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3fc;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.common.utils.VRMathUtils;
 
 import java.util.Collection;
 
@@ -33,6 +35,11 @@ public interface VRBodyRenderer {
     @Nullable
     PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player,
                                     @NotNull String modelName);
+
+
+    default Vector3fc getModelItemScale(){
+        return VRMathUtils.UNIT_VECTOR;
+    }
 
     @NotNull
     Collection<PlayerRenderer> getModelRenderers();

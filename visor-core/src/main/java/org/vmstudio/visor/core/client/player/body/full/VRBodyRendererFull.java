@@ -5,10 +5,13 @@ import lombok.Getter;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererFull;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 import java.util.*;
 
@@ -50,5 +53,12 @@ public class VRBodyRendererFull implements VRBodyRenderer {
         return modelsMap.getOrDefault(modelName, defaultRenderer);
     }
 
-
+    @Override
+    public Vector3fc getModelItemScale() {
+        return new Vector3f(
+                1.0f,
+                VRClientSettings.getPlayerModelArmsScale(),
+                1.0f
+        );
+    }
 }

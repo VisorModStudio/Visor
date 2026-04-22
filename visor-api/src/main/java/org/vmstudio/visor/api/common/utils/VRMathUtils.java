@@ -26,6 +26,8 @@ public class VRMathUtils {
     public static final Vector3fc LEFT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
     public static final Vector3fc RIGHT_VECTOR = new Vector3f(1.0F, 0.0F, 0.0F);
 
+    public static final Vector3fc UNIT_VECTOR = new Vector3f(1.0F, 1.0F, 1.0F);
+
     public static final Matrix4fc EMPTY_MATRIX = new Matrix4f();
 
     public static @NotNull Vector3f extractUpDir(@NotNull Matrix4fc rotation, boolean normalize) {

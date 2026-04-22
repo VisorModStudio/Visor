@@ -51,9 +51,9 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
             CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) PoseStack poseStack)
     {
         if (VRRenderState.isSelfModelRender(entity)) {
-            // make the item scale equal in all directions
+            var itemScale = ClientContext.localPlayer.getBodyType().getRenderer().getModelItemScale();
             poseStack.translate(0.0F, 0.65F, 0.0F);
-            poseStack.scale(1F, VRClientSettings.getPlayerModelArmsScale(), 1f);
+            poseStack.scale(itemScale.x(), itemScale.y(), itemScale.z());
             poseStack.translate(0.0F, -0.65F, 0.0F);
         }
     }

@@ -185,10 +185,10 @@ public class ModelUtils {
 
     public static void swingAnimation(
             HumanoidArm arm, float attackTime, boolean isMainPlayer,
-            Matrix3f tempM, Vector3f tempV)
+            Matrix3f matrix, Vector3f pos)
     {
         var handAction = ClientContext.handRenderer.getSwingType();
-        tempV.zero();
+        pos.zero();
         if (attackTime > 0.0F) {
             if (!isMainPlayer || handAction == HandAction.ATTACK) {
                 float rotation;
@@ -198,7 +198,7 @@ public class ModelUtils {
                     rotation = Mth.sin((attackTime * 3.0F) * Mth.PI);
                 }
 
-                tempM.rotateX(rotation * 30.0F * Mth.DEG_TO_RAD);
+                matrix.rotateX(rotation * 30.0F * Mth.DEG_TO_RAD);
             } else {
                 switch (handAction) {
                     case USE -> {
@@ -208,7 +208,9 @@ public class ModelUtils {
                         } else {
                             movement = Mth.sin(attackTime * Mth.TWO_PI);
                         }
-                        tempM.transform(VRMathUtils.DOWN_VECTOR, tempV).mul((1F + movement) * 1.6F);
+                        float scale = (1F + movement) * 1.6F;
+                        matrix.transform(VRMathUtils.DOWN_VECTOR, pos);
+                        pos.mul(-scale, -scale, scale);
                     }
                     case INTERACT -> {
                         float rotation;
@@ -218,7 +220,7 @@ public class ModelUtils {
                             rotation = Mth.sin(attackTime * 3.0F * Mth.PI);
                         }
 
-                        tempM.rotateY((arm == HumanoidArm.RIGHT ? -40.0F : 40.0F) * rotation * Mth.DEG_TO_RAD);
+                        matrix.rotateY((arm == HumanoidArm.RIGHT ? -40.0F : 40.0F) * rotation * Mth.DEG_TO_RAD);
                     }
                 }
             }

@@ -27,10 +27,11 @@ import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.core.client.player.body.full.VRBodyFull;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.HandModel;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 
 public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
-    public static final int LOWER_EXTENSION = 2;
+    public static final int LOWER_EXTENSION = 1;
     public static final int UPPER_EXTENSION = 3;
 
     protected VRClientPlayer vrPlayer;
@@ -166,6 +167,12 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
             return;
         }
 
+        float armsScale = VRClientSettings.getPlayerModelArmsScale();
+        model.leftArm.xScale = model.leftArm.zScale  = armsScale;
+        model.rightArm.xScale = model.rightArm.zScale = armsScale;
+        model.leftHand.xScale = model.leftHand.zScale  = armsScale;
+        model.rightHand.xScale = model.rightHand.zScale = armsScale;
+
         boolean isMainPlayer = VRRenderState.isSelfModelPlayer(player);
 
         HumanoidArm mainArm = vrPlayer.isLeftHanded()
@@ -219,8 +226,8 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
             VRPose handPose, float bodyYaw,
             HumanoidArm arm, float attackTime, boolean isMainPlayer
     ) {
-        Vector3f temp  = new Vector3f();
-        Matrix3f tempM = new Matrix3f();
+        Vector3f pos  = new Vector3f();
+        Matrix3f matrix = new Matrix3f();
 
         Vector3f handPos = new Vector3f();
         Vector3f relativePos = handPose.getPosition().sub(modelOrigin, new Vector3f());
@@ -234,22 +241,22 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         );
 
         Quaternionf handRot = handPose.getRotation().getNormalizedRotation(new Quaternionf());
-        ModelUtils.toModelDir(bodyYaw, handRot, tempM);
+        ModelUtils.toModelDir(bodyYaw, handRot, matrix);
 
-         ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, tempM, temp);
+        ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, matrix, pos);
 
-        lowerArm.x = handPos.x() + temp.x();
-        lowerArm.y = handPos.y() + temp.y();
-        lowerArm.z = handPos.z() + temp.z();
+        lowerArm.x = handPos.x() + pos.x();
+        lowerArm.y = handPos.y() + pos.y();
+        lowerArm.z = handPos.z() + pos.z();
 
-        ModelUtils.setRotation(lowerArm, tempM, temp);
+        ModelUtils.setRotation(lowerArm, matrix, pos);
 
         ModelUtils.pointModelAtModelForward(
                 upperArm,
                 lowerArm.x, lowerArm.y, lowerArm.z,
-                temp, new Vector3f(), tempM
+                pos, new Vector3f(), matrix
         );
-        ModelUtils.setRotation(upperArm, tempM, temp);
+        ModelUtils.setRotation(upperArm, matrix, pos);
     }
 
     public void hideLeftArm() {
