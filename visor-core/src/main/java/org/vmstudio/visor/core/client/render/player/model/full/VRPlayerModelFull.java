@@ -35,7 +35,6 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
 
     protected VRClientPlayer vrPlayer;
 
-    protected HumanoidArm attackArm = null;
     protected HumanoidArm mainArm = HumanoidArm.RIGHT;
 
     protected float bodyYaw;
@@ -186,7 +185,6 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         ModelPart offUpperArm  = vrPlayer.isLeftHanded() ? model.rightArm : model.leftArm;
         ModelPart offLowerArm  = vrPlayer.isLeftHanded() ? model.rightHand : model.leftHand;
 
-        // NEW: figure out which arm is currently swinging and what its attack progress is
         HumanoidArm offArm = mainArm.getOpposite();
         InteractionHand swinging = ClientContext.localPlayer.getActiveHand().asInteractionHand();
         HumanoidArm swingArm = swinging == InteractionHand.MAIN_HAND
@@ -195,7 +193,6 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         float offAttack  = (swingArm == offArm)  ? this.attackTime : 0.0F;
 
         var modelOrigin = ModelUtils.getModelOrigin(player);
-        // CHANGED: pass per-arm attack params so swingAnimation can be applied
         applyArm(vrPlayer, modelOrigin, mainUpperArm, mainLowerArm, mainHandPose, bodyYaw,
                 mainArm, mainAttack, isMainPlayer);
         applyArm(vrPlayer, modelOrigin, offUpperArm,  offLowerArm,  offhandPose,  bodyYaw,
@@ -215,7 +212,6 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         model.bodyYaw = bodyYaw;
     }
 
-    // CHANGED: extended signature with arm + attackTime + isMainPlayer for swingAnimation
     private static void applyArm(
             VRClientPlayer vrPlayer,
             Vector3f modelOrigin,
@@ -240,11 +236,8 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         Quaternionf handRot = handPose.getRotation().getNormalizedRotation(new Quaternionf());
         ModelUtils.toModelDir(bodyYaw, handRot, tempM);
 
-        // NEW: compose swing rotation onto tempM and read USE forward-offset into temp
-        // (swingAnimation internally reads ClientContext.handRenderer.getSwingType())
-        ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, tempM, temp);
+         ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, tempM, temp);
 
-        // CHANGED: position assignment moved here, with the swing offset applied
         lowerArm.x = handPos.x() + temp.x();
         lowerArm.y = handPos.y() + temp.y();
         lowerArm.z = handPos.z() + temp.z();
@@ -313,14 +306,7 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
 
         poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, -0.65F, 0.0F);
 
-        doAttackAnim(side, poseStack);
     }
 
-    protected void doAttackAnim(HumanoidArm side, PoseStack poseStack) {
-        if (side == this.attackArm) {
-            poseStack.translate(0.0F, 0.5F, 0.0F);
-            poseStack.mulPose(Axis.XP.rotation(Mth.sin(this.attackTime * Mth.PI)));
-            poseStack.translate(0.0F, -0.5F, 0.0F);
-        }
-    }
+
 }

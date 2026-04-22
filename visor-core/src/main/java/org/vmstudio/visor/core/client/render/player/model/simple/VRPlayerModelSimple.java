@@ -26,7 +26,6 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
     protected HumanoidArm mainArm = HumanoidArm.RIGHT;
     protected boolean isMainPlayer;
 
-    protected HumanoidArm attackArm = null;
 
 
     public VRPlayerModelSimple(ModelPart root, boolean isSlim) {
@@ -123,14 +122,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
             poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, 0.0F, 0.0F);
         }
 
-        doAttackAnim(side, poseStack);
+
     }
 
-    protected void doAttackAnim(HumanoidArm side, PoseStack poseStack) {
-        if (side == this.attackArm) {
-            poseStack.translate(0.0F, 0.5F, 0.0F);
-            poseStack.mulPose(Axis.XP.rotation(Mth.sin(this.attackTime * Mth.PI)));
-            poseStack.translate(0.0F, -0.5F, 0.0F);
-        }
-    }
 }
