@@ -81,7 +81,6 @@ public class ModelUtils {
             out.y += 1F;
         }
 
-        // worldscale includes entity scale
         if (useWorldScale) {
             out.div(vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
         } else {
@@ -129,7 +128,6 @@ public class ModelUtils {
 
 
         if (applyScale) {
-            // worldscale includes entity scale
             if (useWorldScale) {
                 out.mul(clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
             } else {
@@ -147,23 +145,18 @@ public class ModelUtils {
             ModelPart part, float targetX, float targetY, float targetZ, Vector3f tempVDir,
             Vector3f tempVUp, Matrix3f tempM)
     {
-        // calculate direction
         tempVDir.set(targetX - part.x, targetY - part.y, targetZ - part.z);
 
-        // get the up vector the ModelPart should face
         tempVDir.cross(VRMathUtils.LEFT_VECTOR, tempVUp);
 
-        // rotate model
         pointAtModel(tempVDir, tempVUp, tempM);
     }
 
     public static void pointModelAtModelWithUp(
             ModelPart part, float targetX, float targetY, float targetZ, Vector3fc up, Vector3f tempVDir, Matrix3f tempM)
     {
-        // calculate direction
         tempVDir.set(targetX - part.x, targetY - part.y, targetZ - part.z);
 
-        // rotate model
         pointAtModel(tempVDir, up, tempM);
     }
 
@@ -172,25 +165,20 @@ public class ModelUtils {
         tempM.setLookAlong(
                 -dir.x(), -dir.y(), dir.z(),
                 -upDir.x(), -upDir.y(), upDir.z()).transpose();
-        // ModelParts are rotated 90°
         tempM.rotateX(Mth.HALF_PI);
     }
 
 
     public static void toModelDir(float bodyYaw, Quaternionfc direction, Matrix3f tempM) {
         tempM.set(direction);
-        // undo body yaw
         tempM.rotateLocalY(bodyYaw + Mth.PI);
-        // ModelParts are rotated 90°
         tempM.rotateX(Mth.HALF_PI);
     }
 
 
     public static void setRotation(ModelPart part, Matrix3fc rotation, Vector3f tempV) {
         rotation.getEulerAnglesZYX(tempV);
-        // ModelPart x and y axes are flipped
-        // this can be nan when it is perfectly aligned with pointing left. 0 isn't right here, but beter than nan
-        part.setRotation(-tempV.x, Float.isNaN(tempV.y) ? 0F : -tempV.y, tempV.z);
+       part.setRotation(-tempV.x, Float.isNaN(tempV.y) ? 0F : -tempV.y, tempV.z);
     }
 
 
@@ -200,11 +188,9 @@ public class ModelUtils {
             Matrix3f tempM, Vector3f tempV)
     {
         var handAction = ClientContext.handRenderer.getSwingType();
-        // zero it always, since it's supposed to have the offset at the end
         tempV.zero();
         if (attackTime > 0.0F) {
             if (!isMainPlayer || handAction == HandAction.ATTACK) {
-                // arm swing animation
                 float rotation;
                 if (attackTime > 0.5F) {
                     rotation = Mth.sin(attackTime * Mth.PI + Mth.PI);
@@ -216,7 +202,6 @@ public class ModelUtils {
             } else {
                 switch (handAction) {
                     case USE -> {
-                        // hand forward animation
                         float movement;
                         if (attackTime > 0.25F) {
                             movement = Mth.sin(attackTime * Mth.HALF_PI + Mth.PI);
@@ -226,7 +211,6 @@ public class ModelUtils {
                         tempM.transform(VRMathUtils.DOWN_VECTOR, tempV).mul((1F + movement) * 1.6F);
                     }
                     case INTERACT -> {
-                        // arm rotation animation
                         float rotation;
                         if (attackTime > 0.5F) {
                             rotation = Mth.sin(attackTime * Mth.PI + Mth.PI);

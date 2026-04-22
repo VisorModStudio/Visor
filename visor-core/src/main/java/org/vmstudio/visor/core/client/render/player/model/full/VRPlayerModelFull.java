@@ -10,6 +10,7 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
@@ -17,6 +18,7 @@ import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -184,10 +186,20 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         ModelPart offUpperArm  = vrPlayer.isLeftHanded() ? model.rightArm : model.leftArm;
         ModelPart offLowerArm  = vrPlayer.isLeftHanded() ? model.rightHand : model.leftHand;
 
+        // NEW: figure out which arm is currently swinging and what its attack progress is
+        HumanoidArm offArm = mainArm.getOpposite();
+        InteractionHand swinging = ClientContext.localPlayer.getActiveHand().asInteractionHand();
+        HumanoidArm swingArm = swinging == InteractionHand.MAIN_HAND
+                ? mainArm : offArm;
+        float mainAttack = (swingArm == mainArm) ? this.attackTime : 0.0F;
+        float offAttack  = (swingArm == offArm)  ? this.attackTime : 0.0F;
 
         var modelOrigin = ModelUtils.getModelOrigin(player);
-        applyArm(vrPlayer, modelOrigin, mainUpperArm, mainLowerArm, mainHandPose, bodyYaw);
-        applyArm(vrPlayer, modelOrigin, offUpperArm, offLowerArm, offhandPose, bodyYaw);
+        // CHANGED: pass per-arm attack params so swingAnimation can be applied
+        applyArm(vrPlayer, modelOrigin, mainUpperArm, mainLowerArm, mainHandPose, bodyYaw,
+                mainArm, mainAttack, isMainPlayer);
+        applyArm(vrPlayer, modelOrigin, offUpperArm,  offLowerArm,  offhandPose,  bodyYaw,
+                offArm,  offAttack,  isMainPlayer);
 
         // copy to sleeves
         model.leftSleeve.copyFrom(model.leftArm);
@@ -203,11 +215,13 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         model.bodyYaw = bodyYaw;
     }
 
+    // CHANGED: extended signature with arm + attackTime + isMainPlayer for swingAnimation
     private static void applyArm(
             VRClientPlayer vrPlayer,
             Vector3f modelOrigin,
             ModelPart upperArm, ModelPart lowerArm,
-            VRPose handPose, float bodyYaw
+            VRPose handPose, float bodyYaw,
+            HumanoidArm arm, float attackTime, boolean isMainPlayer
     ) {
         Vector3f temp  = new Vector3f();
         Matrix3f tempM = new Matrix3f();
@@ -222,12 +236,19 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
                 true,
                 handPos
         );
-        lowerArm.x = handPos.x();
-        lowerArm.y = handPos.y();
-        lowerArm.z = handPos.z();
 
         Quaternionf handRot = handPose.getRotation().getNormalizedRotation(new Quaternionf());
         ModelUtils.toModelDir(bodyYaw, handRot, tempM);
+
+        // NEW: compose swing rotation onto tempM and read USE forward-offset into temp
+        // (swingAnimation internally reads ClientContext.handRenderer.getSwingType())
+        ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, tempM, temp);
+
+        // CHANGED: position assignment moved here, with the swing offset applied
+        lowerArm.x = handPos.x() + temp.x();
+        lowerArm.y = handPos.y() + temp.y();
+        lowerArm.z = handPos.z() + temp.z();
+
         ModelUtils.setRotation(lowerArm, tempM, temp);
 
         ModelUtils.pointModelAtModelForward(

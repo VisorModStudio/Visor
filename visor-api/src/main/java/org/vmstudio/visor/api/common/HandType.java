@@ -19,7 +19,13 @@ public enum HandType {
         return this == MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
     }
 
-
+    public @NotNull HumanoidArm asHumanoidArm(boolean leftHanded){
+        if(leftHanded){
+            return this == MAIN ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+        }else{
+            return this == MAIN ? HumanoidArm.RIGHT : HumanoidArm.LEFT;
+        }
+    }
     public @NotNull ControllerType asControllerType(boolean leftHanded){
         if(leftHanded){
             return this == MAIN ? ControllerType.LEFT : ControllerType.RIGHT;
