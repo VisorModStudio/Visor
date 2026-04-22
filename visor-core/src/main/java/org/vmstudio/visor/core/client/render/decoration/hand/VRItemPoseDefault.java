@@ -77,6 +77,10 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 if (item.getItem() instanceof ArrowItem) {
                     preRotation = Axis.ZP.rotationDegrees(-180);
                     rotation = Axis.XP.rotationDegrees(-gunAngle);
+                } else if (item.is(Items.STICK)) {
+                    scale = 1.0f;
+                    translateY = 0.0f;
+                    rotation = Axis.XP.rotationDegrees(0);
                 } else {
                     rotation = Axis.ZP.rotationDegrees(180);
                     rotation.mul(Axis.XP.rotationDegrees(-135));

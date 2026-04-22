@@ -208,9 +208,10 @@ public class ModelUtils {
                         } else {
                             movement = Mth.sin(attackTime * Mth.TWO_PI);
                         }
-                        float scale = (1F + movement) * 1.6F;
-                        matrix.transform(VRMathUtils.DOWN_VECTOR, pos);
-                        pos.mul(-scale, -scale, scale);
+
+                        float distance = (1F + movement) * 1.6F;
+
+                        matrix.transform(VRMathUtils.DOWN_VECTOR, pos).mul(distance);
                     }
                     case INTERACT -> {
                         float rotation;
@@ -227,7 +228,30 @@ public class ModelUtils {
         }
     }
 
+    public static void swingAnimation(
+            ModelPart part, HumanoidArm arm, float offset, float attackTime,
+            boolean isMainPlayer, Matrix3f tempM, Vector3f tempV, Vector3f tempV2)
+    {
+        if (attackTime > 0.0F) {
+            // pivot before swing
+            tempM.transform(0, offset, 0, tempV2);
 
+            swingAnimation(arm, attackTime, isMainPlayer, tempM, tempV);
+
+            // animation offset (model-space flip)
+            part.x -= tempV.x();
+            part.y -= tempV.y();
+            part.z += tempV.z();
+
+            // pivot after swing
+            tempM.transform(0, offset, 0, tempV);
+
+            // correct for pivot shift
+            part.x += tempV2.x() - tempV.x();
+            part.y += tempV2.y() - tempV.y();
+            part.z -= tempV2.z() - tempV.z();
+        }
+    }
     public static void controllerToModelOrientation(PoseStack poseStack) {
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));

@@ -227,6 +227,7 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
             HumanoidArm arm, float attackTime, boolean isMainPlayer
     ) {
         Vector3f pos  = new Vector3f();
+        Vector3f pos2 = new Vector3f();
         Matrix3f matrix = new Matrix3f();
 
         Vector3f handPos = new Vector3f();
@@ -243,11 +244,15 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         Quaternionf handRot = handPose.getRotation().getNormalizedRotation(new Quaternionf());
         ModelUtils.toModelDir(bodyYaw, handRot, matrix);
 
-        ModelUtils.swingAnimation(arm, attackTime, isMainPlayer, matrix, pos);
+        // place hand at tracked position first
+        lowerArm.x = handPos.x();
+        lowerArm.y = handPos.y();
+        lowerArm.z = handPos.z();
 
-        lowerArm.x = handPos.x() + pos.x();
-        lowerArm.y = handPos.y() + pos.y();
-        lowerArm.z = handPos.z() + pos.z();
+        // swing with pivot at hand tip
+        float pivotOffset = -(5.0F + LOWER_EXTENSION);
+        ModelUtils.swingAnimation(lowerArm, arm, pivotOffset, attackTime, isMainPlayer,
+                matrix, pos, pos2);
 
         ModelUtils.setRotation(lowerArm, matrix, pos);
 
