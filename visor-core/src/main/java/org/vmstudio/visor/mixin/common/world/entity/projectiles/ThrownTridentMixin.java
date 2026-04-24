@@ -26,7 +26,7 @@ public class ThrownTridentMixin {
         }
 
         return vrPlayer.getPoseData()
-                .getMainHand()
+                .getActiveHand()
                 .getPositionVec3();
     }
 }

@@ -1,6 +1,8 @@
 package org.vmstudio.visor.core.server.player;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Getter
 public class PlayerPoseServerImpl implements PlayerPoseServer {
+    private VRServerPlayerImpl player;
 
     protected final VRPoseImpl hmd;
     protected final VRPoseImpl mainHand;
@@ -29,7 +32,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public PlayerPoseServerImpl() {
+    public PlayerPoseServerImpl(@NotNull VRServerPlayerImpl player) {
+        this.player = player;
 
         this.hmd = new VRPoseImpl();
 
@@ -161,7 +165,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
 
     @Override
     public VRPose getActiveHand() {
-        return mainHand;
+        return player.getActiveHand() == HandType.MAIN ? mainHand : offhand;
     }
 
 

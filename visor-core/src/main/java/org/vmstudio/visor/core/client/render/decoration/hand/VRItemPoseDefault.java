@@ -3,6 +3,8 @@ package org.vmstudio.visor.core.client.render.decoration.hand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyFloat;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayTesting;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -65,104 +68,172 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      float partialTicks) {
         float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
+        var options = ClientContext.overlayManager.getOverlay(
+                VROverlayTesting.ID,
+                VROverlayTesting.class
+        );
+        var properties = options.getProperties();
         // defaults
+        boolean active = properties.getProperty(
+                "active",
+                PropertyBool.class
+        ).getValue();
+
+        Quaternionf preRotation = new Quaternionf();
+
+        Quaternionf rotation = new Quaternionf();
+
         float scale = 0.7f;
-        float translateX = 0.0f, translateY = 0.005f, translateZ = 0.0f;
-        Quaternionf preRotation = Axis.YP.rotationDegrees(0);
-        Quaternionf rotation = Axis.XP.rotationDegrees(-110 + gunAngle);
+
+        float translateX = 0;
+        float translateY = 0.005f;
+        float translateZ = 0;
+
+        float preYaw = 0;
+        float prePitch = 0;
+        float preRoll = 0;
+
+        float yaw = -110 + gunAngle;
+        float pitch = 0;
+        float roll = 0;
+
+        if(active){
+            scale = properties.getProperty(
+                    "scale",
+                    PropertyFloat.class
+            ).getValue();
+
+            translateX = properties.getProperty(
+                    "translate_x",
+                    PropertyFloat.class
+            ).getValue();
+            translateY = properties.getProperty(
+                    "translate_y",
+                    PropertyFloat.class
+            ).getValue();
+            translateZ = properties.getProperty(
+                    "translate_z",
+                    PropertyFloat.class
+            ).getValue();
+
+
+            preYaw = properties.getProperty("pre_yaw", PropertyFloat.class).getValue();
+            prePitch = properties.getProperty("pre_pitch", PropertyFloat.class).getValue();
+            preRoll = properties.getProperty("pre_roll", PropertyFloat.class).getValue();
+
+            yaw = properties.getProperty("yaw", PropertyFloat.class).getValue();
+            pitch = properties.getProperty("pitch", PropertyFloat.class).getValue();
+            roll = properties.getProperty("roll", PropertyFloat.class).getValue();
+
+            preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
+            preRotation.mul(Axis.YP.rotationDegrees(prePitch));
+            preRotation.mul(Axis.XP.rotationDegrees(preYaw));
+            rotation.mul(Axis.ZP.rotationDegrees(roll));
+            rotation.mul(Axis.YP.rotationDegrees(pitch));
+            rotation.mul(Axis.XP.rotationDegrees(yaw));
+            return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
+        }
 
         var transformType = getTransformType(item, player, MC.getItemRenderer());
         switch (transformType) {
             case BLOCK_ITEM, DEFAULT -> {
+                scale = 1.0f;
                 if (item.getItem() instanceof ArrowItem) {
-                    preRotation = Axis.ZP.rotationDegrees(-180);
-                    rotation = Axis.XP.rotationDegrees(-gunAngle);
+                    preRoll = -180;
+                    yaw = -gunAngle;
                 } else if (item.is(Items.STICK)) {
                     scale = 1.0f;
                     translateY = 0.0f;
-                    rotation = Axis.XP.rotationDegrees(0);
+                    yaw = 0;
                 } else {
-                    rotation = Axis.ZP.rotationDegrees(180);
-                    rotation.mul(Axis.XP.rotationDegrees(-135));
-                    rotation.mul(Axis.YP.rotationDegrees(90));
+                    roll = 180;
+                    yaw += -135;
+                    pitch += 90;
                     translateX += 0.04f;
                     translateZ -= 0.12f;
                 }
             }
             case BLOCK_3D -> {
-                translateZ -= 0.1f;
+                translateZ -= 0.13f;
+                translateY -= 0.05f;
+                if(item.getItem() instanceof BedItem){
+                    yaw += 20;
+                }else {
+                    yaw += -40;
+                }
             }
-            case CONSUMABLE, COMPASS, BLOCK_STICK, HORN, TOOL -> {
+            case CONSUMABLE, COMPASS, BLOCK_STICK, HORN -> {
                 long ticks = player.getUseItemRemainingTicks();
-                rotation = Axis.ZP.rotationDegrees(180);
-                rotation.mul(Axis.XP.rotationDegrees(-135));
+                roll = 180;
+                yaw = -135;
                 translateZ += 0.006f * Mth.sin(ticks) + 0.02f;
 
             }
+            case TOOL ->{
+                scale = 1.45f;
+                yaw = -10;
+                translateZ -= 0.08F;
+            }
             case MAP -> {
-                preRotation = Axis.YP.rotationDegrees(0);
-                rotation = Axis.XP.rotationDegrees(-45);
+                scale = 1.0f;
                 translateX = 0;
                 translateY = 0.16f;
                 translateZ = -0.075f;
-                scale = 0.75f;
+                yaw = -45;
             }
             case FISHING_ROD -> {
-                translateY += -0.18f + gunAngle / 40 * 0.1f;
-                translateZ -= 0.10f;
-                rotation.mul(Axis.XP.rotationDegrees(40));
-                scale = 0.8f;
+                scale = 1.45f;
+                translateY = 0;
+                yaw = -50;
             }
-            // FIXME(!!): crossbow have shadow-issue with XP rotation
             case CROSSBOW -> {
-                rotation = Axis.YP.rotationDegrees(-10.0F);
-                translateX += 0.04f;
-                translateZ += 0.08f;
-                translateY += 0.04f;
+                scale = 0.9f;
+                translateX = handDir * -0.065f;
+                translateY = 0;
+                yaw = 0;
+                pitch = handDir * 15;
             }
             case BOW -> {
-                rotation.mul(Axis.XP.rotationDegrees(90.0F - gunAngle));
-                rotation.mul(Axis.ZP.rotationDegrees(handDir == 1 ? -10.0F : 10.0F));
-                translateZ -= 0.06F;
-                translateX += 0.04F;
+                scale = 0.9f;
+                translateX = handDir * 0.075F;
+                translateY = 0.1f;
+                translateZ = -0.1f;
+                yaw = -7;
+                roll = handDir * -8;
             }
             case SWORD -> {
-                rotation.mul(Axis.XP.rotationDegrees(45.0f));
+                scale = 1.3f;
+                yaw += 45;
                 translateZ -= 0.08F;
                 translateY -= 0.01f;
             }
             case SHIELD -> {
-                if (ClientContext.localPlayer.isLeftHanded()) handDir *= -1;
-                translateY -= 0.04f;
-                translateZ += 0.1f;
-                rotation.mul(Axis.XP.rotationDegrees((handDir == 1 ? 105 : 115) - gunAngle));
-                translateX += handDir == 1 ? 0.015f : -0.015f;
 
-                // FIXME(!!): shield doesn't have interaction animation
                 if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
-                    rotation.mul(Axis.XP.rotationDegrees(handDir * 5));
-                    rotation.mul(Axis.ZP.rotationDegrees(-5));
-                    translateY -= 0.12f;
-                    translateZ -= handDir == 1 ? 0.1f : 0.11f;
-                    translateX += handDir == 1 ? 0.04f : 0.19f;
-                    rotation.mul(Axis.YP.rotationDegrees(handDir * (player.isBlocking() ? 90 : (1 - equipProgress) * 90)));
+                    translateY -= 0.04f;;
+                    translateX = handDir * -0.17f;
+                    yaw = -45;
+                    pitch = handDir * 45;
+
+                }else{
+                    translateY -= 0.04f;
+                    translateZ += 0.1f;
+                    translateX += handDir * 0.015f;
+                    yaw += (handDir == 1 ? 105 : 115) - gunAngle;
                 }
-                rotation.mul(Axis.YP.rotationDegrees((float) handDir * 0));
+
             }
             case SPEAR -> {
-                rotation.identity();
-                translateZ += 0.645F;
+                scale = 1.3f;
+                translateY = 0;
+                yaw = 0;
 
                 float progress = 0.0F;
-                boolean charging = false;
-                int riptideLevel = 0;
+                int riptideLevel = EnchantmentHelper.getRiptide(item);
 
-                // FIXME(!!): spear have BAD interaction animation
                 if (player.isUsingItem()
                         && player.getUseItemRemainingTicks() > 0
                         && player.getUsedItemHand() == mcHand) {
-                    charging = true;
-                    riptideLevel = EnchantmentHelper.getRiptide(item);
 
                     if (riptideLevel <= 0 || player.isInWaterOrRain()) {
                         progress =
@@ -173,7 +244,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                             progress = TridentItem.THROW_THRESHOLD_TIME;
 
                             if (riptideLevel > 0 && player.isInWaterOrRain()) {
-                                preRotation = Axis.ZP.rotationDegrees(-rotationProgress * 10.0F * riptideLevel);
+                                pitch = -rotationProgress * 10.0F * riptideLevel;
                             }
 
                             if (VisorState.TICK_COUNT % 2 == 0) {
@@ -182,28 +253,35 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                 );
                             }
 
-                            translateX += 0.003F * (float) Math.sin(Util.getMillis());
+                            translateX += 0.005f * Mth.sin(Util.getMillis());
                         }
                     }
-                }
 
-                if (player.isAutoSpinAttack()) {
-                    riptideLevel = 5;
-                    translateZ -= 0.15F;
-                    preRotation = Axis.ZP.rotationDegrees(
-                            (-VisorState.TICK_COUNT * 10 * riptideLevel) % 360 - partialTicks * 10.0F * riptideLevel);
-                    charging = true;
-                }
+                    translateX += handDir * 0.01f;
+                    translateY += -0.55F + progress / 10.0F * 0.25F;
 
-                if (!charging) {
-                    translateY += 0.2F * gunAngle / 40.0F;
-                    rotation.mul(Axis.XP.rotationDegrees(gunAngle));
-                }
+                    preYaw = 90;
 
-                rotation.mul(Axis.XP.rotationDegrees(-65.0F));
-                translateZ += -0.75F + progress / 10.0F * 0.25F;
+                } else if (player.isAutoSpinAttack() && riptideLevel > 0) {
+                    translateX = handDir * -0.02f;
+                    preYaw = -90;
+                    translateY += 0.75F;
+                    pitch = (-VisorState.TICK_COUNT * 50) % 360 - partialTicks * 10.0F * riptideLevel;
+                } else{
+                    translateX = handDir * -0.02f;
+                    translateY = 0.2f;
+                    translateZ = -0.05f;
+                    preYaw = -30;
+                    pitch = handDir * 30;
+                }
             }
         }
+        preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
+        preRotation.mul(Axis.YP.rotationDegrees(prePitch));
+        preRotation.mul(Axis.XP.rotationDegrees(preYaw));
+        rotation.mul(Axis.ZP.rotationDegrees(roll));
+        rotation.mul(Axis.YP.rotationDegrees(pitch));
+        rotation.mul(Axis.XP.rotationDegrees(yaw));
         return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
     }
     public static TransformType getTransformType(ItemStack itemStack,

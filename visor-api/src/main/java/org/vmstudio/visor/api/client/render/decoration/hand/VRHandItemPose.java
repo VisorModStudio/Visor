@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.client.render.decoration.hand;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
+import org.joml.Vector3fc;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.component.PrioritySupporter;

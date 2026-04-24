@@ -19,9 +19,9 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
 
     private PoseDataBuffer poseDataBuffer;
 
-    private final PlayerPoseServerImpl poseDataPrevious = new PlayerPoseServerImpl();
-    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl();
-    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl();
+    private final PlayerPoseServerImpl poseDataPrevious = new PlayerPoseServerImpl(this);
+    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl(this);
+    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl(this);
 
 
     private final PoseHistoryImpl poseHistoryRelative;
@@ -78,11 +78,11 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
                 mcPlayer.position().toVector3f()
         );
 
-        var historyEntry = new PlayerPoseServerImpl();
+        var historyEntry = new PlayerPoseServerImpl(this);
         historyEntry.copyFrom(poseDataRelative);
         poseHistoryRelative.addEntry(historyEntry);
 
-        historyEntry = new PlayerPoseServerImpl();
+        historyEntry = new PlayerPoseServerImpl(this);
         historyEntry.copyFrom(poseDataPrevious);
         poseHistoryTick.addEntry(historyEntry);
 
