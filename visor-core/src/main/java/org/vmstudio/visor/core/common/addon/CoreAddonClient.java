@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayMovementState;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayTesting;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
@@ -70,9 +70,9 @@ public class CoreAddonClient implements VisorAddon {
                                         this,
                                         VROverlayMovementState.ID
                                 ),
-                                new VROverlayTesting(
+                                new VROverlayItemPoseTest(
                                         this,
-                                        VROverlayTesting.ID
+                                        VROverlayItemPoseTest.ID
                                 )
                         )
                 );

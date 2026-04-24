@@ -9,31 +9,25 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
-import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
-import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.Property;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyFloat;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-public class VROverlayTesting extends VROverlayScreen {
-    public static final String ID = "testing";
+public class VROverlayItemPoseTest extends VROverlayScreen {
+    public static final String ID = "item_pose_test";
 
     @Getter
     private OverlayOptionsGeneral properties;
 
-    public VROverlayTesting(@NotNull VisorAddon owner,
-                            @NotNull String id) {
+    public VROverlayItemPoseTest(@NotNull VisorAddon owner,
+                                 @NotNull String id) {
         super(owner, id);
         properties = getOption(OverlayOptionsGeneral.ID, OverlayOptionsGeneral.class);
     }

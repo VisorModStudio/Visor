@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayTesting;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -69,8 +69,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
         float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
         var options = ClientContext.overlayManager.getOverlay(
-                VROverlayTesting.ID,
-                VROverlayTesting.class
+                VROverlayItemPoseTest.ID,
+                VROverlayItemPoseTest.class
         );
         var properties = options.getProperties();
         // defaults
