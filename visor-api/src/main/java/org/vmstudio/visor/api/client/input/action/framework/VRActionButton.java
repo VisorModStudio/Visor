@@ -151,7 +151,11 @@ public abstract class VRActionButton implements VRAction {
             }
             return;
         }
-
+        if (pressed && !buttonData.isPressed()) {
+            releaseDelayed = true;
+            pressDelayed = false;
+            return;
+        }
 
         if(!buttonData.isButtonChanged()){
             return;
@@ -163,8 +167,6 @@ public abstract class VRActionButton implements VRAction {
                 releaseDelayed = true;
             }
             pressDelayed = true;
-        } else if (pressed) {
-            releaseDelayed = true;
         }
 
     }
