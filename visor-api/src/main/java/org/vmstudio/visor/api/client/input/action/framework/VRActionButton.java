@@ -157,11 +157,13 @@ public abstract class VRActionButton implements VRAction {
             return;
         }
 
-        if(buttonData.isPressed()){
-            pressed = false;
+        if (buttonData.isPressed()) {
+            //release first, if wasn't for some reason
+            if (pressed) {
+                releaseDelayed = true;
+            }
             pressDelayed = true;
-            releaseDelayed = false;
-        }else if(pressed){
+        } else if (pressed) {
             releaseDelayed = true;
         }
 
@@ -181,6 +183,7 @@ public abstract class VRActionButton implements VRAction {
         releaseDelayed = false;
         pressDelayed = false;
         changed = false;
+        forcedState = false;
 
         onClear();
     }
@@ -193,6 +196,9 @@ public abstract class VRActionButton implements VRAction {
     public void forceRelease(){
         pressDelayed = false;
         releaseDelayed = true;
+        if (!pressed) {
+            forcedState = false;
+        }
     }
 
     public void setBinding(@NotNull VRInteractionProfileType profile, @NotNull ActionBinding binding){

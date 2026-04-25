@@ -33,6 +33,8 @@ public class MouseClickHandler {
     private boolean ignoreSingleClick;
     private boolean ignoreSingleRelease;
 
+    private boolean gamePressed;
+
     // only used by left-click
     private final boolean isLeftClick;
 
@@ -166,26 +168,41 @@ public class MouseClickHandler {
         if (isLeftClick && ignoreSingleClick) {
             return;
         }
-        process(handType,true);
+        process(handType);
     }
 
     public void onRelease(@NotNull HandType handType) {
-        HandType activeHand;
-        if (!ClientContext.cursorHandler.isCursorHandFocused()
-                && MC.screen == null && MC.player != null) {
-            activeHand = ClientContext.localPlayer.getActiveHand();
-        } else {
-            activeHand = ClientContext.cursorHandler.getCursorHand();
-        }
-        if (handType != activeHand) {
-            return;
-        }
-
         if (isLeftClick && ignoreSingleClick) {
             ignoreSingleClick = false;
-            return;
+            if (!gamePressed && !wasPressedOverlay) {
+                return;
+            }
         }
-        process(handType,false);
+
+         if (wasPressedOverlay) {
+            VROverlay target = ClientContext.cursorHandler.getFocusedOverlay();
+            if (target == null || (previousFocus != null && target != previousFocus)) {
+                target = previousFocus;
+            }
+            if (target != null) {
+                target.mouseReleased(
+                        target.getMouseX(),
+                        target.getMouseY(),
+                        buttonType.getId()
+                );
+                if (target instanceof VROverlayScreen overlayScreen) {
+                    overlayScreen.finishDragMouse();
+                }
+            }
+            wasPressedOverlay = false;
+        }
+
+        if (gamePressed) {
+            InputHelper.releaseMouse(buttonType);
+            gamePressed = false;
+        }
+
+        ignoreSingleRelease = false;
     }
 
     public void onClear() {
@@ -203,83 +220,64 @@ public class MouseClickHandler {
         previousFocus = null;
         wasPressedOverlay = false;
         ignoreSingleClick = false;
+        ignoreSingleRelease = false;
+        gamePressed = false;
     }
 
-    private void process(@NotNull HandType handType, boolean press) {
+    private void process(@NotNull HandType handType) {
         VROverlay focusedOverlay = ClientContext.cursorHandler.getFocusedOverlay();
 
         if (focusedOverlay != null) {
-            processOverlay(focusedOverlay, press);
+            processOverlay(focusedOverlay);
             return;
         }
         if (MC.screen != null) {
-            processScreen(press);
+            processScreen();
             return;
         }
         if (MC.player != null) {
-            processGame(handType, press);
+            processGame(handType);
         }
     }
 
-    private void processOverlay(VROverlay overlay, boolean press) {
-        if (press) {
-            overlay.mouseClicked(
-                    overlay.getMouseX(), overlay.getMouseY(),
-                    buttonType.getId()
-            );
-            if (isLeftClick && overlay instanceof VROverlayScreen overlayScreen) {
-                overlayScreen.startDragMouse();
-            }
-            wasPressedOverlay = true;
-        } else if (wasPressedOverlay) {
-            overlay.mouseReleased(
-                    overlay.getMouseX(), overlay.getMouseY(),
-                    buttonType.getId()
-            );
-            if (overlay instanceof VROverlayScreen overlayScreen) {
-                overlayScreen.finishDragMouse();
-            }
-            wasPressedOverlay = false;
+    private void processOverlay(VROverlay overlay) {
+        overlay.mouseClicked(
+                overlay.getMouseX(), overlay.getMouseY(),
+                buttonType.getId()
+        );
+        if (isLeftClick && overlay instanceof VROverlayScreen overlayScreen) {
+            overlayScreen.startDragMouse();
         }
+        wasPressedOverlay = true;
     }
 
-    private void processScreen(boolean press) {
+    private void processScreen() {
         if (!isLeftClick) {
             return;
         }
-        if (press) {
-            if (MC.level != null) {
-                //clicked outside of overlay screen, close the screen
-                InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
-                InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
-            }
+        if (MC.level != null) {
+            //clicked outside of overlay screen, close the screen
+            InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
+            InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
         }
     }
 
-    private void processGame(@NotNull HandType handType, boolean press) {
-
-
-        if (press) {
-            //update active hand if only one hand is pressed
-            var activeHand = ClientContext.localPlayer.getActiveHand();
-            if(activeHand != handType) {
-                if ((mainHandPressed && !offhandPressed)
-                        || (!mainHandPressed && offhandPressed)) {
-                    ClientContext.localPlayer.setActiveHand(handType);
-                    ignoreSingleRelease = true;
-                    return;
-                }
-                if (ignoreSingleRelease) {
-                    return;
-                }
+    private void processGame(@NotNull HandType handType) {
+        // update active hand if only one hand is pressed
+        var activeHand = ClientContext.localPlayer.getActiveHand();
+        if (activeHand != handType) {
+            if ((mainHandPressed && !offhandPressed)
+                    || (!mainHandPressed && offhandPressed)) {
+                ClientContext.localPlayer.setActiveHand(handType);
+                ignoreSingleRelease = true;
+                return;
             }
-            InputHelper.pressMouse(buttonType);
-        } else {
-            if(ignoreSingleRelease){
+            if (ignoreSingleRelease) {
                 ignoreSingleRelease = false;
                 return;
             }
-            InputHelper.releaseMouse(buttonType);
         }
+        InputHelper.pressMouse(buttonType);
+        gamePressed = true;
     }
 }
