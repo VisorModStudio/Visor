@@ -106,6 +106,12 @@ allprojects {
         maven { url 'https://redempt.dev' }
         maven { url = "https://maven.parchmentmc.org" }
 
+        // ---- LOCAL DEPENDENCY
+        flatDir {
+            dirs rootProject.file('libs')
+        }
+        // ----
+
         exclusiveContent {
             forRepository {
                 maven {
@@ -118,6 +124,14 @@ allprojects {
             }
         }
     }
+    // ---- LOCAL DEPENDENCY
+    idea {
+        module {
+            downloadSources = true
+            downloadJavadoc = true
+        }
+    }
+    // ----
     compileJava {
         dependsOn(clean)
     }
