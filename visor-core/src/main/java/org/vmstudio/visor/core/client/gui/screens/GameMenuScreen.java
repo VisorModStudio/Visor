@@ -29,9 +29,9 @@ public class GameMenuScreen extends Screen {
     private static final int SECTION_GAP = 6;
 
     private enum Tab{
-        QUICK_ACTIONS(Component.literal("Quick Actions")),
-        WORLD_AND_MODES(Component.literal("World & Modes")),
-        TOOLS(Component.literal("F3 Tools"));
+        MAIN(Component.literal("Main")),
+        COMMANDS(Component.literal("Commands")),
+        TOOLS(Component.literal("Tools"));
 
         Component label;
 
@@ -40,7 +40,7 @@ public class GameMenuScreen extends Screen {
         }
     }
 
-    private Tab currentTab = Tab.QUICK_ACTIONS;
+    private Tab currentTab = Tab.MAIN;
 
     private final List<int[]> sectionHeaderPos = new ArrayList<>(); // {x, y}
     private final List<String> sectionHeaderTexts = new ArrayList<>();
@@ -53,11 +53,10 @@ public class GameMenuScreen extends Screen {
     @Override
     protected void init() {
         TaskHotBar.setResetData(true);
-        ClientContext.overlayManager.getKeyboardAccessor().setVisible(false);
         boolean hasPerms = this.minecraft.player != null && this.minecraft.player.hasPermissions(2);
 
-        if (this.currentTab == Tab.WORLD_AND_MODES && !hasPerms) {
-            this.currentTab = Tab.QUICK_ACTIONS;
+        if (this.currentTab == Tab.COMMANDS && !hasPerms) {
+            this.currentTab = Tab.MAIN;
         }
 
         sectionHeaderPos.clear();
@@ -75,9 +74,10 @@ public class GameMenuScreen extends Screen {
                 this.rebuildWidgets();
             }).pos(tx + tab.ordinal() * (TAB_W + 4), y).width(TAB_W).build();
 
-            if (t == Tab.WORLD_AND_MODES && !hasPerms) {
-                btn.active = false;
+            if (t == Tab.COMMANDS && !hasPerms) {
+                btn.visible = false;
             } else {
+                btn.visible = true;
                 btn.active = (this.currentTab != tab);
             }
             addRenderableWidget(btn);
@@ -99,7 +99,7 @@ public class GameMenuScreen extends Screen {
         int right = left + BTN_HALF + GAP;
 
         switch (this.currentTab) {
-            case QUICK_ACTIONS -> {
+            case MAIN -> {
                 addRenderableWidget(makeHalfBtn("Inventory", left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
                 addRenderableWidget(makeHalfBtn("Calibrate Height", right, y, b -> {
@@ -114,14 +114,14 @@ public class GameMenuScreen extends Screen {
                         b -> this.minecraft.setScreen(new ChatScreen(""))));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Vanilla Pause Menu", left, y,
+                addRenderableWidget(makeHalfBtn("Pause Menu", left, y,
                         b -> this.minecraft.setScreen(new PauseScreen(true))));
                 addRenderableWidget(makeHalfBtn("VR Settings", right, y,
                         b -> this.minecraft.setScreen(new VRSettingsScreen(this))));
                 y += BTN_H + GAP;
             }
 
-            case WORLD_AND_MODES -> {
+            case COMMANDS -> {
                 registerSection(left, y, "GAME MODE");
                 y += LABEL_H;
 
@@ -205,7 +205,7 @@ public class GameMenuScreen extends Screen {
         int accentX = cx - COLUMN_W / 2 + currentTab.ordinal() * (TAB_W + 4);
         gfx.fill(accentX, tabStripY - 2, accentX + TAB_W, tabStripY - 1, 0xFF55FF55);
 
-        if (this.currentTab == Tab.WORLD_AND_MODES) {
+        if (this.currentTab == Tab.COMMANDS) {
             for (int i = 0; i < sectionHeaderPos.size(); i++) {
                 int sx = sectionHeaderPos.get(i)[0];
                 int sy = sectionHeaderPos.get(i)[1];
@@ -225,9 +225,9 @@ public class GameMenuScreen extends Screen {
 
     private int totalColumnHeight() {
         int contentH = switch (this.currentTab) {
-            case QUICK_ACTIONS -> 3 * (BTN_H + GAP);
+            case MAIN -> 3 * (BTN_H + GAP);
             case TOOLS -> 2 * (BTN_H + GAP);
-            case WORLD_AND_MODES -> 3 * LABEL_H + 4 * (BTN_H + GAP) + 2 * SECTION_GAP;
+            case COMMANDS -> 3 * LABEL_H + 4 * (BTN_H + GAP) + 2 * SECTION_GAP;
         };
         return 9 + 16 + BTN_H + 6 + contentH + 6 + BTN_H;
     }
@@ -275,8 +275,4 @@ public class GameMenuScreen extends Screen {
 
     }
 
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
 }
