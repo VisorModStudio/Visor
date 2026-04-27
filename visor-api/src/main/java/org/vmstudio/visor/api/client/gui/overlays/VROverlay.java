@@ -291,8 +291,27 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return true/false
      */
     default boolean isCursorOnDragHandle(float rawX, float rawY) {
-        return supportsDragging()
-                && rawX >= 0f && rawX <= 1f
+        if (!supportsDragging()) {
+            return false;
+        }
+        int edgeX = getCursorBoundsX();
+        int edgeY = getCursorBoundsY();
+        int edgeWidth = getCursorBoundsWidth();
+        int edgeHeight = getCursorBoundsHeight();
+        int width = getWidth();
+        int height = getHeight();
+        //If cursorBounds are set
+        if (width > 0 && height > 0
+                && edgeX >= 0 && edgeY >= 0
+                && edgeWidth >= 0 && edgeHeight >= 0) {
+            float rawLeft = (float) edgeX / width;
+            float rawRight = (float) (edgeX + edgeWidth) / width;
+            float rawTop = (float) (edgeY + edgeHeight) / height;
+            float rawBottom = rawTop + 0.15f;
+            return rawX >= rawLeft && rawX <= rawRight
+                    && rawY > rawTop && rawY <= rawBottom;
+        }
+        return rawX >= 0f && rawX <= 1f
                 && rawY > 1.0f && rawY <= 1.15f;
     }
 

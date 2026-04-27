@@ -159,7 +159,9 @@ public class RenderGuiHelper {
     }
 
 
-    public static void renderDragHandle(VROverlay overlay, PoseStack poseStack) {
+    public static void renderDragHandle(VROverlay overlay,
+                                        PoseStack poseStack,
+                                        boolean depthAlways) {
         var position = overlay.getPose().getPosition();
         var rotation = overlay.getPose().getRotation();
         var scale    = overlay.getPose().getScale();
@@ -177,7 +179,15 @@ public class RenderGuiHelper {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
+
+        if (depthAlways) {
+            RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+            RenderSystem.depthMask(false);
+        } else {
+            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+            RenderSystem.depthMask(true);
+        }
+        RenderSystem.enableDepthTest();
 
         poseStack.pushPose();
         poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
@@ -188,20 +198,37 @@ public class RenderGuiHelper {
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
         float halfHeight = halfWidth * aspect;
 
-        // Center bar just below the panel.
-        float barHalfWidth  = halfWidth * 0.18f;
+        float barCenterX   = 0f;
+        float barHalfWidth = halfWidth * 0.18f;
+        float regionBottom = -halfHeight;
+
+        int edgeX = overlay.getCursorBoundsX();
+        int edgeY = overlay.getCursorBoundsY();
+        int edgeWidth = overlay.getCursorBoundsWidth();
+        int edgeHeight = overlay.getCursorBoundsHeight();
+        int width = overlay.getWidth();
+        int height = overlay.getHeight();
+        if (width > 0 && height > 0
+                && edgeX >= 0 && edgeY >= 0
+                && edgeWidth >= 0 && edgeHeight >= 0) {
+            float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
+            float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
+            regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
+            barCenterX = (nx0 + nx1) * 0.5f;
+            barHalfWidth = (nx1 - nx0) * 0.18f;
+        }
+
         float barHalfHeight = halfHeight * 0.025f;
         float barGap        = halfHeight * 0.04f;
-        float barCenterY    = -halfHeight - barGap - barHalfHeight;
+        float barCenterY    = regionBottom - barGap - barHalfHeight;
 
         var pose = poseStack.last().pose();
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
         buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        // Bar
         float r = barColor.getRed(), g = barColor.getGreen(), b = barColor.getBlue(), a = barColor.getAlpha();
-        float left   = -barHalfWidth;
-        float right  =  barHalfWidth;
+        float left   = barCenterX - barHalfWidth;
+        float right  = barCenterX + barHalfWidth;
         float top    = barCenterY + barHalfHeight;
         float bottom = barCenterY - barHalfHeight;
         buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
@@ -211,7 +238,13 @@ public class RenderGuiHelper {
 
         BufferUploader.drawWithShader(buf.end());
 
+        // Restore
+        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.enableCull();
+
         poseStack.popPose();
     }
 

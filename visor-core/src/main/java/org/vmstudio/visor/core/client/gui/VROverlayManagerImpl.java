@@ -224,7 +224,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
                                     || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
-                        poseStack
+                        poseStack,
+                        false
                 );
             }
             GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
@@ -279,7 +280,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
                             || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
-                        poseStack
+                        poseStack,
+                        true
                 );
             }
             GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
