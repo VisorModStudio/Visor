@@ -102,16 +102,16 @@ public class GameMenuScreen extends Screen {
             case QUICK_ACTIONS -> {
                 addRenderableWidget(makeHalfBtn("Inventory", left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
-                addRenderableWidget(makeHalfBtn("Chat", right, y,
-                        b -> this.minecraft.setScreen(new ChatScreen(""))));
-                y += BTN_H + GAP;
-
-                addRenderableWidget(makeHalfBtn("Keyboard", left, y, b ->
-                        ClientContext.overlayManager.getKeyboardAccessor().setVisible(true)));
                 addRenderableWidget(makeHalfBtn("Calibrate Height", right, y, b -> {
                     VRClientSettings.calibrateHeight();
                     ClientContext.settingsManager.saveOptions();
                 }));
+                y += BTN_H + GAP;
+
+                addRenderableWidget(makeHalfBtn("Keyboard", left, y, b ->
+                        ClientContext.overlayManager.getKeyboardAccessor().setVisible(true)));
+                addRenderableWidget(makeHalfBtn("Chat", right, y,
+                        b -> this.minecraft.setScreen(new ChatScreen(""))));
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn("Vanilla Pause Menu", left, y,
