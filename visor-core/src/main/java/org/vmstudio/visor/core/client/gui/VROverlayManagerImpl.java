@@ -16,6 +16,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayRegistry;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayTemplateRegistry;
@@ -217,13 +218,14 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getScale()
             );
 
-            if(overlay.supportsDragging()) {
+            boolean hovered = ClientContext.cursorHandler != null
+                    && (ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay);
+
+            if(overlay.isBeingDragged() || hovered) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
-                        poseStack,
-                        overlay.getPose().getPosition(),
-                        overlay.getPose().getRotation(),
-                        overlay.getPose().getScale()
+                        poseStack
                 );
             }
             GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
@@ -270,13 +272,16 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
-            if(overlay.supportsDragging()) {
+
+
+            boolean hovered = ClientContext.cursorHandler != null
+                    && (ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay);
+
+            if(overlay.isBeingDragged() || hovered) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
-                        poseStack,
-                        overlay.getPose().getPosition(),
-                        overlay.getPose().getRotation(),
-                        overlay.getPose().getScale()
+                        poseStack
                 );
             }
             GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
