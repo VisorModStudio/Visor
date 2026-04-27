@@ -96,7 +96,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             Screen attachedTo = keyboardAccessor.getAttachedTo();
             if (attachedTo != null
                     && attachedTo == previousGuiScreen) {
-                keyboardAccessor.setVisible(false);
+                keyboardAccessor.showKeyboard(null);
             }
         } else if (newScreen instanceof ChatScreen) {
             if(!keyboardAccessor.isVisible()
@@ -159,8 +159,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         }
 
-        ClientContext.overlayManager.getKeyboardAccessor()
-                .resetPose();
     }
 
     private void orientMainMenu(){

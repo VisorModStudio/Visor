@@ -263,6 +263,12 @@ public class MouseClickHandler {
     }
 
     private void processGame(@NotNull HandType handType) {
+        //disable keyboard (clicked outside it and not with screen opened)
+        var keyboardAccessor = ClientContext.overlayManager.getKeyboardAccessor();
+        if(keyboardAccessor.isVisible()){
+            keyboardAccessor.setVisible(false);
+            return;
+        }
         // update active hand if only one hand is pressed
         var activeHand = ClientContext.localPlayer.getActiveHand();
         if (activeHand != handType) {

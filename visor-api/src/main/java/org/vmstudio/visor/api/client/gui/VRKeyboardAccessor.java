@@ -26,7 +26,7 @@ public interface VRKeyboardAccessor {
      *
      * @param attachTo the screen that has to be attached to keyboard
      */
-    void showKeyboard(@NotNull Screen attachTo);
+    void showKeyboard(@Nullable Screen attachTo);
 
     /**
      * The screen, keyboard is attached to

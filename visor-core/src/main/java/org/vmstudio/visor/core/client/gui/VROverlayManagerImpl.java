@@ -208,6 +208,11 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
             }
 
+            boolean drawDragHandle = overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)));
+
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
                     poseStack,
@@ -215,19 +220,9 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getRotation(),
                     false, // depthAlways = false, use GL_LEQUAL
                     overlay.supportsLight(),
+                    drawDragHandle,
                     overlay.getPose().getScale()
             );
-
-            if(overlay.supportsDragging() &&
-                    (overlay.isBeingDragged() ||
-                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
-                RenderGuiHelper.renderDragHandle(
-                        overlay,
-                        poseStack,
-                        false
-                );
-            }
             GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
         }
 
@@ -263,6 +258,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
             }
 
+            boolean drawDragHandle = overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)));
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
                     poseStack,
@@ -270,20 +269,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getRotation(),
                     true, // depthAlways = true, use GL_ALWAYS
                     overlay.supportsLight(),
+                    drawDragHandle,
                     overlay.getPose().getScale()
             );
 
-
-            if(overlay.supportsDragging() &&
-                    (overlay.isBeingDragged() ||
-                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                            || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
-                RenderGuiHelper.renderDragHandle(
-                        overlay,
-                        poseStack,
-                        true
-                );
-            }
             GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
         }
 

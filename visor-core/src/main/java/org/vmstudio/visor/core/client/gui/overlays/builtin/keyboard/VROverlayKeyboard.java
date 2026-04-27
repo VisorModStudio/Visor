@@ -116,7 +116,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
-    public void showKeyboard(@NotNull Screen attachTo) {
+    public void showKeyboard(@Nullable Screen attachTo) {
         setVisible(true, attachTo);
     }
 
@@ -161,10 +161,11 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     public void setVisible(boolean flag,
                            @Nullable Screen attachedTo) {
+        boolean changePose = flag != shown;
         shown = flag;
 
         if (shown) {
-            orient(attachedTo);
+            orient(attachedTo, changePose);
             shiftPressed = false;
             activeLayoutId = getEnabledLayoutIds().get(0);
             initAgain = true;
@@ -213,7 +214,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         return getEnabledLayoutIds().size() > 1;
     }
 
-    private void orient(@Nullable Screen attachedTo) {
+    private void orient(@Nullable Screen attachedTo, boolean changePose) {
         if (!shown) {
             this.attachedTo = null;
             return;
@@ -221,19 +222,21 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
         this.attachedTo = attachedTo;
 
-        VROverlayHelper.applyPose(
-                this,
-                PoseAnchor.HMD,
-                PoseAnchor.HMD,
-                getPose().getScale(),
-                true,
-                posOffset,
-                rotationOffset
-        );
-        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
-                .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
-                .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
+        if(changePose) {
+            VROverlayHelper.applyPose(
+                    this,
+                    PoseAnchor.HMD,
+                    PoseAnchor.HMD,
+                    getPose().getScale(),
+                    true,
+                    posOffset,
+                    rotationOffset
+            );
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
+        }
     }
 
 

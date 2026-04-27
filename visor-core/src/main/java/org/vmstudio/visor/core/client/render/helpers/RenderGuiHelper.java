@@ -44,9 +44,9 @@ public class RenderGuiHelper {
                                          Matrix4fc orientation,
                                          boolean depthAlways,
                                          boolean useLight,
+                                         boolean drawDragHandle,
                                          float scale
     ) {
-        // --- Prepare variables ---
         VRPlayerPoseClient renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
 
@@ -56,27 +56,32 @@ public class RenderGuiHelper {
         );
         scale = scale * renderPose.getWorldScale();
 
-
         float fogStartCache = RenderSystem.getShaderFogStart();
         var color = AtumColor.WHITE.asMutable();
 
-        // --- Setup GL ---
+        boolean dragging = overlay.isBeingDragged();
+        var barColor = (dragging
+                ? AtumColor.immutable(220, 220, 220, 230)
+                : AtumColor.immutable(190, 190, 190, 150)).asMutable();
+
         var renderTarget = overlay.getRenderTarget();
         assert renderTarget != null;
-
         renderTarget.bindRead();
 
         RenderSystem.disableCull();
         RenderSystem.setShaderTexture(0, renderTarget.getColorTextureId());
 
         if (!VRRenderState.isInMainMenu()) {
-
             RenderSystem.setShaderFogStart(Float.MAX_VALUE);
 
             if (MC.player != null && MC.player.isShiftKeyDown()) {
                 color.setRGBA(
                         color.getRed(), color.getGreen(), color.getBlue(),
-                        color.getAlpha() * 0.75F
+                        (int) (color.getAlpha() * 0.75F)
+                );
+                barColor.setRGBA(
+                        barColor.getRed(), barColor.getGreen(), barColor.getBlue(),
+                        (int) (barColor.getAlpha() * 0.75F)
                 );
             }
 
@@ -97,33 +102,34 @@ public class RenderGuiHelper {
 
         if (depthAlways) {
             RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-            //disable mask to not mess up depth for something
             RenderSystem.depthMask(false);
         } else {
             RenderSystem.depthFunc(GL11C.GL_LEQUAL);
             RenderSystem.depthMask(true);
         }
-
         RenderSystem.enableDepthTest();
 
-        // --- Setup Pose ---
+        // --- Pose ---
         poseStack.pushPose();
         poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
         poseStack.mulPoseMatrix((Matrix4f) orientation);
         poseStack.scale(scale, scale, scale);
 
-
-        // --- Render ---
+        // --- Quad + light ---
+        int packedLight = -1;
         if (MC.level != null && useLight) {
+            Vector3fc lightPos = position;
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
-                position = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition();
+                lightPos = ClientContext.localPlayer
+                        .getPoseData(PlayerPoseType.RENDER)
+                        .getHmd()
+                        .getPosition();
             }
-
             int minLight = ShadersHelper.shaderLight();
-            int light = ClientUtils.getCombinedLightWithMin(
+            packedLight = ClientUtils.getCombinedLightWithMin(
                     MC.level,
-                    BlockPos.containing(new Vec3((Vector3f) position)),
+                    BlockPos.containing(new Vec3((Vector3f) lightPos)),
                     minLight
             );
             RenderHelper.renderDisplayQuadWithLight(
@@ -132,7 +138,7 @@ public class RenderGuiHelper {
                     (float) overlay.getWidth(),
                     (float) overlay.getHeight(),
                     VROverlayPose.QUAD_SCALE,
-                    light,
+                    packedLight,
                     false
             );
         } else {
@@ -145,6 +151,17 @@ public class RenderGuiHelper {
             );
         }
 
+        // --- Drag handle bar
+        if (drawDragHandle && overlay.supportsDragging()) {
+            float brightness = 1f;
+            if (packedLight >= 0) {
+                int blockLight = (packedLight >> 4) & 0xF;
+                int skyLight   = (packedLight >> 20) & 0xF;
+                brightness = Math.max(0.2f, Math.max(blockLight, skyLight) / 15f);
+            }
+            drawDragHandleBar(overlay, poseStack, barColor, brightness);
+        }
+
         // --- Restore ---
         RenderSystem.setShaderFogStart(fogStartCache);
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
@@ -154,45 +171,13 @@ public class RenderGuiHelper {
         RenderSystem.enableCull();
 
         poseStack.popPose();
-
-
     }
 
-
-    public static void renderDragHandle(VROverlay overlay,
-                                        PoseStack poseStack,
-                                        boolean depthAlways) {
-        var position = overlay.getPose().getPosition();
-        var rotation = overlay.getPose().getRotation();
-        var scale    = overlay.getPose().getScale();
-        boolean dragging = overlay.isBeingDragged();
-
-        VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        var eye = RenderPoseHelper.getCameraPosition(VRRenderState.getRenderPass(), renderPose);
-        float finalScale = scale * renderPose.getWorldScale();
-
-        AtumColor barColor = dragging
-                ? AtumColor.immutable(220, 220, 220, 230)
-                : AtumColor.immutable(190, 190, 190, 150);
-
-        RenderSystem.disableCull();
+    private static void drawDragHandleBar(VROverlay overlay,
+                                          PoseStack poseStack,
+                                          AtumColor barColor,
+                                          float brightness) {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-
-        if (depthAlways) {
-            RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-            RenderSystem.depthMask(false);
-        } else {
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-            RenderSystem.depthMask(true);
-        }
-        RenderSystem.enableDepthTest();
-
-        poseStack.pushPose();
-        poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
-        poseStack.mulPoseMatrix((Matrix4f) rotation);
-        poseStack.scale(finalScale, finalScale, finalScale);
 
         float aspect = overlay.getAspectRatio();
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
@@ -226,7 +211,10 @@ public class RenderGuiHelper {
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
         buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        float r = barColor.getRed(), g = barColor.getGreen(), b = barColor.getBlue(), a = barColor.getAlpha();
+        float r = barColor.getRed()   * brightness;
+        float g = barColor.getGreen() * brightness;
+        float b = barColor.getBlue()  * brightness;
+        float a = barColor.getAlpha();
         float left   = barCenterX - barHalfWidth;
         float right  = barCenterX + barHalfWidth;
         float top    = barCenterY + barHalfHeight;
@@ -237,15 +225,6 @@ public class RenderGuiHelper {
         buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
 
         BufferUploader.drawWithShader(buf.end());
-
-        // Restore
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableCull();
-
-        poseStack.popPose();
     }
 
 }
