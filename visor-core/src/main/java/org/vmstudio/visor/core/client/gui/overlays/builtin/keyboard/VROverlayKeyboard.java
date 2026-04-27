@@ -63,6 +63,14 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         VisorAPI.eventBus().registerListener(owner,this);
     }
 
+    @Override
+    protected void init() {
+        super.init();
+        cursorBoundsX = getScreen().getCursorBoundsX();
+        cursorBoundsY = getScreen().getCursorBoundsY();
+        cursorBoundsWidth = getScreen().getCursorBoundsWidth();
+        cursorBoundsHeight = getScreen().getCursorBoundsHeight();
+    }
 
     @VREventHandler
     public void disableWorldHands(AllowClientFeatureVREvent event){

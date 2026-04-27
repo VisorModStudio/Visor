@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -26,6 +27,15 @@ public class VRKeyboardScreen extends Screen {
     @Getter
     @Setter
     private int pressTick;
+
+    @Getter
+    private int cursorBoundsX = -1;
+    @Getter
+    private int cursorBoundsY = -1;
+    @Getter
+    private int cursorBoundsWidth = -1;
+    @Getter
+    private int cursorBoundsHeight = -1;
 
     public VRKeyboardScreen(Component component) {
         super(component);
@@ -241,6 +251,30 @@ public class VRKeyboardScreen extends Screen {
                         .usePressTask(false)
                         .build()
         );
+        //CURSOR BOUNDS
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        for (var child : this.children()) {
+            if (child instanceof AbstractWidget widget) {
+                minX = Math.min(minX, widget.getX());
+                minY = Math.min(minY, widget.getY());
+                maxX = Math.max(maxX, widget.getX() + widget.getWidth());
+                maxY = Math.max(maxY, widget.getY() + widget.getHeight());
+            }
+        }
+        if (minX == Integer.MAX_VALUE) {
+            cursorBoundsX = -1;
+            cursorBoundsY = -1;
+            cursorBoundsWidth = -1;
+            cursorBoundsHeight = -1;
+        } else {
+            cursorBoundsX = minX;
+            cursorBoundsY = minY;
+            cursorBoundsWidth = maxX - minX;
+            cursorBoundsHeight = maxY - minY;
+        }
     }
 
     private void pressKeyboardKey(KeyboardKey key) {
