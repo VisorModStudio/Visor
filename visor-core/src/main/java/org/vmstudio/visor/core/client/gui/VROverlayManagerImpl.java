@@ -218,11 +218,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getScale()
             );
 
-            boolean hovered = ClientContext.cursorHandler != null
-                    && (ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay);
-
-            if(overlay.isBeingDragged() || hovered) {
+            if(overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
                         poseStack
@@ -274,11 +273,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
             );
 
 
-            boolean hovered = ClientContext.cursorHandler != null
-                    && (ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay);
-
-            if(overlay.isBeingDragged() || hovered) {
+            if(overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
+                            || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)))) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
                         poseStack
