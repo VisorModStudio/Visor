@@ -217,7 +217,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getScale()
             );
 
-            if(overlay.isDraggable()) {
+            if(overlay.supportsDragging()) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
                         poseStack,
@@ -270,7 +270,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.supportsLight(),
                     overlay.getPose().getScale()
             );
-            if(overlay.isDraggable()) {
+            if(overlay.supportsDragging()) {
                 RenderGuiHelper.renderDragHandle(
                         overlay,
                         poseStack,

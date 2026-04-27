@@ -128,7 +128,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
-    public void onDragStopped() {
+    public void onStoppedDragging() {
         var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
         relativePosition = relativePose.convertPositionFrom(
                 PlayerPoseType.RENDER,
@@ -146,7 +146,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
-    public boolean isDraggable() {
+    public boolean supportsDragging() {
         return true;
     }
 

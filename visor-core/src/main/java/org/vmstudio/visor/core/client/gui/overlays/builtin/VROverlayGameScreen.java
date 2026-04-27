@@ -36,6 +36,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private float overlayScale = 1.0f;
 
+
+    private boolean inMainMenu = true;
     public VROverlayGameScreen(@NotNull VisorAddon owner,
                                @NotNull String id) {
         super(
@@ -109,9 +111,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private void orient(Screen previousGuiScreen,
                         Screen newScreen){
-        boolean mainMenu = (MC.gameRenderer == null
+        inMainMenu = (MC.gameRenderer == null
                 || willBeInMenuRoom(newScreen));
-        if (mainMenu) {
+        if (inMainMenu) {
             orientMainMenu();
             return;
         }
@@ -265,7 +267,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public void onDragStopped() {
+    public void onStoppedDragging() {
         var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
         relativePosition = relativePose.convertPositionFrom(
                 PlayerPoseType.RENDER,
@@ -328,7 +330,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public boolean isDraggable() {
-        return true;
+    public boolean supportsDragging() {
+        return !inMainMenu;
     }
 }

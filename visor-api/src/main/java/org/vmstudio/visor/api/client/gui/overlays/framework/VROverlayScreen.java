@@ -6,8 +6,12 @@ import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.*;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
+import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
@@ -19,9 +23,8 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
+import org.vmstudio.visor.api.common.player.VRPose;
 
 import java.io.IOException;
 import java.util.*;
@@ -162,8 +165,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected abstract void onUpdatePose(float partialTicks);
 
-
     protected abstract boolean updateVisibility();
+
+    protected void onStoppedDragging() {};
 
     protected void onEnable() {};
 
@@ -256,7 +260,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public final void updatePose(float partialTicks) {
         if(forcedAnchor != null) {
-            applyDraggedPose();
+            applyForcedPose();
             return;
         }
         onUpdatePose(partialTicks);
@@ -288,15 +292,6 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         }
     }
 
-    public boolean canDragMouse(){
-        return mouseDragDelay < System.currentTimeMillis();
-    }
-    public void startDragMouse(){
-        mouseDragDelay = System.currentTimeMillis() + 100L;
-    }
-    public void finishDragMouse(){
-        mouseDragDelay = Long.MAX_VALUE;
-    }
     public void updateSize(){
         guiScaleFactor = VisorAPI.client().getGuiManager().calculateScale(
                 0,
@@ -308,6 +303,93 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 getRequestedWidthScaled(),
                 getRequestedHeightScaled()
         );
+    }
+
+    @Override
+    public void startDragging() {
+        var vrClient = VisorAPI.client();
+
+        HandType cursorHand = vrClient.getGuiManager().getCursorHandler().getCursorHand();
+        PoseAnchor dragAnchor = cursorHand == HandType.MAIN
+                ? PoseAnchor.MAIN_HAND
+                : PoseAnchor.OFFHAND;
+        VRPlayerPoseClient renderPose = vrClient.getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPose anchorPose = dragAnchor.getSupplier().apply(renderPose);
+
+        Vector3f dragPositionOffset = anchorPose.reverseCustomVector(
+                getPose().getPosition().sub(anchorPose.getPosition(), new Vector3f())
+        ).div(renderPose.getWorldScale());
+        Matrix4f dragRotation = anchorPose.getRotation()
+                .invert(new Matrix4f())
+                .mul(getPose().getRotation(), new Matrix4f());
+
+        this.dragPositionOffset.set(dragPositionOffset);
+        this.dragRotationMatrix.set(dragRotation);
+        this.beingDragged = true;
+        setForcedAnchor(dragAnchor);
+    }
+
+    public void stopDragging() {
+        setForcedAnchor(null);
+        this.beingDragged = false;
+
+        OverlayOptionsPose poseOptions = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
+        if (poseOptions != null) {
+            VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+
+            PoseAnchor posAnchor = poseOptions.getPositionAnchor();
+            VRPose posAnchorPose = posAnchor.getSupplier().apply(renderPose);
+            Vector3f offsetPos = posAnchorPose.reverseCustomVector(
+                    getPose().getPosition().sub(posAnchorPose.getPosition(), new Vector3f())
+            ).div(renderPose.getWorldScale());
+
+            poseOptions.setPositionOffset(offsetPos);
+
+            if (!poseOptions.isAimedRotation()) {
+                PoseAnchor rotAnchor = poseOptions.getRotationAnchor();
+                VRPose rotAnchorPose = rotAnchor.getSupplier().apply(renderPose);
+                Vector3f rotOffset = rotAnchor.reverseAnchoredRotation(
+                        rotAnchorPose.getRotation(), getPose().getRotation()
+                );
+                poseOptions.setRotationOffset(rotOffset);
+            }
+
+            poseOptions.save();
+        }
+
+        onStoppedDragging();
+    }
+
+    protected void applyForcedPose() {
+        if (forcedAnchor == null) {
+            return;
+        }
+
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        VRPose anchorPose = forcedAnchor.getSupplier().apply(renderPose);
+
+        Vector3f positionOffset = new Vector3f(dragPositionOffset)
+                .mul(renderPose.getWorldScale());
+        Vector3f newPosition = anchorPose.getCustomVector(positionOffset)
+                .add(anchorPose.getPosition());
+        Matrix4f newRotation = new Matrix4f(anchorPose.getRotation())
+                .mul(dragRotationMatrix, new Matrix4f());
+
+        getPose().update(
+                newPosition,
+                newRotation,
+                getPose().getScale()
+        );
+    }
+
+    public boolean canDragMouse(){
+        return mouseDragDelay < System.currentTimeMillis();
+    }
+    public void startDragMouse(){
+        mouseDragDelay = System.currentTimeMillis() + 100L;
+    }
+    public void finishDragMouse(){
+        mouseDragDelay = Long.MAX_VALUE;
     }
 
     @Override
@@ -367,31 +449,6 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         return beingDragged;
     }
 
-    @Override
-    public void setBeingDragged(boolean dragging) {
-        this.beingDragged = dragging;
-    }
-
-    @Override
-    public @NotNull Vector3f getDragPositionOffset() {
-        return new Vector3f(dragPositionOffset);
-    }
-
-    @Override
-    public void setDragPositionOffset(@NotNull Vector3fc offset) {
-        this.dragPositionOffset.set(offset);
-    }
-
-    @Override
-    public @NotNull Matrix4f getDragRotationMatrix() {
-        return new Matrix4f(dragRotationMatrix);
-    }
-
-    @Override
-    public void setDragRotationMatrix(@NotNull Matrix4fc rotationMatrix) {
-        this.dragRotationMatrix.set(rotationMatrix);
-    }
-
 
     public boolean isVisible() {
         return visible && enabled;
@@ -413,7 +470,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
-        if (isBeingDragged() && buttonType == 0) {
+        if (buttonType == 0 && isBeingDragged()) {
             stopDragging();
             return true;
         }
