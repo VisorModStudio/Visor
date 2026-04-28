@@ -32,8 +32,9 @@ public abstract class WindowMixin implements WindowExtension {
     void visor$vrWidth(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
             cir.setReturnValue(
-                    MC.mainRenderTarget
-                            .viewWidth
+                    ClientContext
+                            .guiManager
+                            .getGuiWidth()
             );
         }
     }
@@ -41,8 +42,9 @@ public abstract class WindowMixin implements WindowExtension {
     void visor$vrHeight(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
             cir.setReturnValue(
-                    MC.mainRenderTarget
-                    .viewHeight
+                    ClientContext
+                            .guiManager
+                            .getGuiHeight()
             );
         }
     }
