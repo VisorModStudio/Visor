@@ -204,8 +204,27 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
     @Override
-    public @Nullable VROverlay getFocusedOverlay(@NotNull HandType hand) {
-        return (hand == HandType.MAIN) ? mainHandState.focusedOverlay : offhandState.focusedOverlay;
+    public @Nullable VROverlay getFocusedOverlay(@NotNull HandType hand, boolean activeCursor) {
+        var overlayFocused = (hand == HandType.MAIN)
+                ? mainHandState.focusedOverlay
+                : offhandState.focusedOverlay;
+        var overlayOtherFocused = (hand.reversed() == HandType.MAIN)
+                ? mainHandState.focusedOverlay
+                : offhandState.focusedOverlay;
+        if(activeCursor){
+            if(cursorHand == hand){
+                return overlayFocused;
+            }else if ((overlayFocused != null
+                    && overlayFocused.supportsTwoCursors()) ||
+                    (overlayOtherFocused != null
+                            && overlayOtherFocused.supportsTwoCursors())){
+                return overlayFocused;
+            }else{
+                return null;
+            }
+        }else {
+            return overlayFocused;
+        }
     }
 
 

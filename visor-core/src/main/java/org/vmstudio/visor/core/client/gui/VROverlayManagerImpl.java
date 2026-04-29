@@ -210,8 +210,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             boolean drawDragHandle = overlay.supportsDragging() &&
                     (overlay.isBeingDragged() ||
-                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)));
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN,true) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND,true) == overlay)));
 
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
@@ -260,8 +260,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
             boolean drawDragHandle = overlay.supportsDragging() &&
                     (overlay.isBeingDragged() ||
-                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN) == overlay
-                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND) == overlay)));
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN,true) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND,true) == overlay)));
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
                     poseStack,

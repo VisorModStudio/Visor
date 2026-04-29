@@ -72,17 +72,6 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         cursorBoundsHeight = getScreen().getCursorBoundsHeight();
     }
 
-    @VREventHandler
-    public void disableWorldHands(AllowClientFeatureVREvent event){
-        if(event.getFeature() == ClientFeature.VR_WORLD_HANDS
-                || event.getFeature() == ClientFeature.AIM_EFFECTS
-                || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
-            if(isVisible()){
-                event.setCanceled(true);
-            }
-        }
-    }
-
 
     @Override
     protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
