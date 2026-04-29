@@ -46,15 +46,7 @@ public class VRClientSettings {
 
     //----Keyboard
     @Getter
-    @VROptionField(key = "keyboard.keys")
-    protected static String keyboardKeys = "`1234567890-=qwertyuiop[]\\asdfghjkl;':\"zxcvbnm,./?<>";
-
-    @Getter
-    @VROptionField(key = "keyboard.keysShift")
-    protected static String keyboardKeysShift = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;':\"ZXCVBNM,./?<>";
-
-    @Getter
-    @VROptionField(key = "keyboard.layouts", category = VROptionCategory.CONTROLS)
+    @VROptionField(key = "keyboard.layout")
     protected static String keyboardLayouts = KeyboardLayouts.serializeEnabled(
             List.of(KeyboardLayoutId.EN_US)
     );
