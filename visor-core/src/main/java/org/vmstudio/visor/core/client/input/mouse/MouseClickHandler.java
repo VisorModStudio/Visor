@@ -29,6 +29,7 @@ public class MouseClickHandler {
     private boolean offhandChanged;
 
     private VROverlay previousFocus;
+    private VROverlay pressedOverlay;
     private boolean wasPressedOverlay;
     private boolean ignoreSingleClick;
     private boolean ignoreSingleRelease;
@@ -71,30 +72,32 @@ public class MouseClickHandler {
                 && InputHelper.isMousePressed(buttonType)) {
             InputHelper.releaseMouse(buttonType);
         } else if (focusedOverlay == null
-                && previousFocus != null
+                && pressedOverlay != null
                 && wasPressedOverlay) {
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
+            pressedOverlay.mouseReleased(
+                    pressedOverlay.getMouseX(),
+                    pressedOverlay.getMouseY(),
                     buttonType.getId()
             );
-            if (previousFocus instanceof VROverlayScreen overlayScreen) {
+            if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
             wasPressedOverlay = false;
+            pressedOverlay = null;
         } else if (focusedOverlay != null
-                && previousFocus != null
-                && focusedOverlay != previousFocus
+                && pressedOverlay != null
+                && focusedOverlay != pressedOverlay
                 && wasPressedOverlay) {
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
+            pressedOverlay.mouseReleased(
+                    pressedOverlay.getMouseX(),
+                    pressedOverlay.getMouseY(),
                     buttonType.getId()
             );
-            if (previousFocus instanceof VROverlayScreen overlayScreen) {
+            if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
             wasPressedOverlay = false;
+            pressedOverlay = null;
         }
         previousFocus = focusedOverlay;
 
@@ -179,10 +182,10 @@ public class MouseClickHandler {
             }
         }
 
-         if (wasPressedOverlay) {
-            VROverlay target = ClientContext.cursorHandler.getFocusedOverlay();
-            if (target == null || (previousFocus != null && target != previousFocus)) {
-                target = previousFocus;
+        if (wasPressedOverlay) {
+            VROverlay target = pressedOverlay;
+            if (target == null) {
+                target = ClientContext.cursorHandler.getFocusedOverlay();
             }
             if (target != null) {
                 target.mouseReleased(
@@ -195,6 +198,7 @@ public class MouseClickHandler {
                 }
             }
             wasPressedOverlay = false;
+            pressedOverlay = null;
         }
 
         if (gamePressed) {
@@ -207,17 +211,18 @@ public class MouseClickHandler {
 
     public void onClear() {
         InputHelper.releaseMouse(buttonType);
-        if (previousFocus != null && wasPressedOverlay) {
-            previousFocus.mouseReleased(
-                    previousFocus.getMouseX(),
-                    previousFocus.getMouseY(),
+        if (pressedOverlay != null && wasPressedOverlay) {
+            pressedOverlay.mouseReleased(
+                    pressedOverlay.getMouseX(),
+                    pressedOverlay.getMouseY(),
                     buttonType.getId()
             );
-            if (previousFocus instanceof VROverlayScreen overlayScreen) {
+            if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
                 overlayScreen.finishDragMouse();
             }
         }
         previousFocus = null;
+        pressedOverlay = null;
         wasPressedOverlay = false;
         ignoreSingleClick = false;
         ignoreSingleRelease = false;
@@ -249,6 +254,7 @@ public class MouseClickHandler {
             overlayScreen.startDragMouse();
         }
         wasPressedOverlay = true;
+        pressedOverlay = overlay;
     }
 
     private void processScreen() {
