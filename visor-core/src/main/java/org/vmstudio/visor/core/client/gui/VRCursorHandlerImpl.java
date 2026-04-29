@@ -102,7 +102,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         // Update the overlay for the inactive hand
         if (inactiveState.isFocused()) {
             inactiveState.focusedOverlay.updateCursorData(
-                    false,
+                    twoHandedCursor
+                            && activeState.focusedOverlay != inactiveState.focusedOverlay,
                     inactiveState.cursorPos.x(),
                     inactiveState.cursorPos.y()
             );
