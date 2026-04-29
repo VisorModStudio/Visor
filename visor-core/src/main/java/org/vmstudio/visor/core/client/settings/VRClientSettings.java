@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayoutId;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
@@ -46,9 +46,9 @@ public class VRClientSettings {
 
     //----Keyboard
     @Getter
-    @VROptionField(key = "keyboard.layout")
-    protected static String keyboardLayouts = KeyboardLayouts.serializeEnabled(
-            List.of(KeyboardLayoutId.EN_US)
+    @VROptionField(key = "keyboard.layouts", category = VROptionCategory.GUI)
+    protected static String keyboardLayoutsRaw = KeyboardLayouts.serialize(
+            List.of(KeyboardLayout.EN_US)
     );
     //---
 
@@ -369,14 +369,14 @@ public class VRClientSettings {
         return rotationMode;
     }
 
-    public static @NotNull List<KeyboardLayoutId> getEnabledKeyboardLayouts() {
-        return KeyboardLayouts.getEnabled(keyboardLayouts);
+    public static @NotNull List<KeyboardLayout> getKeyboardLayouts() {
+        return KeyboardLayouts.deserialize(keyboardLayoutsRaw);
     }
 
-    public static void setEnabledKeyboardLayouts(
-            @NotNull Collection<KeyboardLayoutId> layouts
+    public static void setKeyboardLayouts(
+            @NotNull Collection<KeyboardLayout> layouts
     ) {
-        keyboardLayouts = KeyboardLayouts.serializeEnabled(layouts);
+        keyboardLayoutsRaw = KeyboardLayouts.serialize(layouts);
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,

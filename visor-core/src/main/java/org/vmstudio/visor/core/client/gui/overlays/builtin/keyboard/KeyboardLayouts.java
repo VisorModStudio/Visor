@@ -4,16 +4,16 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+
 public final class KeyboardLayouts {
 
-    private static final int[][] ROW_KEY_CODES = new int[][]{
+    public static final int[][] ROW_KEY_CODES = new int[][]{
             {
                     GLFW.GLFW_KEY_GRAVE_ACCENT,
                     GLFW.GLFW_KEY_1,
@@ -71,165 +71,48 @@ public final class KeyboardLayouts {
             }
     };
 
-    private static final Map<KeyboardLayoutId, KeyboardLayout> LAYOUTS = new EnumMap<>(
-            KeyboardLayoutId.class
+    private static final Map<KeyboardLayout, KeyboardLayoutKeys> LAYOUT_KEYS = new EnumMap<>(
+            KeyboardLayout.class
     );
 
     static {
-        register(build(
-                KeyboardLayoutId.EN_US,
-                new String[]{
-                        "`1234567890-=",
-                        "qwertyuiop[]\\",
-                        "asdfghjkl;'",
-                        "zxcvbnm,./"
-                },
-                new String[]{
-                        "~!@#$%^&*()_+",
-                        "QWERTYUIOP{}|",
-                        "ASDFGHJKL:\"",
-                        "ZXCVBNM<>?"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.RU,
-                new String[]{
-                        "ё1234567890-=",
-                        "йцукенгшщзхъ\\",
-                        "фывапролджэ",
-                        "ячсмитьбю."
-                },
-                new String[]{
-                        "Ё!\"№;%:?*()_+",
-                        "ЙЦУКЕНГШЩЗХЪ/",
-                        "ФЫВАПРОЛДЖЭ",
-                        "ЯЧСМИТЬБЮ,"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.UA,
-                new String[]{
-                        "'1234567890-=",
-                        "йцукенгшщзхїґ",
-                        "фівапролджє",
-                        "ячсмитьбю."
-                },
-                new String[]{
-                        "₴!\"№;%:?*()_+",
-                        "ЙЦУКЕНГШЩЗХЇҐ",
-                        "ФІВАПРОЛДЖЄ",
-                        "ЯЧСМИТЬБЮ,"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.DE,
-                new String[]{
-                        "^1234567890ß´",
-                        "qwertzuiopü+#",
-                        "asdfghjklöä",
-                        "yxcvbnm,.-"
-                },
-                new String[]{
-                        "°!\"§$%&/()=?`",
-                        "QWERTZUIOPÜ*'",
-                        "ASDFGHJKLÖÄ",
-                        "YXCVBNM;:_"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.FR,
-                new String[]{
-                        "²&é\"'(-è_çà)=",
-                        "azertyuiop^$*",
-                        "qsdfghjklmù",
-                        "wxcvbn,;:!"
-                },
-                new String[]{
-                        "³1234567890°+",
-                        "AZERTYUIOP¨£µ",
-                        "QSDFGHJKLM%",
-                        "WXCVBN?./§"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.ES_ES,
-                new String[]{
-                        "º1234567890'¡",
-                        "qwertyuiop`+ç",
-                        "asdfghjklñ´",
-                        "zxcvbnm,.-"
-                },
-                new String[]{
-                        "ª!\"·$%&/()=?¿",
-                        "QWERTYUIOP^*Ç",
-                        "ASDFGHJKLÑ¨",
-                        "ZXCVBNM;:_"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.IT,
-                new String[]{
-                        "\\1234567890'ì",
-                        "qwertyuiopè+ù",
-                        "asdfghjklòà",
-                        "zxcvbnm,.-"
-                },
-                new String[]{
-                        "|!\"£$%&/()=?^",
-                        "QWERTYUIOPé*§",
-                        "ASDFGHJKLç°",
-                        "ZXCVBNM;:_"
-                }
-        ));
-        register(build(
-                KeyboardLayoutId.PT_PT,
-                new String[]{
-                        "\\1234567890'«",
-                        "qwertyuiop+´~",
-                        "asdfghjklçº",
-                        "zxcvbnm,.-"
-                },
-                new String[]{
-                        "|!\"#$%&/()=?»",
-                        "QWERTYUIOP*`^",
-                        "ASDFGHJKLÇª",
-                        "ZXCVBNM;:_"
-                }
-        ));
+        for(var layout : KeyboardLayout.values()){
+            register(build(layout));
+        }
     }
 
     private KeyboardLayouts() {
     }
 
-    public static @NotNull KeyboardLayout get(@NotNull KeyboardLayoutId id) {
-        KeyboardLayout layout = LAYOUTS.get(id);
-        if (layout == null) {
-            throw new IllegalArgumentException("Unknown keyboard layout: " + id);
+    public static @NotNull KeyboardLayoutKeys get(@NotNull KeyboardLayout layout) {
+        KeyboardLayoutKeys layoutKeys = LAYOUT_KEYS.get(layout);
+        if (layoutKeys == null) {
+            throw new IllegalArgumentException("Unknown keyboard layout: " + layout);
         }
-        return layout;
+        return layoutKeys;
     }
 
-    public static @NotNull KeyboardLayout getDefault() {
-        return get(KeyboardLayoutId.EN_US);
+    public static @NotNull KeyboardLayoutKeys getDefault() {
+        return get(KeyboardLayout.EN_US);
     }
 
-    public static @NotNull List<KeyboardLayoutId> getSelectableLayouts() {
-        return List.of(KeyboardLayoutId.values());
+    public static @NotNull List<KeyboardLayout> getSelectableLayouts() {
+        return List.of(KeyboardLayout.values());
     }
 
-    public static @NotNull List<KeyboardLayoutId> getEnabled(
+    public static @NotNull List<KeyboardLayout> deserialize(
             @Nullable String rawValue
     ) {
-        LinkedHashSet<KeyboardLayoutId> result = new LinkedHashSet<>();
+        LinkedHashSet<KeyboardLayout> result = new LinkedHashSet<>();
         if (rawValue != null && !rawValue.isBlank()) {
             for (String part : rawValue.split(",")) {
                 String trimmed = part.trim();
                 if (trimmed.isEmpty()) {
                     continue;
                 }
-                KeyboardLayoutId layoutId = KeyboardLayoutId.byName(trimmed);
-                if (layoutId != null) {
-                    result.add(layoutId);
+                KeyboardLayout layout = KeyboardLayout.byName(trimmed);
+                if (layout != null) {
+                    result.add(layout);
                 }
             }
         }
@@ -237,49 +120,44 @@ public final class KeyboardLayouts {
         return List.copyOf(result);
     }
 
-    public static @NotNull String serializeEnabled(
-            @NotNull Iterable<KeyboardLayoutId> layoutIds
+    public static @NotNull String serialize(
+            @NotNull Iterable<KeyboardLayout> layouts
     ) {
-        LinkedHashSet<KeyboardLayoutId> normalized = new LinkedHashSet<>();
-        for (KeyboardLayoutId layoutId : layoutIds) {
-            if (layoutId != null) {
-                normalized.add(layoutId);
+        LinkedHashSet<KeyboardLayout> normalized = new LinkedHashSet<>();
+        for (KeyboardLayout layout : layouts) {
+            if (layout != null) {
+                normalized.add(layout);
             }
         }
 
         StringJoiner joiner = new StringJoiner(",");
-        for (KeyboardLayoutId layoutId : normalized) {
-            joiner.add(layoutId.name());
+        for (KeyboardLayout layout : normalized) {
+            joiner.add(layout.name());
         }
         return joiner.toString();
     }
 
-    private static void register(@NotNull KeyboardLayout layout) {
-        LAYOUTS.put(layout.getId(), layout);
+    private static void register(@NotNull KeyboardLayoutKeys layoutKeys) {
+        LAYOUT_KEYS.put(layoutKeys.getLayout(), layoutKeys);
     }
 
-    private static @NotNull KeyboardLayout build(@NotNull KeyboardLayoutId id,
-                                                 @NotNull String[] normalRows,
-                                                 @NotNull String[] shiftRows) {
-        if (normalRows.length != ROW_KEY_CODES.length
-                || shiftRows.length != ROW_KEY_CODES.length) {
-            throw new IllegalArgumentException(
-                    "Keyboard layout " + id + " must define " + ROW_KEY_CODES.length + " rows"
-            );
-        }
+    private static @NotNull KeyboardLayoutKeys build(@NotNull KeyboardLayout layout) {
+
+        var normalRows = layout.getNormalRows();
+        var shiftRows = layout.getShiftRows();
 
         KeyboardKey[][] normalLayer = new KeyboardKey[normalRows.length][];
         KeyboardKey[][] shiftLayer = new KeyboardKey[shiftRows.length][];
 
         for (int row = 0; row < normalRows.length; row++) {
-            normalLayer[row] = buildRow(id, row, normalRows[row], 0);
-            shiftLayer[row] = buildRow(id, row, shiftRows[row], GLFW.GLFW_MOD_SHIFT);
+            normalLayer[row] = buildRow(layout, row, normalRows[row], 0);
+            shiftLayer[row] = buildRow(layout, row, shiftRows[row], GLFW.GLFW_MOD_SHIFT);
         }
 
-        return new KeyboardLayout(id, id.getButtonLabel(), normalLayer, shiftLayer);
+        return new KeyboardLayoutKeys(layout, normalLayer, shiftLayer);
     }
 
-    private static @NotNull KeyboardKey[] buildRow(@NotNull KeyboardLayoutId id,
+    private static @NotNull KeyboardKey[] buildRow(@NotNull KeyboardLayout layout,
                                                    int rowIndex,
                                                    @NotNull String rowContent,
                                                    int fallbackModifiers) {
@@ -287,7 +165,7 @@ public final class KeyboardLayouts {
         String[] symbols = splitSymbols(rowContent);
         if (symbols.length != rowKeyCodes.length) {
             throw new IllegalArgumentException(
-                    "Keyboard layout " + id
+                    "Keyboard layout " + layout
                             + " row " + rowIndex
                             + " expected " + rowKeyCodes.length
                             + " symbols but got " + symbols.length

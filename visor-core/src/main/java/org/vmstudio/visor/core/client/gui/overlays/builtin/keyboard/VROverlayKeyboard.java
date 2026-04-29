@@ -10,8 +10,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
 import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
@@ -19,7 +17,6 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
@@ -41,7 +38,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private boolean shiftPressed = false;
 
     @Getter
-    private KeyboardLayoutId activeLayoutId = KeyboardLayoutId.EN_US;
+    private KeyboardLayout activeLayout = KeyboardLayout.EN_US;
 
     @Getter
     @Nullable
@@ -156,7 +153,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         if (shown) {
             orient(attachedTo, changePose);
             shiftPressed = false;
-            activeLayoutId = getEnabledLayoutIds().get(0);
+            activeLayout = getEnabledLayoutIds().get(0);
             initAgain = true;
         } else {
             getScreen().clearPress();
@@ -173,28 +170,28 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     public void cycleLayout() {
-        List<KeyboardLayoutId> enabledLayouts = getEnabledLayoutIds();
-        int currentIndex = enabledLayouts.indexOf(activeLayoutId);
+        List<KeyboardLayout> enabledLayouts = getEnabledLayoutIds();
+        int currentIndex = enabledLayouts.indexOf(activeLayout);
         if (currentIndex < 0) {
-            setActiveLayoutId(enabledLayouts.get(0));
+            setActiveLayout(enabledLayouts.get(0));
             return;
         }
-        setActiveLayoutId(
+        setActiveLayout(
                 enabledLayouts.get((currentIndex + 1) % enabledLayouts.size())
         );
     }
 
-    public void setActiveLayoutId(@NotNull KeyboardLayoutId activeLayoutId) {
-        if (this.activeLayoutId != activeLayoutId) {
-            this.activeLayoutId = activeLayoutId;
+    public void setActiveLayout(@NotNull KeyboardLayout activeLayout) {
+        if (this.activeLayout != activeLayout) {
+            this.activeLayout = activeLayout;
             this.initAgain = true;
         }
     }
 
-    public @NotNull List<KeyboardLayoutId> getEnabledLayoutIds() {
-        List<KeyboardLayoutId> enabledLayouts = VRClientSettings.getEnabledKeyboardLayouts();
+    public @NotNull List<KeyboardLayout> getEnabledLayoutIds() {
+        List<KeyboardLayout> enabledLayouts = VRClientSettings.getKeyboardLayouts();
         if (enabledLayouts.isEmpty()) {
-            return List.of(KeyboardLayoutId.EN_US);
+            return List.of(KeyboardLayout.EN_US);
         }
         return enabledLayouts;
     }

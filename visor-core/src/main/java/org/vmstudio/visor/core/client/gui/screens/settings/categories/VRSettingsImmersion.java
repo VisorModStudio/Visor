@@ -27,12 +27,14 @@ public class VRSettingsImmersion extends VROptionsSet {
 
     @Override
     protected OptionWidgetEntry[] getOptionEntries() {
-        return List.of(new OptionWidgetEntry(
-                this,
-                new VRSettingsImmersionAdvanced(getScreen(), this, onWidgetsChanged),
-                OptionWidgetPosition.LEFT,
-                0,
-                "visor.options.immersion.advanced.button"
-        )).toArray(new OptionWidgetEntry[0]);
+        return new OptionWidgetEntry[]{
+            new OptionWidgetEntry(
+                    this,
+                    new VRSettingsImmersionAdvanced(getScreen(), this, onWidgetsChanged),
+                    OptionWidgetPosition.LEFT,
+                    0,
+                    "visor.options.immersion.advanced.button"
+            )
+        };
     }
 }

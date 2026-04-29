@@ -12,7 +12,7 @@ import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardButton;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardKey;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayoutKeys;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 
@@ -55,9 +55,9 @@ public class VRKeyboardScreen extends Screen {
         int languageButtonWidth = 38;
         int spaceX;
 
-        KeyboardLayout layout = KeyboardLayouts.get(overlayKeyboard.getActiveLayoutId());
-        KeyboardKey[][] rows = layout.getLayer(overlayKeyboard.isShiftPressed());
-        int maxColumns = layout.getMaxColumns();
+        KeyboardLayoutKeys layoutKeys = KeyboardLayouts.get(overlayKeyboard.getActiveLayout());
+        KeyboardKey[][] rows = layoutKeys.getKeys(overlayKeyboard.isShiftPressed());
+        int maxColumns = layoutKeys.getMaxColumns();
         int gridRightX = gridStart + maxColumns * (keyWidth + keyGap);
 
         for (int row = 0; row < rows.length; ++row) {
@@ -97,7 +97,7 @@ public class VRKeyboardScreen extends Screen {
         );
         //LANGUAGE
         KeyboardButton languageButton = new KeyboardButton.Builder(this,
-                Component.literal(layout.getSwitchLabel()),
+                Component.literal(layoutKeys.getLayout().getLabel()),
                 (p) -> overlayKeyboard.cycleLayout())
                 .size(languageButtonWidth, keyHeight)
                 .pos(3 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))

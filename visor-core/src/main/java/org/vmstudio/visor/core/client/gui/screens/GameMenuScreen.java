@@ -108,8 +108,12 @@ public class GameMenuScreen extends Screen {
                 }));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Keyboard", left, y, b ->
-                        ClientContext.overlayManager.getKeyboardAccessor().setVisible(true)));
+                addRenderableWidget(makeHalfBtn("Keyboard", left, y, b ->{
+                                    var accessor = ClientContext.overlayManager.getKeyboardAccessor();
+                                    accessor.setVisible(true);
+                                    accessor.resetPose();
+                                })
+                );
                 addRenderableWidget(makeHalfBtn("Chat", right, y,
                         b -> this.minecraft.setScreen(new ChatScreen(""))));
                 y += BTN_H + GAP;

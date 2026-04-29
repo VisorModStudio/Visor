@@ -39,14 +39,7 @@ public class VRSettingsControls extends VROptionsSet {
                         OptionWidgetPosition.RIGHT,
                         0,
                         "visor.options.controls.action_sets.button"
-                ),
-                new OptionWidgetEntry(
-                        this,
-                        new VRSettingsKeyboardLayouts(getScreen(), this, onWidgetsChanged),
-                        OptionWidgetPosition.LEFT,
-                        1,
-                        "visor.options.controls.keyboard_layouts.button"
-                ),
+                )
 
         };
 

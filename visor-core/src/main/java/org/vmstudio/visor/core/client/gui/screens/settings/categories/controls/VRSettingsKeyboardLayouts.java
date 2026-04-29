@@ -17,7 +17,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.SettingsText
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayoutId;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
@@ -56,11 +56,11 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
         var scaleHelper = getScreen().getScaleHelper();
 
         Map<String, String> rawEntries = new LinkedHashMap<>();
-        for (KeyboardLayoutId layoutId : KeyboardLayouts.getSelectableLayouts()) {
+        for (KeyboardLayout layoutId : KeyboardLayouts.getSelectableLayouts()) {
             rawEntries.put(layoutId.name(), layoutId.getDisplayName());
         }
 
-        List<String> selectedIds = VRClientSettings.getEnabledKeyboardLayouts()
+        List<String> selectedIds = VRClientSettings.getKeyboardLayouts()
                 .stream()
                 .map(Enum::name)
                 .toList();
@@ -120,7 +120,7 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
 
     @Override
     public void loadDefaults() {
-        VRClientSettings.setEnabledKeyboardLayouts(List.of(KeyboardLayoutId.EN_US));
+        VRClientSettings.setKeyboardLayouts(List.of(KeyboardLayout.EN_US));
         ClientContext.settingsManager.saveOptions();
         reinit();
     }
@@ -132,14 +132,14 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
     }
 
     private void saveSelectedLayouts() {
-        List<KeyboardLayoutId> enabledLayouts = new ArrayList<>();
+        List<KeyboardLayout> enabledLayouts = new ArrayList<>();
         for (String selectedId : listWidget.getSelectedEntriesId()) {
-            KeyboardLayoutId layoutId = KeyboardLayoutId.byName(selectedId);
+            KeyboardLayout layoutId = KeyboardLayout.byName(selectedId);
             if (layoutId != null) {
                 enabledLayouts.add(layoutId);
             }
         }
-        VRClientSettings.setEnabledKeyboardLayouts(enabledLayouts);
+        VRClientSettings.setKeyboardLayouts(enabledLayouts);
         ClientContext.settingsManager.saveOptions();
     }
 }

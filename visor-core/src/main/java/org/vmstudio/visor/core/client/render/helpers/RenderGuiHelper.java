@@ -61,8 +61,8 @@ public class RenderGuiHelper {
 
         boolean dragging = overlay.isBeingDragged();
         var barColor = (dragging
-                ? AtumColor.immutable(220, 220, 220, 100)
-                : AtumColor.immutable(190, 190, 190, 70)).asMutable();
+                ? AtumColor.immutable(220, 220, 220, 110)
+                : AtumColor.immutable(190, 190, 190, 85)).asMutable();
 
         var renderTarget = overlay.getRenderTarget();
         assert renderTarget != null;
