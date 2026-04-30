@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.client.gui;
 
 import net.minecraft.client.gui.screens.Screen;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -35,6 +34,17 @@ public interface VRKeyboardAccessor {
      */
     @Nullable
     Screen getAttachedTo();
+
+    /**
+     * If currently visible keyboard is static,
+     * i.e. initially created without attached screen.
+     * <p>
+     *     Static keyboard should be only removable by player
+     * </p>
+     *
+     * @return screen or null
+     */
+    boolean isStaticAttachment();
 
     /**
      *

@@ -45,6 +45,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private Screen attachedTo;
 
     @Getter
+    private boolean staticAttachment;
+
+    @Getter
     private boolean shown;
 
     public VROverlayKeyboard(@NotNull VisorAddon owner,
@@ -148,6 +151,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     public void setVisible(boolean flag,
                            @Nullable Screen attachedTo) {
         boolean changePose = flag != shown;
+        boolean prevShown = shown;
         shown = flag;
 
         if (shown) {
@@ -155,8 +159,12 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
             shiftPressed = false;
             activeLayout = getEnabledLayoutIds().get(0);
             initAgain = true;
+            if(!prevShown && attachedTo == null){
+                staticAttachment = true;
+            }
         } else {
             getScreen().clearPress();
+            staticAttachment = false;
             this.attachedTo = null;
         }
     }

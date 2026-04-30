@@ -286,7 +286,11 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                     .getOverlayManager()
                     .getKeyboardAccessor();
             if (keyboardAccessor.getAttachedTo() == this) {
-                keyboardAccessor.showKeyboard(null);
+                if(keyboardAccessor.isStaticAttachment()) {
+                    keyboardAccessor.showKeyboard(null);
+                }else {
+                    keyboardAccessor.setVisible(false);
+                }
             }
             onDisable();
         }

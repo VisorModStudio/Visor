@@ -96,7 +96,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             Screen attachedTo = keyboardAccessor.getAttachedTo();
             if (attachedTo != null
                     && attachedTo == previousGuiScreen) {
-                keyboardAccessor.showKeyboard(null);
+                if(keyboardAccessor.isStaticAttachment()) {
+                    keyboardAccessor.showKeyboard(null);
+                }else {
+                    keyboardAccessor.setVisible(false);
+                }
             }
         } else if (newScreen instanceof ChatScreen) {
             if(!keyboardAccessor.isVisible()
