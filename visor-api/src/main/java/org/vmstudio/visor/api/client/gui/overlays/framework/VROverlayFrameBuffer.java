@@ -148,6 +148,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     protected void onStoppedDragging() {};
 
+    protected void onStoppedResizing() {};
+
     protected void onEnable() {}
 
     protected void onDisable() {}
@@ -326,6 +328,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
             poseOptions.setScale(getPose().getScale());
             poseOptions.save();
         }
+
+        onStoppedResizing();
     }
 
     protected void applyResizePose() {

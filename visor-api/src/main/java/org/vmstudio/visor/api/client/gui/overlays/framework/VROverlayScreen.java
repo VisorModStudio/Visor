@@ -175,6 +175,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected void onStoppedDragging() {};
 
+    protected void onStoppedResizing() {};
+
     protected void onEnable() {};
 
     protected void onDisable() {};
@@ -427,6 +429,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             poseOptions.setScale(getPose().getScale());
             poseOptions.save();
         }
+        onStoppedResizing();
     }
 
     protected void applyResizePose() {

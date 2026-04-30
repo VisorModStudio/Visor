@@ -294,31 +294,34 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         if (!supportsDragging()) {
             return false;
         }
+        int width = getWidth();
+        int height = getHeight();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
         int edgeX = getCursorBoundsX();
         int edgeY = getCursorBoundsY();
         int edgeWidth = getCursorBoundsWidth();
         int edgeHeight = getCursorBoundsHeight();
-        int width = getWidth();
-        int height = getHeight();
-        if (width > 0 && height > 0
-                && edgeX >= 0 && edgeY >= 0
-                && edgeWidth >= 0 && edgeHeight >= 0) {
-            float rawLeftCb  = (float) edgeX / width;
-            float rawRightCb = (float) (edgeX + edgeWidth) / width;
-            float rawTop     = (float) (edgeY + edgeHeight) / height;
-            float rawBottom  = rawTop + 0.15f;
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
 
-            float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
-            float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
-            float resizeZoneStart = supportsResizing()
-                    ? barCenterX + barHalfW + barHalfW * 0.20f
-                    : rawRightCb;
+        float rawLeftCb  = (float) edgeX / width;
+        float rawRightCb = (float) (edgeX + edgeWidth) / width;
+        float rawTop     = (float) (edgeY + edgeHeight) / height;
+        float rawBottom  = rawTop + 0.15f;
 
-            return rawX >= rawLeftCb && rawX <= resizeZoneStart
-                    && rawY > rawTop && rawY <= rawBottom;
-        }
-        return rawX >= 0f && rawX <= 1f
-                && rawY > 1.0f && rawY <= 1.15f;
+        float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+        float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+        float resizeZoneStart = supportsResizing()
+                ? barCenterX + barHalfW + barHalfW * 0.20f
+                : rawRightCb;
+
+        return rawX >= rawLeftCb && rawX <= resizeZoneStart
+                && rawY > rawTop && rawY <= rawBottom;
     }
 
     //----------------------------
@@ -376,30 +379,33 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         if (!supportsResizing()) {
             return false;
         }
+        int width = getWidth();
+        int height = getHeight();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
         int edgeX = getCursorBoundsX();
         int edgeY = getCursorBoundsY();
         int edgeWidth = getCursorBoundsWidth();
         int edgeHeight = getCursorBoundsHeight();
-        int width = getWidth();
-        int height = getHeight();
-        if (width > 0 && height > 0
-                && edgeX >= 0 && edgeY >= 0
-                && edgeWidth >= 0 && edgeHeight >= 0) {
-            float rawLeftCb  = (float) edgeX / width;
-            float rawRightCb = (float) (edgeX + edgeWidth) / width;
-            float rawTop     = (float) (edgeY + edgeHeight) / height;
-            float rawBottom  = rawTop + 0.15f;
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
 
-            float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
-            float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
-            float left  = barCenterX + barHalfW + barHalfW * 0.20f;
-            float right = left + barHalfW * 0.55f;
+        float rawLeftCb  = (float) edgeX / width;
+        float rawRightCb = (float) (edgeX + edgeWidth) / width;
+        float rawTop     = (float) (edgeY + edgeHeight) / height;
+        float rawBottom  = rawTop + 0.15f;
 
-            return rawX >= left && rawX <= right
-                    && rawY > rawTop && rawY <= rawBottom;
-        }
-        return rawX >= 0.86f && rawX <= 0.96f
-                && rawY > 1.0f && rawY <= 1.15f;
+        float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+        float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+        float left  = barCenterX + barHalfW + barHalfW * 0.20f;
+        float right = left + barHalfW * 0.55f;
+
+        return rawX >= left && rawX <= right
+                && rawY > rawTop && rawY <= rawBottom;
     }
 
 
@@ -550,7 +556,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the X of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsX() {
-        return -1;
+        return 0;
     }
 
     /**
@@ -566,7 +572,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the Y of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsY() {
-        return -1;
+        return 0;
     }
 
     /**
@@ -581,7 +587,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the width of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsWidth() {
-        return -1;
+        return getWidth();
     }
 
     /**
@@ -596,7 +602,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the height of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsHeight() {
-        return -1;
+        return getHeight();
     }
 
     /**

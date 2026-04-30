@@ -284,6 +284,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
+    public void onStoppedResizing() {
+        overlayScale = getPose().getScale();
+    }
+
+    @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
         if (buttonType == 0 && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
             startResizing();
@@ -335,6 +340,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public boolean supportsResizing() {
         return !inMainMenu;
     }
+
 
     @Override
     public @NotNull Component getName() {

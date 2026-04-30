@@ -192,25 +192,26 @@ public class RenderGuiHelper {
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
         float halfHeight = halfWidth * aspect;
 
-        float barCenterX   = 0f;
-        float barHalfWidth = halfWidth * 0.18f;
-        float regionBottom = -halfHeight;
-
+        int width = overlay.getWidth();
+        int height = overlay.getHeight();
+        if (width <= 0 || height <= 0) {
+            return;
+        }
         int edgeX = overlay.getCursorBoundsX();
         int edgeY = overlay.getCursorBoundsY();
         int edgeWidth = overlay.getCursorBoundsWidth();
         int edgeHeight = overlay.getCursorBoundsHeight();
-        int width = overlay.getWidth();
-        int height = overlay.getHeight();
-        if (width > 0 && height > 0
-                && edgeX >= 0 && edgeY >= 0
-                && edgeWidth >= 0 && edgeHeight >= 0) {
-            float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
-            float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
-            regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
-            barCenterX = (nx0 + nx1) * 0.5f;
-            barHalfWidth = (nx1 - nx0) * 0.18f;
-        }
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
+
+        float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
+        float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
+        float regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
+        float barCenterX = (nx0 + nx1) * 0.5f;
+        float barHalfWidth = (nx1 - nx0) * 0.18f;
 
         float barHalfHeight = halfHeight * 0.025f;
         float barGap        = halfHeight * 0.04f;
@@ -247,25 +248,26 @@ public class RenderGuiHelper {
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
         float halfHeight = halfWidth * aspect;
 
-        float barCenterX   = 0f;
-        float barHalfWidth = halfWidth * 0.18f;
-        float regionBottom = -halfHeight;
-
+        int width = overlay.getWidth();
+        int height = overlay.getHeight();
+        if (width <= 0 || height <= 0) {
+            return;
+        }
         int edgeX = overlay.getCursorBoundsX();
         int edgeY = overlay.getCursorBoundsY();
         int edgeWidth = overlay.getCursorBoundsWidth();
         int edgeHeight = overlay.getCursorBoundsHeight();
-        int width = overlay.getWidth();
-        int height = overlay.getHeight();
-        if (width > 0 && height > 0
-                && edgeX >= 0 && edgeY >= 0
-                && edgeWidth >= 0 && edgeHeight >= 0) {
-            float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
-            float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
-            regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
-            barCenterX   = (nx0 + nx1) * 0.5f;
-            barHalfWidth = (nx1 - nx0) * 0.18f;
-        }
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
+
+        float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
+        float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
+        float regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
+        float barCenterX   = (nx0 + nx1) * 0.5f;
+        float barHalfWidth = (nx1 - nx0) * 0.18f;
 
         float barHalfHeight = halfHeight * 0.025f;
         float barGap        = halfHeight * 0.04f;
