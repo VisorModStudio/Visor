@@ -147,6 +147,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         return true;
     }
 
+    @Override
+    public boolean supportsResizing() {
+        return true;
+    }
 
     public void setVisible(boolean flag,
                            @Nullable Screen attachedTo) {

@@ -300,18 +300,105 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         int edgeHeight = getCursorBoundsHeight();
         int width = getWidth();
         int height = getHeight();
-        //If cursorBounds are set
         if (width > 0 && height > 0
                 && edgeX >= 0 && edgeY >= 0
                 && edgeWidth >= 0 && edgeHeight >= 0) {
-            float rawLeft = (float) edgeX / width;
-            float rawRight = (float) (edgeX + edgeWidth) / width;
-            float rawTop = (float) (edgeY + edgeHeight) / height;
-            float rawBottom = rawTop + 0.15f;
-            return rawX >= rawLeft && rawX <= rawRight
+            float rawLeftCb  = (float) edgeX / width;
+            float rawRightCb = (float) (edgeX + edgeWidth) / width;
+            float rawTop     = (float) (edgeY + edgeHeight) / height;
+            float rawBottom  = rawTop + 0.15f;
+
+            float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+            float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+            float resizeZoneStart = supportsResizing()
+                    ? barCenterX + barHalfW + barHalfW * 0.20f
+                    : rawRightCb;
+
+            return rawX >= rawLeftCb && rawX <= resizeZoneStart
                     && rawY > rawTop && rawY <= rawBottom;
         }
         return rawX >= 0f && rawX <= 1f
+                && rawY > 1.0f && rawY <= 1.15f;
+    }
+
+    //----------------------------
+    //--------- RESIZING ---------
+    //----------------------------
+
+    /**
+     * Start resizing this overlay with the currently active cursor hand.
+     */
+    void startResizing();
+
+    /**
+     * Stop resizing and persist the new scale into pose options when available.
+     */
+    void stopResizing();
+
+    /**
+     * If overlay is being pinch-resized right now
+     *
+     * @return true/false
+     */
+    default boolean isBeingResized() {
+        return false;
+    }
+
+    /**
+     * Lower clamp for the scale during pinch resize.
+     *
+     * @return min scale (multiplier of base)
+     */
+    default float getMinScale() {
+        return 0.25f;
+    }
+
+    /**
+     * Upper clamp for the scale during pinch resize.
+     *
+     * @return max scale (multiplier of base)
+     */
+    default float getMaxScale() {
+        return 4.0f;
+    }
+
+    /**
+     * If specified raw cursor position is over the resize handle.
+     *
+     * <p>Default implementation places a small square handle at the right edge
+     * of the drag-bar strip (just below the cursor bounds).</p>
+     *
+     * @param rawX raw cursor x
+     * @param rawY raw cursor y
+     * @return true/false
+     */
+    default boolean isCursorOnResizeHandle(float rawX, float rawY) {
+        if (!supportsResizing()) {
+            return false;
+        }
+        int edgeX = getCursorBoundsX();
+        int edgeY = getCursorBoundsY();
+        int edgeWidth = getCursorBoundsWidth();
+        int edgeHeight = getCursorBoundsHeight();
+        int width = getWidth();
+        int height = getHeight();
+        if (width > 0 && height > 0
+                && edgeX >= 0 && edgeY >= 0
+                && edgeWidth >= 0 && edgeHeight >= 0) {
+            float rawLeftCb  = (float) edgeX / width;
+            float rawRightCb = (float) (edgeX + edgeWidth) / width;
+            float rawTop     = (float) (edgeY + edgeHeight) / height;
+            float rawBottom  = rawTop + 0.15f;
+
+            float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+            float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+            float left  = barCenterX + barHalfW + barHalfW * 0.20f;
+            float right = left + barHalfW * 0.55f;
+
+            return rawX >= left && rawX <= right
+                    && rawY > rawTop && rawY <= rawBottom;
+        }
+        return rawX >= 0.86f && rawX <= 0.96f
                 && rawY > 1.0f && rawY <= 1.15f;
     }
 
@@ -390,6 +477,14 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         return false;
     }
 
+    /**
+     * If overlay can be resized by player
+     *
+     * @return true/false
+     */
+    default boolean supportsResizing() {
+        return false;
+    }
 
     //----------------------------------------
     //--------- CURSOR && RESOLUTION ---------

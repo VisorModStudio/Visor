@@ -18,7 +18,6 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.common.player.VRPose;
@@ -78,6 +77,12 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
     private Matrix4f dragRotationMatrix = new Matrix4f();
 
+    private boolean beingResized = false;
+    private HandType resizeHand;
+    private final Vector3f resizeStartPosition = new Vector3f();
+    private final Matrix4f resizeStartRotation = new Matrix4f();
+    private float resizeStartHandDistance;
+    private float resizeStartScale = 1f;
 
     public VROverlayFrameBuffer(@NotNull VisorAddon owner,
                                 @NotNull String id){
@@ -186,6 +191,10 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     @Override
     public final void updatePose(float partialTicks) {
+        if(beingResized) {
+            applyResizePose();
+            return;
+        }
         if(forcedAnchor != null) {
             applyForcedPose();
             return;
@@ -233,7 +242,6 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         setForcedAnchor(dragAnchor);
     }
 
-    @Override
     public void stopDragging() {
         setForcedAnchor(null);
         this.beingDragged = false;
@@ -288,6 +296,58 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     }
 
     @Override
+    public void startResizing() {
+        if (!supportsResizing()) return;
+
+        var vrClient = VisorAPI.client();
+        HandType cursorHand = vrClient.getGuiManager().getCursorHandler().getCursorHand();
+        HandType otherHand  = cursorHand.opposite();
+
+        VRPlayerPoseClient renderPose = vrClient.getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        Vector3fc primaryPos = renderPose.getGripHand(cursorHand).getPosition();
+        Vector3fc otherPos   = renderPose.getGripHand(otherHand).getPosition();
+
+        this.resizeStartPosition.set(getPose().getPosition());
+        this.resizeStartRotation.set(getPose().getRotation());
+        this.resizeStartHandDistance = primaryPos.distance(otherPos);
+        this.resizeStartScale = getPose().getScale();
+        this.resizeHand = cursorHand;
+        this.beingResized = true;
+    }
+
+    @Override
+    public void stopResizing() {
+        if (!beingResized) return;
+        this.beingResized = false;
+        this.resizeHand = null;
+
+        OverlayOptionsPose poseOptions = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
+        if (poseOptions != null) {
+            poseOptions.setScale(getPose().getScale());
+            poseOptions.save();
+        }
+    }
+
+    protected void applyResizePose() {
+        if (resizeHand == null) {
+            return;
+        }
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
+        Vector3fc primaryPos = renderPose.getGripHand(resizeHand).getPosition();
+        Vector3fc otherPos   = renderPose.getGripHand(resizeHand.opposite()).getPosition();
+        float curDist = primaryPos.distance(otherPos);
+
+        float newScale = resizeStartScale;
+        if (resizeStartHandDistance > 1.0e-4f && curDist > 1.0e-4f) {
+            float ratio = curDist / resizeStartHandDistance;
+            newScale = Math.max(getMinScale(),
+                    Math.min(getMaxScale(), resizeStartScale * ratio));
+        }
+        getPose().update(resizeStartPosition, resizeStartRotation, newScale);
+    }
+
+
+    @Override
     public @Nullable OverlayOptionGroup<?> getOption(@NotNull String id) {
         return optionsMap.get(id);
     }
@@ -296,7 +356,10 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     public boolean isBeingDragged() {
         return beingDragged;
     }
-
+    @Override
+    public boolean isBeingResized() {
+        return beingResized;
+    }
 
     @Override
     public boolean supportsCursor() {

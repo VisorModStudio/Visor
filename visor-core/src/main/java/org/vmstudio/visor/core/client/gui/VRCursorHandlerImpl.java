@@ -183,8 +183,9 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
             );
 
             boolean onDragHandle = overlay.isCursorOnDragHandle(cursorPos.x(), cursorPos.y());
+            boolean onResizeHandle = overlay.isCursorOnResizeHandle(cursorPos.x(), cursorPos.y());
 
-            if (withinBounds || onDragHandle) {
+            if (withinBounds || onDragHandle || onResizeHandle) {
                 finalCursorPos = cursorPos;
                 collidingOverlay = overlay;
                 closestDistance = cursorPos.z();
@@ -209,7 +210,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         var overlayFocused = (hand == HandType.MAIN)
                 ? mainHandState.focusedOverlay
                 : offhandState.focusedOverlay;
-        var overlayOtherFocused = (hand.reversed() == HandType.MAIN)
+        var overlayOtherFocused = (hand.opposite() == HandType.MAIN)
                 ? mainHandState.focusedOverlay
                 : offhandState.focusedOverlay;
         if(activeCursor){

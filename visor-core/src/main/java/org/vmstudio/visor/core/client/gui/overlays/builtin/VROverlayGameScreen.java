@@ -211,7 +211,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         boolean withinGui = rawX >= 0f && rawX <= 1f
                 && rawY >= 0f && rawY <= 1f;
         boolean onDragHandle = isCursorOnDragHandle(rawX, rawY);
-        if (!withinGui && !onDragHandle) {
+        boolean onResizeHandle = isCursorOnResizeHandle(rawX, rawY);
+        if (!withinGui && !onDragHandle && !onResizeHandle) {
             //do nothing. If we change mouse position here
             // to emulate mouse exiting the screen, bugs appear
             // (todo find a way to emulate without bugs)
@@ -284,22 +285,28 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
+        if (buttonType == 0 && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
+            startResizing();
+            return true;
+        }
         if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
             startDragging();
             return true;
         }
-        //we need it to go through minecraft
         InputHelper.pressMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if (buttonType == 0 && isBeingResized()) {
+            stopResizing();
+            return true;
+        }
         if (buttonType == 0 && isBeingDragged()) {
             stopDragging();
             return true;
         }
-        //we need it to go through minecraft
         InputHelper.releaseMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
@@ -319,7 +326,15 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public boolean supportsCursor() {
         return true;
     }
+    @Override
+    public boolean supportsDragging() {
+        return !inMainMenu;
+    }
 
+    @Override
+    public boolean supportsResizing() {
+        return !inMainMenu;
+    }
 
     @Override
     public @NotNull Component getName() {
@@ -331,8 +346,4 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
 
-    @Override
-    public boolean supportsDragging() {
-        return !inMainMenu;
-    }
 }

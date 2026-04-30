@@ -60,9 +60,12 @@ public class RenderGuiHelper {
         var color = AtumColor.WHITE.asMutable();
 
         boolean dragging = overlay.isBeingDragged();
-        var barColor = (dragging
+        boolean resizing = overlay.isBeingResized();
+        var barColor = (resizing
+                ? AtumColor.immutable(120, 220, 255, 160)
+                : (dragging
                 ? AtumColor.immutable(220, 220, 220, 110)
-                : AtumColor.immutable(190, 190, 190, 85)).asMutable();
+                : AtumColor.immutable(190, 190, 190, 85))).asMutable();
 
         var renderTarget = overlay.getRenderTarget();
         assert renderTarget != null;
@@ -151,7 +154,7 @@ public class RenderGuiHelper {
             );
         }
 
-        // --- Drag handle bar
+        // --- Drag handle bar + resize handle
         if (drawDragHandle && overlay.supportsDragging()) {
             float brightness = 1f;
             if (packedLight >= 0) {
@@ -160,6 +163,12 @@ public class RenderGuiHelper {
                 brightness = Math.max(0.2f, Math.max(blockLight, skyLight) / 15f);
             }
             drawDragHandleBar(overlay, poseStack, barColor, brightness);
+            if (overlay.supportsResizing()) {
+                drawResizeHandle(overlay, poseStack, barColor, brightness);
+            }
+            if (resizing) {
+                drawResizeOutline(overlay, poseStack, barColor, brightness);
+            }
         }
 
         // --- Restore ---
@@ -225,6 +234,106 @@ public class RenderGuiHelper {
         buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
 
         BufferUploader.drawWithShader(buf.end());
+    }
+
+
+    private static void drawResizeHandle(VROverlay overlay,
+                                         PoseStack poseStack,
+                                         AtumColor color,
+                                         float brightness) {
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        float aspect = overlay.getAspectRatio();
+        float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
+        float halfHeight = halfWidth * aspect;
+
+        float barCenterX   = 0f;
+        float barHalfWidth = halfWidth * 0.18f;
+        float regionBottom = -halfHeight;
+
+        int edgeX = overlay.getCursorBoundsX();
+        int edgeY = overlay.getCursorBoundsY();
+        int edgeWidth = overlay.getCursorBoundsWidth();
+        int edgeHeight = overlay.getCursorBoundsHeight();
+        int width = overlay.getWidth();
+        int height = overlay.getHeight();
+        if (width > 0 && height > 0
+                && edgeX >= 0 && edgeY >= 0
+                && edgeWidth >= 0 && edgeHeight >= 0) {
+            float nx0 = -halfWidth + ((float) edgeX / width) * (2f * halfWidth);
+            float nx1 = -halfWidth + ((float) (edgeX + edgeWidth) / width) * (2f * halfWidth);
+            regionBottom = halfHeight - ((float) (edgeY + edgeHeight) / height) * (2f * halfHeight);
+            barCenterX   = (nx0 + nx1) * 0.5f;
+            barHalfWidth = (nx1 - nx0) * 0.18f;
+        }
+
+        float barHalfHeight = halfHeight * 0.025f;
+        float barGap        = halfHeight * 0.04f;
+        float barCenterY    = regionBottom - barGap - barHalfHeight;
+
+        float gap  = barHalfWidth * 0.20f;
+        float side = barHalfHeight * 1.3f;
+        float left   = barCenterX + barHalfWidth + gap;
+        float right  = left + side * 2f;
+        float bottom = barCenterY - side;
+        float top    = barCenterY + side;
+
+        float r = color.getRed()   * brightness;
+        float g = color.getGreen() * brightness;
+        float b = color.getBlue()  * brightness;
+        float a = color.getAlpha();
+
+        var pose = poseStack.last().pose();
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, right, bottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, right, top,    0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
+
+        BufferUploader.drawWithShader(buf.end());
+    }
+
+    private static void drawResizeOutline(VROverlay overlay,
+                                          PoseStack poseStack,
+                                          AtumColor color,
+                                          float brightness) {
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        float aspect = overlay.getAspectRatio();
+        float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
+        float halfHeight = halfWidth * aspect;
+        float thickness  = halfWidth * 0.012f;
+
+        float r = color.getRed()   * brightness;
+        float g = color.getGreen() * brightness;
+        float b = color.getBlue()  * brightness;
+        float a = color.getAlpha();
+
+        var pose = poseStack.last().pose();
+        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        // top edge
+        emitRect(buf, pose, -halfWidth, halfHeight - thickness, halfWidth, halfHeight, r, g, b, a);
+        // bottom edge
+        emitRect(buf, pose, -halfWidth, -halfHeight, halfWidth, -halfHeight + thickness, r, g, b, a);
+        // left edge
+        emitRect(buf, pose, -halfWidth, -halfHeight + thickness, -halfWidth + thickness, halfHeight - thickness, r, g, b, a);
+        // right edge
+        emitRect(buf, pose, halfWidth - thickness, -halfHeight + thickness, halfWidth, halfHeight - thickness, r, g, b, a);
+
+        BufferUploader.drawWithShader(buf.end());
+    }
+
+    private static void emitRect(BufferBuilder buf, Matrix4f pose,
+                                 float left, float bottom, float right, float top,
+                                 float r, float g, float b, float a) {
+        buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, right, bottom, 0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, right, top,    0f).color(r, g, b, a).endVertex();
+        buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
     }
 
 }
