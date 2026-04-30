@@ -162,6 +162,9 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         var rawEntries = new LinkedHashMap<String, String>();
         optionsMap = new HashMap<>();
         for (var entry : overlay.getOptions()) {
+            if(!entry.isModifiable()){
+                continue;
+            }
             rawEntries.put(entry.getId(), entry.getDisplayName().getString());
             optionsMap.put(entry.getId(), entry);
         }

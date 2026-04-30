@@ -8,6 +8,7 @@ import org.joml.Vector3fc;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.*;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsResizing;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -107,6 +108,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private float resizeStartHandDistance;
     private float resizeStartScale = 1f;
 
+    protected OverlayOptionsResizing optionsResizing;
+
     public VROverlayScreen(@NotNull VisorAddon owner,
                            @NotNull String id) {
         this(owner, id, ComponentPriority.NORMAL,1.0f);
@@ -136,21 +139,25 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         preOptions.forEach(it->{
             optionsMap.put(it.getId(),it);
         });
-        options = Collections.unmodifiableCollection(optionsMap.values());
 
-        if(!optionsMap.isEmpty()){
-            try {
-                this.optionsConfig = VisorAPI.client()
-                        .getGuiManager()
-                        .getOverlayManager()
-                        .getOverlayConfigAccessor()
-                        .getConfigOrCreate(this);
-                initOptions();
-            } catch (IOException e) {
-                throw new VRException(e);
-            }
-        }else{
-            this.optionsConfig = null;
+        var requestedOptions = new ArrayList<>(optionsMap.values());
+        optionsResizing = new OverlayOptionsResizing(
+                this,
+                (it)->{
+
+                });
+        requestedOptions.add(optionsResizing);
+        options = Collections.unmodifiableCollection(requestedOptions);
+
+        try {
+            this.optionsConfig = VisorAPI.client()
+                    .getGuiManager()
+                    .getOverlayManager()
+                    .getOverlayConfigAccessor()
+                    .getConfigOrCreate(this);
+            initOptions();
+        } catch (IOException e) {
+            throw new VRException(e);
         }
 
 
@@ -158,7 +165,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected void onPreTick() {}
 
-    protected void onTick() {};
+    protected void onTick() {}
 
 
     protected void onPreRender(GuiGraphics guiGraphics,
@@ -173,13 +180,13 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
-    protected void onStoppedDragging() {};
+    protected void onStoppedDragging() {}
 
-    protected void onStoppedResizing() {};
+    protected void onStoppedResizing() {}
 
-    protected void onEnable() {};
+    protected void onEnable() {}
 
-    protected void onDisable() {};
+    protected void onDisable() {}
 
     public int getRequestedWidth(){
         return VisorAPI.client().getGuiManager().getGuiWidth();
@@ -215,6 +222,17 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     protected void initOptions(){
         for(var option : options){
             option.init();
+        }
+        if(optionsResizing != null) {
+            var resizingScale = optionsResizing.getResizingScale();
+            if (resizingScale != -1) {
+                getPose().updateOnlyScale(resizingScale);
+                OverlayOptionsPose poseOptions = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
+                if (poseOptions != null) {
+                    poseOptions.setScale(resizingScale);
+                    poseOptions.save();
+                }
+            }
         }
     }
 
@@ -423,6 +441,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         if (!beingResized) return;
         this.beingResized = false;
         this.resizeHand = null;
+
+        optionsResizing.setResizingScale(getPose().getScale());
+        optionsResizing.save();
 
         OverlayOptionsPose poseOptions = getOption(OverlayOptionsPose.ID, OverlayOptionsPose.class);
         if (poseOptions != null) {

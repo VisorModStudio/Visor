@@ -121,7 +121,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             orientMainMenu();
             return;
         }
-        overlayScale = 1.0f;
+        overlayScale = optionsResizing.getResizingScale();
+        if(overlayScale == -1){
+            overlayScale = 1.0f;
+        }
         if ((previousGuiScreen == null && newScreen != null)
                 || newScreen instanceof ChatScreen
                 || newScreen instanceof BookEditScreen
@@ -270,7 +273,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public void onStoppedDragging() {
+    public void onFinishedDragging() {
         var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
         relativePosition = relativePose.convertPositionFrom(
                 PlayerPoseType.RENDER,
@@ -284,7 +287,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
-    public void onStoppedResizing() {
+    public void onFinishedResizing() {
         overlayScale = getPose().getScale();
     }
 
