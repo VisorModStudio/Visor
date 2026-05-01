@@ -226,9 +226,7 @@ public abstract class VRRendererBase implements VRRenderer {
         }
 
         if (minecraft.screen != null) {
-            int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-            int screenHeight = minecraft.getWindow().getGuiScaledHeight();
-            minecraft.screen.init(minecraft, screenWidth, screenHeight);
+            minecraft.resizeDisplay();
         }
 
         var windowModif = (WindowExtension) (Object) minecraft.getWindow();
