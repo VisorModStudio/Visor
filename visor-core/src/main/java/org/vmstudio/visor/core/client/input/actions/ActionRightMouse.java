@@ -36,9 +36,7 @@ public class ActionRightMouse extends VRActionButton {
                 (pressDelayed && !pressed) || (releaseDelayed && pressed)
         );
 
-        if (handType == HandType.MAIN) {
-            handler.preTick();
-        }
+        handler.preTick();
 
         super.preTick();
     }

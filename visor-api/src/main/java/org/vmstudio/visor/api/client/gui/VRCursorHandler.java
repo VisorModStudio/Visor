@@ -85,74 +85,157 @@ public interface VRCursorHandler {
      * Get VROverlay focused by specified cursor hand
      *
      * @param hand cursor hand
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
      *
      * @return overlay or null
      */
     @Nullable("Not focused, or hand is not a cursor")
-    VROverlay getFocusedOverlay(@NotNull HandType hand);
+    VROverlay getFocusedOverlay(@NotNull HandType hand, boolean activeCursor);
+    /**
+     * Overload of {@link #getFocusedOverlay(HandType, boolean)} with activeCursor = false
+     *
+     * @param hand cursor hand
+     *
+     * @return overlay or null
+     */
+    @Nullable("Not focused, or hand is not a cursor")
+    default VROverlay getFocusedOverlay(@NotNull HandType hand){
+        return getFocusedOverlay(hand, false);
+    }
 
     /**
      * Get VROverlay focused by {@link #getCursorHand()}
+     *
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
+     *
+     * @return overlay or null
+     */
+    @Nullable("Not focused")
+    default VROverlay getFocusedOverlay(boolean activeCursor){
+        return getFocusedOverlay(getCursorHand(), activeCursor);
+    }
+    /**
+     * Overload of {@link #getFocusedOverlay(boolean)} with activeCursor = false
      *
      * @return overlay or null
      */
     @Nullable("Not focused")
     default VROverlay getFocusedOverlay(){
-        return getFocusedOverlay(getCursorHand());
+        return getFocusedOverlay(false);
     }
 
     /**
      * Get VROverlayScreen focused by specified cursor hand
      *
      * @param hand cursor hand
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
      *
      * @return overlayScreen or null
      */
     @Nullable("Not focused, or focused at different overlay type, or hand is not a cursor")
-    default VROverlayScreen getFocusedOverlayScreen(@NotNull HandType hand){
-        if(getFocusedOverlay(hand) instanceof VROverlayScreen overlayScreen){
+    default VROverlayScreen getFocusedOverlayScreen(@NotNull HandType hand, boolean activeCursor){
+        if(getFocusedOverlay(hand, activeCursor) instanceof VROverlayScreen overlayScreen){
             return overlayScreen;
         }
         return null;
+    }
+    /**
+     * Overload of {@link #getFocusedOverlayScreen(HandType, boolean)} with activeCursor = false
+     *
+     * @param hand cursor hand
+     * @return overlayScreen or null
+     */
+    @Nullable("Not focused, or focused at different overlay type, or hand is not a cursor")
+    default VROverlayScreen getFocusedOverlayScreen(@NotNull HandType hand){
+        return getFocusedOverlayScreen(hand, false);
     }
 
     /**
      * Get VROverlayScreen focused by {@link #getCursorHand()}
      *
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
+     *
+     * @return overlayScreen or null
+     */
+    @Nullable("Not focused or focused at different overlay type")
+    default VROverlayScreen getFocusedOverlayScreen(boolean activeCursor){
+        return getFocusedOverlayScreen(getCursorHand(), activeCursor);
+    }
+    /**
+     * Overload of {@link #getFocusedOverlayScreen(boolean)} with activeCursor = false
+     *
      * @return overlayScreen or null
      */
     @Nullable("Not focused or focused at different overlay type")
     default VROverlayScreen getFocusedOverlayScreen(){
-        return getFocusedOverlayScreen(getCursorHand());
+        return getFocusedOverlayScreen(getCursorHand(), false);
     }
 
 
     /**
      * If {@link #getCursorHand()} is focused at overlay.
      *
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
+     *
+     * @return If focused
+     */
+    default boolean isCursorHandFocused(boolean activeCursor){
+        return getFocusedOverlay(getCursorHand(), activeCursor) != null;
+    }
+    /**
+     * Overload of {@link #isCursorHandFocused(boolean)} with activeCursor = false
+     *
      * @return If focused
      */
     default boolean isCursorHandFocused(){
-        return getFocusedOverlay(getCursorHand()) != null;
+        return isCursorHandFocused(false);
     }
 
     /**
      * If specified hand is focused at overlay.
      *
+     * @param hand cursor hand
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
+     * @return If focused
+     */
+    default boolean isHandFocused(@NotNull HandType hand, boolean activeCursor){
+        return getFocusedOverlay(hand, activeCursor) != null;
+    }
+    /**
+     * Overload of {@link #isHandFocused(HandType, boolean)} with activeCursor = false
+     *
+     * @param hand cursor hand
      * @return If focused
      */
     default boolean isHandFocused(@NotNull HandType hand){
-        return getFocusedOverlay(hand) != null;
+        return isHandFocused(hand, false);
     }
 
     /**
      * If any hand or both are focused at overlay.
      *
+     * @param activeCursor if check whether cursor is active.
+     *                     When false, the method will return true even if hand just aimed at overlay
+     *
+     * @return If focused
+     */
+    default boolean isAnyHandFocused(boolean activeCursor){
+        return isHandFocused(HandType.MAIN, activeCursor)
+                || isHandFocused(HandType.OFFHAND, activeCursor);
+    }
+    /**
+     * Overload of {@link #isAnyHandFocused(boolean)} with activeCursor = false
+     *
      * @return If focused
      */
     default boolean isAnyHandFocused(){
-        return isHandFocused(HandType.MAIN)
-                || isHandFocused(HandType.OFFHAND);
+        return isAnyHandFocused(false);
     }
 
 

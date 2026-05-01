@@ -138,7 +138,11 @@ public class KeyboardMixins {
             }
             var keyboardAccessor = ClientContext.overlayManager
                     .getKeyboardAccessor();
-            keyboardAccessor.setVisible(false);
+            if(keyboardAccessor.isStaticAttachment()) {
+                keyboardAccessor.showKeyboard(null);
+            }else {
+                keyboardAccessor.setVisible(false);
+            }
         }
     }
 

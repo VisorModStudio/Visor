@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.controls.VRSettingsActionSets;
+import org.vmstudio.visor.core.client.gui.screens.settings.categories.controls.VRSettingsKeyboardLayouts;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetPosition;
@@ -38,7 +39,7 @@ public class VRSettingsControls extends VROptionsSet {
                         OptionWidgetPosition.RIGHT,
                         0,
                         "visor.options.controls.action_sets.button"
-                ),
+                )
 
         };
 

@@ -104,6 +104,9 @@
   "visor.options.controls.left_handed.tooltip": "If left hand should be dominant",
   "visor.options.controls.action_sets": "Select action set",
   "visor.options.controls.action_sets.button": "Action Bindings...",
+  "visor.options.controls.keyboard_layouts.button": "Keyboard...",
+  "visor.options.controls.keyboard_layouts.title": "Keyboard layouts",
+  "visor.options.controls.keyboard_layouts.always_enabled": "If all layouts are off, English (US) is used as fallback",
   "visor.options.controls.action": "Action",
 
   "_comment.immersion": "----Immersion Settings----",

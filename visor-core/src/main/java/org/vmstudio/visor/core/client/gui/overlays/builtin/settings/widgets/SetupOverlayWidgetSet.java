@@ -67,7 +67,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         this.overlay = overlay;
         this.startX = startX;
         this.startY = startY;
-        this.hasSettings = !overlay.getOptions().isEmpty();
+        this.hasSettings = overlay.hasModifiableOptions();
         this.isCustom = overlay.isCustom();
         this.asTemplate = overlay.asTemplate();
 
@@ -162,6 +162,9 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
         var rawEntries = new LinkedHashMap<String, String>();
         optionsMap = new HashMap<>();
         for (var entry : overlay.getOptions()) {
+            if(!entry.isModifiable()){
+                continue;
+            }
             rawEntries.put(entry.getId(), entry.getDisplayName().getString());
             optionsMap.put(entry.getId(), entry);
         }

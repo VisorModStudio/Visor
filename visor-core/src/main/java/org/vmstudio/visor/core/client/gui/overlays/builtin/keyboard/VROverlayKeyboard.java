@@ -1,21 +1,6 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
-
 import lombok.Getter;
-import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
-import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
-import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
-import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
-import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
-import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -24,7 +9,20 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
+import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
+import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
+import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
+import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
+import java.util.List;
 
 public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         implements VRKeyboardAccessor, VREventListener {
@@ -40,8 +38,14 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private boolean shiftPressed = false;
 
     @Getter
+    private KeyboardLayout activeLayout = KeyboardLayout.EN_US;
+
+    @Getter
     @Nullable
     private Screen attachedTo;
+
+    @Getter
+    private boolean staticAttachment;
 
     @Getter
     private boolean shown;
@@ -59,16 +63,13 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         VisorAPI.eventBus().registerListener(owner,this);
     }
 
-
-    @VREventHandler
-    public void disableWorldHands(AllowClientFeatureVREvent event){
-        if(event.getFeature() == ClientFeature.VR_WORLD_HANDS
-                || event.getFeature() == ClientFeature.AIM_EFFECTS
-                || event.getFeature() == ClientFeature.INPUT_MOVEMENT) {
-            if(isVisible()){
-                event.setCanceled(true);
-            }
-        }
+    @Override
+    protected void init() {
+        super.init();
+        cursorBoundsX = getScreen().getCursorBoundsX();
+        cursorBoundsY = getScreen().getCursorBoundsY();
+        cursorBoundsWidth = getScreen().getCursorBoundsWidth();
+        cursorBoundsHeight = getScreen().getCursorBoundsHeight();
     }
 
 
@@ -104,7 +105,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     @Override
-    public void showKeyboard(@NotNull Screen attachTo) {
+    public void showKeyboard(@Nullable Screen attachTo) {
         setVisible(true, attachTo);
     }
 
@@ -112,7 +113,6 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     public boolean updateVisibility() {
         return shown;
     }
-
 
     @Override
     public void onUpdatePose(float partialTicks) {
@@ -124,24 +124,51 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         );
     }
 
-
+    @Override
+    public void onStoppedDragging() {
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        relativePosition = relativePose.convertPositionFrom(
+                PlayerPoseType.RENDER,
+                getPose().getPosition()
+        );
+        relativeRotation = relativePose.convertRotationFrom(
+                PlayerPoseType.RENDER,
+                getPose().getRotation()
+        );
+    }
 
     @Override
     public boolean supportsTwoCursors() {
         return true;
     }
 
+    @Override
+    public boolean supportsDragging() {
+        return true;
+    }
+
+    @Override
+    public boolean supportsResizing() {
+        return true;
+    }
 
     public void setVisible(boolean flag,
                            @Nullable Screen attachedTo) {
+        boolean changePose = flag != shown;
+        boolean prevShown = shown;
         shown = flag;
 
         if (shown) {
-            orient(attachedTo);
+            orient(attachedTo, changePose);
             shiftPressed = false;
+            activeLayout = getEnabledLayoutIds().get(0);
             initAgain = true;
+            if(!prevShown && attachedTo == null){
+                staticAttachment = true;
+            }
         } else {
             getScreen().clearPress();
+            staticAttachment = false;
             this.attachedTo = null;
         }
     }
@@ -154,7 +181,38 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         }
     }
 
-    private void orient(@Nullable Screen attachedTo) {
+    public void cycleLayout() {
+        List<KeyboardLayout> enabledLayouts = getEnabledLayoutIds();
+        int currentIndex = enabledLayouts.indexOf(activeLayout);
+        if (currentIndex < 0) {
+            setActiveLayout(enabledLayouts.get(0));
+            return;
+        }
+        setActiveLayout(
+                enabledLayouts.get((currentIndex + 1) % enabledLayouts.size())
+        );
+    }
+
+    public void setActiveLayout(@NotNull KeyboardLayout activeLayout) {
+        if (this.activeLayout != activeLayout) {
+            this.activeLayout = activeLayout;
+            this.initAgain = true;
+        }
+    }
+
+    public @NotNull List<KeyboardLayout> getEnabledLayoutIds() {
+        List<KeyboardLayout> enabledLayouts = VRClientSettings.getKeyboardLayouts();
+        if (enabledLayouts.isEmpty()) {
+            return List.of(KeyboardLayout.EN_US);
+        }
+        return enabledLayouts;
+    }
+
+    public boolean hasMultipleLayouts() {
+        return getEnabledLayoutIds().size() > 1;
+    }
+
+    private void orient(@Nullable Screen attachedTo, boolean changePose) {
         if (!shown) {
             this.attachedTo = null;
             return;
@@ -162,19 +220,21 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
         this.attachedTo = attachedTo;
 
-        VROverlayHelper.applyPose(
-                this,
-                PoseAnchor.HMD,
-                PoseAnchor.HMD,
-                getPose().getScale(),
-                true,
-                posOffset,
-                rotationOffset
-        );
-        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
-                .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
-                .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
+        if(changePose) {
+            VROverlayHelper.applyPose(
+                    this,
+                    PoseAnchor.HMD,
+                    PoseAnchor.HMD,
+                    getPose().getScale(),
+                    true,
+                    posOffset,
+                    rotationOffset
+            );
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+                    .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
+        }
     }
 
 
@@ -187,5 +247,4 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     public @NotNull Component getDescription() {
         return Component.translatable("visor.overlay.%s.description".formatted(getId()));
     }
-
 }

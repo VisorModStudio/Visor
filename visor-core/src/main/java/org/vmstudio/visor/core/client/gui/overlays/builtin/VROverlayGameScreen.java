@@ -36,6 +36,8 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private float overlayScale = 1.0f;
 
+
+    private boolean inMainMenu = true;
     public VROverlayGameScreen(@NotNull VisorAddon owner,
                                @NotNull String id) {
         super(
@@ -94,7 +96,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             Screen attachedTo = keyboardAccessor.getAttachedTo();
             if (attachedTo != null
                     && attachedTo == previousGuiScreen) {
-                keyboardAccessor.setVisible(false);
+                if(keyboardAccessor.isStaticAttachment()) {
+                    keyboardAccessor.showKeyboard(null);
+                }else {
+                    keyboardAccessor.setVisible(false);
+                }
             }
         } else if (newScreen instanceof ChatScreen) {
             if(!keyboardAccessor.isVisible()
@@ -109,13 +115,16 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private void orient(Screen previousGuiScreen,
                         Screen newScreen){
-        boolean mainMenu = (MC.gameRenderer == null
+        inMainMenu = (MC.gameRenderer == null
                 || willBeInMenuRoom(newScreen));
-        if (mainMenu) {
+        if (inMainMenu) {
             orientMainMenu();
             return;
         }
-        overlayScale = 1.0f;
+        overlayScale = optionsResizing.getResizingScale();
+        if(overlayScale == -1){
+            overlayScale = 1.0f;
+        }
         if ((previousGuiScreen == null && newScreen != null)
                 || newScreen instanceof ChatScreen
                 || newScreen instanceof BookEditScreen
@@ -157,8 +166,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         }
 
-        ClientContext.overlayManager.getKeyboardAccessor()
-                .resetPose();
     }
 
     private void orientMainMenu(){
@@ -204,8 +211,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if (!isEnabled()) return;
         if(!activeCursor) return;
 
-        if (rawX < 0f || rawX > 1f
-                || rawY < 0f || rawY > 1f) {
+        boolean withinGui = rawX >= 0f && rawX <= 1f
+                && rawY >= 0f && rawY <= 1f;
+        boolean onDragHandle = isCursorOnDragHandle(rawX, rawY);
+        boolean onResizeHandle = isCursorOnResizeHandle(rawX, rawY);
+        if (!withinGui && !onDragHandle && !onResizeHandle) {
             //do nothing. If we change mouse position here
             // to emulate mouse exiting the screen, bugs appear
             // (todo find a way to emulate without bugs)
@@ -235,6 +245,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         cursorData.setCursorX((int)(rawX * (double) guiScaledWidth));
         cursorData.setCursorY((int)(rawY * (double) guiScaledHeight));
 
+        if (!withinGui) {
+            return;
+        }
+
         //here as an input it requires NOT SCALED position
         InputHelper.setMousePos(
                 (int)(rawX * (double) screenWidth),
@@ -259,15 +273,48 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     @Override
+    public void onFinishedDragging() {
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        relativePosition = relativePose.convertPositionFrom(
+                PlayerPoseType.RENDER,
+                getPose().getPosition()
+        );
+        relativeRotation = relativePose.convertRotationFrom(
+                PlayerPoseType.RENDER,
+                getPose().getRotation()
+        );
+        overlayScale = getPose().getScale();
+    }
+
+    @Override
+    public void onFinishedResizing() {
+        overlayScale = getPose().getScale();
+    }
+
+    @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
-        //we need it to go through minecraft
+        if (buttonType == 0 && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
+            startResizing();
+            return true;
+        }
+        if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
+            startDragging();
+            return true;
+        }
         InputHelper.pressMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
-        //we need it to go through minecraft
+        if (buttonType == 0 && isBeingResized()) {
+            stopResizing();
+            return true;
+        }
+        if (buttonType == 0 && isBeingDragged()) {
+            stopDragging();
+            return true;
+        }
         InputHelper.releaseMouse(MouseButtonType.fromId(buttonType));
         return true;
     }
@@ -286,6 +333,15 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     @Override
     public boolean supportsCursor() {
         return true;
+    }
+    @Override
+    public boolean supportsDragging() {
+        return !inMainMenu;
+    }
+
+    @Override
+    public boolean supportsResizing() {
+        return !inMainMenu;
     }
 
 

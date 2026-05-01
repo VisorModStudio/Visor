@@ -102,7 +102,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         // Update the overlay for the inactive hand
         if (inactiveState.isFocused()) {
             inactiveState.focusedOverlay.updateCursorData(
-                    false,
+                    twoHandedCursor
+                            && activeState.focusedOverlay != inactiveState.focusedOverlay,
                     inactiveState.cursorPos.x(),
                     inactiveState.cursorPos.y()
             );
@@ -180,7 +181,11 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     cursorPos.x(),
                     cursorPos.y()
             );
-            if (withinBounds) {
+
+            boolean onDragHandle = overlay.isCursorOnDragHandle(cursorPos.x(), cursorPos.y());
+            boolean onResizeHandle = overlay.isCursorOnResizeHandle(cursorPos.x(), cursorPos.y());
+
+            if (withinBounds || onDragHandle || onResizeHandle) {
                 finalCursorPos = cursorPos;
                 collidingOverlay = overlay;
                 closestDistance = cursorPos.z();
@@ -201,8 +206,27 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     }
 
     @Override
-    public @Nullable VROverlay getFocusedOverlay(@NotNull HandType hand) {
-        return (hand == HandType.MAIN) ? mainHandState.focusedOverlay : offhandState.focusedOverlay;
+    public @Nullable VROverlay getFocusedOverlay(@NotNull HandType hand, boolean activeCursor) {
+        var overlayFocused = (hand == HandType.MAIN)
+                ? mainHandState.focusedOverlay
+                : offhandState.focusedOverlay;
+        var overlayOtherFocused = (hand.opposite() == HandType.MAIN)
+                ? mainHandState.focusedOverlay
+                : offhandState.focusedOverlay;
+        if(activeCursor){
+            if(cursorHand == hand){
+                return overlayFocused;
+            }else if ((overlayFocused != null
+                    && overlayFocused.supportsTwoCursors()) ||
+                    (overlayOtherFocused != null
+                            && overlayOtherFocused.supportsTwoCursors())){
+                return overlayFocused;
+            }else{
+                return null;
+            }
+        }else {
+            return overlayFocused;
+        }
     }
 
 

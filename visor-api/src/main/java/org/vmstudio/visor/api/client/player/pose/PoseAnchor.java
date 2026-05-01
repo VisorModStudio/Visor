@@ -125,11 +125,8 @@ public enum PoseAnchor {
 
     public @NotNull Vector3f reverseAnchoredRotation(@NotNull Matrix4fc anchorRotation,
                                                      @NotNull Matrix4fc objRotation) {
-
-        Matrix4f invRotation = objRotation.invert(new Matrix4f());
-
-
-        Matrix4f matrix4f = invRotation.mul(anchorRotation);
+        Matrix4f matrix4f = anchorRotation.invert(new Matrix4f())
+                .mul(objRotation, new Matrix4f());
 
         float offsetY = (float) Math.asin(-matrix4f.m20());
         float offsetZ = (float) Mth.atan2(matrix4f.m10(), matrix4f.m00());

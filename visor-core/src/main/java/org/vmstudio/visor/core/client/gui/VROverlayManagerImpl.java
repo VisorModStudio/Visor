@@ -16,6 +16,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayRegistry;
 import org.vmstudio.visor.core.client.gui.registry.VROverlayTemplateRegistry;
@@ -207,6 +208,11 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
             }
 
+            boolean drawDragHandle = overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() || overlay.isBeingResized() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN,true) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND,true) == overlay)));
+
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
                     poseStack,
@@ -214,6 +220,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getRotation(),
                     false, // depthAlways = false, use GL_LEQUAL
                     overlay.supportsLight(),
+                    drawDragHandle,
                     overlay.getPose().getScale()
             );
             GLUtils.checkGLError("post depth VROverlay quad: " + overlay.getId());
@@ -251,6 +258,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 throw new RuntimeException("Tried to render overlay quad with null renderTarget: " + overlay.getId());
             }
 
+            boolean drawDragHandle = overlay.supportsDragging() &&
+                    (overlay.isBeingDragged() || overlay.isBeingResized() ||
+                            ((ClientContext.cursorHandler.getFocusedOverlay(HandType.MAIN,true) == overlay
+                                    || ClientContext.cursorHandler.getFocusedOverlay(HandType.OFFHAND,true) == overlay)));
             RenderGuiHelper.renderOverlayQuad(
                     overlay,
                     poseStack,
@@ -258,8 +269,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     overlay.getPose().getRotation(),
                     true, // depthAlways = true, use GL_ALWAYS
                     overlay.supportsLight(),
+                    drawDragHandle,
                     overlay.getPose().getScale()
             );
+
             GLUtils.checkGLError("post hud VROverlay quad: " + overlay.getId());
         }
 

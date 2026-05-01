@@ -12,6 +12,8 @@ import org.vmstudio.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.util.Collection;
 
@@ -79,6 +81,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      */
     boolean isVisible();
 
+
     /**
      * If this overlay is custom,
      * i.e. created from template
@@ -99,6 +102,18 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         return asTemplate() == null;
     }
 
+    /**
+     * Get this overlay as template
+     *
+     * @return overlay template or null if not an instance of {@link VROverlayTemplate}
+     */
+    default @Nullable VROverlayTemplate asTemplate(){
+        if(this instanceof VROverlayTemplate overlayTemplate){
+            return overlayTemplate;
+        }else{
+            return null;
+        }
+    }
 
     /**
      * Get overlay name
@@ -128,6 +143,11 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         return getOwner().getAddonIcon();
     }
 
+
+
+    //---------------------------
+    //--------- OPTIONS ---------
+    //---------------------------
 
     /**
      * Get collection of overlay options
@@ -216,7 +236,17 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     }
 
 
+    /**
+     * If overlay has player modifiable options
+     * @return true/false
+     */
+    default boolean hasModifiableOptions(){
+        return getOptions().stream().anyMatch(OverlayOptionGroup::isModifiable);
+    }
 
+    //---------------------------------------------
+    //--------- FORCED ANCHOR && DRAGGING ---------
+    //---------------------------------------------
 
     /**
      * Get the forced anchor
@@ -242,18 +272,153 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
 
 
     /**
-     * Get this overlay as template
-     *
-     * @return overlay template or null if not an instance of {@link VROverlayTemplate}
+     * Start dragging this overlay with the currently active cursor hand
      */
-    default @Nullable VROverlayTemplate asTemplate(){
-        if(this instanceof VROverlayTemplate overlayTemplate){
-            return overlayTemplate;
-        }else{
-            return null;
-        }
+    void startDragging();
+
+    /**
+     * Stop dragging and persist the pose back into pose options when available
+     */
+    void stopDragging();
+
+    /**
+     * If overlay is being dragged rightt now
+     *
+     * @return true/false
+     */
+    default boolean isBeingDragged() {
+        return false;
     }
 
+    /**
+     * If specified raw cursor position is over the drag handle
+     *
+     * @param rawX raw cursor x
+     * @param rawY raw cursor y
+     * @return true/false
+     */
+    default boolean isCursorOnDragHandle(float rawX, float rawY) {
+        if (!supportsDragging()) {
+            return false;
+        }
+        int width = getWidth();
+        int height = getHeight();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+        int edgeX = getCursorBoundsX();
+        int edgeY = getCursorBoundsY();
+        int edgeWidth = getCursorBoundsWidth();
+        int edgeHeight = getCursorBoundsHeight();
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
+
+        float rawLeftCb  = (float) edgeX / width;
+        float rawRightCb = (float) (edgeX + edgeWidth) / width;
+        float rawTop     = (float) (edgeY + edgeHeight) / height;
+        float rawBottom  = rawTop + 0.15f;
+
+        float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+        float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+        float resizeZoneStart = supportsResizing()
+                ? barCenterX + barHalfW + barHalfW * 0.20f
+                : rawRightCb;
+
+        return rawX >= rawLeftCb && rawX <= resizeZoneStart
+                && rawY > rawTop && rawY <= rawBottom;
+    }
+
+    //----------------------------
+    //--------- RESIZING ---------
+    //----------------------------
+
+    /**
+     * Start resizing this overlay with the currently active cursor hand.
+     */
+    void startResizing();
+
+    /**
+     * Stop resizing and persist the new scale into pose options when available.
+     */
+    void stopResizing();
+
+    /**
+     * If overlay is being pinch-resized right now
+     *
+     * @return true/false
+     */
+    default boolean isBeingResized() {
+        return false;
+    }
+
+    /**
+     * Lower clamp for the scale during pinch resize.
+     *
+     * @return min scale (multiplier of base)
+     */
+    default float getMinScale() {
+        return 0.25f;
+    }
+
+    /**
+     * Upper clamp for the scale during pinch resize.
+     *
+     * @return max scale (multiplier of base)
+     */
+    default float getMaxScale() {
+        return 4.0f;
+    }
+
+    /**
+     * If specified raw cursor position is over the resize handle.
+     *
+     * <p>Default implementation places a small square handle at the right edge
+     * of the drag-bar strip (just below the cursor bounds).</p>
+     *
+     * @param rawX raw cursor x
+     * @param rawY raw cursor y
+     * @return true/false
+     */
+    default boolean isCursorOnResizeHandle(float rawX, float rawY) {
+        if (!supportsResizing()) {
+            return false;
+        }
+        int width = getWidth();
+        int height = getHeight();
+        if (width <= 0 || height <= 0) {
+            return false;
+        }
+        int edgeX = getCursorBoundsX();
+        int edgeY = getCursorBoundsY();
+        int edgeWidth = getCursorBoundsWidth();
+        int edgeHeight = getCursorBoundsHeight();
+        // -1 in any bound means "use the full overlay"
+        if (edgeX < 0) edgeX = 0;
+        if (edgeY < 0) edgeY = 0;
+        if (edgeWidth < 0) edgeWidth = width;
+        if (edgeHeight < 0) edgeHeight = height;
+
+        float rawLeftCb  = (float) edgeX / width;
+        float rawRightCb = (float) (edgeX + edgeWidth) / width;
+        float rawTop     = (float) (edgeY + edgeHeight) / height;
+        float rawBottom  = rawTop + 0.15f;
+
+        float barCenterX = (rawLeftCb + rawRightCb) * 0.5f;
+        float barHalfW   = (rawRightCb - rawLeftCb) * 0.18f;
+        float left  = barCenterX + barHalfW + barHalfW * 0.20f;
+        float right = left + barHalfW * 0.55f;
+
+        return rawX >= left && rawX <= right
+                && rawY > rawTop && rawY <= rawBottom;
+    }
+
+
+    //--------------------------------------
+    //--------- SUPPORTED FEATURES ---------
+    //--------------------------------------
 
     /**
      * If supports update of visibility each render call, instead of tick()
@@ -316,7 +481,27 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         return false;
     }
 
+    /**
+     * If overlay can be dragged and repositioned by the player
+     *
+     * @return true/false
+     */
+    default boolean supportsDragging() {
+        return false;
+    }
 
+    /**
+     * If overlay can be resized by player
+     *
+     * @return true/false
+     */
+    default boolean supportsResizing() {
+        return false;
+    }
+
+    //----------------------------------------
+    //--------- CURSOR && RESOLUTION ---------
+    //----------------------------------------
 
     /**
      * Get Data for active cursor
@@ -378,7 +563,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the X of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsX() {
-        return -1;
+        return 0;
     }
 
     /**
@@ -394,7 +579,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the Y of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsY() {
-        return -1;
+        return 0;
     }
 
     /**
@@ -409,7 +594,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the width of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsWidth() {
-        return -1;
+        return getWidth();
     }
 
     /**
@@ -424,7 +609,7 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      * @return the height of the cursor bounds, or {@code -1}
      */
     default int getCursorBoundsHeight() {
-        return -1;
+        return getHeight();
     }
 
     /**
@@ -471,6 +656,10 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
         return true;
     }
 
+
+    //----------------------------
+    //--------- MC STUFF ---------
+    //----------------------------
 
     /**
      * Get active cursor position X
@@ -634,6 +823,10 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      */
     boolean charTyped(char chr, int modifiers);
 
+
+    //-------------------------
+    //--------- EXTRA ---------
+    //-------------------------
 
     /**
      * Override of {@link PrioritySupporter#compareTo(PrioritySupporter)}

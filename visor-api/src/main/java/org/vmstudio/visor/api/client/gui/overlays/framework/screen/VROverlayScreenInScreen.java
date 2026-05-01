@@ -61,12 +61,28 @@ public abstract class VROverlayScreenInScreen<T extends Screen> extends VROverla
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int buttonType) {
+        if (buttonType == 0 && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
+            startResizing();
+            return true;
+        }
+        if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
+            startDragging();
+            return true;
+        }
         if(screen==null) return true;
         return screen.mouseClicked(mouseX, mouseY, buttonType);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
+        if (buttonType == 0 && isBeingResized()) {
+            stopResizing();
+            return true;
+        }
+        if (buttonType == 0 && isBeingDragged()) {
+            stopDragging();
+            return true;
+        }
         if(screen==null) return true;
         return screen.mouseReleased(mouseX, mouseY, buttonType);
     }

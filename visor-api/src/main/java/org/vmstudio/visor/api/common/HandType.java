@@ -34,7 +34,7 @@ public enum HandType {
         }
     }
 
-    public @NotNull HandType reversed(){
+    public @NotNull HandType opposite(){
         if(this == OFFHAND) return MAIN;
         else return OFFHAND;
     }

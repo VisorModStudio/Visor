@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.client.gui.overlays.options;
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigFile;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.common.VRException;
 import net.minecraft.network.chat.Component;
@@ -168,9 +169,21 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
      *
      * @return true/false
      */
-    protected abstract boolean supportsCopying();
+    protected boolean supportsCopying(){
+        return false;
+    }
 
-
+    /**
+     * If supports modification by player.
+     * <p>
+     *     When false, the options are not visible
+     *     by player in VR settings
+     * </p>
+     * @return
+     */
+    public boolean isModifiable(){
+        return true;
+    }
     /**
      * If supports copying data from other instance.
      *
@@ -199,7 +212,7 @@ public abstract class OverlayOptionGroup<T extends OverlayOptionGroup<T>> {
      *
      * @return the screen
      */
-    @NotNull
+    @Nullable
     public abstract OptionsScreen<?> getScreen();
 
 

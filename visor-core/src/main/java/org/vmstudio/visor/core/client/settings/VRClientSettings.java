@@ -7,6 +7,8 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
@@ -25,6 +27,9 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
 
+import java.util.Collection;
+import java.util.List;
+
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VRClientSettings {
@@ -41,12 +46,10 @@ public class VRClientSettings {
 
     //----Keyboard
     @Getter
-    @VROptionField(key = "keyboard.keys")
-    protected static String keyboardKeys = "`1234567890-=qwertyuiop[]\\asdfghjkl;':\"zxcvbnm,./?<>";
-
-    @Getter
-    @VROptionField(key = "keyboard.keysShift")
-    protected static String keyboardKeysShift = "~!@#$%^&*()_+QWERTYUIOP{}|ASDFGHJKL;':\"ZXCVBNM,./?<>";
+    @VROptionField(key = "keyboard.layouts", category = VROptionCategory.GUI)
+    protected static String keyboardLayoutsRaw = KeyboardLayouts.serialize(
+            List.of(KeyboardLayout.EN_US)
+    );
     //---
 
 
@@ -364,6 +367,16 @@ public class VRClientSettings {
             return rotationFlyMode;
         }
         return rotationMode;
+    }
+
+    public static @NotNull List<KeyboardLayout> getKeyboardLayouts() {
+        return KeyboardLayouts.deserialize(keyboardLayoutsRaw);
+    }
+
+    public static void setKeyboardLayouts(
+            @NotNull Collection<KeyboardLayout> layouts
+    ) {
+        keyboardLayoutsRaw = KeyboardLayouts.serialize(layouts);
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,
