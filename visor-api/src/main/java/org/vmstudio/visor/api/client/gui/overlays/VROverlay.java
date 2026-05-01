@@ -236,6 +236,13 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     }
 
 
+    /**
+     * If overlay has player modifiable options
+     * @return true/false
+     */
+    default boolean hasModifiableOptions(){
+        return getOptions().stream().anyMatch(OverlayOptionGroup::isModifiable);
+    }
 
     //---------------------------------------------
     //--------- FORCED ANCHOR && DRAGGING ---------

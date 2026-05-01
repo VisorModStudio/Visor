@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.client.gui.overlays.options.types;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumconfig.api.config.Config;
@@ -8,13 +7,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Getter @Setter
 public class OverlayOptionsResizing extends OverlayOptionGroup<OverlayOptionsResizing> {

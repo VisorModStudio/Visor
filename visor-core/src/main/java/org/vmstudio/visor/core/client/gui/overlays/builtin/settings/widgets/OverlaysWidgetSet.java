@@ -92,7 +92,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
             if(overlay == null){
                 return false;
             }
-            return !overlay.getOptions().isEmpty();
+            return overlay.hasModifiableOptions();
         });
         //FILTER: No options
         id = "no_options";
@@ -103,7 +103,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
             if(overlay == null){
                 return false;
             }
-            return overlay.getOptions().isEmpty();
+            return !overlay.hasModifiableOptions();
         });
 
         //ADDON FILTERS

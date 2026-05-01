@@ -223,7 +223,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         for(var option : options){
             option.init();
         }
-        if(optionsResizing != null) {
+        if(supportsResizing()) {
             var resizingScale = optionsResizing.getResizingScale();
             if (resizingScale != -1) {
                 getPose().updateOnlyScale(resizingScale);
