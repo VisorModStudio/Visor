@@ -28,6 +28,7 @@ public interface VisorPayloadToServer extends VisorPayload {
                 case TELEPORT -> TeleportMovePayloadToServer.read(buffer);
                 case SWING_ATTACK -> SwingAttackPayloadToServer.read(buffer);
                 case SWING_BLOCK -> SwingBlockPayloadToServer.read(buffer);
+                case GUI_STATE -> GuiStatePayloadToServer.read(buffer);
                 default -> {
                     VisorAPI.server().getLogger().error(
                             "Visor: Got unexpected payload identifier on server: {}", id

@@ -154,6 +154,16 @@ public class ServerNetworking {
             );
             vrPlayer.setFullHeightLastSent(fullHeight);
         }
+
+        boolean guiOpened = vrPlayer.isGuiOpened();
+        if (guiOpened != vrPlayer.isGuiOpenedLastSent()) {
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    false,
+                    new VROtherGuiStatePayloadToClient(serverPlayer.getUUID(), guiOpened)
+            );
+            vrPlayer.setGuiOpenedLastSent(guiOpened);
+        }
     }
 
 

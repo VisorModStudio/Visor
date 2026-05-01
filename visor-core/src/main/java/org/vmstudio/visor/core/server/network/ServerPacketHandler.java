@@ -211,6 +211,10 @@ public class ServerPacketHandler {
                         );
                 serverPlayer.connection.ackBlockChangesUpTo(payload.sequence());
             }
+            case GUI_STATE -> {
+                var payload = (GuiStatePayloadToServer) payloadToServer;
+                vrPlayer.setGuiOpened(payload.guiOpened());
+            }
         }
     }
 

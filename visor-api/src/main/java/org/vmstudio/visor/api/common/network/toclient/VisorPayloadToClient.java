@@ -19,6 +19,7 @@ public interface VisorPayloadToClient extends VisorPayload {
                 case ROTATION_Y -> RotationYPayloadToClient.read(buffer);
                 case OFFHAND_SLOT -> OffhandSlotPayloadToClient.read(buffer);
                 case BLOCK_DAMAGE -> BlockDamagePayloadToClient.read(buffer);
+                case OTHER_VR_GUI_STATE -> VROtherGuiStatePayloadToClient.read(buffer);
                 case OTHER_VR_LEFT_HANDED -> VROtherLeftHandedPayloadToClient.read(buffer);
                 case OTHER_VR_BODY_TYPE -> VROtherBodyTypePayloadToClient.read(buffer);
                 case OTHER_VR_POSE_DATA -> VROtherPoseDataPayloadToClient.read(buffer);

@@ -56,6 +56,11 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     @Setter
     private float fullHeightLastSent = 1.0F;
 
+    @Setter
+    private boolean guiOpened;
+    @Setter
+    private boolean guiOpenedLastSent;
+
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
         poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);

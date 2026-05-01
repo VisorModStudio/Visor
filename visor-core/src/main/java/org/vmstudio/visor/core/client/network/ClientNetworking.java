@@ -38,7 +38,7 @@ public class ClientNetworking {
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
 
-
+    private static boolean guiOpenedLastSent = false;
 
     public static void sendVRPacket(VisorPayloadToServer payload) {
         if (MC.getConnection() == null) return;
@@ -135,6 +135,12 @@ public class ClientNetworking {
                     new VRBodyTypePayloadToServer(vrBody.getId())
             );
             vrBodyLastSent = vrBody;
+        }
+
+        boolean guiOpened = localPlayer.isGuiOpened();
+        if (guiOpened != guiOpenedLastSent) {
+            sendVRPacket(new GuiStatePayloadToServer(guiOpened));
+            guiOpenedLastSent = guiOpened;
         }
 
 

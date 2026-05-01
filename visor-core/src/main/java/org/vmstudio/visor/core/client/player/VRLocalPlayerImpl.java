@@ -78,6 +78,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Getter @Setter
     private boolean moving;
 
+    @Getter @Setter
+    private boolean guiOpened;
+
     public VRLocalPlayerImpl() {
         this.roomRelativePose = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
         this.prevPose = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
@@ -184,6 +187,10 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         isTicking = false;
         rotationYRaw = pose.getRotationY();
+
+        //gui state
+        boolean currentGuiState = MC.screen != null || ClientContext.cursorHandler.isAnyHandFocused(false);
+        this.guiOpened = currentGuiState;
     }
 
 
