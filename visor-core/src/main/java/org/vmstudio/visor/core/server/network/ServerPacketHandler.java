@@ -241,13 +241,7 @@ public class ServerPacketHandler {
         } else {
             // unsupported version, send notification, and disregard
             player.connection.disconnect(
-                    Component.literal(
-                            String.format(
-                                    "Your Visor network version is not supported by this server!" +
-                                     "\n Your: %s Server: %s",
-                                    networkVersion,  VisorNetwork.NETWORK_VERSION
-                            )
-                    )
+                    Component.translatable("visor.messages.network_mismatch", networkVersion, VisorNetwork.NETWORK_VERSION)
             );
             if (VRServerSettings.isServerDebug()) {
                 logger.info(

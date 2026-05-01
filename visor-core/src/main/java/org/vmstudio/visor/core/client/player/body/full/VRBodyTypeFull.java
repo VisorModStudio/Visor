@@ -14,7 +14,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 public class VRBodyTypeFull extends VRBodyType {
 
     public static final String ID = "full_body";
-    public static final Component NAME = Component.literal("Full Body");
+    public static final Component NAME = Component.translatable("visor.vr_body_type.full_body.name");
 
     @Getter
     private static VRBodyTypeFull instance;

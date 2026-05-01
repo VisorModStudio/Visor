@@ -1,16 +1,15 @@
 package org.vmstudio.visor.core.client.gui.screens;
 
-import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
+import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +28,9 @@ public class GameMenuScreen extends Screen {
     private static final int SECTION_GAP = 6;
 
     private enum Tab{
-        MAIN(Component.literal("Main")),
-        COMMANDS(Component.literal("Commands")),
-        TOOLS(Component.literal("Tools"));
+        MAIN(Component.translatable("visor.menu.game_menu.tab.main")),
+        COMMANDS(Component.translatable("visor.menu.game_menu.tab.commands")),
+        TOOLS(Component.translatable("visor.menu.game_menu.tab.tools"));
 
         Component label;
 
@@ -46,7 +45,7 @@ public class GameMenuScreen extends Screen {
     private final List<String> sectionHeaderTexts = new ArrayList<>();
 
     public GameMenuScreen() {
-        super(Component.literal("Game Menu"));
+        super(Component.translatable("visor.menu.game_menu.title"));
     }
 
 
@@ -89,7 +88,7 @@ public class GameMenuScreen extends Screen {
         y += 4;
 
         addRenderableWidget(
-                Button.builder(Component.literal("Save and Quit to Title"), b -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, this::onDisconnect, true))
+                Button.builder(Component.translatable("menu.quit"), b -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, () -> ClientUtils.disconnect(""), true))
                         .pos(cx - COLUMN_W / 2, y).width(COLUMN_W).build()
         );
     }
@@ -100,50 +99,55 @@ public class GameMenuScreen extends Screen {
 
         switch (this.currentTab) {
             case MAIN -> {
-                addRenderableWidget(makeHalfBtn("Inventory", left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.inventory").getString(), left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
-                addRenderableWidget(makeHalfBtn("Calibrate Height", right, y, b -> {
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.calibrate_height").getString(), right, y, b -> {
                     VRClientSettings.calibrateHeight();
                     ClientContext.settingsManager.saveOptions();
                 }));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Keyboard", left, y, b ->{
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.keyboard").getString(), left, y, b ->{
                                     var accessor = ClientContext.overlayManager.getKeyboardAccessor();
                                     accessor.setVisible(true);
                                     accessor.resetPose();
                                 })
                 );
-                addRenderableWidget(makeHalfBtn("Chat", right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.chat").getString(), right, y,
                         b -> this.minecraft.setScreen(new ChatScreen(""))));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Pause Menu", left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.pause_menu").getString(), left, y,
                         b -> this.minecraft.setScreen(new PauseScreen(true))));
-                addRenderableWidget(makeHalfBtn("VR Settings", right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.vr_settings").getString(), right, y,
                         b -> this.minecraft.setScreen(new VRSettingsScreen(this))));
                 y += BTN_H + GAP;
             }
 
             case COMMANDS -> {
-                registerSection(left, y, "GAME MODE");
+                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.game_mode").getString());
                 y += LABEL_H;
 
-                addRenderableWidget(makeHalfBtn("Survival", left, y, b -> sendCommand("gamemode survival")));
-                addRenderableWidget(makeHalfBtn("Creative", right, y, b -> sendCommand("gamemode creative")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.survival").getString(), left, y, b -> sendCommand("gamemode survival")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.creative").getString(), right, y, b -> sendCommand("gamemode creative")));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Spectator", left, y, b -> sendCommand("gamemode spectator")));
-                addRenderableWidget(makeHalfBtn("Adventure", right, y, b -> sendCommand("gamemode adventure")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.spectator").getString(), left, y, b -> sendCommand("gamemode spectator")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.adventure").getString(), right, y, b -> sendCommand("gamemode adventure")));
                 y += BTN_H + GAP;
 
                 y += SECTION_GAP;
 
-                registerSection(left, y, "TIME");
+                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.time").getString());
                 y += LABEL_H;
 
                 int[] timeTicks = {0, 6000, 12000, 18000};
-                String[] timeLabels = {"Dawn", "Noon", "Dusk", "Night"};
+                String[] timeLabels = {
+                        Component.translatable("visor.menu.game_menu.button.dawn").getString(), //"Dawn",
+                        Component.translatable("visor.menu.game_menu.button.noon").getString(), //"Noon",
+                        Component.translatable("visor.menu.game_menu.button.dusk").getString(), //"Dusk",
+                        Component.translatable("visor.menu.game_menu.button.night").getString() //"Night"};
+                };
                 for (int i = 0; i < 4; i++) {
                     final int tick = timeTicks[i];
                     addRenderableWidget(Button.builder(Component.literal(timeLabels[i]),
@@ -156,10 +160,14 @@ public class GameMenuScreen extends Screen {
 
                 y += SECTION_GAP;
 
-                registerSection(left, y, "WEATHER");
+                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.weather").getString());
                 y += LABEL_H;
 
-                String[] weatherLabels = {"Clear", "Rain", "Thunder"};
+                String[] weatherLabels = {
+                        Component.translatable("visor.menu.game_menu.button.clear").getString(), //"Clear",
+                        Component.translatable("visor.menu.game_menu.button.rain").getString(), //"Rain",
+                        Component.translatable("visor.menu.game_menu.button.thunder").getString(), //"Thunder"
+                };
                 String[] weatherCmds = {"weather clear", "weather rain", "weather thunder"};
                 for (int i = 0; i < 3; i++) {
                     final String cmd = weatherCmds[i];
@@ -172,17 +180,17 @@ public class GameMenuScreen extends Screen {
             }
 
             case TOOLS -> {
-                addRenderableWidget(makeHalfBtn("Hitboxes", left, y, b -> {
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.hitboxes").getString(), left, y, b -> {
                     boolean cur = this.minecraft.getEntityRenderDispatcher().shouldRenderHitBoxes();
                     this.minecraft.getEntityRenderDispatcher().setRenderHitBoxes(!cur);
                 }));
-                addRenderableWidget(makeHalfBtn("Chunk Borders", right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.chunk_borders").getString(), right, y,
                         b -> this.minecraft.debugRenderer.switchRenderChunkborder()));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn("Reload Chunks", left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.reload_chunks").getString(), left, y,
                         b -> this.minecraft.levelRenderer.allChanged()));
-                addRenderableWidget(makeHalfBtn("Clear Chat", right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.clear_chat").getString(), right, y,
                         b -> this.minecraft.gui.getChat().clearMessages(false)));
                 y += BTN_H + GAP;
             }
@@ -198,7 +206,7 @@ public class GameMenuScreen extends Screen {
         int cx = this.width / 2;
         int startY = this.height / 2 - totalColumnHeight() / 2;
 
-        gfx.drawCenteredString(this.font, Component.literal("Game Menu"), cx, startY, 0xFFFFFFFF);
+        gfx.drawCenteredString(this.font, Component.translatable("visor.menu.game_menu.title"), cx, startY, 0xFFFFFFFF);
 
         int dividerColor = 0xFF555555;
 
@@ -256,27 +264,4 @@ public class GameMenuScreen extends Screen {
             this.minecraft.player.connection.sendCommand(command);
         }
     }
-
-    // took from PauseScreen
-    private void onDisconnect() {
-        boolean bl = this.minecraft.isLocalServer();
-        boolean bl2 = this.minecraft.isConnectedToRealms();
-        this.minecraft.level.disconnect();
-        if (bl) {
-            this.minecraft.clearLevel(new GenericDirtMessageScreen(Component.literal("Saving world")));
-        } else {
-            this.minecraft.clearLevel();
-        }
-
-        TitleScreen titleScreen = new TitleScreen();
-        if (bl) {
-            this.minecraft.setScreen(titleScreen);
-        } else if (bl2) {
-            this.minecraft.setScreen(new RealmsMainScreen(titleScreen));
-        } else {
-            this.minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
-        }
-
-    }
-
 }

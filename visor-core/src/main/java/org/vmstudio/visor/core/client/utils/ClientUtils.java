@@ -135,7 +135,7 @@ public class ClientUtils {
             connection.getConnection().disconnect(Component.literal(message));
         }
         if (bl) {
-            minecraft.clearLevel(new GenericDirtMessageScreen(Component.literal("Saving world. " + message)));
+            minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("visor.messages.saving_world", message)));
         } else {
             minecraft.clearLevel();
         }

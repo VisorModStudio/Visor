@@ -14,7 +14,7 @@ import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 public class VRBodyTypeHandsOnly extends VRBodyType {
 
     public static final String ID = "hands_only";
-    public static final Component NAME = Component.literal("Hands only");
+    public static final Component NAME = Component.translatable("visor.vr_body_type.hands_only.name");
 
     @Getter
     private static VRBodyTypeHandsOnly instance;
