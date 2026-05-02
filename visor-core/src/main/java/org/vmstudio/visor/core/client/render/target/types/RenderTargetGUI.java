@@ -81,11 +81,6 @@ public class RenderTargetGUI implements RenderTargetHolder {
             );
             overlay.updateSize();
         }
-        if (MC.screen != null) {
-            int screenWidth = MC.getWindow().getGuiScaledWidth();
-            int screenHeight = MC.getWindow().getGuiScaledHeight();
-            MC.screen.init(MC, screenWidth, screenHeight);
-        }
         savedWidth = width;
         savedHeight = height;
     }

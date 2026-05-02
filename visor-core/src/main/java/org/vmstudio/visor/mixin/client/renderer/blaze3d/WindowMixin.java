@@ -2,6 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.platform.Window;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,24 +29,40 @@ public abstract class WindowMixin implements WindowExtension {
     /* ********************************** *\
   //--------REPLACING VANILLA VALUES--------\\
     \* ********************************** */
+
     @Inject(method = "getWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrWidth(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.get().isActive()) {
-            cir.setReturnValue(
-                    MC.mainRenderTarget
-                            .viewWidth
-            );
+        if(VisorState.get().isActive()) {
+            var phase = VRRenderState.getPhase();
+            if (phase.isVanilla() || phase.isVRGui()) {
+                cir.setReturnValue(
+                        ClientContext.guiManager.getGuiWidth()
+                );
+            } else {
+                cir.setReturnValue(
+                        MC.mainRenderTarget.viewWidth
+                );
+            }
         }
     }
+
     @Inject(method = "getHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrHeight(CallbackInfoReturnable<Integer> cir) {
-        if (VisorState.get().isActive()) {
-            cir.setReturnValue(
-                    MC.mainRenderTarget
-                    .viewHeight
-            );
+        if(VisorState.get().isActive()) {
+            var phase = VRRenderState.getPhase();
+            if (phase.isVanilla() || phase.isVRGui()) {
+                cir.setReturnValue(
+                        ClientContext.guiManager.getGuiHeight()
+                );
+            } else {
+                cir.setReturnValue(
+                        MC.mainRenderTarget.viewHeight
+                );
+            }
         }
     }
+
+
     @Inject(method = "getScreenWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrScreenWidth(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
@@ -56,6 +73,7 @@ public abstract class WindowMixin implements WindowExtension {
             );
         }
     }
+
     @Inject(method = "getScreenHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrScreenHeight(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
@@ -66,6 +84,8 @@ public abstract class WindowMixin implements WindowExtension {
             );
         }
     }
+
+
     @Inject(method = "getGuiScaledWidth", at = @At("HEAD"), cancellable = true)
     void visor$vrGuiScaledWidth(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
@@ -76,6 +96,7 @@ public abstract class WindowMixin implements WindowExtension {
             );
         }
     }
+
     @Inject(method = "getGuiScaledHeight", at = @At("HEAD"), cancellable = true)
     void visor$vrGuiScaledHeight(CallbackInfoReturnable<Integer> cir) {
         if (VisorState.get().isActive()) {
@@ -86,6 +107,8 @@ public abstract class WindowMixin implements WindowExtension {
             );
         }
     }
+
+
     @Inject(method = "getGuiScale", at = @At("HEAD"), cancellable = true)
     void visor$vrScaleFactor(CallbackInfoReturnable<Double> cir) {
         if (VisorState.get().isActive()) {
