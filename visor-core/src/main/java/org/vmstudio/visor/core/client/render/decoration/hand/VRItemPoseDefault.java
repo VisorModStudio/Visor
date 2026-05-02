@@ -60,7 +60,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
 
 
-    private PoseParams computeParams(ItemStack item,
+    private PoseParams computeParams(ItemStack itemStack,
                                      AbstractClientPlayer player,
                                      InteractionHand mcHand,
                                      int handDir,
@@ -83,7 +83,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
         Quaternionf rotation = new Quaternionf();
 
-        float scale = 0.7f;
+        float scale = 0.8f;
 
         float translateX = 0;
         float translateY = 0.005f;
@@ -134,30 +134,42 @@ public class VRItemPoseDefault extends VRHandItemPose {
             return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
         }
 
-        var transformType = getTransformType(item, player, MC.getItemRenderer());
+        var transformType = getTransformType(itemStack, player, MC.getItemRenderer());
         switch (transformType) {
             case BLOCK_ITEM, DEFAULT -> {
                 scale = 1.0f;
-                if (item.getItem() instanceof ArrowItem) {
+                if (itemStack.getItem() instanceof ArrowItem) {
                     preRoll = -180;
                     yaw = -gunAngle;
-                } else if (item.is(Items.STICK)) {
+                } else if (itemStack.is(Items.STICK)) {
                     scale = 1.0f;
                     translateY = 0.0f;
                     yaw = 0;
-                } else {
-                    roll = 180;
-                    yaw += -135;
-                    pitch += 90;
-                    translateX += 0.04f;
-                    translateZ -= 0.12f;
+                }else if(itemStack.getItem() instanceof BannerItem){
+                    scale = 1.4f;
+                    translateY = 0.0f;
+                    yaw = 0;
+                    pitch = 180;
+                }else {
+                    preYaw = -20;
+                    yaw = 0;
+                    pitch = 90;
+                    translateX = -0.055f;
+                    translateY = -0.1f;
+                    translateZ = -0.2f;
                 }
             }
             case BLOCK_3D -> {
+                scale = 0.7f;
                 translateZ -= 0.13f;
                 translateY -= 0.05f;
-                if(item.getItem() instanceof BedItem){
+                if(itemStack.getItem() instanceof BedItem){
                     yaw += 20;
+                }else if(itemStack.getItem() instanceof BannerItem){
+                    scale = 1.4f;
+                    translateY = 0.0f;
+                    yaw = 0;
+                    pitch = 180;
                 }else {
                     yaw += -40;
                 }
@@ -170,9 +182,39 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
             }
             case TOOL ->{
-                scale = 1.45f;
-                yaw = -10;
-                translateZ -= 0.08F;
+                if(itemStack.getItem() instanceof BrushItem){
+                    scale = 0.9f;
+                    yaw = -90;
+                    pitch = -40;
+                    roll = 90;
+                    translateY = 0;
+                } else if (itemStack.getItem() instanceof FlintAndSteelItem) {
+                    scale = 1;
+                    translateX = 0.06f;
+                    translateY = 0;
+                    translateZ = -0.25f;
+                    preYaw = -15f;
+                    yaw = 0f;
+                    pitch = -90f;
+                } else {
+                    scale = 1.45f;
+                    yaw = -25;
+                    translateZ -= 0.08F;
+                    translateY -= 0.1F;
+                }
+            }
+            case STICK -> {
+                translateZ = -0.05f;
+                yaw = -20;
+            }
+            case TORCH -> {
+                scale = 1.8f;
+                translateX = -0.11f;
+                translateY = 0;
+                translateZ = 0.08f;
+                preYaw = -10;
+                yaw = 0;
+                pitch = 90;
             }
             case MAP -> {
                 scale = 1.0f;
@@ -203,9 +245,9 @@ public class VRItemPoseDefault extends VRHandItemPose {
             }
             case SWORD -> {
                 scale = 1.3f;
-                yaw += 45;
+                yaw = -25;
                 translateZ -= 0.08F;
-                translateY -= 0.01f;
+                translateY -= 0.04f;
             }
             case SHIELD -> {
 
@@ -229,7 +271,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 yaw = 0;
 
                 float progress = 0.0F;
-                int riptideLevel = EnchantmentHelper.getRiptide(item);
+                int riptideLevel = EnchantmentHelper.getRiptide(itemStack);
 
                 if (player.isUsingItem()
                         && player.getUseItemRemainingTicks() > 0
@@ -237,7 +279,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
                     if (riptideLevel <= 0 || player.isInWaterOrRain()) {
                         progress =
-                                item.getUseDuration() - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
+                                itemStack.getUseDuration() - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
 
                         if (progress > TridentItem.THROW_THRESHOLD_TIME) {
                             float rotationProgress = progress - TridentItem.THROW_THRESHOLD_TIME;
@@ -294,7 +336,21 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 || itemStack.getUseAnimation() == UseAnim.DRINK) {
             return TransformType.CONSUMABLE;
         }
-        if (item instanceof BlockItem) {
+
+        if (isTool(item)) {
+            transformType = TransformType.TOOL;
+
+            if (item instanceof FoodOnAStickItem
+                    || item instanceof FishingRodItem) {
+                transformType = TransformType.FISHING_ROD;
+            }
+        }
+        else if(isStick(item)){
+            transformType = TransformType.STICK;
+        }else if(isTorch(item)){
+            transformType = TransformType.TORCH;
+        }
+        else if (item instanceof BlockItem) {
             Block block = ((BlockItem) item).getBlock();
 
             if (block instanceof TorchBlock) {
@@ -327,32 +383,14 @@ public class VRItemPoseDefault extends VRHandItemPose {
             transformType = TransformType.CROSSBOW;
         } else if (item instanceof CompassItem || item == Items.CLOCK) {
             transformType = TransformType.COMPASS;
-        } else {
-            if (isTool(item)) {
-                transformType = TransformType.TOOL;
-
-                if (item instanceof FoodOnAStickItem
-                        || item instanceof FishingRodItem) {
-                    transformType = TransformType.FISHING_ROD;
-                }
-            }
         }
         return transformType;
     }
 
     public static boolean isTool(final Item item) {
         return item instanceof DiggerItem
-                || item instanceof ArrowItem
                 || item instanceof FishingRodItem
                 || item instanceof FoodOnAStickItem
-                || item instanceof ShearsItem
-                || item == Items.BONE
-                || item == Items.BLAZE_ROD
-                || item == Items.BAMBOO
-                || item == Items.TORCH
-                || item == Items.REDSTONE_TORCH
-                || item == Items.STICK
-                || item instanceof DebugStickItem
                 || item instanceof FlintAndSteelItem
                 || item instanceof BrushItem
                 || item instanceof HoeItem
@@ -360,6 +398,20 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 || item instanceof PickaxeItem
                 || item instanceof ShovelItem;
     }
+    public static boolean isStick(final Item item){
+        return item instanceof ArrowItem
+                || item instanceof DebugStickItem
+                || item == Items.BONE
+                || item == Items.BLAZE_ROD
+                || item == Items.BAMBOO
+                || item == Items.STICK;
+    }
+    public static boolean isTorch(final Item item){
+        return item == Items.TORCH
+                || item == Items.SOUL_TORCH
+                || item == Items.REDSTONE_TORCH;
+    }
+
     @Override
     public boolean canApplyPose(@NotNull AbstractClientPlayer player,
                                 @NotNull HandType hand,
@@ -400,6 +452,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
         CROSSBOW,
         TELESCOPE,
         COMPASS,
-        HORN
+        HORN,
+        STICK,
+        TORCH
     }
 }
