@@ -37,7 +37,7 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private float rotationY;
 
     @Setter
-    private HandType activeHand;
+    private HandType activeHand = HandType.MAIN;
 
     @Setter
     private boolean leftHanded;
