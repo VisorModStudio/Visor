@@ -469,6 +469,30 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     /* ************** *\
   //--------MISC--------\\
     \* ************** */
+
+    @Inject(method = "stop", at = @At("HEAD"))
+    private void visor$markVrShutdown(CallbackInfo ci) {
+        try {
+            if (ClientContext.visor == null) {
+                return;
+            }
+            ClientContext.visor.getVrProvider().prepareDestroy();
+        } catch (Throwable ignored) {
+            // Don't block
+        }
+    }
+    @Inject(method = "close", at = @At("HEAD"))
+    private void visor$destroyVrOnClose(CallbackInfo ci) {
+        try {
+            if (VisorState.get().isInitialized()) {
+                VisorState.destroyVR();
+            }
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
+
+
     @Inject(method = "setCameraEntity", at = @At("HEAD"))
     private void visor$rideEntity(Entity entity, CallbackInfo ci) {
         if (VisorState.get().isInitialized() && entity != null) {
