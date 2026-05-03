@@ -32,6 +32,14 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
+/**
+ * Default items positioning in VR.
+ * <p>
+ *     Made with {@link VROverlayItemPoseTest} tool,
+ *     and based on Meta Quest 3s controllers
+ *     (should be compatible with others, because gunAngle is used)
+ * </p>
+ */
 @RegisterVRItemPose
 public class VRItemPoseDefault extends VRHandItemPose {
     private static final String ID = "default";
@@ -85,15 +93,15 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
         float scale = 0.8f;
 
-        float translateX = 0;
-        float translateY = 0.005f;
-        float translateZ = 0;
-
         float preYaw = 0;
         float prePitch = 0;
         float preRoll = 0;
 
-        float yaw = -110 + gunAngle;
+        float translateX = 0;
+        float translateY = 0;
+        float translateZ = 0;
+
+        float yaw = 0;
         float pitch = 0;
         float roll = 0;
 
@@ -138,47 +146,35 @@ public class VRItemPoseDefault extends VRHandItemPose {
         switch (transformType) {
             case BLOCK_ITEM, DEFAULT -> {
                 scale = 1.0f;
-                if (itemStack.getItem() instanceof ArrowItem) {
-                    preRoll = -180;
-                    yaw = -gunAngle;
-                } else if (itemStack.is(Items.STICK)) {
-                    scale = 1.0f;
-                    translateY = 0.0f;
-                    yaw = 0;
-                }else if(itemStack.getItem() instanceof BannerItem){
-                    scale = 1.4f;
-                    translateY = 0.0f;
-                    yaw = 0;
-                    pitch = 180;
-                }else {
-                    preYaw = -20;
-                    yaw = 0;
-                    pitch = 90;
-                    translateX = -0.055f;
-                    translateY = -0.1f;
-                    translateZ = -0.2f;
-                }
+                preYaw = -20;
+                translateX = -0.055f;
+                translateY = -0.1f;
+                translateZ = -0.2f;
+                yaw = 0;
+                pitch = 90;
             }
             case BLOCK_3D -> {
                 scale = 0.7f;
+                translateY = 0.005f-0.05f;
                 translateZ -= 0.13f;
-                translateY -= 0.05f;
                 if(itemStack.getItem() instanceof BedItem){
-                    yaw += 20;
+                    yaw = -50 + 20;
                 }else if(itemStack.getItem() instanceof BannerItem){
                     scale = 1.4f;
                     translateY = 0.0f;
                     yaw = 0;
                     pitch = 180;
                 }else {
-                    yaw += -40;
+                    yaw = -50 - 40;
                 }
             }
             case CONSUMABLE, COMPASS, BLOCK_STICK, HORN -> {
                 long ticks = player.getUseItemRemainingTicks();
+                translateY = 0.005f;
+                translateZ += 0.006f * Mth.sin(ticks) + 0.02f;
                 roll = 180;
                 yaw = -135;
-                translateZ += 0.006f * Mth.sin(ticks) + 0.02f;
+
 
             }
             case TOOL ->{
@@ -187,32 +183,30 @@ public class VRItemPoseDefault extends VRHandItemPose {
                     yaw = -90;
                     pitch = -40;
                     roll = 90;
-                    translateY = 0;
                 } else if (itemStack.getItem() instanceof FlintAndSteelItem) {
                     scale = 1;
-                    translateX = 0.06f;
-                    translateY = 0;
-                    translateZ = -0.25f;
                     preYaw = -15f;
+                    translateX = 0.06f;
+                    translateZ = -0.25f;
                     yaw = 0f;
                     pitch = -90f;
                 } else {
                     scale = 1.45f;
-                    yaw = -25;
+                    translateY = 0.005f-0.1F;
                     translateZ -= 0.08F;
-                    translateY -= 0.1F;
+                    yaw = -25;
                 }
             }
             case STICK -> {
+                translateY = 0.005f;
                 translateZ = -0.05f;
                 yaw = -20;
             }
             case TORCH -> {
                 scale = 1.8f;
-                translateX = -0.11f;
-                translateY = 0;
-                translateZ = 0.08f;
                 preYaw = -10;
+                translateX = -0.11f;
+                translateZ = 0.08f;
                 yaw = 0;
                 pitch = 90;
             }
@@ -225,13 +219,11 @@ public class VRItemPoseDefault extends VRHandItemPose {
             }
             case FISHING_ROD -> {
                 scale = 1.45f;
-                translateY = 0;
                 yaw = -50;
             }
             case CROSSBOW -> {
                 scale = 0.9f;
                 translateX = handDir * -0.065f;
-                translateY = 0;
                 yaw = 0;
                 pitch = handDir * 15;
             }
@@ -245,30 +237,29 @@ public class VRItemPoseDefault extends VRHandItemPose {
             }
             case SWORD -> {
                 scale = 1.3f;
-                yaw = -25;
                 translateZ -= 0.08F;
-                translateY -= 0.04f;
+                translateY = 0.005f-0.04f;
+                yaw = -25;
             }
             case SHIELD -> {
 
                 if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
-                    translateY -= 0.04f;;
+                    translateY = 0.005f-0.04f;;
                     translateX = handDir * -0.17f;
                     yaw = -45;
                     pitch = handDir * 45;
 
                 }else{
-                    translateY -= 0.04f;
+                    translateY = 0.005f-0.04f;
                     translateZ += 0.1f;
                     translateX += handDir * 0.015f;
-                    yaw += (handDir == 1 ? 105 : 115) - gunAngle;
+                    yaw = -50 + (handDir == 1 ? 105 : 115) - gunAngle;
                 }
 
             }
             case SPEAR -> {
                 scale = 1.3f;
-                translateY = 0;
-                yaw = 0;
+                preYaw = 90;
 
                 float progress = 0.0F;
                 int riptideLevel = EnchantmentHelper.getRiptide(itemStack);
@@ -300,24 +291,26 @@ public class VRItemPoseDefault extends VRHandItemPose {
                     }
 
                     translateX += handDir * 0.01f;
-                    translateY += -0.55F + progress / 10.0F * 0.25F;
+                    translateY = 0.005f-0.55F + progress / 10.0F * 0.25F;
 
-                    preYaw = 90;
 
                 } else if (player.isAutoSpinAttack() && riptideLevel > 0) {
-                    translateX = handDir * -0.02f;
                     preYaw = -90;
-                    translateY += 0.75F;
+                    translateX = handDir * -0.02f;
+                    translateY = 0.005f+0.75F;
                     pitch = (-VisorState.TICK_COUNT * 50) % 360 - partialTicks * 10.0F * riptideLevel;
                 } else{
+                    preYaw = -30;
                     translateX = handDir * -0.02f;
                     translateY = 0.2f;
                     translateZ = -0.05f;
-                    preYaw = -30;
                     pitch = handDir * 30;
                 }
             }
         }
+
+        yaw += gunAngle - 60;
+
         preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
         preRotation.mul(Axis.YP.rotationDegrees(prePitch));
         preRotation.mul(Axis.XP.rotationDegrees(preYaw));
@@ -399,8 +392,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 || item instanceof ShovelItem;
     }
     public static boolean isStick(final Item item){
-        return item instanceof ArrowItem
-                || item instanceof DebugStickItem
+        return item instanceof DebugStickItem
                 || item == Items.BONE
                 || item == Items.BLAZE_ROD
                 || item == Items.BAMBOO
@@ -445,12 +437,10 @@ public class VRItemPoseDefault extends VRHandItemPose {
         TOOL,
         FISHING_ROD,
         BOW,
-        BOW_DRAWING,
         SPEAR,
         MAP,
         CONSUMABLE,
         CROSSBOW,
-        TELESCOPE,
         COMPASS,
         HORN,
         STICK,
