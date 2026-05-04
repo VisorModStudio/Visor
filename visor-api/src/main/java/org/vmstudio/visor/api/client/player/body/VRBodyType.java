@@ -46,7 +46,7 @@ public abstract class VRBodyType implements VisorComponent {
      *
      * @return true/false
      */
-    public abstract boolean isSelfModelVisible();
+    public abstract ModelSelfVisibility getSelfModelVisibility();
 
 
     public @NotNull VRBody createBody(@NotNull VRClientPlayer vrPlayer,
@@ -70,4 +70,15 @@ public abstract class VRBodyType implements VisorComponent {
         return Component.translatable("visor.vr_body_type."+getId());
     }
 
+
+
+    public enum ModelSelfVisibility {
+        NO_MODEL,
+        WITHOUT_HANDS,
+        FULL;
+
+        public boolean isVisible(){
+            return this != NO_MODEL;
+        }
+    }
 }

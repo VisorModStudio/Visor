@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererHandsOnly;
 
 import java.util.*;
@@ -26,6 +27,9 @@ public class VRBodyRendererHandsOnly implements VRBodyRenderer {
 
     @Override
     public void renderDecoration(@NotNull VRDecorator decorator, @NotNull PoseStack poseStack, float partialTicks) {
+        if (!VRRenderState.getRenderPass().isFirstPerson()) {
+            return;
+        }
         ClientContext.handRenderer.renderWorldHands(
                 poseStack,
                 ClientContext.decorationRenderer.getHandRenderState(HandType.MAIN),

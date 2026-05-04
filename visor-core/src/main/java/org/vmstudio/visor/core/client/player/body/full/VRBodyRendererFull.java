@@ -10,6 +10,9 @@ import org.joml.Vector3fc;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.render.decoration.VRBodyRenderer;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRendererFull;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
@@ -28,7 +31,17 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     public void renderDecoration(@NotNull VRDecorator decorator,
                                  @NotNull PoseStack poseStack,
                                  float partialTicks) {
-        //EMPTY
+        // Self-perspective hands only. In third-person/other-player view the body
+        // model renders the arms (vanilla-looking) and the hands track yaw/pitch.
+        if (!VRRenderState.getRenderPass().isFirstPerson()) {
+            return;
+        }
+        ClientContext.handRenderer.renderWorldHands(
+                poseStack,
+                ClientContext.decorationRenderer.getHandRenderState(HandType.MAIN),
+                ClientContext.decorationRenderer.getHandRenderState(HandType.OFFHAND),
+                partialTicks
+        );
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.vmstudio.visor.core.client.render.player.model.simple;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
@@ -38,79 +37,60 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
-        if (VRClientPlayers.isTracked(entity) && !VRRenderState.getPhase().isVRGui()) {
-            animateVRModel(this, entity, limbSwing, limbSwingAmount);
-
-        }
-    }
-
-    private void animateVRModel(
-            VRPlayerModelSimple<?> model,
-            LivingEntity player,
-            float limbSwing, float limbSwingAmount
-    ) {
-        var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-
-        if (vrPlayer == null) {
-            model.vrPlayer = null;
+        if (!VRClientPlayers.isTracked(entity) || VRRenderState.getPhase().isVRGui()) {
             return;
         }
 
-        boolean isMainPlayer = VRRenderState.isSelfModelPlayer(player);
+        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
+        if (vrPlayer == null) {
+            this.vrPlayer = null;
+            return;
+        }
 
-        HumanoidArm mainArm = vrPlayer.isLeftHanded()
-                ? HumanoidArm.LEFT
-                : HumanoidArm.RIGHT;
+        animateThirdPersonVRModel(this, vrPlayer);
+    }
 
+    private static void animateThirdPersonVRModel(VRPlayerModelSimple<?> model, VRClientPlayer vrPlayer) {
         var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
-
         VRBody vrBody = poseRender.getBody();
-
-        var mainHandPose = vrBody.getMainHand().getPose();
-        var offhandPose = vrBody.getOffhand().getPose();
         float bodyYaw = poseRender.getBodyYaw();
 
-        ModelPart mainHand = vrPlayer.isLeftHanded() ? model.leftArm : model.rightArm;
-        ModelPart offHand = vrPlayer.isLeftHanded() ? model.rightArm : model.leftArm;
+        HumanoidArm mainArm = vrPlayer.isLeftHanded() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
+        HumanoidArm offArm = mainArm.getOpposite();
 
-        var modelOrigin = ModelUtils.getModelOrigin(player);
-        applyHandPose(vrPlayer, modelOrigin, mainHand, mainHandPose, bodyYaw);
-        applyHandPose(vrPlayer, modelOrigin, offHand, offhandPose, bodyYaw);
+        applyYawPitchToArm(model, mainArm, vrBody.getMainHand().getPose(), bodyYaw);
+        applyYawPitchToArm(model, offArm,  vrBody.getOffhand().getPose(),  bodyYaw);
 
         // copy to sleeves
         model.leftSleeve.copyFrom(model.leftArm);
         model.rightSleeve.copyFrom(model.rightArm);
 
-        model.isMainPlayer = isMainPlayer;
         model.vrPlayer = vrPlayer;
         model.mainArm = mainArm;
         model.bodyYaw = bodyYaw;
+        model.isMainPlayer = VRRenderState.isSelfModelPlayer(vrPlayer.getMcPlayer());
     }
 
-    private static void applyHandPose(VRClientPlayer vrPlayer,
-                                      Vector3f modelOrigin,
-                                      ModelPart arm, VRPose pose, float bodyYaw) {
-        var pos = new Vector3f();
-        Vector3f relativePos = pose.getPosition().sub(modelOrigin, new Vector3f());
 
-        ModelUtils.worldToModel(
-                vrPlayer,
-                relativePos,
-                bodyYaw,
-                true,
-                pos
-        );
-        arm.x = pos.x();
-        arm.y = pos.y();
-        arm.z = pos.z();
+    private static void applyYawPitchToArm(VRPlayerModelSimple<?> model,
+                                           HumanoidArm arm,
+                                           VRPose handPose,
+                                           float bodyYaw) {
+        boolean left = arm == HumanoidArm.LEFT;
+        ModelPart armPart = left ? model.leftArm : model.rightArm;
 
-        Matrix3f tempM = new Matrix3f();
-        Vector3f tempV = new Vector3f();
-        Quaternionf rot = pose.getRotation().getNormalizedRotation(new Quaternionf());
-        ModelUtils.toModelDir(bodyYaw, rot, tempM);
-        ModelUtils.setRotation(arm, tempM, tempV);
+        armPart.x = left ? 5.0F : -5.0F;
+        armPart.y = 2.0F;
+        armPart.z = 0.0F;
+
+        Quaternionf noRoll = new Quaternionf()
+                .rotateY(Mth.PI - handPose.getYaw())
+                .rotateX(handPose.getPitch());
+
+        Matrix3f matrix = new Matrix3f();
+        ModelUtils.toModelDir(bodyYaw, noRoll, matrix);
+        ModelUtils.setRotation(armPart, matrix, new Vector3f());
     }
-
 
 
     @Override
