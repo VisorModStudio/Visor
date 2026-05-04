@@ -129,7 +129,8 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(visibilityButtonX, y)
                         .size(visibilityButtonW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setText(Component.translatable("Visible: "+(optionsGroup.isWorldOnly()?"World":"Always")))
+                        .setText(Component.translatable("visor.overlay.options.key_button.visible",
+                                Component.translatable(optionsGroup.isWorldOnly() ? "visor.overlay.options.key_button.visible.world" : "visor.overlay.options.key_button.visible.always")))
                         .highlight(
                                 OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT
@@ -181,7 +182,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                 List.of(OverlayOptionsKeyButton.CustomizationType.values()),
                 slider -> {
                     optionsGroup.setCustomizationType(slider.getSelected());
-                    slider.setText(Component.literal("Mode: " + optionsGroup.getCustomizationType().name()));
+                    slider.setText(Component.translatable("visor.overlay.options.key_button.mode", optionsGroup.getCustomizationType().name()));
                     init();
                 });
         customizationTypeSlider.setSelected(

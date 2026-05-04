@@ -64,9 +64,7 @@ public class ServerNetworking {
 
             if (vrPlayer == null) {
                 serverPlayer.connection.disconnect(
-                        Component.literal(
-                                "Server For VR player only!"
-                        )
+                        Component.translatable("visor.messages.server_vr_only")
                 );
             }
 
