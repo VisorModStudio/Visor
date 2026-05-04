@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import org.vmstudio.visor.mixin.common.accessors.ChunkMapAccessor;
@@ -206,7 +207,7 @@ public class ServerNetworking {
 
         boolean wasSentSelf = false;
         for (var playerConnection : getTrackedVRPlayers(tracked)) {
-            if (playerConnection.getPlayer() == tracked && !sendSelf) {
+            if (playerConnection.getPlayer() == tracked && !sendSelf && !ReplayCompatHelper.isLoaded()) {
                 wasSentSelf = true;
                 continue;
             }
