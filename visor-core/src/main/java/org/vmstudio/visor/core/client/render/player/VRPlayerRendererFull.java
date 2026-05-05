@@ -17,6 +17,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelFull;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -38,9 +39,9 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     public static void createLayers() {
         VR_LAYER_DEFAULT = LayerDefinition.create(
-                PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
+                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_SLIM = LayerDefinition.create(
-                PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
+                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
     }
 
 
@@ -157,7 +158,9 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        arm.setPos(left ? 5F : -5F, 2F, 0F);
+        boolean slim = this.getModel().slim;
+        arm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
+                CenteredArmsPlayerMesh.armPivotY(slim), 0F);
         arm.setRotation(0F, 0F, 0F);
         arm.xScale = arm.yScale = arm.zScale = 1F;
         arm.visible = true;

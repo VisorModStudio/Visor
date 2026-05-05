@@ -20,6 +20,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
 import org.vmstudio.visor.core.client.render.player.model.simple.armor.VRArmorLayerSimple;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
@@ -32,12 +33,10 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     }
 
     public static void createLayers() {
-        // split arms model
         VR_LAYER_DEFAULT = LayerDefinition.create(
-                VRPlayerModelSimple.createMesh(CubeDeformation.NONE, false), 64, 64);
+                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
         VR_LAYER_SLIM = LayerDefinition.create(
-                VRPlayerModelSimple.createMesh(CubeDeformation.NONE, true), 64, 64);
-
+                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
     }
 
 
@@ -131,7 +130,10 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
-        rendererArm.setPos(side == ControllerType.LEFT ? 5F : -5F, 2F, 0F);
+        boolean slim = this.getModel().slim;
+        boolean left = side == ControllerType.LEFT;
+        rendererArm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
+                CenteredArmsPlayerMesh.armPivotY(slim), 0F);
         rendererArm.setRotation(0F, 0F, 0F);
         rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
 
