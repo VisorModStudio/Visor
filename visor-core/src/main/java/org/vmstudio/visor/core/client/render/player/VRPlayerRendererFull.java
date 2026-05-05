@@ -167,13 +167,12 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         sleeve.copyFrom(arm);
         sleeve.visible = true;
 
-        float alpha = player.getAttackStrengthScale(0.0F) * 0.75F + 0.25F;
         ResourceLocation skin = this.getTextureLocation(player);
 
         arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
         sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

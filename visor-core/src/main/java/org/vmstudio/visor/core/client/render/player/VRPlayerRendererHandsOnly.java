@@ -139,16 +139,15 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
 
         rendererArmwear.copyFrom(rendererArm);
 
-        float alpha = player.getAttackStrengthScale(0.0F) * 0.75F + 0.25F;
         ResourceLocation playerSkin = this.getTextureLocation(player);
 
         // render hand
         rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
 
         // render armor
         rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, alpha);
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
