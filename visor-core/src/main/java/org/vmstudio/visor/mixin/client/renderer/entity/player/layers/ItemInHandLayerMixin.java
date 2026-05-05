@@ -2,7 +2,6 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -12,9 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix3f;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,10 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.utils.ModelUtils;
+import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -42,7 +40,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
     private boolean visor$isRightMainHand(boolean isRightMainHand, @Local(argsOnly = true) LivingEntity entity) {
         if (this.getParentModel() instanceof PlayerModel<?>) {
             var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
-            if(vrPlayer != null){
+            if (vrPlayer != null) {
                 return !vrPlayer.isLeftHanded();
             }
             return true;
@@ -50,7 +48,6 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
             return isRightMainHand;
         }
     }
-
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
     private void visor$firstPersonItemScale(
@@ -65,7 +62,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
     }
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
-    private void visor$thirdPersonItemRoll(
+    private void visor$thirdPersonWristResidual(
             CallbackInfo ci,
             @Local(argsOnly = true) LivingEntity entity,
             @Local(argsOnly = true) HumanoidArm arm,
@@ -78,16 +75,12 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         if (vrPlayer == null) return;
 
         HandType handType = (arm == player.getMainArm()) ? HandType.MAIN : HandType.OFFHAND;
+        var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
+        VRPose handPose = poseRender.getBody().getHand(handType).getPose();
 
-        float roll = vrPlayer.getPoseData(PlayerPoseType.RENDER)
-                .getBody()
-                .getHand(handType)
-                .getPose()
-                .getRoll();
-
-        if (Float.isNaN(roll) || roll == 0.0F) return;
-
-        poseStack.mulPose(Axis.YP.rotation(roll));
+        ArmPoseClamp.ArmFrame frame = ArmPoseClamp.solveArmFrame(
+                player.getUUID(), handPose, poseRender.getBodyYaw(), arm == HumanoidArm.LEFT);
+        poseStack.mulPose(frame.wristResidual);
     }
 
     @Inject(method = "renderArmWithItem",
