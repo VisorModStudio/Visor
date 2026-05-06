@@ -66,7 +66,9 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         HumanoidArm offArm = mainArm.getOpposite();
         UUID playerId = vrPlayer.getMcPlayer().getUUID();
 
-        // Step 1: VR pose drives the arm yaw / pitch (no roll on the arm cube itself).
+        // Step 1: each arm follows the controller's aim vector in pitch + yaw,
+        // with zRot=0 (no roll). The held item rides on this same frame via
+        // translateToHand, so it also follows the aim vector without rolling.
         applyYawPitchToArm(model, playerId, mainArm, vrBody.getMainHand().getPose(), bodyYaw);
         applyYawPitchToArm(model, playerId, offArm,  vrBody.getOffhand().getPose(),  bodyYaw);
 
@@ -102,8 +104,8 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         armPart.z = 0.0F;
 
         ArmPoseClamp.ArmFrame frame = ArmPoseClamp.solveArmFrame(playerId, handPose, bodyYaw, left);
-        // Z (roll) intentionally left at 0 — the controller's twist is captured in
-        // frame.wristResidual and applied to the held item by ItemInHandLayerMixin.
+        // zRot stays 0 — no roll on the arm cube and no roll on the held item
+        // (the item inherits this frame via vanilla translateToHand).
         armPart.setRotation(-Mth.HALF_PI - frame.armPitch, frame.armYawDelta, 0.0F);
     }
 

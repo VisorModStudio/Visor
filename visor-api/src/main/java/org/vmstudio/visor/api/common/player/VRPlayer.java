@@ -38,6 +38,9 @@ public interface VRPlayer {
     VRPoseHistory getPoseHistoryTick();
 
 
+    float getGunAngle();
+
+
     int getOffhandSlot();
 
     /**

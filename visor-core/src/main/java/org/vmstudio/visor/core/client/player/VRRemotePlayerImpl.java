@@ -47,6 +47,8 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     @Getter
     private boolean leftHanded;
 
+    @Getter
+    private float gunAngle = PoseDataBuffer.DEFAULT_GUN_ANGLE;
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer) {
@@ -71,6 +73,8 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
         this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
+
+        this.gunAngle = poseBuffer.gunAngle();
     }
 
 
@@ -82,6 +86,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         this.prevPose.setMcPlayer(mcPlayer);
         this.pose.setMcPlayer(mcPlayer);
         this.renderPose.setMcPlayer(mcPlayer);
+        this.gunAngle = poseBuffer.gunAngle();
     }
     public void receivedLeftHandedPacket(boolean leftHanded){
         this.leftHanded = leftHanded;

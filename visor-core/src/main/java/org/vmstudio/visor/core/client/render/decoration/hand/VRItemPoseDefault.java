@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyFloat;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
@@ -28,6 +29,7 @@ import org.joml.Quaternionf;
 
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -58,8 +60,10 @@ public class VRItemPoseDefault extends VRHandItemPose {
         InteractionHand mcHand = hand == HandType.MAIN ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
         int handDir = hand == HandType.MAIN ? 1 : -1;
 
+        var vrPlayer = VRClientPlayers.getPlayer(player);
+        if(vrPlayer == null) return;
 
-        PoseParams params = computeParams(item, player, mcHand, handDir, equipProgress, partialTicks);
+        PoseParams params = computeParams(item, player,vrPlayer, mcHand, handDir, equipProgress, partialTicks);
 
         stack.mulPose(params.preRotation);
         stack.translate(params.offsetX, params.offsetY, params.offsetZ);
@@ -70,11 +74,12 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
     private PoseParams computeParams(ItemStack itemStack,
                                      AbstractClientPlayer player,
+                                     VRClientPlayer vrPlayer,
                                      InteractionHand mcHand,
                                      int handDir,
                                      float equipProgress,
                                      float partialTicks) {
-        float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
+        float gunAngle = vrPlayer.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
         var options = ClientContext.overlayManager.getOverlay(
                 VROverlayItemPoseTest.ID,

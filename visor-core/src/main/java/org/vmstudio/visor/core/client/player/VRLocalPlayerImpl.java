@@ -457,6 +457,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     @Override
+    public float getGunAngle() {
+        return ClientContext.rawPoseHandler.getGunAngle();
+    }
+
+    @Override
     public int getOffhandSlot() {
         return TaskHotBar.getInstance().getSlotOffhand();
     }

@@ -138,8 +138,12 @@ public class ClientNetworking {
         }
 
 
+        float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
+
+
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
-                localPlayer
+                localPlayer,
+                gunAngle
         );
         sendVRPacket(
                 new PoseDataPayloadToServer(vrPlayerState)

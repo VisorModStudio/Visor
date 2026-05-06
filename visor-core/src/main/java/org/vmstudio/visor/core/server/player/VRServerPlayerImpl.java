@@ -56,6 +56,9 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     @Setter
     private float fullHeightLastSent = 1.0F;
 
+    @Getter
+    private float gunAngle = PoseDataBuffer.DEFAULT_GUN_ANGLE;
+
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
         poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);
@@ -85,6 +88,7 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
         historyEntry = new PlayerPoseServerImpl(this);
         historyEntry.copyFrom(poseDataPrevious);
         poseHistoryTick.addEntry(historyEntry);
+        this.gunAngle = poseDataBuffer.gunAngle();
 
     }
 

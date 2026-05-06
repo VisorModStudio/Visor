@@ -11,20 +11,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.api.client.player.VRClientPlayer;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -61,27 +56,13 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         }
     }
 
-    @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
-    private void visor$thirdPersonWristResidual(
-            CallbackInfo ci,
-            @Local(argsOnly = true) LivingEntity entity,
-            @Local(argsOnly = true) HumanoidArm arm,
-            @Local(argsOnly = true) PoseStack poseStack)
-    {
-        if (VRRenderState.isSelfModelRender(entity)) return;
-        if (!(entity instanceof AbstractClientPlayer player)) return;
-
-        VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-        if (vrPlayer == null) return;
-
-        HandType handType = (arm == player.getMainArm()) ? HandType.MAIN : HandType.OFFHAND;
-        var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
-        VRPose handPose = poseRender.getBody().getHand(handType).getPose();
-
-        ArmPoseClamp.ArmFrame frame = ArmPoseClamp.solveArmFrame(
-                player.getUUID(), handPose, poseRender.getBodyYaw(), arm == HumanoidArm.LEFT);
-        poseStack.mulPose(frame.wristResidual);
-    }
+    // The third-person item now inherits the model arm's roll-free pitch+yaw
+    // automatically via translateToHand → XP-90 → YP-180 → translate(±1/16,
+    // 0.125, -0.625). No wrist-residual rotation is applied: that would carry
+    // the controller's twist (= roll on the held item) and, more importantly,
+    // it'd rotate the item around the SHOULDER instead of the wrist, since
+    // the inject point is BEFORE the translate-down-the-arm — that was the
+    // "item is detached from hand" symptom.
 
     @Inject(method = "renderArmWithItem",
             at = @At(value = "INVOKE",
