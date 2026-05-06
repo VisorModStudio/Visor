@@ -14,7 +14,6 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
                              PoseElementBuffer mainHand,
                              PoseElementBuffer offhand) implements BufferSerializable {
 
-
     @Override
     public void serialize(FriendlyByteBuf buffer) {
         this.hmd.serialize(buffer);
@@ -24,11 +23,10 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
 
 
     public static PoseDataBuffer deserialize(FriendlyByteBuf byteBuf) {
-        return new PoseDataBuffer(
-                PoseElementBuffer.deserialize(byteBuf),
-                PoseElementBuffer.deserialize(byteBuf),
-                PoseElementBuffer.deserialize(byteBuf)
-        );
+        PoseElementBuffer hmd = PoseElementBuffer.deserialize(byteBuf);
+        PoseElementBuffer mainHand = PoseElementBuffer.deserialize(byteBuf);
+        PoseElementBuffer offhand = PoseElementBuffer.deserialize(byteBuf);
+        return new PoseDataBuffer(hmd, mainHand, offhand);
     }
 
     public static PoseDataBuffer create(VRLocalPlayer vrPlayer) {
@@ -57,7 +55,7 @@ public record PoseDataBuffer(PoseElementBuffer hmd,
                                                  HandType handType
     ) {
         VRPlayerPoseClient postTickPose = vrPlayer
-            .getPoseData(PlayerPoseType.TICK);
+                .getPoseData(PlayerPoseType.TICK);
         var handPose = postTickPose
                 .getHand(handType);
         var position = handPose

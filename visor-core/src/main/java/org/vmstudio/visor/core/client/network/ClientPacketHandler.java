@@ -116,6 +116,15 @@ public class ClientPacketHandler {
                 var vrPlayer = VRClientPlayers.getPacketReceiver(payload.playerUUID());
                 vrPlayer.receivedFullHeightPacket(payload.fullHeight());
             }
+            case OTHER_GUN_ANGLE -> {
+                var payload = (VROtherGunAnglePayloadToClient) payloadClient;
+                if(VRClientPlayers
+                        .getValidPacketReceiverMc(payload.playerUUID()) == null){
+                    return;
+                }
+                var vrPlayer = VRClientPlayers.getPacketReceiver(payload.playerUUID());
+                vrPlayer.receivedGunAngle(payload.gunAngle());
+            }
 
         }
     }

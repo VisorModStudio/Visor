@@ -55,14 +55,13 @@ public class PlayerRenderMixins {
                 return;
             }
 
-            if (entity instanceof AbstractClientPlayer player &&
-                    (player.getClass() == LocalPlayer.class || player.getClass() == RemotePlayer.class))
+            if (entity instanceof AbstractClientPlayer player)
             {
                 var vrPlayer = VRClientPlayers.getPlayer(player);
-                String modelName = player.getModelName();
                 if(vrPlayer == null){
                     return;
                 }
+                String modelName = player.getModelName();
                 var model = vrPlayer.getBodyType().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );

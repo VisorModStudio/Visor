@@ -25,6 +25,9 @@ public class PlayerItemInHandLayerMixin {
             @Local(argsOnly = true) ItemStack itemStack)
     {
         if (VRRenderState.isSelfModelRender(entity)) {
+            if(!VRRenderState.isSelfModelHandsRender(entity)){
+                ci.cancel();
+            }
             boolean leftHanded = ClientContext.localPlayer.isLeftHanded();
             if(ClientContext.decorationRenderer
                     .getHandRenderState(HandType.fromMcArm(arm, leftHanded)) != HandRenderState.WORLD_HAND){
@@ -36,6 +39,6 @@ public class PlayerItemInHandLayerMixin {
     private boolean visor$noSpyglass(
         boolean isSpyglass, @Local(argsOnly = true) LivingEntity livingEntity)
     {
-        return isSpyglass && !VRRenderState.isSelfModelRender(livingEntity);
+        return isSpyglass && !VRRenderState.isSelfModelHandsRender(livingEntity);
     }
 }

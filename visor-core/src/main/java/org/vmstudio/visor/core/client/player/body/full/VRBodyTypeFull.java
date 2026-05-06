@@ -36,8 +36,8 @@ public class VRBodyTypeFull extends VRBodyType {
     }
 
     @Override
-    public boolean isSelfModelVisible() {
-        return true;
+    public ModelSelfVisibility getSelfModelVisibility() {
+        return ModelSelfVisibility.WITHOUT_HANDS;
     }
 
     @Override

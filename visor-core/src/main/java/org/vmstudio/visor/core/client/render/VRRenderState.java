@@ -5,6 +5,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -98,6 +99,9 @@ public class VRRenderState {
     public static boolean isSelfModelRender(Entity entity) {
         return canRenderSelfModel(entity) && isSelfModelAllowed();
     }
+    public static boolean isSelfModelHandsRender(Entity entity) {
+        return canRenderSelfModel(entity) && isSelfModelHandsAllowed();
+    }
 
     public static boolean isSelfModelRenderCamera() {
         if(!canRenderSelfModel(MC.getCameraEntity())){
@@ -132,7 +136,11 @@ public class VRRenderState {
     }
 
     private static boolean isSelfModelAllowed() {
-        return ClientContext.localPlayer.getBodyType().isSelfModelVisible()
+        return ClientContext.localPlayer.getBodyType().getSelfModelVisibility().isVisible()
+                && renderPass.isFirstPerson();
+    }
+    private static boolean isSelfModelHandsAllowed() {
+        return ClientContext.localPlayer.getBodyType().getSelfModelVisibility() == VRBodyType.ModelSelfVisibility.FULL
                 && renderPass.isFirstPerson();
     }
 

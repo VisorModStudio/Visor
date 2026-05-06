@@ -5,26 +5,20 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.common.player.VRPose;
-
 
 @Getter
 public class VRPoseImpl implements VRPose {
 
     private Vector3fc position;
-
     private Vector3fc relativePosition;
-
     private Vector3fc direction;
-
     private Matrix4fc rotation;
-
     private Matrix4fc invertedRotation;
-
     private float yaw, pitch, roll;
-
 
     private Vector3fc rawPosition;
     private Vector3fc rawDirection;
@@ -34,20 +28,16 @@ public class VRPoseImpl implements VRPose {
     private float usedRotationY;
     private float usedWorldScale;
 
-
     public VRPoseImpl() {
         position = new Vector3f(0, 0, 0);
         relativePosition = new Vector3f(0, 0, 0);
         direction = new Vector3f(0, 0, 0);
         rotation = new Matrix4f();
         invertedRotation = new Matrix4f();
-
         usedOrigin = new Vector3f(0, 0, 0);
-
         rawPosition = new Vector3f();
         rawDirection = new Vector3f();
         rawRotation = new Matrix4f();
-
     }
 
     @Override
@@ -64,27 +54,15 @@ public class VRPoseImpl implements VRPose {
         this.rawPosition = rawPosition;
         this.rawDirection = rawDirection;
 
-        this.rotation = new Matrix4f().rotationY(rotationY).mul(
-                rawMatrix,
-                new Matrix4f()
-        );
+        this.rotation = new Matrix4f().rotationY(rotationY).mul(rawMatrix, new Matrix4f());
         this.invertedRotation = this.rotation.invert(new Matrix4f());
 
-
-        this.relativePosition = rawPosition
-                .mul(worldScale, new Vector3f())
-                .rotateY(rotationY);
-        this.position = this.relativePosition
-                .add(origin, new Vector3f());
+        this.relativePosition = rawPosition.mul(worldScale, new Vector3f()).rotateY(rotationY);
+        this.position = this.relativePosition.add(origin, new Vector3f());
 
         this.direction = rawDirection.rotateY(rotationY, new Vector3f());
 
-
-        this.yaw = (float) Mth.atan2(-this.direction.x(), this.direction.z());
-        this.pitch = (float) Math.asin(this.direction.y() / this.direction.length());
-        this.roll = (float) -Math.atan2(rawMatrix.m01(), rawMatrix.m11());
-
-
+        extractAngles(this.rotation, this.direction);
     }
 
     @Override
@@ -111,27 +89,54 @@ public class VRPoseImpl implements VRPose {
 
         Matrix4f yawMat = new Matrix4f().rotationY(newRotationY);
         this.rotation = yawMat.mul(rawRotation, new Matrix4f());
-
         this.invertedRotation = this.rotation.invert(new Matrix4f());
 
-        this.relativePosition = rawPosition
-                .mul(newWorldScale, new Vector3f())
-                .rotateY(newRotationY);
-
-        this.position = this.relativePosition
-                .add(newOrigin, new Vector3f());
+        this.relativePosition = rawPosition.mul(newWorldScale, new Vector3f()).rotateY(newRotationY);
+        this.position = this.relativePosition.add(newOrigin, new Vector3f());
 
         this.direction = rawDirection.rotateY(newRotationY, new Vector3f());
 
-        this.yaw = (float) Mth.atan2(-this.direction.x(), this.direction.z());
+        extractAngles(this.rotation, this.direction);
+    }
 
-        float len = this.direction.length();
-        if (len > 1e-6f) {
-            this.pitch = (float) Math.asin(this.direction.y() / len);
-        } else {
-            this.pitch = 0f;
+    private void extractAngles(Matrix4fc rotMatrix, Vector3fc dir) {
+        float dx = dir.x(), dy = dir.y(), dz = dir.z();
+        float dirLen = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        this.pitch = (dirLen > 1e-6f)
+                ? (float) Math.asin(Mth.clamp(dy / dirLen, -1.0f, 1.0f))
+                : 0f;
+
+        Quaternionf q = new Quaternionf().setFromNormalized(rotMatrix);
+        if (q.w < 0f) {
+            q.x = -q.x; q.y = -q.y; q.z = -q.z; q.w = -q.w;
         }
-        this.roll = (float) -Mth.atan2(rawRotation.m10(), rawRotation.m11());
+
+        float qz = q.z, qw = q.w;
+        float twistMagSq = qz * qz + qw * qw;
+        if (twistMagSq > 1e-8f) {
+            float r = -2.0f * (float) Math.atan2(qz, qw);
+            if (r >  Mth.PI) r -= Mth.TWO_PI;
+            if (r < -Mth.PI) r += Mth.TWO_PI;
+            this.roll = r;
+        } else {
+            this.roll = 0f;
+        }
+
+        float horizLenSq = dx * dx + dz * dz;
+        if (horizLenSq > 0.05f) {
+            this.yaw = (float) Mth.atan2(-dx, dz);
+        } else if (twistMagSq > 1e-8f) {
+            float n = (float) Math.sqrt(twistMagSq);
+            Quaternionf qSwing = new Quaternionf(q).mul(
+                    new Quaternionf(0f, 0f, -qz / n, qw / n));
+            Vector3f swingUp = qSwing.transform(0f, 1f, 0f, new Vector3f());
+            this.yaw = (dy >= 0f)
+                    ? (float) Mth.atan2( swingUp.x, -swingUp.z)
+                    : (float) Mth.atan2(-swingUp.x,  swingUp.z);
+        } else {
+            this.yaw = 0f;
+        }
     }
 
     public void copyFrom(@NotNull VRPose pose) {
@@ -158,37 +163,21 @@ public class VRPoseImpl implements VRPose {
         this.usedOrigin = newOrigin;
     }
 
-
     @Override
     public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {
-        return this.rotation
-                .transformDirection(
-                        vec.x(), vec.y(), vec.z(),
-                        new Vector3f()
-                );
+        return this.rotation.transformDirection(vec.x(), vec.y(), vec.z(), new Vector3f());
     }
 
     @Override
     public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc vec) {
-
-        return this.invertedRotation
-                .transformDirection(
-                        vec.x(), vec.y(), vec.z(),
-                        new Vector3f()
-                );
+        return this.invertedRotation.transformDirection(vec.x(), vec.y(), vec.z(), new Vector3f());
     }
 
-
-    public Vector3f getScaledPosDelta(float rotationY,
-                                      float oldWorldScale,
-                                      float newWorldScale) {
-        Vector3f oldPos = rawPosition.mul(oldWorldScale, new Vector3f())
-                .rotateY(rotationY);
-        Vector3f newPos = rawPosition.mul(newWorldScale, new Vector3f())
-                .rotateY(rotationY);
+    public Vector3f getScaledPosDelta(float rotationY, float oldWorldScale, float newWorldScale) {
+        Vector3f oldPos = rawPosition.mul(oldWorldScale, new Vector3f()).rotateY(rotationY);
+        Vector3f newPos = rawPosition.mul(newWorldScale, new Vector3f()).rotateY(rotationY);
         return newPos.sub(oldPos);
     }
-
 
     @Override
     public String toString() {

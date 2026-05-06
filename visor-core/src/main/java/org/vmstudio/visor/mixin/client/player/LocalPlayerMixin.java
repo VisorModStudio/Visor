@@ -287,6 +287,20 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                                       CallbackInfo ci) {
 
         boolean shouldReset = (x + y + z) == 0;
+
+        var thisPlayer = ((LocalPlayer) (Object) this);
+        // moveTo()/absMoveTo() snap xOld/yOld/zOld to the destination before
+        // calling setPos(); regular movement leaves them at the start-of-tick
+        // coords. Without resetting the room origin too, the entity body
+        // renders at the destination while the VR camera is still lerping
+        // from the old origin, showing the player's self-model "in the
+        // future" for 1-2 frames after a teleport.
+        if (!shouldReset
+                && thisPlayer.xOld == x
+                && thisPlayer.yOld == y
+                && thisPlayer.zOld == z) {
+            shouldReset = true;
+        }
         if (this.isPassenger()) {
             Vec3 premountPos = TaskVehicle.getInstance().premountPosRoom;
             premountPos = premountPos
@@ -305,7 +319,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         }
 
         ClientContext.localPlayer.recenterOrigin(
-                (LocalPlayer)(Object)this,
+                thisPlayer,
                 shouldReset
         );
 

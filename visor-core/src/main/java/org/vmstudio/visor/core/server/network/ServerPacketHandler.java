@@ -119,6 +119,10 @@ public class ServerPacketHandler {
                 var payload = (RotationYPayloadToServer) payloadToServer;
                 vrPlayer.updateRotationY(payload.rotationY());
             }
+            case GUN_ANGLE -> {
+                var payload = (GunAnglePayloadToServer) payloadToServer;
+                vrPlayer.setGunAngle(payload.gunAngle());
+            }
             case CRAWLING -> {
                 if(!VRServerSettings.isRoomCrawlingSupported()){
                     return;
