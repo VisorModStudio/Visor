@@ -154,6 +154,20 @@ public class ServerNetworking {
             );
             vrPlayer.setFullHeightLastSent(fullHeight);
         }
+
+        var gunAngle = vrPlayer.getGunAngle();
+        var gunAngleLastSent = vrPlayer.getGunAngleLastSent();
+        if(gunAngle != gunAngleLastSent){
+            sendPacketToTrackedVRPlayers(
+                    serverPlayer,
+                    false,
+                    new VROtherGunAnglePayloadToClient(
+                            serverPlayer.getUUID(),
+                            gunAngle
+                    )
+            );
+            vrPlayer.setGunAngleLastSent(gunAngle);
+        }
     }
 
 

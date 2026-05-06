@@ -10,6 +10,7 @@ public enum VisorPayloadID {
     ACTIVE_HAND,
     OFFHAND_SLOT,
     WORLD_SCALE,
+    GUN_ANGLE,
     ROTATION_Y,
     CRAWLING,
     CLIMBING,
@@ -21,6 +22,7 @@ public enum VisorPayloadID {
     OTHER_VR_LEFT_HANDED,
     OTHER_VR_BODY_TYPE,
     OTHER_VR_WORLD_SCALE,
+    OTHER_GUN_ANGLE,
     OTHER_VR_FULL_HEIGHT
 
 

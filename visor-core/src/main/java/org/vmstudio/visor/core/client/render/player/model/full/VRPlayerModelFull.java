@@ -66,15 +66,9 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         HumanoidArm offArm = mainArm.getOpposite();
         UUID playerId = vrPlayer.getMcPlayer().getUUID();
 
-        // Step 1: each arm follows the controller's aim vector in pitch + yaw,
-        // with zRot=0 (no roll). The held item rides on this same frame via
-        // translateToHand, so it also follows the aim vector without rolling.
         applyYawPitchToArm(model, playerId, mainArm, vrBody.getMainHand().getPose(), bodyYaw);
         applyYawPitchToArm(model, playerId, offArm,  vrBody.getOffhand().getPose(),  bodyYaw);
 
-        // Step 2: layer the vanilla swing animation back on top so attacks read in
-        // third person. The body's own twist (set by super.setupAnim) is propagated
-        // to both arms; the swinging arm additionally gets the forward arc + roll.
         if (entity instanceof AbstractClientPlayer player) {
             float partialTicks = ClientContext.visor != null
                     ? ClientContext.visor.getPartialTicks()
@@ -104,16 +98,9 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         armPart.z = 0.0F;
 
         ArmPoseClamp.ArmFrame frame = ArmPoseClamp.solveArmFrame(playerId, handPose, bodyYaw, left);
-        // zRot stays 0 — no roll on the arm cube and no roll on the held item
-        // (the item inherits this frame via vanilla translateToHand).
         armPart.setRotation(-Mth.HALF_PI - frame.armPitch, frame.armYawDelta, 0.0F);
     }
 
-    /**
-     * Re-applies a vanilla-shaped attack swing on top of the VR rotation. Mirrors
-     * {@code HumanoidModel.setupAttackAnimation} just enough to make the swing visible
-     * to viewers without disturbing the rest of the VR posing.
-     */
     private static void applyVanillaSwingPose(VRPlayerModelFull<?> model,
                                               AbstractClientPlayer player,
                                               float partialTicks) {
@@ -130,9 +117,6 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
                 ? player.getMainArm()
                 : player.getMainArm().getOpposite();
 
-        // Body twist oscillation — vanilla writes this into body.yRot already, so we
-        // reuse it. Both arms inherit the twist so they don't appear "detached" from
-        // the rotating torso.
         float bodyTwist = model.body.yRot;
         model.leftArm.yRot  += bodyTwist;
         model.rightArm.yRot += bodyTwist;
@@ -148,7 +132,7 @@ public class VRPlayerModelFull<T extends LivingEntity> extends PlayerModel<T> {
         float roll    = Mth.sin(attackTime * Mth.PI);
 
         attackPart.xRot -= forward * 1.2F;
-        attackPart.yRot += bodyTwist;          // attacker gets +body.yRot * 2 total
+        attackPart.yRot += bodyTwist;
         attackPart.zRot -= roll * 0.4F;
     }
 

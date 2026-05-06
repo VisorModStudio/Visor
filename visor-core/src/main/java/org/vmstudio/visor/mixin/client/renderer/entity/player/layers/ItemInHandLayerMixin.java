@@ -2,6 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -16,7 +17,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -56,13 +60,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         }
     }
 
-    // The third-person item now inherits the model arm's roll-free pitch+yaw
-    // automatically via translateToHand → XP-90 → YP-180 → translate(±1/16,
-    // 0.125, -0.625). No wrist-residual rotation is applied: that would carry
-    // the controller's twist (= roll on the held item) and, more importantly,
-    // it'd rotate the item around the SHOULDER instead of the wrist, since
-    // the inject point is BEFORE the translate-down-the-arm — that was the
-    // "item is detached from hand" symptom.
+
 
     @Inject(method = "renderArmWithItem",
             at = @At(value = "INVOKE",
@@ -83,6 +81,15 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
                 : InteractionHand.OFF_HAND;
         float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
                 .visor$getEquipProgress(mcHand, MC.getFrameTime());
+
+        if (!VRRenderState.isSelfModelRender(entity)) {
+            VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
+            if (vrPlayer != null) {
+                VRPose handPose = vrPlayer.getPoseData(PlayerPoseType.RENDER)
+                        .getBody().getHand(hand).getPose();
+                poseStack.mulPose(Axis.ZP.rotation(-handPose.getRoll()));
+            }
+        }
 
         ClientContext.handRenderer.applyItemHandPose(
                 player, hand, itemStack, poseStack, equipProgress, MC.getFrameTime()

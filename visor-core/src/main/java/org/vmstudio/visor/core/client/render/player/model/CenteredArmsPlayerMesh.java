@@ -7,18 +7,6 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 
-/**
- * Builds a vanilla-looking PlayerModel mesh with the arm rotation pivots moved to the
- * X-center of the arm cubes (vanilla MC anchors arms at the inner-edge corner).
- *
- * Vanilla left arm: pivot (5.0, 2.0, 0.0) + addBox(-1, ...) — cube spans X=[4, 8] but the
- * pivot sits at X=5, one unit toward the body from the cube's centerline. When the arm
- * rotates this offset makes it visibly swing around its inner corner instead of around
- * the visual shoulder ball. We move the pivot to the cube's X-center and adjust the
- * addBox offset so the cube still renders in exactly the same place as vanilla.
- *
- * Cube shape, size and texture mapping are unchanged — only the rotation pivot moves.
- */
 public final class CenteredArmsPlayerMesh {
 
     private CenteredArmsPlayerMesh() {}
@@ -34,8 +22,6 @@ public final class CenteredArmsPlayerMesh {
         float addBoxY = -2.0F;
         float addBoxZ = -2.0F;
         float pivotY = slim ? 2.5F : 2.0F;
-        // Cube center sits halfWidth-1 outward from the vanilla pivot — that's 1.0
-        // for default skins, 0.5 for slim. Adding it shifts the pivot to the X center.
         float pivotX = 5.0F + (halfWidth - 1.0F);
         float sleeveExtend = 0.25F;
 
@@ -64,19 +50,12 @@ public final class CenteredArmsPlayerMesh {
         return mesh;
     }
 
-    /**
-     * X coordinate the arm's runtime pivot should be set to in setupAnim. Default skins:
-     * ±6.0; slim: ±5.5.
-     */
     public static float armPivotX(boolean slim, boolean leftArm) {
         float halfWidth = slim ? 1.5F : 2.0F;
         float x = 5.0F + (halfWidth - 1.0F);
         return leftArm ? x : -x;
     }
 
-    /**
-     * Y coordinate the arm's runtime pivot should be set to in setupAnim.
-     */
     public static float armPivotY(boolean slim) {
         return slim ? 2.5F : 2.0F;
     }

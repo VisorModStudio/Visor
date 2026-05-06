@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -33,6 +34,7 @@ public class ClientNetworking {
     private static float worldScaleLastSent = 1.0F;
     private static float rotationYLastSent = 0;
     private static int offhandSlotLastSent = -1;
+    private static float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
 
     private static boolean leftHandedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
@@ -129,6 +131,14 @@ public class ClientNetworking {
             offhandSlotLastSent = offhandSlot;
         }
 
+        float gunAngle = localPlayer.getGunAngle();
+        if(gunAngle != gunAngleLastSent){
+            sendVRPacket(
+                    new GunAnglePayloadToServer(gunAngle)
+            );
+            gunAngleLastSent = gunAngle;
+        }
+
         VRBodyType vrBody = localPlayer.getBodyType();
         if(vrBody != vrBodyLastSent){
             sendVRPacket(
@@ -138,12 +148,8 @@ public class ClientNetworking {
         }
 
 
-        float gunAngle = ClientContext.rawPoseHandler.getGunAngle();
-
-
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
-                localPlayer,
-                gunAngle
+                localPlayer
         );
         sendVRPacket(
                 new PoseDataPayloadToServer(vrPlayerState)

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
@@ -45,7 +46,8 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private boolean crawling;
 
     private int offhandSlot;
-
+    @Setter
+    private float gunAngle = VRPlayer.DEFAULT_GUN_ANGLE;
 
     @Setter
     private boolean leftHandedLastSent = false;
@@ -55,9 +57,8 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private float worldScaleLastSent = 1.0f;
     @Setter
     private float fullHeightLastSent = 1.0F;
-
-    @Getter
-    private float gunAngle = PoseDataBuffer.DEFAULT_GUN_ANGLE;
+    @Setter
+    private float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
 
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
@@ -88,7 +89,6 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
         historyEntry = new PlayerPoseServerImpl(this);
         historyEntry.copyFrom(poseDataPrevious);
         poseHistoryTick.addEntry(historyEntry);
-        this.gunAngle = poseDataBuffer.gunAngle();
 
     }
 

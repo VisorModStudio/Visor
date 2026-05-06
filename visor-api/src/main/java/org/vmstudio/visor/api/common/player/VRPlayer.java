@@ -9,6 +9,8 @@ import org.vmstudio.visor.api.common.HandType;
  */
 public interface VRPlayer {
 
+    float DEFAULT_GUN_ANGLE = 60.0F;
+
     Player getMcPlayer();
 
     @NotNull
@@ -38,6 +40,12 @@ public interface VRPlayer {
     VRPoseHistory getPoseHistoryTick();
 
 
+    /**
+     * The gun angle is used for item pose
+     * compatibility with different controllers.
+     *
+     * @return the gun angle
+     */
     float getGunAngle();
 
 

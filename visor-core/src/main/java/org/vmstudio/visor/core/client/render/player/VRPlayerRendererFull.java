@@ -107,7 +107,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         this.getModel().crouching &= !player.isVisuallySwimming();
 
         if (VRRenderState.isSelfModelRender(player)) {
-            // hide the head or you won't see anything
             this.model.head.visible = false;
             this.model.hat.visible = false;
 
@@ -115,7 +114,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                     ClientContext.localPlayer.getBodyType().getSelfModelVisibility();
             if (visibility == VRBodyType.ModelSelfVisibility.WITHOUT_HANDS
                     && this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
-                // body and legs stay visible; arms are rendered via VRHandRenderer
                 vrModel.hideLeftArm();
                 vrModel.hideRightArm();
             }
@@ -123,11 +121,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     }
 
-    /**
-     * Render the local player's hand for self-view, matching HandsOnly's visual:
-     * a single full-arm cube alpha-blended like a held VR hand. The actual world
-     * placement is done by VRHandRenderer.
-     */
+
     @Override
     public void renderRightHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)

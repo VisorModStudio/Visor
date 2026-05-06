@@ -12,23 +12,12 @@ public final class ArmPoseClamp {
     private ArmPoseClamp() {}
 
     // ---- arm clamps (the rigid cube) ----
-    /** Across the chest midline before clipping into the torso. */
     public static final float CROSS_BODY_LIMIT = Mth.DEG_TO_RAD * 35.0F;
-    /** Forward-of-body to ~10° short of straight behind. */
     public static final float BEHIND_LIMIT     = Mth.DEG_TO_RAD * 170.0F;
-    /** Up from horizontal — full reach to overhead. */
     public static final float PITCH_UP_LIMIT   = Mth.DEG_TO_RAD * 90.0F;
-    /** Down from horizontal — full reach toward the feet. */
     public static final float PITCH_DOWN_LIMIT = Mth.DEG_TO_RAD * 90.0F;
 
-    /**
-     * If the aim's horizontal projection length squared is below this threshold,
-     * the controller is treated as "near the up/down pole" and the arm yaw is
-     * frozen to the previously observed stable value. Otherwise tiny
-     * horizontal-component changes — or wrist twist while pointing straight
-     * up/down — make atan2 swing wildly and the cube spins around its length.
-     * 0.05² → kicks in within ≈3° of vertical.
-     */
+
     private static final float POLE_HORIZ_THRESHOLD_SQ = 0.05f * 0.05f;
 
     private enum Anchor { NONE, LO, HI }
@@ -36,9 +25,6 @@ public final class ArmPoseClamp {
     private static final class PerPlayerState {
         Anchor leftAnchor  = Anchor.NONE;
         Anchor rightAnchor = Anchor.NONE;
-        // Last well-defined world yaw of the aim direction, per arm. Used to
-        // freeze the arm's yaw when the controller is pointing nearly straight
-        // up or down so the cube doesn't spin around its own length.
         Float lastWorldYawLeft;
         Float lastWorldYawRight;
     }
@@ -108,26 +94,7 @@ public final class ArmPoseClamp {
         return dLo <= dHi ? lo : hi;
     }
 
-    /**
-     * Computes a roll-free arm pose driven solely by the controller's aim
-     * direction ({@link VRPose#getDirection()}, the forward vector of the
-     * controller in world space).
-     * <p>
-     * The arm cube is rotated only in pitch + yawDelta with zRot = 0, so any
-     * pronation / supination of the wrist is intentionally discarded — that's
-     * what gives "no roll on the hands" in third person. The held item rides
-     * on this same roll-free frame via vanilla {@code translateToHand}, so it
-     * also follows the aim vector and never rolls.
-     * <p>
-     * Pitch is taken straight from the aim's Y component (asin is well-defined
-     * everywhere). Yaw is taken from the aim's horizontal projection; near the
-     * up/down pole the projection vanishes and atan2 becomes ill-conditioned,
-     * so we freeze the yaw to its previously observed stable value to stop the
-     * arm cube from spinning around its own length. (This is the edge case the
-     * older {@code VRPose#getYaw()} fallback didn't handle — it tried to
-     * derive a yaw from the controller's swing-up vector, which is exactly the
-     * wrist twist we're trying to discard.)
-     */
+
     public static ArmFrame solveArmFrame(UUID playerId,
                                          VRPose handPose,
                                          float bodyYaw,
@@ -151,10 +118,7 @@ public final class ArmPoseClamp {
             if (leftArm) state.lastWorldYawLeft  = worldYaw;
             else         state.lastWorldYawRight = worldYaw;
         } else {
-            // Aim is straight up / down: freeze to the previous stable yaw so
-            // the cube doesn't spin around its own length while the user
-            // twists the controller. If we've never had a stable value, fall
-            // back to the body yaw (arm pointing forward).
+
             Float last = leftArm ? state.lastWorldYawLeft : state.lastWorldYawRight;
             worldYaw = last != null ? last : bodyYaw;
         }

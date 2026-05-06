@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.player.pose.RemotePlayerPose;
@@ -48,7 +49,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     private boolean leftHanded;
 
     @Getter
-    private float gunAngle = PoseDataBuffer.DEFAULT_GUN_ANGLE;
+    private float gunAngle = VRPlayer.DEFAULT_GUN_ANGLE;
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer) {
@@ -74,7 +75,6 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
 
-        this.gunAngle = poseBuffer.gunAngle();
     }
 
 
@@ -86,7 +86,6 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         this.prevPose.setMcPlayer(mcPlayer);
         this.pose.setMcPlayer(mcPlayer);
         this.renderPose.setMcPlayer(mcPlayer);
-        this.gunAngle = poseBuffer.gunAngle();
     }
     public void receivedLeftHandedPacket(boolean leftHanded){
         this.leftHanded = leftHanded;
@@ -112,7 +111,9 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     public void receivedFullHeightPacket(float fullHeight){
         this.fullHeight = fullHeight;
     }
-
+    public void receivedGunAngle(float gunAngle){
+        this.gunAngle = gunAngle;
+    }
 
     public void preTick() {
 

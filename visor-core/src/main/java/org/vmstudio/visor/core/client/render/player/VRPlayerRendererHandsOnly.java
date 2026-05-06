@@ -22,7 +22,6 @@ import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
-import org.vmstudio.visor.core.client.render.player.model.simple.armor.VRArmorLayerSimple;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
 
 public class VRPlayerRendererHandsOnly extends PlayerRenderer {
@@ -47,7 +46,6 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                         : VR_LAYER_DEFAULT.bakeRoot(),
                 slim
         );
-        VRArmorLayerSimple.createLayers();
     }
 
     @Override
