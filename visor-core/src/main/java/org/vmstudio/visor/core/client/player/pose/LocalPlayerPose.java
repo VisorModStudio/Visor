@@ -129,11 +129,11 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                                float worldScale,
                                float rotationY){
 
-        RawControllerImpl dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
-        RawControllerImpl dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
         this.origin = origin;
         this.worldScale = worldScale;
         this.rotationY = rotationY;
+        RawControllerImpl dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
+        RawControllerImpl dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
         RawHmdImpl hmdData = ClientContext.rawPoseHandler.getHmdData();
         Vector3f headsetPos = hmdData.getHeadsetPosition();
         Vector3f headsetPosFinal = new Vector3f(

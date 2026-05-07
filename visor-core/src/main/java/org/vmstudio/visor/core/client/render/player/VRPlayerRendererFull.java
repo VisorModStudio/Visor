@@ -93,7 +93,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
     public Vec3 getRenderOffset(AbstractClientPlayer player, float partialTick) {
         if (VRRenderState.isSelfModelPlayer(player)) {
             return player.isVisuallySwimming() ?
-                    new Vec3(0.0F, -0.125F * VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
+                    new Vec3(0.0F, -0.125F * ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
         } else {
             return player.isVisuallySwimming() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
         }

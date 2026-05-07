@@ -7,20 +7,19 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 
 import java.util.*;
 
 public class VRClientPlayers {
-    @Getter
-    private static final VRLocalPlayerImpl localPlayer = new VRLocalPlayerImpl();
 
     private static final Map<UUID, VRRemotePlayerImpl> remotePlayers = new HashMap<>();
     private static final Map<UUID,VRRemotePlayerImpl> remotePlayersReceived = Collections.synchronizedMap(new HashMap<>());
 
 
     public static void onGameLoopStart() {
-        localPlayer.onGameLoopStart();
+        ClientContext.localPlayer.onGameLoopStart();
     }
 
     public static void tick() {
@@ -40,27 +39,38 @@ public class VRClientPlayers {
 
 
     public static void preTick() {
-        localPlayer.preTick();
+        ClientContext.localPlayer.preTick();
         remotePlayers.values().forEach(VRRemotePlayerImpl::preTick);
     }
 
     public static void postTick(){
-        localPlayer.postTick();
+        ClientContext.localPlayer.postTick();
         remotePlayers.values().forEach(VRRemotePlayerImpl::postTick);
     }
 
     public static void preRender(float partialTicks){
-        localPlayer.preRender(partialTicks);
+        ClientContext.localPlayer.preRender(partialTicks);
         remotePlayers.values().forEach(it->{
             it.preRender(partialTicks);
         });
     }
 
+    public static void preTickRemote() {
+        remotePlayers.values().forEach(VRRemotePlayerImpl::preTick);
+    }
+
+    public static void postTickRemote() {
+        remotePlayers.values().forEach(VRRemotePlayerImpl::postTick);
+    }
+
+    public static void preRenderRemote(float partialTicks){
+        remotePlayers.values().forEach(it -> it.preRender(partialTicks));
+    }
 
 
     public static RemotePlayer getValidPacketReceiverMc(UUID uuid){
-        if(localPlayer.getMcPlayer() != null
-                && localPlayer.getMcPlayer().getUUID().equals(uuid)){
+        if(ClientContext.localPlayer.getMcPlayer() != null
+                && ClientContext.localPlayer.getMcPlayer().getUUID().equals(uuid)){
             return null;
         }
         Level level = Minecraft.getInstance().level;
@@ -75,10 +85,10 @@ public class VRClientPlayers {
     }
 
     public static VRClientPlayer getPlayer(UUID uuid) {
-        if(localPlayer.getMcPlayer() != null
-                && localPlayer.getMcPlayer().getUUID().equals(uuid)){
+        if(ClientContext.localPlayer.getMcPlayer() != null
+                && ClientContext.localPlayer.getMcPlayer().getUUID().equals(uuid)){
             if (VisorState.get().isActive()) {
-                return localPlayer;
+                return ClientContext.localPlayer;
             }
             return null;
         }

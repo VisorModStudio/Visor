@@ -2,6 +2,7 @@ package org.vmstudio.visor.mixin.client.multiplayer;
 
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
 import org.vmstudio.visor.core.client.VisorState;
@@ -11,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
@@ -27,7 +29,7 @@ public class ClientPacketListenerMixin {
         ClientNetworking.dispose();
         ClientNetworking.sendHandShake(
                 new HandshakePayloadToServer(
-                        VisorState.get().isActive(),
+                        VRClientSettings.getVrPlayMode() != VRPlayMode.DISABLED,
                         VisorNetwork.NETWORK_VERSION,
                         ModLoader.get().getModVersion(VisorAPI.MOD_ID)
                 )
