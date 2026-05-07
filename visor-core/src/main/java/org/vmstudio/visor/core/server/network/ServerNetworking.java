@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
@@ -206,8 +207,10 @@ public class ServerNetworking {
         Packet<?> packet = ModLoader.get().createPacketToClient(payload);
 
         boolean wasSentSelf = false;
+        boolean isRecordingModLoaded = ReplayCompatHelper.isLoaded()
+                || FlashbackCompatHelper.isLoaded();
         for (var playerConnection : getTrackedVRPlayers(tracked)) {
-            if (playerConnection.getPlayer() == tracked && !sendSelf && !ReplayCompatHelper.isLoaded()) {
+            if (playerConnection.getPlayer() == tracked && !sendSelf && !isRecordingModLoaded) {
                 wasSentSelf = true;
                 continue;
             }

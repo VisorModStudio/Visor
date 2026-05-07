@@ -23,6 +23,7 @@
     "visor.mixins.json",
     "visor.sodium.mixins.json",
     "visor.replaymod.mixins.json",
+    "visor.flashback.mixins.json",
     "visor.mixins.fabric.json",
     "visor.immportals.mixins.json"
   ],
