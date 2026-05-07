@@ -19,6 +19,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
+import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -96,7 +97,7 @@ public class VisorClientImpl implements VisorClient {
         ClientContext.settingsManager = new VRClientSettingsManager();
 
         //-------Main client classes-------
-        ClientContext.localPlayer = VRClientPlayers.getLocalPlayer();
+        ClientContext.localPlayer = new VRLocalPlayerImpl();
         ClientContext.inputManager = new VRInputManagerImpl();
         ClientContext.decorationRenderer = new DecorationRendererImpl();
         ClientContext.guiManager = new VRGuiManagerImpl();

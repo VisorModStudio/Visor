@@ -15,10 +15,7 @@ import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerPlayerConnection;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -87,90 +84,122 @@ public class ServerNetworking {
         if (vrPlayer.getPoseDataBuffer() == null) {
             return;
         }
-        sendPacketToTrackedVRPlayers(
-                serverPlayer,
-                false,
-                new VROtherPoseDataPayloadToClient(
-                        serverPlayer.getUUID(),
-                        vrPlayer.getPoseDataBuffer(),
-                        vrPlayer.getWorldScale(),
-                        vrPlayer.getFullHeight()
-                )
-        );
+
+        // ----- Compute trackers -----
+        Set<ServerPlayerConnection> trackerConnections = getTrackedVRPlayers(serverPlayer);
+        Set<UUID> currentTrackers = trackerConnections.stream()
+                .map(c -> c.getPlayer().getUUID())
+                .collect(Collectors.toSet());
+        Set<UUID> newTrackers = new HashSet<>(currentTrackers);
+        newTrackers.removeAll(vrPlayer.getKnownTrackers());
+        vrPlayer.getKnownTrackers().retainAll(currentTrackers);
+        vrPlayer.getKnownTrackers().addAll(currentTrackers);
 
 
+        UUID uuid = serverPlayer.getUUID();
+        String vrBody = vrPlayer.getVrBodyType();
         boolean leftHanded = vrPlayer.isLeftHanded();
-        boolean leftHandedLastSent = vrPlayer.isLeftHandedLastSent();
-        if(leftHanded != leftHandedLastSent){
-            sendPacketToTrackedVRPlayers(
-                    serverPlayer,
-                    false,
-                    new VROtherLeftHandedPayloadToClient(
-                            serverPlayer.getUUID(),
-                            leftHanded
-                    )
-            );
-            vrPlayer.setLeftHandedLastSent(leftHanded);
+        var worldScale = vrPlayer.getWorldScale();
+        var fullHeight = vrPlayer.getFullHeight();
+        var gunAngle = vrPlayer.getGunAngle();
+
+        // ----- Send initial data to new trackers -----
+        if (!newTrackers.isEmpty()) {
+            for (ServerPlayerConnection trackerConnection : trackerConnections) {
+                if (!newTrackers.contains(trackerConnection.getPlayer().getUUID())) {
+                    continue;
+                }
+                if (trackerConnection.getPlayer() == serverPlayer) {
+                    continue;
+                }
+                trackerConnection.send(createVRPacket(new VROtherBodyTypePayloadToClient(uuid, vrBody)));
+                trackerConnection.send(createVRPacket(new VROtherLeftHandedPayloadToClient(uuid, leftHanded)));
+                trackerConnection.send(createVRPacket(new VROtherWorldScalePayloadToClient(uuid, worldScale)));
+                trackerConnection.send(createVRPacket(new VROtherFullHeightPayloadToClient(uuid, fullHeight)));
+                trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
+            }
         }
 
-        String vrBody = vrPlayer.getVrBodyType();
-        String vrBodyLastSent = vrPlayer.getVrBodyLastSent();
-        if(!vrBody.equals(vrBodyLastSent)){
-            sendPacketToTrackedVRPlayers(
-                    serverPlayer,
-                    false,
-                    new VROtherBodyTypePayloadToClient(
-                            serverPlayer.getUUID(),
-                            vrBody
-                    )
+        // Pose data
+        sendPacketToConnections(
+                serverPlayer, trackerConnections,
+                false, null,
+                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer(), worldScale, fullHeight)
+        );
+
+        // ----- Send updated data to old trackers -----
+
+        if (!vrBody.equals(vrPlayer.getVrBodyLastSent())) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherBodyTypePayloadToClient(uuid, vrBody)
             );
             vrPlayer.setVrBodyLastSent(vrBody);
         }
 
-        var worldScale = vrPlayer.getWorldScale();
-        var worldScaleLastSent = vrPlayer.getWorldScaleLastSent();
-        if(worldScale != worldScaleLastSent){
-            sendPacketToTrackedVRPlayers(
-                    serverPlayer,
-                    false,
-                    new VROtherWorldScalePayloadToClient(
-                            serverPlayer.getUUID(),
-                            worldScale
-                    )
+        if (leftHanded != vrPlayer.isLeftHandedLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherLeftHandedPayloadToClient(uuid, leftHanded)
+            );
+            vrPlayer.setLeftHandedLastSent(leftHanded);
+        }
+
+        if (worldScale != vrPlayer.getWorldScaleLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherWorldScalePayloadToClient(uuid, worldScale)
             );
             vrPlayer.setWorldScaleLastSent(worldScale);
         }
 
-        var fullHeight = vrPlayer.getFullHeight();
-        var fullHeightLastSent = vrPlayer.getFullHeightLastSent();
-        if(fullHeight != fullHeightLastSent){
-            sendPacketToTrackedVRPlayers(
-                    serverPlayer,
-                    false,
-                    new VROtherFullHeightPayloadToClient(
-                            serverPlayer.getUUID(),
-                            fullHeight
-                    )
+        if (fullHeight != vrPlayer.getFullHeightLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherFullHeightPayloadToClient(uuid, fullHeight)
             );
             vrPlayer.setFullHeightLastSent(fullHeight);
         }
 
-        var gunAngle = vrPlayer.getGunAngle();
-        var gunAngleLastSent = vrPlayer.getGunAngleLastSent();
-        if(gunAngle != gunAngleLastSent){
-            sendPacketToTrackedVRPlayers(
-                    serverPlayer,
-                    false,
-                    new VROtherGunAnglePayloadToClient(
-                            serverPlayer.getUUID(),
-                            gunAngle
-                    )
+        // gunAngle is NOT part of the new-tracker burst, so don't exclude
+        if (gunAngle != vrPlayer.getGunAngleLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, null,
+                    new VROtherGunAnglePayloadToClient(uuid, gunAngle)
             );
             vrPlayer.setGunAngleLastSent(gunAngle);
         }
     }
 
 
+    private static void sendPacketToConnections(ServerPlayer tracked,
+                                                Collection<ServerPlayerConnection> connections,
+                                                boolean sendSelf,
+                                                Set<UUID> excludeUuids,
+                                                VisorPayloadToClient payload) {
+        Packet<?> packet = ModLoader.get().createPacketToClient(payload);
+
+        boolean wasSentSelf = false;
+        for (var pc : connections) {
+            ServerPlayer player = pc.getPlayer();
+            if (player == tracked && !sendSelf) {
+                wasSentSelf = true;
+                continue;
+            }
+            if (excludeUuids != null && excludeUuids.contains(player.getUUID())) {
+                continue;
+            }
+            pc.send(packet);
+        }
+        if (!wasSentSelf && sendSelf) {
+            tracked.connection.send(packet);
+        }
+    }
 
     public static void sendPacketToTrackedVRPlayers(ServerPlayer tracked,
                                                     boolean sendSelf,

@@ -107,7 +107,7 @@ public class PlayerRenderMixins {
                 if (VRRenderState.getRenderPass().isThirdPerson()) {
                     source = this.camera.getPosition();
                 } else {
-                    source = VRClientPlayers.getLocalPlayer().getPoseData(PlayerPoseType.TICK).getHmd().getPositionVec3();
+                    source = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getHmd().getPositionVec3();
                 }
                 Vec3 direction = entity.position()
                         .add(0.0D, entity.getBbHeight() * scale + offset, 0.0D)

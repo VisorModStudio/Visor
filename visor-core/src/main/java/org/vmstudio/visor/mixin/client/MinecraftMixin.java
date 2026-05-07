@@ -12,6 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.api.server.VRServerSettings;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
@@ -138,6 +139,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     public void visor$preTick(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ClientContext.visor.preTickVR();
+        } else {
+            VRClientPlayers.preTickRemote();
         }
     }
 
@@ -150,6 +153,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     public void visor$tick(CallbackInfo info) {
         if (VisorState.get().isActive()) {
             ClientContext.visor.tickVR();
+        } else {
+            VRClientPlayers.tick();
         }
     }
 
@@ -162,6 +167,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     public void visor$postTick(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ClientContext.visor.postTickVR();
+        } else {
+            VRClientPlayers.postTickRemote();
         }
     }
 
@@ -199,6 +206,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
                             visor$getPartialTicks()
                     ));
 
+        } else {
+            VRClientPlayers.preRenderRemote(visor$getPartialTicks());
         }
     }
 

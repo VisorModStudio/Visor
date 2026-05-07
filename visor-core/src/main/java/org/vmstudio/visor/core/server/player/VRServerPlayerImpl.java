@@ -12,6 +12,10 @@ import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Pose;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 
 @Getter
 public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerPlayer {
@@ -59,6 +63,8 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private float fullHeightLastSent = 1.0F;
     @Setter
     private float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
+
+    private final Set<UUID> knownTrackers = new HashSet<>();
 
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
