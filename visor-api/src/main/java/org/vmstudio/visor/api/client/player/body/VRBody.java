@@ -56,9 +56,9 @@ public class VRBody {
     public final void init(){
         clear();
 
-        head = VRBodyPart.SIMPLE_HEAD;
-        mainHand = VRBodyPart.SIMPLE_MAIN_HAND;
-        offhand = VRBodyPart.SIMPLE_OFFHAND;
+        head = VRBodyPart.createSimpleHead();
+        mainHand = VRBodyPart.createSimpleMainHand();
+        offhand = VRBodyPart.createSimpleOffhand();
         addBodyPart(head);
         addBodyPart(mainHand);
         addBodyPart(offhand);
