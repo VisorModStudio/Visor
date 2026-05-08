@@ -101,6 +101,13 @@ public class ServerNetworking {
         var fullHeight = vrPlayer.getFullHeight();
         var gunAngle = vrPlayer.getGunAngle();
 
+        // Pose data
+        sendPacketToConnections(
+                serverPlayer, trackerConnections,
+                false, null,
+                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer(), worldScale, fullHeight)
+        );
+
         // ----- Send initial data to new trackers -----
         if (!newTrackers.isEmpty()) {
             for (ServerPlayerConnection trackerConnection : trackerConnections) {
@@ -117,13 +124,6 @@ public class ServerNetworking {
                 trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
             }
         }
-
-        // Pose data
-        sendPacketToConnections(
-                serverPlayer, trackerConnections,
-                false, null,
-                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer(), worldScale, fullHeight)
-        );
 
         // ----- Send updated data to old trackers -----
 
