@@ -145,13 +145,14 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
-        if(VisorState.get().isNotActive()){
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        if (vrPlayer == null) {
             return original.call(self);
         }
         return self.getItemInHand(
                 Objects.requireNonNullElseGet(
                         visor$swingHand,
-                        () -> ClientContext.localPlayer.getActiveHand()
+                        vrPlayer::getActiveHand
                 ).asInteractionHand()
         );
 
@@ -161,14 +162,15 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$itemInHand(Player self, InteractionHand hand, Operation<ItemStack> original) {
-        if(VisorState.get().isNotActive()){
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        if (vrPlayer == null) {
             return original.call(self, hand);
         }
         return original.call(
                 self,
                 Objects.requireNonNullElseGet(
                         visor$swingHand,
-                        () -> ClientContext.localPlayer.getActiveHand()
+                        vrPlayer::getActiveHand
                 ).asInteractionHand()
         );
 
@@ -177,29 +179,34 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     // 3. ATTACK_DAMAGE attribute for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
-    private double visor$attackDamage(Player instance, Attribute attribute, Operation<Double> original) {
-        if(VisorState.get().isNotActive()){
-            return original.call(instance, attribute);
+    private double visor$attackDamage(Player self, Attribute attribute, Operation<Double> original) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        if (vrPlayer == null) {
+            return original.call(self, attribute);
         }
         if(visor$swingHand == HandType.OFFHAND
-                || ClientContext.localPlayer.getActiveHand() == HandType.OFFHAND){
-            return visor$withOffhandAttributes(() -> original.call(instance, attribute));
+                || vrPlayer.getActiveHand() == HandType.OFFHAND){
+            return visor$withOffhandAttributes(() -> original.call(self, attribute));
         }
-        return original.call(instance, attribute);
+        return original.call(self, attribute);
     }
 
     // 4. EnchantmentHelper for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
-    private int visor$knockback(LivingEntity self, Operation<Integer> original) {
-        if(VisorState.get().isNotActive()){
-            return original.call(self);
+    private int visor$knockback(LivingEntity selfEntity, Operation<Integer> original) {
+        if(!(selfEntity instanceof Player self)){
+            return original.call(selfEntity);
+        }
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        if (vrPlayer == null) {
+            return original.call(selfEntity);
         }
         if(visor$swingHand == HandType.OFFHAND
-                || ClientContext.localPlayer.getActiveHand() == HandType.OFFHAND){
+                || vrPlayer.getActiveHand() == HandType.OFFHAND){
             return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
         }
-        return original.call(self);
+        return original.call(selfEntity);
     }
 
 
