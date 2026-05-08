@@ -1041,7 +1041,7 @@ public class VRSettingsPresets extends VROptionsSet {
             else if(registry.getComponent(id) != null){
                 confirmButton.active = false;
                 idEditBix.setTextColor(AtumColor.RED.asInt());
-            }else if(ComponentIds.isValid(id)){
+            }else if(!ComponentIds.isValid(id)){
                 confirmButton.active = false;
                 idEditBix.setTextColor(AtumColor.RED.asInt());
             }else{
