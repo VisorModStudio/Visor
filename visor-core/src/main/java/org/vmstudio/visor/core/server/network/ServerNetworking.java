@@ -185,9 +185,11 @@ public class ServerNetworking {
         Packet<?> packet = ModLoader.get().createPacketToClient(payload);
 
         boolean wasSentSelf = false;
+        boolean isRecordingModLoaded = ReplayCompatHelper.isLoaded()
+                || FlashbackCompatHelper.isLoaded();
         for (var pc : connections) {
             ServerPlayer player = pc.getPlayer();
-            if (player == tracked && !sendSelf) {
+            if (player == tracked && !sendSelf && !isRecordingModLoaded) {
                 wasSentSelf = true;
                 continue;
             }
@@ -196,7 +198,7 @@ public class ServerNetworking {
             }
             pc.send(packet);
         }
-        if (!wasSentSelf && sendSelf) {
+        if (!wasSentSelf && (sendSelf || isRecordingModLoaded)) {
             tracked.connection.send(packet);
         }
     }
@@ -216,7 +218,7 @@ public class ServerNetworking {
             }
             playerConnection.send(packet);
         }
-        if(!wasSentSelf && sendSelf){
+        if(!wasSentSelf && (sendSelf || isRecordingModLoaded)){
             tracked.connection.send(packet);
         }
     }
