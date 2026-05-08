@@ -2,11 +2,14 @@ package org.vmstudio.visor.core.client.player;
 
 import lombok.Getter;
 import net.minecraft.world.entity.Entity;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
+import org.vmstudio.visor.api.common.network.buffer.PoseElementBuffer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 
@@ -83,7 +86,19 @@ public class VRClientPlayers {
 
         return remotePlayer;
     }
-
+    public static VRRemotePlayerImpl ensurePacketReceiver(UUID uuid, RemotePlayer mcPlayer) {
+        var receiver = getPacketReceiver(uuid);
+        if(receiver != null){
+            return receiver;
+        }
+        PoseElementBuffer empty = new PoseElementBuffer(new Vector3f(), new Quaternionf());
+        receiver = new VRRemotePlayerImpl(
+                mcPlayer,
+                new PoseDataBuffer(empty, empty, empty)
+        );
+        receivedNewPlayer(receiver);
+        return receiver;
+    }
     public static VRClientPlayer getPlayer(UUID uuid) {
         if(ClientContext.localPlayer.getMcPlayer() != null
                 && ClientContext.localPlayer.getMcPlayer().getUUID().equals(uuid)){

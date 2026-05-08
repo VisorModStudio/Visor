@@ -32,8 +32,7 @@ public class ServerListenerMixins {
         public void visor$onPlayerLeave(Component component, CallbackInfo ci) {
             // remove player from vr player list, when they leave
 
-            VisorServerImpl.INSTANCE.getPlayersWithVR()
-                    .remove(this.player.getUUID());
+            VisorServerImpl.INSTANCE.removePlayer(this.player);
         }
     }
 }
