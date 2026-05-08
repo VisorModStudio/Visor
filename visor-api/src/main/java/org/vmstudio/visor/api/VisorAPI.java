@@ -107,7 +107,10 @@ public interface VisorAPI {
     @NotNull
     @Environment(EnvType.CLIENT)
     static VisorClientState clientState(){
-        return Instance.clientState;
+        return Objects.requireNonNullElse(
+                Instance.clientState,
+                VisorClientState.Empty.INSTANCE
+        );
     }
 
     /**
@@ -169,16 +172,7 @@ public interface VisorAPI {
 
         //empty implementation, before Visor initialized
         @Environment(EnvType.CLIENT)
-        private static VisorClientState clientState = new VisorClientState() {
-            @Override
-            public @NotNull VRPlayMode playMode() {return VRPlayMode.DISABLED;}
-            @Override
-            public @NotNull VRStateMode stateMode() {return VRStateMode.OFF;}
-            @Override
-            public @NotNull RenderPhase renderPhase() {return RenderPhase.VANILLA;}
-            @Override
-            public @Nullable VRRenderPass renderPass() {return null;}
-        };
+        private static VisorClientState clientState;
 
 
         private static VisorServer server;

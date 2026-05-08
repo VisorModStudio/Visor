@@ -1,5 +1,7 @@
 package org.vmstudio.visor.api;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
@@ -10,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Access point for client-side state values
  */
+@Environment(EnvType.CLIENT)
 public interface VisorClientState {
 
 
@@ -46,4 +49,19 @@ public interface VisorClientState {
      */
     @Nullable
     VRRenderPass renderPass();
+
+
+
+    @Environment(EnvType.CLIENT)
+    final class Empty implements VisorClientState {
+
+        public static final Empty INSTANCE = new Empty();
+
+        private Empty() {}
+
+        @Override public @NotNull VRPlayMode playMode()      { return VRPlayMode.DISABLED; }
+        @Override public @NotNull VRStateMode stateMode()    { return VRStateMode.OFF; }
+        @Override public @NotNull RenderPhase renderPhase()  { return RenderPhase.VANILLA; }
+        @Override public @Nullable VRRenderPass renderPass() { return null; }
+    }
 }
