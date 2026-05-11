@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameMenuScreen extends Screen {
+    private static final Component RETURN_TO_MENU = Component.translatable("menu.returnToMenu");
+    private static final Component DISCONNECT = Component.translatable("menu.disconnect");
+
+
     private static final int COLUMN_W = 204;
     private static final int BTN_H = 20;
     private static final int BTN_HALF = (COLUMN_W - 4) / 2;
@@ -87,8 +91,9 @@ public class GameMenuScreen extends Screen {
         y = buildContent(cx, y);
         y += 4;
 
+        Component component = this.minecraft.isLocalServer() ? RETURN_TO_MENU : DISCONNECT;
         addRenderableWidget(
-                Button.builder(Component.translatable("menu.quit"), b -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, () -> ClientUtils.disconnect(""), true))
+                Button.builder(component, b -> this.minecraft.getReportingContext().draftReportHandled(this.minecraft, this, () -> ClientUtils.disconnect(""), true))
                         .pos(cx - COLUMN_W / 2, y).width(COLUMN_W).build()
         );
     }
