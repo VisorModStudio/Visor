@@ -18,6 +18,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.input.actions.*;
+import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
@@ -331,6 +332,11 @@ public class VisorClientImpl implements VisorClient {
     @Override
     public boolean isFeatureEnabled(@NotNull ClientFeature feature) {
         return featuresToggle.isAllowed(feature);
+    }
+
+    @Override
+    public boolean isInVisorServer() {
+        return ClientNetworking.isServerSupportsVisor();
     }
 
     @Override

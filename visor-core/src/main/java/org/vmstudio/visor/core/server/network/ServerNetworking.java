@@ -32,7 +32,6 @@ public class ServerNetworking {
 
     public static void sendVRPacketTo(VRServerPlayer vrPlayer,
                                       VisorPayloadToClient payload) {
-        if (MC.getConnection() == null) return;
         vrPlayer.getMcPlayer().connection
                 .send(createVRPacket(payload));
     }
