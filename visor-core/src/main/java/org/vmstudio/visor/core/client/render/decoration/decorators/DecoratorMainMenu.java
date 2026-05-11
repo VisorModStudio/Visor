@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.render.decoration.decorators;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
@@ -62,7 +63,7 @@ public class DecoratorMainMenu extends VRDecorator {
 
     @Override
     public boolean canActivate() {
-        return VRRenderState.isInMainMenu();
+        return VisorAPI.clientState().sceneType().isMainMenu();
     }
 
     @Override

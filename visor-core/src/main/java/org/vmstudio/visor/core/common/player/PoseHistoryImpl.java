@@ -22,10 +22,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
         history.addFirst(relevantPose);
     }
 
-    public void clear(){
-        history.clear();
-        history.addFirst(relevantPose);
-    }
+
     @Override
     public Vector3f netMovement(VRTrackableBodyPart bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
@@ -185,7 +182,8 @@ public class PoseHistoryImpl implements VRPoseHistory {
     }
 
 
-    public void dispose(){
+    public void clear(){
         history.clear();
+        history.addFirst(relevantPose);
     }
 }

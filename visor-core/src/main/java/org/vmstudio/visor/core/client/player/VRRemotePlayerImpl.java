@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.player;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
@@ -90,13 +91,14 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     public void receivedLeftHandedPacket(boolean leftHanded){
         this.leftHanded = leftHanded;
     }
-    public void receivedBodyTypePacket(String vrBodyType){
+    public void receivedBodyTypePacket(String vrBodyTypeId){
         var registry = VisorAPI.addonManager().getRegistries()
                 .vrBodyTypes();
-        this.bodyType = registry.getComponent(vrBodyType);
-        if(this.bodyType == null){
-            this.bodyType = VRBodyType.FALLBACK_BODY_TYPE;
+        var newBodyType = registry.getComponent(vrBodyTypeId);
+        if(newBodyType == null){
+            newBodyType = VRBodyType.FALLBACK_BODY_TYPE;
         }
+        this.bodyType = newBodyType;
 
         this.prevPose.bodyTypeChanged(bodyType);
         this.pose.bodyTypeChanged(bodyType);
@@ -104,6 +106,12 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
         this.poseHistoryRelative.clear();
         this.poseHistoryTick.clear();
+
+        if(newBodyType != bodyType) {
+            VisorAPI.eventBus().callEvent(
+                    new BodyChangedVREvent(this, bodyType)
+            );
+        }
     }
     public void receivedWorldScalePacket(float worldScale){
         this.worldScaleReceived = worldScale;

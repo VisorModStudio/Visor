@@ -214,6 +214,9 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
     }
 
     public void setScale(float newValue) {
+        if (!Float.isFinite(newValue) || newValue <= 0f) {
+            return;
+        }
         if(this.scale == newValue){
             return;
         }

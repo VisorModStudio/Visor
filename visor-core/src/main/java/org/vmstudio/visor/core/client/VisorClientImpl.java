@@ -21,6 +21,7 @@ import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -188,6 +189,7 @@ public class VisorClientImpl implements VisorClient {
 
     public void onGameLoopStart(){
         try {
+            VRRenderState.updateSceneType();
             vrProvider.startFrame();
             ClientContext.inputManager.update();
             VRClientPlayers.onGameLoopStart();

@@ -6,6 +6,7 @@ import lombok.Getter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
+import org.vmstudio.visor.api.client.render.VRSceneType;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -38,6 +39,12 @@ public class VRRenderState {
     @Getter
     private static MainTarget vanillaTarget = null;
 
+    @Getter
+    private static VRSceneType sceneType = VRSceneType.MAIN_MENU;
+
+    public static void updateSceneType(){
+        sceneType = isInMainMenu() ? VRSceneType.MAIN_MENU : VRSceneType.WORLD;
+    }
 
     public static void initVanillaTarget(MainTarget target){
         if(vanillaTarget != null){
@@ -149,6 +156,7 @@ public class VRRenderState {
             return false;
         }
         return MC.level == null
+                || MC.gameRenderer == null
                 || MC.screen instanceof ReceivingLevelScreen
                 || MC.screen instanceof ProgressScreen
                 || MC.screen instanceof GenericDirtMessageScreen

@@ -74,7 +74,7 @@ public class RenderGuiHelper {
         RenderSystem.disableCull();
         RenderSystem.setShaderTexture(0, renderTarget.getColorTextureId());
 
-        if (!VRRenderState.isInMainMenu()) {
+        if (VRRenderState.getSceneType().isWorld()) {
             RenderSystem.setShaderFogStart(Float.MAX_VALUE);
 
             if (MC.player != null && MC.player.isShiftKeyDown()) {

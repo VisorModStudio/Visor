@@ -41,7 +41,8 @@ public interface VisorClient {
 
 
     /**
-     * If in Visor supported server.
+     * If joined Visor supported server.
+     *
      * @return true/false
      */
     boolean isInVisorServer();

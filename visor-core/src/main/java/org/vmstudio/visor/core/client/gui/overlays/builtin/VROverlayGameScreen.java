@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin;
 
 import com.mojang.blaze3d.platform.Window;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.input.MouseButtonType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -37,7 +38,6 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     private float overlayScale = 1.0f;
 
 
-    private boolean inMainMenu = true;
     public VROverlayGameScreen(@NotNull VisorAddon owner,
                                @NotNull String id) {
         super(
@@ -115,9 +115,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     private void orient(Screen previousGuiScreen,
                         Screen newScreen){
-        inMainMenu = (MC.gameRenderer == null
-                || willBeInMenuRoom(newScreen));
-        if (inMainMenu) {
+        if (VisorAPI.clientState().sceneType().isMainMenu()) {
             orientMainMenu();
             return;
         }
@@ -336,12 +334,12 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
     @Override
     public boolean supportsDragging() {
-        return !inMainMenu;
+        return VisorAPI.clientState().sceneType().isWorld();
     }
 
     @Override
     public boolean supportsResizing() {
-        return !inMainMenu;
+        return VisorAPI.clientState().sceneType().isWorld();
     }
 
 

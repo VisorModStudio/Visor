@@ -157,7 +157,7 @@ public abstract class GameRendererMixin
 
 
         // Render Main Menu View
-        if (VRRenderState.isInMainMenu()) {
+        if (VRRenderState.getSceneType().isMainMenu()) {
 
             GL11.glDisable(GL11.GL_STENCIL_TEST);
 
@@ -220,7 +220,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)D", cancellable = true)
     public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Double> info) {
-        if (VRRenderState.isInMainMenu()) {
+        if (VRRenderState.getSceneType().isMainMenu()) {
             info.setReturnValue(Double.valueOf(this.minecraft.options.fov().get()));
         }
     }
@@ -452,7 +452,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$noScreenshotInMenu(Path path, CallbackInfo ci) {
-        if (VisorState.get().isActive() && VRRenderState.isInMainMenu()) {
+        if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
             ci.cancel();
         }
     }
@@ -725,7 +725,7 @@ public abstract class GameRendererMixin
 
         if(minecraft.player.isSpectator()
                 || !minecraft.player.isAlive()
-                || VRRenderState.isInMainMenu()){
+                || VRRenderState.getSceneType().isMainMenu()){
             return;
         }
         // shitty check for immersive portals, be careful with this

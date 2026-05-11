@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.client.render.VRSceneType;
 
 /**
  * Access point for client-side state values
@@ -51,6 +52,13 @@ public interface VisorClientState {
     VRRenderPass renderPass();
 
 
+    /**
+     * Get VR scene type
+     *
+     * @return the current {@link VRSceneType}
+     */
+    @NotNull
+    VRSceneType sceneType();
 
     @Environment(EnvType.CLIENT)
     final class Empty implements VisorClientState {
@@ -63,5 +71,6 @@ public interface VisorClientState {
         @Override public @NotNull VRStateMode stateMode()    { return VRStateMode.OFF; }
         @Override public @NotNull RenderPhase renderPhase()  { return RenderPhase.VANILLA; }
         @Override public @Nullable VRRenderPass renderPass() { return null; }
+        @Override public @NotNull VRSceneType sceneType()          {return VRSceneType.MAIN_MENU;}
     }
 }

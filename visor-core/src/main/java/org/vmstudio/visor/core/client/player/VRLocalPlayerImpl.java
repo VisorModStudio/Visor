@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
@@ -90,6 +91,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public void setBodyType(@NotNull VRBodyType bodyType) {
+        boolean sendEvent = this.bodyType != null && this.bodyType != bodyType;
         this.bodyType = bodyType;
 
         this.roomRelativePose.bodyTypeChanged(bodyType);
@@ -99,6 +101,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         this.poseHistoryRelative.clear();
         this.poseHistoryTick.clear();
+        if(sendEvent){
+            VisorAPI.eventBus().callEvent(
+                    new BodyChangedVREvent(this, bodyType)
+            );
+        }
     }
 
     @Override
@@ -130,7 +137,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         );
 
         //WORLD SCALE
-        float preWorldScale = VRRenderState.isInMainMenu()
+        float preWorldScale = VRRenderState.getSceneType().isMainMenu()
                 ? 1.0f
                 : VRClientSettings.getWorldScale();
 

@@ -15,6 +15,7 @@ import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.client.render.VRSceneType;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
@@ -293,5 +294,10 @@ public class VisorState implements VisorClientState {
     @Override
     public VRRenderPass renderPass() {
         return VRRenderState.getRenderPass();
+    }
+
+    @Override
+    public @NotNull VRSceneType sceneType() {
+        return VRRenderState.getSceneType();
     }
 }
