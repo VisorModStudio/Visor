@@ -459,20 +459,6 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     }
 
     /**
-     * If cursor handling when overlay
-     * is not visible but enabled is supported
-     *
-     * <p>
-     *     Useful in case you want to make
-     *     overlay visible only when cursor is focused
-     * </p>
-     * @return true/false
-     */
-    default boolean supportsCursorIgnoreVisible() {
-        return false;
-    }
-
-    /**
      * If two cursors are supported
      *
      * @return true/false

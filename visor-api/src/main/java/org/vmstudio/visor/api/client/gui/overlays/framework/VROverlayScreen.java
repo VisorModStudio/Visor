@@ -182,6 +182,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
+    protected void onVisibilityChanged(){}
+
     protected void onStoppedDragging() {}
 
     protected void onStoppedResizing() {}
@@ -242,6 +244,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     @Override
     public final void tick() {
         onPreTick();
+        boolean oldVisible = visible;
         var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
         visible = enabled && preVisible && updateVisibility();
         VisorAPI.client().getRenderer().updateOverlayTarget(
@@ -249,6 +252,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         );
         //making sure there is a render target to draw on
         visible = visible && renderTarget != null;
+        if(oldVisible != visible){
+            onVisibilityChanged();
+        }
         onTick();
     }
 
@@ -263,6 +269,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             initAgain = false;
         }
         if(supportsVisibilityUpdateOnRender()) {
+            boolean oldVisible = visible;
             var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
             visible = enabled && preVisible && updateVisibility();
             VisorAPI.client().getRenderer().updateOverlayTarget(
@@ -270,6 +277,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             );
             //making sure there is a render target to draw on
             visible = visible && renderTarget != null;
+            if(oldVisible != visible){
+                onVisibilityChanged();
+            }
             if(!visible) return;
         }
 
@@ -330,6 +340,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             onDisable();
         }
     }
+
 
     public void updateSize(){
         guiScaleFactor = VisorAPI.client().getGuiManager().calculateScale(

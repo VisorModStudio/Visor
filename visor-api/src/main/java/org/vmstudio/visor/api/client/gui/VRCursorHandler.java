@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.gui;
 
+import org.vmstudio.visor.api.client.events.CursorFocusChangedVREvent;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
@@ -51,7 +52,7 @@ public interface VRCursorHandler {
      * Set force focused overlay<br>
      *
      * <p>Force focused overlay is prioritized,
-     * and any other overlay closer to cursor is ignored.</p>
+     * and any other overlays closer to cursor are ignored.</p>
      *
      * <p>Force focus will be lost if cursor
      * is not focusing this overlay at all</p>
@@ -92,6 +93,7 @@ public interface VRCursorHandler {
      */
     @Nullable("Not focused, or hand is not a cursor")
     VROverlay getFocusedOverlay(@NotNull HandType hand, boolean activeCursor);
+
     /**
      * Overload of {@link #getFocusedOverlay(HandType, boolean)} with activeCursor = false
      *
@@ -175,6 +177,17 @@ public interface VRCursorHandler {
         return getFocusedOverlayScreen(getCursorHand(), false);
     }
 
+    /**
+     * Request clearance of an overlay focus from hand
+     * <p>
+     *     Clear will be made on next cursor state update
+     * </p>
+     *
+     * In case you need to block focus, use this method with {@link CursorFocusChangedVREvent this cancellable event}
+     *
+     * @param handType the hand type
+     */
+    void clearFocus(@NotNull HandType handType);
 
     /**
      * If {@link #getCursorHand()} is focused at overlay.

@@ -154,6 +154,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
+    protected void onVisibilityChanged(){}
+
     protected void onFinishedDragging() {};
 
     protected void onFinishedResizing() {};
@@ -198,15 +200,23 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Override
     public final void tick(){
         onPreTick();
+        boolean oldVisible = visible;
         var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
         visible = enabled && preVisible && updateVisibility() && renderTarget != null;
+        if(oldVisible != visible){
+            onVisibilityChanged();
+        }
         onTick();
     }
 
     public void render(float partialTick){
         if(supportsVisibilityUpdateOnRender()) {
+            boolean oldVisible = visible;
             var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
             visible = enabled && preVisible  && updateVisibility() && renderTarget != null;
+            if(oldVisible != visible){
+                onVisibilityChanged();
+            }
             if(!visible) return;
         }
         onPreRender(partialTick);

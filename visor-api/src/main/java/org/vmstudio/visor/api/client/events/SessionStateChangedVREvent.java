@@ -20,7 +20,7 @@ public class SessionStateChangedVREvent extends VREvent {
     }
 
     /**
-     * VR session just became at-least-INITIALIZED (i.e. OFF → anything).
+     * VR session just became at-least-INITIALIZED (i.e. anything except OFF).
      */
     public boolean becameInitialized() {
         return previousState.isNotInitialized() && newState.isInitialized();
@@ -41,7 +41,7 @@ public class SessionStateChangedVREvent extends VREvent {
     }
 
     /**
-     * VR session just stopped rendering (ACTIVE/FOCUSED → INITIALIZED/OFF).
+     * VR session just stopped rendering (ACTIVE/FOCUSED -> INITIALIZED/OFF).
      */
     public boolean becameInactive() {
         return previousState.isActive() && newState.isNotActive();
@@ -55,7 +55,7 @@ public class SessionStateChangedVREvent extends VREvent {
     }
 
     /**
-     * VR session just lost focus (FOCUSED → anything else).
+     * VR session just lost focus (FOCUSED -> anything else).
      */
     public boolean becameUnfocused() {
         return previousState.isFocused() && newState.isNotFocused();
