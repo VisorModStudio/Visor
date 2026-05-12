@@ -85,38 +85,24 @@ public class FabricModLoader implements ModLoader {
                 .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
                 .add(callback);
 
-        if (stage == RenderPipelineStage.HUD_OVERLAY) {
-            if (!hudEventRegistered) {
-                HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-                    List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(RenderPipelineStage.HUD_OVERLAY);
-                    if (callbacks == null) return;
-                    PoseStack poseStack = drawContext.pose();
-                    for (RenderPipelineCallback cb : callbacks) {
-                        cb.render(poseStack, tickDelta);
-                    }
-                });
-                hudEventRegistered = true;
-            }
-        } else {
-            if (!worldEventsRegistered) {
-                // Closest equivalent of AFTER_SOLID
-                WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
-                    fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(), context.tickDelta());
-                    return true; // don't cancel block outline
-                });
+        if (!worldEventsRegistered) {
+            // Closest equivalent of AFTER_SOLID
+            WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
+                fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(), context.tickDelta());
+                return true; // don't cancel block outline
+            });
 
-                // AFTER_TRANSLUCENT
-                WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-                    fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(), context.tickDelta());
-                });
+            // AFTER_TRANSLUCENT
+            WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
+                fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(), context.tickDelta());
+            });
 
-                // AFTER_WORLD
-                WorldRenderEvents.END.register(context -> {
-                    fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(), context.tickDelta());
-                });
+            // AFTER_WORLD
+            WorldRenderEvents.END.register(context -> {
+                fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(), context.tickDelta());
+            });
 
-                worldEventsRegistered = true;
-            }
+            worldEventsRegistered = true;
         }
     }
 

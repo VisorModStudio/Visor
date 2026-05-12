@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.client.gui;
 
-import org.vmstudio.visor.api.client.events.CursorFocusChangedVREvent;
+import org.vmstudio.visor.api.client.events.gui.CursorFocusChangedVREvent;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;

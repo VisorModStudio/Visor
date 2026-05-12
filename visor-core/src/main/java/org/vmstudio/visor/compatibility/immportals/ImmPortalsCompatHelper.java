@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.render.RenderPhaseStartedVREvent;
 import org.vmstudio.visor.api.client.events.SessionStateChangedVREvent;
+import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
@@ -60,6 +62,12 @@ public final class ImmPortalsCompatHelper {
         public void onSessionChanged(SessionStateChangedVREvent event) {
             if (event.becameActive())   onVrActivated();
             if (event.becameInactive()) onVrDeactivated();
+        }
+        @VREventHandler
+        public void onPhaseStarted(RenderPhaseStartedVREvent event) {
+            if (event.getNewPhase() == RenderPhase.VR_WORLD) {
+                onBeginVrWorldPass(event.getRenderPass());
+            }
         }
     }
 

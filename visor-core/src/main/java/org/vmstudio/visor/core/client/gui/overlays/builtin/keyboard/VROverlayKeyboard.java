@@ -10,7 +10,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.events.KeyboardStateChangedVREvent;
+import org.vmstudio.visor.api.client.events.gui.KeyboardStateChangedVREvent;
 import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;

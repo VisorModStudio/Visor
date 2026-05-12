@@ -1,4 +1,4 @@
-package org.vmstudio.visor.api.client.events;
+package org.vmstudio.visor.api.client.events.gui;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

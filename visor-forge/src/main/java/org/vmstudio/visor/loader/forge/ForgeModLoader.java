@@ -89,16 +89,9 @@ public class ForgeModLoader implements ModLoader {
                 .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
                 .add(callback);
 
-        if (stage == RenderPipelineStage.HUD_OVERLAY) {
-            if (!guiOverlayListenerRegistered) {
-                MinecraftForge.EVENT_BUS.addListener(this::onRenderGuiOverlay);
-                guiOverlayListenerRegistered = true;
-            }
-        } else {
-            if (!levelStageListenerRegistered) {
-                MinecraftForge.EVENT_BUS.addListener(this::onRenderLevelStage);
-                levelStageListenerRegistered = true;
-            }
+        if (!levelStageListenerRegistered) {
+            MinecraftForge.EVENT_BUS.addListener(this::onRenderLevelStage);
+            levelStageListenerRegistered = true;
         }
     }
 
@@ -211,17 +204,6 @@ public class ForgeModLoader implements ModLoader {
         }
     }
 
-    private void onRenderGuiOverlay(RenderGuiOverlayEvent.Post event) {
-        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(RenderPipelineStage.HUD_OVERLAY);
-        if (callbacks == null || callbacks.isEmpty()) return;
-
-        PoseStack poseStack = event.getGuiGraphics().pose();
-        float partialTicks = event.getPartialTick();
-
-        for (RenderPipelineCallback callback : callbacks) {
-            callback.render(poseStack, partialTicks);
-        }
-    }
 
     private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
         if (forgeStage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {

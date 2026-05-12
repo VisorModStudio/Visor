@@ -38,16 +38,6 @@ public enum RenderPipelineStage {
      * (e.g. game effects, HUD overlays, cursor).</p>
      *
      */
-    AFTER_WORLD,
-
-    /**
-     * HUD layer — renders as a flat post-process
-     * on the final frame buffer.
-     *
-     * <p>Intended for overlays that are not
-     * part of the 3D world at all.</p>
-     *
-     */
-    HUD_OVERLAY
+    AFTER_WORLD
 
 }

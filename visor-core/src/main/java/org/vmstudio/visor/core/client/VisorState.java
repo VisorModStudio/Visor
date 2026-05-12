@@ -17,7 +17,6 @@ import org.vmstudio.visor.api.client.events.SessionStateChangedVREvent;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRSceneType;
-import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 
 import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
@@ -200,7 +199,6 @@ public class VisorState implements VisorClientState {
 
     private static void activate() {
         setState(VRStateMode.ACTIVE);
-        ImmPortalsCompatHelper.onVrActivated();
 
         if (MC.player != null) {
             ClientContext.localPlayer.recenterOrigin(
@@ -220,7 +218,6 @@ public class VisorState implements VisorClientState {
     private static void deactivate() {
         setState(VRStateMode.INITIALIZED);
         VRRenderState.startVanillaPhase();
-        ImmPortalsCompatHelper.onVrDeactivated();
 
         if (MC.gameRenderer != null) {
             MC.gameRenderer.checkEntityPostEffect(
