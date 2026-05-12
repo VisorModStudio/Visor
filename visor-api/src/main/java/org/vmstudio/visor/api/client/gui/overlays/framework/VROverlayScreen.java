@@ -382,10 +382,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             if (!poseOptions.isAimedRotation()) {
                 PoseAnchor rotAnchor = poseOptions.getRotationAnchor();
                 VRPose rotAnchorPose = rotAnchor.getSupplier().apply(renderPose);
-                Vector3f rotOffset = rotAnchor.reverseAnchoredRotation(
-                        rotAnchorPose.getRotation(), getPose().getRotation()
-                );
-                poseOptions.setRotationOffset(rotOffset);
+                Matrix4f rotOffsetMatrix = rotAnchorPose.getRotation().invert(new Matrix4f())
+                        .mul(getPose().getRotation(), new Matrix4f());
+                poseOptions.setRotationOffset(rotOffsetMatrix);
             }
 
             poseOptions.save();

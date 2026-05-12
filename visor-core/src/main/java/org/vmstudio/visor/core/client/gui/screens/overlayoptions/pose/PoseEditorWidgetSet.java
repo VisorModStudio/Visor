@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.gui.screens.overlayoptions.pose;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
@@ -50,6 +51,8 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
     private ValueEditorFloat yRotationEditor;
     @Getter
     private ValueEditorFloat zRotationEditor;
+
+    private float lastShownRotX, lastShownRotY, lastShownRotZ;
 
     @Getter
     private ValueEditorFloat scaleEditor;
@@ -178,8 +181,12 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
         zPositionEditor.initWidgets();
 
         // --- Rotation
+        lastShownRotX = 0f;
+        lastShownRotY = 0f;
+        lastShownRotZ = 0f;
+
         xRotationEditor = new ValueEditorFloat.Builder(
-                optionsPose.getRotationOffset().x,
+                0f,
                 startX+24, startY+31,
                 93, 13
 
@@ -196,11 +203,15 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
-        ).setResponder(optionsPose::setRotationOffsetX).build();
+        ).setResponder(newValue -> {
+            float delta = newValue - lastShownRotX;
+            lastShownRotX = newValue;
+            optionsPose.rotateLocalX(delta);
+        }).build();
         xRotationEditor.initWidgets();
 
         yRotationEditor = new ValueEditorFloat.Builder(
-                optionsPose.getRotationOffset().y,
+                0f,
                 startX+24, startY+55,
                 93, 13
 
@@ -217,11 +228,15 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
-        ).setResponder(optionsPose::setRotationOffsetY).build();
+        ).setResponder(newValue -> {
+            float delta = newValue - lastShownRotY;
+            lastShownRotY = newValue;
+            optionsPose.rotateLocalY(delta);
+        }).build();
         yRotationEditor.initWidgets();
 
         zRotationEditor = new ValueEditorFloat.Builder(
-                optionsPose.getRotationOffset().z,
+                0f,
                 startX+24, startY+79,
                 93, 13
 
@@ -238,9 +253,12 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
                         .setTexture(OptionTextures.ARROW_BLACK_RIGHT)
                         .highlight(OptionTextures.HOVERED_HIGHLIGHT, OptionTextures.HOVERED_HIGHLIGHT)
                         .setStep(0.002)
-        ).setResponder(optionsPose::setRotationOffsetZ).build();
+        ).setResponder(newValue -> {
+            float delta = newValue - lastShownRotZ;
+            lastShownRotZ = newValue;
+            optionsPose.rotateLocalZ(delta);
+        }).build();
         zRotationEditor.initWidgets();
-
         // ---- Scale
 
         scaleEditor = new ValueEditorFloat.Builder(
@@ -372,8 +390,6 @@ public class PoseEditorWidgetSet extends DynamicWidgetSet {
         editorType = type;
         widgetsChanged();
     }
-
-
 
     public enum EditorType {
         POSITION,
