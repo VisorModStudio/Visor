@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -167,6 +168,9 @@ public class VisorClientImpl implements VisorClient {
             ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents()
                     .forEach(it->it.getRenderer().initModels(delayedBodyInit));
         }
+
+
+        ImmPortalsCompatHelper.prepare(ClientContext.coreAddon);
 
     }
 

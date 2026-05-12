@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
+import org.vmstudio.visor.api.client.events.SessionStateChangedVREvent;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRSceneType;
@@ -105,14 +106,14 @@ public class VisorState implements VisorClientState {
 
         if (state.isActive()) {
             if (ClientContext.visor.isFocused()) {
-                state = VRStateMode.FOCUSED;
+                setState(VRStateMode.FOCUSED);
             } else {
                 if (state != VRStateMode.ACTIVE) {
                     if (MC.level != null) {
                         MC.setScreen(new GameMenuScreen());
                     }
                 }
-                state = VRStateMode.ACTIVE;
+                setState(VRStateMode.ACTIVE);
             }
         }
 
@@ -163,7 +164,7 @@ public class VisorState implements VisorClientState {
             ClientContext.visor.initializeVR();
             VRRenderState.startVanillaPhase();
 
-            state = VRStateMode.INITIALIZED;
+            setState(VRStateMode.INITIALIZED);
 
             VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
@@ -198,7 +199,7 @@ public class VisorState implements VisorClientState {
 
 
     private static void activate() {
-        state = VRStateMode.ACTIVE;
+        setState(VRStateMode.ACTIVE);
         ImmPortalsCompatHelper.onVrActivated();
 
         if (MC.player != null) {
@@ -217,7 +218,7 @@ public class VisorState implements VisorClientState {
     }
 
     private static void deactivate() {
-        state = VRStateMode.INITIALIZED;
+        setState(VRStateMode.INITIALIZED);
         VRRenderState.startVanillaPhase();
         ImmPortalsCompatHelper.onVrDeactivated();
 
@@ -267,10 +268,10 @@ public class VisorState implements VisorClientState {
 
         if (ClientContext.visor != null) {
             updateActive(false);
-            state = VRStateMode.OFF;
+            setState(VRStateMode.OFF);
             ClientContext.visor.destroy();
         }else{
-            state = VRStateMode.OFF;
+            setState(VRStateMode.OFF);
         }
 
     }
@@ -299,5 +300,16 @@ public class VisorState implements VisorClientState {
     @Override
     public @NotNull VRSceneType sceneType() {
         return VRRenderState.getSceneType();
+    }
+
+    private static void setState(@NotNull VRStateMode newState) {
+        if (state == newState) {
+            return;
+        }
+        VRStateMode previousState = state;
+        state = newState;
+        VisorAPI.eventBus().callEvent(
+                new SessionStateChangedVREvent(previousState, newState)
+        );
     }
 }

@@ -7,10 +7,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.SessionStateChangedVREvent;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
+import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
@@ -44,6 +50,20 @@ public final class ImmPortalsCompatHelper {
     public static boolean isLoaded() {
         return ModLoader.get().isModLoaded(MOD_ID);
     }
+
+    public static void prepare(@NotNull VisorAddon owner) {
+        VisorAPI.eventBus().registerListener(owner, new Listener());
+    }
+
+    private static final class Listener implements VREventListener {
+        @VREventHandler
+        public void onSessionChanged(SessionStateChangedVREvent event) {
+            if (event.becameActive())   onVrActivated();
+            if (event.becameInactive()) onVrDeactivated();
+        }
+    }
+
+
 
     public static void onVrActivated() {
         if (!ensureReflection()) {
@@ -249,4 +269,5 @@ public final class ImmPortalsCompatHelper {
         reflectionFailureLogged = true;
         VisorClientImpl.LOGGER.warn(message, throwable);
     }
+
 }
