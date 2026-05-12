@@ -62,6 +62,8 @@
   "visor.options.gui.settings_text_scale": "Масштаб тексту",
   "visor.options.gui.settings_text_scale.tooltip": "§bМасштаб тексту в налаштуваннях",
   "visor.options.gui.hud_disabled_hotbar": "Сховати хотбар у HUD",
+  "visor.options.gui.keyboard.auto_layout": "Автоклавіатура",
+  "visor.options.gui.keyboard.auto_layout.tooltip": "§bАвтоматична розкладка клавіатури§r\n\n§7Якщо ввімкнено, список вибраних розкладок клавіатури залежить від мови гри",
 
   "_comment.rendering": "----Налаштування рендерингу----",
   "visor.options.rendering.button": "Графіка",

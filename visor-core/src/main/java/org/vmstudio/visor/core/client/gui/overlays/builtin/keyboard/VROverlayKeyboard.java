@@ -38,7 +38,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private boolean shiftPressed = false;
 
     @Getter
-    private KeyboardLayout activeLayout = KeyboardLayout.EN_US;
+    private KeyboardLayout activeLayout = KeyboardLayout.ENGLISH;
 
     @Getter
     @Nullable
@@ -201,9 +201,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     public @NotNull List<KeyboardLayout> getEnabledLayoutIds() {
-        List<KeyboardLayout> enabledLayouts = VRClientSettings.getKeyboardLayouts();
+        List<KeyboardLayout> enabledLayouts = VRClientSettings.getEffectiveKeyboardLayouts();
         if (enabledLayouts.isEmpty()) {
-            return List.of(KeyboardLayout.EN_US);
+            return List.of(KeyboardLayout.ENGLISH);
         }
         return enabledLayouts;
     }
