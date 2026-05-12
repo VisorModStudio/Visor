@@ -379,6 +379,9 @@
 
   "visor.overlay.options.general": "Общее",
 
+  "visor.overlay.options.visibility": "Видимость",
+  "visor.overlay.options.visibility.tooltip": "Вкл/Выкл отображение оверлея",
+
   "visor.overlay.item_pose_test.active": "Активно",
 
   "_comment.game_menu": "----Экран игрового меню----",

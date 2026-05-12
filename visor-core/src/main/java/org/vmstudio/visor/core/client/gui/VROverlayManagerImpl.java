@@ -307,6 +307,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
         }
         else if(category instanceof OverlayOptionsScreenRegion type){
             return new OptionsScreenRegion(type);
+        }else if(category instanceof OverlayOptionsVisibility type){
+            return new OptionsScreenVisibility(type);
         }
         return null;
     }

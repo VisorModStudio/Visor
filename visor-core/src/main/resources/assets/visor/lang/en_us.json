@@ -384,6 +384,10 @@
 
   "visor.overlay.options.general": "General",
 
+  "visor.overlay.options.visibility": "Visibility",
+  "visor.overlay.options.visibility.tooltip": "Turn on/off visibility state",
+
+
   "visor.overlay.item_pose_test.active": "Active",
 
   "_comment.game_menu": "----Game Menu Screen----",

@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.*;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsResizing;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -85,6 +86,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     private float resizeStartHandDistance;
     private float resizeStartScale = 1f;
 
+    protected OverlayOptionsVisibility optionsVisibility;
     protected OverlayOptionsResizing optionsResizing;
 
     public VROverlayFrameBuffer(@NotNull VisorAddon owner,
@@ -190,18 +192,21 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
                 }
             }
         }
+        optionsVisibility = getOption(OverlayOptionsVisibility.ID, OverlayOptionsVisibility.class);
     }
 
     @Override
     public final void tick(){
         onPreTick();
-        visible = enabled && updateVisibility() && renderTarget != null;
+        var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+        visible = enabled && preVisible && updateVisibility() && renderTarget != null;
         onTick();
     }
 
     public void render(float partialTick){
         if(supportsVisibilityUpdateOnRender()) {
-            visible = enabled && updateVisibility() && renderTarget != null;
+            var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+            visible = enabled && preVisible  && updateVisibility() && renderTarget != null;
             if(!visible) return;
         }
         onPreRender(partialTick);

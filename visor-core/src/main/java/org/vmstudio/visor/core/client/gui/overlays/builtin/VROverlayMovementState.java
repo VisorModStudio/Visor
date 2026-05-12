@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -192,6 +193,10 @@ public class VROverlayMovementState extends VROverlayScreen {
     @Override
     protected @NotNull List<OverlayOptionGroup<?>> createOptions() {
         return List.of(
+                new OverlayOptionsVisibility(
+                        this,
+                        (it)->{}
+                ),
                 new OverlayOptionsPose(
                         this,
                         it-> {

@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.*;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsResizing;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -108,6 +109,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private float resizeStartHandDistance;
     private float resizeStartScale = 1f;
 
+    protected OverlayOptionsVisibility optionsVisibility;
     protected OverlayOptionsResizing optionsResizing;
 
     public VROverlayScreen(@NotNull VisorAddon owner,
@@ -234,12 +236,14 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 }
             }
         }
+        optionsVisibility = getOption(OverlayOptionsVisibility.ID, OverlayOptionsVisibility.class);
     }
 
     @Override
     public final void tick() {
         onPreTick();
-        visible = enabled && updateVisibility();
+        var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+        visible = enabled && preVisible && updateVisibility();
         VisorAPI.client().getRenderer().updateOverlayTarget(
                 this
         );
@@ -259,7 +263,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             initAgain = false;
         }
         if(supportsVisibilityUpdateOnRender()) {
-            visible = enabled && updateVisibility();
+            var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+            visible = enabled && preVisible && updateVisibility();
             VisorAPI.client().getRenderer().updateOverlayTarget(
                     this
             );
