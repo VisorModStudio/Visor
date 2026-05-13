@@ -13,6 +13,8 @@ import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
 
 import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
+import org.vmstudio.visor.core.server.network.ServerNetworking;
+import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
@@ -69,10 +71,14 @@ public class VisorServerImpl implements VisorServer {
                     mcPlayer-> getVrPlayer((ServerPlayer) mcPlayer)
             );
             addonManager = new AddonManagerImpl(LOGGER);
+
+            var coreAddon = new CoreAddonServer();
             addonManager.initialize(
-                    new CoreAddonServer(),
+                    coreAddon,
                     List.of()
             );
+
+            ServerNetworking.createDedicatedChannel(coreAddon);
 
         }
     }

@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
 
 public record CrawlingPayloadToServer(boolean crawling) implements VisorPayloadToServer {
@@ -13,9 +13,10 @@ public record CrawlingPayloadToServer(boolean crawling) implements VisorPayloadT
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.CRAWLING;
+    public byte payloadId() {
+        return VisorCorePayloadID.CRAWLING.byteOrdinal();
     }
+
 
 
     public static CrawlingPayloadToServer read(FriendlyByteBuf buffer) {
@@ -23,5 +24,6 @@ public record CrawlingPayloadToServer(boolean crawling) implements VisorPayloadT
                 buffer.readBoolean()
         );
     }
+
 }
 

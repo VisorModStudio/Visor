@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 
 public record LeftHandedPayloadToServer(boolean leftHanded) implements VisorPayloadToServer {
 
@@ -12,9 +12,10 @@ public record LeftHandedPayloadToServer(boolean leftHanded) implements VisorPayl
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.LEFT_HANDED;
+    public byte payloadId() {
+        return VisorCorePayloadID.LEFT_HANDED.byteOrdinal();
     }
+
 
 
     public static LeftHandedPayloadToServer read(FriendlyByteBuf buffer) {
@@ -22,4 +23,5 @@ public record LeftHandedPayloadToServer(boolean leftHanded) implements VisorPayl
                 buffer.readBoolean()
         );
     }
+
 }

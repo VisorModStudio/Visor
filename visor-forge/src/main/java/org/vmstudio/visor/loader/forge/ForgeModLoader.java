@@ -4,25 +4,25 @@ package org.vmstudio.visor.loader.forge;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.event.EventNetworkChannel;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
-import net.minecraft.core.BlockPos;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
@@ -164,17 +164,54 @@ public class ForgeModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return NetworkDirection.PLAY_TO_CLIENT.buildPacket(new ImmutablePair<>(buffer, 0), payload.id()).getThis();
+    public void registerNetworkChannel(@NotNull VisorChannel channel) {
+        String version = String.valueOf(channel.getNetworkVersion());
+        EventNetworkChannel eventChannel = NetworkRegistry.ChannelBuilder
+                .named(channel.getChannelId())
+                .clientAcceptedVersions(s -> true)
+                .serverAcceptedVersions(s -> true)
+                .networkProtocolVersion(() -> version)
+                .eventNetworkChannel();
+
+        eventChannel.addListener(event -> {
+            FriendlyByteBuf payload = event.getPayload();
+            if (payload == null) return;
+
+            FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
+            copy.writeBytes(payload.copy());
+
+            var context = event.getSource().get();
+            if (context.getDirection().getOriginationSide().isClient()) {
+                if (channel.hasPacketsToServer() && context.getSender() != null) {
+                    var sender = context.getSender();
+                    context.enqueueWork(() -> channel.handleToServer(copy, sender,
+                            p -> context.getNetworkManager().send(
+                                    ModLoader.get().createPacketToClient(channel.getChannelId(), p)
+                            )));
+                }
+            } else {
+                if (channel.hasPacketsToClient()) {
+                    context.enqueueWork(() -> channel.handleToClient(copy));
+                }
+            }
+            context.setPacketHandled(true);
+        });
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload) {
+    public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+                                                   @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return NetworkDirection.PLAY_TO_SERVER.buildPacket(new ImmutablePair<>(buffer, 0), payload.id()).getThis();
+        return NetworkDirection.PLAY_TO_CLIENT.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
+    }
+
+    @Override
+    public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+                                                   @NotNull VisorPayloadToServer payload) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        payload.write(buffer);
+        return NetworkDirection.PLAY_TO_SERVER.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
     }
 
     @Override

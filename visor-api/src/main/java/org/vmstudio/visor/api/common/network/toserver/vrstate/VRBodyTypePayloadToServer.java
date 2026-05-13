@@ -1,12 +1,10 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
-import com.google.common.base.Charsets;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
+import com.google.common.base.Charsets;
 import org.vmstudio.visor.api.common.network.VisorPayload;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 
 public record VRBodyTypePayloadToServer(String bodyType) implements VisorPayloadToServer {
     @Override
@@ -17,9 +15,10 @@ public record VRBodyTypePayloadToServer(String bodyType) implements VisorPayload
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.VR_BODY_TYPE;
+    public byte payloadId() {
+        return VisorCorePayloadID.VR_BODY_TYPE.byteOrdinal();
     }
+
 
 
     public static VRBodyTypePayloadToServer read(FriendlyByteBuf buffer) {
@@ -28,4 +27,6 @@ public record VRBodyTypePayloadToServer(String bodyType) implements VisorPayload
                 VisorPayload.readString(buffer)
         );
     }
+
+
 }

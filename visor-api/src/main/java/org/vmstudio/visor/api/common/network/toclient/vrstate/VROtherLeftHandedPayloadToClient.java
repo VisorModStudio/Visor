@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toclient.vrstate;
 
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 import java.util.UUID;
 
@@ -15,8 +15,8 @@ public record VROtherLeftHandedPayloadToClient(UUID playerUUID,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.OTHER_VR_LEFT_HANDED;
+    public byte payloadId() {
+        return VisorCorePayloadID.OTHER_VR_LEFT_HANDED.byteOrdinal();
     }
 
 

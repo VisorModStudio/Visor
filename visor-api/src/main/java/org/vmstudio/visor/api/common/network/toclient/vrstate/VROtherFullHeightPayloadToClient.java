@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toclient.vrstate;
 
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 import java.util.UUID;
 
@@ -16,9 +16,10 @@ public record VROtherFullHeightPayloadToClient(UUID playerUUID,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.OTHER_VR_FULL_HEIGHT;
+    public byte payloadId() {
+        return VisorCorePayloadID.OTHER_VR_FULL_HEIGHT.byteOrdinal();
     }
+
 
 
     public static VROtherFullHeightPayloadToClient read(FriendlyByteBuf buffer) {

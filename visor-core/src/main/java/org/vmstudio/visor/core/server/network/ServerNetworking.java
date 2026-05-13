@@ -1,10 +1,15 @@
 package org.vmstudio.visor.core.server.network;
 
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorNetwork;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import org.vmstudio.visor.mixin.common.accessors.ChunkMapAccessor;
@@ -24,10 +29,28 @@ import java.util.stream.Collectors;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class ServerNetworking {
+    public static VisorChannel DEDICATED_CHANNEL;
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(scheduler::shutdownNow));
+    }
+
+    public static void createDedicatedChannel(@NotNull CoreAddonServer coreAddon){
+        DEDICATED_CHANNEL = VisorChannel.builder(
+                coreAddon,
+                VisorNetwork.CORE_CHANNEL_ID,
+                VisorNetwork.CORE_NETWORK_VERSION
+        ).toServer(
+                (id, buffer)->{
+                    VisorCorePayloadID payloadId = VisorCorePayloadID.values()[id];
+                    return VisorCorePayloadID.readToServer(payloadId, buffer);
+                },
+                ServerPacketHandler::handlePacket
+        ).build();
+        VisorNetwork.registerChannel(
+                DEDICATED_CHANNEL
+        );
     }
 
     public static void sendVRPacketTo(VRServerPlayer vrPlayer,
@@ -38,7 +61,7 @@ public class ServerNetworking {
 
     public static Packet<?> createVRPacket(VisorPayloadToClient payload) {
         return ModLoader.get()
-                .createPacketToClient(payload);
+                .createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
     }
 
 
@@ -179,7 +202,7 @@ public class ServerNetworking {
                                                 boolean sendSelf,
                                                 Set<UUID> excludeUuids,
                                                 VisorPayloadToClient payload) {
-        Packet<?> packet = ModLoader.get().createPacketToClient(payload);
+        Packet<?> packet = ModLoader.get().createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
 
         boolean wasSentSelf = false;
         for (var pc : connections) {
@@ -201,7 +224,7 @@ public class ServerNetworking {
     public static void sendPacketToTrackedVRPlayers(ServerPlayer tracked,
                                                     boolean sendSelf,
                                                     VisorPayloadToClient payload) {
-        Packet<?> packet = ModLoader.get().createPacketToClient(payload);
+        Packet<?> packet = ModLoader.get().createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
 
         boolean wasSentSelf = false;
         for (var playerConnection : getTrackedVRPlayers(tracked)) {

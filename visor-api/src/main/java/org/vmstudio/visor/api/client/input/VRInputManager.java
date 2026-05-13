@@ -32,21 +32,43 @@ public interface VRInputManager {
     /**
      * Trigger haptic pulse on both hands
      *
-     * @param durationSeconds pulse duration in seconds
+     * @param seconds pulse duration in seconds
      */
-    default void triggerHapticPulseBoth(float durationSeconds) {
-        triggerHapticPulse(HandType.MAIN, durationSeconds);
-        triggerHapticPulse(HandType.OFFHAND, durationSeconds);
+    default void triggerHapticPulseBoth(float seconds) {
+        triggerHapticPulse(HandType.MAIN, seconds);
+        triggerHapticPulse(HandType.OFFHAND, seconds);
     }
 
     /**
      * Trigger haptic pulse on both hands
      *
-     * @param durationMicroSeconds pulse duration in micro seconds
+     * @param secondsMain pulse duration in seconds for Main hand
+     * @param secondsOffhand pulse duration in seconds for Offhand
      */
-    default void triggerHapticPulseBothMicroSec(int durationMicroSeconds) {
-        triggerHapticPulseMicroSec(HandType.MAIN, durationMicroSeconds);
-        triggerHapticPulseMicroSec(HandType.OFFHAND, durationMicroSeconds);
+    default void triggerHapticPulseBoth(float secondsMain, float secondsOffhand) {
+        triggerHapticPulse(HandType.MAIN, secondsMain);
+        triggerHapticPulse(HandType.OFFHAND, secondsOffhand);
+    }
+
+    /**
+     * Trigger haptic pulse on both hands
+     *
+     * @param microseconds pulse duration in micro seconds
+     */
+    default void triggerHapticPulseBothMicroSec(int microseconds) {
+        triggerHapticPulseMicroSec(HandType.MAIN, microseconds);
+        triggerHapticPulseMicroSec(HandType.OFFHAND, microseconds);
+    }
+
+    /**
+     * Trigger haptic pulse on both hands
+     *
+     * @param microsecondsMain pulse duration in micro seconds for Main hand
+     * @param microsecondsOffhand pulse duration in micro seconds for Offhand
+     */
+    default void triggerHapticPulseBothMicroSec(int microsecondsMain, int microsecondsOffhand) {
+        triggerHapticPulseMicroSec(HandType.MAIN, microsecondsMain);
+        triggerHapticPulseMicroSec(HandType.OFFHAND, microsecondsOffhand);
     }
 
     /**
@@ -83,15 +105,15 @@ public interface VRInputManager {
      * Trigger haptic pulse on a specified hand
      *
      * @param hand the hand
-     * @param durationMicroSeconds pulse duration in microseconds
+     * @param durationMicroseconds pulse duration in microseconds
      */
     default void triggerHapticPulseMicroSec(@NotNull HandType hand,
-                                            int durationMicroSeconds){
+                                            int durationMicroseconds){
         triggerHapticPulse(
                 hand,
                 160f,
                 1f,
-                durationMicroSeconds * 1000L
+                durationMicroseconds * 1000L
         );
     }
 
@@ -121,17 +143,17 @@ public interface VRInputManager {
      * @param hand the hand
      * @param frequency pulse frequency
      * @param amplitude pulse amplitude
-     * @param durationMicroSeconds pulse duration in microseconds
+     * @param durationMicroseconds pulse duration in microseconds
      */
     default void triggerHapticPulseMicroSec(@NotNull HandType hand,
                                             float frequency,
                                             float amplitude,
-                                            int durationMicroSeconds){
+                                            int durationMicroseconds){
         triggerHapticPulse(
                 hand,
                 frequency,
                 amplitude,
-                durationMicroSeconds * 1000L
+                durationMicroseconds * 1000L
         );
     }
 

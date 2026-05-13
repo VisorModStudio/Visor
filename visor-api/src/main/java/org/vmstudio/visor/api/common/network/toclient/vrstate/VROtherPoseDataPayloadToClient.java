@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toclient.vrstate;
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.UUID;
@@ -22,9 +22,10 @@ public record VROtherPoseDataPayloadToClient(UUID playerUUID,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.OTHER_VR_POSE_DATA;
+    public byte payloadId() {
+        return VisorCorePayloadID.OTHER_VR_POSE_DATA.byteOrdinal();
     }
+
 
 
     public static VROtherPoseDataPayloadToClient read(FriendlyByteBuf buffer) {

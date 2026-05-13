@@ -3,27 +3,26 @@ package org.vmstudio.visor.loader.fabric;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
+import net.minecraft.resources.ResourceLocation;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
 
@@ -190,17 +189,43 @@ public class FabricModLoader implements ModLoader {
 
 
     @Override
-    public @NotNull Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return ServerPlayNetworking.createS2CPacket(payload.id(), buffer);
+    public void registerNetworkChannel(@NotNull VisorChannel channel) {
+        if (channel.hasPacketsToServer()) {
+            ServerPlayNetworking.registerGlobalReceiver(channel.getChannelId(),
+                    (server, player, handler, buffer, responseSender) -> {
+                        // Copy the buffer immediately — Fabric reclaims it after this callback returns.
+                        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
+                        copy.writeBytes(buffer.copy());
+                        server.execute(() -> channel.handleToServer(
+                                copy, player, p -> responseSender.sendPacket(ModLoader.get().createPacketToClient(channel.getChannelId(), p))
+                        ));
+                    });
+        }
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
+                && channel.hasPacketsToClient()) {
+            ClientPlayNetworking.registerGlobalReceiver(channel.getChannelId(),
+                    (client, handler, buffer, responseSender) -> {
+                        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
+                        copy.writeBytes(buffer.copy());
+                        client.execute(() -> channel.handleToClient(copy));
+                    });
+        }
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload) {
+    public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+                                                   @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return ClientPlayNetworking.createC2SPacket(payload.id(), buffer);
+        return ServerPlayNetworking.createS2CPacket(channelId, buffer);
+    }
+
+    @Override
+    public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+                                                   @NotNull VisorPayloadToServer payload) {
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        payload.write(buffer);
+        return ClientPlayNetworking.createC2SPacket(channelId, buffer);
     }
 
 

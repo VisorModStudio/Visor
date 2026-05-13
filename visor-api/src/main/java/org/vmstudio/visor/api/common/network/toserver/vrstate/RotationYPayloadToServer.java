@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
 
 public record RotationYPayloadToServer(float rotationY) implements VisorPayloadToServer {
@@ -12,9 +12,10 @@ public record RotationYPayloadToServer(float rotationY) implements VisorPayloadT
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.ROTATION_Y;
+    public byte payloadId() {
+        return VisorCorePayloadID.ROTATION_Y.byteOrdinal();
     }
+
 
 
     public static RotationYPayloadToServer read(FriendlyByteBuf buffer) {
@@ -22,4 +23,5 @@ public record RotationYPayloadToServer(float rotationY) implements VisorPayloadT
                 buffer.readFloat()
         );
     }
+
 }

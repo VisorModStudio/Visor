@@ -1,7 +1,8 @@
 package org.vmstudio.visor.api.common.network.toclient;
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 public record HandshakePayloadToClient() implements VisorPayloadToClient {
 
@@ -11,9 +12,10 @@ public record HandshakePayloadToClient() implements VisorPayloadToClient {
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.HANDSHAKE;
+    public byte payloadId() {
+        return (byte) VisorCorePayloadID.HANDSHAKE.ordinal();
     }
+
 
 
     public static HandshakePayloadToClient read(FriendlyByteBuf buffer) {

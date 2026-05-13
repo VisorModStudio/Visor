@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 public interface VisorPayload {
 
     default void write(FriendlyByteBuf buffer) {
-        buffer.writeByte(payloadId().ordinal());
+        buffer.writeByte(payloadId());
         onWrite(buffer);
     }
 
@@ -18,10 +18,5 @@ public interface VisorPayload {
         return new String(stringBytes);
     }
 
-    VisorPayloadID payloadId();
-
-
-    default ResourceLocation id() {
-        return VisorNetwork.CHANNEL;
-    }
+    byte payloadId();
 }

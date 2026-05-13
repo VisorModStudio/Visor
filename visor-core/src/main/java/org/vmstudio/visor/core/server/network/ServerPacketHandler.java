@@ -8,13 +8,12 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.api.common.network.VisorNetwork;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
+import org.vmstudio.visor.api.common.network.*;
 import org.vmstudio.visor.api.common.network.toclient.HandshakePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.OffhandSlotPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.*;
@@ -22,6 +21,7 @@ import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
+import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
@@ -39,18 +39,16 @@ import static net.minecraft.server.network.ServerGamePacketListenerImpl.MAX_INTE
 public class ServerPacketHandler {
 
 
-
     public static void handlePacket(VisorPayloadToServer payloadToServer,
                                     ServerPlayer serverPlayer,
                                     Consumer<VisorPayloadToClient> packetConsumer){
-        if (payloadToServer instanceof UnknownPayloadToServer) return;
 
         VisorPacketReceiver packetReceiver = VisorServerImpl.INSTANCE.getPacketReceiver(serverPlayer);
 
         VRServerPlayerImpl vrPlayer = VisorServerImpl.INSTANCE.getVrPlayer(serverPlayer);
 
         if (vrPlayer == null) {
-            if(payloadToServer.payloadId() != VisorPayloadID.HANDSHAKE) {
+            if(payloadToServer.payloadId() != VisorCorePayloadID.HANDSHAKE.byteOrdinal()) {
                 return;
             } else{
                 if(packetReceiver == null){
@@ -71,7 +69,7 @@ public class ServerPacketHandler {
 
         VisorServerImpl.INSTANCE.updateMcPlayer(serverPlayer);
 
-        switch (payloadToServer.payloadId()) {
+        switch (VisorCorePayloadID.fromOrdinal(payloadToServer.payloadId())) {
             case HANDSHAKE -> {
 
             }
@@ -234,7 +232,7 @@ public class ServerPacketHandler {
         }
 
         // check if client supports a supported version
-        if (networkVersion == VisorNetwork.NETWORK_VERSION)
+        if (networkVersion == VisorNetwork.CORE_NETWORK_VERSION)
         {
             if (VRServerSettings.isServerDebug()) {
                 logger.info("Player {} has supported Visor network version",
@@ -245,7 +243,7 @@ public class ServerPacketHandler {
         } else {
             // unsupported version, send notification, and disregard
             player.connection.disconnect(
-                    Component.translatable("visor.messages.network_mismatch", networkVersion, VisorNetwork.NETWORK_VERSION)
+                    Component.translatable("visor.messages.network_mismatch", networkVersion, VisorNetwork.CORE_NETWORK_VERSION)
             );
             if (VRServerSettings.isServerDebug()) {
                 logger.info(
@@ -256,7 +254,7 @@ public class ServerPacketHandler {
                                 
                                 Disconnecting...""",
                         player.getName(),
-                        networkVersion,  VisorNetwork.NETWORK_VERSION
+                        networkVersion,  VisorNetwork.CORE_NETWORK_VERSION
                 );
             }
             return;
