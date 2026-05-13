@@ -10,15 +10,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -31,11 +28,11 @@ public final class VisorChannel {
     @Getter
     private final int networkVersion;
 
-    @Nullable private final BiFunction<Byte, FriendlyByteBuf, VisorPayloadToServer> toServerReader;
-    @Nullable private final TriConsumer<VisorPayloadToServer, ServerPlayer, Consumer<VisorPayloadToClient>> toServerHandler;
+    @Nullable private final PayloadReader<VisorPayloadToServer> toServerReader;
+    @Nullable private final PacketHandlerToServer<VisorPayloadToServer> toServerHandler;
 
-    @Nullable private final BiFunction<Byte, FriendlyByteBuf, VisorPayloadToClient> toClientReader;
-    @Nullable private final Consumer<VisorPayloadToClient> toClientHandler;
+    @Nullable private final PayloadReader<VisorPayloadToClient> toClientReader;
+    @Nullable private final PacketHandlerToClient<VisorPayloadToClient> toClientHandler;
 
     private VisorChannel(Builder builder) {
         this.owner = builder.owner;
@@ -67,14 +64,14 @@ public final class VisorChannel {
             );
             return;
         }
-        VisorPayloadToClient payload = toClientReader.apply(payloadId, buffer);
+        VisorPayloadToClient payload = toClientReader.read(payloadId, buffer);
         if (payload == null) {
             VisorAPI.client().getLogger().error(
                     "VisorChannel '"+channelId+"': Got unexpected payload identifier on client: {}", payloadId
             );
             return;
         }
-        toClientHandler.accept(payload);
+        toClientHandler.handle(payload);
     }
 
     public void handleToServer(@NotNull FriendlyByteBuf buffer,
@@ -90,14 +87,14 @@ public final class VisorChannel {
             );
             return;
         }
-        VisorPayloadToServer payload = toServerReader.apply(payloadId, buffer);
+        VisorPayloadToServer payload = toServerReader.read(payloadId, buffer);
         if (payload == null) {
             VisorAPI.server().getLogger().error(
                     "VisorChannel '"+channelId+"': Got unexpected payload identifier on server: {}", payloadId
             );
             return;
         }
-        toServerHandler.accept(payload, sender, responseSender);
+        toServerHandler.handle(payload, sender, responseSender);
     }
 
     // CLIENT -> SERVER
@@ -110,8 +107,8 @@ public final class VisorChannel {
     }
 
 
-    // SERVER -> CLIENT
 
+    // SERVER -> CLIENT
 
     public void sendToClient(@NotNull ServerPlayer player,
                              @NotNull VisorPayloadToClient payload) {
@@ -169,11 +166,11 @@ public final class VisorChannel {
         private final ResourceLocation channelId;
         private final int networkVersion;
 
-        @Nullable private BiFunction<Byte, FriendlyByteBuf, VisorPayloadToServer> toServerReader;
-        @Nullable private TriConsumer<VisorPayloadToServer, ServerPlayer, Consumer<VisorPayloadToClient>> toServerHandler;
+        @Nullable private PayloadReader<VisorPayloadToServer> toServerReader;
+        @Nullable private VisorChannel.PacketHandlerToServer<VisorPayloadToServer> toServerHandler;
 
-        @Nullable private BiFunction<Byte, FriendlyByteBuf, VisorPayloadToClient> toClientReader;
-        @Nullable private Consumer<VisorPayloadToClient> toClientHandler;
+        @Nullable private PayloadReader<VisorPayloadToClient> toClientReader;
+        @Nullable private VisorChannel.PacketHandlerToClient<VisorPayloadToClient> toClientHandler;
 
         private Builder(VisorAddon owner, ResourceLocation channelId, int networkVersion) {
             this.owner = owner;
@@ -183,19 +180,19 @@ public final class VisorChannel {
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         public <T extends VisorPayloadToServer> @NotNull Builder toServer(
-                @NotNull BiFunction<Byte, FriendlyByteBuf, T> reader,
-                @NotNull TriConsumer<T, ServerPlayer, Consumer<VisorPayloadToClient>> handler) {
-            this.toServerReader = (BiFunction) reader;
-            this.toServerHandler = (TriConsumer) handler;
+                @NotNull PayloadReader<T> reader,
+                @NotNull VisorChannel.PacketHandlerToServer<T> handler) {
+            this.toServerReader = (PayloadReader) reader;
+            this.toServerHandler = (PacketHandlerToServer) handler;
             return this;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         public <T extends VisorPayloadToClient> @NotNull Builder toClient(
-                @NotNull BiFunction<Byte, FriendlyByteBuf, T> reader,
-                @NotNull Consumer<T> handler) {
-            this.toClientReader = (BiFunction) reader;
-            this.toClientHandler = (Consumer) handler;
+                @NotNull PayloadReader<T> reader,
+                @NotNull VisorChannel.PacketHandlerToClient<T> handler) {
+            this.toClientReader = (PayloadReader) reader;
+            this.toClientHandler = (PacketHandlerToClient) handler;
             return this;
         }
 
@@ -206,5 +203,25 @@ public final class VisorChannel {
             }
             return new VisorChannel(this);
         }
+    }
+
+    @FunctionalInterface
+    public interface PayloadReader<T extends VisorPayload> {
+        T read(byte payloadId, FriendlyByteBuf buffer);
+    }
+
+
+    @FunctionalInterface
+    public interface PacketHandlerToServer<T extends VisorPayloadToServer>{
+
+        void handle(T payload,
+                    ServerPlayer sender,
+                    Consumer<VisorPayloadToClient> responseSender);
+    }
+
+    @FunctionalInterface
+    public interface PacketHandlerToClient<T extends VisorPayloadToClient> {
+
+        void handle(T t);
     }
 }
