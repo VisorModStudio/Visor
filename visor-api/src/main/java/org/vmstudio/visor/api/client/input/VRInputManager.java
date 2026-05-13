@@ -40,6 +40,16 @@ public interface VRInputManager {
     }
 
     /**
+     * Trigger haptic pulse on both hands
+     *
+     * @param durationMicroSeconds pulse duration in micro seconds
+     */
+    default void triggerHapticPulseBothMicroSec(int durationMicroSeconds) {
+        triggerHapticPulseMicroSec(HandType.MAIN, durationMicroSeconds);
+        triggerHapticPulseMicroSec(HandType.OFFHAND, durationMicroSeconds);
+    }
+
+    /**
      * Trigger haptic pulse click on a specified hand
      *
      * @param hand the hand
