@@ -119,6 +119,7 @@ public class VREventBusImpl implements VREventBus {
                     " has an invalid signature for event handling. It must have exactly one parameter extending VREvent.");
         }
         VREventHandler annotation = method.getAnnotation(VREventHandler.class);
+        method.setAccessible(true);
         return new HandlerData(
                 owner,
                 listener,
