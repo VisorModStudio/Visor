@@ -65,12 +65,14 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Final
     @Shadow
     private Long2ObjectMap<SortedSet<BlockDestructionProgress>> destructionProgress;
+
     @Final
     @Shadow
     private Int2ObjectMap<BlockDestructionProgress> destroyingBlocks;
 
     @Unique
     private Map<Long, Long> visor$damagedBlocksVr;
+
     @Unique
     private Map<Long, BlockDestructionProgress> visor$damagedBlocksVrSave;
 
@@ -221,13 +223,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         }
 
         try {
-            List<Runnable> remove = new ArrayList<>();
-            visor$swingTasks.forEach(it -> {
-                it.run();
-                remove.add(it);
-            });
-            visor$swingTasks.removeAll(remove);
-            //fixes issue which is caused by the way swing packets sent
+
             List<Long> toRemove = new ArrayList<>();
             destructionProgress.forEach((key, value) -> {
                 int stage = value.last().getProgress();
@@ -280,51 +276,48 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         if (!VRServerSettings.isBetterSwinging()
                 || VisorState.get().isNotActive()) return;
 
-        //tasks handled on render thread not to cause async issues
-        visor$swingTasks.add(() -> {
-            //just clean up in that case
-            if (destroyStage == -1) {
-                visor$damagedBlocksVr.remove(blockPos.asLong());
-                visor$damagedBlocksVrSave.remove(blockPos.asLong());
-                destructionProgress.remove(blockPos.asLong());
-                return;
-            }
-            //only vr staff
-            if (destroyStage == -2) {
-                visor$damagedBlocksVr.remove(blockPos.asLong());
-                visor$damagedBlocksVrSave.remove(blockPos.asLong());
-                return;
-            }
+        if (destroyStage == -1) {
+            visor$damagedBlocksVr.remove(blockPos.asLong());
+            visor$damagedBlocksVrSave.remove(blockPos.asLong());
+            destructionProgress.remove(blockPos.asLong());
+            return;
+        }
 
-            //clear any previous interaction with block
-            final List<Integer> toRemove = new ArrayList<>();
-            destroyingBlocks.forEach((id, progress) -> {
-                if (progress.getPos().asLong() == blockPos.asLong()) {
-                    toRemove.add(id);
-                    destructionProgress.remove(progress.getPos().asLong());
-                }
-            });
-            toRemove.forEach(it -> destroyingBlocks.remove(it.intValue()));
-            BlockDestructionProgress progress = new BlockDestructionProgress(
-                    player.getId(), blockPos
-            );
-            progress.setProgress(destroyStage);
-            SortedSet<BlockDestructionProgress> set =
-                    destructionProgress.computeIfAbsent(
-                            progress.getPos().asLong(), (p_234254_) -> {
-                                return Sets.newTreeSet();
-                            }
-                    );
-            set.clear();
-            set.add(progress);
-            visor$damagedBlocksVr.put(blockPos.asLong(), System.currentTimeMillis());
-            visor$damagedBlocksVrSave.put(blockPos.asLong(), progress);
+        if (destroyStage == -2) {
+            visor$damagedBlocksVr.remove(blockPos.asLong());
+            visor$damagedBlocksVrSave.remove(blockPos.asLong());
+            return;
+        }
+
+        final List<Integer> toRemove = new ArrayList<>();
+
+        destroyingBlocks.forEach((id, progress) -> {
+            if (progress.getPos().asLong() == blockPos.asLong()) {
+                toRemove.add(id);
+                destructionProgress.remove(progress.getPos().asLong());
+            }
         });
-    }
 
-    /* ************** *\
-  //--------MISC--------\\
-    \* ************** */
+        toRemove.forEach(it -> destroyingBlocks.remove(it.intValue()));
+
+        BlockDestructionProgress progress = new BlockDestructionProgress(
+                player.getId(), blockPos
+        );
+        progress.setProgress(destroyStage);
+
+        SortedSet<BlockDestructionProgress> set =
+                destructionProgress.computeIfAbsent(
+                        progress.getPos().asLong(), (p_234254_) -> {
+                            return Sets.newTreeSet();
+                        }
+                );
+
+        set.clear();
+        set.add(progress);
+
+        visor$damagedBlocksVr.put(blockPos.asLong(), System.currentTimeMillis());
+        visor$damagedBlocksVrSave.put(blockPos.asLong(), progress);
+    }
 
     @Inject(at = @At("HEAD"), method = "levelEvent")
     public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
