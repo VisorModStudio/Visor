@@ -63,7 +63,8 @@
   "visor.options.gui.settings_text_scale": "Text scale",
   "visor.options.gui.settings_text_scale.tooltip": "§bSettings text scale",
   "visor.options.gui.hud_disabled_hotbar": "Disable HUD Hotbar",
-
+  "visor.options.gui.keyboard.auto_layout": "Auto Keyboard",
+  "visor.options.gui.keyboard.auto_layout.tooltip": "§bAuto Keyboard layout§r\n\n§7If enabled, the selected keyboard layouts list is affected by game language",
 
   "_comment.rendering": "----Rendering Settings----",
   "visor.options.rendering.button": "Rendering",
@@ -383,6 +384,10 @@
   "visor.overlay.options.key_button.mode": "Mode: %s",
 
   "visor.overlay.options.general": "General",
+
+  "visor.overlay.options.visibility": "Visibility",
+  "visor.overlay.options.visibility.tooltip": "Turn on/off visibility state",
+
 
   "visor.overlay.item_pose_test.active": "Active",
 

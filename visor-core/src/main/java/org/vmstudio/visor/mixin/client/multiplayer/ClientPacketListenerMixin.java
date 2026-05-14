@@ -5,7 +5,6 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
-import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +29,7 @@ public class ClientPacketListenerMixin {
         ClientNetworking.sendHandShake(
                 new HandshakePayloadToServer(
                         VRClientSettings.getVrPlayMode() != VRPlayMode.DISABLED,
-                        VisorNetwork.NETWORK_VERSION,
+                        VisorNetwork.CORE_NETWORK_VERSION,
                         ModLoader.get().getModVersion(VisorAPI.MOD_ID)
                 )
         );

@@ -2,8 +2,8 @@ package org.vmstudio.visor.api.common.network.toclient;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.VROtherFullHeightPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 import java.util.UUID;
 
@@ -19,9 +19,10 @@ public record BlockDamagePayloadToClient(UUID playerUUID,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.BLOCK_DAMAGE;
+    public byte payloadId() {
+        return VisorCorePayloadID.BLOCK_DAMAGE.byteOrdinal();
     }
+
 
 
     public static BlockDamagePayloadToClient read(FriendlyByteBuf buffer) {

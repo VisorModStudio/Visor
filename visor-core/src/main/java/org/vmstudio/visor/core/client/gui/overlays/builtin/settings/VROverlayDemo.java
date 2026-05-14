@@ -3,6 +3,8 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.settings;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -260,20 +262,14 @@ public class VROverlayDemo extends VROverlayScreen {
 
         VRPose rotationAnchorPose = rotationAnchor.getSupplier()
                 .apply(renderPose);
-        var anchorRotation = rotationAnchorPose.getRotation();
+        Matrix4fc anchorRotation = rotationAnchorPose.getRotation();
 
-        Vector3f rotationOffset = rotationAnchor.reverseAnchoredRotation(
-                anchorRotation,
-                getPose().getRotation()
+        Matrix4f rotationOffsetMatrix = anchorRotation.invert(new Matrix4f())
+                .mul(getPose().getRotation(), new Matrix4f());
 
-        );
-
-        targetPoseOptions.setRotationOffset(
-                rotationOffset
-        );
+        targetPoseOptions.setRotationOffset(rotationOffsetMatrix);
 
         targetPoseOptions.update(true);
-
     }
 
     private void renderOutline(GuiGraphics guiGraphics,

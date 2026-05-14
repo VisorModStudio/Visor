@@ -264,16 +264,11 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
 
     private void updateEditors(){
         var posOffset = optionsGroup.getPositionOffset();
-        var rotOffset = optionsGroup.getRotationOffset();
         var scale = optionsGroup.getScale();
 
         var xPosEditor = poseEditorWidgetSet.getXPositionEditor();
         var yPosEditor = poseEditorWidgetSet.getYPositionEditor();
         var zPosEditor = poseEditorWidgetSet.getZPositionEditor();
-
-        var xRotEditor = poseEditorWidgetSet.getXRotationEditor();
-        var yRotEditor = poseEditorWidgetSet.getYRotationEditor();
-        var zRotEditor = poseEditorWidgetSet.getZRotationEditor();
 
         var scaleEditor = poseEditorWidgetSet.getScaleEditor();
 
@@ -285,16 +280,6 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
         }
         if(zPosEditor.getValue() != posOffset.z){
             zPosEditor.setValue(posOffset.z, true);
-        }
-
-        if(xRotEditor.getValue() != rotOffset.x){
-            xRotEditor.setValue(rotOffset.x, true);
-        }
-        if(yRotEditor.getValue() != rotOffset.y){
-            yRotEditor.setValue(rotOffset.y, true);
-        }
-        if(zRotEditor.getValue() != rotOffset.z){
-            zRotEditor.setValue(rotOffset.z, true);
         }
 
         if(scaleEditor.getValue() != scale){

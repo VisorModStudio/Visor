@@ -3,9 +3,8 @@ package org.vmstudio.visor.api.common.network.toclient.vrstate;
 import com.google.common.base.Charsets;
 import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.common.network.VisorPayload;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 import java.util.UUID;
 
@@ -20,9 +19,10 @@ public record VROtherBodyTypePayloadToClient(UUID playerUUID,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.OTHER_VR_BODY_TYPE;
+    public byte payloadId() {
+        return VisorCorePayloadID.OTHER_VR_BODY_TYPE.byteOrdinal();
     }
+
 
 
     public static VROtherBodyTypePayloadToClient read(FriendlyByteBuf buffer) {

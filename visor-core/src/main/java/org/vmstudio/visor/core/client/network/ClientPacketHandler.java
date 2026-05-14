@@ -1,11 +1,15 @@
 package org.vmstudio.visor.core.client.network;
 
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -13,6 +17,8 @@ import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
+import org.vmstudio.visor.core.common.addon.CoreAddonClient;
+import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 
 public class ClientPacketHandler {
@@ -22,7 +28,7 @@ public class ClientPacketHandler {
         if (payloadClient instanceof UnknownPayloadToClient) return;
 
         Minecraft mc = Minecraft.getInstance();
-        switch (payloadClient.payloadId()) {
+        switch (VisorCorePayloadID.fromOrdinal(payloadClient.payloadId())) {
             case HANDSHAKE -> {
                 ClientNetworking.receivedHandShake();
             }

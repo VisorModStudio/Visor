@@ -9,11 +9,14 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
+import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 
 import java.util.function.Consumer;
 
-//@TODO maybe should not call update in onTick and onRender always? make optional?
 @Getter
 public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
     public static final String ID = "pose";
@@ -24,10 +27,9 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
 
     private Vector3f positionOffset;
 
-    private Vector3f rotationOffset;
+    private Quaternionf rotationOffset;
 
     private float scale;
-
 
     private boolean aimedRotation;
 
@@ -37,7 +39,7 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
                               @NotNull Consumer<OverlayOptionsPose> defaultSettings){
         super(owner, defaultSettings);
         positionOffset = new Vector3f();
-        rotationOffset = new Vector3f();
+        rotationOffset = new Quaternionf();
     }
 
 
@@ -72,11 +74,20 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
 
 
         // ---Rotation
-        rotationOffset = new Vector3f(
-                config.getFloatOrDefault("rotation.offset.x", 0),
-                config.getFloatOrDefault("rotation.offset.y", 0),
-                config.getFloatOrDefault("rotation.offset.z", 0)
-        );
+        if (config.hasPath("rotation.quaternion.w")) {
+            rotationOffset = new Quaternionf(
+                    config.getFloatOrDefault("rotation.quaternion.x", 0),
+                    config.getFloatOrDefault("rotation.quaternion.y", 0),
+                    config.getFloatOrDefault("rotation.quaternion.z", 0),
+                    config.getFloatOrDefault("rotation.quaternion.w", 1)
+            ).normalize();
+        } else {
+            //@TODO compatibility with old settings. [Remove in 0.5.0]
+            float ex = config.getFloatOrDefault("rotation.offset.x", 0);
+            float ey = config.getFloatOrDefault("rotation.offset.y", 0);
+            float ez = config.getFloatOrDefault("rotation.offset.z", 0);
+            rotationOffset = new Quaternionf().rotationZYX(ez, ey, ex);
+        }
 
 
         // ---Scale
@@ -97,9 +108,10 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
         config.set("position.offset.y", positionOffset.y);
         config.set("position.offset.z", positionOffset.z);
 
-        config.set("rotation.offset.x", rotationOffset.x);
-        config.set("rotation.offset.y", rotationOffset.y);
-        config.set("rotation.offset.z", rotationOffset.z);
+        config.set("rotation.quaternion.x", rotationOffset.x);
+        config.set("rotation.quaternion.y", rotationOffset.y);
+        config.set("rotation.quaternion.z", rotationOffset.z);
+        config.set("rotation.quaternion.w", rotationOffset.w);
 
         config.set("scale", scale);
     }
@@ -175,45 +187,44 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
         onChanged();
     }
 
-    public void setRotationOffset(Vector3f newValue) {
-        if(this.rotationOffset == newValue){
+    public void setRotationOffset(Quaternionfc newValue) {
+        if (this.rotationOffset.equals(newValue)) {
             return;
         }
-        this.rotationOffset = newValue;
-        onChanged();
-    }
-    public void setRotationOffset(float radianX, float radianY, float radianZ) {
-        if(this.rotationOffset.x == radianX
-                && this.rotationOffset.y == radianY
-                && this.rotationOffset.z == radianZ){
-            return;
-        }
-        this.rotationOffset = new Vector3f(radianX,radianY,radianZ);
-        onChanged();
-    }
-    public void setRotationOffsetX(float radianX) {
-        if(this.rotationOffset.x == radianX){
-            return;
-        }
-        this.rotationOffset.x = radianX;
-        onChanged();
-    }
-    public void setRotationOffsetY(float radianY) {
-        if(this.rotationOffset.y == radianY){
-            return;
-        }
-        this.rotationOffset.y = radianY;
-        onChanged();
-    }
-    public void setRotationOffsetZ(float radianZ) {
-        if(this.rotationOffset.z == radianZ){
-            return;
-        }
-        this.rotationOffset.z = radianZ;
+        this.rotationOffset = new Quaternionf(newValue).normalize();
         onChanged();
     }
 
+    public void setRotationOffset(Matrix4fc rotationMatrix) {
+        setRotationOffset(rotationMatrix.getNormalizedRotation(new Quaternionf()));
+    }
+    public void setRotationOffset(Vector3f euler) {
+        setRotationOffset(euler.x, euler.y, euler.z);
+    }
+    public void setRotationOffset(float radianX, float radianY, float radianZ) {
+        setRotationOffset(new Quaternionf().rotationZYX(radianZ, radianY, radianX));
+    }
+    public void rotateLocalX(float radians) {
+        if (radians == 0f) return;
+        this.rotationOffset = new Quaternionf(rotationOffset).rotateX(radians).normalize();
+        onChanged();
+    }
+    public void rotateLocalY(float radians) {
+        if (radians == 0f) return;
+        this.rotationOffset = new Quaternionf(rotationOffset).rotateY(radians).normalize();
+        onChanged();
+    }
+    public void rotateLocalZ(float radians) {
+        if (radians == 0f) return;
+        this.rotationOffset = new Quaternionf(rotationOffset).rotateZ(radians).normalize();
+        onChanged();
+    }
+
+
     public void setScale(float newValue) {
+        if (!Float.isFinite(newValue) || newValue <= 0f) {
+            return;
+        }
         if(this.scale == newValue){
             return;
         }

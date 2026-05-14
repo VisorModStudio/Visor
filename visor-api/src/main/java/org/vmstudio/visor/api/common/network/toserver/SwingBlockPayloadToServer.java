@@ -1,18 +1,15 @@
 package org.vmstudio.visor.api.common.network.toserver;
 
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
 
 public record SwingBlockPayloadToServer(BlockPos blockPos,
                                         Direction direction,
                                         boolean mainHand,
                                         int sequence) implements VisorPayloadToServer {
-    @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.SWING_BLOCK;
-    }
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
@@ -21,6 +18,13 @@ public record SwingBlockPayloadToServer(BlockPos blockPos,
         buffer.writeBoolean(mainHand);
         buffer.writeInt(sequence);
     }
+
+    @Override
+    public byte payloadId() {
+        return VisorCorePayloadID.SWING_BLOCK.byteOrdinal();
+    }
+
+
 
     public static SwingBlockPayloadToServer read(FriendlyByteBuf buffer) {
         return new SwingBlockPayloadToServer(

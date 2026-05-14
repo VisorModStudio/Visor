@@ -121,6 +121,10 @@ public enum VROptionWidgetType {
             VROptionCategory.GUI,
             (it) -> null
     ),
+    KEYBOARD_AUTO_LAYOUT(
+            VROptionCategory.GUI,
+            (it) -> null
+    ),
 
     LOW_HEALTH_INDICATOR(
             VROptionCategory.RENDERING_EYE_EFFECTS,

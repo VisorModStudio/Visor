@@ -1,13 +1,17 @@
 package org.vmstudio.visor.core.client.network;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
@@ -25,9 +29,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.common.addon.CoreAddonClient;
+import org.vmstudio.visor.core.server.network.ServerPacketHandler;
+
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class ClientNetworking {
+    public static VisorChannel CHANNEL;
+
     @Getter
     private static boolean serverSupportsVisor = false;
 
@@ -41,6 +50,27 @@ public class ClientNetworking {
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
 
+
+    public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
+        CHANNEL =  VisorChannel.builder(
+                coreAddon,
+                VisorNetwork.CORE_CHANNEL_ID,
+                VisorNetwork.CORE_NETWORK_VERSION
+        ).toClient(
+                (id, buffer)->{
+                    VisorCorePayloadID payloadId = VisorCorePayloadID.fromOrdinal(id);
+                    return VisorCorePayloadID.readToClient(payloadId, buffer);
+                },
+                ClientPacketHandler::handlePacket
+        ).toServer(
+                (id, buffer)->{
+                    VisorCorePayloadID payloadId = VisorCorePayloadID.fromOrdinal(id);
+                    return VisorCorePayloadID.readToServer(payloadId, buffer);
+                },
+                ServerPacketHandler::handlePacket
+        ).build();
+        VisorNetwork.registerChannel(CHANNEL);
+    }
 
 
     public static void sendVRPacket(VisorPayloadToServer payload) {
@@ -59,7 +89,7 @@ public class ClientNetworking {
 
     public static Packet<?> createVRPacket(VisorPayloadToServer payload) {
         return ModLoader.get()
-                .createPacketToServer(payload);
+                .createPacketToServer(VisorNetwork.CORE_CHANNEL_ID, payload);
     }
 
 

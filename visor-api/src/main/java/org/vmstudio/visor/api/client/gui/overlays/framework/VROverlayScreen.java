@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.*;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsResizing;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -108,6 +109,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
     private float resizeStartHandDistance;
     private float resizeStartScale = 1f;
 
+    protected OverlayOptionsVisibility optionsVisibility;
     protected OverlayOptionsResizing optionsResizing;
 
     public VROverlayScreen(@NotNull VisorAddon owner,
@@ -180,6 +182,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
     protected abstract boolean updateVisibility();
 
+    protected void onVisibilityChanged(){}
+
     protected void onStoppedDragging() {}
 
     protected void onStoppedResizing() {}
@@ -234,17 +238,23 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
                 }
             }
         }
+        optionsVisibility = getOption(OverlayOptionsVisibility.ID, OverlayOptionsVisibility.class);
     }
 
     @Override
     public final void tick() {
         onPreTick();
-        visible = enabled && updateVisibility();
+        boolean oldVisible = visible;
+        var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+        visible = enabled && preVisible && updateVisibility();
         VisorAPI.client().getRenderer().updateOverlayTarget(
                 this
         );
         //making sure there is a render target to draw on
         visible = visible && renderTarget != null;
+        if(oldVisible != visible){
+            onVisibilityChanged();
+        }
         onTick();
     }
 
@@ -259,12 +269,17 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             initAgain = false;
         }
         if(supportsVisibilityUpdateOnRender()) {
-            visible = enabled && updateVisibility();
+            boolean oldVisible = visible;
+            var preVisible = optionsVisibility == null || optionsVisibility.isVisible();
+            visible = enabled && preVisible && updateVisibility();
             VisorAPI.client().getRenderer().updateOverlayTarget(
                     this
             );
             //making sure there is a render target to draw on
             visible = visible && renderTarget != null;
+            if(oldVisible != visible){
+                onVisibilityChanged();
+            }
             if(!visible) return;
         }
 
@@ -326,6 +341,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         }
     }
 
+
     public void updateSize(){
         guiScaleFactor = VisorAPI.client().getGuiManager().calculateScale(
                 0,
@@ -382,10 +398,9 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             if (!poseOptions.isAimedRotation()) {
                 PoseAnchor rotAnchor = poseOptions.getRotationAnchor();
                 VRPose rotAnchorPose = rotAnchor.getSupplier().apply(renderPose);
-                Vector3f rotOffset = rotAnchor.reverseAnchoredRotation(
-                        rotAnchorPose.getRotation(), getPose().getRotation()
-                );
-                poseOptions.setRotationOffset(rotOffset);
+                Matrix4f rotOffsetMatrix = rotAnchorPose.getRotation().invert(new Matrix4f())
+                        .mul(getPose().getRotation(), new Matrix4f());
+                poseOptions.setRotationOffset(rotOffsetMatrix);
             }
 
             poseOptions.save();

@@ -4,7 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.events.render.RenderPipelineStageVREvent;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorationRenderer;
@@ -62,6 +64,13 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 (poseStack, partialTicks) -> {
                     if (VRRenderState.getPhase().isVanilla()) return;
                     renderAfterSolid(poseStack, partialTicks);
+                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
+                            RenderPipelineStage.AFTER_SOLID,
+                            VRRenderState.getPhase(),
+                            VRRenderState.getRenderPass(),
+                            poseStack,
+                            partialTicks
+                    ));
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -69,6 +78,13 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 (poseStack, partialTicks) -> {
                     if (VRRenderState.getPhase().isVanilla()) return;
                     renderAfterTranslucent(poseStack, partialTicks);
+                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
+                            RenderPipelineStage.AFTER_TRANSLUCENT,
+                            VRRenderState.getPhase(),
+                            VRRenderState.getRenderPass(),
+                            poseStack,
+                            partialTicks
+                    ));
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -76,6 +92,13 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 (poseStack, partialTicks) -> {
                     if (VRRenderState.getPhase().isVanilla()) return;
                     renderAfterWorld(poseStack, partialTicks);
+                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
+                            RenderPipelineStage.AFTER_WORLD,
+                            VRRenderState.getPhase(),
+                            VRRenderState.getRenderPass(),
+                            poseStack,
+                            partialTicks
+                    ));
                 }
         );
     }

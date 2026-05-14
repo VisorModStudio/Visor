@@ -10,6 +10,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.gui.KeyboardStateChangedVREvent;
 import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.screen.VROverlayScreenInScreen;
@@ -38,7 +39,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     private boolean shiftPressed = false;
 
     @Getter
-    private KeyboardLayout activeLayout = KeyboardLayout.EN_US;
+    private KeyboardLayout activeLayout = KeyboardLayout.ENGLISH;
 
     @Getter
     @Nullable
@@ -152,14 +153,29 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
         return true;
     }
 
-    public void setVisible(boolean flag,
+    public void setVisible(boolean newVisibility,
                            @Nullable Screen attachedTo) {
-        boolean changePose = flag != shown;
+        boolean changedVisibility = newVisibility != shown;
+
+        if(!changedVisibility && attachedTo == this.attachedTo){
+            return; //nothing changed
+        }
+
+        var event = new KeyboardStateChangedVREvent(
+                this, newVisibility, attachedTo
+        );
+        VisorAPI.eventBus().callEvent(
+                event
+        );
+        if(event.isCanceled()){
+            return;
+        }
+
         boolean prevShown = shown;
-        shown = flag;
+        shown = newVisibility;
 
         if (shown) {
-            orient(attachedTo, changePose);
+            orient(attachedTo, changedVisibility);
             shiftPressed = false;
             activeLayout = getEnabledLayoutIds().get(0);
             initAgain = true;
@@ -201,9 +217,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     public @NotNull List<KeyboardLayout> getEnabledLayoutIds() {
-        List<KeyboardLayout> enabledLayouts = VRClientSettings.getKeyboardLayouts();
+        List<KeyboardLayout> enabledLayouts = VRClientSettings.getEffectiveKeyboardLayouts();
         if (enabledLayouts.isEmpty()) {
-            return List.of(KeyboardLayout.EN_US);
+            return List.of(KeyboardLayout.ENGLISH);
         }
         return enabledLayouts;
     }

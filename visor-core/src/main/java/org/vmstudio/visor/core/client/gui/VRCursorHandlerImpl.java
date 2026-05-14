@@ -2,7 +2,9 @@ package org.vmstudio.visor.core.client.gui;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.events.gui.CursorFocusChangedVREvent;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -51,7 +53,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         VROverlay previouslyFocused = state.focusedOverlay;
 
         CursorResult result;
-        if(ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)){
+        if(!state.requestedClearFocus && ClientContext.visor.isFeatureEnabled(ClientFeature.GUI_CURSOR)){
             result = getCursorResult(hand, renderPose, null, true);
             if(hand == cursorHand
                     && forceFocused != null
@@ -64,11 +66,28 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
                     null
             );
             forceFocused = null;
+            state.requestedClearFocus = false;
         }
-        state.update(result.cursorPos(), result.focusedOverlay());
+
+        VROverlay newFocused = result.focusedOverlay();
+        Vector3fc newCursorPos = result.cursorPos();
+
+        if (previouslyFocused != newFocused) {
+            var event = new CursorFocusChangedVREvent(
+                    hand, previouslyFocused, newFocused
+            );
+            VisorAPI.eventBus().callEvent(event);
+            if (event.isCanceled()) {
+                newFocused = previouslyFocused;
+                newCursorPos = new Vector3f(-1, -1, -1);
+            }
+        }
+
+        state.update(newCursorPos, newFocused);
 
         // Clean up previous focus
-        if(previouslyFocused != null) {
+        if(previouslyFocused != null
+                && newFocused != previouslyFocused) {
             previouslyFocused.updateCursorData(
                     true,
                     -1, -1
@@ -133,12 +152,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
             if (!overlay.supportsCursor()) {
                 continue;
             }
-            if(overlay.supportsCursorIgnoreVisible()
-                    && !overlay.isEnabled()){
-                continue;
-            }
-            if(!overlay.supportsCursorIgnoreVisible()
-                    && !overlay.isVisible()){
+            if(!overlay.isVisible()){
                 continue;
             }
             if(overlayFilter != null
@@ -227,6 +241,12 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         }else {
             return overlayFocused;
         }
+    }
+
+    @Override
+    public void clearFocus(@NotNull HandType handType) {
+        var state = handType == HandType.MAIN ? mainHandState : offhandState;
+        state.requestedClearFocus = state.focusedOverlay != null;
     }
 
 
@@ -336,6 +356,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
     private static class CursorState {
         private VROverlay focusedOverlay;
+        private boolean requestedClearFocus;
+
         private Vector3fc cursorPos = new Vector3f(-1, -1, -1);
 
         void update(@NotNull Vector3fc newCursorPos, @Nullable VROverlay newFocusedOverlay) {

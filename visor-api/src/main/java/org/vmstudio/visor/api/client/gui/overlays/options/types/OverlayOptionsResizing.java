@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 
 import java.util.function.Consumer;
 
-@Getter @Setter
+@Getter
 public class OverlayOptionsResizing extends OverlayOptionGroup<OverlayOptionsResizing> {
 
     public static final String ID = "resizing";
@@ -35,18 +35,32 @@ public class OverlayOptionsResizing extends OverlayOptionGroup<OverlayOptionsRes
     @Override
     protected void onLoad(@NotNull Config config){
 
-        resizingScale = Mth.clamp(
-                config.getFloatOrDefault(
-                        "resizing_scale",
-                        1.0f
-                ), 0.0001f, 1000);
+        float saved = config.getFloatOrDefault("resizing_scale", -1f);
+        if (Float.isFinite(saved) && saved > 0f) {
+            resizingScale = Mth.clamp(saved, 0.0001f, 1000);
+        } else {
+            resizingScale = -1;
+        }
 
         changesNotSaved = false;
 
     }
     @Override
     public void onSave(@NotNull Config config){
+        if (Float.isFinite(resizingScale) && resizingScale > 0f) {
         config.set("resizing_scale", resizingScale);
+        }
+    }
+
+    public void setResizingScale(float newValue) {
+        if (!Float.isFinite(newValue) || newValue <= 0f) {
+            return;
+        }
+        if (this.resizingScale == newValue) {
+            return;
+        }
+        this.resizingScale = newValue;
+        changesNotSaved = true;
     }
 
     @Override

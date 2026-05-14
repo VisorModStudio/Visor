@@ -3,10 +3,10 @@ package org.vmstudio.visor.api;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -15,6 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.common.network.VisorChannel;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -69,13 +72,21 @@ public interface ModLoader {
 
 
     /**
+     * Register Visor Channel for network
+     *
+     * @param channel the visor channel
+     */
+    void registerNetworkChannel(@NotNull VisorChannel channel);
+
+    /**
      * Create Client-To-Server packet from payload
      *
      * @param payload payload
      * @return packet
      */
     @NotNull
-    Packet<?> createPacketToServer(@NotNull VisorPayloadToServer payload);
+    Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+                                   @NotNull VisorPayloadToServer payload);
 
     /**
      * Create Server-To-Client packet from payload
@@ -84,7 +95,8 @@ public interface ModLoader {
      * @return packet
      */
     @NotNull
-    Packet<?> createPacketToClient(@NotNull VisorPayloadToClient payload);
+    Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+                                   @NotNull VisorPayloadToClient payload);
 
 
     /**

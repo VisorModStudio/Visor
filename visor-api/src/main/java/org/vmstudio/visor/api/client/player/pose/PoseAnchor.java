@@ -122,60 +122,30 @@ public enum PoseAnchor {
         );
     }
 
-
-    public @NotNull Vector3f reverseAnchoredRotation(@NotNull Matrix4fc anchorRotation,
-                                                     @NotNull Matrix4fc objRotation) {
-        Matrix4f matrix4f = anchorRotation.invert(new Matrix4f())
-                .mul(objRotation, new Matrix4f());
-
-        float offsetY = (float) Math.asin(-matrix4f.m20());
-        float offsetZ = (float) Mth.atan2(matrix4f.m10(), matrix4f.m00());
-        float offsetX = (float) Mth.atan2(matrix4f.m21(), matrix4f.m22());
-
-        return new Vector3f(offsetX, offsetY, offsetZ);
+    public @NotNull Matrix4f anchorRotation(@NotNull VRPlayerPoseClient poseData,
+                                            @NotNull Quaternionfc offset){
+        var anchor = getAnchor(poseData);
+        Matrix4f offsetMatrix = new Matrix4f().rotation(offset);
+        if(anchor == VRPose.EMPTY){
+            return offsetMatrix;
+        }
+        return anchor.getRotation().mul(offsetMatrix, new Matrix4f());
     }
 
 
+    public @NotNull Matrix4f anchorRotationAim(@NotNull VRPlayerPoseClient poseData,
+                                               @NotNull Quaternionfc offset,
+                                               @NotNull Vector3fc objPosition){
+        var anchor = getAnchor(poseData);
+        if(anchor == VRPose.EMPTY){
+            return new Matrix4f().rotation(offset);
+        }
 
-
-    public static Vector3f getAnchorPos(@NotNull Vector3fc anchorPosition,
-                                        @NotNull Matrix4fc anchorRotation,
-                                        @NotNull Vector3fc offset){
-        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
-                .getPoseData(PlayerPoseType.RENDER);
-        float worldScale = renderPose.getWorldScale();
-
-        offset = new Vector3f(
-                offset.x() * worldScale,
-                offset.y() * worldScale,
-                offset.z() * worldScale
-        );
-        return getCustomVector(
-                offset,
-                anchorRotation
-        ).add(anchorPosition);
-    }
-
-    public static Matrix4f getAnchorRotation(@NotNull Matrix4fc anchorRotation,
-                                             @NotNull Vector3fc offset){
-
-        return anchorRotation.mul(
-                new Matrix4f().rotationZYX(
-                        offset.z(), offset.y(), offset.x()
-                ),
-                new Matrix4f()
-        );
-    }
-
-    public static Matrix4f getAnchorRotationAimed(@NotNull Vector3fc objPosition,
-                                                  @NotNull Vector3fc anchorPosition,
-                                                  @NotNull Vector3fc offset){
-
-
+        Vector3fc anchorPos = anchor.getPosition();
         Vector3f directionToTarget = new Vector3f(
-                objPosition.x() - anchorPosition.x(),
-                objPosition.y() - anchorPosition.y(),
-                objPosition.z() - anchorPosition.z()
+                objPosition.x() - anchorPos.x(),
+                objPosition.y() - anchorPos.y(),
+                objPosition.z() - anchorPos.z()
         );
         float rotationX = (float) Math.asin(
                 directionToTarget.y() / directionToTarget.length()
@@ -187,13 +157,9 @@ public enum PoseAnchor {
                                 directionToTarget.z()
                         )
         );
-        return new Matrix4f().rotationZYX(
-                offset.z(),
-                rotationY + offset.y(),
-                rotationX + offset.x()
-        );
+        return new Matrix4f().rotationZYX(0, rotationY, rotationX)
+                .rotate(offset);
     }
-
     private static @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec,
                                                      @NotNull Matrix4fc rotationMatrix) {
         return rotationMatrix

@@ -120,7 +120,7 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
 
     @Override
     public void loadDefaults() {
-        VRClientSettings.setKeyboardLayouts(List.of(KeyboardLayout.EN_US));
+        VRClientSettings.setKeyboardLayouts(List.of(KeyboardLayout.ENGLISH));
         ClientContext.settingsManager.saveOptions();
         reinit();
     }
@@ -134,9 +134,11 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
     private void saveSelectedLayouts() {
         List<KeyboardLayout> enabledLayouts = new ArrayList<>();
         for (String selectedId : listWidget.getSelectedEntriesId()) {
-            KeyboardLayout layoutId = KeyboardLayout.byName(selectedId);
-            if (layoutId != null) {
+            try {
+                KeyboardLayout layoutId = KeyboardLayout.valueOf(selectedId);
                 enabledLayouts.add(layoutId);
+            } catch (IllegalArgumentException e) {
+                //empty
             }
         }
         VRClientSettings.setKeyboardLayouts(enabledLayouts);

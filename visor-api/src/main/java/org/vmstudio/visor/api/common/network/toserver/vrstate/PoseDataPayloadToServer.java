@@ -1,10 +1,9 @@
 package org.vmstudio.visor.api.common.network.toserver.vrstate;
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
-import org.vmstudio.visor.api.common.network.toserver.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
-
+import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 
 public record PoseDataPayloadToServer(PoseDataBuffer pose) implements VisorPayloadToServer {
 
@@ -15,9 +14,10 @@ public record PoseDataPayloadToServer(PoseDataBuffer pose) implements VisorPaylo
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.POSE_DATA;
+    public byte payloadId() {
+        return VisorCorePayloadID.POSE_DATA.byteOrdinal();
     }
+
 
 
     public static PoseDataPayloadToServer read(FriendlyByteBuf buffer) {
@@ -26,4 +26,5 @@ public record PoseDataPayloadToServer(PoseDataBuffer pose) implements VisorPaylo
                 pose
         );
     }
+
 }

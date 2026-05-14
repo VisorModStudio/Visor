@@ -574,9 +574,14 @@ public class VRHandRenderer {
         }
 
         poseStack.scale(0.4f, 0.4F, 0.4F);
-        boolean slim = player.getModelName()
-                .equals("slim");
 
+        //Fix?
+        // Always use the default arm.
+        // The player's skin model type(slim/default) can flip between launches
+        // depending on what skin metadata has loaded,
+        // which would change hand size what we don't want to happen,
+        // we want full control over the arm size in first person.
+        boolean slim = false;
 
         poseStack.translate(
                 (slim ? -0.34375F : -0.375F) * handFactor,

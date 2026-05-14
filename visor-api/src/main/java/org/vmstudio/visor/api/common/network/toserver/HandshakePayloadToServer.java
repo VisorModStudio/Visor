@@ -1,9 +1,10 @@
 package org.vmstudio.visor.api.common.network.toserver;
 
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import net.minecraft.network.FriendlyByteBuf;
 import com.google.common.base.Charsets;
 import org.vmstudio.visor.api.common.network.VisorPayload;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import net.minecraft.network.FriendlyByteBuf;
 
 public record HandshakePayloadToServer(boolean vrActive,
                                        int networkVersion,
@@ -20,9 +21,10 @@ public record HandshakePayloadToServer(boolean vrActive,
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.HANDSHAKE;
+    public byte payloadId() {
+        return VisorCorePayloadID.HANDSHAKE.byteOrdinal();
     }
+
 
 
     public static VisorPayloadToServer read(FriendlyByteBuf buffer) {

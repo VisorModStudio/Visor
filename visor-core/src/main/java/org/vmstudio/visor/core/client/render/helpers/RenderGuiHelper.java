@@ -74,19 +74,8 @@ public class RenderGuiHelper {
         RenderSystem.disableCull();
         RenderSystem.setShaderTexture(0, renderTarget.getColorTextureId());
 
-        if (!VRRenderState.isInMainMenu()) {
+        if (VRRenderState.getSceneType().isWorld()) {
             RenderSystem.setShaderFogStart(Float.MAX_VALUE);
-
-            if (MC.player != null && MC.player.isShiftKeyDown()) {
-                color.setRGBA(
-                        color.getRed(), color.getGreen(), color.getBlue(),
-                        (int) (color.getAlpha() * 0.75F)
-                );
-                barColor.setRGBA(
-                        barColor.getRed(), barColor.getGreen(), barColor.getBlue(),
-                        (int) (barColor.getAlpha() * 0.75F)
-                );
-            }
 
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(

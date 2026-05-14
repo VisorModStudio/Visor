@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 public enum KeyboardLayout {
-    EN_US("EN", "English (US)",
+    ENGLISH("EN", "English",
             new String[]{
                     "`1234567890-=",
                     "qwertyuiop[]\\",
@@ -20,7 +20,7 @@ public enum KeyboardLayout {
                     "ASDFGHJKL:\"",
                     "ZXCVBNM<>?"
             }),
-    RU("RU", "Russian",
+    RUSSIAN("RU", "Russian",
             new String[]{
                     "ё1234567890-=",
                     "йцукенгшщзхъ\\",
@@ -33,7 +33,7 @@ public enum KeyboardLayout {
                     "ФЫВАПРОЛДЖЭ",
                     "ЯЧСМИТЬБЮ,"
             }),
-    UA("UA", "Ukrainian",
+    UKRAINIAN("UA", "Ukrainian",
             new String[]{
                     "'1234567890-=",
                     "йцукенгшщзхїґ",
@@ -46,7 +46,7 @@ public enum KeyboardLayout {
                     "ФІВАПРОЛДЖЄ",
                     "ЯЧСМИТЬБЮ,"
             }),
-    DE("DE", "German",
+    GERMAN("DE", "German",
             new String[]{
                     "^1234567890ß´",
                     "qwertzuiopü+#",
@@ -59,7 +59,7 @@ public enum KeyboardLayout {
                     "ASDFGHJKLÖÄ",
                     "YXCVBNM;:_"
             }),
-    FR("FR", "French",
+    FRENCH("FR", "French",
             new String[]{
                     "²&é\"'(-è_çà)=",
                     "azertyuiop^$*",
@@ -72,7 +72,7 @@ public enum KeyboardLayout {
                     "QSDFGHJKLM%",
                     "WXCVBN?./§"
             }),
-    ES_ES("ES", "Spanish",
+    SPANISH("ES", "Spanish",
             new String[]{
                     "º1234567890'¡",
                     "qwertyuiop`+ç",
@@ -85,7 +85,7 @@ public enum KeyboardLayout {
                     "ASDFGHJKLÑ¨",
                     "ZXCVBNM;:_"
             }),
-    IT("IT", "Italian",
+    ITALIAN("IT", "Italian",
             new String[]{
                     "\\1234567890'ì",
                     "qwertyuiopè+ù",
@@ -98,7 +98,7 @@ public enum KeyboardLayout {
                     "ASDFGHJKLç°",
                     "ZXCVBNM;:_"
             }),
-    PT_PT("PT", "Portuguese",
+    PORTUGUESE("PT", "Portuguese",
             new String[]{
                     "\\1234567890'«",
                     "qwertyuiop+´~",
@@ -134,12 +134,21 @@ public enum KeyboardLayout {
         return values[(ordinal() + 1) % values.length];
     }
 
-    public static @Nullable KeyboardLayout byName(@NotNull String rawValue) {
-        for (KeyboardLayout value : values()) {
-            if (value.name().equalsIgnoreCase(rawValue)) {
-                return value;
-            }
-        }
+
+    /**
+     * Maps a language code (e.g. "ru_ru", "fr_fr")
+     * to a keyboard layout.
+     */
+    public static @Nullable KeyboardLayout fromLangCode(@NotNull String langCode) {
+        String lower = langCode.toLowerCase();
+        if (lower.startsWith("en")) return ENGLISH;
+        if (lower.startsWith("ru")) return RUSSIAN;
+        if (lower.startsWith("uk")) return UKRAINIAN;
+        if (lower.startsWith("de")) return GERMAN;
+        if (lower.startsWith("fr")) return FRENCH;
+        if (lower.startsWith("es")) return SPANISH;
+        if (lower.startsWith("it")) return ITALIAN;
+        if (lower.startsWith("pt")) return PORTUGUESE;
         return null;
     }
 }

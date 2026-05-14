@@ -10,16 +10,23 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.events.render.RenderFrameStartedVREvent;
+import org.vmstudio.visor.api.client.events.render.RenderPipelineStageVREvent;
 import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
+import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.input.actions.*;
+import org.vmstudio.visor.core.client.network.ClientNetworking;
+import org.vmstudio.visor.core.client.network.ClientPacketHandler;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -146,10 +153,13 @@ public class VisorClientImpl implements VisorClient {
         registries.addAll(ClientContext.decorationRenderer.getComponentRegistries());
         registries.addAll(ClientContext.guiManager.getComponentRegistries());
 
+        var coreAddon = new CoreAddonClient();
         ClientContext.addonManager.initialize(
-                new CoreAddonClient(),
+                coreAddon,
                 registries
         );
+
+        ClientNetworking.createClientChannel(coreAddon);
 
         ClientContext.settingsManager.getPresetsCatalog().reload();
 
@@ -165,6 +175,9 @@ public class VisorClientImpl implements VisorClient {
             ClientContext.decorationRenderer.getVrBodyTypeRegistry().getAllComponents()
                     .forEach(it->it.getRenderer().initModels(delayedBodyInit));
         }
+
+
+        ImmPortalsCompatHelper.prepare(ClientContext.coreAddon);
 
     }
 
@@ -187,6 +200,7 @@ public class VisorClientImpl implements VisorClient {
 
     public void onGameLoopStart(){
         try {
+            VRRenderState.updateSceneType();
             vrProvider.startFrame();
             ClientContext.inputManager.update();
             VRClientPlayers.onGameLoopStart();
@@ -273,8 +287,12 @@ public class VisorClientImpl implements VisorClient {
         try {
             context.profiler().push("VR render");
             partialTicks = context.partialTicks();
-            ClientContext.renderer
-                    .render(context);
+            VisorAPI.eventBus().callEvent(
+                    new RenderFrameStartedVREvent(
+                            partialTicks
+                    )
+            );
+            ClientContext.renderer.render(context);
             context.profiler().pop();
             GLUtils.checkGLError("post VR render");
         } catch (Throwable e) {
@@ -331,6 +349,11 @@ public class VisorClientImpl implements VisorClient {
     @Override
     public boolean isFeatureEnabled(@NotNull ClientFeature feature) {
         return featuresToggle.isAllowed(feature);
+    }
+
+    @Override
+    public boolean isInVisorServer() {
+        return ClientNetworking.isServerSupportsVisor();
     }
 
     @Override

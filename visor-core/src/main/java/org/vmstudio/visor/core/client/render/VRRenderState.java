@@ -5,8 +5,10 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.render.RenderPhaseStartedVREvent;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
-import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
+import org.vmstudio.visor.api.client.render.VRSceneType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.render.RenderPhase;
@@ -38,6 +40,12 @@ public class VRRenderState {
     @Getter
     private static MainTarget vanillaTarget = null;
 
+    @Getter
+    private static VRSceneType sceneType = VRSceneType.MAIN_MENU;
+
+    public static void updateSceneType(){
+        sceneType = isInMainMenu() ? VRSceneType.MAIN_MENU : VRSceneType.WORLD;
+    }
 
     public static void initVanillaTarget(MainTarget target){
         if(vanillaTarget != null){
@@ -48,15 +56,31 @@ public class VRRenderState {
 
 
     public static void startVanillaPhase() {
+        RenderPhase previous = phase;
         phase = RenderPhase.VANILLA;
         renderPass = VRRenderPass.NULL;
         MC.mainRenderTarget = vanillaTarget;
+        if (previous != phase) {
+            VisorAPI.eventBus().callEvent(
+                    new RenderPhaseStartedVREvent(
+                            previous, phase, renderPass
+                    )
+            );
+        }
     }
 
     public static void startVRGuiPhase() {
+        RenderPhase previous = phase;
         phase = RenderPhase.VR_GUI;
         renderPass = VRRenderPass.GUI;
         MC.mainRenderTarget = getTargetForPass(VRRenderPass.GUI);
+        if (previous != phase) {
+            VisorAPI.eventBus().callEvent(
+                    new RenderPhaseStartedVREvent(
+                            previous, phase, renderPass
+                    )
+            );
+        }
     }
 
     public static void startVRWorldPhase(@NotNull VRRenderPass renderPass) {
@@ -66,16 +90,27 @@ public class VRRenderState {
                             "for render pass that is not rendering world: "+renderPass
             );
         }
-        ImmPortalsCompatHelper.onBeginVrWorldPass(renderPass);
+        RenderPhase previous = phase;
         phase = RenderPhase.VR_WORLD;
         VRRenderState.renderPass = renderPass;
         MC.mainRenderTarget = getTargetForPass(renderPass);
+        if (previous != phase) {
+            VisorAPI.eventBus().callEvent(
+                    new RenderPhaseStartedVREvent(
+                            previous, phase, renderPass
+                    )
+            );
+        }
     }
 
     public static void startVRMirrorPhase(){
+        RenderPhase previous = phase;
         phase = RenderPhase.VR_MIRROR;
         renderPass = VRRenderPass.NULL;
         MC.mainRenderTarget = ClientContext.renderer.mainTarget.getMirrorTarget();
+        if (previous != phase) {
+            VisorAPI.eventBus().callEvent(new RenderPhaseStartedVREvent(previous, phase, renderPass));
+        }
     }
 
     public static RenderTarget getTargetForPass(VRRenderPass renderPass){
@@ -149,6 +184,7 @@ public class VRRenderState {
             return false;
         }
         return MC.level == null
+                || MC.gameRenderer == null
                 || MC.screen instanceof ReceivingLevelScreen
                 || MC.screen instanceof ProgressScreen
                 || MC.screen instanceof GenericDirtMessageScreen

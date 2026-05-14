@@ -1,8 +1,8 @@
 package org.vmstudio.visor.api.common.network.toclient.vrstate;
 
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
-import org.vmstudio.visor.api.common.network.toclient.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
+import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 public record OffhandSlotPayloadToClient(int slot) implements VisorPayloadToClient {
 
@@ -13,9 +13,10 @@ public record OffhandSlotPayloadToClient(int slot) implements VisorPayloadToClie
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.OFFHAND_SLOT;
+    public byte payloadId() {
+        return VisorCorePayloadID.OFFHAND_SLOT.byteOrdinal();
     }
+
 
 
     public static OffhandSlotPayloadToClient read(FriendlyByteBuf buffer) {

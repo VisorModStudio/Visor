@@ -48,8 +48,11 @@ public class VRClientSettings {
     @Getter
     @VROptionField(key = "keyboard.layouts", category = VROptionCategory.GUI)
     protected static String keyboardLayoutsRaw = KeyboardLayouts.serialize(
-            List.of(KeyboardLayout.EN_US)
+            List.of(KeyboardLayout.ENGLISH)
     );
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.KEYBOARD_AUTO_LAYOUT, key = "keyboard.auto_layout")
+    protected static boolean keyboardAutoLayout = true;
     //---
 
 
@@ -373,10 +376,32 @@ public class VRClientSettings {
         return KeyboardLayouts.deserialize(keyboardLayoutsRaw);
     }
 
-    public static void setKeyboardLayouts(
-            @NotNull Collection<KeyboardLayout> layouts
-    ) {
+    public static void setKeyboardLayouts(@NotNull Collection<KeyboardLayout> layouts) {
         keyboardLayoutsRaw = KeyboardLayouts.serialize(layouts);
+    }
+
+    /**
+     * Includes auto keyboard layout if supported
+     */
+    public static @NotNull List<KeyboardLayout> getEffectiveKeyboardLayouts() {
+        List<KeyboardLayout> base = getKeyboardLayouts();
+        KeyboardLayout autoLayout = getAutoKeyboardLayout();
+        if (autoLayout == null || base.contains(autoLayout)) {
+            return base;
+        }
+        var merged = new java.util.ArrayList<>(base);
+        if(merged.isEmpty()){
+            merged.add(KeyboardLayout.ENGLISH);
+        }
+        merged.add(autoLayout);
+        return List.copyOf(merged);
+    }
+
+    public static @org.jetbrains.annotations.Nullable KeyboardLayout getAutoKeyboardLayout() {
+        if (!keyboardAutoLayout) return null;
+        if (MC == null) return null;
+        String langCode = MC.options.languageCode;
+        return KeyboardLayout.fromLangCode(langCode);
     }
 
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,

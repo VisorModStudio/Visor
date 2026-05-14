@@ -93,7 +93,7 @@ public final class KeyboardLayouts {
     }
 
     public static @NotNull KeyboardLayoutKeys getDefault() {
-        return get(KeyboardLayout.EN_US);
+        return get(KeyboardLayout.ENGLISH);
     }
 
     public static @NotNull List<KeyboardLayout> getSelectableLayouts() {
@@ -110,9 +110,11 @@ public final class KeyboardLayouts {
                 if (trimmed.isEmpty()) {
                     continue;
                 }
-                KeyboardLayout layout = KeyboardLayout.byName(trimmed);
-                if (layout != null) {
+                try {
+                    KeyboardLayout layout = KeyboardLayout.valueOf(trimmed.toUpperCase());
                     result.add(layout);
+                } catch (IllegalArgumentException e) {
+                    //empty
                 }
             }
         }

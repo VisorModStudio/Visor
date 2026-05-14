@@ -41,6 +41,13 @@ public interface VisorClient {
 
 
     /**
+     * If joined Visor supported server.
+     *
+     * @return true/false
+     */
+    boolean isInVisorServer();
+
+    /**
      * Get VR Client Player from uuid.
      *
      * <p>

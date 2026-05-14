@@ -1,16 +1,12 @@
 package org.vmstudio.visor.api.common.network.toserver;
 
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
+import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.entity.Entity;
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
 
 public record SwingAttackPayloadToServer(int entityId,
                                          boolean shiftKeyDown,
                                          boolean mainHand) implements VisorPayloadToServer{
-    @Override
-    public VisorPayloadID payloadId() {
-        return VisorPayloadID.SWING_ATTACK;
-    }
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
@@ -18,6 +14,13 @@ public record SwingAttackPayloadToServer(int entityId,
         buffer.writeBoolean(shiftKeyDown);
         buffer.writeBoolean(mainHand);
     }
+
+    @Override
+    public byte payloadId() {
+        return VisorCorePayloadID.SWING_ATTACK.byteOrdinal();
+    }
+
+
 
     public static SwingAttackPayloadToServer read(FriendlyByteBuf buffer) {
         return new SwingAttackPayloadToServer(

@@ -1,7 +1,9 @@
 package org.vmstudio.visor.api.client.gui.overlays;
 
 
+import org.joml.Quaternionfc;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -20,6 +22,46 @@ public class VROverlayHelper {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
+    /**
+     * Quaternion-based variant of {@link #applyPose(VROverlay, PoseAnchor, PoseAnchor, float, boolean, Vector3fc, Vector3fc)}.
+     * Prefer this when working with {@link OverlayOptionsPose}, whose rotation offset
+     * is now stored as a quaternion to avoid gimbal lock during edits.
+     */
+    public static void applyPose(@NotNull VROverlay overlay,
+                                 @NotNull PoseAnchor positionAnchor,
+                                 @NotNull PoseAnchor rotationAnchor,
+                                 float overlayScale,
+                                 boolean aimRotation,
+                                 @NotNull Vector3fc positionOffset,
+                                 @NotNull Quaternionfc rotationOffset
+    ) {
+
+        VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer()
+                .getPoseData(PlayerPoseType.RENDER);
+
+        Vector3f newPosition = positionAnchor.anchorPos(
+                renderPose,
+                positionOffset
+        );
+        Matrix4f newRotation;
+        if(aimRotation){
+            newRotation = rotationAnchor.anchorRotationAim(
+                    renderPose,
+                    rotationOffset,
+                    newPosition
+            );
+        } else {
+            newRotation = rotationAnchor.anchorRotation(
+                    renderPose,
+                    rotationOffset
+            );
+        }
+        overlay.getPose().update(
+                newPosition,
+                newRotation,
+                overlayScale
+        );
+    }
     /**
      * Convenient if you want to use room relative pose
      * instead of render pose that uses world coordinates

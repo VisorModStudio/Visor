@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.common.network.toserver;
 
-import org.vmstudio.visor.api.common.network.VisorPayloadID;
 import net.minecraft.network.FriendlyByteBuf;
+import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 
 public record UnknownPayloadToServer() implements VisorPayloadToServer {
 
@@ -17,8 +17,8 @@ public record UnknownPayloadToServer() implements VisorPayloadToServer {
     }
 
     @Override
-    public VisorPayloadID payloadId() {
-        return null;
+    public byte payloadId() {
+        return Byte.MIN_VALUE;
     }
 
     public static UnknownPayloadToServer read(FriendlyByteBuf buffer) {
