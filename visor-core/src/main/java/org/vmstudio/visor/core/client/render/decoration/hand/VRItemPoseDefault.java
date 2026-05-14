@@ -3,16 +3,6 @@ package org.vmstudio.visor.core.client.render.decoration.hand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
-import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyFloat;
-import org.vmstudio.visor.api.client.player.VRClientPlayer;
-import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
-import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
-import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.compatibility.ItemClassifier;
-import org.vmstudio.visor.core.client.VisorState;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -20,14 +10,20 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
-
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
-
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
+import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
+import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 
@@ -81,16 +77,6 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      float partialTicks) {
         float gunAngle = vrPlayer.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
-        var options = ClientContext.overlayManager.getOverlay(
-                VROverlayItemPoseTest.ID,
-                VROverlayItemPoseTest.class
-        );
-        var properties = options.getProperties();
-        // defaults
-        boolean active = properties.getProperty(
-                "active",
-                PropertyBool.class
-        ).getValue();
 
         Quaternionf preRotation = new Quaternionf();
 
@@ -110,42 +96,6 @@ public class VRItemPoseDefault extends VRHandItemPose {
         float pitch = 0;
         float roll = 0;
 
-        if(active){
-            scale = properties.getProperty(
-                    "scale",
-                    PropertyFloat.class
-            ).getValue();
-
-            translateX = properties.getProperty(
-                    "translate_x",
-                    PropertyFloat.class
-            ).getValue();
-            translateY = properties.getProperty(
-                    "translate_y",
-                    PropertyFloat.class
-            ).getValue();
-            translateZ = properties.getProperty(
-                    "translate_z",
-                    PropertyFloat.class
-            ).getValue();
-
-
-            preYaw = properties.getProperty("pre_yaw", PropertyFloat.class).getValue();
-            prePitch = properties.getProperty("pre_pitch", PropertyFloat.class).getValue();
-            preRoll = properties.getProperty("pre_roll", PropertyFloat.class).getValue();
-
-            yaw = properties.getProperty("yaw", PropertyFloat.class).getValue();
-            pitch = properties.getProperty("pitch", PropertyFloat.class).getValue();
-            roll = properties.getProperty("roll", PropertyFloat.class).getValue();
-
-            preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
-            preRotation.mul(Axis.YP.rotationDegrees(prePitch));
-            preRotation.mul(Axis.XP.rotationDegrees(preYaw));
-            rotation.mul(Axis.ZP.rotationDegrees(roll));
-            rotation.mul(Axis.YP.rotationDegrees(pitch));
-            rotation.mul(Axis.XP.rotationDegrees(yaw));
-            return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
-        }
 
         var transformType = getTransformType(itemStack, player, MC.getItemRenderer());
         switch (transformType) {
