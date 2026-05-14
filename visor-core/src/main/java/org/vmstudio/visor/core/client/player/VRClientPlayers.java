@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
 import org.vmstudio.visor.api.common.network.buffer.PoseElementBuffer;
+import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
+import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 
@@ -72,7 +74,10 @@ public class VRClientPlayers {
 
 
     public static RemotePlayer getValidPacketReceiverMc(UUID uuid){
-        if(ClientContext.localPlayer.getMcPlayer() != null
+        boolean isReplay = ReplayCompatHelper.isPlayingReplay() ||
+                FlashbackCompatHelper.isPlayingReplay();
+
+        if(!isReplay && ClientContext.localPlayer.getMcPlayer() != null
                 && ClientContext.localPlayer.getMcPlayer().getUUID().equals(uuid)){
             return null;
         }

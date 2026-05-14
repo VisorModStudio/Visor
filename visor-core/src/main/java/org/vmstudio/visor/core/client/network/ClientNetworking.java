@@ -46,7 +46,6 @@ public class ClientNetworking {
     public static void sendVRPacket(VisorPayloadToServer payload) {
         if (MC.getConnection() == null) return;
         if (!serverSupportsVisor) return;
-        if (ReplayCompatHelper.isPlayingReplay()) return; // replay mod will crash in replay screen in VR state
         MC.getConnection().send(createVRPacket(payload));
     }
 
