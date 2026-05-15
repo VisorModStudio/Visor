@@ -9,6 +9,8 @@ import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
+import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
@@ -205,9 +207,11 @@ public class ServerNetworking {
         Packet<?> packet = ModLoader.get().createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
 
         boolean wasSentSelf = false;
+        boolean isRecordingModLoaded = ReplayCompatHelper.isLoaded()
+                || FlashbackCompatHelper.isLoaded();
         for (var pc : connections) {
             ServerPlayer player = pc.getPlayer();
-            if (player == tracked && !sendSelf) {
+            if (player == tracked && !sendSelf && !isRecordingModLoaded) {
                 wasSentSelf = true;
                 continue;
             }
@@ -216,7 +220,7 @@ public class ServerNetworking {
             }
             pc.send(packet);
         }
-        if (!wasSentSelf && sendSelf) {
+        if (!wasSentSelf && (sendSelf || isRecordingModLoaded)) {
             tracked.connection.send(packet);
         }
     }
@@ -227,14 +231,16 @@ public class ServerNetworking {
         Packet<?> packet = ModLoader.get().createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
 
         boolean wasSentSelf = false;
+        boolean isRecordingModLoaded = ReplayCompatHelper.isLoaded()
+                || FlashbackCompatHelper.isLoaded();
         for (var playerConnection : getTrackedVRPlayers(tracked)) {
-            if (playerConnection.getPlayer() == tracked && !sendSelf) {
+            if (playerConnection.getPlayer() == tracked && !sendSelf && !isRecordingModLoaded) {
                 wasSentSelf = true;
                 continue;
             }
             playerConnection.send(packet);
         }
-        if(!wasSentSelf && sendSelf){
+        if(!wasSentSelf && (sendSelf || isRecordingModLoaded)){
             tracked.connection.send(packet);
         }
     }

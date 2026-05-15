@@ -15,6 +15,8 @@ loom {
 
         mixinConfig "visor.mixins.json"
         mixinConfig "visor.sodium.mixins.json"
+        mixinConfig "visor.replaymod.mixins.json"
+        mixinConfig "visor.flashback.mixins.json"
         mixinConfig "visor.mixins.forge.json"
     }
 }
