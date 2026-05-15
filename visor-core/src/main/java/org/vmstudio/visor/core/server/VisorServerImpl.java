@@ -7,6 +7,10 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorServer;
 import org.vmstudio.visor.api.common.VRLogger;
+import org.vmstudio.visor.api.server.events.ServerStartedVREvent;
+import org.vmstudio.visor.api.server.events.ServerStoppedVREvent;
+import org.vmstudio.visor.api.server.events.VRPlayerJoinedVREvent;
+import org.vmstudio.visor.api.server.events.VRPlayerLeftVREvent;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
@@ -81,6 +85,8 @@ public class VisorServerImpl implements VisorServer {
             ServerNetworking.createDedicatedChannel(coreAddon);
 
         }
+
+        VisorAPI.eventBus().callEvent(new ServerStartedVREvent(this));
     }
 
     public void tickVR() {
@@ -89,6 +95,9 @@ public class VisorServerImpl implements VisorServer {
     public void onServerStop(){
         visorPacketReceivers.clear();
         playersWithVR.clear();
+
+        VisorAPI.eventBus().callEvent(new ServerStoppedVREvent(this));
+
         VisorAPI.Instance.setServer(null);
         INSTANCE = null;
         LOGGER.info("VR Server Core cleared");
@@ -137,15 +146,22 @@ public class VisorServerImpl implements VisorServer {
         );
     }
     public void addVrPlayer(VRServerPlayerImpl player) {
-        playersWithVR.put(player.getMcPlayer().getUUID(), player);
-        visorPacketReceivers.put(player.getMcPlayer().getUUID(), player);
+        UUID uuid = player.getMcPlayer().getUUID();
+        playersWithVR.put(uuid, player);
+        visorPacketReceivers.put(uuid, player);
+        VisorAPI.eventBus().callEvent(new VRPlayerJoinedVREvent(player));
     }
 
 
 
     public void removePlayer(ServerPlayer player) {
-        playersWithVR.remove(player.getUUID());
-        visorPacketReceivers.remove(player.getUUID());
+        UUID uuid = player.getUUID();
+        VRServerPlayer existing = playersWithVR.get(uuid);
+        if (existing != null) {
+            VisorAPI.eventBus().callEvent(new VRPlayerLeftVREvent(existing));
+        }
+        playersWithVR.remove(uuid);
+        visorPacketReceivers.remove(uuid);
     }
     public void updateMcPlayer(ServerPlayer player) {
         VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
