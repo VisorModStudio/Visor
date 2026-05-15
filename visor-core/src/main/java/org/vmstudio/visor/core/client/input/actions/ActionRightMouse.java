@@ -57,6 +57,26 @@ public class ActionRightMouse extends VRActionButton {
     }
 
     @Override
+    public void forcePress() {
+        super.forcePress();
+        if(handType == HandType.MAIN) {
+            handler.setForcedMain(true);
+        }else{
+            handler.setForcedOffhand(true);
+        }
+    }
+
+    @Override
+    public void forceRelease() {
+        super.forceRelease();
+        if(handType == HandType.MAIN) {
+            handler.setForcedMain(false);
+        }else{
+            handler.setForcedOffhand(false);
+        }
+    }
+
+    @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         if (getId().equals(ID_MAIN)) {
             return Map.of(

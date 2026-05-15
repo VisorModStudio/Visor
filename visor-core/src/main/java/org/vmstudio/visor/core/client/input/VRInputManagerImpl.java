@@ -8,10 +8,16 @@ import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.input.actions.ActionLeftMouse;
+import org.vmstudio.visor.core.client.input.actions.ActionMiddleMouse;
+import org.vmstudio.visor.core.client.input.actions.ActionRightMouse;
+import org.vmstudio.visor.core.client.input.actions.ActionScrollMouse;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.jetbrains.annotations.NotNull;
@@ -100,6 +106,50 @@ public class VRInputManagerImpl implements VRInputManager {
             return null;
         }
         return profileSet.getType();
+    }
+
+    @Override
+    public @Nullable VRActionButton getActionLeftMouse(@NotNull HandType hand) {
+        var actionSet = getActiveSet();
+        if(actionSet == null){
+            return null;
+        }
+        return  (VRActionButton) (hand == HandType.MAIN
+                ? actionSet.getAction(ActionLeftMouse.ID_MAIN)
+                : actionSet.getAction(ActionLeftMouse.ID_OFFHAND));
+    }
+
+    @Override
+    public @Nullable VRActionButton getActionRightMouse(@NotNull HandType hand) {
+        var actionSet = getActiveSet();
+        if(actionSet == null){
+            return null;
+        }
+        return  (VRActionButton) (hand == HandType.MAIN
+                ? actionSet.getAction(ActionRightMouse.ID_MAIN)
+                : actionSet.getAction(ActionRightMouse.ID_OFFHAND));
+    }
+
+    @Override
+    public @Nullable VRActionButton getActionMiddleMouse(@NotNull HandType hand) {
+        var actionSet = getActiveSet();
+        if(actionSet == null){
+            return null;
+        }
+        return  (VRActionButton) (hand == HandType.MAIN
+                ? actionSet.getAction(ActionMiddleMouse.ID_MAIN)
+                : actionSet.getAction(ActionMiddleMouse.ID_OFFHAND));
+    }
+
+    @Override
+    public @Nullable VRActionVec2 getActionScrollMouse(@NotNull HandType hand) {
+        var actionSet = getActiveSet();
+        if(actionSet == null){
+            return null;
+        }
+        return  (VRActionVec2) (hand == HandType.MAIN
+                ? actionSet.getAction(ActionScrollMouse.ID_MAIN)
+                : actionSet.getAction(ActionScrollMouse.ID_OFFHAND));
     }
 
     @Override

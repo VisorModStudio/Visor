@@ -4,6 +4,8 @@ package org.vmstudio.visor.api.client.input;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.api.common.HandType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +30,15 @@ public interface VRInputManager {
     @Nullable
     VRInteractionProfileType getActiveProfile();
 
+
+    @Nullable
+    VRActionButton getActionLeftMouse(@NotNull HandType hand);
+    @Nullable
+    VRActionButton getActionRightMouse(@NotNull HandType hand);
+    @Nullable
+    VRActionButton getActionMiddleMouse(@NotNull HandType hand);
+    @Nullable
+    VRActionVec2 getActionScrollMouse(@NotNull HandType hand);
 
     /**
      * Trigger haptic pulse on both hands

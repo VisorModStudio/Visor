@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.input.mouse;
 
+import lombok.Setter;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
@@ -38,6 +39,8 @@ public class MouseClickHandler {
 
     // only used by left-click
     private final boolean isLeftClick;
+    @Setter
+    private boolean forcedMain, forcedOffhand;
 
     public MouseClickHandler(MouseButtonType buttonType) {
         this.buttonType = buttonType;
@@ -275,8 +278,11 @@ public class MouseClickHandler {
             if ((mainHandPressed && !offhandPressed)
                     || (!mainHandPressed && offhandPressed)) {
                 ClientContext.localPlayer.setActiveHand(handType);
-                ignoreSingleRelease = true;
-                return;
+                if(!(forcedMain && mainHandPressed)
+                        && !(forcedOffhand && offhandPressed)) {
+                    ignoreSingleRelease = true;
+                    return;
+                }
             }
             if (ignoreSingleRelease) {
                 ignoreSingleRelease = false;
