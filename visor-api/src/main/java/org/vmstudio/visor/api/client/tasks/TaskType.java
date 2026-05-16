@@ -17,6 +17,7 @@ public enum TaskType {
 
     /**
      * Run on VR render
+     * provide nullable player instance
      */
     VR_PRE_RENDER
 }

@@ -24,8 +24,4 @@ public class RenderFrameStartedVREvent extends VREvent {
         this.partialTicks = partialTicks;
     }
 
-    @Override
-    public boolean isCancelable() {
-        return false;
-    }
 }

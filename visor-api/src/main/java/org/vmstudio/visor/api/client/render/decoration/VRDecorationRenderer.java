@@ -30,8 +30,9 @@ public interface VRDecorationRenderer {
      * @param handType the hand type
      * @return the hand render state
      */
+    //@TODO third person?
     @NotNull
-    HandRenderState getHandRenderState(@NotNull HandType handType);
+    HandRenderState getHandState(@NotNull HandType handType);
 
     /**
      * Get currently rendered decorator

@@ -188,7 +188,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 translateY = 0.1f;
                 translateZ = -0.1f;
                 yaw = -7;
-                roll = handDir * -8;
+                roll = handDir * -10;
             }
             case SWORD -> {
                 scale = 1.3f;

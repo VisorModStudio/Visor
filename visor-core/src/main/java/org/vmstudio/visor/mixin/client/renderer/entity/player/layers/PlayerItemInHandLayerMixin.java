@@ -14,7 +14,6 @@ import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 @Mixin(value = PlayerItemInHandLayer.class, priority = 900)
 public class PlayerItemInHandLayerMixin {
@@ -29,8 +28,8 @@ public class PlayerItemInHandLayerMixin {
                 ci.cancel();
             }
             boolean leftHanded = ClientContext.localPlayer.isLeftHanded();
-            if(ClientContext.decorationRenderer
-                    .getHandRenderState(HandType.fromMcArm(arm, leftHanded)) != HandRenderState.WORLD_HAND){
+            if(!ClientContext.decorationRenderer
+                    .getHandState(HandType.fromMcArm(arm, leftHanded)).isWithItem()){
                 ci.cancel();
             }
         }

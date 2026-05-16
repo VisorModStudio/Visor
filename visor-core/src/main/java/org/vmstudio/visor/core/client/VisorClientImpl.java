@@ -273,10 +273,10 @@ public class VisorClientImpl implements VisorClient {
 
             var tasks = ClientContext.visor.getTaskRegistry().getPreRender();
             for (VisorTask task : tasks) {
-                if (task.isEnabledAndActive(null)) {
-                    task.run(null);
+                if (task.isEnabledAndActive(MC.player)) {
+                    task.run(MC.player);
                 } else {
-                    task.clear(null);
+                    task.clear(MC.player);
                 }
             }
         } catch (Throwable e) {

@@ -119,15 +119,15 @@ public class VRHandRenderer {
                     ? handStateMain
                     : handStateOffhand;
             if(handState == HandRenderState.OFF) continue;
-            if(!isGuiStage && handState == HandRenderState.GUI_HAND) continue;
-            if(isGuiStage && handState == HandRenderState.WORLD_HAND) continue;
+            if(!isGuiStage && handState.isGuiHand()) continue;
+            if(isGuiStage && handState.isWorldHand()) continue;
 
             poseStack.setIdentity();
             RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
             RenderPoseHelper.applyHandPose(hand, poseStack);
 
             Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
-            var activeEffects = findActiveEffects(effects, decorator, hand, handState == HandRenderState.GUI_HAND);
+            var activeEffects = findActiveEffects(effects, decorator, hand, handState.isGuiHand());
 
             RenderSystem.enableDepthTest();
             RenderSystem.defaultBlendFunc();
@@ -137,7 +137,7 @@ public class VRHandRenderer {
                     hand,
                     renderPass,
                     poseStack,
-                    handState == HandRenderState.GUI_HAND,
+                    handState.isGuiHand(),
                     partialTicks
             );
         }
@@ -175,39 +175,40 @@ public class VRHandRenderer {
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        if(handStateMain == HandRenderState.GUI_HAND
-                && isGuiStage){
+
+        if(handStateMain.isGuiHand() && isGuiStage){
             renderHand(
                     HandType.MAIN,
-                    poseStack, partialTicks,
+                    handStateMain,
                     true,
-                    renderPass
+                    renderPass,
+                    poseStack, partialTicks
             );
-        } else if(handStateMain == HandRenderState.WORLD_HAND
-                && !isGuiStage){
+        } else if(handStateMain.isWorldHand() && !isGuiStage){
             renderHand(
                     HandType.MAIN,
-                    poseStack, partialTicks,
+                    handStateMain,
                     false,
-                    renderPass
+                    renderPass,
+                    poseStack, partialTicks
             );
         }
 
-        if(handStateOffhand == HandRenderState.GUI_HAND
-                && isGuiStage){
+        if(handStateOffhand.isGuiHand() && isGuiStage){
             renderHand(
                     HandType.OFFHAND,
-                    poseStack, partialTicks,
+                    handStateOffhand,
                     true,
-                    renderPass
+                    renderPass,
+                    poseStack, partialTicks
             );
-        } else if(handStateOffhand == HandRenderState.WORLD_HAND
-                && !isGuiStage){
+        } else if(handStateOffhand.isWorldHand() && !isGuiStage){
             renderHand(
                     HandType.OFFHAND,
-                    poseStack, partialTicks,
+                    handStateOffhand,
                     false,
-                    renderPass
+                    renderPass,
+                    poseStack, partialTicks
             );
         }
 
@@ -331,10 +332,11 @@ public class VRHandRenderer {
 
 
     private void renderHand(HandType hand,
-                            @NotNull PoseStack poseStack,
-                            float partialTicks,
+                            HandRenderState state,
                             boolean isGui,
-                            VRRenderPass renderPass) {
+                            VRRenderPass renderPass,
+                            @NotNull PoseStack poseStack,
+                            float partialTicks) {
 
         poseStack.pushPose();
 
@@ -349,7 +351,7 @@ public class VRHandRenderer {
         if (isGui) {
             renderGuiHand(poseStack);
         } else {
-            renderWorldHand(poseStack, hand, partialTicks);
+            renderWorldHand(poseStack, hand, state, partialTicks);
         }
 
         poseStack.popPose();
@@ -420,6 +422,7 @@ public class VRHandRenderer {
 
     private void renderWorldHand(PoseStack poseStack,
                                  HandType hand,
+                                 HandRenderState state,
                                  float partialTicks) {
 
         if(MC.player == null) return;
@@ -436,15 +439,17 @@ public class VRHandRenderer {
         MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
 
         renderWorldArmWithItem(
-                MC.player, partialTicks,
+                MC.player,
                 interactionHand,
+                state,
                 MC.player.getAttackAnim(partialTicks),
                 item,  poseStack,
                 bufferSource,
                 MC.getEntityRenderDispatcher().getPackedLightCoords(
                         MC.player,
                         partialTicks
-                )
+                ),
+                partialTicks
         );
         bufferSource.endBatch();
         MC.gameRenderer.lightTexture().turnOffLightLayer();
@@ -455,20 +460,21 @@ public class VRHandRenderer {
 
 
     private void renderWorldArmWithItem(AbstractClientPlayer player,
-                                        float pPartialTicks,
-                                        InteractionHand pHand,
+                                        InteractionHand hand,
+                                        HandRenderState state,
                                         float pSwingProgress,
                                         ItemStack itemStack,
                                         PoseStack poseStack,
                                         MultiBufferSource pBuffer,
-                                        int pCombinedLight
+                                        int pCombinedLight,
+                                        float pPartialTicks
     ) {
-        boolean mainHand = pHand == InteractionHand.MAIN_HAND;
+        boolean mainHand = hand == InteractionHand.MAIN_HAND;
         HumanoidArm humanoidarm = mainHand
                 ? player.getMainArm()
                 : player.getMainArm().getOpposite();
         var equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
-                .visor$getEquipProgress(pHand, pPartialTicks);
+                .visor$getEquipProgress(hand, pPartialTicks);
 
 
         boolean renderArm =
@@ -477,7 +483,7 @@ public class VRHandRenderer {
                         && VRClientSettings.isMixedRealityRenderHands());
 
         poseStack.pushPose();
-        if (renderArm && !player.isInvisible()) {
+        if (renderArm && !player.isInvisible() && !state.isWithItemOnly()) {
             renderWorldArm(
                     poseStack,
                     pBuffer,
@@ -488,12 +494,12 @@ public class VRHandRenderer {
             );
         }
 
-        if (itemStack.isEmpty()) {
+        if (itemStack.isEmpty() || !state.isWithItem()) {
             poseStack.popPose();
             return;
         }
 
-        if (player.swingingArm == pHand) {
+        if (player.swingingArm == hand) {
             applySwingPose(
                     swingType,
                     poseStack,

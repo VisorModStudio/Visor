@@ -38,8 +38,8 @@ public class VRBodyRendererFull implements VRBodyRenderer {
         }
         ClientContext.handRenderer.renderWorldHands(
                 poseStack,
-                ClientContext.decorationRenderer.getHandRenderState(HandType.MAIN),
-                ClientContext.decorationRenderer.getHandRenderState(HandType.OFFHAND),
+                ClientContext.decorationRenderer.getHandState(HandType.MAIN),
+                ClientContext.decorationRenderer.getHandState(HandType.OFFHAND),
                 partialTicks
         );
     }

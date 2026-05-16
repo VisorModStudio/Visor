@@ -85,17 +85,8 @@ public class TaskHotBar extends VisorTask {
             throw new RuntimeException("hotbar overlay offhand or main hand not found");
         }
 
-        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)) {
-            hotBarMainHand.setEnabled(
-                    false
-            );
-            hotBarOffhand.setEnabled(
-                    false
-            );
-            return;
-        }
         //OFFHAND
-        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND)) {
+        if (!ClientContext.decorationRenderer.getHandState(HandType.OFFHAND).isWorldHand()) {
             hotBarOffhand.setEnabled(
                     false
             );
@@ -144,7 +135,7 @@ public class TaskHotBar extends VisorTask {
             }
         }
         //MAIN HAND
-        if (VisorAPI.client().isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN)) {
+        if (!ClientContext.decorationRenderer.getHandState(HandType.MAIN).isWorldHand()) {
             hotBarMainHand.setEnabled(
                     false
             );

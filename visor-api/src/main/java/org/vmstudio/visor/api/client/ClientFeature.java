@@ -36,27 +36,7 @@ public enum ClientFeature {
     /**
      * Effects like cross-hair, block outline
      */
-    AIM_EFFECTS(true),
-
-    /**
-     * VR Hands rendering
-     */
-    VR_HANDS(true),
-
-    /**
-     * VR World hands rendering. If false, GUI hands force rendered instead
-     */
-    VR_WORLD_HANDS(true),
-
-    /**
-     * VR World main hand rendering. If false, GUI hand force rendered instead
-     */
-    VR_WORLD_HAND_MAIN(true),
-
-    /**
-     * VR World offhand rendering. If false, GUI hand force rendered instead
-     */
-    VR_WORLD_HAND_OFFHAND(true);
+    AIM_EFFECTS(true);
 
     @Getter
     private boolean renderFeature;

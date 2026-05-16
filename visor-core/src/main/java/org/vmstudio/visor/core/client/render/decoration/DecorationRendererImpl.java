@@ -6,6 +6,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.events.render.HandRenderStateVREvent;
 import org.vmstudio.visor.api.client.events.render.RenderPipelineStageVREvent;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -15,6 +16,7 @@ import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
 import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
+import org.vmstudio.visor.api.server.events.ServerStartedVREvent;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.decoration.hand.VRHandRenderer;
 import org.vmstudio.visor.core.client.render.decoration.registry.DecoratorRegistry;
@@ -49,7 +51,6 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private HandRenderState handStateMain = HandRenderState.OFF;
     private HandRenderState handStateOffhand = HandRenderState.OFF;
-
 
     public DecorationRendererImpl(){
         this.registry = new DecoratorRegistry();
@@ -142,11 +143,6 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             return;
         }
 
-        if (!ClientContext.visor.isFeatureEnabled(ClientFeature.VR_HANDS)) {
-            handStateMain = HandRenderState.OFF;
-            handStateOffhand = HandRenderState.OFF;
-            return;
-        }
         //don't render world hands in third person
         if(VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON){
             if(VRClientSettings.getMirrorMode() != MirrorMode.MIXED_REALITY){
@@ -166,14 +162,20 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     && (cursorHandler.getCursorHand() == HandType.MAIN
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = !currentDecorator.supportsWorldHands()
-                    || isCursorHand
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_MAIN);
+                    || isCursorHand;
             handStateMain = isGuiHand
                     ? HandRenderState.GUI_HAND
                     : HandRenderState.WORLD_HAND;
 
+            var event = new HandRenderStateVREvent(
+                    HandType.MAIN, handStateMain
+            );
+            VisorAPI.eventBus().callEvent(event);
+            handStateMain = event.getState();
+
         }
+
+
         if(!ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND)
                 .isTracking()){
             handStateOffhand = HandRenderState.OFF;
@@ -182,12 +184,16 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     && (cursorHandler.getCursorHand() == HandType.OFFHAND
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = !currentDecorator.supportsWorldHands()
-                    || isCursorHand
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HANDS)
-                    || ClientContext.visor.isFeatureDisabled(ClientFeature.VR_WORLD_HAND_OFFHAND);
+                    || isCursorHand;
             handStateOffhand = isGuiHand
                     ? HandRenderState.GUI_HAND
                     : HandRenderState.WORLD_HAND;
+
+            var event = new HandRenderStateVREvent(
+                    HandType.OFFHAND, handStateOffhand
+            );
+            VisorAPI.eventBus().callEvent(event);
+            handStateOffhand = event.getState();
 
         }
         currentDecorator.updateRenderState();
@@ -299,8 +305,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
     @Override
-    public @NotNull HandRenderState getHandRenderState(@NotNull HandType handType) {
-        return handType == HandType.MAIN ? handStateMain : handStateOffhand;
+    public @NotNull HandRenderState getHandState(@NotNull HandType handType) {
+        return handType == HandType.MAIN
+                ? handStateMain : handStateOffhand;
     }
 
     @Override

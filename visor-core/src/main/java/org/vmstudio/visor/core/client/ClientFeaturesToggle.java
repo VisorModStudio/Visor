@@ -46,7 +46,6 @@ public class ClientFeaturesToggle {
     private boolean checkFeature(ClientFeature feature) {
         return switch (feature) {
             case AIM_EFFECTS -> checkAimEffects();
-            case VR_HANDS  -> checkVRHands();
             default -> true;
         };
     }
@@ -57,8 +56,4 @@ public class ClientFeaturesToggle {
         return !ClientContext.cursorHandler.isCursorHandFocused();
     }
 
-    private boolean checkVRHands() {
-
-        return true;
-    }
 }
