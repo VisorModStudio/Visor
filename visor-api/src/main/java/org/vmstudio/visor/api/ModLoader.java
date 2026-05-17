@@ -28,14 +28,6 @@ import java.util.List;
  */
 public interface ModLoader {
 
-    /**
-     * Returns mod loader ID.
-     * <br>
-     * It can be 'forge' or 'fabric'
-     * @return mod loader ID
-     */
-    @NotNull
-    String getId();
 
     /**
      * Returns true if mod with specified id is loaded in
@@ -146,6 +138,8 @@ public interface ModLoader {
 
 
 
+    @NotNull
+    LoaderType getType();
 
     /**
      * Get instance of this class
@@ -157,6 +151,10 @@ public interface ModLoader {
     }
 
 
+    enum LoaderType{
+        FABRIC,
+        FORGE
+    }
 
     @ApiStatus.Internal
     final class Instance {

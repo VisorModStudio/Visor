@@ -42,8 +42,6 @@ public class VisorServerImpl implements VisorServer {
     @Getter
     private ConfigManager configManager;
 
-    private AddonManagerImpl addonManager;
-
     private VisorServerImpl() {}
 
     public static void create(){
@@ -74,16 +72,11 @@ public class VisorServerImpl implements VisorServer {
             VisorAPI.Instance.setVrPlayerSupplier(
                     mcPlayer-> getVrPlayer((ServerPlayer) mcPlayer)
             );
-            addonManager = new AddonManagerImpl(LOGGER);
 
-            var coreAddon = new CoreAddonServer();
+            AddonManagerImpl addonManager = (AddonManagerImpl) VisorAPI.addonManager();
             addonManager.initialize(
-                    coreAddon,
                     List.of()
             );
-
-            ServerNetworking.createDedicatedChannel(coreAddon);
-
         }
 
         VisorAPI.eventBus().callEvent(new ServerStartedVREvent(this));

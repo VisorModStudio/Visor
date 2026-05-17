@@ -4,7 +4,11 @@
   "plugin": "org.vmstudio.visor.MixinConfig",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MinecraftMixin",
     "FabricGameRendererMixin"
   ],
-  "minVersion": "0.8.4"
+  "minVersion": "0.8.4",
+  "mixins": [
+    "MinecraftServerMixin"
+  ]
 }

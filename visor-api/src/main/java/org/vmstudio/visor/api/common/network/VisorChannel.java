@@ -19,6 +19,14 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * The Visor channel
+ *
+ * <p>
+ *     If you use forge or multiplatform,
+ *     register the VisorChannel early, in {@link VisorAddon#onAddonRegister()}
+ * </p>
+ */
 public final class VisorChannel {
 
     @Getter

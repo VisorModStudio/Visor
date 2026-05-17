@@ -50,16 +50,11 @@ public class ForgeModLoader implements ModLoader {
             = new EnumMap<>(RenderPipelineStage.class);
 
     private boolean levelStageListenerRegistered = false;
-    private boolean guiOverlayListenerRegistered = false;
 
 
     @Override
     public File getConfigFolder() {
         return configFolder;
-    }
-    @Override
-    public @NotNull String getId() {
-        return "forge";
     }
 
     @Override
@@ -221,6 +216,11 @@ public class ForgeModLoader implements ModLoader {
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
         return ForgeHooksClient.renderFireOverlay(player, mat);
+    }
+
+    @Override
+    public @NotNull LoaderType getType() {
+        return LoaderType.FORGE;
     }
 
 

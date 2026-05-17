@@ -46,16 +46,12 @@ public class FabricModLoader implements ModLoader {
             = new EnumMap<>(RenderPipelineStage.class);
 
     private boolean worldEventsRegistered = false;
-    private boolean hudEventRegistered = false;
 
     @Override
     public File getConfigFolder() {
         return configFolder;
     }
-    @Override
-    public @NotNull String getId() {
-        return "fabric";
-    }
+
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
@@ -237,5 +233,10 @@ public class FabricModLoader implements ModLoader {
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
         return false;
+    }
+
+    @Override
+    public @NotNull LoaderType getType() {
+        return LoaderType.FABRIC;
     }
 }

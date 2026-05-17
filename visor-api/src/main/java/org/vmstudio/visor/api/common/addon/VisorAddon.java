@@ -20,6 +20,13 @@ public interface VisorAddon {
     );
 
     /**
+     * Called when addon is registered
+     *<p>
+     *     Use it if you want to load something early.
+     *</p>
+     */
+    void onAddonRegister();
+    /**
      * Called when addon is loaded
      */
     void onAddonLoad();

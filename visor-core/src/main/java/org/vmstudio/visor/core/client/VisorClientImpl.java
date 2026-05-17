@@ -7,6 +7,7 @@ import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -144,7 +145,6 @@ public class VisorClientImpl implements VisorClient {
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
 
-        ClientContext.addonManager = new AddonManagerImpl(LOGGER);
 
         var registries = new ArrayList<ComponentRegistry<?>>();
         registries.add(taskRegistry);
@@ -153,13 +153,10 @@ public class VisorClientImpl implements VisorClient {
         registries.addAll(ClientContext.decorationRenderer.getComponentRegistries());
         registries.addAll(ClientContext.guiManager.getComponentRegistries());
 
-        var coreAddon = new CoreAddonClient();
         ClientContext.addonManager.initialize(
-                coreAddon,
                 registries
         );
 
-        ClientNetworking.createClientChannel(coreAddon);
 
         ClientContext.settingsManager.getPresetsCatalog().reload();
 

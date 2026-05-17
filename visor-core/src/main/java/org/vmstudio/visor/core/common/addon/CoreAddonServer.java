@@ -7,10 +7,16 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.server.network.ServerNetworking;
 
 //Core Addon for dedicated server
 public class CoreAddonServer implements VisorAddon {
 
+
+    @Override
+    public void onAddonRegister() {
+        ServerNetworking.createDedicatedChannel(this);
+    }
 
     @Override
     public void onAddonLoad() {

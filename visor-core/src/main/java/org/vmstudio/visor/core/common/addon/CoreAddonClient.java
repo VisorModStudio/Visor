@@ -17,6 +17,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySet
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.client.network.ClientNetworking;
 
 import java.util.List;
 
@@ -27,6 +28,12 @@ public class CoreAddonClient implements VisorAddon {
     public CoreAddonClient(){
         ClientContext.coreAddon = this;
     }
+
+    @Override
+    public void onAddonRegister() {
+        ClientNetworking.createClientChannel(this);
+    }
+
     @Override
     public void onAddonLoad() {
         ClientContext.overlayManager.getOverlaysRegistry()
