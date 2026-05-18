@@ -29,12 +29,16 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.SwingEntityVREvent;
+import org.vmstudio.visor.api.client.events.SwingBlockVREvent;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.tasks.RegisterVisorTask;
 import org.vmstudio.visor.api.client.tasks.TaskType;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.eventbus.event.VREvent;
 import org.vmstudio.visor.api.common.network.toserver.SwingAttackPayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.SwingBlockPayloadToServer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -101,9 +105,7 @@ public class TaskSwing extends VisorTask {
         for (HandType hand : HandType.values()) {
             final HandSwingData data = handData.get(hand);
 
-            final InteractionHand interactionHand = (hand == HandType.OFFHAND)
-                    ? InteractionHand.OFF_HAND
-                    : InteractionHand.MAIN_HAND;
+            final InteractionHand interactionHand = hand.asInteractionHand();
             final EquipmentSlot equipmentSlot = (hand == HandType.OFFHAND)
                     ? EquipmentSlot.OFFHAND
                     : EquipmentSlot.MAINHAND;
@@ -142,11 +144,20 @@ public class TaskSwing extends VisorTask {
             boolean canSwing = speed > SWING_SPEED_THRESHOLD && !data.lastSwingBlock;
 
             //----ENTITY ATTACK----
+            VREvent event = new SwingEntityVREvent(
+                    player, hand,
+                    handPos, handDir, swingPoint,
+                    itemLength,
+                    damageRange,
+                    canSwing
+            );
+            VisorAPI.eventBus().callEvent(event);
+            if(event.isCanceled()){
+                continue;
+            }
             boolean entityHit = handleEntitySwing(
-                    player,
-                    hand,
-                    handPos,
-                    handDir,
+                    player, hand,
+                    handPos, handDir,
                     swingPoint,
                     itemLength,
                     damageRange,
@@ -187,8 +198,15 @@ public class TaskSwing extends VisorTask {
             if (!canSwing || restrictedBlock || !sameBlock) {
                 continue;
             }
+            event = new SwingBlockVREvent(
+                    player, hand, handItem, blockState, blockHit, speed
+            );
+            VisorAPI.eventBus().callEvent(event);
+            if(event.isCanceled()){
+                continue;
+            }
 
-            handleBlockSwing(player, hand, blockState, blockHit, interactionHand, handItem, speed);
+            handleBlockSwing(player, hand, handItem, blockState, blockHit, speed);
         }
     }
 
@@ -256,7 +274,7 @@ public class TaskSwing extends VisorTask {
         return new ItemProperties(itemLength, damageRange, isSword);
     }
 
-    private boolean handleEntitySwing(final Player player,
+    private boolean handleEntitySwing(final LocalPlayer player,
                                       final HandType hand,
                                       final Vec3 handPos,
                                       final Vec3 handDir,
@@ -314,11 +332,11 @@ public class TaskSwing extends VisorTask {
 
     private void handleBlockSwing(final LocalPlayer player,
                                   final HandType hand,
+                                  final Item handItem,
                                   final BlockState blockState,
                                   final BlockHitResult blockHit,
-                                  final InteractionHand interactionHand,
-                                  final Item handItem,
                                   final float speed) {
+        var interactionHand = hand.asInteractionHand();
         int totalHits = 3;
         final boolean isFarmItem = ItemClassifier.FARMING_TOOL.is(handItem);
         final boolean isFarmableBlock = isFarmItem &&
