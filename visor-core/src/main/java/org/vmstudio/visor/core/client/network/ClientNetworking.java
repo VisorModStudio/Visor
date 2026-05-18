@@ -49,6 +49,7 @@ public class ClientNetworking {
     private static boolean leftHandedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
+    private static boolean overlayFocusedLastSent = false;
 
 
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
@@ -178,6 +179,14 @@ public class ClientNetworking {
             vrBodyLastSent = vrBody;
         }
 
+        boolean overlayFocused = localPlayer.isOverlayFocused();
+        if(overlayFocused != overlayFocusedLastSent){
+            sendVRPacket(
+                    new OverlayFocusedPayloadToServer(overlayFocused)
+            );
+            overlayFocusedLastSent = overlayFocused;
+        }
+
 
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
                 localPlayer
@@ -214,6 +223,7 @@ public class ClientNetworking {
         vrBodyLastSent = null;
         activeHandLastSent = HandType.MAIN;
         rotationYLastSent = 0;
+        overlayFocusedLastSent = false;
         VRClientPlayers.dispose();
     }
 

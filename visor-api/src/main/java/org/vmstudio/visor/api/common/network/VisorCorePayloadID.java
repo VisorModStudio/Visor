@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.common.network;
 
-import lombok.Getter;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,9 +11,6 @@ import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.common.network.toserver.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public enum VisorCorePayloadID {
     //TO BOTH
@@ -44,7 +40,9 @@ public enum VisorCorePayloadID {
     CLIMBING,
     TELEPORT,
     SWING_ATTACK,
-    SWING_BLOCK;
+    SWING_BLOCK,
+    OVERLAY_FOCUSED,
+    OTHER_VR_OVERLAY_FOCUSED;
 
 
     public byte byteOrdinal() {
@@ -63,6 +61,7 @@ public enum VisorCorePayloadID {
             case HANDSHAKE -> HandshakePayloadToClient.read(buffer);
             case OFFHAND_SLOT -> OffhandSlotPayloadToClient.read(buffer);
             case ROTATION_Y -> RotationYPayloadToClient.read(buffer);
+            case OTHER_VR_OVERLAY_FOCUSED -> VROtherOverlayFocusedPayloadToClient.read(buffer);
             case OTHER_VR_BODY_TYPE -> VROtherBodyTypePayloadToClient.read(buffer);
             case OTHER_VR_FULL_HEIGHT -> VROtherFullHeightPayloadToClient.read(buffer);
             case OTHER_GUN_ANGLE -> VROtherGunAnglePayloadToClient.read(buffer);
@@ -97,6 +96,7 @@ public enum VisorCorePayloadID {
             case CLIMBING -> ClimbingPayloadToServer.read(buffer);
             case SWING_ATTACK -> SwingAttackPayloadToServer.read(buffer);
             case SWING_BLOCK -> SwingBlockPayloadToServer.read(buffer);
+            case OVERLAY_FOCUSED -> OverlayFocusedPayloadToServer.read(buffer);
             case TELEPORT -> TeleportMovePayloadToServer.read(buffer);
             default -> {
                 VisorAPI.server().getLogger().error(

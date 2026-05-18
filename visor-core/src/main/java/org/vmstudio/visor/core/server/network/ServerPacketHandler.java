@@ -8,7 +8,6 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.*;
@@ -21,7 +20,6 @@ import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
-import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
 import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
@@ -120,6 +118,10 @@ public class ServerPacketHandler {
             case GUN_ANGLE -> {
                 var payload = (GunAnglePayloadToServer) payloadToServer;
                 vrPlayer.setGunAngle(payload.gunAngle());
+            }
+            case OVERLAY_FOCUSED -> {
+                var payload = (OverlayFocusedPayloadToServer) payloadToServer;
+                vrPlayer.setOverlayFocused(payload.overlayFocused());
             }
             case CRAWLING -> {
                 if(!VRServerSettings.isRoomCrawlingSupported()){

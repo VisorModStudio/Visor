@@ -97,4 +97,10 @@ public interface VRPlayer {
         return getFullHeight() / 1.52f;
     }
 
+    /**
+     * Whether the player currently has an overlay
+     *
+     * @return true when an overlay is active
+     */
+    boolean isOverlayFocused();
 }

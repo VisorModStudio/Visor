@@ -28,8 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
-
 public class ServerNetworking {
     public static VisorChannel DEDICATED_CHANNEL;
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -124,6 +122,7 @@ public class ServerNetworking {
         var worldScale = vrPlayer.getWorldScale();
         var fullHeight = vrPlayer.getFullHeight();
         var gunAngle = vrPlayer.getGunAngle();
+        boolean overlayFocused = vrPlayer.isOverlayFocused();
 
         // Pose data
         sendPacketToConnections(
@@ -146,6 +145,7 @@ public class ServerNetworking {
                 trackerConnection.send(createVRPacket(new VROtherWorldScalePayloadToClient(uuid, worldScale)));
                 trackerConnection.send(createVRPacket(new VROtherFullHeightPayloadToClient(uuid, fullHeight)));
                 trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
+                trackerConnection.send(createVRPacket(new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)));
             }
         }
 
@@ -195,6 +195,15 @@ public class ServerNetworking {
                     new VROtherGunAnglePayloadToClient(uuid, gunAngle)
             );
             vrPlayer.setGunAngleLastSent(gunAngle);
+        }
+
+        if (overlayFocused != vrPlayer.isOverlayFocusedLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)
+            );
+            vrPlayer.setOverlayFocusedLastSent(overlayFocused);
         }
     }
 
