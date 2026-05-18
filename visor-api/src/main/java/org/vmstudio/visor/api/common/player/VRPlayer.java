@@ -98,9 +98,9 @@ public interface VRPlayer {
     }
 
     /**
-     * Whether the player currently has a GUI open
+     * Whether the player currently has an overlay
      *
-     * @return true when a GUI is active
+     * @return true when an overlay is active
      */
-    boolean isGuiOpened();
+    boolean isOverlayFocused();
 }

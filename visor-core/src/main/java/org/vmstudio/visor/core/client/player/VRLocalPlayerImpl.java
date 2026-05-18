@@ -79,7 +79,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Getter @Setter
     private boolean moving;
     @Getter @Setter
-    private boolean guiOpened;
+    private boolean overlayFocused;
 
     public VRLocalPlayerImpl() {
         this.roomRelativePose = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
@@ -188,7 +188,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         );
 
         this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
-        this.guiOpened = MC.screen != null || ClientContext.cursorHandler.isAnyHandFocused(false);
+        this.overlayFocused = MC.screen != null || ClientContext.cursorHandler.isAnyHandFocused(false);
 
         ClientNetworking.sendVRPlayerState();
 

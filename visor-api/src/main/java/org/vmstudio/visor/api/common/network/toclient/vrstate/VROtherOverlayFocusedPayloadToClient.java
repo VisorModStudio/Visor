@@ -6,19 +6,19 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
 import java.util.UUID;
 
-public record VROtherGuiStatePayloadToClient(UUID playerUUID, boolean guiOpened) implements VisorPayloadToClient {
+public record VROtherOverlayFocusedPayloadToClient(UUID playerUUID, boolean overlayFocused) implements VisorPayloadToClient {
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
-        buffer.writeBoolean(guiOpened);
+        buffer.writeBoolean(overlayFocused);
     }
 
     @Override
     public byte payloadId() {
-        return VisorCorePayloadID.OTHER_VR_GUI_STATE.byteOrdinal();
+        return VisorCorePayloadID.OTHER_VR_OVERLAY_FOCUSED.byteOrdinal();
     }
 
-    public static VROtherGuiStatePayloadToClient read(FriendlyByteBuf buffer) {
-        return new VROtherGuiStatePayloadToClient(buffer.readUUID(), buffer.readBoolean());
+    public static VROtherOverlayFocusedPayloadToClient read(FriendlyByteBuf buffer) {
+        return new VROtherOverlayFocusedPayloadToClient(buffer.readUUID(), buffer.readBoolean());
     }
 }

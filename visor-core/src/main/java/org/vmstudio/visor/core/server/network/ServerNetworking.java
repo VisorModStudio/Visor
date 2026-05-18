@@ -28,8 +28,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
-
 public class ServerNetworking {
     public static VisorChannel DEDICATED_CHANNEL;
     private static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -124,7 +122,7 @@ public class ServerNetworking {
         var worldScale = vrPlayer.getWorldScale();
         var fullHeight = vrPlayer.getFullHeight();
         var gunAngle = vrPlayer.getGunAngle();
-        boolean guiOpened = vrPlayer.isGuiOpened();
+        boolean overlayFocused = vrPlayer.isOverlayFocused();
 
         // Pose data
         sendPacketToConnections(
@@ -147,7 +145,7 @@ public class ServerNetworking {
                 trackerConnection.send(createVRPacket(new VROtherWorldScalePayloadToClient(uuid, worldScale)));
                 trackerConnection.send(createVRPacket(new VROtherFullHeightPayloadToClient(uuid, fullHeight)));
                 trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
-                trackerConnection.send(createVRPacket(new VROtherGuiStatePayloadToClient(uuid, guiOpened)));
+                trackerConnection.send(createVRPacket(new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)));
             }
         }
 
@@ -199,13 +197,13 @@ public class ServerNetworking {
             vrPlayer.setGunAngleLastSent(gunAngle);
         }
 
-        if (guiOpened != vrPlayer.isGuiOpenedLastSent()) {
+        if (overlayFocused != vrPlayer.isOverlayFocusedLastSent()) {
             sendPacketToConnections(
                     serverPlayer, trackerConnections,
                     false, newTrackers,
-                    new VROtherGuiStatePayloadToClient(uuid, guiOpened)
+                    new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)
             );
-            vrPlayer.setGuiOpenedLastSent(guiOpened);
+            vrPlayer.setOverlayFocusedLastSent(overlayFocused);
         }
     }
 

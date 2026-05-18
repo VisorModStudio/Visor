@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
-import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
@@ -52,7 +51,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     @Getter
     private float gunAngle = VRPlayer.DEFAULT_GUN_ANGLE;
     @Getter @Setter
-    private boolean guiOpened;
+    private boolean overlayFocused;
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer) {
@@ -307,6 +306,6 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     }
 
     public void receivedGuiStatePacket(boolean opened) {
-        this.guiOpened = opened;
+        this.overlayFocused = opened;
     }
 }

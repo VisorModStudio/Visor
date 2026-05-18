@@ -4,18 +4,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 
-public record GuiStatePayloadToServer(boolean guiOpened) implements VisorPayloadToServer {
+public record OverlayFocusedPayloadToServer(boolean overlayFocused) implements VisorPayloadToServer {
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(guiOpened);
+        buffer.writeBoolean(overlayFocused);
     }
 
     @Override
     public byte payloadId() {
-        return VisorCorePayloadID.GUI_STATE.byteOrdinal();
+        return VisorCorePayloadID.OVERLAY_FOCUSED.byteOrdinal();
     }
 
-    public static GuiStatePayloadToServer read(FriendlyByteBuf buffer) {
-        return new GuiStatePayloadToServer(buffer.readBoolean());
+    public static OverlayFocusedPayloadToServer read(FriendlyByteBuf buffer) {
+        return new OverlayFocusedPayloadToServer(buffer.readBoolean());
     }
 }

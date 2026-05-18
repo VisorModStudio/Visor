@@ -49,7 +49,7 @@ public class ClientNetworking {
     private static boolean leftHandedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
-    private static boolean guiOpenedLastSent = false;
+    private static boolean overlayFocusedLastSent = false;
 
 
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
@@ -179,12 +179,12 @@ public class ClientNetworking {
             vrBodyLastSent = vrBody;
         }
 
-        boolean guiOpened = localPlayer.isGuiOpened();
-        if(guiOpened != guiOpenedLastSent){
+        boolean overlayFocused = localPlayer.isOverlayFocused();
+        if(overlayFocused != overlayFocusedLastSent){
             sendVRPacket(
-                    new GuiStatePayloadToServer(guiOpened)
+                    new OverlayFocusedPayloadToServer(overlayFocused)
             );
-            guiOpenedLastSent = guiOpened;
+            overlayFocusedLastSent = overlayFocused;
         }
 
 
@@ -223,7 +223,7 @@ public class ClientNetworking {
         vrBodyLastSent = null;
         activeHandLastSent = HandType.MAIN;
         rotationYLastSent = 0;
-        guiOpenedLastSent = false;
+        overlayFocusedLastSent = false;
         VRClientPlayers.dispose();
     }
 

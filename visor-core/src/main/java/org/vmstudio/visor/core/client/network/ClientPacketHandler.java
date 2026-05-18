@@ -1,11 +1,8 @@
 package org.vmstudio.visor.core.client.network;
 
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.common.network.VisorChannel;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
-import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
@@ -17,8 +14,6 @@ import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.common.ServerConfig;
 import net.minecraft.client.Minecraft;
-import org.vmstudio.visor.core.common.addon.CoreAddonClient;
-import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 
 public class ClientPacketHandler {
@@ -64,14 +59,14 @@ public class ClientPacketHandler {
                                 payload.destroyStage()
                         );
             }
-            case OTHER_VR_GUI_STATE -> {
-                var payload = (VROtherGuiStatePayloadToClient) payloadClient;
+            case OTHER_VR_OVERLAY_FOCUSED -> {
+                var payload = (VROtherOverlayFocusedPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
                 if(remotePlayer == null){
                     return;
                 }
                 var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedGuiStatePacket(payload.guiOpened());
+                vrPlayer.receivedGuiStatePacket(payload.overlayFocused());
             }
             case OTHER_VR_POSE_DATA -> {
                 var payload = (VROtherPoseDataPayloadToClient) payloadClient;
