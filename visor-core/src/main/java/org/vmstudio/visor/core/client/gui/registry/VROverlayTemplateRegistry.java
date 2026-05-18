@@ -13,11 +13,12 @@ import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.client.VisorClientImpl;
 
 
 import java.util.*;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
+
 public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTemplateRecord> {
     private static final String REGISTRY_NAME = "VR Overlay Templates";
 
@@ -39,12 +40,12 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
                 path
         );
 
-        LOGGER.info("Found {} {} to register in addon: '{}'",
+        VisorClientImpl.LOGGER.info("Found {} {} to register in addon: '{}'",
                 annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VROverlayTemplate.class.isAssignableFrom(clazz)) {
-                LOGGER.warn(
+                VisorClientImpl.LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
                         clazz.getName(), ANNOTATION_NAME, "VROverlayTemplate"
                 );
@@ -73,7 +74,7 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
                 );
                 registerComponent(component);
             } catch (Exception e) {
-                LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
+                VisorClientImpl.LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
                 // continue registering other components
             }
@@ -97,7 +98,7 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
         var previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {
-            LOGGER.info(
+            VisorClientImpl.LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
                     COMPONENT_NAME,
                     previous.getId(),
@@ -105,7 +106,7 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
             );
 
         }else{
-            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
+            VisorClientImpl.LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
     }
 
@@ -113,7 +114,7 @@ public class VROverlayTemplateRegistry implements ComponentRegistry<VROverlayTem
     public VROverlayTemplateRecord unregisterComponent(@NotNull String id) {
         var removed = componentsMap.remove(id);;
         if(removed != null) {
-            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
+            VisorClientImpl.LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;
     }

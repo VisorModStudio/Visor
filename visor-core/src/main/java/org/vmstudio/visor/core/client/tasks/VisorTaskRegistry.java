@@ -11,12 +11,12 @@ import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.client.VisorClientImpl;
 
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
 
 public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
 
@@ -66,12 +66,12 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
                 path
         );
 
-        LOGGER.info("Found {} {} to register in addon: '{}'",
+        VisorClientImpl.LOGGER.info("Found {} {} to register in addon: '{}'",
                 annotated.size(), COMPONENT_NAME, addon.getAddonId());
 
         for (Class<?> clazz : annotated) {
             if (!VisorTask.class.isAssignableFrom(clazz)) {
-                LOGGER.warn(
+                VisorClientImpl.LOGGER.warn(
                         "{} is annotated with {} but does not implement {}",
                         clazz.getName(), ANNOTATION_NAME, COMPONENT_NAME
                 );
@@ -88,7 +88,7 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
                 registerComponent(component);
 
             } catch (Exception e) {
-                LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
+                VisorClientImpl.LOGGER.error("Failed to register {} from class: {}", COMPONENT_NAME, clazz.getName());
                 LoggerUtils.printError(e);
                 // continue registering other components
             }
@@ -110,7 +110,7 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
         VisorTask previous = componentsMap.put(component.getId(), component);
 
         if (previous != null) {
-            LOGGER.info(
+            VisorClientImpl.LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
                     COMPONENT_NAME,
                     previous.getId(),
@@ -127,7 +127,7 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
         Collections.sort(newList);
 
         if(previous == null){
-            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
+            VisorClientImpl.LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
     }
 
@@ -138,7 +138,7 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
             List<VisorTask> list = componentsByType.get(removed.getType());
             list.remove(removed);
             Collections.sort(list);
-            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
+            VisorClientImpl.LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;
     }

@@ -8,11 +8,11 @@ import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.client.VisorClientImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.mojang.text2speech.Narrator.LOGGER;
 
 
 public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
@@ -62,7 +62,7 @@ public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
 
 
         if (previous != null) {
-            LOGGER.info(
+            VisorClientImpl.LOGGER.info(
                     "Overriding existing {}: '{}' from addon '{}'",
                     COMPONENT_NAME,
                     previous.getId(),
@@ -71,7 +71,7 @@ public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
             sortedComponents.remove(previous);
 
         }else{
-            LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
+            VisorClientImpl.LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
         }
         sortedComponents.add(component);
         Collections.sort(sortedComponents);
@@ -90,7 +90,7 @@ public class VROverlayRegistry implements ComponentRegistry<VROverlay> {
                 ClientContext.settingsManager.getOverlayConfigsAccessor()
                         .removeConfig(removed.getId());
             }
-            LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
+            VisorClientImpl.LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
 
         return removed;
