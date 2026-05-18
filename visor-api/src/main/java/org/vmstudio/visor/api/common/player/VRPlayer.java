@@ -97,4 +97,10 @@ public interface VRPlayer {
         return getFullHeight() / 1.52f;
     }
 
+    /**
+     * Whether the player currently has a GUI open
+     *
+     * @return true when a GUI is active
+     */
+    boolean isGuiOpened();
 }

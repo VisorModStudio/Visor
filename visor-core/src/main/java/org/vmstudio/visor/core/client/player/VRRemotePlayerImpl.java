@@ -51,6 +51,8 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
 
     @Getter
     private float gunAngle = VRPlayer.DEFAULT_GUN_ANGLE;
+    @Getter @Setter
+    private boolean guiOpened;
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
                               PoseDataBuffer poseBuffer) {
@@ -302,5 +304,9 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     @Override
     public @NotNull HandType getActiveHand() {
         return HandType.MAIN;
+    }
+
+    public void receivedGuiStatePacket(boolean opened) {
+        this.guiOpened = opened;
     }
 }

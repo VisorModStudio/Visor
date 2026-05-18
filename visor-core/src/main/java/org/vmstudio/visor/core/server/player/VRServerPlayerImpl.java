@@ -63,6 +63,10 @@ public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerP
     private float fullHeightLastSent = 1.0F;
     @Setter
     private float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
+    @Setter
+    private boolean guiOpened;
+    @Setter
+    private boolean guiOpenedLastSent;
 
     private final Set<UUID> knownTrackers = new HashSet<>();
 

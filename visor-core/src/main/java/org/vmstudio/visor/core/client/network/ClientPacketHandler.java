@@ -64,6 +64,15 @@ public class ClientPacketHandler {
                                 payload.destroyStage()
                         );
             }
+            case OTHER_VR_GUI_STATE -> {
+                var payload = (VROtherGuiStatePayloadToClient) payloadClient;
+                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
+                if(remotePlayer == null){
+                    return;
+                }
+                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
+                vrPlayer.receivedGuiStatePacket(payload.guiOpened());
+            }
             case OTHER_VR_POSE_DATA -> {
                 var payload = (VROtherPoseDataPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());

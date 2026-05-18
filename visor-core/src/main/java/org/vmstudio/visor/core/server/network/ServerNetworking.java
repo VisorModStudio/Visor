@@ -124,6 +124,7 @@ public class ServerNetworking {
         var worldScale = vrPlayer.getWorldScale();
         var fullHeight = vrPlayer.getFullHeight();
         var gunAngle = vrPlayer.getGunAngle();
+        boolean guiOpened = vrPlayer.isGuiOpened();
 
         // Pose data
         sendPacketToConnections(
@@ -146,6 +147,7 @@ public class ServerNetworking {
                 trackerConnection.send(createVRPacket(new VROtherWorldScalePayloadToClient(uuid, worldScale)));
                 trackerConnection.send(createVRPacket(new VROtherFullHeightPayloadToClient(uuid, fullHeight)));
                 trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
+                trackerConnection.send(createVRPacket(new VROtherGuiStatePayloadToClient(uuid, guiOpened)));
             }
         }
 
@@ -195,6 +197,15 @@ public class ServerNetworking {
                     new VROtherGunAnglePayloadToClient(uuid, gunAngle)
             );
             vrPlayer.setGunAngleLastSent(gunAngle);
+        }
+
+        if (guiOpened != vrPlayer.isGuiOpenedLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherGuiStatePayloadToClient(uuid, guiOpened)
+            );
+            vrPlayer.setGuiOpenedLastSent(guiOpened);
         }
     }
 

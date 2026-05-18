@@ -49,6 +49,7 @@ public class ClientNetworking {
     private static boolean leftHandedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
+    private static boolean guiOpenedLastSent = false;
 
 
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
@@ -178,6 +179,14 @@ public class ClientNetworking {
             vrBodyLastSent = vrBody;
         }
 
+        boolean guiOpened = localPlayer.isGuiOpened();
+        if(guiOpened != guiOpenedLastSent){
+            sendVRPacket(
+                    new GuiStatePayloadToServer(guiOpened)
+            );
+            guiOpenedLastSent = guiOpened;
+        }
+
 
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
                 localPlayer
@@ -214,6 +223,7 @@ public class ClientNetworking {
         vrBodyLastSent = null;
         activeHandLastSent = HandType.MAIN;
         rotationYLastSent = 0;
+        guiOpenedLastSent = false;
         VRClientPlayers.dispose();
     }
 
