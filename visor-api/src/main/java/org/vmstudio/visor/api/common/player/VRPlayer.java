@@ -39,6 +39,15 @@ public interface VRPlayer {
     @NotNull
     VRPoseHistory getPoseHistoryTick();
 
+    /**
+     * Whether this is a remote player, i.e. another player
+     * tracked on the local client.
+     *
+     * @return true/false
+     */
+    default boolean isRemote() {
+        return false;
+    }
 
     /**
      * The gun angle is used for item pose
@@ -103,4 +112,6 @@ public interface VRPlayer {
      * @return true when an overlay is active
      */
     boolean isOverlayFocused();
+
+
 }

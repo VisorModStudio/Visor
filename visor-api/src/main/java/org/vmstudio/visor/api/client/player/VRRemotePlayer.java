@@ -12,6 +12,8 @@ public interface VRRemotePlayer extends VRClientPlayer{
      */
     @NotNull RemotePlayer getMcPlayer();
 
-
-
+    @Override
+    default boolean isRemote() {
+        return true;
+    }
 }

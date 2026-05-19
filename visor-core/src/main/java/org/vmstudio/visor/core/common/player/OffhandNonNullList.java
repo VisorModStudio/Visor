@@ -30,7 +30,9 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
     @Override
     public ItemStack get(int i) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR()){
+        if(vrPlayer == null || useVanilla
+                || !VRServerSettings.isTwoHandedVR()
+                || vrPlayer.isRemote()){
             return super.get(i);
         }
         if (vrPlayer.getOffhandSlot() < 0) {
@@ -44,7 +46,7 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
     @Override
     public @NotNull ItemStack set(int i, @NotNull ItemStack itemStack) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if (vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR()){
+        if (vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR() || vrPlayer.isRemote()){
             return super.set(i, itemStack);
         }
 
@@ -55,7 +57,9 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
     @Override
     public void add(int i, ItemStack object) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR()){
+        if(vrPlayer == null || useVanilla
+                || !VRServerSettings.isTwoHandedVR()
+                || vrPlayer.isRemote()){
             super.add(i, object);
         }
     }
@@ -63,7 +67,9 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
     @Override
     public ItemStack remove(int i) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR()){
+        if(vrPlayer == null || useVanilla
+                || !VRServerSettings.isTwoHandedVR()
+                || vrPlayer.isRemote()){
             return super.remove(i);
         }
 
@@ -73,7 +79,9 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
     @Override
     public void clear() {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
-        if(vrPlayer == null || useVanilla || !VRServerSettings.isTwoHandedVR()){
+        if(vrPlayer == null || useVanilla
+                || !VRServerSettings.isTwoHandedVR()
+                || vrPlayer.isRemote()){
             super.clear();
         }
     }
