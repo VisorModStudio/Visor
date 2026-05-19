@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.player;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.joml.*;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
 import org.vmstudio.visor.api.client.player.VRRemotePlayer;
@@ -16,9 +17,6 @@ import org.vmstudio.visor.core.client.player.pose.RemotePlayerPose;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
 import net.minecraft.client.player.RemotePlayer;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 
 public class VRRemotePlayerImpl implements VRRemotePlayer {
     private final RemotePlayerPose playerRelativePose;
@@ -200,39 +198,44 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 hmdPose.getRawPosition(), partialTicks,
                 new Vector3f()
         );
-        Vector3f hmdDirPartial = prevHmdPose.getRawDirection().lerp(
-                hmdPose.getRawDirection(), partialTicks,
-                new Vector3f()
+        Quaternionf hmdQ = slerpRotation(
+                prevHmdPose.getRawRotation(),
+                hmdPose.getRawRotation(),
+                partialTicks
         );
-        Matrix4f hmdRotationPartial = prevHmdPose.getRawRotation().lerp(
-                hmdPose.getRawRotation(), partialTicks,
-                new Matrix4f()
+        Matrix4f hmdRotationPartial = hmdQ.get(new Matrix4f());
+        Vector3f hmdDirPartial = hmdQ.transform(
+                VRMathUtils.BACK_VECTOR, new Vector3f()
         );
+
         //main hand
         Vector3f mainHandPosPartial = prevMainHandPose.getRawPosition().lerp(
                 mainHandPose.getRawPosition(), partialTicks,
                 new Vector3f()
         );
-        Vector3f mainHandDirPartial = prevMainHandPose.getRawDirection().lerp(
-                mainHandPose.getRawDirection(), partialTicks,
-                new Vector3f()
+        Quaternionf mainHandQ = slerpRotation(
+                prevMainHandPose.getRawRotation(),
+                mainHandPose.getRawRotation(),
+                partialTicks
         );
-        Matrix4f mainHandRotationPartial = prevMainHandPose.getRawRotation().lerp(
-                mainHandPose.getRawRotation(), partialTicks,
-                new Matrix4f()
+        Matrix4f mainHandRotationPartial = mainHandQ.get(new Matrix4f());
+        Vector3f mainHandDirPartial = mainHandQ.transform(
+                VRMathUtils.BACK_VECTOR, new Vector3f()
         );
+
         //offhand
         Vector3f offhandPosPartial = prevOffhandPose.getRawPosition().lerp(
                 offhandPose.getRawPosition(), partialTicks,
                 new Vector3f()
         );
-        Vector3f offhandDirPartial = prevOffhandPose.getRawDirection().lerp(
-                offhandPose.getRawDirection(), partialTicks,
-                new Vector3f()
+        Quaternionf offhandQ = slerpRotation(
+                prevOffhandPose.getRawRotation(),
+                offhandPose.getRawRotation(),
+                partialTicks
         );
-        Matrix4f offhandRotationPartial = prevOffhandPose.getRawRotation().lerp(
-                offhandPose.getRawRotation(), partialTicks,
-                new Matrix4f()
+        Matrix4f offhandRotationPartial = offhandQ.get(new Matrix4f());
+        Vector3f offhandDirPartial = offhandQ.transform(
+                VRMathUtils.BACK_VECTOR, new Vector3f()
         );
 
         //Applying
@@ -249,6 +252,16 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 originPartial,
                 worldScalePartial
         );
+    }
+
+    private static Quaternionf slerpRotation(Matrix4fc from,
+                                             Matrix4fc to,
+                                             float t) {
+        Quaternionf q0 = from.getNormalizedRotation(new Quaternionf());
+        Quaternionf q1 = to.getNormalizedRotation(new Quaternionf());
+        // JOML slerp picks the shortest arc (handles dot<0) and
+        // falls back to nlerp when the rotations are near-parallel.
+        return q0.slerp(q1, t).normalize();
     }
 
 

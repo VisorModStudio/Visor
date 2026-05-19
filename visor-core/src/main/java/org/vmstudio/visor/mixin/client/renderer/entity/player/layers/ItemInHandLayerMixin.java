@@ -8,10 +8,13 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,6 +24,7 @@ import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -82,12 +86,40 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
                 .visor$getEquipProgress(mcHand, MC.getFrameTime());
 
+        //@TODO rework this since the change is globally applied and might be a problem for addons to work with
         if (!VRRenderState.isSelfModelRender(entity)) {
             VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
             if (vrPlayer != null) {
                 VRPose handPose = vrPlayer.getPoseData(PlayerPoseType.RENDER)
                         .getBody().getHand(hand).getPose();
-                poseStack.mulPose(Axis.ZP.rotation(-handPose.getRoll()));
+                Vector3f aim = new Vector3f(handPose.getDirection());
+                if (aim.lengthSquared() > 1.0e-8f) {
+                    aim.normalize();
+
+                    Vector3f refUp = new Vector3f(VRMathUtils.UP_VECTOR);
+                    refUp.sub(new Vector3f(aim).mul(refUp.dot(aim)));
+                    if (refUp.lengthSquared() < 1.0e-6f) {
+                        // Aim ~vertical: fall back to world-forward reference.
+                        refUp.set(VRMathUtils.FORWARD_VECTOR);
+                        refUp.sub(new Vector3f(aim).mul(refUp.dot(aim)));
+                    }
+                    refUp.normalize();
+
+                    // Controller's actual up, projected perpendicular to aim.
+                    Vector3f ctrlUp = handPose.getCustomVector(VRMathUtils.UP_VECTOR);
+                    ctrlUp.sub(new Vector3f(aim).mul(ctrlUp.dot(aim)));
+
+                    if (ctrlUp.lengthSquared() > 1.0e-8f) {
+                        ctrlUp.normalize();
+
+                        // Signed angle refUp -> ctrlUp about the aim axis.
+                        float cos = Mth.clamp(refUp.dot(ctrlUp), -1.0f, 1.0f);
+                        float sin = new Vector3f(refUp).cross(ctrlUp).dot(aim);
+                        float roll = (float) Math.atan2(sin, cos);
+
+                        poseStack.mulPose(Axis.ZP.rotation(-roll));
+                    }
+                }
             }
         }
 
