@@ -7,9 +7,11 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.player.VRPose;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.server.VRServerSettings;
 
 public interface VRLocalPlayer extends VRClientPlayer{
 
@@ -76,6 +78,7 @@ public interface VRLocalPlayer extends VRClientPlayer{
     boolean isClimbing(@NotNull HandType handType);
 
 
+
     /**
      * Get Raw Hmd
      *
@@ -91,5 +94,17 @@ public interface VRLocalPlayer extends VRClientPlayer{
      */
     RawController getRawController(@NotNull HandType type);
 
+
+    /**
+     * Set the inventory hotbar slot used as the VR offhand slot.
+     * <p>
+     *     Only applies when two-handed VR gameplay is supported
+     *     ({@link VRServerSettings#isTwoHandedVR()}).
+     * </p>
+     *
+     * @param slot hotbar slot index in {@code [0, 9)}, or {@code -1} to clear
+     * @see VRPlayer#getOffhandSlot()
+     */
+    void setOffhandSlot(int slot);
 
 }

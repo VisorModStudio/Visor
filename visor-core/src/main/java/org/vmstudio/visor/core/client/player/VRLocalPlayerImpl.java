@@ -487,6 +487,18 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         return ClientContext.rawPoseHandler.getControllerData(type);
     }
 
+    @Override
+    public void setOffhandSlot(int slot) {
+        if (!VRServerSettings.isTwoHandedVR()) {
+            return;
+        }
+        if (slot != TaskHotBar.NOT_SELECTED
+                && (slot < 0 || slot >= 9)) {
+            return;
+        }
+        TaskHotBar.getInstance().setOffhandSlot(slot);
+    }
+
 
     @Override
     public @NotNull VRPose getRotationElement(@NotNull PlayerPoseType poseType){

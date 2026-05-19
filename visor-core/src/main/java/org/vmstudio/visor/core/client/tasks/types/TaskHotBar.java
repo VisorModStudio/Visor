@@ -59,8 +59,9 @@ public class TaskHotBar extends VisorTask {
         if(slot == slotOffhand){
             return;
         }
-        onClear(MC.player);
         slotOffhand = slot;
+        slotMainBack = NULL;
+        slotOffhandBack = NULL;
         if(slotMain == slotOffhand){
             handleSlotCollision(HandType.MAIN, false);
         }
