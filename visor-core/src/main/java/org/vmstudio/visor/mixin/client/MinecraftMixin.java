@@ -137,10 +137,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V"), method = "runTick")
     public void visor$preTick(CallbackInfo ci) {
-        if (VisorState.get().isActive()) {
+        if(ClientContext.visor != null) {
             ClientContext.visor.preTickVR();
-        } else {
-            VRClientPlayers.preTickRemote();
         }
     }
 
@@ -151,10 +149,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      */
     @Inject(at = @At("HEAD"), method = "tick()V")
     public void visor$tick(CallbackInfo info) {
-        if (VisorState.get().isActive()) {
+        if(ClientContext.visor != null) {
             ClientContext.visor.tickVR();
-        } else {
-            VRClientPlayers.tick();
         }
     }
 
@@ -165,10 +161,8 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;tick()V", shift = Shift.AFTER), method = "runTick")
     public void visor$postTick(CallbackInfo ci) {
-        if (VisorState.get().isActive()) {
+        if(ClientContext.visor != null) {
             ClientContext.visor.postTickVR();
-        } else {
-            VRClientPlayers.postTickRemote();
         }
     }
 
@@ -187,27 +181,22 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     @Inject(at = @At("HEAD"), method = "runTick(Z)V")
     public void visor$runVR(boolean tick, CallbackInfo callback) {
         VisorState.updateState();
-        if (VisorState.get().isActive()) {
-            ++VisorState.FRAME_COUNT;
-
+        if(ClientContext.visor != null) {
             ClientContext.visor
                     .onGameLoopStart();
-
         }
     }
 
     @Inject(method = "runTick", at = @At(value = "CONSTANT", args = "stringValue=render"))
     public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
-        if (VisorState.get().isActive()) {
-
+        if(ClientContext.visor != null) {
             ClientContext.visor
-                    .preRenderVR(new PreRenderContext(
-                            profiler, tick,
-                            visor$getPartialTicks()
-                    ));
-
-        } else {
-            VRClientPlayers.preRenderRemote(visor$getPartialTicks());
+                    .preRenderVR(
+                            new PreRenderContext(
+                                    profiler, tick,
+                                    visor$getPartialTicks()
+                            )
+                    );
         }
     }
 
@@ -242,9 +231,10 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      */
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
-        if (VisorState.get().isActive()) {
+        if (ClientContext.visor != null) {
             ClientContext.visor
-                    .renderVR(new RenderContext(
+                    .renderVR(
+                            new RenderContext(
                                     profiler,
                                     renderLevel,
                                     nanoTime,

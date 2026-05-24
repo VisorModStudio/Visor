@@ -32,7 +32,7 @@ public abstract class ThrowableProjectileMixin extends Entity {
             return;
         }
         VRServerPlayer vrPlayer = VisorAPI.server()
-                .getVrPlayer(player);
+                .getVRPlayer(player);
         if (vrPlayer == null) {
             return;
         }

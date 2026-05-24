@@ -43,7 +43,7 @@ public abstract class AbstractArrowMixin extends Entity {
            return;
         }
         VRServerPlayer vrPlayer = VisorAPI.server()
-                .getVrPlayer(player);
+                .getVRPlayer(player);
         if (vrPlayer == null) {
             return;
         }
@@ -68,7 +68,7 @@ public abstract class AbstractArrowMixin extends Entity {
             return;
         }
         VRServerPlayer serverPlayer = VisorAPI.server()
-                .getVrPlayer(owner);
+                .getVRPlayer(owner);
         if (serverPlayer == null){
             return;
         }

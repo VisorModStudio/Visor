@@ -13,9 +13,6 @@ import org.vmstudio.visor.api.common.eventbus.event.VREvent;
  * Fired at each {@link RenderPipelineStage} during a VR render pipeline,
  * after Visor's core drawing for that stage has finished.
  *
- * <p>
- *     Not fired during {@link RenderPhase#VANILLA}.
- * </p>
  */
 @Getter
 public class RenderPipelineStageVREvent extends VREvent {

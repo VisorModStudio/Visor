@@ -20,7 +20,7 @@ public class ThrownTridentMixin {
             return eyePosition;
         }
         VRServerPlayer vrPlayer = VisorAPI.server()
-                .getVrPlayer(player);
+                .getVRPlayer(player);
         if (vrPlayer == null) {
             return eyePosition;
         }

@@ -5,14 +5,15 @@ import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.eventbus.event.VREvent;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.api.server.player.VisorServerPlayer;
 
 @Getter
-public class VRPlayerJoinedVREvent extends VREvent {
+public class VisorPlayerJoinedVREvent extends VREvent {
 
     @NotNull
-    private final VRServerPlayer player;
+    private final VisorServerPlayer player;
 
-    public VRPlayerJoinedVREvent(@NotNull VRServerPlayer player) {
+    public VisorPlayerJoinedVREvent(@NotNull VisorServerPlayer player) {
         super(VisorAPI.addonManager().getCoreAddon());
         this.player = player;
     }

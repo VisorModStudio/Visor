@@ -21,16 +21,16 @@ import org.vmstudio.visor.core.client.VisorState;
 public class FlashbackScreenMixin {
     @Inject(method = "<init>", at = @At("RETURN"), remap = false)
     private void visor$stopIllegalFlashbackEntry(CallbackInfo ci) {
-        if (!VisorState.get().isActive()) return;
+        if (!VisorState.get().isInitialized()) return;
 
         Minecraft.getInstance().tell(() -> {
             Minecraft.getInstance().setScreen(new AlertScreen(
                     () -> Minecraft.getInstance().setScreen(null),
-                    Component.literal("§cVR Mode not supported for Flashback"),
-                    Component.literal("Replay viewing and editing is disabled in VR due to incompatibility issues.\n\n" +
-                            "Recording from VR works fine, but please switch back to PC in the main menu to view or edit replays.")
+                    Component.literal("§cReplay editor is disabled in VR mode or WORLD_ONLY playMode"),
+                    Component.literal("Replay editing is disabled in VR.\n" +
+                            "Please switch back to PC (NonVR to use Replay editor")
             ));
         });
-        System.err.println("[Visor] Blocked attempt to enter Flashback screen while VR is active");
+        System.err.println("[Visor] Blocked attempt to enter Replay editor screen while in VR or WORLD_ONLY playMode");
     }
 }

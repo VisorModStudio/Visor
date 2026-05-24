@@ -33,7 +33,7 @@ public abstract class FishingHookMixin extends Entity {
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 0)
     private float visor$vrRotationX(float xRot, Player player) {
-        visor$vrPlayer = VisorAPI.server().getVrPlayer(
+        visor$vrPlayer = VisorAPI.server().getVRPlayer(
                 (ServerPlayer) player
         );
         if (visor$vrPlayer == null) {

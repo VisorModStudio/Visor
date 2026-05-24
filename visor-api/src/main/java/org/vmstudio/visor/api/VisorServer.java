@@ -7,8 +7,10 @@ import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.server.player.VisorServerPlayer;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Access point for server part of the Visor
@@ -17,31 +19,45 @@ public interface VisorServer {
 
 
     /**
-     * Returns true if specified player is registered
-     * in server core, i.e. has VR mod
-     * <p>
-     * Registering happens when mod receives VR-packet
-     * from player when he logs in
-     * </p>
+     * Get player as VisorServerPlayer
      *
-     * @return If player has VR mod
-     */
-    boolean isVRPlayer(@NotNull ServerPlayer player);
-
-    /**
-     * Returns VRServerPlayer instance if specified player
-     * is registered in server core, i.e. has VR mod.
-     * Otherwise, NULL is returned
-     * <p>
-     * Registering happens when mod receives VR-packet
-     * from player when he logs in
-     * </p>
-     *
-     * @return VR server player instance
-     * or NULL if player don't have VR mod
+     * @return Visor server player instance or NULL if player don't have Visor
      */
     @Nullable
-    VRServerPlayer getVrPlayer(@NotNull ServerPlayer player);
+    VisorServerPlayer getVisorPlayer(@NotNull ServerPlayer mcPlayer);
+
+    /**
+     * Get player as VisorServerPlayer
+     *
+     * @return Visor server player instance or NULL if player don't have Visor
+     */
+    @Nullable
+    VisorServerPlayer getVisorPlayer(@NotNull UUID playerUuid);
+
+
+    /**
+     * Get player as VRServerPlayer
+     *
+     * @return VR server player instance or NULL if player don't have Visor or not in VR
+     */
+    @Nullable
+    default VRServerPlayer getVRPlayer(@NotNull ServerPlayer mcPlayer){
+        var visorPlayer = getVisorPlayer(mcPlayer);
+        if(visorPlayer == null) return null;
+        return visorPlayer.asVR();
+    }
+
+    /**
+     * Get player as VRServerPlayer
+     *
+     * @return VR server player instance or NULL if player don't have Visor or not in VR
+     */
+    @Nullable
+    default VRServerPlayer getVRPlayer(@NotNull UUID playerUuid){
+        var visorPlayer = getVisorPlayer(playerUuid);
+        if(visorPlayer == null) return null;
+        return visorPlayer.asVR();
+    }
 
     /**
      * Get all VR server players
@@ -49,7 +65,8 @@ public interface VisorServer {
      * @return VR server players collection
      */
     @NotNull
-    Collection<VRServerPlayer> getVrPlayers();
+    Collection<? extends VisorServerPlayer> getAllVisorPlayers();
+
 
     /**
      * @return If in dedicated server environment

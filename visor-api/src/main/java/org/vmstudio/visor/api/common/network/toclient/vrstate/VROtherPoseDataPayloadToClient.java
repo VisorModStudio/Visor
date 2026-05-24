@@ -8,17 +8,13 @@ import net.minecraft.network.FriendlyByteBuf;
 import java.util.UUID;
 
 public record VROtherPoseDataPayloadToClient(UUID playerUUID,
-                                             PoseDataBuffer pose,
-                                             float worldScale,
-                                             float fullHeight) implements VisorPayloadToClient {
+                                             PoseDataBuffer pose) implements VisorPayloadToClient {
 
 
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
         pose.serialize(buffer);
-        buffer.writeFloat(worldScale);
-        buffer.writeFloat(fullHeight);
     }
 
     @Override
@@ -31,13 +27,9 @@ public record VROtherPoseDataPayloadToClient(UUID playerUUID,
     public static VROtherPoseDataPayloadToClient read(FriendlyByteBuf buffer) {
         UUID playerUUID = buffer.readUUID();
         var pose = PoseDataBuffer.deserialize(buffer);
-        float worldScale = buffer.readFloat();
-        float fullHeight = buffer.readFloat();
         return new VROtherPoseDataPayloadToClient(
                 playerUUID,
-                pose,
-                worldScale,
-                fullHeight
+                pose
         );
     }
 }

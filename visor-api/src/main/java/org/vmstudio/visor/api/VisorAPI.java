@@ -2,13 +2,10 @@ package org.vmstudio.visor.api;
 
 
 import lombok.Getter;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.vmstudio.visor.api.client.VRPlayMode;
-import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
-import org.vmstudio.visor.api.client.render.RenderPhase;
-import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.AddonManager;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
@@ -20,7 +17,9 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.api.common.player.VisorPlayer;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.api.server.player.VisorServerPlayer;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -126,6 +125,26 @@ public interface VisorAPI {
 
 
     /**
+     * Get Visor player interface that may represent
+     * {@link VisorServerPlayer} or {@link VRClientPlayer}
+     *
+     * @param mcPlayer the minecraft player instance
+     * @return the Visor player
+     */
+    @Nullable
+    static VisorPlayer getVisorPlayer(@NotNull Player mcPlayer){
+        if(mcPlayer instanceof ServerPlayer serverPlayer){
+            var server = VisorAPI.server();
+            return server != null ? server.getVisorPlayer(serverPlayer) : null;
+        }
+        if(ModLoader.get().isDedicatedServer()){
+            return null;
+        }else {
+            return client().getVRPlayer(mcPlayer.getUUID());
+        }
+    }
+
+    /**
      * Get VR player interface that may represent
      * {@link VRServerPlayer} or {@link VRClientPlayer}
      *
@@ -134,9 +153,12 @@ public interface VisorAPI {
      */
     @Nullable
     static VRPlayer getVRPlayer(@NotNull Player mcPlayer){
-        if(Instance.vrPlayerFunction == null) return null;
-        return Instance.vrPlayerFunction.apply(mcPlayer);
+        var visorPlayer = getVisorPlayer(mcPlayer);
+        if(visorPlayer == null) return null;
+        return visorPlayer.asVR();
     }
+
+
 
     /**
      * Get the Visor Addon manager.
@@ -159,7 +181,6 @@ public interface VisorAPI {
     }
 
 
-    //REGISTER ADDON
 
     @ApiStatus.Internal
     final class Instance {
@@ -177,7 +198,6 @@ public interface VisorAPI {
 
         private static VisorServer server;
 
-        private static Function<Player, VRPlayer> vrPlayerFunction;
         private static AddonManager addonManager;
         private static VREventBus eventBus;
 
@@ -202,10 +222,6 @@ public interface VisorAPI {
             Instance.server = api;
         }
 
-        @ApiStatus.Internal
-        public static void setVrPlayerSupplier(final Function<Player, VRPlayer> api) {
-            Instance.vrPlayerFunction = api;
-        }
         @ApiStatus.Internal
         public static void setAddonManager(final AddonManager api) {
             Instance.addonManager = api;

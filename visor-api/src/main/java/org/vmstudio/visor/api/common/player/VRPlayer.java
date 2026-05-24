@@ -7,11 +7,9 @@ import org.vmstudio.visor.api.common.HandType;
 /**
  * The common interface for VR players, both client and server side
  */
-public interface VRPlayer {
+public interface VRPlayer extends VisorPlayer{
 
     float DEFAULT_GUN_ANGLE = 60.0F;
-
-    Player getMcPlayer();
 
     @NotNull
     VRPlayerPose getPoseDataPrevious();

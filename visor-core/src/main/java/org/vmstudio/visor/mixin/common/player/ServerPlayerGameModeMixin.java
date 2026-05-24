@@ -170,7 +170,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                     "packet while this feature is disabled!");
             return;
         }
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         if (vrPlayer == null) return;
 
         double dist = this.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(blockPos));
@@ -429,7 +429,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     @Unique
     private boolean visor$isBetterSwingingNotActive() {
         if (!VRServerSettings.isBetterSwinging()) return true;
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         return vrPlayer == null;
     }
 }

@@ -1,19 +1,22 @@
 package org.vmstudio.visor.compatibility.replaymod;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.Packet;
 import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.api.common.utils.LoggerUtils;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ReplayCompatHelper {
     private static final String MOD_ID = "replaymod";
 
-    private static boolean reflectionInitialized;
-    private static boolean reflectionFailed;
+    private static boolean INITIALIZED = false;
+    private static boolean INIT_ERROR = false;
 
-    private static Field instanceField;
-    private static Method getReplayHandlerMethod;
+    private static Method getRecordingEventHandlerMethod;
+    private static Method onPacketMethod;
+
 
     private ReplayCompatHelper() {
         throw new UnsupportedOperationException("Utility class");
@@ -23,43 +26,36 @@ public class ReplayCompatHelper {
         return ModLoader.get().isModLoaded(MOD_ID);
     }
 
-    public static boolean isPlayingReplay() {
-        if (!ensureReflection()) {
-            return false;
-        }
-
-        try {
-            Object instance = instanceField.get(null);
-            if (instance != null) {
-                Object handler = getReplayHandlerMethod.invoke(instance);
-                return handler != null;
+    public static void storePacket(Packet<?> packet) {
+        if (init()) {
+            try {
+                Object recorder = getRecordingEventHandlerMethod.invoke(
+                        Minecraft.getInstance().levelRenderer);
+                if (recorder != null) {
+                    onPacketMethod.invoke(recorder, packet);
+                }
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LoggerUtils.getLogger().error("Failed to store replaymod player data", e);
             }
-        } catch (Throwable ignored) {
         }
-
-        return false;
     }
 
-    private static boolean ensureReflection() {
-        if (!isLoaded()) {
-            return false;
+    private static boolean init() {
+        if (INITIALIZED) {
+            return !INIT_ERROR;
         }
-        if (reflectionInitialized) {
-            return !reflectionFailed;
-        }
-
-        reflectionInitialized = true;
         try {
-            Class<?> replayClass = Class.forName("com.replaymod.replay.ReplayModReplay");
-            instanceField = replayClass.getField("instance");
-            getReplayHandlerMethod = replayClass.getMethod("getReplayHandler");
+            Class<?> RecordingEventSender = Class.forName(
+                    "com.replaymod.recording.handler.RecordingEventHandler$RecordingEventSender");
+            getRecordingEventHandlerMethod = RecordingEventSender.getMethod("getRecordingEventHandler");
 
-            reflectionFailed = false;
-            return true;
-        } catch (Throwable throwable) {
-            reflectionFailed = true;
-            VisorClientImpl.LOGGER.warn("Failed to initialize ReplayMod compatibility bridge", throwable);
-            return false;
+            Class<?> RecordingEventHandler = Class.forName(
+                    "com.replaymod.recording.handler.RecordingEventHandler");
+            onPacketMethod = RecordingEventHandler.getMethod("onPacket", Packet.class);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            INIT_ERROR = true;
         }
+        INITIALIZED = true;
+        return !INIT_ERROR;
     }
 }

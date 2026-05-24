@@ -22,7 +22,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import org.vmstudio.visor.core.server.VisorServerImpl;
-import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
+import org.vmstudio.visor.core.server.player.VisorServerPlayerImpl;
 import org.vmstudio.visor.extensions.common.PlayerExtension;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.network.chat.Component;
@@ -41,9 +41,9 @@ public class ServerPacketHandler {
                                     ServerPlayer serverPlayer,
                                     Consumer<VisorPayloadToClient> packetConsumer){
 
-        VisorPacketReceiver packetReceiver = VisorServerImpl.INSTANCE.getPacketReceiver(serverPlayer);
+        VisorServerPlayerImpl packetReceiver = VisorServerImpl.INSTANCE.getVisorPlayer(serverPlayer);
 
-        VRServerPlayerImpl vrPlayer = VisorServerImpl.INSTANCE.getVrPlayer(serverPlayer);
+        VRServerPlayerImpl vrPlayer = (VRServerPlayerImpl) VisorServerImpl.INSTANCE.getVRPlayer(serverPlayer);
 
         if (vrPlayer == null) {
             if(payloadToServer.payloadId() != VisorCorePayloadID.HANDSHAKE.byteOrdinal()) {
@@ -262,7 +262,7 @@ public class ServerPacketHandler {
             return;
         }
         VRServerPlayerImpl vrPlayer;
-        VisorPacketReceiver packetReceiver;
+        VisorServerPlayerImpl packetReceiver;
         if(vrActive){
             vrPlayer = new VRServerPlayerImpl(player);
             if (VRServerSettings.isServerDebug()) {
@@ -272,7 +272,7 @@ public class ServerPacketHandler {
                         visorVersion
                 );
             }
-            VisorServerImpl.INSTANCE.addVrPlayer(vrPlayer);
+            VisorServerImpl.INSTANCE.addVisorPlayer(vrPlayer);
 
             packetConsumer.accept(
                     new HandshakePayloadToClient()
@@ -297,7 +297,7 @@ public class ServerPacketHandler {
                 );
             }
         }else{
-            packetReceiver = new VisorPacketReceiver(player);
+            packetReceiver = new VisorServerPlayerImpl(player);
             if (VRServerSettings.isServerDebug()) {
                 VisorServerImpl.LOGGER.info(
                         "NonVR: player '{}' joined with {}",
@@ -305,7 +305,7 @@ public class ServerPacketHandler {
                         visorVersion
                 );
             }
-            VisorServerImpl.INSTANCE.addPacketReceiver(packetReceiver);
+            VisorServerImpl.INSTANCE.addVisorPlayer(packetReceiver);
 
             packetConsumer.accept(
                     new HandshakePayloadToClient()

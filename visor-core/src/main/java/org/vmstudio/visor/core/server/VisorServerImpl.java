@@ -3,28 +3,27 @@ package org.vmstudio.visor.core.server;
 import lombok.Getter;
 import me.phoenixra.atumconfig.api.ConfigManager;
 import me.phoenixra.atumconfig.core.AtumConfigManager;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorServer;
 import org.vmstudio.visor.api.common.VRLogger;
 import org.vmstudio.visor.api.server.events.ServerStartedVREvent;
 import org.vmstudio.visor.api.server.events.ServerStoppedVREvent;
-import org.vmstudio.visor.api.server.events.VRPlayerJoinedVREvent;
-import org.vmstudio.visor.api.server.events.VRPlayerLeftVREvent;
+import org.vmstudio.visor.api.server.events.VisorPlayerJoinedVREvent;
+import org.vmstudio.visor.api.server.events.VisorPlayerLeftVREvent;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.api.server.player.VisorServerPlayer;
 import org.vmstudio.visor.core.common.ServerConfig;
 import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
 
-import org.vmstudio.visor.core.common.addon.CoreAddonServer;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.core.server.network.ServerNetworking;
-import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 import org.vmstudio.visor.core.server.player.VRServerPlayerImpl;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.core.server.player.VisorPacketReceiver;
+import org.vmstudio.visor.core.server.player.VisorServerPlayerImpl;
 
 import java.util.*;
 
@@ -33,11 +32,8 @@ public class VisorServerImpl implements VisorServer {
 
     public static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME+"-Server");
 
+    private final Map<UUID, VisorServerPlayerImpl> visorPlayers = new HashMap<>();
 
-    @Getter
-    private final Map<UUID, VisorPacketReceiver> visorPacketReceivers = new HashMap<>();
-    @Getter
-    private final Map<UUID, VRServerPlayer> playersWithVR = new HashMap<>();
 
     @Getter
     private ConfigManager configManager;
@@ -69,10 +65,6 @@ public class VisorServerImpl implements VisorServer {
         //init common stuff if on dedicated server
         if (ModLoader.get().isDedicatedServer()) {
 
-            VisorAPI.Instance.setVrPlayerSupplier(
-                    mcPlayer-> getVrPlayer((ServerPlayer) mcPlayer)
-            );
-
             AddonManagerImpl addonManager = (AddonManagerImpl) VisorAPI.addonManager();
             addonManager.initialize(
                     List.of()
@@ -86,8 +78,7 @@ public class VisorServerImpl implements VisorServer {
 
     }
     public void onServerStop(){
-        visorPacketReceivers.clear();
-        playersWithVR.clear();
+        visorPlayers.clear();
 
         VisorAPI.eventBus().callEvent(new ServerStoppedVREvent(this));
 
@@ -96,74 +87,51 @@ public class VisorServerImpl implements VisorServer {
         LOGGER.info("VR Server Core cleared");
     }
 
-    public VisorPacketReceiver getPacketReceiver(@NotNull ServerPlayer player) {
-        VisorPacketReceiver out = visorPacketReceivers.get(player.getUUID());
-        if(out != null && out.getMcPlayer() != player){
-            out.setMcPlayer(player);
-        }
-        return out;
-    }
     @Override
-    public VRServerPlayerImpl getVrPlayer(@NotNull ServerPlayer player) {
-        VRServerPlayerImpl out = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
+    public VisorServerPlayerImpl getVisorPlayer(@NotNull ServerPlayer player) {
+        var out = visorPlayers.get(player.getUUID());
         if(out != null && out.getMcPlayer() != player){
             out.setMcPlayer(player);
         }
         return out;
     }
 
-
-    public @NotNull Collection<VisorPacketReceiver> getPacketReceiver(){
-        return visorPacketReceivers.values();
-    }
-
     @Override
-    public @NotNull Collection<VRServerPlayer> getVrPlayers(){
-        return playersWithVR.values();
+    public @Nullable VisorServerPlayer getVisorPlayer(@NotNull UUID playerUuid) {
+        return visorPlayers.get(playerUuid);
     }
 
 
-    @Override
-    public boolean isVRPlayer(@NotNull ServerPlayer player) {
-        VRServerPlayer vrPlayer = getVrPlayer(player);
-        if (vrPlayer == null) {
-            return false;
-        }
-        return true;
+    public @NotNull Collection<? extends VisorServerPlayer> getAllVisorPlayers(){
+        return visorPlayers.values();
     }
 
-    public void addPacketReceiver(VisorPacketReceiver packetReceiver) {
-        visorPacketReceivers.put(
-                packetReceiver.getMcPlayer().getUUID(),
-                packetReceiver
+
+
+
+    public void addVisorPlayer(VisorServerPlayerImpl visorPlayer) {
+        visorPlayers.put(
+                visorPlayer.getMcPlayer().getUUID(),
+                visorPlayer
         );
-    }
-    public void addVrPlayer(VRServerPlayerImpl player) {
-        UUID uuid = player.getMcPlayer().getUUID();
-        playersWithVR.put(uuid, player);
-        visorPacketReceivers.put(uuid, player);
-        VisorAPI.eventBus().callEvent(new VRPlayerJoinedVREvent(player));
+        VisorAPI.eventBus().callEvent(new VisorPlayerJoinedVREvent(visorPlayer));
     }
 
 
 
     public void removePlayer(ServerPlayer player) {
         UUID uuid = player.getUUID();
-        VRServerPlayer existing = playersWithVR.get(uuid);
+        var existing = visorPlayers.get(uuid);
         if (existing != null) {
-            VisorAPI.eventBus().callEvent(new VRPlayerLeftVREvent(existing));
+            VisorAPI.eventBus().callEvent(new VisorPlayerLeftVREvent(existing));
         }
-        playersWithVR.remove(uuid);
-        visorPacketReceivers.remove(uuid);
+        visorPlayers.remove(uuid);
     }
     public void updateMcPlayer(ServerPlayer player) {
-        VRServerPlayerImpl vrServerPlayer = (VRServerPlayerImpl) playersWithVR.get(player.getUUID());
-        if (vrServerPlayer != null) {
-            vrServerPlayer.setMcPlayer(player);
-        }
-        VisorPacketReceiver packetReceiver = visorPacketReceivers.get(player.getUUID());
-        if (packetReceiver != null) {
-            packetReceiver.setMcPlayer(player);
+
+        var visorPlayer = visorPlayers.get(player.getUUID());
+        if (visorPlayer != null) {
+            visorPlayer.setMcPlayer(player);
         }
     }
 

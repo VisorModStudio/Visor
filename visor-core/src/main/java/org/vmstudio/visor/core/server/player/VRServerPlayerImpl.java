@@ -18,7 +18,7 @@ import java.util.UUID;
 
 
 @Getter
-public class VRServerPlayerImpl extends VisorPacketReceiver implements VRServerPlayer {
+public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServerPlayer {
 
 
 

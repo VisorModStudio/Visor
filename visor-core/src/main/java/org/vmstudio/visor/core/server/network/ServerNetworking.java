@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
+import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
@@ -74,7 +75,7 @@ public class ServerNetworking {
                 return;
             }
             VRServerPlayer vrPlayer = VisorAPI.server()
-                    .getVrPlayer(serverPlayer);
+                    .getVRPlayer(serverPlayer);
 
             if(serverPlayer.server.getPlayerList()
                     .isOp(serverPlayer.getGameProfile())){
@@ -93,8 +94,7 @@ public class ServerNetworking {
 
 
     public static void sendVRStatePacketOf(ServerPlayer serverPlayer) {
-        Map<UUID, VRServerPlayer> playersWithVR = VisorServerImpl.INSTANCE.getPlayersWithVR();
-        VRServerPlayerImpl vrPlayer = (VRServerPlayerImpl) playersWithVR.get(serverPlayer.getUUID());
+        VRServerPlayerImpl vrPlayer = (VRServerPlayerImpl) VisorServerImpl.INSTANCE.getVRPlayer(serverPlayer);
         if (vrPlayer == null) {
             return;
         }
@@ -128,7 +128,7 @@ public class ServerNetworking {
         sendPacketToConnections(
                 serverPlayer, trackerConnections,
                 false, null,
-                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer(), worldScale, fullHeight)
+                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer())
         );
 
         // ----- Send initial data to new trackers -----
@@ -216,11 +216,9 @@ public class ServerNetworking {
         Packet<?> packet = ModLoader.get().createPacketToClient(VisorNetwork.CORE_CHANNEL_ID, payload);
 
         boolean wasSentSelf = false;
-        boolean isRecordingModLoaded = ReplayCompatHelper.isLoaded()
-                || FlashbackCompatHelper.isLoaded();
         for (var pc : connections) {
             ServerPlayer player = pc.getPlayer();
-            if (player == tracked && !sendSelf && !isRecordingModLoaded) {
+            if (player == tracked && !sendSelf) {
                 wasSentSelf = true;
                 continue;
             }
@@ -229,7 +227,7 @@ public class ServerNetworking {
             }
             pc.send(packet);
         }
-        if (!wasSentSelf && (sendSelf || isRecordingModLoaded)) {
+        if (!wasSentSelf && sendSelf) {
             tracked.connection.send(packet);
         }
     }
@@ -257,7 +255,7 @@ public class ServerNetworking {
 
     public static Set<ServerPlayerConnection> getTrackedVRPlayers(ServerPlayer trackedBy) {
         ChunkMap chunkMap = trackedBy.serverLevel().getChunkSource().chunkMap;
-        var packetReceivers = VisorServerImpl.INSTANCE.getVisorPacketReceivers();
+        var vrServer = VisorServerImpl.INSTANCE;
 
         TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getTrackedEntities()
                 .get(trackedBy.getId());
@@ -266,7 +264,7 @@ public class ServerNetworking {
         }
         return entityAccessor.getPlayersTracking().stream()
                 .filter(it->
-                        packetReceivers.containsKey(it.getPlayer().getUUID())
+                        vrServer.getVisorPlayer(it.getPlayer().getUUID()) != null
                 )
                 .collect(Collectors.toSet());
     }

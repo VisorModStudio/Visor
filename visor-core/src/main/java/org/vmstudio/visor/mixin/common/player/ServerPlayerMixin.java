@@ -138,7 +138,7 @@ public abstract class ServerPlayerMixin
             return;
         }
 
-        VRServerPlayer damagerPlayer = VisorAPI.server().getVrPlayer(damager);
+        VRServerPlayer damagerPlayer = VisorAPI.server().getVRPlayer(damager);
         VRServerPlayer thisPlayer = visor$getVrPlayer();
         boolean victimHasVR;
         boolean damagerHasVR;
@@ -211,7 +211,7 @@ public abstract class ServerPlayerMixin
         }
         ci.cancel();
 
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         for (int i = 0; i < count; ++i) {
             Vec3 velocity = new Vec3(
                     ((double) this.random.nextFloat() - 0.5D) * 0.1D,
@@ -293,7 +293,7 @@ public abstract class ServerPlayerMixin
 
     @Unique
     private VRServerPlayer visor$getVrPlayer() {
-        return VisorAPI.server().getVrPlayer((ServerPlayer) (Object) this);
+        return VisorAPI.server().getVRPlayer((ServerPlayer) (Object) this);
     }
 
     @Unique

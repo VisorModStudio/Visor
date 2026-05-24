@@ -7,9 +7,8 @@ import org.vmstudio.visor.api.common.player.VRPoseHistory;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
-public interface VRServerPlayer extends VRPlayer {
-    @NotNull
-    ServerPlayer getMcPlayer();
+public interface VRServerPlayer extends VisorServerPlayer, VRPlayer {
+
 
     @NotNull PlayerPoseServer getPoseDataPrevious();
     @NotNull PlayerPoseServer getPoseDataRelative();

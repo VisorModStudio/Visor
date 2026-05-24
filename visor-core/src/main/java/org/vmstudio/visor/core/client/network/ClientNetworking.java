@@ -15,6 +15,7 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
+import org.vmstudio.visor.compatibility.RecorderModHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -77,6 +78,9 @@ public class ClientNetworking {
     public static void sendVRPacket(VisorPayloadToServer payload) {
         if (MC.getConnection() == null) return;
         if (!serverSupportsVisor) return;
+        if(RecorderModHelper.isLoaded()){
+            RecorderModHelper.storeVisorPacket(CHANNEL, payload);
+        }
         MC.getConnection().send(createVRPacket(payload));
     }
 
@@ -199,7 +203,7 @@ public class ClientNetworking {
 
 
     protected static void receivedHandShake(){
-        if (!Minecraft.getInstance().isLocalServer() && !ReplayCompatHelper.isPlayingReplay()) {
+        if (!Minecraft.getInstance().isLocalServer()) {
             MC.gui.getChat().addMessage(
                     Component.translatable(
                             "visor.messages.server_supports"

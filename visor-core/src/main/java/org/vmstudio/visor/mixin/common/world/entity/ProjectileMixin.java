@@ -34,7 +34,7 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
         if (!(entity instanceof ServerPlayer player)) {
             return pVelocity;
         }
-        VRServerPlayer vrPlayer = VisorAPI.server().getVrPlayer(player);
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         if (vrPlayer == null) {
             return pVelocity;
         }

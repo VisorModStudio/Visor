@@ -21,19 +21,19 @@ public class ReplayModReplayMixin {
             cancellable = true,
             remap = false)
     private void visor$stopIllegalReplayEntry(@Coerce Object file, boolean compat, boolean async, CallbackInfoReturnable<Object> cir) {
-        if (!VisorState.get().isActive()) return;
+        if (!VisorState.get().isInitialized()) return;
         cir.setReturnValue(null);
 
         // todo: Component.translatable instead Component.literal
         Minecraft.getInstance().tell(() -> {
             Minecraft.getInstance().setScreen(new AlertScreen(
                     () -> Minecraft.getInstance().setScreen(null),
-                    Component.literal("§cVR Mode not supported for Replay Mod"),
-                    Component.literal("Replay editing is disabled in VR due to critical incompatibility issues\n\n" +
-                            "Please switch back to PC in the main menu to use Replay Mod.")
+                    Component.literal("§cReplay editor is disabled in VR mode or WORLD_ONLY playMode"),
+                    Component.literal("Replay editing is disabled in VR.\n" +
+                            "Please switch back to PC (NonVR to use Replay editor")
             ));
         });
 
-        System.err.println("[Visor] Blocked attempt to enter Replay Mod screen while VR is active");
+        System.err.println("[Visor] Blocked attempt to enter Replay editor screen while in VR or WORLD_ONLY playMode");
     }
 }

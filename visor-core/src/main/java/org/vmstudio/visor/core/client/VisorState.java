@@ -1,13 +1,10 @@
 package org.vmstudio.visor.core.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.realmsclient.RealmsMainScreen;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.screens.*;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
@@ -135,16 +132,6 @@ public class VisorState implements VisorClientState {
             );
             ClientContext.visor.prepare();
 
-            //-------Common staff-------
-            VisorAPI.Instance.setVrPlayerSupplier(
-                    mcPlayer->{
-                        if(mcPlayer instanceof ServerPlayer serverPlayer){
-                            var server = VisorAPI.server();
-                            return server != null ? server.getVrPlayer(serverPlayer) : null;
-                        }
-                        return VRClientPlayers.getPlayer(mcPlayer);
-                    }
-            );
 
             VisorClientImpl.LOGGER.info(
                     "Current VR Play Mode: {}",

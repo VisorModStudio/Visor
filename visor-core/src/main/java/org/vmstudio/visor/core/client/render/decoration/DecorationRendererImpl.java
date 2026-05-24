@@ -63,8 +63,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_SOLID,
                 (poseStack, partialTicks) -> {
-                    if (VRRenderState.getPhase().isVanilla()) return;
-                    renderAfterSolid(poseStack, partialTicks);
+                    if (VRRenderState.getPhase().isNotVanilla()) {
+                        renderAfterSolid(poseStack, partialTicks);
+                    }
                     VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
                             RenderPipelineStage.AFTER_SOLID,
                             VRRenderState.getPhase(),
@@ -77,8 +78,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_TRANSLUCENT,
                 (poseStack, partialTicks) -> {
-                    if (VRRenderState.getPhase().isVanilla()) return;
-                    renderAfterTranslucent(poseStack, partialTicks);
+                    if (VRRenderState.getPhase().isNotVanilla()) {
+                        renderAfterTranslucent(poseStack, partialTicks);
+                    }
                     VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
                             RenderPipelineStage.AFTER_TRANSLUCENT,
                             VRRenderState.getPhase(),
@@ -91,8 +93,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_WORLD,
                 (poseStack, partialTicks) -> {
-                    if (VRRenderState.getPhase().isVanilla()) return;
-                    renderAfterWorld(poseStack, partialTicks);
+                    if (VRRenderState.getPhase().isNotVanilla()) {
+                        renderAfterWorld(poseStack, partialTicks);
+                    }
                     VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
                             RenderPipelineStage.AFTER_WORLD,
                             VRRenderState.getPhase(),

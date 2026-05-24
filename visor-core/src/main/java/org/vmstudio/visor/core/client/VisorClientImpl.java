@@ -197,6 +197,14 @@ public class VisorClientImpl implements VisorClient {
 
     public void onGameLoopStart(){
         try {
+            //NON-VR + VR
+            ++VisorState.FRAME_COUNT;
+
+            if(VisorState.get().isNotActive()){
+                return;
+            }
+
+            //VR ONLY
             VRRenderState.updateSceneType();
             vrProvider.startFrame();
             ClientContext.inputManager.update();
@@ -216,6 +224,13 @@ public class VisorClientImpl implements VisorClient {
 
     public void preTickVR(){
         try {
+            if(VisorState.get().isNotActive()){
+                //NON-VR ONLY
+                VRClientPlayers.preTickRemote();
+                return;
+            }
+
+            //VR ONLY
             featuresToggle.preTick();
             ClientContext.inputManager.preTick();
 
@@ -236,12 +251,17 @@ public class VisorClientImpl implements VisorClient {
 
     public void tickVR(){
         try {
+            //NON-VR + VR
             ++VisorState.TICK_COUNT;
 
+            if(VisorState.get().isNotActive()){
+                //NON-VR ONLY
+                VRClientPlayers.tick();
+                return;
+            }
 
+            //VR ONLY
             VRClientPlayers.tick();
-
-
             ClientContext.decorationRenderer.tick();
 
         } catch (Throwable e) {
@@ -251,6 +271,12 @@ public class VisorClientImpl implements VisorClient {
     }
     public void postTickVR(){
         try {
+            if(VisorState.get().isNotActive()){
+                //NON-VR ONLY
+                VRClientPlayers.postTickRemote();
+                return;
+            }
+            //VR ONLY
             VRClientPlayers.postTick();
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
@@ -262,6 +288,12 @@ public class VisorClientImpl implements VisorClient {
 
     public void preRenderVR(PreRenderContext context){
         try{
+            if(VisorState.get().isNotActive()){
+                //NON-VR ONLY
+                VRClientPlayers.preRenderRemote(context.partialTicks());
+                return;
+            }
+            //VR ONLY
             partialTicks = context.partialTicks();
 
             featuresToggle.preRender();
@@ -282,6 +314,11 @@ public class VisorClientImpl implements VisorClient {
     }
     public void renderVR(RenderContext context){
         try {
+            if(VisorState.get().isNotActive()){
+                //NON-VR ONLY
+                return;
+            }
+            //VR ONLY
             context.profiler().push("VR render");
             partialTicks = context.partialTicks();
             VisorAPI.eventBus().callEvent(

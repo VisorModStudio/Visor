@@ -45,7 +45,7 @@ public class EndermanMixins {
                                     double d, double e, double f) {
             if (this.target instanceof ServerPlayer player) {
                 VRServerPlayer vrPlayer = VisorAPI.server()
-                        .getVrPlayer(
+                        .getVRPlayer(
                                 player
                         );
                 if(vrPlayer == null) return;
@@ -70,7 +70,8 @@ public class EndermanMixins {
 
         @Inject(at = @At("HEAD"), method = "isLookingAtMe(Lnet/minecraft/world/entity/player/Player;)Z", cancellable = true)
         public void visor$vrPlayerLookingAtMe(Player player, CallbackInfoReturnable<Boolean> cir) {
-            if (VisorAPI.server().isVRPlayer((ServerPlayer) player)) {
+            var vrPlayer = VisorAPI.server().getVRPlayer((ServerPlayer) player);
+            if (vrPlayer != null) {
                 cir.setReturnValue(
                         visor$canAttackVrPlayer(
                                 (EnderMan) (Object) this,
@@ -86,7 +87,7 @@ public class EndermanMixins {
             ItemStack itemstack = player.getInventory().armor.get(3);
             if (!itemstack.is(Items.CARVED_PUMPKIN)) { //no ender item
                 VRServerPlayer vrPlayer = VisorAPI.server()
-                        .getVrPlayer(player);
+                        .getVRPlayer(player);
                 if (vrPlayer == null) return false;
 
                 var hmd = vrPlayer.getPoseData().getHmd();
