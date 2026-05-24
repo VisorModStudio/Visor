@@ -24,6 +24,7 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomCrawl;
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
@@ -294,8 +295,15 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
 
+        boolean smartBlocked = CommonUtils.hasInteractableBlock(
+                MC.level,
+                collisionBox,
+                Mth.floor(collisionBox.minY)
+        );
+
         boolean canAutoClimb = (VRClientSettings.isWalkUpEnabled()
-                && ((LocalPlayerExtension) player).visor$getJumpFactor() == 1.0F);
+                && ((LocalPlayerExtension) player).visor$getJumpFactor() == 1.0F
+                && !smartBlocked);
 
         if (canAutoClimb && player.fallDistance == 0.0F) {
             // Reduce the collision box width for climbing checks.

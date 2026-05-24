@@ -9,6 +9,7 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.mixin.common.player.Common_PlayerMixin;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -181,13 +182,23 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             double zOffset = origin.z() - this.getZ();
             double prevX = this.getX();
             double prevZ = this.getZ();
+
+            if (VRClientSettings.isWalkUpEnabled()
+                    && this.visor$walkUpBlocksActive
+                    && visor$isApproachingInteractable(pos)) {
+                this.setMaxUpStep(0.6F);
+                this.visor$walkUpBlocksActive = false;
+            }
+
             original.call(type, pos);
 
             if (VRClientSettings.isWalkUpEnabled()) {
-                this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F;
+                boolean smartBlocked = visor$isApproachingInteractable(this.getDeltaMovement());
+                this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F
+                        && !smartBlocked;
                 this.setMaxUpStep(
                         this.visor$walkUpBlocksActive
-                        ? 1.0F : 0.6F
+                                ? 1.0F : 0.6F
                 );
             } else {
                 if (this.visor$walkUpBlocksActive) {
@@ -218,6 +229,17 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             this.setOnGround(true);
         }
 
+    }
+
+    @Unique
+    private boolean visor$isApproachingInteractable(Vec3 motion) {
+        var player = visor$getPlayer();
+        return CommonUtils.hasInteractableBlockAhead(
+                player.level(),
+                player.getBoundingBox(),
+                motion,
+                0.4D
+        );
     }
     @Override
     protected void visor$wrapMoveRelative(float amount,
