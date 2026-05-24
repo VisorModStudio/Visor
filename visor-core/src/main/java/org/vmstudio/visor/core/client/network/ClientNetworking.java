@@ -41,7 +41,7 @@ public class ClientNetworking {
     @Getter
     private static boolean serverSupportsVisor = false;
 
-    private static float heightLastSent = 0.0F;
+    private static float heightLastSent = VRPlayer.DEFAULT_FULL_HEIGHT;
     private static float worldScaleLastSent = 1.0F;
     private static float rotationYLastSent = 0;
     private static int offhandSlotLastSent = -1;

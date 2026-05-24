@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.common.HandType;
 public interface VRPlayer extends VisorPlayer{
 
     float DEFAULT_GUN_ANGLE = 60.0F;
+    float DEFAULT_FULL_HEIGHT = 1.52f;
 
     @NotNull
     VRPlayerPose getPoseDataPrevious();
@@ -101,7 +102,7 @@ public interface VRPlayer extends VisorPlayer{
      */
     default float getFullHeightScale() {
 
-        return getFullHeight() / 1.52f;
+        return getFullHeight() / DEFAULT_FULL_HEIGHT;
     }
 
     /**

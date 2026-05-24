@@ -56,7 +56,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         this.mcPlayer = mcPlayer;
         this.poseBufferReceived = poseBuffer;
         this.worldScaleReceived = 1.0f;
-        this.fullHeight = 1.0f;
+        this.fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
 
         this.bodyType = VRBodyTypeHandsOnly.getInstance();
 

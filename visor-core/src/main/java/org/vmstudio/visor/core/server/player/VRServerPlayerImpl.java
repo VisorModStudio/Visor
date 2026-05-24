@@ -38,7 +38,7 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
     @Setter
     private float worldScale = 1.0F;
     @Setter
-    private float fullHeight = 1.0F;
+    private float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
     private float rotationY;
 
     @Setter
@@ -60,7 +60,7 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
     @Setter
     private float worldScaleLastSent = 1.0f;
     @Setter
-    private float fullHeightLastSent = 1.0F;
+    private float fullHeightLastSent = VRPlayer.DEFAULT_FULL_HEIGHT;
     @Setter
     private float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
     @Setter

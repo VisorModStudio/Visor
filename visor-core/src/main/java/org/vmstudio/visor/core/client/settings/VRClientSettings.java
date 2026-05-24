@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
@@ -332,11 +333,10 @@ public class VRClientSettings {
     // ---- OTHER
 
 
-    private static final float defaultHeight = 1.52F;
 
     @Setter
     @VROptionField(key = "player.full_height")
-    protected static float fullHeight = defaultHeight;
+    protected static float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
 
 
     public static void setVrPlayMode(VRPlayMode vrPlayMode) {
@@ -425,7 +425,7 @@ public class VRClientSettings {
 
     public static float getFullHeight() {
         if (fullHeight < 0) {
-            return defaultHeight;
+            return VRPlayer.DEFAULT_FULL_HEIGHT;
         }
 
         return fullHeight;
@@ -435,11 +435,12 @@ public class VRClientSettings {
 
         VRClientSettings.setFullHeight(
                 ClientContext.rawPoseHandler.getHmdData()
-                        .getPivotHistory().averagePosition(0.5f).y
+                .getPivotHistory().averagePosition(0.2f).y
         );
+
         int i = (int) (Math.round(100.0D
                 * VRClientSettings.getFullHeight()
-                / defaultHeight
+                / VRPlayer.DEFAULT_FULL_HEIGHT
         ));
         Minecraft.getInstance().gui.getChat()
                 .addMessage(
