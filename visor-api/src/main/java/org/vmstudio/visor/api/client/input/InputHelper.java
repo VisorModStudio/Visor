@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.input;
 
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.VisorAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -96,7 +97,12 @@ public class InputHelper {
 
 
     public static boolean isKeyDown(int key) {
-        return pressedKeys.contains(key);
+        return pressedKeys.contains(key) || GLFW.glfwGetKey(Minecraft.getInstance().getWindow().getWindow(), key) == 1 ;
+    }
+    public static boolean isKeyDown(InputConstants.Key key) {
+        return key.getType() == InputConstants.Type.KEYSYM
+                && key.getValue() != GLFW.GLFW_KEY_UNKNOWN
+                && isKeyDown(key.getValue());
     }
 
 

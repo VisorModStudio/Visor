@@ -2,10 +2,10 @@ package org.vmstudio.visor.mixin.client.gui.screen;
 
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
+import org.vmstudio.visor.api.client.gui.widgets.lists.DropDownListWidget;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -15,14 +15,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.vmstudio.visor.core.client.ClientContext;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
 
     @Unique
-    private Button visor$vrModeButton;
+    private DropDownListWidget visor$vrModeButton;
     @Unique
     private VRPlayMode visor$playModeLast;
 
@@ -31,46 +35,34 @@ public abstract class TitleScreenMixin extends Screen {
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void visor$onTick(CallbackInfo ci){
+    private void visor$onTick(CallbackInfo ci) {
+        if (visor$vrModeButton == null) return;
         var currentPlayMode = VRClientSettings.getVrPlayMode();
-        if(visor$playModeLast != currentPlayMode){
-            Component text =  Component.translatable(
-                    "visor.options.common.vr_play_mode",
-                    Component.translatable(
-                            "visor.options.enums.VRPlayMode."+
-                                    currentPlayMode.name()
-                    )
-            );
-            visor$vrModeButton.setMessage(
-                    text
-            );
+        if (visor$playModeLast != currentPlayMode) {
+            visor$vrModeButton.setSelectedIndex(currentPlayMode.ordinal(), false);
             visor$playModeLast = currentPlayMode;
         }
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", shift = At.Shift.AFTER, ordinal = 1), method = "createNormalMenuOptions")
-    public void visor$initFullGame(CallbackInfo ci) {
+
+    @Inject(method = "init", at = @At("TAIL"), order = 9999)
+    public void visor$initAddDropdown(CallbackInfo ci) {
         visor$addVRModeButton();
     }
 
-    @Inject(at = @At("TAIL"), method = "createDemoMenuOptions")
-    public void visor$initDemo(CallbackInfo ci) {
-        visor$addVRModeButton();
+
+    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void visor$dropdownClickPriority(double mouseX, double mouseY, int button,
+                                             CallbackInfoReturnable<Boolean> cir) {
+        if (visor$vrModeButton != null
+                && visor$vrModeButton.isExpanded()
+                && visor$vrModeButton.mouseClicked(mouseX, mouseY, button)) {
+            cir.setReturnValue(true);
+        }
     }
 
     @Inject(at = @At("TAIL"), method = "render")
     public void visor$renderToolTip(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
-
-        if (visor$vrModeButton.visible && visor$vrModeButton.isMouseOver(i, j)) {
-            guiGraphics.renderTooltip(
-                    font,
-                    font.split(
-                            Component.translatable("visor.options.common.vr_play_mode.tooltip"),
-                            Math.max(width / 2 - 43, 170)
-                    ),
-                    i, j
-            );
-        }
         if (VisorState.get() == VRStateMode.INITIALIZED
                 && VRClientSettings.getVrPlayMode().canPlayVR()) {
             Component text = Component.translatable("visor.messages.vr_auto_switch");
@@ -92,37 +84,32 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Unique
     private void visor$addVRModeButton() {
+        VRPlayMode[] modes = VRPlayMode.values();
 
-        Component text =  Component.translatable(
-                "visor.options.common.vr_play_mode",
-                Component.translatable(
-                        "visor.options.enums.VRPlayMode."+
-                                VRClientSettings.getVrPlayMode().name()
-                )
-        );
-        visor$vrModeButton = new Button.Builder(
-                text,
-                (button) -> {
-                    var playMode = VRClientSettings.getVrPlayMode();
-                    VRClientSettings.setVrPlayMode(
-                            playMode.next()
-                    );
-                    ClientContext.settingsManager.saveOptions();
-                    button.setMessage(
-                            text
-                    );
-                    visor$playModeLast = VRClientSettings.getVrPlayMode();
-                })
-                .size(76, 20)
+        List<Component> items = Arrays.stream(modes)
+                .map(mode -> (Component) Component.translatable(
+                        "visor.options.common.vr_play_mode",
+                        Component.translatable("visor.options.enums.VRPlayMode." + mode.name())
+                ))
+                .toList();
+
+        VRPlayMode currentMode = VRClientSettings.getVrPlayMode();
+
+        visor$vrModeButton = DropDownListWidget.builder(items)
                 .pos(this.width / 2 + 104, this.height / 4 + 72)
+                .size(76, 20)
+                .setVisibleItems(modes.length)
+                .setStartIndex(currentMode.ordinal())
+                .setMessage(Component.translatable("visor.options.common.vr_play_mode.tooltip"))
+                .setResponder(index -> {
+                    VRPlayMode mode = modes[index];
+                    VRClientSettings.setVrPlayMode(mode);
+                    ClientContext.settingsManager.saveOptions();
+                    visor$playModeLast = mode;
+                })
                 .build();
-        visor$vrModeButton.visible = true;
 
-        visor$playModeLast = VRClientSettings.getVrPlayMode();
-
+        visor$playModeLast = currentMode;
         this.addRenderableWidget(visor$vrModeButton);
     }
-
-
-
 }
