@@ -83,7 +83,7 @@ public class MouseClickHandler {
                     buttonType.getId()
             );
             if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
-                overlayScreen.finishDragMouse();
+                overlayScreen.finishDragMouse(buttonType.getId());
             }
             wasPressedOverlay = false;
             pressedOverlay = null;
@@ -97,7 +97,7 @@ public class MouseClickHandler {
                     buttonType.getId()
             );
             if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
-                overlayScreen.finishDragMouse();
+                overlayScreen.finishDragMouse(buttonType.getId());
             }
             wasPressedOverlay = false;
             pressedOverlay = null;
@@ -197,7 +197,7 @@ public class MouseClickHandler {
                         buttonType.getId()
                 );
                 if (target instanceof VROverlayScreen overlayScreen) {
-                    overlayScreen.finishDragMouse();
+                    overlayScreen.finishDragMouse(buttonType.getId());
                 }
             }
             wasPressedOverlay = false;
@@ -221,7 +221,7 @@ public class MouseClickHandler {
                     buttonType.getId()
             );
             if (pressedOverlay instanceof VROverlayScreen overlayScreen) {
-                overlayScreen.finishDragMouse();
+                overlayScreen.finishDragMouse(buttonType.getId());
             }
         }
         previousFocus = null;
@@ -253,8 +253,8 @@ public class MouseClickHandler {
                 overlay.getMouseX(), overlay.getMouseY(),
                 buttonType.getId()
         );
-        if (isLeftClick && overlay instanceof VROverlayScreen overlayScreen) {
-            overlayScreen.startDragMouse();
+        if (overlay instanceof VROverlayScreen overlayScreen) {
+            overlayScreen.startDragMouse(buttonType.getId());
         }
         wasPressedOverlay = true;
         pressedOverlay = overlay;

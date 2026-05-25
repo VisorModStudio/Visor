@@ -97,6 +97,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
 
     private static long mouseDragDelay;
+    private final boolean[] pressedDragMouseButtons = new boolean[3];
 
     private boolean beingDragged = false;
     private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
@@ -486,13 +487,31 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         getPose().update(resizeStartPosition, resizeStartRotation, newScale);
     }
 
+
     public boolean canDragMouse(){
         return mouseDragDelay < System.currentTimeMillis();
     }
-    public void startDragMouse(){
+    public boolean isDragMouseButtonPressed(int buttonType){
+        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
+            return false;
+        }
+        return pressedDragMouseButtons[buttonType];
+    }
+    public void startDragMouse(int buttonType){
+        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
+            return;
+        }
+        pressedDragMouseButtons[buttonType] = true;
         mouseDragDelay = System.currentTimeMillis() + 100L;
     }
-    public void finishDragMouse(){
+    public void finishDragMouse(int buttonType){
+        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
+            return;
+        }
+        pressedDragMouseButtons[buttonType] = false;
+        for (boolean pressed : pressedDragMouseButtons) {
+            if (pressed) return;
+        }
         mouseDragDelay = Long.MAX_VALUE;
     }
 
@@ -540,11 +559,15 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         if (canDragMouse()) {
             int deltaX = cursorData.getCursorX() - oldMouseX;
             int deltaY = cursorData.getCursorY() - oldMouseY;
-            mouseDragged(
-                    cursorData.getCursorX(), cursorData.getCursorY(),
-                    0,
-                    deltaX, deltaY
-            );
+            for (int buttonType = 0; buttonType < pressedDragMouseButtons.length; buttonType++) {
+                if (pressedDragMouseButtons[buttonType]) {
+                    mouseDragged(
+                            cursorData.getCursorX(), cursorData.getCursorY(),
+                            buttonType,
+                            deltaX, deltaY
+                    );
+                }
+            }
         }
 
     }
