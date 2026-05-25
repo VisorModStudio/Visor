@@ -42,6 +42,8 @@ public class VisorState implements VisorClientState {
     private static boolean minecraftLoaded = false;
 
     private static Runnable delayedErrorHandling = null;
+    @Getter
+    private static boolean vrInitFailed = false;
 
     @Getter @Setter
     private static EntityRendererProvider.Context delayedVrBodyInit = null;
@@ -66,6 +68,10 @@ public class VisorState implements VisorClientState {
                 || MC.screen instanceof TitleScreen)){
             delayedErrorHandling.run();
             delayedErrorHandling = null;
+        }
+        if(MC.level != null){
+            //clean message
+            vrInitFailed = false;
         }
 
         //INIT & DESTROY
@@ -151,6 +157,7 @@ public class VisorState implements VisorClientState {
             VRRenderState.startVanillaPhase();
 
             setState(VRStateMode.INITIALIZED);
+            vrInitFailed = false;
 
             VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
@@ -238,12 +245,15 @@ public class VisorState implements VisorClientState {
         destroyVR();
 
         VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
+        vrInitFailed = true;
 
         if(MC.level != null) {
             MC.level.disconnect();
             delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
         }else {
-            VRErrorReportScreen.catchError(throwable, true);
+            LoggerUtils.printError(throwable);
+            //save DISABLED mode if got error in main menu
+            ClientContext.settingsManager.saveOptions();
         }
     }
 
@@ -259,7 +269,9 @@ public class VisorState implements VisorClientState {
         }
 
     }
-
+    public static void clearVrInitFailed() {
+        vrInitFailed = false;
+    }
 
     @Override
     public @NotNull VRStateMode stateMode() {

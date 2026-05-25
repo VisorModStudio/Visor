@@ -44,9 +44,27 @@ public abstract class TitleScreenMixin extends Screen {
         }
     }
 
+    @Inject(at = @At("TAIL"), method = "render")
+    public void visor$renderVrInitFailedWarning(GuiGraphics gfx, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+        if (!VisorState.isVrInitFailed()) {
+            return;
+        }
+
+        Component msg = Component.translatable("visor.messages.vr_init_failed");
+        int padX = 6;
+        int padY = 2;
+        int boxW = font.width(msg) + padX * 2;
+        int boxH = font.lineHeight + padY * 2;
+        int x = (this.width - boxW) / 2;
+        int y = 2;
+
+        gfx.fill(x - 1, y - 1, x + boxW + 1, y + boxH + 1, 0xFF5DD9FF);
+        gfx.fill(x, y, x + boxW, y + boxH, 0xE6050B14);
+        gfx.drawCenteredString(font, msg, this.width / 2, y + padY, 0xFFFFFFFF);
+    }
 
     @Inject(method = "init", at = @At("TAIL"), order = 9999)
-    public void visor$initAddDropdown(CallbackInfo ci) {
+    public void visor$initAddVRModeButton(CallbackInfo ci) {
         visor$addVRModeButton();
     }
 

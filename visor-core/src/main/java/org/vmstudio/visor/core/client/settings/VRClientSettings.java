@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
@@ -340,6 +341,9 @@ public class VRClientSettings {
 
 
     public static void setVrPlayMode(VRPlayMode vrPlayMode) {
+        if(vrPlayMode != VRPlayMode.DISABLED) {
+            VisorState.clearVrInitFailed();
+        }
         VRClientSettings.vrPlayMode = vrPlayMode;
         VisorClientImpl.LOGGER.info(
                 "Changed VR Play Mode to: {}",

@@ -3,7 +3,7 @@
   "visor.options.common.yes": "ДА",
   "visor.options.common.no": "НЕТ",
   "visor.options.common.vr_play_mode": "Режим VR: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Выберите режим игры в VR. \n\n1) Включено - VR будет активен, пока надет шлем \n2) Только мир - VR инициализируется, но неактивен в главном меню, включается только в самой игре \n3) Всегда - VR активен постоянно \n4) Выключено - VR не будет инициализироваться",
+  "visor.options.common.vr_play_mode.tooltip": "Выберите режим игры в VR. \n\n1) Включено - VR будет активен, пока надет шлем \n2) Только мир - VR инициализируется, но неактивен в главном меню, включается только в самой игре \n3) Всегда - VR активен постоянно \n4) Выключено - VR не будет инициализироваться. (NonVR)",
 
   "visor.options.main": "Настройки VR",
   "visor.options.main.button": "Настройки VR...",
@@ -434,6 +434,7 @@
   "_comment999": "*--------СООБЩЕНИЯ--------*",
   "visor.messages.error.generic": "Произошла непредвиденная ошибка VR!",
   "visor.messages.error.summary": "Причины могут быть следующими:\n\n1) VR не найден. Запущен ли SteamVR или другая среда VR?\nДля Linux загляните в наш Discord за советом.\n\n2) Версия Visor была обновлена, и конфиги устарели. Попробуйте удалить папку config/Visor.\n\n3) Неизвестная ошибка.\n\n\n§rВы можете сообщить об этой проблеме в нашем Discord.\n\nОткройте папку с логами (кнопка ниже), загрузите файл 'latest.log' и опишите свои действия перед ошибкой.",
+  "visor.messages.vr_init_failed": "Не удалось запустить VR — переключено в режим NonVR",
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Сервер поддерживает Visor!",
   "visor.messages.calibrate_height": "Пожалуйста, откалибруйте свой рост в меню паузы.",
