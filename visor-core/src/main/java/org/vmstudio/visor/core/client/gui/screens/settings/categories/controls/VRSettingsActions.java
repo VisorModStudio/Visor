@@ -473,6 +473,19 @@ public class VRSettingsActions extends VROptionsSet {
     }
 
     private void applyChangesPressed(){
+        var commonChanges = collectCommonChanges();
+        if(!commonChanges.isEmpty()){
+            getScreen().switchOptions(
+                    new VRSettingsConfirmCrossBinding(
+                            this, commonChanges, onWidgetsChanged
+                    )
+            );
+            return;
+        }
+        commitStagedChanges();
+    }
+
+    public void commitStagedChanges(){
         newKeyModifiers.forEach(actionSet::setKeyModifiersActive);
         newBindings.forEach(
                 (profile, map) ->
@@ -484,6 +497,58 @@ public class VRSettingsActions extends VROptionsSet {
         resetNewBindings();
         reinit();
     }
+
+    private List<CommonChange> collectCommonChanges(){
+        var byAction = new LinkedHashMap<VRAction, Map<VRInteractionProfileType, ProfileChange>>();
+        var allOtherSets = ClientContext.inputManager.getActionSetRegistry()
+                .getSortedComponents()
+                .stream()
+                .filter(set -> set != actionSet)
+                .toList();
+
+        for(var profileEntry : newBindings.entrySet()){
+            var profile = profileEntry.getKey();
+            for(var bindingEntry : profileEntry.getValue().entrySet()){
+                var action = bindingEntry.getKey();
+                if(!action.isCommon()) continue;
+                var newBinding = bindingEntry.getValue();
+                var oldBinding = action.getBindingOrEmpty(profile);
+                boolean rightChanged = !newBinding.getRightHandedId().equals(oldBinding.getRightHandedId())
+                        || newBinding.getRightHandedKeyModifier() != oldBinding.getRightHandedKeyModifier();
+                boolean leftChanged = !newBinding.getLeftHandedId().equals(oldBinding.getLeftHandedId())
+                        || newBinding.getLeftHandedKeyModifier() != oldBinding.getLeftHandedKeyModifier();
+                if(!rightChanged && !leftChanged) continue;
+
+                byAction.computeIfAbsent(action, k -> new EnumMap<>(VRInteractionProfileType.class))
+                        .put(profile, new ProfileChange(rightChanged, leftChanged, newBinding));
+            }
+        }
+
+        List<CommonChange> result = new ArrayList<>();
+        var destinationCache = new HashMap<String, List<VRActionSet>>();
+        for(var entry : byAction.entrySet()){
+            var action = entry.getKey();
+            var destinations = destinationCache.computeIfAbsent(action.getId(), id ->
+                    allOtherSets.stream()
+                            .filter(set -> {
+                                var a = set.getAction(id);
+                                return a != null && a.isCommon();
+                            })
+                            .toList()
+            );
+            if(destinations.isEmpty()) continue;
+            result.add(new CommonChange(action, entry.getValue(), destinations));
+        }
+        return result;
+    }
+
+    public record CommonChange(@NotNull VRAction action,
+                               @NotNull Map<VRInteractionProfileType, ProfileChange> profileChanges,
+                               @NotNull List<VRActionSet> destinations) {}
+
+    public record ProfileChange(boolean rightChanged,
+                                boolean leftChanged,
+                                @NotNull ActionBinding newBinding) {}
 
     private void addActionPressed(){
         getScreen().switchOptions(
@@ -517,10 +582,19 @@ public class VRSettingsActions extends VROptionsSet {
 
     @Override
     public void loadDefaults() {
-        actionSet.loadDefaults(profileType);
-        actionSet.save();
-        resetNewBindings();
-        reinit();
+        var map = newBindings.get(profileType);
+        for(var action : actionSet.getActions()){
+            var def = action.getDefaultBinding(profileType);
+            if(def == null){
+                def = ActionBinding.EMPTY;
+            }
+            map.put(action, new ActionBinding(def));
+        }
+        var keyModDefaults = actionSet.getDefaultKeyModifiersActive();
+        for(var p : VRInteractionProfileType.values()){
+            newKeyModifiers.put(p, keyModDefaults.getOrDefault(p, false));
+        }
+        applyChangesPressed();
     }
 
     @Override

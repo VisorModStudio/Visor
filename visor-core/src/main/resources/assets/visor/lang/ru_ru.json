@@ -250,6 +250,12 @@
 
   "visor.action.options.add_key_action.create": "Создать",
 
+  "visor.action.options.bindings.cross.title": "Синхронизировать бинд",
+  "visor.action.options.bindings.cross.counter": "%s / %s",
+  "visor.action.options.bindings.cross.all": "Все",
+  "visor.action.options.bindings.cross.apply": "Применить",
+  "visor.action.options.bindings.cross.skip": "Пропустить",
+
   "visor.action.options.bindings.touch_filter": "Касание",
   "visor.action.options.bindings.touch_filter.tooltip": "§bФильтр касания§r\n\nПоказать или скрыть бинды типа §eTouch§r.",
 
@@ -430,6 +436,7 @@
   "visor.button.open_logs": "Папка логов",
   "visor.button.discord": "Наш Discord",
   "visor.button.apply_changes": "Применить",
+  "visor.button.cancel": "Отмена",
 
   "_comment999": "*--------СООБЩЕНИЯ--------*",
   "visor.messages.error.generic": "Произошла непредвиденная ошибка VR!",

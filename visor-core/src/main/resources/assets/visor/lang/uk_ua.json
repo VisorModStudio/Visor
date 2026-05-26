@@ -249,6 +249,12 @@
 
   "visor.action.options.add_key_action.create": "Створити",
 
+  "visor.action.options.bindings.cross.title": "Синхронізувати бинд",
+  "visor.action.options.bindings.cross.counter": "%s / %s",
+  "visor.action.options.bindings.cross.all": "Усі",
+  "visor.action.options.bindings.cross.apply": "Застосувати",
+  "visor.action.options.bindings.cross.skip": "Пропустити",
+
   "visor.action.options.bindings.touch_filter": "Дотик",
   "visor.action.options.bindings.touch_filter.tooltip": "§bФільтр дотику§r\n\nПоказати або приховати бінди типу §eTouch§r.",
 
@@ -432,6 +438,7 @@
   "visor.button.open_logs": "Папка логів",
   "visor.button.discord": "Наш Discord",
   "visor.button.apply_changes": "Застосувати",
+  "visor.button.cancel": "Скасувати",
 
   "_comment999": "*--------ПОВІДОМЛЕННЯ--------*",
   "visor.messages.error.generic": "Сталася непередбачена помилка VR!",

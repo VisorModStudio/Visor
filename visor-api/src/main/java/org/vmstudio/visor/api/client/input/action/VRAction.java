@@ -62,7 +62,19 @@ public interface VRAction {
      */
     boolean isChanged();
 
-
+    /**
+     * If this action is common between action sets.
+     * <p>
+     *     When the player rebinds a common action,
+     *     the player can sync the rebind
+     *     in other action sets where this action is used
+     * </p>
+     *
+     * @return true/false
+     */
+    default boolean isCommon(){
+        return false;
+    }
 
     /**
      * Set action binding for specified interaction profile

@@ -45,7 +45,10 @@ public class ActionMenu extends VRActionButton {
     }
 
 
-
+    @Override
+    public boolean isCommon() {
+        return true;
+    }
 
     @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {

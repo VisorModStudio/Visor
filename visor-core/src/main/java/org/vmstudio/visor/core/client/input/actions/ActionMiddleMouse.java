@@ -76,6 +76,11 @@ public class ActionMiddleMouse extends VRActionButton {
     }
 
     @Override
+    public boolean isCommon() {
+        return true;
+    }
+
+    @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         if (getId().equals(ID_MAIN)) {
             return Map.of(

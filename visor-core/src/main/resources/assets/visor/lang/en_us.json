@@ -251,6 +251,12 @@
 
   "visor.action.options.add_key_action.create": "Create",
 
+  "visor.action.options.bindings.cross.title": "Sync with other action sets",
+  "visor.action.options.bindings.cross.counter": "%s / %s",
+  "visor.action.options.bindings.cross.all": "All",
+  "visor.action.options.bindings.cross.apply": "Apply",
+  "visor.action.options.bindings.cross.skip": "Skip",
+
   "visor.action.options.bindings.touch_filter": "Touch",
   "visor.action.options.bindings.touch_filter.tooltip": "§bTouch Filter§r\n\nShow or hide §etouch-type§r bindings.",
 
@@ -435,6 +441,7 @@
   "visor.button.open_logs": "Logs folder",
   "visor.button.discord": "Our discord",
   "visor.button.apply_changes": "Apply Changes",
+  "visor.button.cancel": "Cancel",
 
   "_comment999": "*--------MESSAGES--------*",
   "visor.messages.error.generic": "An unexpected VR error occurred!",

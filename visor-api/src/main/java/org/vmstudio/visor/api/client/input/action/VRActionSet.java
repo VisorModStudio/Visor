@@ -80,10 +80,10 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     protected abstract List<VRAction> loadActions();
 
     /**
-     * Loads map of default boolean flags
+     * Get map of default boolean flags
      * if key modifiers active for specific interaction profile type
      */
-    protected abstract Map<VRInteractionProfileType, Boolean> loadDefaultKeyModifiersActive();
+    public abstract Map<VRInteractionProfileType, Boolean> getDefaultKeyModifiersActive();
 
     /**
      * If the set can be activated right now.
@@ -150,7 +150,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     public void load(@NotNull Config config){
         boolean requireSave = false;
         var subsection = config.getSubsection("bindings");
-        var defaults = loadDefaultKeyModifiersActive();
+        var defaults = getDefaultKeyModifiersActive();
         for(var profileType : VRInteractionProfileType.values()){
             Boolean keyModifiersActive = subsection.getBoolOrNull(
                     profileType.name()+".key_modifiers_active");
@@ -313,7 +313,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
                 }
         );
 
-        var defaults = loadDefaultKeyModifiersActive();
+        var defaults = getDefaultKeyModifiersActive();
         for(var profileEntry : VRInteractionProfileType.values()){
             keyModifiersActiveMap.put(profileEntry, defaults.getOrDefault(profileEntry, false));
         }

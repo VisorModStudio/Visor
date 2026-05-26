@@ -44,7 +44,7 @@ public class MenuActionSet extends VRActionSet {
     }
 
     @Override
-    protected Map<VRInteractionProfileType, Boolean> loadDefaultKeyModifiersActive() {
+    public Map<VRInteractionProfileType, Boolean> getDefaultKeyModifiersActive() {
         return Map.of();
     }
 

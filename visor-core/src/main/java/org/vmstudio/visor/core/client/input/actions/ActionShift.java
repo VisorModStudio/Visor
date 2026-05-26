@@ -32,6 +32,11 @@ public class ActionShift extends VRActionButton {
     }
 
     @Override
+    public boolean isCommon() {
+        return true;
+    }
+
+    @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         return Map.of(
                 VRInteractionProfileType.VALVE_INDEX,
