@@ -262,15 +262,15 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
         // In-block dimming
         if (MC.level != null) {
-            if (VRRenderState.getRenderPass().isEye()) {
-                //Eye passes
+            if (VRRenderState.getRenderPass().isFirstPerson()) {
+                //First person passes
                 float proximity = ((GameRendererExtension) MC.gameRenderer)
                         .visor$getBlockProximity();
                 if (proximity > 0.0f) {
                     VREffectsHelper.renderInBlockVignette(proximity);
                 }
             } else if (((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
-                // Non-eye passes
+                // Third person passes
                 VREffectsHelper.renderInBlockEffect();
             }
         }
