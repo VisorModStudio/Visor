@@ -272,6 +272,46 @@ public class RenderHelper {
     }
 
 
+    public static float distanceToNearestSolidBlockSurface(Vec3 origin, double maxRadius) {
+        ClientLevel level = MC.level;
+        if (level == null) {
+            return (float) maxRadius;
+        }
+
+        int minX = (int) Math.floor(origin.x - maxRadius);
+        int minY = (int) Math.floor(origin.y - maxRadius);
+        int minZ = (int) Math.floor(origin.z - maxRadius);
+        int maxX = (int) Math.floor(origin.x + maxRadius);
+        int maxY = (int) Math.floor(origin.y + maxRadius);
+        int maxZ = (int) Math.floor(origin.z + maxRadius);
+
+        BlockPos.MutableBlockPos mPos = new BlockPos.MutableBlockPos();
+        double minDistSq = maxRadius * maxRadius;
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    mPos.set(x, y, z);
+                    if (!level.getBlockState(mPos).isSolidRender(level, mPos)) {
+                        continue;
+                    }
+                    double dx = Math.max(0.0, Math.max(x - origin.x, origin.x - (x + 1.0)));
+                    double dy = Math.max(0.0, Math.max(y - origin.y, origin.y - (y + 1.0)));
+                    double dz = Math.max(0.0, Math.max(z - origin.z, origin.z - (z + 1.0)));
+                    double distSq = dx * dx + dy * dy + dz * dz;
+                    if (distSq < minDistSq) {
+                        minDistSq = distSq;
+                        if (minDistSq <= 0.0) {
+                            return 0.0f;
+                        }
+                    }
+                }
+            }
+        }
+
+        return (float) Math.sqrt(minDistSq);
+    }
+
 
     /**
      * Searches within a sphere of radius {@code radius} around {@code origin}

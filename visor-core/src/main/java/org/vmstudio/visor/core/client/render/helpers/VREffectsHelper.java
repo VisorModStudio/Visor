@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
+import net.minecraft.client.renderer.ShaderInstance;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
@@ -17,6 +18,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
+import org.vmstudio.visor.core.client.render.VRShaders;
+import org.vmstudio.visor.core.client.render.shaders.VRShaderInBlockVignette;
 
 public class VREffectsHelper {
     private VREffectsHelper() {
@@ -53,6 +56,49 @@ public class VREffectsHelper {
         bufferbuilder.vertex(mat, 1.5F, -1.5F, 0.0F).endVertex();
         bufferbuilder.vertex(mat, 1.5F, 1.5F, 0.0F).endVertex();
         bufferbuilder.vertex(mat, -1.5F, 1.5F, 0.0F).endVertex();
+        tesselator.end();
+
+        // --- Restore ---
+        RenderStateHelper.restoreAfterExternalRender();
+    }
+
+
+
+    public static void renderInBlockVignette(float proximity) {
+        if (proximity <= 0.0f) return;
+
+        VRRenderPass pass = VRRenderState.getRenderPass();
+        EyeType eye = (pass == VRRenderPass.EYE_LEFT) ? EyeType.LEFT : EyeType.RIGHT;
+
+        VRShaderInBlockVignette wrap = VRShaders.getInBlockVignette();
+        if (wrap == null) return;
+        wrap.prepare(eye, proximity);
+        ShaderInstance shader = wrap.getHandle();
+
+        // --- Prepare variables ---
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        Matrix4f mat = new Matrix4f();
+        mat.m00(1.0F);
+        mat.m11(1.0F);
+        mat.m22(-1.0F);
+        mat.m33(1.0F);
+        mat.m32(-1.0F);
+
+        // --- Setup ---
+        RenderSystem.setShader(() -> shader);
+        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        RenderSystem.depthMask(false);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.disableCull();
+
+        // --- Render ---
+        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).uv(-0.25F, -0.25F).endVertex();
+        bufferbuilder.vertex(mat,  1.5F, -1.5F, 0.0F).uv( 1.25F, -0.25F).endVertex();
+        bufferbuilder.vertex(mat,  1.5F,  1.5F, 0.0F).uv( 1.25F,  1.25F).endVertex();
+        bufferbuilder.vertex(mat, -1.5F,  1.5F, 0.0F).uv(-0.25F,  1.25F).endVertex();
         tesselator.end();
 
         // --- Restore ---

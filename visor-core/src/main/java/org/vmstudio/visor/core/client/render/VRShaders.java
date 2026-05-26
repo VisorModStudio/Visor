@@ -3,10 +3,7 @@ package org.vmstudio.visor.core.client.render;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import org.vmstudio.visor.core.client.render.shaders.VRShaderEndPortal;
-import org.vmstudio.visor.core.client.render.shaders.VRShaderMixedReality;
-import org.vmstudio.visor.core.client.render.shaders.VRShaderPostProcessEye;
-import org.vmstudio.visor.core.client.render.shaders.VRShaderTeleportPoint;
+import org.vmstudio.visor.core.client.render.shaders.*;
 
 
 public class VRShaders {
@@ -22,6 +19,9 @@ public class VRShaders {
 
     @Getter
     private static VRShaderEndPortal endPortal;
+
+    @Getter
+    private static VRShaderInBlockVignette inBlockVignette;
 
 
     private VRShaders() {
@@ -44,6 +44,10 @@ public class VRShaders {
         endPortal = new VRShaderEndPortal();
         endPortal.init();
         GLUtils.checkGLError("init EndPortal shader");
+
+        inBlockVignette = new VRShaderInBlockVignette();
+        inBlockVignette.init();
+        GLUtils.checkGLError("init InBlockVignette shader");
     }
 
 

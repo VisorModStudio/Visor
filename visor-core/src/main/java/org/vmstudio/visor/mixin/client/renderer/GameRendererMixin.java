@@ -123,6 +123,8 @@ public abstract class GameRendererMixin
     public boolean visor$onfire;
     @Unique
     public boolean visor$inBlock = false;
+    @Unique
+    public float visor$blockProximity = 0.0f;
 
     @Unique
     public VRCameraEntityCache visor$cameraEntityCache = new VRCameraEntityCache();
@@ -687,6 +689,12 @@ public abstract class GameRendererMixin
         return visor$inBlock;
     }
 
+    @Override
+    @Unique
+    public float visor$getBlockProximity() {
+        return visor$blockProximity;
+    }
+
 
     @Override
     @Unique
@@ -720,6 +728,7 @@ public abstract class GameRendererMixin
     private void visor$setupOverlayStatus(float partialTicks) {
         //@TODO add post process for these effects
         this.visor$inBlock = false;
+        this.visor$blockProximity = 0.0f;
 
         this.visor$onfire = false;
 
@@ -728,7 +737,7 @@ public abstract class GameRendererMixin
                 || VRRenderState.getSceneType().isMainMenu()){
             return;
         }
-        // shitty check for immersive portals, be careful with this
+        // fix for immersive portals issue
         if (this.minecraft.level != this.minecraft.player.level()) {
             return;
         }
@@ -740,18 +749,18 @@ public abstract class GameRendererMixin
                 renderPass,
                 ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
         );
-        Optional<VREffectsHelper.NearestOpaqueBlock> nearSolidBlock = RenderHelper
-                .findAnySolidBlock(
-                        new Vec3((Vector3f) cameraPos),
-                        visor$nearClipPlane * 2
-                );
 
-        if(nearSolidBlock.isPresent()){
+        float inBlockEffectStart = 0.3f;
+        float distance = RenderHelper.distanceToNearestSolidBlockSurface(
+                new Vec3((Vector3f) cameraPos),
+                inBlockEffectStart
+        );
 
-            this.visor$inBlock = true;
-        }else{
-            this.visor$inBlock = false;
-        }
+        this.visor$blockProximity = Math.max(
+                0.0f,
+                1.0f - distance / inBlockEffectStart
+        );
+        this.visor$inBlock = distance < visor$nearClipPlane * 2.0f;
 
 
         this.visor$onfire = VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON

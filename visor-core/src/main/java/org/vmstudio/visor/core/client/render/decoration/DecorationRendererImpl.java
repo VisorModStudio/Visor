@@ -260,6 +260,21 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             return;
         }
 
+        // In-block dimming
+        if (MC.level != null) {
+            if (VRRenderState.getRenderPass().isEye()) {
+                //Eye passes
+                float proximity = ((GameRendererExtension) MC.gameRenderer)
+                        .visor$getBlockProximity();
+                if (proximity > 0.0f) {
+                    VREffectsHelper.renderInBlockVignette(proximity);
+                }
+            } else if (((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
+                // Non-eye passes
+                VREffectsHelper.renderInBlockEffect();
+            }
+        }
+
         renderGameEffects(currentDecorator, poseStack, partialTicks);
         ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
         ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
@@ -276,11 +291,6 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 true,
                 partialTicks
         );
-
-        boolean insideBlock = ((GameRendererExtension) MC.gameRenderer).visor$isInBlock();
-        if (insideBlock && MC.level != null) {
-            VREffectsHelper.renderInBlockEffect();
-        }
 
         currentDecorator.renderAfterWorld(poseStack, partialTicks);
 

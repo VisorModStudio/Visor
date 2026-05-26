@@ -51,6 +51,12 @@ public interface GameRendererExtension {
     boolean visor$isInBlock();
 
 
+    /**
+     * Returns a 0..1 proximity factor describing how close the current camera
+     * eye is to a solid block surface.
+     */
+    float visor$getBlockProximity();
+
     void visor$resetProjectionMatrix(float partialTicks);
 
     Vec3 visor$getCrossVec();
