@@ -30,8 +30,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.common.addon.CoreAddonClient;
 import org.vmstudio.visor.core.server.network.ServerPacketHandler;
+
+import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -52,6 +55,9 @@ public class ClientNetworking {
     private static VRBodyType vrBodyLastSent = null;
     private static boolean overlayFocusedLastSent = false;
 
+
+    private static boolean handshakeReceived = false;
+    private static boolean recording;
 
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
         CHANNEL =  VisorChannel.builder(
@@ -115,8 +121,16 @@ public class ClientNetworking {
             return;
         }
 
-        var localPlayer = ClientContext.localPlayer;
+        if(!serverSupportsVisor){
+            return;
+        }
 
+        if(handshakeReceived){
+            VRClientSettings.calibrateHeight();
+            handshakeReceived = false;
+        }
+
+        var localPlayer = ClientContext.localPlayer;
         float height = localPlayer.getFullHeight();
         if (height != heightLastSent) {
             sendVRPacket(
@@ -191,6 +205,22 @@ public class ClientNetworking {
             overlayFocusedLastSent = overlayFocused;
         }
 
+        if(RecorderModHelper.isRecording() && !recording){
+            recording = true;
+            RecorderModHelper.sendInitPackets(CHANNEL,
+                    List.of(
+                            new FullHeightPayloadToServer(height),
+                            new WorldScalePayloadToServer(worldScale),
+                            new LeftHandedPayloadToServer(leftHanded),
+                            new GunAnglePayloadToServer(gunAngle),
+                            new VRBodyTypePayloadToServer(vrBody.getId()),
+                            new OverlayFocusedPayloadToServer(overlayFocused)
+                    )
+            );
+        }else{
+            recording = false;
+        }
+
 
         PoseDataBuffer vrPlayerState = PoseDataBuffer.create(
                 localPlayer
@@ -217,17 +247,21 @@ public class ClientNetworking {
             );
         }
         serverSupportsVisor = true;
+        handshakeReceived = true;
     }
 
     public static void dispose(){
         serverSupportsVisor = false;
-        heightLastSent = 0.0F;
+        heightLastSent = VRPlayer.DEFAULT_FULL_HEIGHT;
+        gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
         worldScaleLastSent = 1.0F;
         offhandSlotLastSent = -1;
         vrBodyLastSent = null;
         activeHandLastSent = HandType.MAIN;
         rotationYLastSent = 0;
         overlayFocusedLastSent = false;
+        recording = false;
+        handshakeReceived = false;
         VRClientPlayers.dispose();
     }
 

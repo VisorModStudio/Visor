@@ -26,6 +26,18 @@ public class ReplayCompatHelper {
         return ModLoader.get().isModLoaded(MOD_ID);
     }
 
+    public static boolean isRecording(){
+        if (init()) {
+            try {
+                Object recorder = getRecordingEventHandlerMethod.invoke(
+                        Minecraft.getInstance().levelRenderer);
+                return recorder != null;
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                LoggerUtils.getLogger().error("Failed to store replaymod player data", e);
+            }
+        }
+        return false;
+    }
     public static void storePacket(Packet<?> packet) {
         if (init()) {
             try {

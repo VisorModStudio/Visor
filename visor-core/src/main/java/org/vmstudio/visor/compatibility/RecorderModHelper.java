@@ -12,6 +12,8 @@ import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 
+import java.util.List;
+
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class RecorderModHelper {
@@ -20,6 +22,14 @@ public class RecorderModHelper {
         return ReplayCompatHelper.isLoaded() || FlashbackCompatHelper.isLoaded();
     }
 
+    public static boolean isRecording(){
+        return ReplayCompatHelper.isRecording() || FlashbackCompatHelper.isRecording();
+    }
+    public static void sendInitPackets(VisorChannel channel, List<VisorPayloadToServer> packets){
+        for(var packet : packets){
+            storeVisorPacket(channel, packet);
+        }
+    }
     public static void storeVisorPacket(VisorChannel channel, VisorPayloadToServer payload){
         var selfUUID = MC.player.getUUID();
         VisorPayloadToClient storePayload = null;

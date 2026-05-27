@@ -26,6 +26,18 @@ public class FlashbackCompatHelper {
         return ModLoader.get().isModLoaded(MOD_ID);
     }
 
+    public static boolean isRecording(){
+        if (init()) {
+            try {
+                Object recorder = recorderField.get(null);
+                return recorder != null;
+            } catch (IllegalAccessException e) {
+                LoggerUtils.getLogger().error("Failed to access flashback player data", e);
+            }
+        }
+        return false;
+    }
+
     public static void storePacket(Packet<?> packet) {
         if (init()) {
             try {
