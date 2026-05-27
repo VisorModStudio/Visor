@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
@@ -75,6 +76,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      int handDir,
                                      float equipProgress,
                                      float partialTicks) {
+        boolean isSelf = player instanceof LocalPlayer;
+
         float gunAngle = vrPlayer.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
 
@@ -235,7 +238,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                 pitch = -rotationProgress * 10.0F * riptideLevel;
                             }
 
-                            if (VisorState.TICK_COUNT % 2 == 0) {
+                            if (isSelf && VisorState.TICK_COUNT % 2 == 0) {
                                 ClientContext.inputManager.triggerHapticPulseMicroSec(
                                         handType, 200
                                 );
