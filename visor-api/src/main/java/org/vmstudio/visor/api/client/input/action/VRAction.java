@@ -77,6 +77,18 @@ public interface VRAction {
     }
 
     /**
+     * If this action is required to be set.
+     * <p>
+     *     When true, player cannot apply changes
+     *     with this action not being bound.
+     * </p>
+     * @return true/false
+     */
+    default boolean isRequired(){
+        return false;
+    }
+
+    /**
      * Set action binding for specified interaction profile
      *
      * @param profile the interaction profile

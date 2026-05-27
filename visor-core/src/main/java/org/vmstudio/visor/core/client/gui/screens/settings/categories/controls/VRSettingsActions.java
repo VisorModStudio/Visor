@@ -67,6 +67,7 @@ public class VRSettingsActions extends VROptionsSet {
     private boolean useLeftHanded;
 
     private boolean modified;
+    private boolean canApplyChanges = true;
 
 
     public VRSettingsActions(@NotNull VRActionSet actionSet,
@@ -225,12 +226,14 @@ public class VRSettingsActions extends VROptionsSet {
 
 
         modified = false;
+        canApplyChanges = true;
         for(var entry : newBindings.entrySet()){
             if(actionSet.isKeyModifiersActive(entry.getKey())
                     != newKeyModifiers.get(entry.getKey())){
                 modified = true;
             }
             for(var entry1 : entry.getValue().entrySet()){
+                var action = entry1.getKey();
                 var bindingOld = entry1.getKey()
                         .getBindingOrEmpty(entry.getKey());
                 var bindingNew = entry1.getValue();
@@ -256,11 +259,19 @@ public class VRSettingsActions extends VROptionsSet {
                                     + newKeyModifier.getDisplayName().getString()
                                     + " + " + newIdDisplayName.getString();
                         } else {
-                            if(newId.equals(oldActionId)
-                                    && newId.equals(ActionBinding.ID_EMPTY)) {
-                                listEntry1.bindingName = newIdDisplayName.getString();
-                                continue;
+                            if(newId.equals(ActionBinding.ID_EMPTY)){
+                                if(action.isRequired()){
+                                    canApplyChanges = false;
+                                    listEntry1.bindingName = AtumColor.COLOR_SYMBOL + "c"
+                                            + newIdDisplayName.getString();
+                                    continue;
+                                }
+                                if(newId.equals(oldActionId)) {
+                                    listEntry1.bindingName = newIdDisplayName.getString();
+                                    continue;
+                                }
                             }
+
                             listEntry1.bindingName = AtumColor.COLOR_SYMBOL + "6"
                                     + newIdDisplayName.getString();
                         }
@@ -559,7 +570,7 @@ public class VRSettingsActions extends VROptionsSet {
 
     private void updateApplyButton() {
 
-        applyChangesButton.active = modified;
+        applyChangesButton.active = canApplyChanges && modified;
         if(applyChangesButton.active) {
             applyChangesButton.getWidgetInfo().setTextColor(AtumColor.YELLOW);
         }else{

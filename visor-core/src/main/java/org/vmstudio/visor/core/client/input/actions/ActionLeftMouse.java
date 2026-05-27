@@ -82,6 +82,11 @@ public class ActionLeftMouse extends VRActionButton {
     }
 
     @Override
+    public boolean isRequired() {
+        return true;
+    }
+
+    @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         if (getId().equals(ID_MAIN)) {
             return Map.of(
