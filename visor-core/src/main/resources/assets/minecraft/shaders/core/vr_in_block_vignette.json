@@ -21,18 +21,6 @@
       "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     },
     {
-      "name": "uEye",
-      "type": "int",
-      "count": 1,
-      "values": [1]
-    },
-    {
-      "name": "uVignetteOffset",
-      "type": "float",
-      "count": 1,
-      "values": [0.1]
-    },
-    {
       "name": "uInBlockProximity",
       "type": "float",
       "count": 1,

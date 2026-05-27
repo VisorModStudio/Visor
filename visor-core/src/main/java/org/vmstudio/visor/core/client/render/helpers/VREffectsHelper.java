@@ -72,7 +72,7 @@ public class VREffectsHelper {
 
         VRShaderInBlockVignette wrap = VRShaders.getInBlockVignette();
         if (wrap == null) return;
-        wrap.prepare(eye, proximity);
+        wrap.prepare(proximity);
         ShaderInstance shader = wrap.getHandle();
 
         // --- Prepare variables ---

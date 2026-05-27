@@ -101,7 +101,7 @@ public class VisorState implements VisorClientState {
 
 
         boolean changed = updateActive(vrActive);
-        if(changed){
+        if(changed && !(playMode == VRPlayMode.WORLD_ONLY && state.isActive())){
             ClientUtils.disconnect("VR state changed");
             return;
         }
@@ -162,7 +162,7 @@ public class VisorState implements VisorClientState {
             VisorClientImpl.LOGGER.info("VR session INIT SUCCESS");
             LoggerUtils.sendPcInfo();
         } catch (Throwable e) {
-            destroyVRWithErrorScreen(e);
+            initFailed(e);
         }
     }
 
@@ -240,21 +240,25 @@ public class VisorState implements VisorClientState {
     }
 
     public static void destroyVRWithErrorScreen(Throwable throwable) {
-        throwable.printStackTrace();
+        LoggerUtils.printError(throwable);
 
         destroyVR();
 
         VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
-        vrInitFailed = true;
 
         if(MC.level != null) {
             MC.level.disconnect();
-            delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
-        }else {
-            LoggerUtils.printError(throwable);
-            //save DISABLED mode if got error in main menu
-            ClientContext.settingsManager.saveOptions();
         }
+        delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
+    }
+    private static void initFailed(Throwable throwable){
+        destroyVR();
+
+        VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
+        ClientContext.settingsManager.saveOptions();
+
+        vrInitFailed = true;
+        LoggerUtils.printError(throwable);
     }
 
     public static void destroyVR() {
