@@ -427,6 +427,9 @@ public class VRClientSettings {
     }
 
 
+
+    public static final float MIN_CALIBRATION_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
+
     public static float getFullHeight() {
         if (fullHeight < 0) {
             return VRPlayer.DEFAULT_FULL_HEIGHT;
@@ -435,12 +438,19 @@ public class VRClientSettings {
         return fullHeight;
     }
 
-    public static void calibrateHeight() {
+    public static boolean tryCalibrateHeight() {
+        var hmdData = ClientContext.rawPoseHandler.getHmdData();
+        if (!hmdData.isTracking()) {
+            return false;
+        }
 
-        VRClientSettings.setFullHeight(
-                ClientContext.rawPoseHandler.getHmdData()
-                .getPivotHistory().averagePosition(0.2f).y
-        );
+        float height = hmdData.getPivotHistory().averagePosition(0.2f).y;
+        if (!Float.isFinite(height) || height < MIN_CALIBRATION_HEIGHT) {
+            return false;
+        }
+
+        VRClientSettings.setFullHeight(height);
+        ClientContext.settingsManager.saveOptions();
 
         int i = (int) (Math.round(100.0D
                 * VRClientSettings.getFullHeight()
@@ -455,7 +465,20 @@ public class VRClientSettings {
                                 )
                         )
                 );
-        ClientContext.settingsManager.saveOptions();
+        return true;
+    }
+
+    public static void calibrateHeight() {
+        if (!tryCalibrateHeight()) {
+            Minecraft.getInstance().gui.getChat()
+                    .addMessage(
+                            Component.literal(
+                                    LangHelper.getText(
+                                            "visor.messages.height_calibration_failed"
+                                    )
+                            )
+                    );
+        }
     }
     public static boolean isLimitedSurvivalTeleport() {
         return true; //leave it, for later easier navigation in code to change movement

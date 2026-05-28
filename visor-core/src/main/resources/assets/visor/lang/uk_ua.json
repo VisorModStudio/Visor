@@ -448,6 +448,7 @@
   "visor.messages.server_supports": "Сервер підтримує Visor!",
   "visor.messages.calibrate_height": "Будь ласка, відкалібруйте свій зріст у меню паузи.",
   "visor.messages.height_set": "Зріст встановлено на %d%%",
+  "visor.messages.height_calibration_failed": "Не вдалося відкалібрувати зріст: поза шолома недоступна. Переконайтеся, що шолом одягнений і відстежується, потім спробуйте знову.",
   "visor.messages.vr_auto_switch": "Одягніть шолом, щоб грати у VR",
   "visor.messages.incompatible_settings": "Несумісні налаштування",
   "visor.messages.server_vr_only": "Сервер тільки для VR гравців!",

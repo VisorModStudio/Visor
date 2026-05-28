@@ -125,8 +125,9 @@ public class ClientNetworking {
         }
 
         if(handshakeReceived){
-            VRClientSettings.calibrateHeight();
-            handshakeReceived = false;
+            if(VRClientSettings.tryCalibrateHeight()){
+                handshakeReceived = false;
+            }
         }
 
         var localPlayer = ClientContext.localPlayer;

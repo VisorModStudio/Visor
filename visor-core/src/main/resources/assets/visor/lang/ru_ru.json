@@ -446,6 +446,7 @@
   "visor.messages.server_supports": "Сервер поддерживает Visor!",
   "visor.messages.calibrate_height": "Пожалуйста, откалибруйте свой рост в меню паузы.",
   "visor.messages.height_set": "Рост установлен на %d%%",
+  "visor.messages.height_calibration_failed": "Не удалось откалибровать рост: поза шлема недоступна. Убедитесь, что шлем надет и отслеживается, затем попробуйте снова.",
   "visor.messages.vr_auto_switch": "Наденьте шлем, чтобы играть в VR",
   "visor.messages.incompatible_settings": "Несовместимые настройки",
   "visor.messages.server_vr_only": "Сервер только для VR игроков!",
