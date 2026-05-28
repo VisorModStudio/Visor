@@ -36,7 +36,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     @Getter @Setter
     private VRBodyType bodyType;
 
-
+    @Getter
     private PoseDataBuffer poseBufferReceived;
 
     private float worldScaleReceived;

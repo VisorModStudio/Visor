@@ -16,7 +16,6 @@ import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.compatibility.RecorderModHelper;
-import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.Minecraft;
@@ -85,7 +84,7 @@ public class ClientNetworking {
         if (MC.getConnection() == null) return;
         if (!serverSupportsVisor) return;
         if(RecorderModHelper.isLoaded()){
-            RecorderModHelper.storeVisorPacket(CHANNEL, payload);
+            RecorderModHelper.storeVisorPacketLocal(CHANNEL, payload);
         }
         MC.getConnection().send(createVRPacket(payload));
     }
@@ -205,9 +204,10 @@ public class ClientNetworking {
             overlayFocusedLastSent = overlayFocused;
         }
 
-        if(RecorderModHelper.isRecording() && !recording){
+        boolean modRecording = RecorderModHelper.isRecording();
+        if(modRecording && !recording){
             recording = true;
-            RecorderModHelper.sendInitPackets(CHANNEL,
+            RecorderModHelper.sendInitPacketsLocal(CHANNEL,
                     List.of(
                             new FullHeightPayloadToServer(height),
                             new WorldScalePayloadToServer(worldScale),
@@ -217,7 +217,11 @@ public class ClientNetworking {
                             new OverlayFocusedPayloadToServer(overlayFocused)
                     )
             );
-        }else{
+            RecorderModHelper.sendInitPacketsRemote(
+                    CHANNEL,
+                    VRClientPlayers.getRemotePlayers()
+            );
+        }else if(!modRecording){
             recording = false;
         }
 

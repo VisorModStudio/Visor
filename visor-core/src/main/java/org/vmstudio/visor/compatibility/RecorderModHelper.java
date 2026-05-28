@@ -1,6 +1,5 @@
 package org.vmstudio.visor.compatibility;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.protocol.Packet;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.common.network.VisorChannel;
@@ -11,7 +10,9 @@ import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
+import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -25,12 +26,68 @@ public class RecorderModHelper {
     public static boolean isRecording(){
         return ReplayCompatHelper.isRecording() || FlashbackCompatHelper.isRecording();
     }
-    public static void sendInitPackets(VisorChannel channel, List<VisorPayloadToServer> packets){
+    public static void sendInitPacketsLocal(VisorChannel channel, List<VisorPayloadToServer> packets){
         for(var packet : packets){
-            storeVisorPacket(channel, packet);
+            storeVisorPacketLocal(channel, packet);
         }
     }
-    public static void storeVisorPacket(VisorChannel channel, VisorPayloadToServer payload){
+    public static void sendInitPacketsRemote(VisorChannel channel,
+                                             Collection<VRRemotePlayerImpl> remotePlayers){
+        for(var remotePlayer : remotePlayers){
+            var uuid = remotePlayer.getMcPlayer().getUUID();
+            storePacket(
+                    channel,
+                    new VROtherPoseDataPayloadToClient(
+                            uuid,
+                            remotePlayer.getPoseBufferReceived()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherBodyTypePayloadToClient(
+                            uuid,
+                            remotePlayer.getBodyType().getId()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherLeftHandedPayloadToClient(
+                            uuid,
+                            remotePlayer.isLeftHanded()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherWorldScalePayloadToClient(
+                            uuid,
+                            remotePlayer.getPoseData().getWorldScale()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherFullHeightPayloadToClient(
+                            uuid,
+                            remotePlayer.getFullHeight()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherGunAnglePayloadToClient(
+                            uuid,
+                            remotePlayer.getGunAngle()
+                    )
+            );
+            storePacket(
+                    channel,
+                    new VROtherOverlayFocusedPayloadToClient(
+                            uuid,
+                            remotePlayer.isOverlayFocused()
+                    )
+            );
+        }
+    }
+
+    public static void storeVisorPacketLocal(VisorChannel channel, VisorPayloadToServer payload){
         var selfUUID = MC.player.getUUID();
         VisorPayloadToClient storePayload = null;
         switch (VisorCorePayloadID.fromOrdinal(payload.payloadId())){
@@ -86,13 +143,20 @@ public class RecorderModHelper {
         }
         if(storePayload != null) {
             storePacket(
-                    ModLoader.get().createPacketToClient(
-                            channel.getChannelId(), storePayload
-                    )
+                    channel,
+                    storePayload
             );
         }
     }
 
+    public static void storePacket(VisorChannel channel,
+                                    VisorPayloadToClient payload){
+        storePacket(
+                ModLoader.get().createPacketToClient(
+                        channel.getChannelId(), payload
+                )
+        );
+    }
     private static void storePacket(Packet<?> packet) {
         if (FlashbackCompatHelper.isLoaded()) {
             FlashbackCompatHelper.storePacket(packet);
