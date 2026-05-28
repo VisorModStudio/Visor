@@ -19,8 +19,7 @@ import java.util.List;
 @RegisterVROverlayTemplate(
         id = VROverlayChat.ID,
         name = VROverlayChat.NAME,
-        description = VROverlayChat.DESCRIPTION,
-        isCreateDefault = true
+        description = VROverlayChat.DESCRIPTION
 )
 public class VROverlayChat extends VROverlayTemplateScreen {
     public static final String ID = "chat";

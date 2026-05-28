@@ -21,8 +21,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 @RegisterVROverlayTemplate(
         id = VROverlayKeyButton.ID,
         name = VROverlayKeyButton.NAME,
-        description = VROverlayKeyButton.DESCRIPTION,
-        isCreateDefault = false
+        description = VROverlayKeyButton.DESCRIPTION
 )
 public class VROverlayKeyButton extends VROverlayTemplateScreen {
 
