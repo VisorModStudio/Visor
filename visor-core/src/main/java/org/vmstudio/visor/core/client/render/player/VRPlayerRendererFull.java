@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.render.player;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -75,7 +76,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                 scale *= pose.getWorldScale() / ScaleHelper.getEntityEyeHeightScale(player, partialTick);
             }
 
-            if (player.isAutoSpinAttack()) {
+            if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
                 // offset player to head
                 float offset = player.getViewXRot(partialTick) / 90F * 0.2F;
                 poseStack.translate(0, pose.getHmd().getPosition().y() + offset, 0);
@@ -176,11 +177,18 @@ public class VRPlayerRendererFull extends PlayerRenderer {
     protected void setupRotations(
             AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick)
     {
-        if (!VRRenderState.getPhase().isVRGui()){
-            var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-            if (vrPlayer != null) {
-                rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
+        if (VRRenderState.getPhase().isVRGui()) {
+            if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
+                return;
             }
+            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+            return;
+        }
+
+        var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
+        if (vrPlayer != null) {
+            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
         }
 
         // vanilla below here
