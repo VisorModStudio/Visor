@@ -502,7 +502,8 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             return;
         }
         pressedDragMouseButtons[buttonType] = true;
-        mouseDragDelay = System.currentTimeMillis() + 100L;
+        mouseDragDelay = System.currentTimeMillis();
+        mouseDragged(getMouseX(), getMouseY(), buttonType, 0, 0);
     }
     public void finishDragMouse(int buttonType){
         if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
