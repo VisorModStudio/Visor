@@ -14,6 +14,7 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
@@ -93,6 +94,16 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
   //--------RENDERING--------\\
     \* ****************** */
 
+    @Redirect(
+            method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
+    )
+    private boolean visor$renderSpectatedVRSelfView(Camera camera) {
+        if (VRRenderState.isSpectatedVRView(camera.getEntity())) {
+            return true;
+        }
+        return camera.isDetached();
+    }
 
     @Inject(at = @At("HEAD"), method = "renderEntity")
     public void visor$captureEntityRestore(CallbackInfo ci,

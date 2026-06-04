@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.VRSceneType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.extensions.client.WindowExtension;
@@ -154,6 +155,27 @@ public class VRRenderState {
         }
         return entity == MC.player
                 && entity == MC.getCameraEntity();
+    }
+
+    public static boolean isSpectatedVRView(Entity entity) {
+        if (entity == null) {
+            return false;
+        }
+        if (VisorState.get().isActive()) {
+            return false;
+        }
+        if (ClientContext.visor == null
+                || ClientContext.localPlayer == null) {
+            return false;
+        }
+        if (MC == null || MC.options == null) {
+            return false;
+        }
+        if (entity != MC.getCameraEntity()
+                || !MC.options.getCameraType().isFirstPerson()) {
+            return false;
+        }
+        return VRClientPlayers.isTracked(entity);
     }
 
     private static boolean canRenderSelfModel(Entity entity) {

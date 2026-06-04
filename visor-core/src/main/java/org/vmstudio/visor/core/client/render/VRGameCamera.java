@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +27,9 @@ public class VRGameCamera extends Camera {
                       float partialTicks) {
         if (VRRenderState.getPhase().isVanilla()) {
             super.setup(level, entity, thirdPerson, thirdPersonReverse, partialTicks);
+            if (VRRenderState.isSpectatedVRView(entity)) {
+                setupSpectatedVR(entity);
+            }
         } else {
             setupVR(level, entity);
         }
@@ -82,6 +86,32 @@ public class VRGameCamera extends Camera {
         this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
         // Build rotation quaternion: Yaw then Pitch
+        this.rotation().identity()
+                .mul(Axis.YP.rotationDegrees(-this.yRot))
+                .mul(Axis.XP.rotationDegrees( this.xRot));
+    }
+
+    private void setupSpectatedVR(Entity entity) {
+        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
+        if (vrPlayer == null) {
+            return;
+        }
+        VRPose hmd = vrPlayer.getPoseData(PlayerPoseType.RENDER).getHmd();
+
+        this.setPosition(new Vec3((Vector3f) hmd.getPosition()));
+
+        // Orientation
+        this.xRot = -hmd.getPitchDegrees();
+        this.yRot =  hmd.getYawDegrees();
+
+        var dir = hmd.getDirection();
+        var upVec = hmd.getCustomVector(VRMathUtils.UP_VECTOR);
+        var leftVec = hmd.getCustomVector(VRMathUtils.LEFT_VECTOR);
+
+        this.getLookVector().set(dir.x(), dir.y(), dir.z());
+        this.getUpVector().set(upVec.x, upVec.y, upVec.z);
+        this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
+
         this.rotation().identity()
                 .mul(Axis.YP.rotationDegrees(-this.yRot))
                 .mul(Axis.XP.rotationDegrees( this.xRot));

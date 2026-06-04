@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -88,6 +87,11 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         super.render(player, entityYaw, partialTick, poseStack, buffer, packedLight);
 
         poseStack.popPose();
+
+        if (vrPlayer != null && VRRenderState.isSpectatedVRView(player)) {
+            ClientContext.handRenderer.renderSpectatedHands(
+                    this, player, vrPlayer, poseStack, buffer, packedLight, partialTick);
+        }
     }
 
     @Override
@@ -115,6 +119,13 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                     ClientContext.localPlayer.getBodyType().getSelfModelVisibility();
             if (visibility == VRBodyType.ModelSelfVisibility.WITHOUT_HANDS
                     && this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
+                vrModel.hideLeftArm();
+                vrModel.hideRightArm();
+            }
+        } else if (VRRenderState.isSpectatedVRView(player)) {
+            this.model.head.visible = false;
+            this.model.hat.visible = false;
+            if (this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
                 vrModel.hideLeftArm();
                 vrModel.hideRightArm();
             }

@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.MapItem;
@@ -214,7 +215,40 @@ public class VRHandRenderer {
 
         RenderSystem.restoreProjectionMatrix();
     }
+    public void renderSpectatedHands(@NotNull PlayerRenderer renderer,
+                                     @NotNull AbstractClientPlayer player,
+                                     @NotNull VRClientPlayer vrPlayer,
+                                     @NotNull PoseStack poseStack,
+                                     @NotNull MultiBufferSource buffer,
+                                     int packedLight,
+                                     float partialTicks) {
+        var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
+        Vec3 offset = renderer.getRenderOffset(player, partialTicks);
+        Vector3f referenceOrigin = new Vector3f(
+                (float) (Mth.lerp(partialTicks, player.xOld, player.getX()) + offset.x),
+                (float) (Mth.lerp(partialTicks, player.yOld, player.getY()) + offset.y),
+                (float) (Mth.lerp(partialTicks, player.zOld, player.getZ()) + offset.z)
+        );
+
+        for (HandType hand : HandType.values()) {
+            poseStack.pushPose();
+            RenderPoseHelper.applyHandPose(renderPose, hand, referenceOrigin, poseStack);
+            renderWorldArmWithItem(
+                    player,
+                    vrPlayer,
+                    hand.asInteractionHand(),
+                    HandRenderState.WORLD_HAND,
+                    player.getAttackAnim(partialTicks),
+                    player.getItemInHand(hand.asInteractionHand()),
+                    poseStack,
+                    buffer,
+                    packedLight,
+                    partialTicks
+            );
+            poseStack.popPose();
+        }
+    }
     /**
      * Renders the cursor ray for all active cursor hands.
      * <p>
@@ -440,15 +474,13 @@ public class VRHandRenderer {
 
         renderWorldArmWithItem(
                 MC.player,
+                ClientContext.localPlayer,
                 interactionHand,
                 state,
                 MC.player.getAttackAnim(partialTicks),
                 item,  poseStack,
                 bufferSource,
-                MC.getEntityRenderDispatcher().getPackedLightCoords(
-                        MC.player,
-                        partialTicks
-                ),
+                MC.getEntityRenderDispatcher().getPackedLightCoords(MC.player, partialTicks),
                 partialTicks
         );
         bufferSource.endBatch();
@@ -460,6 +492,7 @@ public class VRHandRenderer {
 
 
     private void renderWorldArmWithItem(AbstractClientPlayer player,
+                                        VRClientPlayer vrPlayer,
                                         InteractionHand hand,
                                         HandRenderState state,
                                         float pSwingProgress,
@@ -485,6 +518,8 @@ public class VRHandRenderer {
         poseStack.pushPose();
         if (renderArm && !player.isInvisible() && !state.isWithItemOnly()) {
             renderWorldArm(
+                    player,
+                    vrPlayer,
                     poseStack,
                     pBuffer,
                     pCombinedLight,
@@ -555,18 +590,16 @@ public class VRHandRenderer {
         poseStack.popPose();
     }
 
-    private void renderWorldArm(PoseStack poseStack,
+    private void renderWorldArm(AbstractClientPlayer player,
+                                VRClientPlayer vrPlayer,
+                                PoseStack poseStack,
                                 MultiBufferSource multiBufferSource,
                                 int i, float equipProgress, float swingProgress,
                                 HumanoidArm humanoidArm
     ) {
         boolean mainHand = humanoidArm != HumanoidArm.LEFT;
         float handFactor = mainHand ? 1.0F : -1.0F;
-        AbstractClientPlayer player = MC.player;
-        RenderSystem.setShaderTexture(
-                0,
-                player.getSkinTextureLocation()
-        );
+        RenderSystem.setShaderTexture(0, player.getSkinTextureLocation());
 
 
         poseStack.pushPose();
@@ -596,23 +629,15 @@ public class VRHandRenderer {
         );
         ModelUtils.controllerToModelOrientation(poseStack);
 
-        var bodyRenderer = ClientContext.localPlayer.getBodyType().getRenderer()
+        var bodyRenderer = vrPlayer.getBodyType().getRenderer()
                 .getModelRenderer(
-                        ClientContext.localPlayer,
-                        slim
-                                ? VRBodyRenderer.MODEL_NAME_SLIM
-                                : VRBodyRenderer.MODEL_NAME_DEFAULT
+                        vrPlayer,
+                        slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
                 );
         if (mainHand) {
-            bodyRenderer.renderRightHand(
-                    poseStack, multiBufferSource,
-                    i, player
-            );
+            bodyRenderer.renderRightHand(poseStack, multiBufferSource, i, player);
         } else {
-            bodyRenderer.renderLeftHand(
-                    poseStack, multiBufferSource,
-                    i, player
-            );
+            bodyRenderer.renderLeftHand(poseStack, multiBufferSource, i, player);
         }
         poseStack.popPose();
     }

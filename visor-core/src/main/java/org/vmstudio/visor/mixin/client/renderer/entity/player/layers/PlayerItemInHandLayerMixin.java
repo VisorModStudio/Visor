@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -23,6 +22,10 @@ public class PlayerItemInHandLayerMixin {
             CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) HumanoidArm arm,
             @Local(argsOnly = true) ItemStack itemStack)
     {
+        if (VRRenderState.isSpectatedVRView(entity)) {
+            ci.cancel();
+            return;
+        }
         if (VRRenderState.isSelfModelRender(entity)) {
             if(!VRRenderState.isSelfModelHandsRender(entity)){
                 ci.cancel();

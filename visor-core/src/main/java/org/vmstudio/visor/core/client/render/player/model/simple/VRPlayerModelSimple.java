@@ -66,6 +66,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
 
         applyYawPitchToArm(model, playerId, mainArm, vrBody.getMainHand().getPose(), bodyYaw);
         applyYawPitchToArm(model, playerId, offArm,  vrBody.getOffhand().getPose(),  bodyYaw);
+        applyHmdHead(model, poseRender.getHmd(), bodyYaw);
 
         if (entity instanceof AbstractClientPlayer player) {
             float partialTicks = ClientContext.visor != null
@@ -139,5 +140,14 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         if (this.slim) {
             poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, 0.0F, 0.0F);
         }
+    }
+
+    private static void applyHmdHead(VRPlayerModelSimple<?> model,   // <-- Simple uses VRPlayerModelSimple<?>
+                                     VRPose hmd,
+                                     float bodyYaw) {
+        model.head.xRot = -hmd.getPitch();
+        model.head.yRot = hmd.getYaw() - bodyYaw;
+        model.head.zRot = 0.0F;
+        model.hat.copyFrom(model.head);
     }
 }

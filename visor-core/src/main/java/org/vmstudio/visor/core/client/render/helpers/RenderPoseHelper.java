@@ -78,13 +78,19 @@ public class RenderPoseHelper {
     public static void applyHandPose(HandType hand,
                                      PoseStack poseStack) {
         LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
+        Vector3fc cameraPos = getCameraPosition(VRRenderState.getRenderPass(), renderPose);
+        applyHandPose(renderPose, hand, cameraPos, poseStack);
+    }
 
+    public static void applyHandPose(VRPlayerPoseClient renderPose,
+                                     HandType hand,
+                                     Vector3fc referencePos,
+                                     PoseStack poseStack) {
         var handPose = renderPose.getBody().getHand(hand).getPose();
-        // move origin to hand blockPos relative to camera
+        // move origin to hand position relative to the reference origin
         var handPos = handPose.getPosition();
 
-        var cameraPos = getCameraPosition(VRRenderState.getRenderPass(), renderPose);
-        var relative = handPos.sub(cameraPos, new Vector3f());
+        var relative = handPos.sub(referencePos, new Vector3f());
         poseStack.translate(relative.x, relative.y, relative.z);
 
         // apply hand’s inverse rotation
@@ -98,7 +104,6 @@ public class RenderPoseHelper {
         float s = renderPose.getWorldScale();
         poseStack.scale(s, s, s);
     }
-
 
     public static Vector3fc getCameraPosition(VRRenderPass renderPass,
                                               VRPlayerPoseClient vrPose) {

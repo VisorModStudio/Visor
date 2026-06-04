@@ -23,7 +23,8 @@ public class HumanoidArmorLayerMixin {
             @Local(argsOnly = true) EquipmentSlot slot)
     {
         if (slot == EquipmentSlot.HEAD
-                && VRRenderState.isSelfModelRender(entity)) {
+                && (VRRenderState.isSelfModelRender(entity)
+                || VRRenderState.isSpectatedVRView(entity))) {
             ci.cancel();
         }
     }

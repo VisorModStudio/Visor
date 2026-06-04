@@ -55,7 +55,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.vmstudio.visor.core.client.ClientContext;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -488,6 +487,9 @@ public abstract class GameRendererMixin
 
     @Redirect(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"), method = "renderLevel")
     public boolean visor$noVanillaHands(GameRenderer instance) {
+        if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
+            return false;
+        }
         return VRRenderState.getPhase().isVanilla() && renderHand;
     }
 

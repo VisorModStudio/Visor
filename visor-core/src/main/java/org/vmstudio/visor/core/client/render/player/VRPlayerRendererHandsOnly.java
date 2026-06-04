@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -80,8 +81,34 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         super.render(player, entityYaw, partialTick, poseStack, buffer, packedLight);
 
         poseStack.popPose();
+
+        if (vrPlayer != null && VRRenderState.isSpectatedVRView(player)) {
+           ClientContext.handRenderer.renderSpectatedHands(
+                    this, player, vrPlayer, poseStack, buffer, packedLight, partialTick);
+        }
     }
 
+
+    @Override
+    public void setModelProperties(AbstractClientPlayer player) {
+        super.setModelProperties(player);
+
+        if (VRRenderState.isSpectatedVRView(player)) {
+            var model = this.getModel();
+            model.head.visible = false;
+            model.hat.visible = false;
+            model.body.visible = false;
+            model.jacket.visible = false;
+            model.leftArm.visible = false;
+            model.rightArm.visible = false;
+            model.leftSleeve.visible = false;
+            model.rightSleeve.visible = false;
+            model.leftLeg.visible = false;
+            model.rightLeg.visible = false;
+            model.leftPants.visible = false;
+            model.rightPants.visible = false;
+        }
+    }
 
     @Override
     protected void setupRotations(
@@ -142,8 +169,10 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                 CenteredArmsPlayerMesh.armPivotY(slim), 0F);
         rendererArm.setRotation(0F, 0F, 0F);
         rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
+        rendererArm.visible = true;
 
         rendererArmwear.copyFrom(rendererArm);
+        rendererArmwear.visible = true;
 
         ResourceLocation playerSkin = this.getTextureLocation(player);
 
