@@ -494,17 +494,28 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Inject(method = "setCameraEntity", at = @At("HEAD"))
     private void visor$rideEntity(Entity entity, CallbackInfo ci) {
-        if (VisorState.get().isInitialized() && entity != null) {
-            if (entity != this.getCameraEntity()) {
-                // snap to entity, if it changed
-                ClientContext.localPlayer.recenterOrigin(entity, true);
-            }
-            if (entity != this.player) {
-                // ride the new camera entity
-                TaskVehicle.getInstance().onStartRiding(entity);
-            } else {
-                TaskVehicle.getInstance().onStopRiding();
-            }
+        var state = VisorState.get();
+        if (!state.isInitialized() || entity == null) {
+            return;
+        }
+
+        if (state.isActive()
+                && this.player != null
+                && this.player.isSpectator()
+                && entity != this.player) {
+            ci.cancel(); //cancel spectate entity in VR
+            return;
+        }
+
+        if (entity != this.getCameraEntity()) {
+            // snap to entity, if it changed
+            ClientContext.localPlayer.recenterOrigin(entity, true);
+        }
+        if (entity != this.player) {
+            // ride the new camera entity
+            TaskVehicle.getInstance().onStartRiding(entity);
+        } else {
+            TaskVehicle.getInstance().onStopRiding();
         }
     }
 

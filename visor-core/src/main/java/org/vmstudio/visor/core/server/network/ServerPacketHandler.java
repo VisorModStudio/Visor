@@ -152,6 +152,10 @@ public class ServerPacketHandler {
                 if(!VRServerSettings.isBetterSwinging()){
                     return;
                 }
+                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
+                    return;
+                }
+
                 var payload = (SwingAttackPayloadToServer) payloadToServer;
 
                 ServerLevel serverLevel = serverPlayer.serverLevel();
@@ -197,6 +201,10 @@ public class ServerPacketHandler {
                 if(!VRServerSettings.isBetterSwinging()){
                     return;
                 }
+                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
+                    return;
+                }
+
                 var payload = (SwingBlockPayloadToServer) payloadToServer;
 
                 HandType handType = payload.mainHand() ? HandType.MAIN : HandType.OFFHAND;

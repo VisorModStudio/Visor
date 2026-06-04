@@ -165,7 +165,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     && (cursorHandler.getCursorHand() == HandType.MAIN
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = !currentDecorator.supportsWorldHands()
-                    || isCursorHand;
+                    || isCursorHand
+                    || (MC.player != null && MC.player.isSpectator());
             handStateMain = isGuiHand
                     ? HandRenderState.GUI_HAND
                     : HandRenderState.WORLD_HAND;
@@ -187,7 +188,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     && (cursorHandler.getCursorHand() == HandType.OFFHAND
                     || cursorHandler.isTwoHandedCursor());
             boolean isGuiHand = !currentDecorator.supportsWorldHands()
-                    || isCursorHand;
+                    || isCursorHand
+                    || (MC.player != null && MC.player.isSpectator());
             handStateOffhand = isGuiHand
                     ? HandRenderState.GUI_HAND
                     : HandRenderState.WORLD_HAND;

@@ -74,6 +74,20 @@ public abstract class ServerPlayerMixin
         compound.putFloat("visor$offhand_slot", visor$offhandSlotCached);
     }
 
+    /* *************** *\
+  //--------OTHER--------\\
+    \* **************** */
+
+    @Inject(at = @At("HEAD"), method = "setCamera", cancellable = true)
+    private void visor$noSpectateEntityInVR(Entity entityToSpectate,
+                                        CallbackInfo ci){
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+        if(vrPlayer != null){
+            ci.cancel();
+        }
+    }
+
+
     @Override
     protected void visor$injectSetPosRaw(double x, double y, double z, CallbackInfo ci) {
         VRServerPlayer vrPlayer = visor$getVrPlayer();

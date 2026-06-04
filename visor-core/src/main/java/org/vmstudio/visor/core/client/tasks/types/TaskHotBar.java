@@ -233,6 +233,7 @@ public class TaskHotBar extends VisorTask {
     public boolean isActive(@Nullable LocalPlayer player) {
         if(player == null) return false;
         if(MC.screen != null) return false;
+        if(player.isSpectator()) return false;
         return true;
     }
 
