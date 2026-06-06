@@ -33,6 +33,8 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+
         if (VRRenderState.getPhase().isVRGui()) {
             if (entity.isFallFlying() || entity.isVisuallySwimming()) {
                 this.head.xRot = headPitch * Mth.DEG_TO_RAD;
