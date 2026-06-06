@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.render.RenderPhaseStartedVREvent;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.VRSceneType;
+import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -193,6 +194,7 @@ public class VRRenderState {
     }
 
     private static boolean isSelfModelAllowed() {
+        if (ImmPortalsCompatHelper.isRenderingPortalWorld()) return false;
         return ClientContext.localPlayer.getBodyType().getSelfModelVisibility().isVisible()
                 && renderPass.isFirstPerson();
     }
