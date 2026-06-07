@@ -34,6 +34,7 @@ public interface GameRendererExtension {
 
     void visor$restoreCameraEntity(Entity e);
 
+    void visor$applyCachedCameraEntityPosition(Entity e);
 
     void visor$setupClipPlanes();
 

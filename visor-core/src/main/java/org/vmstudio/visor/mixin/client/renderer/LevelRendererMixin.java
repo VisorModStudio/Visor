@@ -114,7 +114,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                 && entity == minecraft.getCameraEntity()) {
             capturedEntity.set(entity);
             ((GameRendererExtension) minecraft.gameRenderer)
-                    .visor$restoreCameraEntity(entity);
+                    .visor$applyCachedCameraEntityPosition(entity);
         }
         this.visor$renderedEntity = entity;
     }
@@ -125,8 +125,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                                   @Share("capturedEntity") LocalRef<Entity> capturedEntity
     ) {
         if (capturedEntity.get() != null) {
-            ((GameRendererExtension) minecraft.gameRenderer)
-                    .visor$cacheCameraEntity(capturedEntity.get());
             ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$setupCameraEntityAsVRCamera();
         }

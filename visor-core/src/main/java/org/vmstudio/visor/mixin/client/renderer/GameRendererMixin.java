@@ -651,6 +651,13 @@ public abstract class GameRendererMixin
         }
     }
 
+    @Override
+    @Unique
+    public void visor$applyCachedCameraEntityPosition(Entity cameraEntity) {
+        if (cameraEntity != null && this.visor$cameraEntityCached) {
+            this.visor$cameraEntityCache.apply(cameraEntity);
+        }
+    }
 
 
 

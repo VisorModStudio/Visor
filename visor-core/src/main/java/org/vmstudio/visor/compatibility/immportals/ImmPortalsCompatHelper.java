@@ -1,5 +1,6 @@
 package org.vmstudio.visor.compatibility.immportals;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -29,7 +30,9 @@ import java.util.List;
 
 //IMMERSIVE PORTALS COMPATIBILITY CLASS
 public final class ImmPortalsCompatHelper {
-    public static final String MOD_ID = "imm_ptl_core";
+    // guys maybe you want to use architectury or multiloader for this
+    public static final String MOD_ID_FABRIC = "imm_ptl_core";
+    public static final String MOD_ID_FORGE = "immersive_portals_core";
 
     private static boolean reflectionInitialized;
     private static boolean reflectionFailed;
@@ -39,6 +42,10 @@ public final class ImmPortalsCompatHelper {
     private static @Nullable Class<? extends Enum> ipRenderModeClass;
     private static @Nullable Field basicProjectionMatrixField;
     private static @Nullable Method worldRenderInfoIsRenderingMethod;
+    private static @Nullable Method worldRenderInfoGetTopRenderInfoMethod;
+    private static @Nullable Field worldRenderInfoDoRenderSkyField;
+    private static @Nullable Field fogColorSupplierField;
+    private static @Nullable Method renderScreenTriangleMethod;
     private static @Nullable Method portalAwareRayTraceMethod;
 
     private static @Nullable Object savedRenderMode;
@@ -50,7 +57,14 @@ public final class ImmPortalsCompatHelper {
     }
 
     public static boolean isLoaded() {
-        return ModLoader.get().isModLoaded(MOD_ID);
+        return ModLoader.get().isModLoaded(MOD_ID_FABRIC) || ModLoader.get().isModLoaded(MOD_ID_FORGE);
+    }
+    // maybe someone want to mixin to this logic
+    public static boolean isStencilMode() {
+        return System.getProperty("visor.immportalsStencil", "true").equals("true");
+    }
+    public static boolean dropEyeMask() {
+        return isStencilMode() && isLoaded();
     }
 
     public static void prepare(@NotNull VisorAddon owner) {
@@ -75,6 +89,9 @@ public final class ImmPortalsCompatHelper {
 
     public static void onVrActivated() {
         if (!ensureReflection()) {
+            return;
+        }
+        if (isStencilMode()) {
             return;
         }
 
@@ -137,6 +154,38 @@ public final class ImmPortalsCompatHelper {
             return Boolean.TRUE.equals(worldRenderInfoIsRenderingMethod.invoke(null));
         } catch (Throwable throwable) {
             logReflectionFailure("Failed to query Immersive Portals render state", throwable);
+            return false;
+        }
+    }
+
+    public static boolean paintPortalFogBackground() {
+        if (!ensureReflection()
+                || worldRenderInfoIsRenderingMethod == null
+                || worldRenderInfoGetTopRenderInfoMethod == null
+                || worldRenderInfoDoRenderSkyField == null
+                || fogColorSupplierField == null
+                || renderScreenTriangleMethod == null) {
+            return false;
+        }
+
+        try {
+            if (!Boolean.TRUE.equals(worldRenderInfoIsRenderingMethod.invoke(null))) {
+                return false;
+            }
+            Object topRenderInfo = worldRenderInfoGetTopRenderInfoMethod.invoke(null);
+            if (topRenderInfo == null || !worldRenderInfoDoRenderSkyField.getBoolean(topRenderInfo)) {
+                return false;
+            }
+            if (!(fogColorSupplierField.get(null) instanceof java.util.function.Supplier<?> fogColorSupplier)) {
+                return false;
+            }
+
+            RenderSystem.depthMask(false);
+            renderScreenTriangleMethod.invoke(null, fogColorSupplier.get());
+            RenderSystem.depthMask(true);
+            return true;
+        } catch (Throwable throwable) {
+            logReflectionFailure("Failed to fix IMMPortals mirror fog", throwable);
             return false;
         }
     }
@@ -240,6 +289,17 @@ public final class ImmPortalsCompatHelper {
                     double.class,
                     Entity.class
             );
+
+            try {
+                Class<?> fogRendererContextClass = Class.forName("qouteall.imm_ptl.core.render.context_management.FogRendererContext");
+                Class<?> myRenderHelperClass = Class.forName("qouteall.imm_ptl.core.render.MyRenderHelper");
+                worldRenderInfoGetTopRenderInfoMethod = worldRenderInfoClass.getMethod("getTopRenderInfo");
+                worldRenderInfoDoRenderSkyField = worldRenderInfoClass.getField("doRenderSky");
+                fogColorSupplierField = fogRendererContextClass.getField("getCurrentFogColor");
+                renderScreenTriangleMethod = myRenderHelperClass.getMethod("renderScreenTriangle", Vec3.class);
+            } catch (Throwable throwable) {
+                logReflectionFailure("Failed to initialize Immersive Portals mirror fog fix", throwable);
+            }
 
             reflectionFailed = false;
             return true;

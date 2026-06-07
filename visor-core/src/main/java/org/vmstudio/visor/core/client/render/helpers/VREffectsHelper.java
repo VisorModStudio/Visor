@@ -112,7 +112,9 @@ public class VREffectsHelper {
     public static void drawEyeStencil() {
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        if (renderPass.isEye() && !ImmPortalsCompatHelper.isRenderingPortalWorld()) {
+        if (renderPass.isEye()
+                && !ImmPortalsCompatHelper.isRenderingPortalWorld()
+                && !ImmPortalsCompatHelper.dropEyeMask()) {
             doStencil(false);
         }
     }
