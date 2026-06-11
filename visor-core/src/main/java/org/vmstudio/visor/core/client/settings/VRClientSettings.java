@@ -13,10 +13,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayo
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
 import org.vmstudio.visor.core.client.settings.options.VROptionField;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
-import org.vmstudio.visor.core.client.settings.options.enums.MovementMode;
-import org.vmstudio.visor.core.client.settings.options.enums.RotationMode;
-import org.vmstudio.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
+import org.vmstudio.visor.core.client.settings.options.enums.*;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.core.client.utils.LangHelper;
 import net.minecraft.client.Minecraft;
@@ -162,7 +159,11 @@ public class VRClientSettings {
 
 
 
-    //----Main menu panorama
+    //----Main menu
+    @Getter
+    @VROptionField(key = "main_menu.scene")
+    protected static MainMenuSceneMode mainMenuScene = MainMenuSceneMode.DEFAULT;
+
     @Getter
     @VROptionField(key = "main_menu.panorama.front")
     protected static String panoramaFront = "visor:textures/mainmenu/panorama_front.png";

@@ -9,9 +9,13 @@ import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDec
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
+import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuFloor;
 import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
+import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuSky;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.settings.options.enums.MainMenuSceneMode;
 import org.jetbrains.annotations.NotNull;
 
 import org.vmstudio.visor.core.client.ClientContext;
@@ -27,16 +31,22 @@ public class DecoratorMainMenu extends VRDecorator {
     }
 
     @Override
+    public void init() {
+        super.init();
+        VRMenuSky.reset();
+    }
+
+    @Override
     public void tick() {
     }
 
     @Override
     public void setupRendering(@NotNull PoseStack poseStack, float partialTicks) {
         RenderPoseHelper.applyCameraOrientation(VRRenderState.getRenderPass(), poseStack);
-        renderPanorama(poseStack);
+        renderScene(poseStack);
     }
 
-    private static void renderPanorama(PoseStack poseStack){
+    private static void renderScene(PoseStack poseStack){
         LocalPlayerPose renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
         poseStack.pushPose();
@@ -57,7 +67,23 @@ public class DecoratorMainMenu extends VRDecorator {
                 )
         );
 
-        VRMenuPanorama.renderMenuPanorama(poseStack);
+        boolean skyScene = VRClientSettings.getMainMenuScene() != MainMenuSceneMode.CUSTOM;
+
+        // 1) Sky background
+        if (skyScene) {
+            VRMenuSky.renderFirst(poseStack);
+        } else {
+            VRMenuPanorama.render(poseStack);
+        }
+
+        // 2) Play-area floor (always drawn — it grounds the VR room-scale play space)
+        VRMenuFloor.render(poseStack);
+
+        // 4) Slow-drifting vanilla-style cuboid cloud sea, far below (procedural sky only)
+        if (skyScene) {
+            VRMenuSky.renderLast(poseStack);
+        }
+
         poseStack.popPose();
     }
 
