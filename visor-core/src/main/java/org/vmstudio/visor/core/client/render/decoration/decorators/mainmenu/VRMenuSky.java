@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
@@ -9,20 +10,23 @@ import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Procedural sky for the VR main menu
  */
 public final class VRMenuSky {
     // ---- DEBUG ----
-    private static final boolean DEBUG_FAST_CYCLE = true;
+    private static final boolean DEBUG_FAST_CYCLE = false;
     private static final float DEBUG_CYCLE_SEC = 60f;
     private static final int DEBUG_FORCE_MOON_PHASE = -1; // 0..7 in the vanilla 4x2 atlas (0 = full); -1 = disabled
 
@@ -40,6 +44,9 @@ public final class VRMenuSky {
     private static final AtumColorImmutable SUN_WHITE = AtumColor.immutable(255, 255, 255, 255);
     private static final AtumColorImmutable SUN_WARM = AtumColor.immutable(255, 150, 70, 255);
 
+    private static final AtumColorImmutable UFO_BODY_HALO = new AtumColorImmutable(52,211,153,255);
+    private static final AtumColorImmutable UFO_BODY_CORE = new AtumColorImmutable(190,245,220,255);
+    private static final AtumColorImmutable UFO_LIGHT = new AtumColorImmutable(255,226,90,255);
     // ---- SKY BOX ----
     private static final float SKY_BOX = 100.0f;
 
@@ -80,11 +87,74 @@ public final class VRMenuSky {
     private static final float SHOOTINGSTAR_RADIUS = 95.0f;
     private static final float SHOOTINGSTAR_WIDTH = 0.22f;      // half-width at the bright head
 
+    // ---- MIDNIGHT UFO (00:00-01:00) ----
+    //amount of columns has to be 11!!
+    private static final String[] UFO_ROWS = {
+            "....111....",
+            "...11111...",
+            ".111111111.",
+            "11111111111",
+            ".2..333..4.", // chasing lights
+    };
+    private static final float UFO_DOT_SPACING = 0.9f;
+    private static final float UFO_RADIUS = 90.0f;
+    private static final float UFO_DOT_HALO = 0.85f;
+    private static final float UFO_DOT_CORE = 0.42f;
+
+    private static final float UFO_FREQUENCY = 35f;
+    private static final float UFO_LIFETIME = 15f;
+    private static final float UFO_FADE_SEC = 0.3f;
+    private static final float UFO_LIGHT_STEP_HZ = 2f;
+    private static final double UFO_AZIMUTH_STEP = 2.39996;
+
+    private static final float[] UFO_LX;
+    private static final float[] UFO_LY;
+    private static final int[] UFO_LIGHT_IDX;
+    private static final int UFO_DOTS_AMOUNT;
+    private static final int UFO_LIGHT_GROUPS;
+
     // ---- VISOR SIGN ----
     private static final Vector3f VISOR_DIR = new Vector3f(0f, 0.5f, -1f).normalize();
-    private static final float VISOR_RADIUS = 88.0f; // inside the star shell so it draws in front
-    private static final float VISOR_PITCH = 1.6f;   // spacing between pixels (world units at VISOR_RADIUS)
-    private static final float VISOR_SUPPRESS_DOT = 0.95f; // hide background stars within this cone (~18 deg)
+    private static final float VISOR_RADIUS = 88.0f;
+    private static final float VISOR_DOTS_SPACING = 1.6f;   // spacing between dots
+    private static final float VISOR_SUPPRESS_DOT = 0.95f; // hide background stars within this cone
+
+    // skin sizes and colors
+    private static final float VISOR_STAR_HALO = 1.15f;
+    private static final float VISOR_STAR_CORE = 0.60f;
+    private static final int[] VISOR_STAR_HALO_C = {30, 200, 245};   // electric cyan corona
+    private static final int[] VISOR_STAR_CORE_C = {200, 250, 255};  // near-white cyan core
+    private static final float VISOR_CLOUD_PUFF = 1.35f;
+    private static final float VISOR_CLOUD_CORE = 0.85f;
+
+    // skin switch + animation
+    private static final float VISOR_DAY_THRESHOLD = 0.5f; // curDay at which the sign flips star<->cloud
+    private static final float VISOR_GLEAM_W = 4.0f;   // half-width of the traveling highlight, in columns
+    private static final float VISOR_GLEAM_AMT = 0.55f;  // extra brightness at the gleam
+    private static final float VISOR_GLEAM_SPEED = 2.5f; // columns per second
+    private static final float VISOR_PULSE_AMT = 0.22f; // size breathing in %
+    private static final float VISOR_PULSE_SPEED = 1.1f;  // breaths per second
+
+    // glyphs, rows top->bottom, '1' = lit
+    private static final int GLYPH_W = 5, GLYPH_H = 7, GLYPH_GAP = 1;
+    private static final String[][] VISOR_GLYPHS = {
+            { "10001", "10001", "10001", "10001", "01010", "01010", "00100" }, // V
+            { "11111", "00100", "00100", "00100", "00100", "00100", "11111" }, // I
+            { "01110", "10001", "10000", "01110", "00001", "10001", "01110" }, // S
+            { "01110", "10001", "10001", "10001", "10001", "10001", "01110" }, // O
+            { "11110", "10001", "10001", "11110", "10100", "10010", "10001" }, // R
+    };
+    private static final int VISOR_TOTAL_COLS =
+            VISOR_GLYPHS.length * GLYPH_W + (VISOR_GLYPHS.length - 1) * GLYPH_GAP;
+
+    // shared billboard basis of the sign plane
+    private static final Vector3f VISOR_RIGHT;
+    private static final Vector3f VISOR_UP;
+
+    private static final DotsSign VISOR_SIGN;
+
+    private static ResourceLocation GLOW_SPRITE = null;
+
 
 
     // ---- FRAME STATE ----
@@ -151,6 +221,54 @@ public final class VRMenuSky {
         }
         STAR_QUAD = Arrays.copyOf(quads, kept);
         STAR_PHASE = Arrays.copyOf(phases, kept);
+
+
+        // ---- UFO ----
+        int rows = UFO_ROWS.length, cols = UFO_ROWS[0].length();
+        float centerCol = (cols - 1) / 2f;
+        float centerRow = (rows - 1) / 2f;
+        int n = 0;
+        int maxGroup = -1;
+        for (String row : UFO_ROWS) {
+            for (int c = 0; c < cols; c++) {
+                char ch = row.charAt(c);
+                if (ch == '1') {
+                    n++;
+                } else if (ch >= '2' && ch <= '9') {
+                    n++;
+                    maxGroup = Math.max(maxGroup, ch - '2');
+                }
+            }
+        }
+        UFO_DOTS_AMOUNT = n;
+        UFO_LIGHT_GROUPS = Math.max(1, maxGroup + 1);
+
+        UFO_LX = new float[n];
+        UFO_LY = new float[n];
+        UFO_LIGHT_IDX = new int[n];
+        int i = 0;
+        for (int row = 0; row < rows; row++) {
+            String line = UFO_ROWS[row];
+            for (int column = 0; column < cols; column++) {
+                char ch = line.charAt(column);
+                boolean light = ch >= '2' && ch <= '9';
+                if (ch != '1' && !light) {
+                    continue;
+                }
+                UFO_LX[i] = (centerCol - column) * UFO_DOT_SPACING;
+                UFO_LY[i] = (centerRow - row) * UFO_DOT_SPACING;
+                UFO_LIGHT_IDX[i] = light ? ch - '2' : -1;
+                i++;
+            }
+        }
+
+        // ---- VISOR SIGN ----
+        Vector3f[] basis = billboardBasis(VISOR_DIR);
+        VISOR_RIGHT = basis[0];
+        VISOR_UP = basis[1];
+        VISOR_SIGN = createDotsSign(VISOR_GLYPHS);
+
+
     }
 
     private VRMenuSky() {
@@ -191,6 +309,9 @@ public final class VRMenuSky {
 
         renderSun(builder, pose);
         renderMoon(builder, pose);
+
+        renderVisorSign(builder, pose);
+        renderUfo(builder, pose);
 
         // --- Restore ---
         RenderSystem.enableCull();
@@ -419,6 +540,7 @@ public final class VRMenuSky {
 
         RenderSystem.defaultBlendFunc();
     }
+
     private static void emitShootingStar(BufferBuilder builder, Matrix4f pose,
                                          float night) {
 
@@ -538,9 +660,146 @@ public final class VRMenuSky {
         ).color(255, 252, 245, meteorAlpha).endVertex();
     }
 
+    // ====== UFO ======
+
+    private static void renderUfo(BufferBuilder builder, Matrix4f pose) {
+        if (currentSceneTime >= 1f) {
+            return; //only between 00:00AM and 01:00AM
+        }
+
+        int cycle = (int) (currentTimeSec / UFO_FREQUENCY);
+        float ageSec = (float) (currentTimeSec - (double) cycle * UFO_FREQUENCY);
+        if (ageSec >= UFO_LIFETIME) {
+            return; // departed for the rest of this cycle
+        }
+
+        ensureGlowSprite();
+
+        ufoParkingDir(cycle, scratchDir);
+        billboardBasis(scratchDir, scratchRight, scratchUp);
+        float ufoX = scratchDir.x * UFO_RADIUS;
+        float ufoY = scratchDir.y * UFO_RADIUS;
+        float ufoZ = scratchDir.z * UFO_RADIUS;
+
+        // blink in/out at both ends instead of popping
+        float fade = clamp01(Math.min(ageSec, UFO_LIFETIME - ageSec) / UFO_FADE_SEC);
+        int chaseStep = (int) (ageSec * UFO_LIGHT_STEP_HZ) % UFO_LIGHT_GROUPS;
+
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        for (int i = 0; i < UFO_DOTS_AMOUNT; i++) {
+            float dotX = ufoX + scratchRight.x * UFO_LX[i] + scratchUp.x * UFO_LY[i];
+            float dotY = ufoY + scratchRight.y * UFO_LX[i] + scratchUp.y * UFO_LY[i];
+            float dotZ = ufoZ + scratchRight.z * UFO_LX[i] + scratchUp.z * UFO_LY[i];
+
+            int group = UFO_LIGHT_IDX[i];
+            if (group >= 0) { // belly light: bright on its chase step, dim otherwise
+                boolean lit = group == chaseStep;
+                int haloAlpha = (int) ((lit ? 160 : 40) * fade);
+                int coreAlpha = (int) ((lit ? 255 : 70) * fade);
+                dotQuad(builder, pose, scratchRight, scratchUp, dotX, dotY, dotZ,
+                        UFO_DOT_HALO * 0.8f, UFO_LIGHT, haloAlpha);
+                dotQuad(builder, pose, scratchRight, scratchUp, dotX, dotY, dotZ,
+                        UFO_DOT_CORE * 0.9f, UFO_LIGHT, coreAlpha);
+            } else { // hull dot
+                dotQuad(builder, pose, scratchRight, scratchUp, dotX, dotY, dotZ,
+                        UFO_DOT_HALO, UFO_BODY_HALO, (int) (150 * fade));
+                dotQuad(builder, pose, scratchRight, scratchUp, dotX, dotY, dotZ,
+                        UFO_DOT_CORE, UFO_BODY_CORE, (int) (235 * fade));
+            }
+        }
+        BufferUploader.drawWithShader(builder.end());
+
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+    }
+
+    private static void ufoParkingDir(int cycle, Vector3f out) {
+        float azimuth = (float) ((cycle * UFO_AZIMUTH_STEP) % (Math.PI * 2.0));
+        float elevation = 0.175f + 0.075f * (float) Math.sin(cycle * 1.7); // low over horizon, per-cycle wobble
+        float horiz = (float) Math.cos(elevation);
+        out.set(
+                horiz * (float) Math.cos(azimuth),
+                (float) Math.sin(elevation),
+                horiz * (float) Math.sin(azimuth)
+        );
+        if (out.dot(VISOR_DIR) > 0.93f) { // parked on the sign -> step aside
+            azimuth += 1.1f;
+            out.x = horiz * (float) Math.cos(azimuth);
+            out.z = horiz * (float) Math.sin(azimuth);
+        }
+    }
+
+    // ====== VISOR SIGN ======
+
+    private static void renderVisorSign(BufferBuilder builder,
+                                        Matrix4f pose) {
+        ensureGlowSprite();
+
+        float gleamPos = (float) (currentTimeSec * VISOR_GLEAM_SPEED) % (VISOR_TOTAL_COLS + VISOR_GLEAM_W * 2f) - VISOR_GLEAM_W;
+        boolean asCloudDots = currentDay >= VISOR_DAY_THRESHOLD;
+
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        if (asCloudDots) {
+            RenderSystem.defaultBlendFunc();
+        } else {
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE); // additive
+        }
+
+        int[] cc = {0, 0, 0};
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        for (int i = 0; i < VISOR_SIGN.n; i++) {
+            float gleam = 1f + VISOR_GLEAM_AMT * Math.max(0f, 1f - Math.abs(VISOR_SIGN.col[i] - gleamPos) / VISOR_GLEAM_W);
+            float cx = VISOR_SIGN.px[i], cy = VISOR_SIGN.py[i], cz = VISOR_SIGN.pz[i]; // anchored
+            if (asCloudDots) {
+                // calmer, slower breathing for the cloud skin
+                float pulse = 1f + VISOR_PULSE_AMT * 0.6f * (float) Math.sin(currentTimeSec * VISOR_PULSE_SPEED * 0.7f + i * 1.3f);
+                cc[0] = (int) Math.min(255f, currentCloud.getRedInt() * gleam); // tinted live + brightened by the gleam
+                cc[1] = (int) Math.min(255f, currentCloud.getGreenInt() * gleam);
+                cc[2] = (int) Math.min(255f, currentCloud.getBlueInt() * gleam);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_PUFF * pulse, cc, 200);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_CORE * pulse, cc, 235);
+            } else {
+                float pulse = 1f + VISOR_PULSE_AMT * (float) Math.sin(currentTimeSec * VISOR_PULSE_SPEED + i * 1.7f);
+                int ha = (int) Math.min(255f, 170f * gleam);
+                int ca = (int) Math.min(255f, 255f * gleam);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_HALO * pulse, VISOR_STAR_HALO_C, ha);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_CORE * pulse, VISOR_STAR_CORE_C, ca);
+            }
+        }
+        BufferUploader.drawWithShader(builder.end());
+
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+    }
+
+
     // ====== HELPERS ======
 
-    // --- SKY BOX ---
+    // ---- COMMON
+    private static float smoothstep(float edge0, float edge1, float x) {
+        float t = Math.min(1f, Math.max(0f, (x - edge0) / (edge1 - edge0)));
+        return t * t * (3f - 2f * t);
+    }
+
+    private static float hash01(int i, int j, int salt) {
+        long h = i * 0x9E3779B97F4A7C15L + j * 0xC2B2AE3D27D4EB4FL + salt * 0x165667B19E3779F9L;
+        h ^= (h >>> 30);
+        h *= 0xBF58476D1CE4E5B9L;
+        h ^= (h >>> 27);
+        h *= 0x94D049BB133111EBL;
+        h ^= (h >>> 31);
+        return (h >>> 40) * (1.0f / (1 << 24));
+    }
+
+
+    // --- SKY BOX
     private static void zenith(BufferBuilder builder, Matrix4f pose, float x, float y, float z) {
         builder.vertex(pose, x, y, z)
                 .color(currentZenith.getRedInt(), currentZenith.getGreenInt(), currentZenith.getBlueInt(), 255)
@@ -556,13 +815,8 @@ public final class VRMenuSky {
     }
 
 
-    private static float smoothstep(float edge0, float edge1, float x) {
-        float t = Math.min(1f, Math.max(0f, (x - edge0) / (edge1 - edge0)));
-        return t * t * (3f - 2f * t);
-    }
 
-
-    // --- CELESTIAL BODIES ---
+    // --- CELESTIAL BODIES
     private static void billboardBasis(Vector3f dir,
                                        Vector3f outRight,
                                        Vector3f outUp) {
@@ -600,7 +854,7 @@ public final class VRMenuSky {
     }
 
 
-    // --- STARS ---
+    // --- STARS
     private static void setCorner(float[] out, float bx, float by, float bz, Vector3f right, Vector3f up, float a, float b) {
         out[0] = bx + right.x * a + up.x * b;
         out[1] = by + right.y * a + up.y * b;
@@ -613,13 +867,118 @@ public final class VRMenuSky {
         builder.vertex(pose, p[0], p[1], p[2]).color(255, 255, 255, alpha).endVertex();
     }
 
-    private static float hash01(int i, int j, int salt) {
-        long h = i * 0x9E3779B97F4A7C15L + j * 0xC2B2AE3D27D4EB4FL + salt * 0x165667B19E3779F9L;
-        h ^= (h >>> 30);
-        h *= 0xBF58476D1CE4E5B9L;
-        h ^= (h >>> 27);
-        h *= 0x94D049BB133111EBL;
-        h ^= (h >>> 31);
-        return (h >>> 40) * (1.0f / (1 << 24));
+    // ---- GLOWING DOTS
+    private static void spriteQuad(BufferBuilder bb, Matrix4f m, float cx, float cy, float cz, float hs, int[] col, int a) {
+        dotQuad(bb, m, VISOR_RIGHT, VISOR_UP, cx, cy, cz, hs, col[0], col[1], col[2], a);
+    }
+
+    private static float clamp01(float v) {
+        return Math.max(0f, Math.min(1f, v));
+    }
+
+    private static void dotQuad(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
+                                float cx, float cy, float cz, float hs, AtumColor color, int a) {
+        dotQuad(bb, m, right, up, cx, cy, cz, hs, color.getRedInt(), color.getGreenInt(), color.getBlueInt(), a);
+    }
+
+    // glow-sprite quad around a center, in an arbitrary billboard basis
+    private static void dotQuad(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
+                                float cx, float cy, float cz, float hs, int r, int g, int b, int a) {
+        dotVertex(bb, m, right, up, cx, cy, cz, -hs, -hs, 0f, 0f, r, g, b, a);
+        dotVertex(bb, m, right, up, cx, cy, cz,  hs, -hs, 1f, 0f, r, g, b, a);
+        dotVertex(bb, m, right, up, cx, cy, cz,  hs,  hs, 1f, 1f, r, g, b, a);
+        dotVertex(bb, m, right, up, cx, cy, cz, -hs,  hs, 0f, 1f, r, g, b, a);
+    }
+
+    private static void dotVertex(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
+                                  float cx, float cy, float cz,
+                                  float sx, float sy, float u, float v, int r, int g, int b, int a) {
+        float x = cx + right.x * sx + up.x * sy;
+        float y = cy + right.y * sx + up.y * sy;
+        float z = cz + right.z * sx + up.z * sy;
+        bb.vertex(m, x, y, z).uv(u, v).color(r, g, b, a).endVertex();
+    }
+
+    private static void ensureGlowSprite() {
+        if (GLOW_SPRITE != null) {
+            return;
+        }
+        int size = 64;
+        NativeImage img = new NativeImage(NativeImage.Format.RGBA, size, size, false);
+        float c = (size - 1) / 2f;
+        float rad = size / 2f;
+        for (int y = 0; y < size; y++) {
+            for (int x = 0; x < size; x++) {
+                float dx = (x - c) / rad;
+                float dy = (y - c) / rad;
+                float r = (float) Math.sqrt(dx * dx + dy * dy);
+                float a = smoothstep(1.0f, 0.0f, r);
+                a = a * a; // tighter core, softer halo
+                int ai = (int) (a * 255f);
+
+                img.setPixelRGBA(x, y, (ai << 24) | 0x00FFFFFF);
+            }
+        }
+        DynamicTexture tex = new DynamicTexture(img);
+        GLOW_SPRITE = Minecraft.getInstance().getTextureManager().register("visor_glow", tex);
+    }
+
+    // ---- VISOR SIGN
+    private static DotsSign createDotsSign(String[][] glyphs) {
+        Vector3f center = new Vector3f(VISOR_DIR).mul(VISOR_RADIUS);
+        float centerCol = (VISOR_TOTAL_COLS - 1) / 2f;
+        float centerRow = (GLYPH_H - 1) / 2f;
+
+        List<float[]> pts = new ArrayList<>();
+        List<Integer> cols = new ArrayList<>();
+        for (int li = 0; li < glyphs.length; li++) {
+            String[] glyph = glyphs[li];
+            for (int row = 0; row < GLYPH_H; row++) {
+                String line = glyph[row];
+                for (int c = 0; c < GLYPH_W; c++) {
+                    if (line.charAt(c) != '1') {
+                        continue;
+                    }
+                    int gcol = li * (GLYPH_W + GLYPH_GAP) + c;
+                    float lx = (centerCol - gcol) * VISOR_DOTS_SPACING; // un-mirrored
+                    float ly = (centerRow - row) * VISOR_DOTS_SPACING;  // +up (row 0 = top)
+                    pts.add(new float[]{
+                            center.x + VISOR_RIGHT.x * lx + VISOR_UP.x * ly,
+                            center.y + VISOR_RIGHT.y * lx + VISOR_UP.y * ly,
+                            center.z + VISOR_RIGHT.z * lx + VISOR_UP.z * ly
+                    });
+                    cols.add(gcol);
+                }
+            }
+        }
+        int n = pts.size();
+        float[] px = new float[n];
+        float[] py = new float[n];
+        float[] pz = new float[n];
+        int[] col = new int[n];
+        for (int i = 0; i < n; i++) {
+            float[] p = pts.get(i);
+            px[i] = p[0];
+            py[i] = p[1];
+            pz[i] = p[2];
+            col[i] = cols.get(i);
+        }
+        return new DotsSign(px, py, pz, col);
+    }
+
+
+
+    private static final class DotsSign {
+        final float[] px, py, pz;
+        final int[] col;
+        final int n;
+
+        DotsSign(float[] px, float[] py, float[] pz, int[] col) {
+            this.px = px;
+            this.py = py;
+            this.pz = pz;
+            this.col = col;
+            this.n = px.length;
+        }
     }
 }
