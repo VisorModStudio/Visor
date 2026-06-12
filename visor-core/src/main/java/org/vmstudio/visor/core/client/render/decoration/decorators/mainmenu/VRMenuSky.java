@@ -155,6 +155,48 @@ public final class VRMenuSky {
 
     private static ResourceLocation GLOW_SPRITE = null;
 
+    // ---- CLOUDS ----
+    private static final float CLOUD_Y = -14.0f;
+    private static final float SHADE_UP = 1.00f, SHADE_NS = 0.85f, SHADE_WE = 0.72f;
+    private static final float CLOUD_THICK = 2.0f;
+    private static final float CLOUD_TILE = 5.0f;
+    private static final float CLOUD_CELL = 25.0f; // average spacing between spawns; lower = denser field
+    private static final float CLOUD_JITTER = 10.0f;   // XZ scatter within each cell; up to CLOUD_CELL/2 (12.5) for max randomness
+    private static final float CLOUD_JITTER_Y = 4.0f;  // per-cloud height variation; keep <= ~6 so clouds stay below the play area
+    private static final float CLOUD_RANGE = 100.0f;
+    private static final float CLOUD_FILL = 0.80f;
+    private static final float CLOUD_DRIFT_X = 0.30f;
+    private static final float CLOUD_DRIFT_Z = 0.12f;
+
+    private static final float AERIAL_START = 38.0f;   // color haze begins (units from center)
+    private static final float AERIAL_MAX = 0.50f;     // max blend toward horizon color at the edge
+    private static final float ALPHA_FADE_START = 60.0f; // alpha holds full until here, then drops
+    private static final long FADE_IN_MS = 800L;
+
+    private static final int[][][] CLOUD_SHAPES = {
+            // 2x2
+            {{0, 0}, {1, 0}, {0, 1}, {1, 1}},
+            // 3x2
+            {{-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}},
+            // 3x3
+            {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}},
+            // 4x2
+            {{-1, 0}, {0, 0}, {1, 0}, {2, 0}, {-1, 1}, {0, 1}, {1, 1}, {2, 1}},
+            // 4x3
+            {{-1, -1}, {0, -1}, {1, -1}, {2, -1}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}, {-1, 1}, {0, 1}, {1, 1}, {2, 1}},
+            // 4x4
+            {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {0, 1}, {1, 1}, {2, 1}, {3, 1}, {0, 2}, {1, 2}, {2, 2}, {3, 2}, {0, 3}, {1, 3}, {2, 3}, {3, 3}},
+            // 4x3, one corner notched
+            {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}, {0, 0}, {1, 0}, {2, 0}, {-1, 1}, {0, 1}, {1, 1}, {2, 1}},
+            // 3x2 with a single-tile bump on top edge
+            {{-1, 0}, {0, 0}, {1, 0}, {-1, 1}, {0, 1}, {1, 1}, {0, 2}},
+            // 4x2, one corner notched
+            {{-1, 0}, {0, 0}, {1, 0}, {2, 0}, {0, 1}, {1, 1}, {2, 1}},
+    };
+
+    private static final int FACE_XN = 1, FACE_XP = 2, FACE_ZN = 4, FACE_ZP = 8;
+
+    private static final CloudVariant[] CLOUD_VARIANTS = new CloudVariant[CLOUD_SHAPES.length * 4];
 
 
     // ---- FRAME STATE ----
@@ -268,7 +310,47 @@ public final class VRMenuSky {
         VISOR_UP = basis[1];
         VISOR_SIGN = createDotsSign(VISOR_GLYPHS);
 
-
+        // ---- CLOUDS ----
+        for (int si = 0; si < CLOUD_SHAPES.length; si++) {
+            int[][] shape = CLOUD_SHAPES[si];
+            n = shape.length;
+            for (int rot = 0; rot < 4; rot++) {
+                int[] txs = new int[n];
+                int[] tzs = new int[n];
+                int sumTx = 0, sumTz = 0;
+                for (int s = 0; s < n; s++) {
+                    int tx = shape[s][0], tz = shape[s][1];
+                    for (int r = 0; r < rot; r++) {
+                        int nx = tz;
+                        tz = -tx;
+                        tx = nx;
+                    }
+                    txs[s] = tx;
+                    tzs[s] = tz;
+                    sumTx += tx;
+                    sumTz += tz;
+                }
+                byte[] faces = new byte[n];
+                for (int s = 0; s < n; s++) {
+                    int f = 0;
+                    if (!hasTile(txs, tzs, n, txs[s] - 1, tzs[s])) {
+                        f |= FACE_XN;
+                    }
+                    if (!hasTile(txs, tzs, n, txs[s] + 1, tzs[s])) {
+                        f |= FACE_XP;
+                    }
+                    if (!hasTile(txs, tzs, n, txs[s], tzs[s] - 1)) {
+                        f |= FACE_ZN;
+                    }
+                    if (!hasTile(txs, tzs, n, txs[s], tzs[s] + 1)) {
+                        f |= FACE_ZP;
+                    }
+                    faces[s] = (byte) f;
+                }
+                CLOUD_VARIANTS[si * 4 + rot] = new CloudVariant(txs, tzs, faces,
+                        (sumTx / (float) n) * CLOUD_TILE, (sumTz / (float) n) * CLOUD_TILE);
+            }
+        }
     }
 
     private VRMenuSky() {
@@ -320,7 +402,22 @@ public final class VRMenuSky {
     }
 
     public static void renderLast(PoseStack poseStack) {
+        // --- Prepare variables ---
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        Matrix4f pose = poseStack.last().pose();
 
+        // --- Setup ---
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        // blend now ON: edge clouds dissolve via alpha rather than being recolored solids
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        RenderSystem.depthMask(true);
+        RenderSystem.enableCull();
+
+        // --- Render ---
+        renderClouds(builder, pose);
     }
 
     // ====== TIME ======
@@ -779,6 +876,149 @@ public final class VRMenuSky {
         RenderSystem.setShaderColor(1, 1, 1, 1);
     }
 
+    // ====== CLOUDS ======
+
+    private static void renderClouds(BufferBuilder builder,
+                                     Matrix4f pose) {
+
+        // how far the whole cloud field has drifted since launch, in world units
+        double driftX = CLOUD_DRIFT_X * currentTimeSec;
+        double driftZ = CLOUD_DRIFT_Z * currentTimeSec;
+
+        // grid-cell index bounds covering the visible range, with a wider margin
+        // so edge clouds whose tiles reach into range are still emitted
+        int minCellX = (int) Math.floor((driftX - CLOUD_RANGE) / CLOUD_CELL) - 2;
+        int maxCellX = (int) Math.ceil((driftX + CLOUD_RANGE) / CLOUD_CELL) + 2;
+        int minCellZ = (int) Math.floor((driftZ - CLOUD_RANGE) / CLOUD_CELL) - 2;
+        int maxCellZ = (int) Math.ceil((driftZ + CLOUD_RANGE) / CLOUD_CELL) + 2;
+
+        // only cull once the WHOLE cloud is past the edge; per-vertex alpha hides the boundary
+        float cullDistance = CLOUD_RANGE + 24f;
+
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
+            for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
+                if (hash01(cellX, cellZ, 0) > CLOUD_FILL) {
+                    continue; // empty cell
+                }
+
+                // scatter the cloud inside its cell so the underlying grid isn't visible
+                float jitterX = (hash01(cellX, cellZ, 1) * 2f - 1f) * CLOUD_JITTER;
+                float jitterZ = (hash01(cellX, cellZ, 2) * 2f - 1f) * CLOUD_JITTER;
+
+                // cloud center relative to the viewer; the field scrolls past as the drift grows
+                float cloudCenterX = (float) (cellX * (double) CLOUD_CELL + jitterX - driftX);
+                float cloudCenterZ = (float) (cellZ * (double) CLOUD_CELL + jitterZ - driftZ);
+
+                float distanceToCloud = (float) Math.sqrt(
+                        cloudCenterX * cloudCenterX + cloudCenterZ * cloudCenterZ
+                );
+                if (distanceToCloud > cullDistance) {
+                    continue;
+                }
+                emitCloud(builder, pose, cloudCenterX, cloudCenterZ, cellX, cellZ);
+            }
+        }
+        BufferUploader.drawWithShader(builder.end());
+    }
+
+    private static void emitCloud(BufferBuilder builder, Matrix4f pose,
+                                  float cloudCenterX, float cloudCenterZ,
+                                  int cellX, int cellZ) {
+        // deterministic shape + rotation pick for this cell, from the pre-baked variants
+        int shapeIndex = (int) (hash01(cellX, cellZ, 10) * CLOUD_SHAPES.length);
+        int rotation = (int) (hash01(cellX, cellZ, 11) * 4f) & 3;
+        CloudVariant variant = CLOUD_VARIANTS[shapeIndex * 4 + rotation];
+        int tileCount = variant.tx.length;
+
+        float halfTile = CLOUD_TILE * 0.5f;
+        float cloudCenterY = CLOUD_Y + (hash01(cellX, cellZ, 3) * 2f - 1f) * CLOUD_JITTER_Y;
+        float bottomY = cloudCenterY - CLOUD_THICK;
+        float topY = cloudCenterY + CLOUD_THICK;
+
+        for (int tile = 0; tile < tileCount; tile++) {
+            // tile center; the baked offsets keep the shape's centroid on the cloud center
+            float tileCenterX = cloudCenterX + variant.tx[tile] * CLOUD_TILE - variant.offX;
+            float tileCenterZ = cloudCenterZ + variant.tz[tile] * CLOUD_TILE - variant.offZ;
+
+            float minX = tileCenterX - halfTile, maxX = tileCenterX + halfTile;
+            float minZ = tileCenterZ - halfTile, maxZ = tileCenterZ + halfTile;
+
+            // top face is always exposed
+            cloudFace(builder, pose, SHADE_UP,
+                    minX, topY, maxZ,
+                    maxX, topY, maxZ,
+                    maxX, topY, minZ,
+                    minX, topY, minZ);
+
+            // side faces only where no neighbor tile covers them (flags baked at class load)
+            int exposedFaces = variant.faces[tile];
+            if ((exposedFaces & FACE_XN) != 0) {
+                // -X wall
+                cloudFace(builder, pose, SHADE_WE,
+                        minX, bottomY, minZ,
+                        minX, bottomY, maxZ,
+                        minX, topY, maxZ,
+                        minX, topY, minZ);
+            }
+            if ((exposedFaces & FACE_XP) != 0) {
+                // +X wall
+                cloudFace(builder, pose, SHADE_WE,
+                        maxX, bottomY, minZ,
+                        maxX, topY, minZ,
+                        maxX, topY, maxZ,
+                        maxX, bottomY, maxZ);
+            }
+            if ((exposedFaces & FACE_ZN) != 0) {
+                // -Z wall
+                cloudFace(builder, pose, SHADE_NS,
+                        minX, bottomY, minZ,
+                        minX, topY, minZ,
+                        maxX, topY, minZ,
+                        maxX, bottomY, minZ);
+            }
+            if ((exposedFaces & FACE_ZP) != 0) {
+                // +Z wall
+                cloudFace(builder, pose, SHADE_NS,
+                        minX, bottomY, maxZ,
+                        maxX, bottomY, maxZ,
+                        maxX, topY, maxZ,
+                        minX, topY, maxZ);
+            }
+        }
+    }
+
+    private static void cloudFace(BufferBuilder builder, Matrix4f pose,
+                                  float shade,
+                                  float corner1X, float corner1Y, float corner1Z,
+                                  float corner2X, float corner2Y, float corner2Z,
+                                  float corner3X, float corner3Y, float corner3Z,
+                                  float corner4X, float corner4Y, float corner4Z) {
+        int[] shadedColor = new int[3];
+        currentCloud.multiply(shade, shadedColor);
+        cloudVertex(builder, pose, corner1X, corner1Y, corner1Z, shadedColor);
+        cloudVertex(builder, pose, corner2X, corner2Y, corner2Z, shadedColor);
+        cloudVertex(builder, pose, corner3X, corner3Y, corner3Z, shadedColor);
+        cloudVertex(builder, pose, corner4X, corner4Y, corner4Z, shadedColor);
+    }
+
+    private static void cloudVertex(BufferBuilder builder, Matrix4f pose,
+                                    float x, float y, float z,
+                                    int[] shadedColor) {
+        float dist = (float) Math.sqrt(x * x + z * z);
+
+        // blending cloud with horizon
+        float aerial = AERIAL_MAX * smoothstep(AERIAL_START, CLOUD_RANGE, dist);
+        int r = (int) (shadedColor[0] + (currentHorizon.getRedInt() - shadedColor[0]) * aerial);
+        int g = (int) (shadedColor[1] + (currentHorizon.getGreenInt() - shadedColor[1]) * aerial);
+        int b = (int) (shadedColor[2] + (currentHorizon.getBlueInt() - shadedColor[2]) * aerial);
+
+        // alpha: dissolve cloud when out of visible area
+        float dissolve = 1f - smoothstep(ALPHA_FADE_START, CLOUD_RANGE, dist);
+        int a = (int) (255f * dissolve);
+
+        builder.vertex(pose, x, y, z).color(r, g, b, a).endVertex();
+    }
 
     // ====== HELPERS ======
 
@@ -868,26 +1108,29 @@ public final class VRMenuSky {
     }
 
     // ---- GLOWING DOTS
-    private static void spriteQuad(BufferBuilder bb, Matrix4f m, float cx, float cy, float cz, float hs, int[] col, int a) {
-        dotQuad(bb, m, VISOR_RIGHT, VISOR_UP, cx, cy, cz, hs, col[0], col[1], col[2], a);
+    private static void spriteQuad(BufferBuilder builder, Matrix4f pose, float cx, float cy, float cz, float hs, int[] col, int a) {
+        dotQuad(builder, pose, VISOR_RIGHT, VISOR_UP, cx, cy, cz, hs, col[0], col[1], col[2], a);
     }
 
     private static float clamp01(float v) {
         return Math.max(0f, Math.min(1f, v));
     }
 
-    private static void dotQuad(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
-                                float cx, float cy, float cz, float hs, AtumColor color, int a) {
-        dotQuad(bb, m, right, up, cx, cy, cz, hs, color.getRedInt(), color.getGreenInt(), color.getBlueInt(), a);
+    private static void dotQuad(BufferBuilder builder, Matrix4f pose, Vector3f right, Vector3f up,
+                                float cx, float cy, float cz, float hs,
+                                AtumColor color, int a) {
+        dotQuad(builder, pose, right, up, cx, cy, cz, hs, color.getRedInt(), color.getGreenInt(), color.getBlueInt(), a);
     }
 
     // glow-sprite quad around a center, in an arbitrary billboard basis
-    private static void dotQuad(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
-                                float cx, float cy, float cz, float hs, int r, int g, int b, int a) {
-        dotVertex(bb, m, right, up, cx, cy, cz, -hs, -hs, 0f, 0f, r, g, b, a);
-        dotVertex(bb, m, right, up, cx, cy, cz,  hs, -hs, 1f, 0f, r, g, b, a);
-        dotVertex(bb, m, right, up, cx, cy, cz,  hs,  hs, 1f, 1f, r, g, b, a);
-        dotVertex(bb, m, right, up, cx, cy, cz, -hs,  hs, 0f, 1f, r, g, b, a);
+    private static void dotQuad(BufferBuilder builder, Matrix4f pose,
+                                Vector3f right, Vector3f up,
+                                float cx, float cy, float cz, float hs,
+                                int r, int g, int b, int a) {
+        dotVertex(builder, pose, right, up, cx, cy, cz, -hs, -hs, 0f, 0f, r, g, b, a);
+        dotVertex(builder, pose, right, up, cx, cy, cz,  hs, -hs, 1f, 0f, r, g, b, a);
+        dotVertex(builder, pose, right, up, cx, cy, cz,  hs,  hs, 1f, 1f, r, g, b, a);
+        dotVertex(builder, pose, right, up, cx, cy, cz, -hs,  hs, 0f, 1f, r, g, b, a);
     }
 
     private static void dotVertex(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
@@ -966,7 +1209,19 @@ public final class VRMenuSky {
         return new DotsSign(px, py, pz, col);
     }
 
+    // ---- CLOUDS
+    private static float menuFadeIn() {
+        return smoothstep(0f, 1f, (Util.getMillis() - startTime) / (float) FADE_IN_MS);
+    }
 
+    private static boolean hasTile(int[] txs, int[] tzs, int n, int qx, int qz) {
+        for (int i = 0; i < n; i++) {
+            if (txs[i] == qx && tzs[i] == qz) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static final class DotsSign {
         final float[] px, py, pz;
@@ -979,6 +1234,20 @@ public final class VRMenuSky {
             this.pz = pz;
             this.col = col;
             this.n = px.length;
+        }
+    }
+
+    private static final class CloudVariant {
+        final int[] tx, tz;
+        final byte[] faces;
+        final float offX, offZ;
+
+        CloudVariant(int[] tx, int[] tz, byte[] faces, float offX, float offZ) {
+            this.tx = tx;
+            this.tz = tz;
+            this.faces = faces;
+            this.offX = offX;
+            this.offZ = offZ;
         }
     }
 }
