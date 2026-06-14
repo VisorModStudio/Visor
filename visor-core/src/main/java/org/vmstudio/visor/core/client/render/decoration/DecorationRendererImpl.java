@@ -66,13 +66,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterSolid(poseStack, partialTicks);
                     }
-                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
-                            RenderPipelineStage.AFTER_SOLID,
-                            VRRenderState.getPhase(),
-                            VRRenderState.getRenderPass(),
-                            poseStack,
-                            partialTicks
-                    ));
+                    callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
+                    GLUtils.checkGLError("post AFTER_SOLID events stage");
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -81,13 +76,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterTranslucent(poseStack, partialTicks);
                     }
-                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
-                            RenderPipelineStage.AFTER_TRANSLUCENT,
-                            VRRenderState.getPhase(),
-                            VRRenderState.getRenderPass(),
-                            poseStack,
-                            partialTicks
-                    ));
+                    callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
+                    GLUtils.checkGLError("post AFTER_TRANSLUCENT events stage");
                 }
         );
         ModLoader.get().addToRenderPipeline(
@@ -96,24 +86,36 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterWorld(poseStack, partialTicks);
                     }
-                    VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
-                            RenderPipelineStage.AFTER_WORLD,
-                            VRRenderState.getPhase(),
-                            VRRenderState.getRenderPass(),
-                            poseStack,
-                            partialTicks
-                    ));
+                    callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
+                    GLUtils.checkGLError("post AFTER_WORLD events stage");
                 }
         );
     }
 
     @Override
-    public void render(PoseStack poseStack, float partialTicks) {
+    public void renderMainMenu(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
 
         renderAfterSolid(poseStack, partialTicks);
+        callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
+
         renderAfterTranslucent(poseStack, partialTicks);
+        callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
+
         renderAfterWorld(poseStack, partialTicks);
+        callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
+    }
+
+    private void callStageEvent(RenderPipelineStage stage,
+                                PoseStack poseStack,
+                                float partialTicks) {
+        VisorAPI.eventBus().callEvent(new RenderPipelineStageVREvent(
+                stage,
+                VRRenderState.getPhase(),
+                VRRenderState.getRenderPass(),
+                poseStack,
+                partialTicks
+        ));
     }
 
     @Override

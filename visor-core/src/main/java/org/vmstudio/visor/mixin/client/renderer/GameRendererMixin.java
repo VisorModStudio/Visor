@@ -164,7 +164,7 @@ public abstract class GameRendererMixin
 
             PoseStack poseStack = new PoseStack();
             //render VR main menu
-            ClientContext.decorationRenderer.render(
+            ClientContext.decorationRenderer.renderMainMenu(
                     poseStack,
                     partialTicks
             );

@@ -16,7 +16,7 @@ public interface VRDecorationRenderer {
      * <p>When a level exists, rendering is handled by
      * the mod-loader pipeline stages instead.</p>
      */
-    void render(PoseStack poseStack, float partialTicks);
+    void renderMainMenu(PoseStack poseStack, float partialTicks);
 
     /**
      * Tick VR decorations
