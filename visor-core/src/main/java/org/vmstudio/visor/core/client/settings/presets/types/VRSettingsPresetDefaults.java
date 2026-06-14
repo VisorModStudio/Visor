@@ -35,8 +35,10 @@ public class VRSettingsPresetDefaults extends VRSettingsPreset {
         ClientContext.settingsManager.saveOptions();
 
         for(var actionSet : ClientContext.inputManager.getActionSetRegistry().getAllComponents()){
-            actionSet.loadDefaults(true);
+            actionSet.loadDefaults();
         }
+
+
 
         var overlayRegistry = ClientContext.overlayManager
                 .getOverlaysRegistry();

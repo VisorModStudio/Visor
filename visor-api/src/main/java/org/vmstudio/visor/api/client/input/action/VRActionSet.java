@@ -47,12 +47,15 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
 
     public VRActionSet(@NotNull VisorAddon owner){
         this.owner = owner;
-        this.actionsMap = Collections.synchronizedMap(new LinkedHashMap<>());
-        this.keyActionsMap = Collections.synchronizedMap(new LinkedHashMap<>());
-        this.keyModifiersActiveMap = Collections.synchronizedMap(new EnumMap<>(VRInteractionProfileType.class));
+        this.actionsMap = new LinkedHashMap<>();
+        this.keyActionsMap = new LinkedHashMap<>();
+        this.keyModifiersActiveMap = new EnumMap<>(VRInteractionProfileType.class);
+
+        for(var action : loadActions()){
+            actionsMap.put(action.getId(), action);
+        }
 
         try {
-
             config =  VisorAPI.client().getConfigManager()
                     .createConfigFile(
                             ConfigType.JSON,
@@ -62,10 +65,6 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
 
         } catch (Exception e) {
             throw new VRException(e);
-        }
-
-        for(var action : loadActions()){
-            actionsMap.put(action.getId(), action);
         }
 
         load();
@@ -115,9 +114,9 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Called before each tick to allow actions to update state.
      */
     public void preTick(){
-        getActions().forEach(
-                VRAction::preTick
-        );
+        for(var action : new ArrayList<>(getActions())){
+            action.preTick();
+        }
     }
 
     /**
@@ -134,9 +133,9 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Clears state of all actions.
      */
     public void clear(){
-        getActions().forEach(
-                VRAction::clear
-        );
+        for(var action : new ArrayList<>(getActions())){
+            action.clear();
+        }
     }
 
 
@@ -324,13 +323,20 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Load default bindings for all profiles
      *
      */
-    public void loadDefaults(boolean save){
-        for(var type : VRInteractionProfileType.values()){
-            loadDefaults(type);
+    public void loadDefaults(){
+        config.getFile().delete();
+        try {
+            config =  VisorAPI.client().getConfigManager()
+                    .createConfigFile(
+                            ConfigType.JSON,
+                            getId(),
+                            Path.of("controls/"+getId()+".json")
+                    );
+
+        } catch (Exception e) {
+            throw new VRException(e);
         }
-        if(save){
-            save();
-        }
+        load();
     }
 
     /**
@@ -417,7 +423,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         keyActionsMap.remove(id);
         actionsMap.remove(id);
 
-        config.set(id, null);
+        config.set("key_actions."+id, null);
 
         var subsection = config.getSubsection("bindings");
         for(var profile : VRInteractionProfileType.values()){
@@ -425,6 +431,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
             subsection.set(path, null);
             subsection.set(path, null);
         }
+
         try {
             config.save();
         } catch (Exception e) {
