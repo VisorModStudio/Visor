@@ -421,7 +421,11 @@ public class VRClientSettingsManager {
                                        Class<?> fieldType){
         if(fieldType.isEnum()){
             Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
-            return Enum.valueOf(enumType, configValue.toString().toUpperCase());
+            try {
+                return Enum.valueOf(enumType, configValue.toString().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return enumType.getEnumConstants()[0];
+            }
         }
         if(fieldType.isAssignableFrom(Quaternionf.class)){
             String[] split = configValue.toString().split(";");
