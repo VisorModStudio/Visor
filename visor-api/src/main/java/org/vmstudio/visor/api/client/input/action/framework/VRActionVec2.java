@@ -7,6 +7,8 @@ import me.phoenixra.atumvr.api.input.action.data.VRActionDataVec2;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.input.ActionVec2VREvent;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.ActionKeyModifierType;
 import org.vmstudio.visor.api.client.input.action.VRAction;
@@ -70,7 +72,7 @@ public abstract class VRActionVec2 implements VRAction {
     @Override
     public void preTick() {
         if(changed) {
-            onStateChanged(state);
+            stateChanged(state);
             changed = false;
         }
     }
@@ -136,13 +138,22 @@ public abstract class VRActionVec2 implements VRAction {
     public void clear(){
         changed = true;
         state.set(0,0);
-        onStateChanged(state);
+        stateChanged(state);
 
         active = false;
         changed = false;
 
         onClear();
     }
+
+    protected void stateChanged(@NotNull Vector2f newState){
+        var event = new ActionVec2VREvent(this);
+        VisorAPI.eventBus().callEvent(event);
+        if(!event.isCanceled()) {
+            onStateChanged(newState);
+        }
+    }
+
 
     public void setBinding(@NotNull VRInteractionProfileType profile, @NotNull ActionBinding binding){
         bindings.put(profile, binding);

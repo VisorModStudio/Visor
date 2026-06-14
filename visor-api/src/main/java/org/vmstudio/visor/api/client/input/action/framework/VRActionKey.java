@@ -42,14 +42,13 @@ public class VRActionKey extends VRActionButton {
 
     @Override
     protected void onPress() {
-        InputHelper.typeChar(character);
+        InputHelper.pressChar(character);
     }
 
     @Override
     protected void onRelease() {
-
+        InputHelper.releaseChar(character);
     }
-
 
     @Override
     public @NotNull Component getName() {

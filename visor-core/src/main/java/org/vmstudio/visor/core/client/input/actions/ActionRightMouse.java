@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.input.actions;
 
+import lombok.Getter;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
 import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
@@ -21,6 +22,7 @@ public class ActionRightMouse extends VRActionButton {
 
     private final MouseClickHandler handler = MouseClickHandler.RIGHT_HANDLER;
 
+    @Getter
     private final HandType handType;
 
     public ActionRightMouse(@NotNull VRActionSet actionSet,

@@ -8,6 +8,8 @@ import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.input.ActionButtonVREvent;
 import org.vmstudio.visor.api.client.input.action.ActionKeyModifierType;
 import org.vmstudio.visor.api.client.input.action.VRAction;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
@@ -81,7 +83,7 @@ public abstract class VRActionButton implements VRAction {
             pressed = true;
             pressDelayed = false;
             changed = true;
-            onPress();
+            press();
             return;
         }
         if(releaseDelayed && pressed){
@@ -89,7 +91,7 @@ public abstract class VRActionButton implements VRAction {
             pressed = false;
             releaseDelayed = false;
             changed = true;
-            onRelease();
+            release();
             return;
         }
         changed = false;
@@ -177,7 +179,7 @@ public abstract class VRActionButton implements VRAction {
             pressed = false;
             releaseDelayed = false;
             changed = true;
-            onRelease();
+            release();
         }
 
         pressed = false;
@@ -188,6 +190,21 @@ public abstract class VRActionButton implements VRAction {
         forcedState = false;
 
         onClear();
+    }
+
+    protected void press(){
+        var event = new ActionButtonVREvent(this, true);
+        VisorAPI.eventBus().callEvent(event);
+        if(!event.isCanceled()) {
+            onPress();
+        }
+    }
+    protected void release(){
+        var event = new ActionButtonVREvent(this, false);
+        VisorAPI.eventBus().callEvent(event);
+        if(!event.isCanceled()) {
+            onRelease();
+        }
     }
 
     public void forcePress(){

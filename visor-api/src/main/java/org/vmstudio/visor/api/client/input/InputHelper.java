@@ -105,7 +105,30 @@ public class InputHelper {
                 && isKeyDown(key.getValue());
     }
 
+    public static void pressChar(char character) {
+        pressChar(character, 0);
+    }
+    public static void pressChar(char character, int modifiers) {
 
+        int keyCode = keyCodes.getOrDefault(
+                Character.toUpperCase(character),
+                -1
+        );
+        if(keyCode == -1) return;
+        pressKey(keyCode);
+    }
+    public static void releaseChar(char character) {
+        releaseChar(character, 0);
+    }
+    public static void releaseChar(char character, int modifiers) {
+
+        int keyCode = keyCodes.getOrDefault(
+                Character.toUpperCase(character),
+                -1
+        );
+        if(keyCode == -1) return;
+        releaseKey(keyCode);
+    }
     public static void typeChar(char character, int modifiers) {
         var keyboardAccessor = VisorAPI.client().getGuiManager()
                 .getOverlayManager()
