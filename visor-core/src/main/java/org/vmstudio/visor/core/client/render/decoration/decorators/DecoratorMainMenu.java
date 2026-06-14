@@ -12,6 +12,7 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuFloor;
 import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuPanorama;
 import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuSky;
+import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuSkyCanvas;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -34,6 +35,7 @@ public class DecoratorMainMenu extends VRDecorator {
     public void init() {
         super.init();
         VRMenuSky.reset();
+        VRMenuSkyCanvas.init();
     }
 
     @Override
@@ -67,7 +69,7 @@ public class DecoratorMainMenu extends VRDecorator {
                 )
         );
 
-        boolean skyScene = VRClientSettings.getMainMenuScene() != MainMenuSceneMode.CUSTOM;
+        boolean skyScene = VRClientSettings.getMainMenuScene() != MainMenuSceneMode.PANORAMA;
 
         // 1) Sky background
         if (skyScene) {

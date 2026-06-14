@@ -162,7 +162,7 @@ public class VRClientSettings {
     //----Main menu
     @Getter
     @VROptionField(key = "main_menu.scene")
-    protected static MainMenuSceneMode mainMenuScene = MainMenuSceneMode.DEFAULT;
+    protected static MainMenuSceneMode mainMenuScene = MainMenuSceneMode.SKY;
 
     @Getter
     @VROptionField(key = "main_menu.panorama.front")

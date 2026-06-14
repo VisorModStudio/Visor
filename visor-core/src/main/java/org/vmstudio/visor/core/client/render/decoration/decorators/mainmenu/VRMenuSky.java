@@ -47,6 +47,10 @@ public final class VRMenuSky {
     private static final AtumColorImmutable UFO_BODY_HALO = new AtumColorImmutable(52,211,153,255);
     private static final AtumColorImmutable UFO_BODY_CORE = new AtumColorImmutable(190,245,220,255);
     private static final AtumColorImmutable UFO_LIGHT = new AtumColorImmutable(255,226,90,255);
+
+    private static final AtumColorImmutable VISOR_STAR_HALO_C = AtumColor.immutable(30, 200, 245);
+    private static final AtumColorImmutable VISOR_STAR_CORE_C = AtumColor.immutable(200, 250, 255);
+
     // ---- SKY BOX ----
     private static final float SKY_BOX = 100.0f;
 
@@ -122,8 +126,7 @@ public final class VRMenuSky {
     // skin sizes and colors
     private static final float VISOR_STAR_HALO = 1.15f;
     private static final float VISOR_STAR_CORE = 0.60f;
-    private static final int[] VISOR_STAR_HALO_C = {30, 200, 245};   // electric cyan corona
-    private static final int[] VISOR_STAR_CORE_C = {200, 250, 255};  // near-white cyan core
+
     private static final float VISOR_CLOUD_PUFF = 1.35f;
     private static final float VISOR_CLOUD_CORE = 0.85f;
 
@@ -160,17 +163,17 @@ public final class VRMenuSky {
     private static final float SHADE_UP = 1.00f, SHADE_NS = 0.85f, SHADE_WE = 0.72f;
     private static final float CLOUD_THICK = 2.0f;
     private static final float CLOUD_TILE = 5.0f;
-    private static final float CLOUD_CELL = 25.0f; // average spacing between spawns; lower = denser field
-    private static final float CLOUD_JITTER = 10.0f;   // XZ scatter within each cell; up to CLOUD_CELL/2 (12.5) for max randomness
-    private static final float CLOUD_JITTER_Y = 4.0f;  // per-cloud height variation; keep <= ~6 so clouds stay below the play area
+    private static final float CLOUD_CELL = 25.0f;
+    private static final float CLOUD_JITTER = 10.0f;
+    private static final float CLOUD_JITTER_Y = 4.0f;
     private static final float CLOUD_RANGE = 100.0f;
     private static final float CLOUD_FILL = 0.80f;
     private static final float CLOUD_DRIFT_X = 0.30f;
     private static final float CLOUD_DRIFT_Z = 0.12f;
 
-    private static final float AERIAL_START = 38.0f;   // color haze begins (units from center)
-    private static final float AERIAL_MAX = 0.50f;     // max blend toward horizon color at the edge
-    private static final float ALPHA_FADE_START = 60.0f; // alpha holds full until here, then drops
+    private static final float AERIAL_START = 38.0f;
+    private static final float AERIAL_MAX = 0.50f;
+    private static final float ALPHA_FADE_START = 60.0f;
     private static final long FADE_IN_MS = 800L;
 
     private static final int[][][] CLOUD_SHAPES = {
@@ -198,6 +201,18 @@ public final class VRMenuSky {
 
     private static final CloudVariant[] CLOUD_VARIANTS = new CloudVariant[CLOUD_SHAPES.length * 4];
 
+    // ---- USER DOTS----
+    private static final int USER_DOT_MAX = 1000;
+    static final float USER_DOT_RADIUS = 93.0f;
+    static final float USER_DOT_MIN_Y = -0.05f;
+    static final float USER_ERASE_CONE_COS = 0.998f;
+
+    private static final float[] userDotX = new float[USER_DOT_MAX];
+    private static final float[] userDotY = new float[USER_DOT_MAX];
+    private static final float[] userDotZ = new float[USER_DOT_MAX];
+    private static final float[] userDotPhase = new float[USER_DOT_MAX];
+    private static int userDotCount = 0;
+    private static int userDotsAdded = 0;
 
     // ---- FRAME STATE ----
     private static final AtumColorMutable currentZenith = DAY_ZENITH.asMutable();
@@ -229,78 +244,78 @@ public final class VRMenuSky {
 
     static {
         // ---- STARS ----
-        float[][][] quads = new float[STAR_COUNT][][];
-        float[] phases = new float[STAR_COUNT];
-        int kept = 0;
+        float[][][] starQuads = new float[STAR_COUNT][][];
+        float[] starPhases = new float[STAR_COUNT];
+        int keptStars = 0;
         for (int star = 0; star < STAR_COUNT; star++) {
-            float phi = hash01(star, 0, 20) * (float) (2 * Math.PI);
-            float cosT = hash01(star, 0, 21) * 2f - 1f;
-            float sinT = (float) Math.sqrt(Math.max(0f, 1f - cosT * cosT));
-            float dx = sinT * (float) Math.cos(phi);
-            float dy = cosT;
-            float dz = sinT * (float) Math.sin(phi);
+            float azimuth = hash01(star, 0, 20) * (float) (2 * Math.PI);
+            float cosTheta = hash01(star, 0, 21) * 2f - 1f;
+            float sinTheta = (float) Math.sqrt(Math.max(0f, 1f - cosTheta * cosTheta));
+            float dirX = sinTheta * (float) Math.cos(azimuth);
+            float dirY = cosTheta;
+            float dirZ = sinTheta * (float) Math.sin(azimuth);
 
-            if (dy < -0.05f) {
+            if (dirY < -0.05f) {
                 continue;
             }
             //Keep a clean area around VISOR sign
-            if (dx * VISOR_DIR.x + dy * VISOR_DIR.y + dz * VISOR_DIR.z >= VISOR_SUPPRESS_DOT) {
+            if (dirX * VISOR_DIR.x + dirY * VISOR_DIR.y + dirZ * VISOR_DIR.z >= VISOR_SUPPRESS_DOT) {
                 continue;
             }
 
-            Vector3f[] basis = billboardBasis(new Vector3f(dx, dy, dz));
+            Vector3f[] basis = billboardBasis(new Vector3f(dirX, dirY, dirZ));
             Vector3f right = basis[0], up = basis[1];
-            float bx = dx * STAR_RADIUS, by = dy * STAR_RADIUS, bz = dz * STAR_RADIUS;
-            float sz = STAR_SIZE * 0.5f * (0.6f + hash01(star, 0, 22) * 1.1f);
-            float[][] q = new float[4][3];
-            setCorner(q[0], bx, by, bz, right, up, -sz, -sz);
-            setCorner(q[1], bx, by, bz, right, up,  sz, -sz);
-            setCorner(q[2], bx, by, bz, right, up,  sz,  sz);
-            setCorner(q[3], bx, by, bz, right, up, -sz,  sz);
-            quads[kept] = q;
-            phases[kept] = star * 1.37f;
-            kept++;
+            float baseX = dirX * STAR_RADIUS, baseY = dirY * STAR_RADIUS, baseZ = dirZ * STAR_RADIUS;
+            float halfSize = STAR_SIZE * 0.5f * (0.6f + hash01(star, 0, 22) * 1.1f);
+            float[][] corners = new float[4][3];
+            setCorner(corners[0], baseX, baseY, baseZ, right, up, -halfSize, -halfSize);
+            setCorner(corners[1], baseX, baseY, baseZ, right, up,  halfSize, -halfSize);
+            setCorner(corners[2], baseX, baseY, baseZ, right, up,  halfSize,  halfSize);
+            setCorner(corners[3], baseX, baseY, baseZ, right, up, -halfSize,  halfSize);
+            starQuads[keptStars] = corners;
+            starPhases[keptStars] = star * 1.37f;
+            keptStars++;
         }
-        STAR_QUAD = Arrays.copyOf(quads, kept);
-        STAR_PHASE = Arrays.copyOf(phases, kept);
+        STAR_QUAD = Arrays.copyOf(starQuads, keptStars);
+        STAR_PHASE = Arrays.copyOf(starPhases, keptStars);
 
 
         // ---- UFO ----
         int rows = UFO_ROWS.length, cols = UFO_ROWS[0].length();
         float centerCol = (cols - 1) / 2f;
         float centerRow = (rows - 1) / 2f;
-        int n = 0;
-        int maxGroup = -1;
+        int dotCount = 0;
+        int maxLightGroup = -1;
         for (String row : UFO_ROWS) {
-            for (int c = 0; c < cols; c++) {
-                char ch = row.charAt(c);
-                if (ch == '1') {
-                    n++;
-                } else if (ch >= '2' && ch <= '9') {
-                    n++;
-                    maxGroup = Math.max(maxGroup, ch - '2');
+            for (int column = 0; column < cols; column++) {
+                char cell = row.charAt(column);
+                if (cell == '1') {
+                    dotCount++;
+                } else if (cell >= '2' && cell <= '9') {
+                    dotCount++;
+                    maxLightGroup = Math.max(maxLightGroup, cell - '2');
                 }
             }
         }
-        UFO_DOTS_AMOUNT = n;
-        UFO_LIGHT_GROUPS = Math.max(1, maxGroup + 1);
+        UFO_DOTS_AMOUNT = dotCount;
+        UFO_LIGHT_GROUPS = Math.max(1, maxLightGroup + 1);
 
-        UFO_LX = new float[n];
-        UFO_LY = new float[n];
-        UFO_LIGHT_IDX = new int[n];
-        int i = 0;
+        UFO_LX = new float[dotCount];
+        UFO_LY = new float[dotCount];
+        UFO_LIGHT_IDX = new int[dotCount];
+        int dotIndex = 0;
         for (int row = 0; row < rows; row++) {
             String line = UFO_ROWS[row];
             for (int column = 0; column < cols; column++) {
-                char ch = line.charAt(column);
-                boolean light = ch >= '2' && ch <= '9';
-                if (ch != '1' && !light) {
+                char cell = line.charAt(column);
+                boolean light = cell >= '2' && cell <= '9';
+                if (cell != '1' && !light) {
                     continue;
                 }
-                UFO_LX[i] = (centerCol - column) * UFO_DOT_SPACING;
-                UFO_LY[i] = (centerRow - row) * UFO_DOT_SPACING;
-                UFO_LIGHT_IDX[i] = light ? ch - '2' : -1;
-                i++;
+                UFO_LX[dotIndex] = (centerCol - column) * UFO_DOT_SPACING;
+                UFO_LY[dotIndex] = (centerRow - row) * UFO_DOT_SPACING;
+                UFO_LIGHT_IDX[dotIndex] = light ? cell - '2' : -1;
+                dotIndex++;
             }
         }
 
@@ -311,44 +326,44 @@ public final class VRMenuSky {
         VISOR_SIGN = createDotsSign(VISOR_GLYPHS);
 
         // ---- CLOUDS ----
-        for (int si = 0; si < CLOUD_SHAPES.length; si++) {
-            int[][] shape = CLOUD_SHAPES[si];
-            n = shape.length;
-            for (int rot = 0; rot < 4; rot++) {
-                int[] txs = new int[n];
-                int[] tzs = new int[n];
-                int sumTx = 0, sumTz = 0;
-                for (int s = 0; s < n; s++) {
-                    int tx = shape[s][0], tz = shape[s][1];
-                    for (int r = 0; r < rot; r++) {
-                        int nx = tz;
-                        tz = -tx;
-                        tx = nx;
+        for (int shapeIndex = 0; shapeIndex < CLOUD_SHAPES.length; shapeIndex++) {
+            int[][] shape = CLOUD_SHAPES[shapeIndex];
+            int tileCount = shape.length;
+            for (int rotation = 0; rotation < 4; rotation++) {
+                int[] tileXs = new int[tileCount];
+                int[] tileZs = new int[tileCount];
+                int sumX = 0, sumZ = 0;
+                for (int tile = 0; tile < tileCount; tile++) {
+                    int tileX = shape[tile][0], tileZ = shape[tile][1];
+                    for (int turn = 0; turn < rotation; turn++) {
+                        int rotatedX = tileZ;
+                        tileZ = -tileX;
+                        tileX = rotatedX;
                     }
-                    txs[s] = tx;
-                    tzs[s] = tz;
-                    sumTx += tx;
-                    sumTz += tz;
+                    tileXs[tile] = tileX;
+                    tileZs[tile] = tileZ;
+                    sumX += tileX;
+                    sumZ += tileZ;
                 }
-                byte[] faces = new byte[n];
-                for (int s = 0; s < n; s++) {
-                    int f = 0;
-                    if (!hasTile(txs, tzs, n, txs[s] - 1, tzs[s])) {
-                        f |= FACE_XN;
+                byte[] faces = new byte[tileCount];
+                for (int tile = 0; tile < tileCount; tile++) {
+                    int faceFlags = 0;
+                    if (!hasTile(tileXs, tileZs, tileCount, tileXs[tile] - 1, tileZs[tile])) {
+                        faceFlags |= FACE_XN;
                     }
-                    if (!hasTile(txs, tzs, n, txs[s] + 1, tzs[s])) {
-                        f |= FACE_XP;
+                    if (!hasTile(tileXs, tileZs, tileCount, tileXs[tile] + 1, tileZs[tile])) {
+                        faceFlags |= FACE_XP;
                     }
-                    if (!hasTile(txs, tzs, n, txs[s], tzs[s] - 1)) {
-                        f |= FACE_ZN;
+                    if (!hasTile(tileXs, tileZs, tileCount, tileXs[tile], tileZs[tile] - 1)) {
+                        faceFlags |= FACE_ZN;
                     }
-                    if (!hasTile(txs, tzs, n, txs[s], tzs[s] + 1)) {
-                        f |= FACE_ZP;
+                    if (!hasTile(tileXs, tileZs, tileCount, tileXs[tile], tileZs[tile] + 1)) {
+                        faceFlags |= FACE_ZP;
                     }
-                    faces[s] = (byte) f;
+                    faces[tile] = (byte) faceFlags;
                 }
-                CLOUD_VARIANTS[si * 4 + rot] = new CloudVariant(txs, tzs, faces,
-                        (sumTx / (float) n) * CLOUD_TILE, (sumTz / (float) n) * CLOUD_TILE);
+                CLOUD_VARIANTS[shapeIndex * 4 + rotation] = new CloudVariant(tileXs, tileZs, faces,
+                        (sumX / (float) tileCount) * CLOUD_TILE, (sumZ / (float) tileCount) * CLOUD_TILE);
             }
         }
     }
@@ -394,6 +409,8 @@ public final class VRMenuSky {
 
         renderVisorSign(builder, pose);
         renderUfo(builder, pose);
+
+        renderUserDots(builder, pose);
 
         // --- Restore ---
         RenderSystem.enableCull();
@@ -480,8 +497,8 @@ public final class VRMenuSky {
         }
 
         currentDay = smoothstep(-0.12f, 0.18f, elevation);
-        float tw = 1f - Math.min(1f, Math.abs(elevation) / 0.28f);
-        currentTwilight = tw * tw * (3f - 2f * tw);
+        float twilight = 1f - Math.min(1f, Math.abs(elevation) / 0.28f);
+        currentTwilight = twilight * twilight * (3f - 2f * twilight);
 
         currentZenith.set(
                 NIGHT_ZENITH.blend(DAY_ZENITH, currentDay, blendScratch)
@@ -624,11 +641,11 @@ public final class VRMenuSky {
         for (int star = 0; star < STAR_QUAD.length; star++) {
             float twinkle = 0.65f + 0.35f * (float) Math.sin(currentTimeSec * 1.6f + STAR_PHASE[star]);
             int alpha = (int) (255f * night * twinkle * STAR_BRIGHT);
-            float[][] q = STAR_QUAD[star];
-            starVertex(builder, pose, q[0], alpha);
-            starVertex(builder, pose, q[1], alpha);
-            starVertex(builder, pose, q[2], alpha);
-            starVertex(builder, pose, q[3], alpha);
+            float[][] quad = STAR_QUAD[star];
+            starVertex(builder, pose, quad[0], alpha);
+            starVertex(builder, pose, quad[1], alpha);
+            starVertex(builder, pose, quad[2], alpha);
+            starVertex(builder, pose, quad[3], alpha);
         }
 
         emitShootingStar(builder, pose, night);
@@ -817,14 +834,14 @@ public final class VRMenuSky {
 
     private static void ufoParkingDir(int cycle, Vector3f out) {
         float azimuth = (float) ((cycle * UFO_AZIMUTH_STEP) % (Math.PI * 2.0));
-        float elevation = 0.175f + 0.075f * (float) Math.sin(cycle * 1.7); // low over horizon, per-cycle wobble
+        float elevation = 0.175f + 0.075f * (float) Math.sin(cycle * 1.7);
         float horiz = (float) Math.cos(elevation);
         out.set(
                 horiz * (float) Math.cos(azimuth),
                 (float) Math.sin(elevation),
                 horiz * (float) Math.sin(azimuth)
         );
-        if (out.dot(VISOR_DIR) > 0.93f) { // parked on the sign -> step aside
+        if (out.dot(VISOR_DIR) > 0.93f) {
             azimuth += 1.1f;
             out.x = horiz * (float) Math.cos(azimuth);
             out.z = horiz * (float) Math.sin(azimuth);
@@ -849,7 +866,7 @@ public final class VRMenuSky {
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE); // additive
         }
 
-        int[] cc = {0, 0, 0};
+        int[] cloudTint = {0, 0, 0};
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < VISOR_SIGN.n; i++) {
             float gleam = 1f + VISOR_GLEAM_AMT * Math.max(0f, 1f - Math.abs(VISOR_SIGN.col[i] - gleamPos) / VISOR_GLEAM_W);
@@ -857,17 +874,18 @@ public final class VRMenuSky {
             if (asCloudDots) {
                 // calmer, slower breathing for the cloud skin
                 float pulse = 1f + VISOR_PULSE_AMT * 0.6f * (float) Math.sin(currentTimeSec * VISOR_PULSE_SPEED * 0.7f + i * 1.3f);
-                cc[0] = (int) Math.min(255f, currentCloud.getRedInt() * gleam); // tinted live + brightened by the gleam
-                cc[1] = (int) Math.min(255f, currentCloud.getGreenInt() * gleam);
-                cc[2] = (int) Math.min(255f, currentCloud.getBlueInt() * gleam);
-                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_PUFF * pulse, cc, 200);
-                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_CORE * pulse, cc, 235);
+                cloudTint[0] = (int) Math.min(255f, currentCloud.getRedInt() * gleam); // tinted live + brightened by the gleam
+                cloudTint[1] = (int) Math.min(255f, currentCloud.getGreenInt() * gleam);
+                cloudTint[2] = (int) Math.min(255f, currentCloud.getBlueInt() * gleam);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_PUFF * pulse, cloudTint, 200);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_CLOUD_CORE * pulse, cloudTint, 235);
             } else {
                 float pulse = 1f + VISOR_PULSE_AMT * (float) Math.sin(currentTimeSec * VISOR_PULSE_SPEED + i * 1.7f);
-                int ha = (int) Math.min(255f, 170f * gleam);
-                int ca = (int) Math.min(255f, 255f * gleam);
-                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_HALO * pulse, VISOR_STAR_HALO_C, ha);
-                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_CORE * pulse, VISOR_STAR_CORE_C, ca);
+                int haloAlpha = (int) Math.min(255f, 170f * gleam);
+                int coreAlpha = (int) Math.min(255f, 255f * gleam);
+                int[] color = VISOR_STAR_HALO_C.asIntArray(false);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_HALO * pulse, color, haloAlpha);
+                spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_CORE * pulse, color, coreAlpha);
             }
         }
         BufferUploader.drawWithShader(builder.end());
@@ -1020,6 +1038,100 @@ public final class VRMenuSky {
         builder.vertex(pose, x, y, z).color(r, g, b, a).endVertex();
     }
 
+    // ---- USER SKY DOTS ----
+
+    public static boolean addUserDot(float dirX, float dirY, float dirZ) {
+        if (dirY < USER_DOT_MIN_Y) {
+            return false;
+        }
+        if (userDotCount == USER_DOT_MAX) {
+            System.arraycopy(userDotX, 1, userDotX, 0, USER_DOT_MAX - 1);
+            System.arraycopy(userDotY, 1, userDotY, 0, USER_DOT_MAX - 1);
+            System.arraycopy(userDotZ, 1, userDotZ, 0, USER_DOT_MAX - 1);
+            System.arraycopy(userDotPhase, 1, userDotPhase, 0, USER_DOT_MAX - 1);
+            userDotCount--;
+        }
+        userDotX[userDotCount] = dirX;
+        userDotY[userDotCount] = dirY;
+        userDotZ[userDotCount] = dirZ;
+        userDotPhase[userDotCount] = userDotsAdded * 1.7f;
+        userDotsAdded++;
+        userDotCount++;
+        return true;
+    }
+
+
+    public static boolean eraseUserDotsAt(float dirX, float dirY, float dirZ) {
+        int writeIndex = 0;
+        for (int i = 0; i < userDotCount; i++) {
+            float alignment = userDotX[i] * dirX + userDotY[i] * dirY + userDotZ[i] * dirZ;
+            if (alignment >= USER_ERASE_CONE_COS) {
+                continue; // erased
+            }
+            if (writeIndex != i) {
+                userDotX[writeIndex] = userDotX[i];
+                userDotY[writeIndex] = userDotY[i];
+                userDotZ[writeIndex] = userDotZ[i];
+                userDotPhase[writeIndex] = userDotPhase[i];
+            }
+            writeIndex++;
+        }
+        boolean removedAny = writeIndex != userDotCount;
+        userDotCount = writeIndex;
+        return removedAny;
+    }
+
+    private static void renderUserDots(BufferBuilder builder, Matrix4f pose) {
+        if (userDotCount == 0) {
+            return;
+        }
+        ensureGlowSprite();
+        if (GLOW_SPRITE == null) {
+            return;
+        }
+
+        boolean showClouds = currentDay >= VISOR_DAY_THRESHOLD;
+
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        if (showClouds) {
+            RenderSystem.defaultBlendFunc();
+        } else {
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE); // additive
+        }
+
+
+        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        for (int i = 0; i < userDotCount; i++) {
+            scratchDir.set(userDotX[i], userDotY[i], userDotZ[i]);
+            billboardBasis(scratchDir, scratchRight, scratchUp);
+            float cx = userDotX[i] * USER_DOT_RADIUS;
+            float cy = userDotY[i] * USER_DOT_RADIUS;
+            float cz = userDotZ[i] * USER_DOT_RADIUS;
+            if (showClouds) {
+                int[] color = currentCloud.asIntArray(false);
+
+                dotQuad(builder, pose, scratchRight, scratchUp, cx, cy, cz, VISOR_CLOUD_PUFF, color, 200);
+                dotQuad(builder, pose, scratchRight, scratchUp, cx, cy, cz, VISOR_CLOUD_CORE, color, 235);
+            } else {
+                int[] colorHalo = VISOR_STAR_HALO_C.asIntArray(false);
+                int[] colorCore = VISOR_STAR_CORE_C.asIntArray(false);
+
+                dotQuad(builder, pose, scratchRight, scratchUp, cx, cy, cz, VISOR_STAR_HALO, colorHalo, 165);
+                dotQuad(builder, pose, scratchRight, scratchUp, cx, cy, cz, VISOR_STAR_CORE, colorCore, 255);
+            }
+        }
+        BufferUploader.drawWithShader(builder.end());
+
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+    }
+    static ResourceLocation glowSprite() {
+        ensureGlowSprite();
+        return GLOW_SPRITE;
+    }
+
     // ====== HELPERS ======
 
     // ---- COMMON
@@ -1048,8 +1160,8 @@ public final class VRMenuSky {
 
     private static void horizon(BufferBuilder builder, Matrix4f pose, float x, float y, float z) {
         float inverseLen = 1f / (float) Math.sqrt(x * x + z * z);
-        float w = 0.5f + 0.5f * (x * inverseLen * sunAzimuthX + z * inverseLen * sunAzimuthZ);
-        float duskAmount = currentTwilight * (0.25f + 0.75f * w);
+        float sunWeight = 0.5f + 0.5f * (x * inverseLen * sunAzimuthX + z * inverseLen * sunAzimuthZ);
+        float duskAmount = currentTwilight * (0.25f + 0.75f * sunWeight);
         int[] rgb = currentHorizonBase.blend(DUSK_HORIZON, duskAmount, new int[3]);
         builder.vertex(pose, x, y, z).color(rgb[0], rgb[1], rgb[2], 255).endVertex();
     }
@@ -1060,16 +1172,17 @@ public final class VRMenuSky {
     private static void billboardBasis(Vector3f dir,
                                        Vector3f outRight,
                                        Vector3f outUp) {
-        float hx = 0f, hy = 1f, hz = 0f;
+        // reference up; swap toward X near the poles so the cross product stays stable
+        float refX = 0f, refY = 1f, refZ = 0f;
         if (Math.abs(dir.y) > 0.99f) {
-            hx = 1f;
-            hy = 0f;
+            refX = 1f;
+            refY = 0f;
         }
 
         outRight.set(
-                hy * dir.z - hz * dir.y,
-                hz * dir.x - hx * dir.z,
-                hx * dir.y - hy * dir.x
+                refY * dir.z - refZ * dir.y,
+                refZ * dir.x - refX * dir.z,
+                refX * dir.y - refY * dir.x
         ).normalize();
 
         outUp.set(dir).cross(outRight).normalize();
@@ -1084,21 +1197,21 @@ public final class VRMenuSky {
 
     private static void billboardVertex(BufferBuilder builder,
                                         Matrix4f pose,
-                                        Vector3f c, Vector3f right, Vector3f up,
-                                        float a, float b,
+                                        Vector3f center, Vector3f right, Vector3f up,
+                                        float rightOffset, float upOffset,
                                         float u, float v) {
-        float x = c.x + right.x * a + up.x * b;
-        float y = c.y + right.y * a + up.y * b;
-        float z = c.z + right.z * a + up.z * b;
+        float x = center.x + right.x * rightOffset + up.x * upOffset;
+        float y = center.y + right.y * rightOffset + up.y * upOffset;
+        float z = center.z + right.z * rightOffset + up.z * upOffset;
         builder.vertex(pose, x, y, z).uv(u, v).endVertex();
     }
 
 
     // --- STARS
-    private static void setCorner(float[] out, float bx, float by, float bz, Vector3f right, Vector3f up, float a, float b) {
-        out[0] = bx + right.x * a + up.x * b;
-        out[1] = by + right.y * a + up.y * b;
-        out[2] = bz + right.z * a + up.z * b;
+    private static void setCorner(float[] out, float baseX, float baseY, float baseZ, Vector3f right, Vector3f up, float rightOffset, float upOffset) {
+        out[0] = baseX + right.x * rightOffset + up.x * upOffset;
+        out[1] = baseY + right.y * rightOffset + up.y * upOffset;
+        out[2] = baseZ + right.z * rightOffset + up.z * upOffset;
     }
 
     private static void starVertex(BufferBuilder builder,
@@ -1108,8 +1221,13 @@ public final class VRMenuSky {
     }
 
     // ---- GLOWING DOTS
-    private static void spriteQuad(BufferBuilder builder, Matrix4f pose, float cx, float cy, float cz, float hs, int[] col, int a) {
-        dotQuad(builder, pose, VISOR_RIGHT, VISOR_UP, cx, cy, cz, hs, col[0], col[1], col[2], a);
+    private static void spriteQuad(BufferBuilder builder,
+                                   Matrix4f pose,
+                                   float cx, float cy, float cz,
+                                   float hs,
+                                   int[] color,
+                                   int a) {
+        dotQuad(builder, pose, VISOR_RIGHT, VISOR_UP, cx, cy, cz, hs, color, a);
     }
 
     private static float clamp01(float v) {
@@ -1119,27 +1237,28 @@ public final class VRMenuSky {
     private static void dotQuad(BufferBuilder builder, Matrix4f pose, Vector3f right, Vector3f up,
                                 float cx, float cy, float cz, float hs,
                                 AtumColor color, int a) {
-        dotQuad(builder, pose, right, up, cx, cy, cz, hs, color.getRedInt(), color.getGreenInt(), color.getBlueInt(), a);
+        dotQuad(builder, pose, right, up, cx, cy, cz, hs, color.asIntArray(false), a);
     }
 
     // glow-sprite quad around a center, in an arbitrary billboard basis
     private static void dotQuad(BufferBuilder builder, Matrix4f pose,
                                 Vector3f right, Vector3f up,
                                 float cx, float cy, float cz, float hs,
-                                int r, int g, int b, int a) {
-        dotVertex(builder, pose, right, up, cx, cy, cz, -hs, -hs, 0f, 0f, r, g, b, a);
-        dotVertex(builder, pose, right, up, cx, cy, cz,  hs, -hs, 1f, 0f, r, g, b, a);
-        dotVertex(builder, pose, right, up, cx, cy, cz,  hs,  hs, 1f, 1f, r, g, b, a);
-        dotVertex(builder, pose, right, up, cx, cy, cz, -hs,  hs, 0f, 1f, r, g, b, a);
+                                int[] color, int a) {
+        dotVertex(builder, pose, right, up, cx, cy, cz, -hs, -hs, 0f, 0f, color[0], color[1], color[2], a);
+        dotVertex(builder, pose, right, up, cx, cy, cz,  hs, -hs, 1f, 0f, color[0], color[1], color[2], a);
+        dotVertex(builder, pose, right, up, cx, cy, cz,  hs,  hs, 1f, 1f, color[0], color[1], color[2], a);
+        dotVertex(builder, pose, right, up, cx, cy, cz, -hs,  hs, 0f, 1f, color[0], color[1], color[2], a);
     }
 
-    private static void dotVertex(BufferBuilder bb, Matrix4f m, Vector3f right, Vector3f up,
+    private static void dotVertex(BufferBuilder builder, Matrix4f pose,
+                                  Vector3f right, Vector3f up,
                                   float cx, float cy, float cz,
-                                  float sx, float sy, float u, float v, int r, int g, int b, int a) {
-        float x = cx + right.x * sx + up.x * sy;
-        float y = cy + right.y * sx + up.y * sy;
-        float z = cz + right.z * sx + up.z * sy;
-        bb.vertex(m, x, y, z).uv(u, v).color(r, g, b, a).endVertex();
+                                  float offsetX, float offsetY, float u, float v, int r, int g, int b, int a) {
+        float x = cx + right.x * offsetX + up.x * offsetY;
+        float y = cy + right.y * offsetX + up.y * offsetY;
+        float z = cz + right.z * offsetX + up.z * offsetY;
+        builder.vertex(pose, x, y, z).uv(u, v).color(r, g, b, a).endVertex();
     }
 
     private static void ensureGlowSprite() {
@@ -1148,18 +1267,18 @@ public final class VRMenuSky {
         }
         int size = 64;
         NativeImage img = new NativeImage(NativeImage.Format.RGBA, size, size, false);
-        float c = (size - 1) / 2f;
-        float rad = size / 2f;
+        float center = (size - 1) / 2f;
+        float radius = size / 2f;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                float dx = (x - c) / rad;
-                float dy = (y - c) / rad;
-                float r = (float) Math.sqrt(dx * dx + dy * dy);
-                float a = smoothstep(1.0f, 0.0f, r);
-                a = a * a; // tighter core, softer halo
-                int ai = (int) (a * 255f);
+                float offsetX = (x - center) / radius;
+                float offsetY = (y - center) / radius;
+                float dist = (float) Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+                float alpha = smoothstep(1.0f, 0.0f, dist);
+                alpha = alpha * alpha; // tighter core, softer halo
+                int alphaByte = (int) (alpha * 255f);
 
-                img.setPixelRGBA(x, y, (ai << 24) | 0x00FFFFFF);
+                img.setPixelRGBA(x, y, (alphaByte << 24) | 0x00FFFFFF);
             }
         }
         DynamicTexture tex = new DynamicTexture(img);
@@ -1172,39 +1291,39 @@ public final class VRMenuSky {
         float centerCol = (VISOR_TOTAL_COLS - 1) / 2f;
         float centerRow = (GLYPH_H - 1) / 2f;
 
-        List<float[]> pts = new ArrayList<>();
-        List<Integer> cols = new ArrayList<>();
-        for (int li = 0; li < glyphs.length; li++) {
-            String[] glyph = glyphs[li];
+        List<float[]> points = new ArrayList<>();
+        List<Integer> columns = new ArrayList<>();
+        for (int glyphIndex = 0; glyphIndex < glyphs.length; glyphIndex++) {
+            String[] glyph = glyphs[glyphIndex];
             for (int row = 0; row < GLYPH_H; row++) {
                 String line = glyph[row];
-                for (int c = 0; c < GLYPH_W; c++) {
-                    if (line.charAt(c) != '1') {
+                for (int glyphCol = 0; glyphCol < GLYPH_W; glyphCol++) {
+                    if (line.charAt(glyphCol) != '1') {
                         continue;
                     }
-                    int gcol = li * (GLYPH_W + GLYPH_GAP) + c;
-                    float lx = (centerCol - gcol) * VISOR_DOTS_SPACING; // un-mirrored
-                    float ly = (centerRow - row) * VISOR_DOTS_SPACING;  // +up (row 0 = top)
-                    pts.add(new float[]{
-                            center.x + VISOR_RIGHT.x * lx + VISOR_UP.x * ly,
-                            center.y + VISOR_RIGHT.y * lx + VISOR_UP.y * ly,
-                            center.z + VISOR_RIGHT.z * lx + VISOR_UP.z * ly
+                    int globalCol = glyphIndex * (GLYPH_W + GLYPH_GAP) + glyphCol;
+                    float localX = (centerCol - globalCol) * VISOR_DOTS_SPACING; // un-mirrored
+                    float localY = (centerRow - row) * VISOR_DOTS_SPACING;  // +up (row 0 = top)
+                    points.add(new float[]{
+                            center.x + VISOR_RIGHT.x * localX + VISOR_UP.x * localY,
+                            center.y + VISOR_RIGHT.y * localX + VISOR_UP.y * localY,
+                            center.z + VISOR_RIGHT.z * localX + VISOR_UP.z * localY
                     });
-                    cols.add(gcol);
+                    columns.add(globalCol);
                 }
             }
         }
-        int n = pts.size();
-        float[] px = new float[n];
-        float[] py = new float[n];
-        float[] pz = new float[n];
-        int[] col = new int[n];
-        for (int i = 0; i < n; i++) {
-            float[] p = pts.get(i);
-            px[i] = p[0];
-            py[i] = p[1];
-            pz[i] = p[2];
-            col[i] = cols.get(i);
+        int count = points.size();
+        float[] px = new float[count];
+        float[] py = new float[count];
+        float[] pz = new float[count];
+        int[] col = new int[count];
+        for (int i = 0; i < count; i++) {
+            float[] point = points.get(i);
+            px[i] = point[0];
+            py[i] = point[1];
+            pz[i] = point[2];
+            col[i] = columns.get(i);
         }
         return new DotsSign(px, py, pz, col);
     }
@@ -1214,9 +1333,9 @@ public final class VRMenuSky {
         return smoothstep(0f, 1f, (Util.getMillis() - startTime) / (float) FADE_IN_MS);
     }
 
-    private static boolean hasTile(int[] txs, int[] tzs, int n, int qx, int qz) {
-        for (int i = 0; i < n; i++) {
-            if (txs[i] == qx && tzs[i] == qz) {
+    private static boolean hasTile(int[] tileXs, int[] tileZs, int tileCount, int queryX, int queryZ) {
+        for (int i = 0; i < tileCount; i++) {
+            if (tileXs[i] == queryX && tileZs[i] == queryZ) {
                 return true;
             }
         }
