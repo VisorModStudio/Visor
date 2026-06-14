@@ -88,6 +88,7 @@ public class VRSettingsPresetCustom extends VRSettingsPreset {
             config.set(type.getKey(), type.getSerializer().get());
         }
         config.save();
+        config.reload();
         catalog.getConfigFilesMap().put(id, config);
         var preset = new VRSettingsPresetCustom(
                 id, config

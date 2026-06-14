@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
@@ -250,7 +251,7 @@ public class VRSettingsPresets extends VROptionsSet {
                                                 +": "+entry.getId();
                                         String addon = Component.translatable("visor.options.presets.addon").getString()
                                                 +": "+entry.getOwner().getAddonName().getString();
-                                        return Component.translatable(id+"\n"+addon);
+                                        return Component.literal(id+"\n"+addon);
                                     }
                             )
                             .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE),
@@ -460,7 +461,7 @@ public class VRSettingsPresets extends VROptionsSet {
                                         String id = Component.translatable("visor.options.presets.id").getString()
                                                 +": "+entry.getId();
                                         String version = "Visor: "+((VRSettingsPresetCustom)entry).getOriginVisorVersion();
-                                        return Component.translatable(id+"\n"+version);
+                                        return Component.literal(id+"\n"+version);
                                     }
                             )
                             .setTextureScrollBarActive(OptionTextures.SCROLL_BAR_ACTIVE),
@@ -490,7 +491,7 @@ public class VRSettingsPresets extends VROptionsSet {
                         if(it == null){
                             return;
                         }
-                        settingTypesList.setSelectedEntry((String) null);
+                        settingTypesList.setSelectedEntry((TexturedSelectionList.TexturedEntry) null);
                     }
             );
 
@@ -729,6 +730,7 @@ public class VRSettingsPresets extends VROptionsSet {
             }
             settingTypesList.resetEntries(rawEntries);
             removeButton.visible = true;
+            removeConfirmButton.visible = false;
         }
 
         private void switchToBuiltIn(){
@@ -742,7 +744,6 @@ public class VRSettingsPresets extends VROptionsSet {
         private void openPresetsFolder(){
             var dir = ClientContext.settingsManager.getPresetsCatalog()
                     .getDirectory().toUri();
-            System.out.println(dir);
 
             Util.getPlatform().openUri(
                     dir
@@ -759,7 +760,7 @@ public class VRSettingsPresets extends VROptionsSet {
             removeCancelButton.visible = true;
         }
         private void removeConfirmed(){
-            ClientContext.settingsManager.getPresetsRegistry().unregisterComponent(
+            ClientContext.settingsManager.getPresetsRegistry().deleteCustomPreset(
                     selectedPreset.getId()
             );
             reinit();
@@ -792,8 +793,16 @@ public class VRSettingsPresets extends VROptionsSet {
         public <T extends GuiEventListener
                 & Renderable
                 & NarratableEntry> List<T> initWidgets() {
+            String prevId   = idEditBix == null ? "" : idEditBix.getValue();
+            String prevName = nameEditBix == null ? "" : nameEditBix.getValue();
+            String prevDesc = descriptionTextBox == null ? "" : descriptionTextBox.getValue();
+            List<VRPresetSettingsType> prevTypes =
+                    selectedSettingsTypes == null ? new ArrayList<>() : selectedSettingsTypes;
+
+            selectedSettingsTypes = new ArrayList<>(prevTypes);
+            var selectedKeys = prevTypes.stream().map(VRPresetSettingsType::getKey).toList();
+
             var scaleHelper = getScreen().getScaleHelper();
-            selectedSettingsTypes = new ArrayList<>();
 
             var rawEntries = new LinkedHashMap<String, String>();
 
@@ -815,7 +824,7 @@ public class VRSettingsPresets extends VROptionsSet {
                                     CHECKBOX_HOVERED_SELECTED
                             ),
                     rawEntries,
-                    Collections.emptyList(),
+                    selectedKeys,
                     (it)->{
                         var type = VRPresetSettingsType.fromId(it.getId());
                         if(it.isSelected() && !selectedSettingsTypes.contains(type)){
@@ -890,6 +899,10 @@ public class VRSettingsPresets extends VROptionsSet {
             );
 
             confirmButton.active = false;
+
+            idEditBix.setValue(prevId);
+            nameEditBix.setValue(prevName);
+            descriptionTextBox.setValue(prevDesc);
 
             return List.of();
         }
@@ -1017,7 +1030,9 @@ public class VRSettingsPresets extends VROptionsSet {
                 submenuWidgetSet = new CustomWidgetSet(onWidgetsChanged);
                 reinit();
             } catch (Exception e) {
-                throw new VRException(e);
+                VisorClientImpl.LOGGER.error("Failed to create preset '{}'", id, e);
+                idEditBix.setTextColor(AtumColor.RED.asInt());
+                confirmButton.active = false;
             }
         }
 

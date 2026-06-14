@@ -47,9 +47,9 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
 
     public VRActionSet(@NotNull VisorAddon owner){
         this.owner = owner;
-        this.actionsMap = new LinkedHashMap<>();
-        this.keyActionsMap = new LinkedHashMap<>();
-        this.keyModifiersActiveMap = new EnumMap<>(VRInteractionProfileType.class);
+        this.actionsMap = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.keyActionsMap = Collections.synchronizedMap(new LinkedHashMap<>());
+        this.keyModifiersActiveMap = Collections.synchronizedMap(new EnumMap<>(VRInteractionProfileType.class));
 
         try {
 
@@ -68,10 +68,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
             actionsMap.put(action.getId(), action);
         }
 
-
-        loadKeyActions();
         load();
-
     }
 
     /**
@@ -148,6 +145,17 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Loads bindings for all actions from config.
      */
     public void load(@NotNull Config config){
+
+        keyActionsMap.forEach(
+                (key, value)->{
+                    actionsMap.remove(key);
+                }
+        );
+        keyActionsMap.clear();
+        keyModifiersActiveMap.clear();
+
+        loadKeyActions(config);
+
         boolean requireSave = false;
         var subsection = config.getSubsection("bindings");
         var defaults = getDefaultKeyModifiersActive();
@@ -181,7 +189,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     /**
      * Loads key actions from config.
      */
-    public void loadKeyActions(@NotNull Config config){
+    protected void loadKeyActions(@NotNull Config config){
         boolean requireSave = false;
         var subsection = config.getSubsection("key_actions");
         for(String key : subsection.getKeys(false)){
@@ -199,13 +207,6 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         if(requireSave){
             saveKeyActions();
         }
-    }
-
-    /**
-     * Loads key actions from config.
-     */
-    public void loadKeyActions() {
-        loadKeyActions(config);
     }
 
     /**
@@ -323,9 +324,12 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Load default bindings for all profiles
      *
      */
-    public void loadDefaults(){
+    public void loadDefaults(boolean save){
         for(var type : VRInteractionProfileType.values()){
             loadDefaults(type);
+        }
+        if(save){
+            save();
         }
     }
 

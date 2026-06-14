@@ -35,11 +35,13 @@ public class VRClientSettings {
 
 
     @Getter
-    @VROptionField
+    @VROptionField(excludeFromPresets = true)
     protected static VRPlayMode vrPlayMode = VRPlayMode.ENABLED;
 
     @Getter
-    @VROptionField(widgetType = VROptionWidgetType.LEFT_HANDED, key = "left_handed")
+    @VROptionField(widgetType = VROptionWidgetType.LEFT_HANDED,
+            key = "left_handed",
+            excludeFromPresets = true)
     protected static boolean leftHanded = false;
 
 

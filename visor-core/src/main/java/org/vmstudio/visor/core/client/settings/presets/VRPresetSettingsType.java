@@ -26,7 +26,7 @@ public enum VRPresetSettingsType {
             ()->ClientContext.settingsManager.getSettings(),
             (config)->{
                 ClientContext.settingsManager
-                        .loadOptionsFrom(config);
+                        .loadOptionsFrom(config, true);
                 ClientContext.settingsManager.saveOptions();
             }
     ),
@@ -97,6 +97,11 @@ public enum VRPresetSettingsType {
                         optionsConfig.applyData(
                                 entry.getValue().toMap()
                         );
+                        try {
+                            optionsConfig.save();
+                        } catch (IOException e) {
+                            throw new VRException(e);
+                        }
                         overlay.reloadOptions();
                     }
                 }

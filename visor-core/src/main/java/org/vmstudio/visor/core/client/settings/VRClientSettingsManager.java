@@ -116,12 +116,26 @@ public class VRClientSettingsManager {
         applyOptionsTo(defaultSettings);
     }
 
+    public Config createPresetSnapshot() {
+        Config config = ClientContext.visor.getConfigManager()
+                .createConfig(ConfigType.YAML, null);
+        applyOptionsTo(config, true);
+        return config;
+    }
+
     public void applyOptionsTo(@NotNull Config config) {
+        applyOptionsTo(config, false);
+    }
+
+    public void applyOptionsTo(@NotNull Config config, boolean forPreset) {
         try {
             for (Map.Entry<String, VROptionRecord> entry : allOptions.entrySet()) {
                 String optionKey = entry.getKey();
                 VROptionRecord optionRecord = entry.getValue();
 
+                if (forPreset && optionRecord.excludeFromPresets()) {
+                    continue;
+                }
                 Field field = optionRecord.field();
                 Class<?> fieldType = field.getType();
                 Object fieldValue = field.get(null);
@@ -145,10 +159,17 @@ public class VRClientSettingsManager {
     }
 
     public void loadOptionsFrom(@NotNull Config config) {
+        loadOptionsFrom(config, false);
+    }
+
+    public void loadOptionsFrom(@NotNull Config config, boolean excludePresetExcluded) {
         try {
             for(Map.Entry<String, VROptionRecord> entry
                     : allOptions.entrySet()){
                 try {
+                    if(excludePresetExcluded && entry.getValue().excludeFromPresets()){
+                        continue;
+                    }
                     Object value = config.get(entry.getKey());
                     if(value == null) continue;
 
@@ -377,10 +398,11 @@ public class VRClientSettingsManager {
                 }
 
 
-                VROptionRecord optionRecord = new VROptionRecord(
+                var optionRecord = new VROptionRecord(
                         field,
                         annotation.widgetType(),
-                        optionKey
+                        optionKey,
+                        annotation.excludeFromPresets()
                 );
 
                 if (annotation.widgetType() != VROptionWidgetType.EMPTY) {

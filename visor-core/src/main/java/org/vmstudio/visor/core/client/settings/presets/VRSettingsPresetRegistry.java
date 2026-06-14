@@ -19,13 +19,13 @@ import java.util.*;
 
 
 public class VRSettingsPresetRegistry implements ComponentRegistry<VRSettingsPreset> {
-    private static final String REGISTRY_NAME = "VR Game Effects";
+    private static final String REGISTRY_NAME = "VR Settings Presets";
 
     private static final String COMPONENT_NAME = "VRSettingsPreset";
     private static final String ANNOTATION_NAME = "@RegisterVRSettingsPreset";
 
     @Getter
-    private final HashMap<String, VRSettingsPreset> componentsMap = new HashMap<>();
+    private final Map<String, VRSettingsPreset> componentsMap = new TreeMap<>();
 
     @Getter
     private final Collection<VRSettingsPreset> allComponents =
@@ -104,18 +104,22 @@ public class VRSettingsPresetRegistry implements ComponentRegistry<VRSettingsPre
     @Override
     public VRSettingsPreset unregisterComponent(@NotNull String id) {
         var removed = componentsMap.remove(id);
-
-        if(removed != null) {
-            var catalog = ClientContext.settingsManager.getPresetsCatalog();
-            catalog.getConfigFile(
-                    id
-            ).ifPresent(it->{
-                it.getFile().delete();
-                catalog.getConfigFilesMap().remove(id);
-            });
+        if (removed != null) {
             VisorClientImpl.LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;
+    }
+
+    public void deleteCustomPreset(@NotNull String id) {
+        var removed = unregisterComponent(id);
+        if (removed == null) return;
+        var catalog = ClientContext.settingsManager.getPresetsCatalog();
+        catalog.getConfigFile(id).ifPresent(it -> {
+            if (!it.getFile().delete()) {
+                VisorClientImpl.LOGGER.warn("Failed to delete preset file for '{}'", id);
+            }
+            catalog.getConfigFilesMap().remove(id);
+        });
     }
 
     @Override

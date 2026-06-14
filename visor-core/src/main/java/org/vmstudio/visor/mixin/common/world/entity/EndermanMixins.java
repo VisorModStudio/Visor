@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,9 +34,6 @@ public class EndermanMixins {
         @Shadow
         @Nullable
         private LivingEntity target;
-        @Final
-        @Shadow
-        private EnderMan enderman;
 
         @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/control/LookControl;setLookAt(DDD)V"),
                 method = "tick")
@@ -48,14 +44,15 @@ public class EndermanMixins {
                         .getVRPlayer(
                                 player
                         );
-                if(vrPlayer == null) return;
-                this.enderman.getLookControl().setLookAt(
-                        vrPlayer.getPoseData().getHmd()
-                                .getPositionVec3()
-                );
-            }else{
-                instance.setLookAt(d,e,f);
+                if (vrPlayer != null) {
+                    instance.setLookAt(
+                            vrPlayer.getPoseData().getHmd()
+                                    .getPositionVec3()
+                    );
+                    return;
+                }
             }
+            instance.setLookAt(d,e,f);
         }
     }
 
@@ -70,12 +67,13 @@ public class EndermanMixins {
 
         @Inject(at = @At("HEAD"), method = "isLookingAtMe(Lnet/minecraft/world/entity/player/Player;)Z", cancellable = true)
         public void visor$vrPlayerLookingAtMe(Player player, CallbackInfoReturnable<Boolean> cir) {
-            var vrPlayer = VisorAPI.server().getVRPlayer((ServerPlayer) player);
+            if (!(player instanceof ServerPlayer serverPlayer)) return;
+            var vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);
             if (vrPlayer != null) {
                 cir.setReturnValue(
                         visor$canAttackVrPlayer(
                                 (EnderMan) (Object) this,
-                                (ServerPlayer) player
+                                serverPlayer
                         )
                 );
             }
@@ -83,9 +81,10 @@ public class EndermanMixins {
 
         @Unique
         private static boolean visor$canAttackVrPlayer(EnderMan enderman,
-                                                      ServerPlayer player) {
+                                                       ServerPlayer player) {
             ItemStack itemstack = player.getInventory().armor.get(3);
             if (!itemstack.is(Items.CARVED_PUMPKIN)) { //no ender item
+                if (player.level() != enderman.level()) return false;
                 VRServerPlayer vrPlayer = VisorAPI.server()
                         .getVRPlayer(player);
                 if (vrPlayer == null) return false;
@@ -110,7 +109,7 @@ public class EndermanMixins {
                         &&
                         visor$canEntityBeSeen(
                                 enderman,
-                                hmd.getPositionVec3()
+                                hmdPos
                         );
             }
 
@@ -119,7 +118,7 @@ public class EndermanMixins {
 
         @Unique
         private static boolean visor$canEntityBeSeen(Entity entity,
-                                                    Vec3 playerEyePos) {
+                                                     Vec3 playerEyePos) {
             Vec3 entityEyePos = new Vec3(
                     entity.getX(),
                     entity.getEyeY(),

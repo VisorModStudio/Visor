@@ -14,4 +14,6 @@ public @interface VROptionField {
     String key() default "";
     VROptionWidgetType widgetType() default VROptionWidgetType.EMPTY;
     VROptionCategory category() default VROptionCategory.EMPTY;
+
+    boolean excludeFromPresets() default false;
 }
