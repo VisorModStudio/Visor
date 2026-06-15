@@ -51,6 +51,7 @@ public final class VRMenuSky {
     private static final AtumColorImmutable VISOR_STAR_HALO_C = AtumColor.immutable(30, 200, 245);
     private static final AtumColorImmutable VISOR_STAR_CORE_C = AtumColor.immutable(200, 250, 255);
 
+    private static final AtumColorImmutable DUSK_CLOUD_SHADOW = AtumColor.immutable(72, 74, 116, 255);
     // ---- SKY BOX ----
     private static final float SKY_BOX = 100.0f;
 
@@ -201,6 +202,17 @@ public final class VRMenuSky {
 
     private static final CloudVariant[] CLOUD_VARIANTS = new CloudVariant[CLOUD_SHAPES.length * 4];
 
+    // ---- DIRECTIONAL TWILIGHT LIGHT ----
+    private static final float CLOUD_LIT_AMOUNT = 0.90f;
+    private static final float CLOUD_SHADOW_AMOUNT = 0.65f;
+    private static final float CLOUD_TOP_SUN_FACING = 0.35f;
+    private static final float CLOUD_SUNLIT_WALL_BOOST = 0.75f;
+
+    private static final int FACE_COLOR_TOP = 0,
+            FACE_COLOR_XN = 1, FACE_COLOR_XP = 2,
+            FACE_COLOR_ZN = 3, FACE_COLOR_ZP = 4;
+
+
     // ---- USER DOTS----
     private static final int USER_DOT_MAX = 1000;
     static final float USER_DOT_RADIUS = 93.0f;
@@ -222,11 +234,18 @@ public final class VRMenuSky {
     private static final AtumColorMutable sunTint = AtumColor.mutable(0,0,0, 255);
     private static final AtumColorMutable moonTint = AtumColor.mutable(205, 215, 255, 255);
 
+    private static final AtumColorMutable cloudBaseColor = AtumColor.mutable(0, 0, 0, 255);
+    private static final AtumColorMutable cloudLitColor = AtumColor.mutable(0, 0, 0, 255);
+    private static final AtumColorMutable cloudShadowColor = AtumColor.mutable(0, 0, 0, 255);
+
+
     private static final Vector3f currentSunDir = new Vector3f(0, 1, 0);
     private static final Vector3f currentMoonDir = new Vector3f(0, -1, 0);
     private static float currentDay = 1f;        // 0 = full night, 1 = full day
     private static float currentTwilight = 0f;   // 0 = no twilight, 1 = full twilight
     private static float sunAzimuthX = 1f, sunAzimuthZ = 0f; // horizontal sun direction for the dusk gradient
+
+    private static final int[][] cloudFaceColors = new int[5][3];
 
     private static long lastSkyUpdate = -1;
     private static final int[] blendScratch = new int[3];
@@ -426,7 +445,6 @@ public final class VRMenuSky {
         // --- Setup ---
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        // blend now ON: edge clouds dissolve via alpha rather than being recolored solids
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -512,11 +530,42 @@ public final class VRMenuSky {
                 currentHorizonBase.blend(DUSK_HORIZON, currentTwilight, blendScratch)
         );
 
-        currentCloud.set(
+        cloudBaseColor.set(
                 NIGHT_CLOUD.blend(DAY_CLOUD, currentDay, blendScratch)
-        ).set(
-                currentCloud.blend(WARM_CLOUD, currentTwilight * 0.8f, blendScratch)
         );
+
+        currentCloud.set(
+                cloudBaseColor.blend(WARM_CLOUD, currentTwilight * 0.8f, blendScratch)
+        );
+
+        updateCloudFaceColors();
+    }
+    private static void updateCloudFaceColors() {
+        cloudLitColor.set(
+                cloudBaseColor.blend(WARM_CLOUD, currentTwilight * CLOUD_LIT_AMOUNT, blendScratch)
+        );
+        cloudShadowColor.set(
+                cloudBaseColor.blend(DUSK_CLOUD_SHADOW, currentTwilight * CLOUD_SHADOW_AMOUNT, blendScratch)
+        );
+
+        bakeCloudFaceColor(FACE_COLOR_TOP, CLOUD_TOP_SUN_FACING, SHADE_UP);
+        bakeCloudFaceColor(FACE_COLOR_XN, -sunAzimuthX, SHADE_WE);
+        bakeCloudFaceColor(FACE_COLOR_XP, sunAzimuthX, SHADE_WE);
+        bakeCloudFaceColor(FACE_COLOR_ZN, -sunAzimuthZ, SHADE_NS);
+        bakeCloudFaceColor(FACE_COLOR_ZP, sunAzimuthZ, SHADE_NS);
+    }
+
+    private static void bakeCloudFaceColor(int faceIndex, float sunFacing, float structuralShade) {
+        float litT = 0.5f + 0.5f * sunFacing;
+        int[] rgb = cloudShadowColor.blend(cloudLitColor, litT, blendScratch);
+
+        float litBoost = currentTwilight * Math.max(0f, sunFacing) * CLOUD_SUNLIT_WALL_BOOST;
+        float shade = structuralShade + (1f - structuralShade) * litBoost;
+
+        int[] face = cloudFaceColors[faceIndex];
+        face[0] = (int) (rgb[0] * shade);
+        face[1] = (int) (rgb[1] * shade);
+        face[2] = (int) (rgb[2] * shade);
     }
 
     private static void renderSkyBox(BufferBuilder builder,
@@ -899,32 +948,26 @@ public final class VRMenuSky {
     private static void renderClouds(BufferBuilder builder,
                                      Matrix4f pose) {
 
-        // how far the whole cloud field has drifted since launch, in world units
         double driftX = CLOUD_DRIFT_X * currentTimeSec;
         double driftZ = CLOUD_DRIFT_Z * currentTimeSec;
 
-        // grid-cell index bounds covering the visible range, with a wider margin
-        // so edge clouds whose tiles reach into range are still emitted
         int minCellX = (int) Math.floor((driftX - CLOUD_RANGE) / CLOUD_CELL) - 2;
         int maxCellX = (int) Math.ceil((driftX + CLOUD_RANGE) / CLOUD_CELL) + 2;
         int minCellZ = (int) Math.floor((driftZ - CLOUD_RANGE) / CLOUD_CELL) - 2;
         int maxCellZ = (int) Math.ceil((driftZ + CLOUD_RANGE) / CLOUD_CELL) + 2;
 
-        // only cull once the WHOLE cloud is past the edge; per-vertex alpha hides the boundary
         float cullDistance = CLOUD_RANGE + 24f;
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
             for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
                 if (hash01(cellX, cellZ, 0) > CLOUD_FILL) {
-                    continue; // empty cell
+                    continue;
                 }
 
-                // scatter the cloud inside its cell so the underlying grid isn't visible
                 float jitterX = (hash01(cellX, cellZ, 1) * 2f - 1f) * CLOUD_JITTER;
                 float jitterZ = (hash01(cellX, cellZ, 2) * 2f - 1f) * CLOUD_JITTER;
 
-                // cloud center relative to the viewer; the field scrolls past as the drift grows
                 float cloudCenterX = (float) (cellX * (double) CLOUD_CELL + jitterX - driftX);
                 float cloudCenterZ = (float) (cellZ * (double) CLOUD_CELL + jitterZ - driftZ);
 
@@ -955,25 +998,22 @@ public final class VRMenuSky {
         float topY = cloudCenterY + CLOUD_THICK;
 
         for (int tile = 0; tile < tileCount; tile++) {
-            // tile center; the baked offsets keep the shape's centroid on the cloud center
             float tileCenterX = cloudCenterX + variant.tx[tile] * CLOUD_TILE - variant.offX;
             float tileCenterZ = cloudCenterZ + variant.tz[tile] * CLOUD_TILE - variant.offZ;
 
             float minX = tileCenterX - halfTile, maxX = tileCenterX + halfTile;
             float minZ = tileCenterZ - halfTile, maxZ = tileCenterZ + halfTile;
 
-            // top face is always exposed
-            cloudFace(builder, pose, SHADE_UP,
+            cloudFace(builder, pose, cloudFaceColors[FACE_COLOR_TOP],
                     minX, topY, maxZ,
                     maxX, topY, maxZ,
                     maxX, topY, minZ,
                     minX, topY, minZ);
 
-            // side faces only where no neighbor tile covers them (flags baked at class load)
             int exposedFaces = variant.faces[tile];
             if ((exposedFaces & FACE_XN) != 0) {
                 // -X wall
-                cloudFace(builder, pose, SHADE_WE,
+                cloudFace(builder, pose, cloudFaceColors[FACE_COLOR_XN],
                         minX, bottomY, minZ,
                         minX, bottomY, maxZ,
                         minX, topY, maxZ,
@@ -981,7 +1021,7 @@ public final class VRMenuSky {
             }
             if ((exposedFaces & FACE_XP) != 0) {
                 // +X wall
-                cloudFace(builder, pose, SHADE_WE,
+                cloudFace(builder, pose, cloudFaceColors[FACE_COLOR_XP],
                         maxX, bottomY, minZ,
                         maxX, topY, minZ,
                         maxX, topY, maxZ,
@@ -989,7 +1029,7 @@ public final class VRMenuSky {
             }
             if ((exposedFaces & FACE_ZN) != 0) {
                 // -Z wall
-                cloudFace(builder, pose, SHADE_NS,
+                cloudFace(builder, pose, cloudFaceColors[FACE_COLOR_ZN],
                         minX, bottomY, minZ,
                         minX, topY, minZ,
                         maxX, topY, minZ,
@@ -997,7 +1037,7 @@ public final class VRMenuSky {
             }
             if ((exposedFaces & FACE_ZP) != 0) {
                 // +Z wall
-                cloudFace(builder, pose, SHADE_NS,
+                cloudFace(builder, pose, cloudFaceColors[FACE_COLOR_ZP],
                         minX, bottomY, maxZ,
                         maxX, bottomY, maxZ,
                         maxX, topY, maxZ,
@@ -1007,29 +1047,27 @@ public final class VRMenuSky {
     }
 
     private static void cloudFace(BufferBuilder builder, Matrix4f pose,
-                                  float shade,
+                                  int[] faceColor,
                                   float corner1X, float corner1Y, float corner1Z,
                                   float corner2X, float corner2Y, float corner2Z,
                                   float corner3X, float corner3Y, float corner3Z,
                                   float corner4X, float corner4Y, float corner4Z) {
-        int[] shadedColor = new int[3];
-        currentCloud.multiply(shade, shadedColor);
-        cloudVertex(builder, pose, corner1X, corner1Y, corner1Z, shadedColor);
-        cloudVertex(builder, pose, corner2X, corner2Y, corner2Z, shadedColor);
-        cloudVertex(builder, pose, corner3X, corner3Y, corner3Z, shadedColor);
-        cloudVertex(builder, pose, corner4X, corner4Y, corner4Z, shadedColor);
+        cloudVertex(builder, pose, corner1X, corner1Y, corner1Z, faceColor);
+        cloudVertex(builder, pose, corner2X, corner2Y, corner2Z, faceColor);
+        cloudVertex(builder, pose, corner3X, corner3Y, corner3Z, faceColor);
+        cloudVertex(builder, pose, corner4X, corner4Y, corner4Z, faceColor);
     }
 
     private static void cloudVertex(BufferBuilder builder, Matrix4f pose,
                                     float x, float y, float z,
-                                    int[] shadedColor) {
+                                    int[] faceColor) {
         float dist = (float) Math.sqrt(x * x + z * z);
 
         // blending cloud with horizon
         float aerial = AERIAL_MAX * smoothstep(AERIAL_START, CLOUD_RANGE, dist);
-        int r = (int) (shadedColor[0] + (currentHorizon.getRedInt() - shadedColor[0]) * aerial);
-        int g = (int) (shadedColor[1] + (currentHorizon.getGreenInt() - shadedColor[1]) * aerial);
-        int b = (int) (shadedColor[2] + (currentHorizon.getBlueInt() - shadedColor[2]) * aerial);
+        int r = (int) (faceColor[0] + (currentHorizon.getRedInt() - faceColor[0]) * aerial);
+        int g = (int) (faceColor[1] + (currentHorizon.getGreenInt() - faceColor[1]) * aerial);
+        int b = (int) (faceColor[2] + (currentHorizon.getBlueInt() - faceColor[2]) * aerial);
 
         // alpha: dissolve cloud when out of visible area
         float dissolve = 1f - smoothstep(ALPHA_FADE_START, CLOUD_RANGE, dist);
