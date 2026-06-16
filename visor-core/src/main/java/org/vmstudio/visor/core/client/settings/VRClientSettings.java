@@ -339,7 +339,7 @@ public class VRClientSettings {
 
 
     @Setter
-    @VROptionField(key = "player.full_height")
+    @VROptionField(key = "player.full_height", excludeFromPresets = true)
     protected static float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
 
 
