@@ -163,7 +163,7 @@ public class VROverlayMovementState extends VROverlayScreen {
             return false;
         }
         if(MC.player == null) return false;
-        return !MC.player.isSpectator() && MC.player.isPassenger();
+        return !MC.player.isSpectator() && !MC.player.isPassenger();
     }
 
     @Override
