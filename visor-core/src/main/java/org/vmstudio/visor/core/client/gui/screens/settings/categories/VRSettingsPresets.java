@@ -23,7 +23,7 @@ import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
-import org.vmstudio.visor.core.client.settings.presets.VRPresetSettingsType;
+import org.vmstudio.visor.api.client.gui.settings.VRPresetSettingsType;
 import org.vmstudio.visor.core.client.settings.presets.types.VRSettingsPresetCustom;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;

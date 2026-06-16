@@ -36,6 +36,9 @@
   "visor.options.presets.types.defaults.name": "Скидання",
   "visor.options.presets.types.defaults.description": "Пресет зі стандартними налаштуваннями для всього.",
 
+  "visor.options.presets.types.defaults_hand_hud.name": "Скидання: HUD на руці",
+  "visor.options.presets.types.defaults_hand_hud.description": "Альтернатива пресету скидання з\nелементами HUD, закріпленими на руці",
+
   "_comment.movement": "----Налаштування переміщення----",
   "visor.options.movement.button": "Рух",
   "visor.options.movement.mode": "Переміщення",

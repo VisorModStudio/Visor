@@ -4,22 +4,20 @@ import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumconfig.api.config.ConfigType;
 import me.phoenixra.atumconfig.core.config.AtumConfigFile;
+import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
+import org.vmstudio.visor.api.client.gui.settings.VRPresetSettingsType;
+import org.vmstudio.visor.api.client.gui.settings.VRSettingsPresetConfigBased;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.presets.VRPresetSettingsType;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 //@TODO
-public class VRSettingsPresetCustom extends VRSettingsPreset {
+public class VRSettingsPresetCustom extends VRSettingsPresetConfigBased {
 
-    private final Config config;
     @Getter
     private final String id;
     @Getter
@@ -30,34 +28,14 @@ public class VRSettingsPresetCustom extends VRSettingsPreset {
     @Getter
     private final String originVisorVersion;
 
-    @Getter
-    private final List<VRPresetSettingsType> settingTypes;
-
 
     public VRSettingsPresetCustom(@NotNull String id,
                                   @NotNull Config config) {
-        super(ClientContext.coreAddon);
-        this.config = config;
+        super(ClientContext.coreAddon, config);
         this.id = id;
         this.name = Component.translatable(config.getString("name"));
         this.description = Component.translatable(config.getString("description"));
         this.originVisorVersion = config.getStringOrDefault("origin_version", "Unknown");
-
-        settingTypes = new ArrayList<>();
-        for(var entry : VRPresetSettingsType.values()){
-            if(config.hasPath(entry.getKey())){
-                settingTypes.add(entry);
-            }
-        }
-    }
-
-    @Override
-    public void apply() {
-        for(var type : settingTypes){
-            type.getLoader().accept(
-                    config.getSubsection(type.getKey())
-            );
-        }
     }
 
     @Override

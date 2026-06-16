@@ -15,6 +15,7 @@ import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.VROptionRecord;
 import org.vmstudio.visor.core.client.settings.overlays.OverlayConfigsManager;
 import org.vmstudio.visor.core.client.settings.presets.PresetsCatalogListener;
+import org.vmstudio.visor.core.client.settings.presets.VRPresetSettingsTypeImpl;
 import org.vmstudio.visor.core.client.settings.presets.VRSettingsPresetRegistry;
 import org.vmstudio.visor.core.client.utils.LangHelper;
 import org.jetbrains.annotations.NotNull;
@@ -35,7 +36,7 @@ public class VRClientSettingsManager {
     private final Map<String, VROptionWidgetType> optionWidgets = new HashMap<>();
 
     @Getter
-    private final ConfigFile settings;
+    private final ConfigFile config;
     private Config defaultSettings;
 
 
@@ -53,9 +54,12 @@ public class VRClientSettingsManager {
     public VRClientSettingsManager() {
         instance = this;
 
+
+        VRPresetSettingsTypeImpl.init();
+
         ConfigManager configManager = ClientContext.visor.getConfigManager();
         try {
-            settings = configManager.createConfigFile(
+            config = configManager.createConfigFile(
                     ConfigType.YAML,
                     "settings",
                     Path.of("settings.yml"),
@@ -90,9 +94,9 @@ public class VRClientSettingsManager {
     }
 
     public void saveOptions() {
-        applyOptionsTo(settings);
+        applyOptionsTo(config);
         try {
-            settings.save();
+            config.save();
         } catch (Exception exception) {
             VisorClientImpl.LOGGER.info(
                     "------Failed to save settings data!------"
@@ -102,7 +106,7 @@ public class VRClientSettingsManager {
     }
 
     public void loadOptions() {
-        loadOptionsFrom(settings);
+        loadOptionsFrom(config);
     }
     public void loadDefaults() {
         loadOptionsFrom(defaultSettings);

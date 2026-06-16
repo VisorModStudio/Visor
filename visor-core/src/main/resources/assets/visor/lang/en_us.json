@@ -36,6 +36,9 @@
   "visor.options.presets.types.defaults.name": "Defaults",
   "visor.options.presets.types.defaults.description": "The preset with default settings for everything",
 
+  "visor.options.presets.types.defaults_hand_hud.name": "Defaults: Hand HUD",
+  "visor.options.presets.types.defaults_hand_hud.description": "The defaults preset alternative with\nHUD elements attached to hand",
+
   "_comment.movement": "----Movement Settings----",
   "visor.options.movement.button": "Movement",
   "visor.options.movement.mode": "Movement",

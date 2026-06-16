@@ -33,8 +33,11 @@
   "visor.options.presets.settings_type.action_bindings": "Управление",
   "visor.options.presets.settings_type.overlays": "Оверлеи",
 
-  "visor.options.presets.types.defaults.name": "Сброс",
-  "visor.options.presets.types.defaults.description": "Пресет со стандартными настройками для всего.",
+  "visor.options.presets.types.defaults.name": "По умолчанию",
+  "visor.options.presets.types.defaults.description": "Пресет с настройками по умолчанию для всего.",
+
+  "visor.options.presets.types.defaults_hand_hud.name": "По умолчанию: HUD на руке",
+  "visor.options.presets.types.defaults_hand_hud.description": "Альтернатива пресета по умолчанию\nс элементами HUD, закреплёнными на руке",
 
   "_comment.movement": "----Настройки перемещения----",
   "visor.options.movement.button": "Движение",
@@ -306,7 +309,7 @@
   "visor.overlay.options.overlays.id": "ID: %s",
   "visor.overlay.options.overlays.addon": "Аддон: %s",
   "visor.overlay.options.overlays.template": "Шаблон: %s",
-  "visor.overlay.options.overlays.load_defaults": "Сброс",
+  "visor.overlay.options.overlays.load_defaults": "Сбросить",
   "visor.overlay.options.overlays.confirm_remove": "Удалить?",
   "visor.overlay.options.overlays.options_not_found": "Опции не найдены",
   "visor.overlay.options.overlays.select_options": "Выбрать опции",
@@ -423,7 +426,7 @@
   "visor.menu.game_menu.section.weather": "ПОГОДА",
 
   "_comment19": "*--------ОБЩИЕ КНОПКИ--------*",
-  "visor.button.load_defaults": "Сброс",
+  "visor.button.load_defaults": "Загрузить по умолчанию",
   "visor.button.overlay": "Оверлей",
   "visor.button.profiler": "Профилировщик",
   "visor.button.calibrate_height": "Откалибровать рост",
