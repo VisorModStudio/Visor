@@ -3,7 +3,6 @@ package org.vmstudio.visor.core.client.render.target.types;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
@@ -55,9 +54,10 @@ public class RenderTargetMain implements RenderTargetHolder {
                 true
         );
         target.resize(width, height, Minecraft.ON_OSX);
+        var mcWindow = (WindowExtension) (Object) MC.getWindow();
         this.mirrorTarget.resize(
-                Math.max(1, ClientContext.renderer.getMirrorWidth()),
-                Math.max(1, ClientContext.renderer.getMirrorHeight()),
+                Math.max(1, mcWindow.visor$getActualScreenWidth()),
+                Math.max(1, mcWindow.visor$getActualScreenHeight()),
                 Minecraft.ON_OSX
         );
 
