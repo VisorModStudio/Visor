@@ -4,8 +4,11 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
+import org.vmstudio.visor.compatibility.dh.DhCompatHelper;
+import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffects;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsMixedReality;
+import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsShaders;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsThirdPerson;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
@@ -57,6 +60,18 @@ public class VRSettingsRendering extends VROptionsSet {
                 )
         );
 
+        if (IrisCompatHelper.isLoaded()) {
+            options.add(
+                    new OptionWidgetEntry(
+                            this,
+                            new VRSettingsShaders(getScreen(), this, onWidgetsChanged),
+                            OptionWidgetPosition.RIGHT,
+                            1,
+                            "visor.options.rendering.shaders.button"
+                    )
+            );
+        }
+
         MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
 
         if(mirrorMode == MirrorMode.CROPPED
@@ -88,6 +103,21 @@ public class VRSettingsRendering extends VROptionsSet {
                             OptionWidgetPosition.LEFT,
                             1,
                             "visor.options.rendering.mixed_reality.button"
+                    )
+            );
+        }
+
+        if (DhCompatHelper.isLoaded()
+                && (mirrorMode == MirrorMode.FIRST_PERSON
+                        || mirrorMode == MirrorMode.THIRD_PERSON
+                        || mirrorMode == MirrorMode.MIXED_REALITY)) {
+            options.add(
+                    new OptionWidgetEntry(
+                            this,
+                            VROptionWidgetType.DH_MIRROR_PASSES,
+                            OptionWidgetPosition.LEFT,
+                            2,
+                            null
                     )
             );
         }

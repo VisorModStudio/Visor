@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.settings;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.settings.options.OptionBehaviour;
 import org.vmstudio.visor.core.client.settings.options.OptionBehaviourFactory;
@@ -142,6 +143,33 @@ public enum VROptionWidgetType {
             VROptionCategory.RENDERING_EYE_EFFECTS,
             (it) -> null
     ),
+    SHADER_PER_EYE_PIPELINES(
+            VROptionCategory.RENDERING_SHADERS,
+            (it) ->
+                    OptionBehaviourFactory
+                            .simple(it)
+                            .setOnChanged(
+                                    IrisCompatHelper::requestPipelineReload
+                            ).build()
+    ),
+    SHADER_SHARED_SHADOWS(
+            VROptionCategory.RENDERING_SHADERS,
+            (it) ->
+                    OptionBehaviourFactory
+                            .simple(it)
+                            .setOnChanged(
+                                    IrisCompatHelper::requestPipelineReload
+                            ).build()
+    ),
+    SHADER_SHARED_SSBO(
+            VROptionCategory.RENDERING_SHADERS,
+            (it) ->
+                    OptionBehaviourFactory
+                            .simple(it)
+                            .setOnChanged(
+                                    IrisCompatHelper::requestPipelineReload
+                            ).build()
+    ),
     MIRROR_MODE(
             VROptionCategory.RENDERING,
             (it) ->
@@ -157,6 +185,10 @@ public enum VROptionWidgetType {
                             }).build()
     ),
     MIRROR_EYE(
+            VROptionCategory.RENDERING,
+            (it) -> null
+    ),
+    DH_MIRROR_PASSES(
             VROptionCategory.RENDERING,
             (it) -> null
     ),

@@ -8,7 +8,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
 
 import java.util.function.Consumer;
 
@@ -30,7 +32,6 @@ public class ButtonImaged extends AbstractButton {
         );
         this.widgetInfo = widgetInfo;
         this.onPress = onPress;
-        this.setTooltip(widgetInfo.getTooltip());
     }
 
     public void setSelected(boolean selected) {
@@ -44,6 +45,26 @@ public class ButtonImaged extends AbstractButton {
     public void onPress() {
         if (this.onPress != null) {
             this.onPress.accept(this);
+        }
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        Tooltip tooltip = widgetInfo.getTooltip();
+        if (tooltip == null || !this.visible) {
+            return;
+        }
+        if (this.isHovered || this.isFocused()) {
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen != null) {
+                screen.setTooltipForNextRenderPass(
+                        tooltip,
+                        ClampedTooltipPositioner.INSTANCE,
+                        this.isFocused()
+                );
+            }
         }
     }
 

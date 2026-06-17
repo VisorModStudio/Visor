@@ -30,6 +30,7 @@ forgeVersion           = "47.4.0"
 
 #Other mods
 mods_sodium                 = "mc1.20.1-0.5.8"
+mods_iris                   = "1.7.1+1.20.1"
 
 
 [plugins]
@@ -56,6 +57,7 @@ fabric-loader      = { module = "net.fabricmc:fabric-loader",        version.ref
 
 #Other Mods
 mod-sodium = { module = "maven.modrinth:sodium",  version.ref = "mods_sodium"}
+mod-iris   = { module = "maven.modrinth:iris",    version.ref = "mods_iris"}
 
 [bundles]
 annotations        = [ "lombok", "jetbrains" ]

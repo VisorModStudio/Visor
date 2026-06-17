@@ -11,6 +11,7 @@ public enum VROptionCategory {
     MAIN("main"),
     GUI("gui"),
     RENDERING("rendering"),
+    RENDERING_SHADERS("rendering.shaders"),
     RENDERING_EYE_EFFECTS("rendering.eye_effects"),
     RENDERING_THIRD_PERSON("rendering.third_person"),
     RENDERING_MIXED_REALITY("rendering.mixed_reality"),

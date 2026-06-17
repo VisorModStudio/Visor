@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.provider;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
@@ -13,6 +14,7 @@ import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -68,6 +70,11 @@ public class VisorScene implements AtumVRScene {
         profiler.pop();
         GLUtils.checkGLError("post VR Overlays texturing");
 
+        ShadersHelper.bridge().beginFrame(
+                renderContext.partialTicks(),
+                renderContext.nanoTime()
+        );
+
         for (VRRenderPass renderPass : VRRenderState.getActivePasses()) {
             profiler.push("VR render pass: "+renderPass.name());
 
@@ -84,6 +91,8 @@ public class VisorScene implements AtumVRScene {
             profiler.pop();
         }
 
+
+        ShadersHelper.bridge().endFrame();
 
         profiler.push("VR mirror");
         VRRenderState.startVRMirrorPhase();
@@ -126,16 +135,42 @@ public class VisorScene implements AtumVRScene {
     ) {
         VRRenderState.startVRWorldPhase(renderPass);
 
+        if (MC.mainRenderTarget == null) {
+            LOGGER.warn("Visor: no render target for pass {}; requesting renderer reinit.", renderPass);
+            VRRenderState.startVanillaPhase();
+            ClientContext.renderer.prepareReinit("Missing target for pass " + renderPass);
+            return;
+        }
+
         MC.mainRenderTarget.bindWrite(true);
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
         RenderSystem.clear(16384, Minecraft.ON_OSX);
         RenderSystem.enableDepthTest();
+
+        ShadersHelper.bridge().beginEye(VRRenderState.eyeIndexFor(renderPass));
+
+        if (ShadersHelper.isShaderActive()) {
+            RenderSystem.setShaderTexture(0, 0);
+            RenderSystem.setShaderTexture(1, 0);
+            RenderSystem.setShaderTexture(2, 0);
+        }
 
         MC.gameRenderer.render(
                 context.partialTicks(),
                 context.nanoTime(),
                 context.renderLevel()
         );
+
+        if (ShadersHelper.isShaderActive()) {
+            MC.mainRenderTarget.bindWrite(true);
+            PoseStack modelView = RenderSystem.getModelViewStack();
+            modelView.pushPose();
+            modelView.setIdentity();
+            RenderSystem.applyModelViewMatrix();
+            ClientContext.decorationRenderer.renderShaderUi(new PoseStack(), context.partialTicks());
+            modelView.popPose();
+            RenderSystem.applyModelViewMatrix();
+        }
 
         if (renderPass.isEye()) {
 
@@ -155,6 +190,8 @@ public class VisorScene implements AtumVRScene {
             );
 
         }
+
+        ShadersHelper.bridge().endEye();
     }
 
 

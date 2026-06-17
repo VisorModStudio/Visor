@@ -15,6 +15,7 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.compatibility.shaders.IrisVRBridge;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
@@ -243,5 +244,15 @@ public class VRRenderState {
         }
 
         return list;
+    }
+
+    public static int eyeIndexFor(VRRenderPass pass) {
+        if (pass == VRRenderPass.EYE_LEFT) {
+            return IrisVRBridge.EYE_LEFT;
+        }
+        if (pass == VRRenderPass.EYE_RIGHT) {
+            return IrisVRBridge.EYE_RIGHT;
+        }
+        return IrisVRBridge.EYE_NONE;
     }
 }

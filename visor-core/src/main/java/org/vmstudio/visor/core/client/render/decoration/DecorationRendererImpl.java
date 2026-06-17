@@ -25,6 +25,7 @@ import org.vmstudio.visor.core.client.render.decoration.registry.VRGameEffectReg
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
@@ -226,7 +227,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         currentDecorator.setupRendering(poseStack, partialTicks);
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
-        ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
+        if (!ShadersHelper.isShaderActive()) {
+            ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
+        }
         //VR BODY
         ClientContext.localPlayer
                 .getBodyType()
@@ -280,9 +283,36 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         }
 
         renderGameEffects(currentDecorator, poseStack, partialTicks);
+        if (!ShadersHelper.isShaderActive()) {
+            ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
+            ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
+            ClientContext.handRenderer.renderGuiHands(
+                    poseStack,
+                    handStateMain, handStateOffhand,
+                    partialTicks
+            );
+            ClientContext.handRenderer.renderHandEffectsOnly(
+                    currentDecorator,
+                    poseStack,
+                    handStateMain, handStateOffhand,
+                    true,
+                    partialTicks
+            );
+        }
+
+        currentDecorator.renderAfterWorld(poseStack, partialTicks);
+
+        GLUtils.checkGLError("post AFTER_WORLD stage");
+    }
+
+
+    public void renderShaderUi(PoseStack poseStack, float partialTicks) {
+        if (currentDecorator == null || currentDecorator.isFullControl()) {
+            return;
+        }
+        ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
         ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
-        //GUI HANDS
         ClientContext.handRenderer.renderGuiHands(
                 poseStack,
                 handStateMain, handStateOffhand,
@@ -295,12 +325,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 true,
                 partialTicks
         );
-
-        currentDecorator.renderAfterWorld(poseStack, partialTicks);
-
-        GLUtils.checkGLError("post AFTER_WORLD stage");
+        GLUtils.checkGLError("post shader UI stage");
     }
-
 
     private void renderGameEffects(VRDecorator decorator,
                                    PoseStack poseStack,

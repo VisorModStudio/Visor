@@ -7,6 +7,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -110,6 +111,9 @@ public class VREffectsHelper {
 
 
     public static void drawEyeStencil() {
+        if (ShadersHelper.isShaderActive()) {
+            return;
+        }
         stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         if (renderPass.isEye()

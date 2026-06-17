@@ -38,7 +38,7 @@ public class RenderTargetMain implements RenderTargetHolder {
                 "Mirror",
                 mcWindow.visor$getActualScreenWidth(),
                 mcWindow.visor$getActualScreenHeight(),
-                false, () -> -1,
+                true, () -> -1,
                 false, false
         );
         GLUtils.checkGLError("Mirror VR target setup");
