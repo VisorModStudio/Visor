@@ -147,7 +147,7 @@ public class VisorScene implements AtumVRScene {
         RenderSystem.clear(16384, Minecraft.ON_OSX);
         RenderSystem.enableDepthTest();
 
-        ShadersHelper.bridge().beginEye(VRRenderState.eyeIndexFor(renderPass));
+        ShadersHelper.bridge().beginEye(renderPass.getEyeOrLeft());
 
         if (ShadersHelper.isShaderActive()) {
             RenderSystem.setShaderTexture(0, 0);

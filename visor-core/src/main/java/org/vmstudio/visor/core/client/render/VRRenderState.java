@@ -245,14 +245,4 @@ public class VRRenderState {
 
         return list;
     }
-
-    public static int eyeIndexFor(VRRenderPass pass) {
-        if (pass == VRRenderPass.EYE_LEFT) {
-            return IrisVRBridge.EYE_LEFT;
-        }
-        if (pass == VRRenderPass.EYE_RIGHT) {
-            return IrisVRBridge.EYE_RIGHT;
-        }
-        return IrisVRBridge.EYE_NONE;
-    }
 }

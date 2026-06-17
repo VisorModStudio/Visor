@@ -1,5 +1,7 @@
 package org.vmstudio.visor.compatibility.shaders;
 
+import me.phoenixra.atumvr.api.enums.EyeType;
+
 public final class NoOpIrisVRBridge implements IrisVRBridge {
     @Override
     public boolean isActive() {
@@ -21,7 +23,7 @@ public final class NoOpIrisVRBridge implements IrisVRBridge {
     }
 
     @Override
-    public void beginEye(int eyeIndex) {
+    public void beginEye(EyeType eyeType) {
     }
 
     @Override

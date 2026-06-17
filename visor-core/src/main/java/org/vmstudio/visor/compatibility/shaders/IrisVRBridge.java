@@ -1,10 +1,8 @@
 package org.vmstudio.visor.compatibility.shaders;
 
-public interface IrisVRBridge {
-    int EYE_NONE = -1;
-    int EYE_LEFT = 0;
-    int EYE_RIGHT = 1;
+import me.phoenixra.atumvr.api.enums.EyeType;
 
+public interface IrisVRBridge {
     boolean isActive();
 
     boolean sameSizedBuffers();
@@ -13,7 +11,7 @@ public interface IrisVRBridge {
 
     void beginFrame(float partialTicks, long frameNanos);
 
-    void beginEye(int eyeIndex);
+    void beginEye(EyeType eyeType);
 
     void endEye();
 

@@ -1,6 +1,7 @@
 package org.vmstudio.visor.compatibility.iris;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import me.phoenixra.atumvr.api.enums.EyeType;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
@@ -309,7 +310,7 @@ public final class IrisCompatHelper {
         }
 
         @Override
-        public void beginEye(int eyeIndex) {
+        public void beginEye(EyeType eyeType) {
         }
 
         @Override
