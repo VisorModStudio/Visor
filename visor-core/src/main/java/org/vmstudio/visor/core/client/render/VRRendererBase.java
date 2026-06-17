@@ -248,6 +248,8 @@ public abstract class VRRendererBase implements VRRenderer {
 
         minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
 
+        ShadersHelper.bridge().onVisorTargetsRecreated(eyeRenderWidth, eyeRenderHeight);
+
         this.reinitTargets = false;
 
 

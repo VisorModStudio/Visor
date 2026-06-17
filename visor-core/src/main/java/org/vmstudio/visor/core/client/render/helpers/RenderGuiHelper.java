@@ -109,7 +109,8 @@ public class RenderGuiHelper {
 
         // --- Quad + light ---
         int packedLight = -1;
-        if (MC.level != null && useLight) {
+        boolean useLitPath = MC.level != null && useLight && !ShadersHelper.isShaderActive();
+        if (useLitPath) {
             Vector3fc lightPos = position;
             if (RenderHelper.isInSolidBlock(position)
                     || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {

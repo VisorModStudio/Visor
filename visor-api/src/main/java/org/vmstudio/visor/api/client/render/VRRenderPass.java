@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.render;
 
 import lombok.Getter;
+import me.phoenixra.atumvr.api.enums.EyeType;
 
 public enum VRRenderPass {
     NULL(false),
@@ -40,6 +41,12 @@ public enum VRRenderPass {
      */
     public static VRRenderPass worldUpdater(){
         return EYE_LEFT;
+    }
+
+    public EyeType getEyeOrLeft(){
+        return this == EYE_LEFT
+                ? EyeType.LEFT : this == EYE_RIGHT
+                ? EyeType.RIGHT : EyeType.LEFT;
     }
 
 }

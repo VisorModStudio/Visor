@@ -2,6 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.TextureUtil;
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;

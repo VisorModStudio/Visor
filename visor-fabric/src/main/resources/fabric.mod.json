@@ -25,7 +25,9 @@
     "visor.replaymod.mixins.json",
     "visor.flashback.mixins.json",
     "visor.mixins.fabric.json",
-    "visor.immportals.mixins.json"
+    "visor.immportals.mixins.json",
+    "visor.dh.mixins.json",
+    "visor.iris.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.14",

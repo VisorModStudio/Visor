@@ -127,6 +127,23 @@ public class VRClientSettings {
     protected static final float mirrorCrop = 0.15F;
     //
 
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.DH_MIRROR_PASSES, key = "dh_mirror_passes")
+    protected static boolean dhMirrorPasses = false;
+
+    //----Shaders
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.SHADER_PER_EYE_PIPELINES, key = "per_eye_pipelines")
+    protected static boolean shaderPerEyePipelines = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.SHADER_SHARED_SHADOWS, key = "shared_shadows")
+    protected static boolean shaderSharedShadows = false;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.SHADER_SHARED_SSBO, key = "shared_ssbo")
+    protected static boolean shaderSharedSsbo = true;
+
     //----Eye Effects
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.LOW_HEALTH_INDICATOR, key = "low_health_indicator")
