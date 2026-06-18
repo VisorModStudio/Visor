@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.server.level.ServerPlayer;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
@@ -15,9 +14,8 @@ import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRSceneType;
 
-import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
+import org.vmstudio.visor.core.client.gui.screens.VRPauseMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
-import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
@@ -112,7 +110,7 @@ public class VisorState implements VisorClientState {
             } else {
                 if (state != VRStateMode.ACTIVE) {
                     if (MC.level != null) {
-                        MC.setScreen(new GameMenuScreen());
+                        MC.setScreen(new VRPauseMenuScreen());
                     }
                 }
                 setState(VRStateMode.ACTIVE);

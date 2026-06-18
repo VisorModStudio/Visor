@@ -14,7 +14,7 @@ import org.vmstudio.visor.core.client.utils.ClientUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameMenuScreen extends Screen {
+public class VRPauseMenuScreen extends Screen {
     private static final Component RETURN_TO_MENU = Component.translatable("menu.returnToMenu");
     private static final Component DISCONNECT = Component.translatable("menu.disconnect");
 
@@ -32,9 +32,9 @@ public class GameMenuScreen extends Screen {
     private static final int SECTION_GAP = 6;
 
     private enum Tab{
-        MAIN(Component.translatable("visor.menu.game_menu.tab.main")),
-        COMMANDS(Component.translatable("visor.menu.game_menu.tab.commands")),
-        TOOLS(Component.translatable("visor.menu.game_menu.tab.tools"));
+        MAIN(Component.translatable("visor.screen.pause_menu.tab.main")),
+        COMMANDS(Component.translatable("visor.screen.pause_menu.tab.commands")),
+        TOOLS(Component.translatable("visor.screen.pause_menu.tab.tools"));
 
         Component label;
 
@@ -48,8 +48,8 @@ public class GameMenuScreen extends Screen {
     private final List<int[]> sectionHeaderPos = new ArrayList<>(); // {x, y}
     private final List<String> sectionHeaderTexts = new ArrayList<>();
 
-    public GameMenuScreen() {
-        super(Component.translatable("visor.menu.game_menu.title"));
+    public VRPauseMenuScreen() {
+        super(Component.translatable("visor.screen.pause_menu.title"));
     }
 
 
@@ -104,54 +104,54 @@ public class GameMenuScreen extends Screen {
 
         switch (this.currentTab) {
             case MAIN -> {
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.inventory").getString(), left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.inventory").getString(), left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.calibrate_height").getString(), right, y, b -> {
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.calibrate_height").getString(), right, y, b -> {
                     VRClientSettings.calibrateHeight();
                     ClientContext.settingsManager.saveOptions();
                 }));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.keyboard").getString(), left, y, b ->{
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.keyboard").getString(), left, y, b ->{
                                     var accessor = ClientContext.overlayManager.getKeyboardAccessor();
                                     accessor.setVisible(true);
                                     accessor.resetPose();
                                 })
                 );
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.chat").getString(), right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chat").getString(), right, y,
                         b -> this.minecraft.setScreen(new ChatScreen(""))));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.pause_menu").getString(), left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.pause_menu").getString(), left, y,
                         b -> this.minecraft.setScreen(new PauseScreen(true))));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.vr_settings").getString(), right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.vr_settings").getString(), right, y,
                         b -> this.minecraft.setScreen(new VRSettingsScreen(this))));
                 y += BTN_H + GAP;
             }
 
             case COMMANDS -> {
-                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.game_mode").getString());
+                registerSection(left, y, Component.translatable("visor.screen.pause_menu.section.game_mode").getString());
                 y += LABEL_H;
 
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.survival").getString(), left, y, b -> sendCommand("gamemode survival")));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.creative").getString(), right, y, b -> sendCommand("gamemode creative")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.survival").getString(), left, y, b -> sendCommand("gamemode survival")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.creative").getString(), right, y, b -> sendCommand("gamemode creative")));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.spectator").getString(), left, y, b -> sendCommand("gamemode spectator")));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.adventure").getString(), right, y, b -> sendCommand("gamemode adventure")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.spectator").getString(), left, y, b -> sendCommand("gamemode spectator")));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.adventure").getString(), right, y, b -> sendCommand("gamemode adventure")));
                 y += BTN_H + GAP;
 
                 y += SECTION_GAP;
 
-                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.time").getString());
+                registerSection(left, y, Component.translatable("visor.screen.pause_menu.section.time").getString());
                 y += LABEL_H;
 
                 int[] timeTicks = {0, 6000, 12000, 18000};
                 String[] timeLabels = {
-                        Component.translatable("visor.menu.game_menu.button.dawn").getString(), //"Dawn",
-                        Component.translatable("visor.menu.game_menu.button.noon").getString(), //"Noon",
-                        Component.translatable("visor.menu.game_menu.button.dusk").getString(), //"Dusk",
-                        Component.translatable("visor.menu.game_menu.button.night").getString() //"Night"};
+                        Component.translatable("visor.screen.pause_menu.button.dawn").getString(), //"Dawn",
+                        Component.translatable("visor.screen.pause_menu.button.noon").getString(), //"Noon",
+                        Component.translatable("visor.screen.pause_menu.button.dusk").getString(), //"Dusk",
+                        Component.translatable("visor.screen.pause_menu.button.night").getString() //"Night"};
                 };
                 for (int i = 0; i < 4; i++) {
                     final int tick = timeTicks[i];
@@ -165,13 +165,13 @@ public class GameMenuScreen extends Screen {
 
                 y += SECTION_GAP;
 
-                registerSection(left, y, Component.translatable("visor.menu.game_menu.section.weather").getString());
+                registerSection(left, y, Component.translatable("visor.screen.pause_menu.section.weather").getString());
                 y += LABEL_H;
 
                 String[] weatherLabels = {
-                        Component.translatable("visor.menu.game_menu.button.clear").getString(), //"Clear",
-                        Component.translatable("visor.menu.game_menu.button.rain").getString(), //"Rain",
-                        Component.translatable("visor.menu.game_menu.button.thunder").getString(), //"Thunder"
+                        Component.translatable("visor.screen.pause_menu.button.clear").getString(), //"Clear",
+                        Component.translatable("visor.screen.pause_menu.button.rain").getString(), //"Rain",
+                        Component.translatable("visor.screen.pause_menu.button.thunder").getString(), //"Thunder"
                 };
                 String[] weatherCmds = {"weather clear", "weather rain", "weather thunder"};
                 for (int i = 0; i < 3; i++) {
@@ -185,11 +185,11 @@ public class GameMenuScreen extends Screen {
             }
 
             case TOOLS -> {
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.hitboxes").getString(), left, y, b -> {
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.hitboxes").getString(), left, y, b -> {
                     boolean cur = this.minecraft.getEntityRenderDispatcher().shouldRenderHitBoxes();
                     this.minecraft.getEntityRenderDispatcher().setRenderHitBoxes(!cur);
                 }));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.chunk_borders").getString(), right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chunk_borders").getString(), right, y,
                         b -> this.minecraft.debugRenderer.switchRenderChunkborder()));
                 y += BTN_H + GAP;
 

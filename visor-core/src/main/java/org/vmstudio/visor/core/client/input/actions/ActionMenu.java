@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
-import org.vmstudio.visor.core.client.gui.screens.GameMenuScreen;
+import org.vmstudio.visor.core.client.gui.screens.VRPauseMenuScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -35,7 +35,7 @@ public class ActionMenu extends VRActionButton {
                 MC.setScreen(new TitleScreen());
                 return;
             }
-            MC.setScreen(new GameMenuScreen());
+            MC.setScreen(new VRPauseMenuScreen());
         }
     }
 
