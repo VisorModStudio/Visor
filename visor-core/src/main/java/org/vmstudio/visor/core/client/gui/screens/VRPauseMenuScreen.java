@@ -193,9 +193,9 @@ public class VRPauseMenuScreen extends Screen {
                         b -> this.minecraft.debugRenderer.switchRenderChunkborder()));
                 y += BTN_H + GAP;
 
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.reload_chunks").getString(), left, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.reload_chunks").getString(), left, y,
                         b -> this.minecraft.levelRenderer.allChanged()));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.menu.game_menu.button.clear_chat").getString(), right, y,
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.clear_chat").getString(), right, y,
                         b -> this.minecraft.gui.getChat().clearMessages(false)));
                 y += BTN_H + GAP;
             }
@@ -211,7 +211,7 @@ public class VRPauseMenuScreen extends Screen {
         int cx = this.width / 2;
         int startY = this.height / 2 - totalColumnHeight() / 2;
 
-        gfx.drawCenteredString(this.font, Component.translatable("visor.menu.game_menu.title"), cx, startY, 0xFFFFFFFF);
+        gfx.drawCenteredString(this.font, Component.translatable("visor.screen.pause_menu.title"), cx, startY, 0xFFFFFFFF);
 
         int dividerColor = 0xFF555555;
 
@@ -220,7 +220,7 @@ public class VRPauseMenuScreen extends Screen {
 
         int tabStripY = startY + 9 + 16;
         int accentX = cx - COLUMN_W / 2 + currentTab.ordinal() * (TAB_W + 4);
-        gfx.fill(accentX, tabStripY - 2, accentX + TAB_W, tabStripY - 1, 0xFF55FF55);
+        gfx.fill(accentX, tabStripY - 2, accentX + TAB_W, tabStripY - 1, 0xFF6AE3EA);
 
         if (this.currentTab == Tab.COMMANDS) {
             for (int i = 0; i < sectionHeaderPos.size(); i++) {
@@ -233,7 +233,7 @@ public class VRPauseMenuScreen extends Screen {
                 gfx.fill(sx, lineY, sx + 18, lineY + 1, dividerColor);
                 gfx.fill(sx + 22 + lblW, lineY, sx + COLUMN_W, lineY + 1, dividerColor);
 
-                gfx.drawString(this.font, sectionHeaderTexts.get(i), sx + 20, sy, 0xFF88FF88, false);
+                gfx.drawString(this.font, sectionHeaderTexts.get(i), sx + 20, sy, 0xFF6AE3EA, false);
             }
         }
 
