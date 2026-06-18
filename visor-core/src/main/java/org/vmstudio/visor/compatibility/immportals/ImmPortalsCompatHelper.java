@@ -21,6 +21,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
 import java.lang.reflect.Field;
@@ -67,6 +68,13 @@ public final class ImmPortalsCompatHelper {
         return isStencilMode() && isLoaded();
     }
 
+    private static boolean wantsCompatibilityMode() {
+        if (ShadersHelper.isShaderActive()) {
+            return true;
+        }
+        return !isStencilMode();
+    }
+
     public static void prepare(@NotNull VisorAddon owner) {
         VisorAPI.eventBus().registerListener(owner, new Listener());
     }
@@ -88,33 +96,7 @@ public final class ImmPortalsCompatHelper {
 
 
     public static void onVrActivated() {
-        if (!ensureReflection()) {
-            return;
-        }
-        if (isStencilMode()) {
-            return;
-        }
-
-        try {
-            if (renderModeOverridden || ipRenderModeField == null || ipRenderModeClass == null) {
-                return;
-            }
-
-            Object currentMode = ipRenderModeField.get(null);
-            if (!(currentMode instanceof Enum<?> currentEnum)) {
-                return;
-            }
-            if (!"normal".equals(currentEnum.name())) {
-                return;
-            }
-
-            Object compatibilityMode = Enum.valueOf(ipRenderModeClass, "compatibility");
-            savedRenderMode = currentMode;
-            ipRenderModeField.set(null, compatibilityMode);
-            renderModeOverridden = true;
-        } catch (Throwable throwable) {
-            logReflectionFailure("Failed to switch Immersive Portals to compatibility renderer", throwable);
-        }
+        applyDesiredRenderMode();
     }
 
     public static void onVrDeactivated() {
@@ -126,6 +108,37 @@ public final class ImmPortalsCompatHelper {
     public static void onBeginVrWorldPass(@Nullable VRRenderPass renderPass) {
         if (renderPass != null && renderPass.isEye()) {
             clearProjectionCache();
+        }
+        applyDesiredRenderMode();
+    }
+
+    public static void applyDesiredRenderMode() {
+        if (!ensureReflection() || ipRenderModeField == null || ipRenderModeClass == null) {
+            return;
+        }
+
+        try {
+            String desired = wantsCompatibilityMode() ? "compatibility" : "normal";
+
+            Object currentMode = ipRenderModeField.get(null);
+            if (!(currentMode instanceof Enum<?> currentEnum)) {
+                return;
+            }
+            String currentName = currentEnum.name();
+            if (!"normal".equals(currentName) && !"compatibility".equals(currentName)) {
+                return;
+            }
+            if (desired.equals(currentName)) {
+                return;
+            }
+
+            if (!renderModeOverridden) {
+                savedRenderMode = currentMode;
+                renderModeOverridden = true;
+            }
+            ipRenderModeField.set(null, Enum.valueOf(ipRenderModeClass, desired));
+        } catch (Throwable throwable) {
+            logReflectionFailure("Failed to switch Immersive Portals render mode", throwable);
         }
     }
 
@@ -318,10 +331,7 @@ public final class ImmPortalsCompatHelper {
         }
 
         try {
-            Object currentMode = ipRenderModeField.get(null);
-            if (currentMode instanceof Enum<?> currentEnum && "compatibility".equals(currentEnum.name())) {
-                ipRenderModeField.set(null, savedRenderMode);
-            }
+            ipRenderModeField.set(null, savedRenderMode);
         } catch (Throwable throwable) {
             logReflectionFailure("Failed to restore Immersive Portals render mode", throwable);
         } finally {
