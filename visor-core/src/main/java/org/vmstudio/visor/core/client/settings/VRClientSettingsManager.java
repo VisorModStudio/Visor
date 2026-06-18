@@ -109,7 +109,7 @@ public class VRClientSettingsManager {
         loadOptionsFrom(config);
     }
     public void loadDefaults() {
-        loadOptionsFrom(defaultSettings);
+        loadOptionsFrom(defaultSettings, true);
     }
 
 
@@ -137,7 +137,7 @@ public class VRClientSettingsManager {
                 String optionKey = entry.getKey();
                 VROptionRecord optionRecord = entry.getValue();
 
-                if (forPreset && optionRecord.excludeFromPresets()) {
+                if (forPreset && optionRecord.excludeForcedChange()) {
                     continue;
                 }
                 Field field = optionRecord.field();
@@ -166,12 +166,12 @@ public class VRClientSettingsManager {
         loadOptionsFrom(config, false);
     }
 
-    public void loadOptionsFrom(@NotNull Config config, boolean excludePresetExcluded) {
+    public void loadOptionsFrom(@NotNull Config config, boolean exclude) {
         try {
             for(Map.Entry<String, VROptionRecord> entry
                     : allOptions.entrySet()){
                 try {
-                    if(excludePresetExcluded && entry.getValue().excludeFromPresets()){
+                    if(exclude && entry.getValue().excludeForcedChange()){
                         continue;
                     }
                     Object value = config.get(entry.getKey());
@@ -406,7 +406,7 @@ public class VRClientSettingsManager {
                         field,
                         annotation.widgetType(),
                         optionKey,
-                        annotation.excludeFromPresets()
+                        annotation.excludeForcedChange()
                 );
 
                 if (annotation.widgetType() != VROptionWidgetType.EMPTY) {

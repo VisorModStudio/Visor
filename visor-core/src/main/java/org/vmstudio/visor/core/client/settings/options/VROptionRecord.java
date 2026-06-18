@@ -8,6 +8,6 @@ import java.lang.reflect.Field;
 public record VROptionRecord(@NotNull Field field,
                              @NotNull VROptionWidgetType widgetType,
                              @NotNull String key,
-                             boolean excludeFromPresets) {
+                             boolean excludeForcedChange) {
 }
 

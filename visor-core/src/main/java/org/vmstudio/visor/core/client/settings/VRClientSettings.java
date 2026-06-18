@@ -35,13 +35,13 @@ public class VRClientSettings {
 
 
     @Getter
-    @VROptionField(excludeFromPresets = true)
+    @VROptionField(excludeForcedChange = true)
     protected static VRPlayMode vrPlayMode = VRPlayMode.ENABLED;
 
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.LEFT_HANDED,
             key = "left_handed",
-            excludeFromPresets = true)
+            excludeForcedChange = true)
     protected static boolean leftHanded = false;
 
 
@@ -356,7 +356,7 @@ public class VRClientSettings {
 
 
     @Setter
-    @VROptionField(key = "player.full_height", excludeFromPresets = true)
+    @VROptionField(key = "player.full_height", excludeForcedChange = true)
     protected static float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
 
 
