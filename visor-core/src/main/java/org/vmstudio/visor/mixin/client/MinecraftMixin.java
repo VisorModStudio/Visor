@@ -277,6 +277,26 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     }
 
 
+    /**
+     * Release data that won't be updating
+     * during world load (like input and mb something else)
+     */
+    @Inject(method = "doWorldLoad", at = @At("HEAD"))
+    private void visor$onWorldLoad(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            return;
+        }
+        try {
+            var activeSet = ClientContext.inputManager.getActiveSet();
+            if (activeSet != null) {
+                activeSet.clear();
+            }
+        } catch (Throwable ignored) {
+            // Don't block world load
+        }
+    }
+
+
      /* ******************* *\
    //--------VR OVERLAYS--------\\
      \* ******************* */
