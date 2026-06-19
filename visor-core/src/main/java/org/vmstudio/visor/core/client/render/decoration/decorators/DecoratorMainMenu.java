@@ -71,17 +71,14 @@ public class DecoratorMainMenu extends VRDecorator {
 
         boolean skyScene = VRClientSettings.getMainMenuScene() != MainMenuSceneMode.PANORAMA;
 
-        // 1) Sky background
         if (skyScene) {
             VRMenuSky.renderFirst(poseStack);
         } else {
             VRMenuPanorama.render(poseStack);
         }
 
-        // 2) Play-area floor (always drawn — it grounds the VR room-scale play space)
         VRMenuFloor.render(poseStack);
 
-        // 4) Slow-drifting vanilla-style cuboid cloud sea, far below (procedural sky only)
         if (skyScene) {
             VRMenuSky.renderLast(poseStack);
         }

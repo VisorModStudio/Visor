@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * Procedural sky for the VR main menu
  */
+//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH
 public final class VRMenuSky {
     // ---- DEBUG ----
     private static final boolean DEBUG_FAST_CYCLE = false;
