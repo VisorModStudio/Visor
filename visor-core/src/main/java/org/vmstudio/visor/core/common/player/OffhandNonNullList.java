@@ -50,8 +50,11 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
             return super.set(i, itemStack);
         }
 
-        return ItemStack.EMPTY;
-
+        int slot = vrPlayer.getOffhandSlot();
+        if (slot < 0) {
+            return ItemStack.EMPTY;
+        }
+        return player.getInventory().items.set(slot, itemStack);
     }
 
     @Override
@@ -73,7 +76,11 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
             return super.remove(i);
         }
 
-        return ItemStack.EMPTY;
+        int slot = vrPlayer.getOffhandSlot();
+        if (slot < 0) {
+            return ItemStack.EMPTY;
+        }
+        return player.getInventory().items.set(slot, ItemStack.EMPTY);
     }
 
     @Override
