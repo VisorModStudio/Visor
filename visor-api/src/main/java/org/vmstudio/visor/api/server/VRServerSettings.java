@@ -66,7 +66,8 @@ public class VRServerSettings {
         pvpVRvsVanilla = true;
         pvpVRvsVR = true;
         notifyPvpBlocked = false;
-        twoHandedVR = true;
+        twoHandedVR = false;
+        betterSwinging = false;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
     }
