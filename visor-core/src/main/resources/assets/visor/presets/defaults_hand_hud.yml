@@ -75,6 +75,33 @@ overlays:
         scale: 0.5
       RESIZING: {}
   custom:
+    chat:
+      template: chat
+      IDENTITY:
+        name: chat
+        description: No description
+        icon: visor:textures/gui/overlays/missing_icon.png
+      MISC:
+        update_options: TICK
+      POSE:
+        tick: true
+        position:
+          type: HMD
+          offset:
+            x: 0.392
+            y: 0.214
+            z: -1.706
+        rotation:
+          type: HMD
+          aim: false
+          quaternion:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+        scale: 1.2
+      RESIZING: { }
+      presets_save_addon_id: core
     hud_health:
       template: hud
       IDENTITY:

@@ -81,9 +81,9 @@ public class VROverlayChat extends VROverlayTemplateScreen {
 
                             it.setPositionAnchor(PoseAnchor.HMD);
                             it.setPositionOffset(
-                                    0.0f,
-                                    0.0f,
-                                    -2.5f
+                                    0.392f,
+                                    0.214f,
+                                    -1.706f
                             );
                             it.setRotationAnchor(PoseAnchor.HMD);
                             it.setRotationOffset(
