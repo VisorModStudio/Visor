@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.common;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.api.common.player.VRTrackableBodyPart;
+import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import net.minecraft.world.InteractionHand;
 
 public enum HandType {
@@ -11,8 +11,8 @@ public enum HandType {
     OFFHAND;
 
 
-    public @NotNull VRTrackableBodyPart asBodyPart(){
-        return this == MAIN ? VRTrackableBodyPart.MAIN_HAND : VRTrackableBodyPart.OFFHAND;
+    public @NotNull VRBodyPartType asBodyPart(){
+        return this == MAIN ? VRBodyPartType.MAIN_HAND : VRBodyPartType.OFFHAND;
     }
 
     public @NotNull InteractionHand asInteractionHand(){

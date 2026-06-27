@@ -13,9 +13,12 @@ import me.phoenixra.atumvr.core.input.device.XRDevice;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
+import me.phoenixra.atumvr.core.input.profile.tracker.EmulatedTrackerPreset;
+import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerManager;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -23,6 +26,8 @@ public class XrInputHandler extends XRInputHandler {
 
     @Getter
     private XRProfileManager profileSetHolder;
+    @Getter
+    private ViveTrackerManager trackerManager;
 
     @Getter @Setter
     private Consumer<VRActionIdentifier> actionListener;
@@ -43,20 +48,28 @@ public class XrInputHandler extends XRInputHandler {
     protected List<? extends XRActionSet> generateActionSets(MemoryStack stack) {
         profileSetHolder = new XRProfileManager(getVrProvider());
 
-        return profileSetHolder.getAllActionSets();
+        trackerManager = new ViveTrackerManager(getVrProvider());
+        List<XRActionSet> actionSets = new ArrayList<>(profileSetHolder.getAllActionSets());
+        actionSets.addAll(trackerManager.getActionSets());
+        return actionSets;
     }
 
     @Override
     protected List<? extends XRDevice> generateDevices(MemoryStack stack) {
-        return List.of(
-                new XRDeviceHMD(getVrProvider()),
+        List<XRDevice> devices = new ArrayList<>();
+        devices.add(
+                new XRDeviceHMD(getVrProvider())
+        );
+        devices.add(
                 new XRDeviceController(
                         getVrProvider(),
                         ControllerType.LEFT,
                         profileSetHolder.getCommonSet().getHandPoseAim(),
                         profileSetHolder.getCommonSet().getHandPoseGrip(),
                         profileSetHolder.getCommonSet().getHapticPulse()
-                ),
+                )
+        );
+        devices.add(
                 new XRDeviceController(
                         getVrProvider(),
                         ControllerType.RIGHT,
@@ -65,6 +78,12 @@ public class XrInputHandler extends XRInputHandler {
                         profileSetHolder.getCommonSet().getHapticPulse()
                 )
         );
+        //TRACKERS EMULATION TESTING
+        trackerManager.setEmulated(true);
+        trackerManager.setEmulationPreset(EmulatedTrackerPreset.T_POSE);
+        //--------
+        devices.addAll(trackerManager.createDevices());
+        return devices;
     }
 
 }

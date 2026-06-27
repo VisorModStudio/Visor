@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.common.player;
 
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.common.HandType;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +51,14 @@ public interface VRPlayerPose {
     VRPose getOffhand();
 
     /**
+     * Get trackers pose
+     *
+     * @return the trackers pose
+     */
+    @NotNull
+    VRPoseTrackers getTrackers();
+
+    /**
      * Get the hand pose for the given hand type.
      * <p>
      *   This represents the aiming pose of VR controller
@@ -70,12 +79,26 @@ public interface VRPlayerPose {
      * @param bodyPart the body part
      * @return pose
      */
-    @NotNull
-    default VRPose getPose(@NotNull VRTrackableBodyPart bodyPart){
+    @Nullable
+    default VRPose getPose(@NotNull VRBodyPartType bodyPart){
         return switch (bodyPart){
             case HEAD -> getHmd();
             case MAIN_HAND -> getMainHand();
             case OFFHAND -> getOffhand();
+            case WAIST -> getTrackers().getWaist();
+            case CHEST -> getTrackers().getChest();
+            case LEFT_FOOT -> getTrackers().getLeftFoot();
+            case RIGHT_FOOT -> getTrackers().getRightFoot();
+            case LEFT_ANKLE -> getTrackers().getLeftAnkle();
+            case RIGHT_ANKLE -> getTrackers().getRightAnkle();
+            case LEFT_KNEE -> getTrackers().getLeftKnee();
+            case RIGHT_KNEE -> getTrackers().getRightKnee();
+            case LEFT_WRIST -> getTrackers().getLeftWrist();
+            case RIGHT_WRIST -> getTrackers().getRightWrist();
+            case LEFT_ELBOW -> getTrackers().getLeftElbow();
+            case RIGHT_ELBOW -> getTrackers().getRightElbow();
+            case LEFT_SHOULDER -> getTrackers().getLeftShoulder();
+            case RIGHT_SHOULDER -> getTrackers().getRightShoulder();
         };
     }
 

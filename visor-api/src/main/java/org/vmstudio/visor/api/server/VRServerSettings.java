@@ -47,6 +47,9 @@ public class VRServerSettings {
     @Getter
     protected static int teleportForwardLimit = 16;
 
+    @Getter
+    private static boolean trackersSupported = true;
+
 
     /**
      * Reset server settings for client when joined dedicated server.
@@ -70,5 +73,8 @@ public class VRServerSettings {
         betterSwinging = false;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
+        trackersSupported = false;
+
+
     }
 }

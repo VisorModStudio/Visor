@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.player.VRPoseTrackers;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.player.RemotePlayer;
@@ -39,7 +40,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     protected final VRPoseImpl mainHand;
     protected final VRPoseImpl offhand;
 
-
+    protected final RemoteTrackersPose trackers;
 
     private final List<VRPose> elements;
 
@@ -64,6 +65,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         this.mainHand = new VRPoseImpl();
         this.offhand = new VRPoseImpl();
 
+        this.trackers = new RemoteTrackersPose(this);
 
         var bodyType = vrPlayer.getBodyType();
         if(bodyType != null) {
@@ -257,6 +259,8 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                 transform.z() + hmdPosition.z()
         );
     }
+
+
 
 
     public void resetOrigin(Vector3fc newOrigin){

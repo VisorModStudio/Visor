@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.RawController;
 import org.vmstudio.visor.api.client.player.pose.RawHmd;
+import org.vmstudio.visor.api.client.player.pose.RawTrackers;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.player.VRPose;
@@ -94,6 +95,12 @@ public interface VRLocalPlayer extends VRClientPlayer{
      */
     RawController getRawController(@NotNull HandType type);
 
+    /**
+     * Get Raw Trackers
+     *
+     * @return RawTrackers instance
+     */
+    RawTrackers getRawTrackers();
 
     /**
      * Set the inventory hotbar slot used as the VR offhand slot.

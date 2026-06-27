@@ -26,6 +26,12 @@ public class XrProvider extends XRProvider {
 
         super.initializeVR();
 
+        var trackersManager = getInputHandler().getTrackerManager();
+        ClientContext.rawPoseHandler.getTrackersData().setTracking(
+                trackersManager.isSupported()
+                        && !trackersManager.getDevicesMap().isEmpty()
+        );
+
         ClientContext.settingsManager.loadOptions();
 
         VisorClientImpl.LOGGER.info("OpenXR initialized");

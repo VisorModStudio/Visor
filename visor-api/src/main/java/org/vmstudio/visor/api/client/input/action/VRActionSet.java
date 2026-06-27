@@ -158,7 +158,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         boolean requireSave = false;
         var subsection = config.getSubsection("bindings");
         var defaults = getDefaultKeyModifiersActive();
-        for(var profileType : VRInteractionProfileType.values()){
+        for(var profileType : VRInteractionProfileType.valuesController()){
             Boolean keyModifiersActive = subsection.getBoolOrNull(
                     profileType.name()+".key_modifiers_active");
             if(keyModifiersActive == null){
@@ -219,7 +219,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         var subsection = config.getSubsection("bindings");
         var defaults = action.getDefaultBindings();
         boolean requireSave = false;
-        for(var profileType : VRInteractionProfileType.values()){
+        for(var profileType : VRInteractionProfileType.valuesController()){
             boolean keyModifiersActive = isKeyModifiersActive(profileType);
 
             String idPath = profileType.name() + ".actions." + action.getId()+".path";
@@ -314,7 +314,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         );
 
         var defaults = getDefaultKeyModifiersActive();
-        for(var profileEntry : VRInteractionProfileType.values()){
+        for(var profileEntry : VRInteractionProfileType.valuesController()){
             keyModifiersActiveMap.put(profileEntry, defaults.getOrDefault(profileEntry, false));
         }
 
@@ -355,7 +355,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         }
 
         for(var action : actionsMap.values()){
-            for(var profile : VRInteractionProfileType.values()){
+            for(var profile : VRInteractionProfileType.valuesController()){
                 ActionBinding binding = action.getBindingOrEmpty(profile);
                 String idPath = profile.name()+".actions."+action.getId()+".path";
                 String keyModifierPath = profile.name()+".actions."+action.getId()+".key_modifier";
@@ -426,7 +426,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         config.set("key_actions."+id, null);
 
         var subsection = config.getSubsection("bindings");
-        for(var profile : VRInteractionProfileType.values()){
+        for(var profile : VRInteractionProfileType.valuesController()){
             String path = profile.name()+".actions."+id;
             subsection.set(path, null);
             subsection.set(path, null);

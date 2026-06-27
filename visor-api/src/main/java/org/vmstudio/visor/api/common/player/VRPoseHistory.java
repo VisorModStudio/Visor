@@ -52,7 +52,7 @@ public interface VRPoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    Vector3f netMovement(VRTrackableBodyPart bodyPart,
+    Vector3f netMovement(VRBodyPartType bodyPart,
                          int maxTicksBack);
 
     /**
@@ -77,7 +77,7 @@ public interface VRPoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    double averageSpeed(VRTrackableBodyPart bodyPart,
+    double averageSpeed(VRBodyPartType bodyPart,
                         int maxTicksBack);
 
     /**
@@ -101,7 +101,7 @@ public interface VRPoseHistory {
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
-    Vector3f averagePosition(VRTrackableBodyPart bodyPart,
+    Vector3f averagePosition(VRBodyPartType bodyPart,
                              int maxTicksBack);
 
     /**

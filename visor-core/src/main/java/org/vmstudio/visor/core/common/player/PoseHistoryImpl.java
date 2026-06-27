@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.common.player;
 
 import org.vmstudio.visor.api.common.player.VRPlayerPose;
 import org.vmstudio.visor.api.common.player.VRPoseHistory;
-import org.vmstudio.visor.api.common.player.VRTrackableBodyPart;
+import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
@@ -24,7 +24,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
 
     @Override
-    public Vector3f netMovement(VRTrackableBodyPart bodyPart, int maxTicksBack) {
+    public Vector3f netMovement(VRBodyPartType bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.size() <= 1) {
             return (Vector3f) VRMathUtils.ZERO_VECTOR;
@@ -32,9 +32,12 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
         maxTicksBack = clampTicksBack(maxTicksBack);
 
-        var last = history.getFirst().getPose(bodyPart).getPosition();
+        var last = safePosition(history.getFirst(), bodyPart);
+        var old = safePosition(history.get(maxTicksBack), bodyPart);
 
-        var old = history.get(maxTicksBack).getPose(bodyPart).getPosition();
+        if (last == null || old == null) {
+            return (Vector3f) VRMathUtils.ZERO_VECTOR;
+        }
 
         return last.sub(old, new Vector3f());
     }
@@ -56,7 +59,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
     }
 
     @Override
-    public double averageSpeed(VRTrackableBodyPart bodyPart, int maxTicksBack) {
+    public double averageSpeed(VRBodyPartType bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.size() <= 1) {
             return 0;
@@ -64,8 +67,11 @@ public class PoseHistoryImpl implements VRPoseHistory {
         maxTicksBack = clampTicksBack(maxTicksBack);
         List<Float> deltas = new ArrayList<>(maxTicksBack);
         for (int i = 0; i < maxTicksBack; i++) {
-            var newer = history.get(i).getPose(bodyPart).getPosition();
-            var older = history.get(i + 1).getPose(bodyPart).getPosition();
+            var newer = safePosition(history.get(i), bodyPart);
+            var older = safePosition(history.get(i + 1), bodyPart);
+            if (newer == null || older == null) {
+                continue;
+            }
 
             deltas.add(newer.distance(older));
         }
@@ -96,7 +102,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
     }
 
     @Override
-    public Vector3f averagePosition(VRTrackableBodyPart bodyPart, int maxTicksBack) {
+    public Vector3f averagePosition(VRBodyPartType bodyPart, int maxTicksBack) {
         checkTicksBack(maxTicksBack);
         if (history.isEmpty()) {
             return null;
@@ -105,8 +111,10 @@ public class PoseHistoryImpl implements VRPoseHistory {
         List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
         int i = 0;
         for (var pose : this.history) {
-            var pos = pose.getPose(bodyPart).getPosition();
-            positions.add(pos);
+            var pos = safePosition(pose, bodyPart);
+            if (pos != null) {
+                positions.add(pos);
+            }
             if (++i >= maxTicksBack) break;
         }
         if (positions.isEmpty()) {
@@ -179,6 +187,11 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
     private int clampTicksBack(int maxTicksBack) {
         return Mth.clamp(maxTicksBack, 0, history.size()-1);
+    }
+
+    private Vector3fc safePosition(VRPlayerPose pose, VRBodyPartType bodyPart) {
+        var bodyPartPose = pose.getPose(bodyPart);
+        return bodyPartPose == null ? null : bodyPartPose.getPosition();
     }
 
 

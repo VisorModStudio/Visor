@@ -49,6 +49,8 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
     protected final VRPoseImpl thirdPersonCamera;
 
+    protected final LocalTrackersPose trackers;
+
     private final List<VRPose> elements;
 
     private VRBody body;
@@ -76,6 +78,8 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
         this.thirdPersonCamera = new VRPoseImpl();
 
+        this.trackers = new LocalTrackersPose(this);
+
         var bodyType = vrPlayer.getBodyType();
         if(bodyType != null) {
             this.body = vrPlayer.getBodyType().createBody(
@@ -95,6 +99,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                         thirdPersonCamera
                 )
         );
+        elements.addAll(trackers.getActiveTrackersPose());
         if(body != null) {
             elements.addAll(body.getAllPoses());
         }
@@ -111,6 +116,10 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         this.body.init();
         this.body.update();
 
+        resetPoseElements();
+    }
+
+    public void resetPoseElements(){
         elements.clear();
         elements.addAll(
                 List.of(
@@ -121,6 +130,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                         thirdPersonCamera
                 )
         );
+        elements.addAll(trackers.getActiveTrackersPose());
         elements.addAll(body.getAllPoses());
     }
 
@@ -135,15 +145,10 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         RawControllerImpl dataMain = ClientContext.rawPoseHandler.getControllerData(HandType.MAIN);
         RawControllerImpl dataOffhand = ClientContext.rawPoseHandler.getControllerData(HandType.OFFHAND);
         RawHmdImpl hmdData = ClientContext.rawPoseHandler.getHmdData();
-        Vector3f headsetPos = hmdData.getHeadsetPosition();
-        Vector3f headsetPosFinal = new Vector3f(
-                headsetPos.x,
-                headsetPos.y,
-                headsetPos.z
-        );
+        Vector3f headsetPos = hmdData.getPosition();
 
         this.hmd.update(
-                headsetPosFinal,
+                headsetPos,
                 hmdData.getRotation(),
                 hmdData.getVector(),
                 this.origin,
@@ -151,7 +156,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 this.worldScale
         );
         this.eyeLeft.update(
-                hmdData.getEyePosition(EyeType.LEFT).sub(headsetPos).add(headsetPosFinal),
+                hmdData.getEyePosition(EyeType.LEFT).sub(headsetPos).add(headsetPos),
                 hmdData.getEyeRotation(EyeType.LEFT),
                 hmdData.getVector(),
                 this.origin,
@@ -159,7 +164,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 this.worldScale
         );
         this.eyeRight.update(
-                hmdData.getEyePosition(EyeType.RIGHT).sub(headsetPos).add(headsetPosFinal),
+                hmdData.getEyePosition(EyeType.RIGHT).sub(headsetPos).add(headsetPos),
                 hmdData.getEyeRotation(EyeType.RIGHT),
                 hmdData.getVector(),
                 this.origin,
@@ -168,7 +173,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
 
         this.mainHand.update(
-                dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataMain.getAimPosition().sub(headsetPos).add(headsetPos),
                 dataMain.getAimRotation(),
                 dataMain.getAimVector(),
                 this.origin,
@@ -176,7 +181,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 this.worldScale
         );
         this.offhand.update(
-                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPos),
                 dataOffhand.getAimRotation(),
                 dataOffhand.getAimVector(),
                 this.origin,
@@ -185,7 +190,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
 
         this.gripMainHand.update(
-                dataMain.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataMain.getAimPosition().sub(headsetPos).add(headsetPos),
                 dataMain.getGripRotation(),
                 dataMain.getGripVector(),
                 this.origin,
@@ -193,12 +198,16 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 this.worldScale
         );
         this.gripOffhand.update(
-                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPosFinal),
+                dataOffhand.getAimPosition().sub(headsetPos).add(headsetPos),
                 dataOffhand.getGripRotation(),
                 dataOffhand.getGripVector(),
                 this.origin,
                 this.rotationY,
                 this.worldScale
+        );
+
+        trackers.updateTracking(
+                origin, worldScale, rotationY
         );
 
 
@@ -211,7 +220,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 .get(new Matrix4f());
         Vector3f camDir = camRot.transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
-                camPos.sub(headsetPos).add(headsetPosFinal),
+                camPos.sub(headsetPos).add(headsetPos),
                 camRot,
                 camDir,
                 this.origin,
@@ -293,6 +302,8 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         gripMainHand.copyFrom(other.gripMainHand);
         gripOffhand.copyFrom(other.gripOffhand);
         thirdPersonCamera.copyFrom(other.thirdPersonCamera);
+
+        trackers.copyFrom(other.trackers);
 
         if(body.getType() != other.body.getType()) {
             bodyTypeChanged(other.body.getType());

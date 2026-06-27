@@ -247,6 +247,7 @@ public abstract class VRActionButton implements VRAction {
             case VIVE_COSMOS -> ViveCosmosProfile.BUTTON_IDS;
             case HP_MIXED_REALITY -> HpMixedRealityProfile.BUTTON_IDS;
             case WINDOWS_MOTION -> WindowsMotionProfile.BUTTON_IDS;
+            case VIVE_TRACKER -> List.of();
         });
         if(keyModifiersActive){
             list.removeIf(it-> it.getValue().contains("trigger"));

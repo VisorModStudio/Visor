@@ -17,24 +17,23 @@ import org.joml.Vector3f;
 public interface RawHmd {
 
 
-    @NotNull
-    Vector3fHistory getPositionHistory();
-    @NotNull
-    Vector3fHistory getPivotHistory();
-    @NotNull
-    QuaternionFloatHistory getRotationHistory();
-
-
-    Matrix4fc getDevicePose();
+    Matrix4fc getPose();
 
     Matrix4fc getRotation();
 
 
-    Vector3f getHeadsetPosition();
+    Vector3f getPosition();
 
     Vector3f getEyePosition(EyeType eye);
 
     Matrix4fc getEyeRotation(EyeType eye);
 
     Vector3f getVector();
+
+    @NotNull
+    Vector3fHistory getPositionHistory();
+    @NotNull
+    Vector3fHistory getPivotHistory();
+    @NotNull
+    QuaternionFloatHistory getRotationHistory();
 }

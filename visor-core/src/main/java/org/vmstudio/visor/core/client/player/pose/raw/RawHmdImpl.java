@@ -37,7 +37,7 @@ public class RawHmdImpl implements RawHmd {
 
 
 
-    public Matrix4fc getDevicePose() {
+    public Matrix4fc getPose() {
         return devicePose;
     }
     public Matrix4f getDevicePoseMutable(){
@@ -59,7 +59,7 @@ public class RawHmdImpl implements RawHmd {
         return rightEyePose;
     }
 
-    public Vector3f getHeadsetPosition() {
+    public Vector3f getPosition() {
         return this.devicePose.getTranslation(new Vector3f());
     }
 

@@ -23,7 +23,9 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     protected final VRPoseImpl mainHand;
     protected final VRPoseImpl offhand;
 
-    private final List<VRPoseImpl> elements;
+    protected final ServerTrackersPose trackers;
+
+    private final List<VRPose> elements;
 
 
     private Vector3fc origin;
@@ -40,6 +42,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.mainHand = new VRPoseImpl();
         this.offhand = new VRPoseImpl();
 
+        this.trackers = new ServerTrackersPose(this);
+
         origin = VRMathUtils.ZERO_VECTOR;
         headPivot = VRMathUtils.ZERO_VECTOR;
 
@@ -49,6 +53,18 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         );
 
     }
+
+    public void resetPoseElements(){
+        elements.clear();
+        elements.addAll(
+                List.of(
+                        hmd,
+                        mainHand, offhand
+                )
+        );
+        elements.addAll(trackers.getActiveTrackersPose());
+    }
+
 
     public void update(PoseDataBuffer poseData,
                        Vector3fc origin){

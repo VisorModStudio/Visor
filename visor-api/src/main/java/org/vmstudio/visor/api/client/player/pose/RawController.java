@@ -16,14 +16,6 @@ import org.joml.Vector3f;
 public interface RawController {
 
 
-    @NotNull
-    Vector3fHistory getPositionHistory();
-    @NotNull
-    Vector3fHistory getForwardHistory();
-    @NotNull
-    Vector3fHistory getUpHistory();
-
-
 
     @NotNull Matrix4fc getAimPose();
 
@@ -43,6 +35,14 @@ public interface RawController {
     @NotNull Vector3f getAimPosition();
 
     @NotNull Vector3f getGripPosition();
+
+
+    @NotNull
+    Vector3fHistory getPositionHistory();
+    @NotNull
+    Vector3fHistory getForwardHistory();
+    @NotNull
+    Vector3fHistory getUpHistory();
 
     /**
      * If controller is tracked by VR provider

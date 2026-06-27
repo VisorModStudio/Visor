@@ -17,6 +17,9 @@ public abstract class RawPoseHandler {
     protected RawControllerImpl controllerRightData;
 
     @Getter
+    protected RawTrackersImpl trackersData;
+
+    @Getter
     protected float gunAngle = 0.0f;
 
 
@@ -25,7 +28,7 @@ public abstract class RawPoseHandler {
         this.hmdData = new RawHmdImpl();
         this.controllerLeftData = new RawControllerImpl();
         this.controllerRightData = new RawControllerImpl();
-
+        this.trackersData = new RawTrackersImpl();
     }
 
 

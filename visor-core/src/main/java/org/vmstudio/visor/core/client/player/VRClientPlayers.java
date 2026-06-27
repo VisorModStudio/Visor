@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.level.Level;
 import org.vmstudio.visor.api.common.network.buffer.PoseElementBuffer;
+import org.vmstudio.visor.api.common.network.buffer.PoseTrackersBuffer;
+import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
@@ -95,10 +97,14 @@ public class VRClientPlayers {
         if(receiver != null){
             return receiver;
         }
-        PoseElementBuffer empty = new PoseElementBuffer(new Vector3f(), new Quaternionf());
         receiver = new VRRemotePlayerImpl(
                 mcPlayer,
-                new PoseDataBuffer(empty, empty, empty)
+                new PoseDataBuffer(
+                        PoseElementBuffer.createEmpty(VRBodyPartType.HEAD),
+                        PoseElementBuffer.createEmpty(VRBodyPartType.MAIN_HAND),
+                        PoseElementBuffer.createEmpty(VRBodyPartType.OFFHAND),
+                        PoseTrackersBuffer.createEmpty()
+                )
         );
         receivedNewPlayer(receiver);
         return receiver;

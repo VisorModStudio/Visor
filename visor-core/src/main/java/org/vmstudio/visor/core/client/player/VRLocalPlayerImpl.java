@@ -9,10 +9,7 @@ import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
 import org.vmstudio.visor.api.client.events.InRoomMoveVREvent;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
-import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
-import org.vmstudio.visor.api.client.player.pose.RawController;
-import org.vmstudio.visor.api.client.player.pose.RawHmd;
+import org.vmstudio.visor.api.client.player.pose.*;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.ActiveHandPayloadToServer;
@@ -493,6 +490,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Override
     public RawController getRawController(@NotNull HandType type) {
         return ClientContext.rawPoseHandler.getControllerData(type);
+    }
+
+    @Override
+    public RawTrackers getRawTrackers() {
+        return ClientContext.localPlayer.getRawTrackers();
     }
 
     @Override

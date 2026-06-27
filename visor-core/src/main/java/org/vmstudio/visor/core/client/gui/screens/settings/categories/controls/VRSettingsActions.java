@@ -400,19 +400,19 @@ public class VRSettingsActions extends VROptionsSet {
 
     private List<VRInteractionProfileType> getProfiles() {
         if(!VisorState.get().isInitialized()){
-            return List.of(VRInteractionProfileType.values());
+            return List.of(VRInteractionProfileType.valuesController());
         }
         return ClientContext.inputProvider.getSupportedProfileTypes();
     }
 
 
     private void resetNewBindings(){
-        for(var profileType : VRInteractionProfileType.values()){
+        for(var profileType : VRInteractionProfileType.valuesController()){
             newKeyModifiers.put(profileType, actionSet.isKeyModifiersActive(profileType));
         }
 
         newBindings.clear();
-        for(var profile : VRInteractionProfileType.values()){
+        for(var profile : VRInteractionProfileType.valuesController()){
             var map = new LinkedHashMap<VRAction, ActionBinding>();
             actionSet.getActions().forEach(
                             a -> map.put(a, new ActionBinding(a.getBindingOrEmpty(profile)))
@@ -602,7 +602,7 @@ public class VRSettingsActions extends VROptionsSet {
             map.put(action, new ActionBinding(def));
         }
         var keyModDefaults = actionSet.getDefaultKeyModifiersActive();
-        for(var p : VRInteractionProfileType.values()){
+        for(var p : VRInteractionProfileType.valuesController()){
             newKeyModifiers.put(p, keyModDefaults.getOrDefault(p, false));
         }
         applyChangesPressed();

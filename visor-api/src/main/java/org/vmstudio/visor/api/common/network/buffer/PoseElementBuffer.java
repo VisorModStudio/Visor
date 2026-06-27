@@ -5,8 +5,10 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.api.common.player.VRBodyPartType;
 
-public record PoseElementBuffer(Vector3fc position,
+public record PoseElementBuffer(VRBodyPartType type,
+                                Vector3fc position,
                                 Quaternionfc orientation) implements BufferSerializable {
 
     @Override
@@ -14,13 +16,18 @@ public record PoseElementBuffer(Vector3fc position,
         serializeVec(buffer, this.position);
         serializeQuat(buffer, this.orientation);
     }
-    public static PoseElementBuffer deserialize(FriendlyByteBuf byteBuf) {
+    public static PoseElementBuffer deserialize(VRBodyPartType type,
+                                                FriendlyByteBuf byteBuf) {
         return new PoseElementBuffer(
+                type,
                 deserializeVec(byteBuf),
                 deserializeVRQuaternion(byteBuf)
         );
     }
 
+    public static PoseElementBuffer createEmpty(VRBodyPartType type){
+        return new PoseElementBuffer(type, new Vector3f(), new Quaternionf());
+    }
     public static void serializeVec(FriendlyByteBuf buffer, Vector3fc vec3) {
         buffer.writeFloat(vec3.x());
         buffer.writeFloat(vec3.y());

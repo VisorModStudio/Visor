@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectTeleport;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectOnFire;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectShadow;
+import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectTrackerDebug;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectVanilla;
 import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectCrosshair;
 import org.jetbrains.annotations.NotNull;
@@ -44,7 +45,8 @@ public class DecoratorGame extends VRDecorator {
         return List.of(
                 GameEffectOnFire.ID,
                 GameEffectShadow.ID,
-                GameEffectVanilla.ID
+                GameEffectVanilla.ID,
+                GameEffectTrackerDebug.ID
         );
     }
 
