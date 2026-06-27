@@ -1,6 +1,6 @@
 # Visor Mod
-
-_Crafted by VR enthusiasts for players and developers alike_
+<img width="1920" height="680" alt="image" src="https://github.com/user-attachments/assets/1bd4abf2-841f-41f1-ae00-6471450ae9f7" />
+Crafted by VR enthusiasts for players and developers alike
 
 - - - - - - -
 This is the mod for Minecraft Java forge and fabric allowing you to play VR in Minecraft.
