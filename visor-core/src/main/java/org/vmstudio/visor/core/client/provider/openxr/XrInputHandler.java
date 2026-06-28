@@ -79,8 +79,8 @@ public class XrInputHandler extends XRInputHandler {
                 )
         );
         //TRACKERS EMULATION TESTING
-        trackerManager.setEmulated(true);
-        trackerManager.setEmulationPreset(EmulatedTrackerPreset.T_POSE);
+        //trackerManager.setEmulated(true);
+        //trackerManager.setEmulationPreset(EmulatedTrackerPreset.T_POSE);
         //--------
         devices.addAll(trackerManager.createDevices());
         return devices;
