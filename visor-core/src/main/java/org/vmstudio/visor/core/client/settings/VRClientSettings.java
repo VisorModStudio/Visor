@@ -88,7 +88,7 @@ public class VRClientSettings {
     @Getter
     @VROptionField(widgetType = VROptionWidgetType.COMPATIBLE_LOOK_DIRECTION,
             key = "compatible_look_direction")
-    protected static boolean compatibleLookDirection = false;
+    protected static boolean compatibleLookDirection = true;
 
 
 
