@@ -12,8 +12,8 @@ can be changed significantly couple of times before releasing stable version
 
 - - - - - - -
 
-For more information visit: [WIKI](https://github.com/VisorMod/Visor/wiki)
+For more information visit: [WIKI](https://github.com/VisorModStudio/Visor/wiki)
 
-Addon examples: [Repositories](https://github.com/orgs/VisorMod/repositories)
+Addon examples: [Repositories](https://github.com/orgs/VisorModStudio/repositories)
 
 Join our community: [Discord](https://discord.gg/wJX8sTDEdx)
