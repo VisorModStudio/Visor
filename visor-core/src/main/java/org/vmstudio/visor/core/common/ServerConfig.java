@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.server.SendSettingToClient;
 import org.vmstudio.visor.api.server.VRServerSettings;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 
 public class ServerConfig{
@@ -33,7 +34,10 @@ public class ServerConfig{
                         Path.of("server_settings.yml"),
                 false
         );
+
         updateSettings(config);
+        applySettingsTo(config);
+        config.save();
     }
 
     public static void updateSettings(ConfigManager configManager,
@@ -44,11 +48,12 @@ public class ServerConfig{
         );
         updateSettings(config);
     }
+
     public static void updateSettings(Config config){
         try {
             Class<VRServerSettings> clazz = VRServerSettings.class;
             for (Field field : clazz.getDeclaredFields()) {
-                if (!java.lang.reflect.Modifier.isStatic(field.getModifiers())){
+                if (!Modifier.isStatic(field.getModifiers())){
                     continue;
                 }
 
@@ -58,7 +63,6 @@ public class ServerConfig{
 
                 field.setAccessible(true);
 
-                // Handle enum types
                 if (field.getType().isEnum()) {
                     Class<? extends Enum> enumType = (Class<? extends Enum>)
                             field.getType();
@@ -66,7 +70,6 @@ public class ServerConfig{
                     field.set(null, enumValue);
                 }
 
-                // Cast the value to the correct type before setting it
                 if (field.getType().isAssignableFrom(value.getClass())) {
                     field.set(null, value);
                 } else if (field.getType() == boolean.class && value instanceof Boolean) {
@@ -90,6 +93,31 @@ public class ServerConfig{
         }
     }
 
+
+    public static void applySettingsTo(Config config){
+        try {
+            for (Field field : VRServerSettings.class.getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())){
+                    continue;
+                }
+                writeFieldTo(config, field);
+            }
+        }catch (Exception e){
+            throw new VRException(e);
+        }
+    }
+
+    private static void writeFieldTo(Config config, Field field)
+            throws IllegalAccessException {
+        field.setAccessible(true);
+        Object value = field.get(null);
+        if(value == null) return;
+        if (field.getType().isEnum()) {
+            value = value.toString();
+        }
+        config.set(field.getName(), value);
+    }
+
     public static Config getSettingsForClient(){
         if(INSTANCE.configForClients != null){
             return INSTANCE.configForClients;
@@ -101,21 +129,13 @@ public class ServerConfig{
             );
             Class<VRServerSettings> clazz = VRServerSettings.class;
             for (Field field : clazz.getDeclaredFields()) {
-                if (!java.lang.reflect.Modifier.isStatic(field.getModifiers())){
+                if (!Modifier.isStatic(field.getModifiers())){
                     continue;
                 }
-                field.setAccessible(true);
                 if(!field.isAnnotationPresent(SendSettingToClient.class)){
                     continue;
                 }
-
-                String fieldName = field.getName();
-                Object value = field.get(null);
-                if(value==null) continue;
-                if (field.getType().isEnum()) {
-                    value = value.toString();
-                }
-                INSTANCE.configForClients.set(fieldName, value);
+                writeFieldTo(INSTANCE.configForClients, field);
             }
             return INSTANCE.configForClients;
         }catch (Exception e){
