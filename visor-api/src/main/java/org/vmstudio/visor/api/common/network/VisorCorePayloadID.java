@@ -50,8 +50,10 @@ public enum VisorCorePayloadID {
     }
 
 
-    public static VisorCorePayloadID fromOrdinal(byte ordinal){
-        return values()[ordinal];
+    public static VisorCorePayloadID fromOrdinal(byte ordinalByte){
+        // -127...127 to 0..255
+        int unsignedByte = ordinalByte & 0xFF;
+        return unsignedByte < values().length ? values()[unsignedByte] : null;
     }
 
     @Environment(EnvType.CLIENT)
