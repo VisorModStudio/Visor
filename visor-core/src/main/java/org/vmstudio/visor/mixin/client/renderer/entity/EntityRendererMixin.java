@@ -1,6 +1,8 @@
 package org.vmstudio.visor.mixin.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,9 +27,14 @@ public class EntityRendererMixin {
     protected EntityRenderDispatcher entityRenderDispatcher;
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;cameraOrientation()Lorg/joml/Quaternionf;"), method = "renderNameTag")
-    public Quaternionf visor$vrNameTagCameraOrient(EntityRenderDispatcher instance) {
+    public Quaternionf visor$vrNameTagCameraOrient(EntityRenderDispatcher instance, Entity entity) {
+        float heightScale = 1.0f;
+        VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(entity);
+        if (vrPlayer != null) {
+            heightScale = vrPlayer.getFullHeightScale();
+        }
         return ((EntityRenderDispatcherExtension) this.entityRenderDispatcher)
-                .visor$getCameraOrientationOffset(1.0f,0.5f);
+                .visor$getCameraOrientationOffset(heightScale, 0.5f * heightScale);
     }
 
     @Inject(method = "renderNameTag", at = @At("HEAD"), cancellable = true)
