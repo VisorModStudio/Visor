@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.other.VROtherStartTrackingPayloadToClient;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.body.VRBodyTypeHandsOnly;
@@ -19,14 +20,14 @@ import net.minecraft.client.player.RemotePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class VRRemotePlayerImpl implements VRRemotePlayer {
-    private final RemotePlayerPose playerRelativePose;
+    private final RemotePlayerPose roomPose;
 
     private final RemotePlayerPose prevPose;
     private final RemotePlayerPose pose;
     private final RemotePlayerPose renderPose;
 
     @Getter
-    private final PoseHistoryImpl poseHistoryRelative;
+    private final PoseHistoryImpl poseHistoryRoom;
     @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
@@ -36,10 +37,15 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     @Getter @Setter
     private VRBodyType bodyType;
 
+    private boolean bodyTypeInitialized;
+
     @Getter
     private PoseDataBuffer poseBufferReceived;
 
     private float worldScaleReceived;
+
+    @Getter
+    private float rotationYReceived;
 
     @Getter
     private float fullHeight;
@@ -52,44 +58,53 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     private boolean overlayFocused;
 
     public VRRemotePlayerImpl(RemotePlayer mcPlayer,
-                              PoseDataBuffer poseBuffer) {
+                              VROtherStartTrackingPayloadToClient initialData) {
         this.mcPlayer = mcPlayer;
-        this.poseBufferReceived = poseBuffer;
-        this.worldScaleReceived = 1.0f;
+        this.poseBufferReceived = initialData.poseBuf().pose();
+        this.worldScaleReceived = initialData.worldScaleBuf().worldScale();
+        this.rotationYReceived = initialData.rotationYBuf().rotationY();
         this.fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
 
         this.bodyType = VRBodyTypeHandsOnly.getInstance();
 
-        this.playerRelativePose = new RemotePlayerPose(this, PlayerPoseType.RELATIVE);
-        this.playerRelativePose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
+        this.roomPose = new RemotePlayerPose(this, PlayerPoseType.ROOM);
+        this.roomPose.update(poseBufferReceived, VRMathUtils.ZERO_VECTOR, 1.0f, rotationYReceived);
 
         this.prevPose = new RemotePlayerPose(this, PlayerPoseType.PREV_TICK);
-        this.prevPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
+        this.prevPose.update(poseBufferReceived, VRMathUtils.ZERO_VECTOR, worldScaleReceived, rotationYReceived);
 
         this.pose = new RemotePlayerPose(this, PlayerPoseType.TICK);
-        this.pose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
+        this.pose.update(poseBufferReceived, VRMathUtils.ZERO_VECTOR, worldScaleReceived, rotationYReceived);
 
         this.renderPose  = new RemotePlayerPose(this, PlayerPoseType.RENDER);
-        this.renderPose.update(poseBuffer, VRMathUtils.ZERO_VECTOR, 1.0f);
+        this.renderPose.update(poseBufferReceived, VRMathUtils.ZERO_VECTOR, worldScaleReceived, rotationYReceived);
 
-        this.poseHistoryRelative = new PoseHistoryImpl(playerRelativePose);
+        this.poseHistoryRoom = new PoseHistoryImpl(roomPose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
+
+        receivedBodyTypePacket(initialData.bodyTypeBuf().bodyType());
+        receivedLeftHandedPacket(initialData.leftHandedBuf().leftHanded());
+        /* Not needed, its already handled
+        receivedRotationYPacket(initialData.rotationYBuf().rotationY());
+        receivedWorldScalePacket(initialData.worldScaleBuf().worldScale());
+        */
+        receivedFullHeightPacket(initialData.fullHeightBuf().fullHeight());
+        receivedGunAngle(initialData.gunAngleBuf().gunAngle());
+        receivedOverlayFocusedPacket(initialData.overlayFocusedBuf().overlayFocused());
 
     }
 
 
-    public void receivedPosePacked(RemotePlayer mcPlayer,
+    public void receivedPosePacket(RemotePlayer mcPlayer,
                                    PoseDataBuffer poseBuffer){
         this.mcPlayer = mcPlayer;
         this.poseBufferReceived = poseBuffer;
-        this.playerRelativePose.setMcPlayer(mcPlayer);
+        this.roomPose.setMcPlayer(mcPlayer);
         this.prevPose.setMcPlayer(mcPlayer);
         this.pose.setMcPlayer(mcPlayer);
         this.renderPose.setMcPlayer(mcPlayer);
     }
-    public void receivedLeftHandedPacket(boolean leftHanded){
-        this.leftHanded = leftHanded;
-    }
+
     public void receivedBodyTypePacket(String vrBodyTypeId){
         var registry = VisorAPI.addonManager().getRegistries()
                 .vrBodyTypes();
@@ -97,20 +112,29 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         if(newBodyType == null){
             newBodyType = VRBodyType.FALLBACK_BODY_TYPE;
         }
+        var oldBodyType = this.bodyType;
         this.bodyType = newBodyType;
 
+        this.roomPose.bodyTypeChanged(bodyType);
         this.prevPose.bodyTypeChanged(bodyType);
         this.pose.bodyTypeChanged(bodyType);
         this.renderPose.bodyTypeChanged(bodyType);
 
-        this.poseHistoryRelative.clear();
+        this.poseHistoryRoom.clear();
         this.poseHistoryTick.clear();
 
-        if(newBodyType != bodyType) {
+        if(bodyTypeInitialized && newBodyType != oldBodyType) {
             VisorAPI.eventBus().callEvent(
                     new BodyChangedVREvent(this, bodyType)
             );
         }
+        bodyTypeInitialized = true;
+    }
+    public void receivedLeftHandedPacket(boolean leftHanded){
+        this.leftHanded = leftHanded;
+    }
+    public void receivedRotationYPacket(float rotationY){
+        this.rotationYReceived = rotationY;
     }
     public void receivedWorldScalePacket(float worldScale){
         this.worldScaleReceived = worldScale;
@@ -120,6 +144,9 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     }
     public void receivedGunAngle(float gunAngle){
         this.gunAngle = gunAngle;
+    }
+    public void receivedOverlayFocusedPacket(boolean opened) {
+        this.overlayFocused = opened;
     }
 
     public void preTick() {
@@ -133,18 +160,20 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         this.pose.update(
                 poseBufferReceived,
                 mcPlayer.getPosition(1.0f).toVector3f(),
-                worldScaleReceived
+                worldScaleReceived,
+                rotationYReceived
         );
 
-        this.playerRelativePose.update(
+        this.roomPose.update(
                 poseBufferReceived,
                 VRMathUtils.ZERO_VECTOR,
-                1.0f
+                1.0f,
+                rotationYReceived
         );
 
-        var historyEntry = new RemotePlayerPose(this, PlayerPoseType.RELATIVE);
-        historyEntry.copyFrom(playerRelativePose);
-        poseHistoryRelative.addEntry(historyEntry);
+        var historyEntry = new RemotePlayerPose(this, PlayerPoseType.ROOM);
+        historyEntry.copyFrom(roomPose);
+        poseHistoryRoom.addEntry(historyEntry);
 
         historyEntry = new RemotePlayerPose(this, PlayerPoseType.PREV_TICK);
         historyEntry.copyFrom(prevPose);
@@ -184,6 +213,19 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         float postTickWorld = this.pose.getWorldScale();
         float worldScalePartial = postTickWorld * partialTicks
                 + preTickWorld * (1.0f - partialTicks);
+
+        //Interpolated Rotation
+        float rotationPre = this.prevPose.getRotationY();
+        float rotationPost = this.pose.getRotationY();
+        if (java.lang.Math.abs(rotationPost - rotationPre) > java.lang.Math.PI) {
+            if (rotationPost > rotationPre) {
+                rotationPre = (float) (rotationPre + (java.lang.Math.PI * 2));
+            } else {
+                rotationPost = (float) (rotationPost + (java.lang.Math.PI * 2));
+            }
+        }
+        float rotationPartial = rotationPost * partialTicks
+                + rotationPre * (1.0f - partialTicks);
 
         //Interpolated poses
         var prevHmdPose =  prevPose.getHmd();
@@ -250,7 +292,8 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 offhandRotationPartial,
                 offhandDirPartial,
                 originPartial,
-                worldScalePartial
+                worldScalePartial,
+                rotationPartial
         );
     }
 
@@ -259,8 +302,6 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                                              float t) {
         Quaternionf q0 = from.getNormalizedRotation(new Quaternionf());
         Quaternionf q1 = to.getNormalizedRotation(new Quaternionf());
-        // JOML slerp picks the shortest arc (handles dot<0) and
-        // falls back to nlerp when the rotations are near-parallel.
         return q0.slerp(q1, t).normalize();
     }
 
@@ -287,7 +328,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
             case PREV_TICK -> prevPose;
             case TICK -> pose;
             case RENDER -> renderPose;
-            default -> playerRelativePose;
+            default -> roomPose;
         };
     }
 
@@ -299,7 +340,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 pose: %s
                 render pose: %s"""
         ).formatted(
-                this.playerRelativePose,
+                this.roomPose,
                 this.prevPose,
                 this.pose,
                 this.renderPose
@@ -318,7 +359,4 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         return HandType.MAIN;
     }
 
-    public void receivedGuiStatePacket(boolean opened) {
-        this.overlayFocused = opened;
-    }
 }

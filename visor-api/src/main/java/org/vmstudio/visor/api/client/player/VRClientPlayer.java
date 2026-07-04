@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.client.player;
 
-import net.minecraft.client.player.AbstractClientPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -36,8 +35,8 @@ public interface VRClientPlayer extends VRPlayer {
         return getPoseData(PlayerPoseType.PREV_TICK);
     }
     @Override
-    default @NotNull VRPlayerPoseClient getPoseDataRelative() {
-        return getPoseData(PlayerPoseType.RELATIVE);
+    default @NotNull VRPlayerPoseClient getPoseDataRoom() {
+        return getPoseData(PlayerPoseType.ROOM);
     }
     @Override
     default @NotNull VRPlayerPoseClient getPoseData() {

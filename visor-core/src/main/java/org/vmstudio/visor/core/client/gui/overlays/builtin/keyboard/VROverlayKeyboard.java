@@ -93,10 +93,10 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                 rotationOffset
         );
         relativePosition = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RELATIVE)
+                .getPoseData(PlayerPoseType.ROOM)
                 .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
         relativeRotation = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RELATIVE)
+                .getPoseData(PlayerPoseType.ROOM)
                 .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
@@ -127,7 +127,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
     @Override
     public void onStoppedDragging() {
-        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM);
         relativePosition = relativePose.convertPositionFrom(
                 PlayerPoseType.RENDER,
                 getPose().getPosition()
@@ -246,9 +246,9 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
                     posOffset,
                     rotationOffset
             );
-            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
         }
     }

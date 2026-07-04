@@ -17,7 +17,7 @@ public class VisorNetwork {
 
     public static final ResourceLocation CORE_CHANNEL_ID = new ResourceLocation("visor:channel");
 
-    public static final int CORE_NETWORK_VERSION = 4; // 4 since Visor 0.4.0
+    public static final int CORE_NETWORK_VERSION = 5; // 5: since Visor 0.5.0
 
 
     private static final Map<ResourceLocation, VisorChannel> CHANNELS = new ConcurrentHashMap<>();

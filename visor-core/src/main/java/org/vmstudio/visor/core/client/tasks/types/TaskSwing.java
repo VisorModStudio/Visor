@@ -98,7 +98,7 @@ public class TaskSwing extends VisorTask {
         if (player == null) return;
 
         var relativePose = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.RELATIVE);
+                .getPoseData(PlayerPoseType.ROOM);
         var tickPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.TICK);
         // Process each controller hand

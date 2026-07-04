@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
@@ -59,17 +60,8 @@ public class ClientPacketHandler {
                                 payload.destroyStage()
                         );
             }
-            case OTHER_VR_OVERLAY_FOCUSED -> {
-                var payload = (VROtherOverlayFocusedPayloadToClient) payloadClient;
-                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
-                if(remotePlayer == null){
-                    return;
-                }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedGuiStatePacket(payload.overlayFocused());
-            }
-            case OTHER_VR_POSE_DATA -> {
-                var payload = (VROtherPoseDataPayloadToClient) payloadClient;
+            case OTHER_VR_START_TRACKING -> {
+                var payload = (VROtherStartTrackingPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
                 if(remotePlayer == null){
                     return;
@@ -79,61 +71,85 @@ public class ClientPacketHandler {
                 if(vrPlayer == null){
                     vrPlayer = new VRRemotePlayerImpl(
                             remotePlayer,
-                            payload.pose()
+                            payload
                     );
                     VRClientPlayers.receivedNewPlayer(vrPlayer);
-                }else{
-                    vrPlayer.receivedPosePacked(
-                            remotePlayer,
-                            payload.pose()
-                    );
                 }
             }
-            case OTHER_VR_LEFT_HANDED -> {
-                var payload = (VROtherLeftHandedPayloadToClient) payloadClient;
+            case OTHER_VR_POSE_DATA -> {
+                var payload = (VROtherPoseDataPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
                 if(remotePlayer == null){
                     return;
                 }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedLeftHandedPacket(payload.leftHanded());
-
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedPosePacket(
+                                remotePlayer,
+                                payload.pose()
+                        )
+                );
             }
             case OTHER_VR_BODY_TYPE -> {
                 var payload = (VROtherBodyTypePayloadToClient) payloadClient;
-                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
-                if(remotePlayer == null){
-                    return;
-                }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedBodyTypePacket(payload.bodyType());
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedBodyTypePacket(payload.bodyType())
+                );
+            }
+            case OTHER_VR_LEFT_HANDED -> {
+                var payload = (VROtherLeftHandedPayloadToClient) payloadClient;
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedLeftHandedPacket(
+                                payload.leftHanded()
+                        )
+                );
+            }
+            case OTHER_VR_ROTATION_Y -> {
+                var payload = (VROtherRotationYPayloadToClient) payloadClient;
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedRotationYPacket(
+                                payload.rotationY()
+                        )
+                );
             }
             case OTHER_VR_WORLD_SCALE -> {
                 var payload = (VROtherWorldScalePayloadToClient) payloadClient;
-                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
-                if(remotePlayer == null){
-                    return;
-                }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedWorldScalePacket(payload.worldScale());
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedWorldScalePacket(
+                                payload.worldScale()
+                        )
+                );
             }
             case OTHER_VR_FULL_HEIGHT -> {
                 var payload = (VROtherFullHeightPayloadToClient) payloadClient;
-                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
-                if(remotePlayer == null){
-                    return;
-                }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedFullHeightPacket(payload.fullHeight());
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedFullHeightPacket(
+                                payload.fullHeight()
+                        )
+                );
             }
             case OTHER_GUN_ANGLE -> {
                 var payload = (VROtherGunAnglePayloadToClient) payloadClient;
-                var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
-                if(remotePlayer == null){
-                    return;
-                }
-                var vrPlayer = VRClientPlayers.ensurePacketReceiver(payload.playerUUID(), remotePlayer);
-                vrPlayer.receivedGunAngle(payload.gunAngle());
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedGunAngle(
+                                payload.gunAngle()
+                        )
+                );
+            }
+            case OTHER_VR_OVERLAY_FOCUSED -> {
+                var payload = (VROtherOverlayFocusedPayloadToClient) payloadClient;
+                VRClientPlayers.handleOnValidReceiver(
+                        payload.playerUUID(),
+                        (receiver)-> receiver.receivedOverlayFocusedPacket(
+                                payload.overlayFocused()
+                        )
+                );
             }
 
         }

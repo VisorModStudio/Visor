@@ -24,12 +24,12 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
 
     private PoseDataBuffer poseDataBuffer;
 
-    private final PlayerPoseServerImpl poseDataPrevious = new PlayerPoseServerImpl(this);
-    private final PlayerPoseServerImpl poseDataRelative = new PlayerPoseServerImpl(this);
-    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl(this);
+    private final PlayerPoseServerImpl poseDataPrevious = new PlayerPoseServerImpl(this, false);
+    private final PlayerPoseServerImpl poseDataRoom = new PlayerPoseServerImpl(this, true);
+    private final PlayerPoseServerImpl poseData = new PlayerPoseServerImpl(this, false);
 
 
-    private final PoseHistoryImpl poseHistoryRelative;
+    private final PoseHistoryImpl poseHistoryRoom;
     private final PoseHistoryImpl poseHistoryTick;
 
     @Setter
@@ -54,6 +54,9 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
     private float gunAngle = VRPlayer.DEFAULT_GUN_ANGLE;
 
     @Setter
+    private float rotationYLastSent;
+
+    @Setter
     private boolean leftHandedLastSent = false;
     @Setter
     private String vrBodyLastSent = null;
@@ -72,7 +75,7 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
 
     public VRServerPlayerImpl(ServerPlayer player) {
         super(player);
-        poseHistoryRelative = new PoseHistoryImpl(poseDataRelative);
+        poseHistoryRoom = new PoseHistoryImpl(poseDataRoom);
         poseHistoryTick = new PoseHistoryImpl(poseData);
     }
 
@@ -83,7 +86,7 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
 
         this.poseDataBuffer = poseDataBuffer;
 
-        poseDataRelative.update(
+        poseDataRoom.update(
                 poseDataBuffer,
                 VRMathUtils.ZERO_VECTOR
         );
@@ -92,11 +95,11 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
                 mcPlayer.position().toVector3f()
         );
 
-        var historyEntry = new PlayerPoseServerImpl(this);
-        historyEntry.copyFrom(poseDataRelative);
-        poseHistoryRelative.addEntry(historyEntry);
+        var historyEntry = new PlayerPoseServerImpl(this, true);
+        historyEntry.copyFrom(poseDataRoom);
+        poseHistoryRoom.addEntry(historyEntry);
 
-        historyEntry = new PlayerPoseServerImpl(this);
+        historyEntry = new PlayerPoseServerImpl(this, false);
         historyEntry.copyFrom(poseDataPrevious);
         poseHistoryTick.addEntry(historyEntry);
 

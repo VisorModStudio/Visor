@@ -78,11 +78,11 @@ public class VROverlayHelper {
                 .getPoseData(PlayerPoseType.RENDER);
 
         Vector3f renderScreenPos = renderPose.convertPositionFrom(
-                PlayerPoseType.RELATIVE,
+                PlayerPoseType.ROOM,
                 relativePosition
         );
         Matrix4f renderScreenRotation =  renderPose.convertRotationFrom(
-                PlayerPoseType.RELATIVE,
+                PlayerPoseType.ROOM,
                 relativeRotation
         );
 

@@ -1,4 +1,4 @@
-package org.vmstudio.visor.api.common.network.toclient.vrstate;
+package org.vmstudio.visor.api.common.network.toclient.vrstate.other;
 
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
@@ -14,6 +14,9 @@ public record VROtherPoseDataPayloadToClient(UUID playerUUID,
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
+        writeSimple(buffer);
+    }
+    public void writeSimple(FriendlyByteBuf buffer){
         pose.serialize(buffer);
     }
 
@@ -25,11 +28,13 @@ public record VROtherPoseDataPayloadToClient(UUID playerUUID,
 
 
     public static VROtherPoseDataPayloadToClient read(FriendlyByteBuf buffer) {
-        UUID playerUUID = buffer.readUUID();
-        var pose = PoseDataBuffer.deserialize(buffer);
+        var uuid = buffer.readUUID();
+        return readSimple(uuid, buffer);
+    }
+    public static VROtherPoseDataPayloadToClient readSimple(UUID uuid, FriendlyByteBuf buffer) {
         return new VROtherPoseDataPayloadToClient(
-                playerUUID,
-                pose
+                uuid,
+                PoseDataBuffer.deserialize(buffer)
         );
     }
 }

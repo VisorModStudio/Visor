@@ -1,7 +1,5 @@
 package org.vmstudio.visor.api.client.player.pose;
 
-import org.vmstudio.visor.api.client.player.VRLocalPlayer;
-import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 
 /**
  * Describes which stage of the player pose is being used.
@@ -12,17 +10,9 @@ import org.vmstudio.visor.api.client.player.VRRemotePlayer;
 public enum PlayerPoseType {
 
     /**
-     * Pose that is not converted to world coordinates yet.
-     * <p>
-     *   For {@link VRLocalPlayer} it is relative to VR room
-     *   and updated each frame at the start of a game loop
-     * </p>
-     * <p>
-     *     For {@link VRRemotePlayer} it is relative to player
-     *     and updated from server
-     * </p>
+     * Pose relative to VR room coordinate system.
      */
-    RELATIVE,
+    ROOM,
 
     /**
      * Pose from the previous game tick.

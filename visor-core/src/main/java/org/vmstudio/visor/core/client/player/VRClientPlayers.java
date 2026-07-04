@@ -19,6 +19,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class VRClientPlayers {
 
@@ -92,22 +93,11 @@ public class VRClientPlayers {
 
         return remotePlayer;
     }
-    public static VRRemotePlayerImpl ensurePacketReceiver(UUID uuid, RemotePlayer mcPlayer) {
+    public static void handleOnValidReceiver(UUID uuid, Consumer<VRRemotePlayerImpl> task) {
         var receiver = getPacketReceiver(uuid);
         if(receiver != null){
-            return receiver;
+            task.accept(receiver);
         }
-        receiver = new VRRemotePlayerImpl(
-                mcPlayer,
-                new PoseDataBuffer(
-                        PoseElementBuffer.createEmpty(VRBodyPartType.HEAD),
-                        PoseElementBuffer.createEmpty(VRBodyPartType.MAIN_HAND),
-                        PoseElementBuffer.createEmpty(VRBodyPartType.OFFHAND),
-                        PoseTrackersBuffer.createEmpty()
-                )
-        );
-        receivedNewPlayer(receiver);
-        return receiver;
     }
     public static VRClientPlayer getPlayer(UUID uuid) {
         if(ClientContext.localPlayer.getMcPlayer() != null

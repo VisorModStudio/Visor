@@ -9,7 +9,6 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
-import org.vmstudio.visor.api.common.player.VRPoseTrackers;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.player.RemotePlayer;
@@ -47,7 +46,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     private VRBody body;
 
     private Vector3fc origin;
-    private final float rotationY = 0.0f;
+    private float rotationY;
     private float worldScale;
 
     private float bodyYaw;
@@ -118,10 +117,12 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                        Matrix4fc offhandRotation,
                        Vector3fc offhandDir,
                        Vector3fc origin,
-                       float worldScale){
+                       float worldScale,
+                       float rotationY){
 
         this.origin = origin;
         this.worldScale = worldScale;
+        this.rotationY = rotationY;
 
         this.hmd.update(
                 hmdPos,
@@ -158,32 +159,59 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     }
     public void update(PoseDataBuffer poseBuffer,
                        Vector3fc origin,
-                       float worldScale){
+                       float worldScale,
+                       float turnRotationY){
+
+        // RELATIVE keeps the sender's room frame (turn not applied); the ticked
+        // and rendered poses re-apply the turn to reach world space, mirroring
+        // VRLocalPlayer.
+        float appliedRotationY = (type == PlayerPoseType.ROOM)
+                ? 0.0f
+                : turnRotationY;
 
         var hmdPose = poseBuffer.hmd();
         var mainHandPose = poseBuffer.mainHand();
         var offhandPose = poseBuffer.offhand();
 
-        Vector3f hmdDir = hmdPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
-        Vector3f mainHandDir = mainHandPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
-        Vector3f offhandDir = offhandPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
+        // The wire carries world-aligned, entity-relative offsets. Undo the
+        // sender's turn so the stored raw data is room-relative.
+        Vector3f hmdPos = hmdPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f hmdRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(hmdPose.orientation().get(new Matrix4f()));
+        Vector3f hmdDir = hmdPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
 
+        Vector3f mainHandPos = mainHandPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f mainHandRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(mainHandPose.orientation().get(new Matrix4f()));
+        Vector3f mainHandDir = mainHandPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
+
+        Vector3f offhandPos = offhandPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f offhandRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(offhandPose.orientation().get(new Matrix4f()));
+        Vector3f offhandDir = offhandPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
 
         update(
-                hmdPose.position(),
-                hmdPose.orientation().get(new Matrix4f()),
+                hmdPos,
+                hmdRotation,
                 hmdDir,
-                mainHandPose.position(),
-                mainHandPose.orientation().get(new Matrix4f()),
+                mainHandPos,
+                mainHandRotation,
                 mainHandDir,
-                offhandPose.position(),
-                offhandPose.orientation().get(new Matrix4f()),
+                offhandPos,
+                offhandRotation,
                 offhandDir,
                 origin,
-                worldScale
+                worldScale,
+                appliedRotationY
         );
     }
 
@@ -224,6 +252,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
     public void copyFrom(RemotePlayerPose other){
         this.origin = new Vector3f(other.origin);
         this.bodyYaw = other.bodyYaw;
+        this.rotationY = other.rotationY;
         this.worldScale = other.worldScale;
         this.headPivot = new Vector3f(other.headPivot);
 
@@ -310,7 +339,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                     position.z()
             );
         }
-        if (originType == PlayerPoseType.RELATIVE) {
+        if (originType == PlayerPoseType.ROOM) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
@@ -333,7 +362,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                 .mul(1.0f / originPose.getWorldScale())
                 .rotateY(-originPose.getRotationY());
 
-        if(type == PlayerPoseType.RELATIVE){
+        if(type == PlayerPoseType.ROOM){
             return roomPose;
         }
 
@@ -352,7 +381,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
 
 
 
-        if (originType == PlayerPoseType.RELATIVE) {
+        if (originType == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
@@ -364,7 +393,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
 
         VRPlayerPoseClient originPose = vrPlayer.getPoseData(originType);
 
-        if (this.type == PlayerPoseType.RELATIVE) {
+        if (this.type == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(-originPose.getRotationY()).mul(rotationMatrix);
         }
 

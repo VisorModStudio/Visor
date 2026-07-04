@@ -27,15 +27,19 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
 
     private final List<VRPose> elements;
 
+    private final boolean roomRelative;
 
     private Vector3fc origin;
+    private float rotationY;
 
 
     private float bodyYaw;
     private Vector3fc headPivot;
 
-    public PlayerPoseServerImpl(@NotNull VRServerPlayerImpl player) {
+    public PlayerPoseServerImpl(@NotNull VRServerPlayerImpl player,
+                                boolean roomRelative) {
         this.player = player;
+        this.roomRelative = roomRelative;
 
         this.hmd = new VRPoseImpl();
 
@@ -70,40 +74,60 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
                        Vector3fc origin){
         this.origin = origin;
 
+        float turnRotationY = player.getRotationY();
+        this.rotationY = roomRelative ? 0.0f : turnRotationY;
+
         var hmdPose = poseData.hmd();
         var mainHandPose = poseData.mainHand();
         var offhandPose = poseData.offhand();
 
-        Vector3f hmdDir = hmdPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
-        Vector3f mainHandDir = mainHandPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
-        Vector3f offhandDir = offhandPose
-                .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
+        Vector3f hmdPos = hmdPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f hmdRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(hmdPose.orientation().get(new Matrix4f()));
+        Vector3f hmdDir = hmdPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
+
+        Vector3f mainHandPos = mainHandPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f mainHandRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(mainHandPose.orientation().get(new Matrix4f()));
+        Vector3f mainHandDir = mainHandPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
+
+        Vector3f offhandPos = offhandPose.position()
+                .rotateY(-turnRotationY, new Vector3f());
+        Matrix4f offhandRotation = new Matrix4f().rotationY(-turnRotationY)
+                .mul(offhandPose.orientation().get(new Matrix4f()));
+        Vector3f offhandDir = offhandPose.orientation()
+                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .rotateY(-turnRotationY);
 
         this.hmd.update(
-                hmdPose.position(),
-                hmdPose.orientation().get(new Matrix4f()),
+                hmdPos,
+                hmdRotation,
                 hmdDir,
                 this.origin,
-                0,
+                this.rotationY,
                 1.0f
         );
 
         this.mainHand.update(
-                mainHandPose.position(),
-                mainHandPose.orientation().get(new Matrix4f()),
+                mainHandPos,
+                mainHandRotation,
                 mainHandDir,
                 this.origin,
-                0,
+                this.rotationY,
                 1.0f
         );
         this.offhand.update(
-                offhandPose.position(),
-                offhandPose.orientation().get(new Matrix4f()),
+                offhandPos,
+                offhandRotation,
                 offhandDir,
                 this.origin,
-                0,
+                this.rotationY,
                 1.0f
         );
 
@@ -114,6 +138,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     public void copyFrom(PlayerPoseServerImpl other){
 
         this.origin = new Vector3f(other.origin);
+        this.rotationY = other.rotationY;
         this.bodyYaw = other.bodyYaw;
         this.headPivot = new Vector3f(other.headPivot);
 
@@ -135,7 +160,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
 
     @Override
     public float getRotationY() {
-        return 0;
+        return rotationY;
     }
 
     public void resetOrigin(Vector3fc newOrigin){

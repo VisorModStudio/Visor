@@ -214,7 +214,7 @@ public class TaskRoomClimb extends VisorTask
     private void applyAnchorState(Player player) {
         if (anchoredHand == null) return;
         var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
-        var roomPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var roomPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM);
 
         HandClimbState state = handStates.get(anchoredHand);
 
@@ -225,7 +225,7 @@ public class TaskRoomClimb extends VisorTask
         Vec3 anchorTickPos = new Vec3(
                 tickPose
                 .convertPositionFrom(
-                        PlayerPoseType.RELATIVE,
+                        PlayerPoseType.ROOM,
                         state.anchoredPosRoom.toVector3f()
                 )
         );
@@ -378,7 +378,7 @@ public class TaskRoomClimb extends VisorTask
             state.anchoredPos = handPositions[hand.ordinal()];
             state.anchoredPosRoom = new Vec3(
                     (Vector3f) ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RELATIVE)
+                    .getPoseData(PlayerPoseType.ROOM)
                     .getHand(hand).getPosition()
             );
             state.anchoredPosPlayer = player.position();
@@ -424,7 +424,7 @@ public class TaskRoomClimb extends VisorTask
             state.anchoredPos = handPositions[hand.ordinal()];
             state.anchoredPosRoom = new Vec3(
                     (Vector3f) ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RELATIVE)
+                    .getPoseData(PlayerPoseType.ROOM)
                     .getHand(hand).getPosition()
             );
             state.anchoredPosPlayer = player.position();

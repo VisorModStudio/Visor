@@ -403,7 +403,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                     position.z()
             );
         }
-        if (originType == PlayerPoseType.RELATIVE) {
+        if (originType == PlayerPoseType.ROOM) {
             return position.mul(worldScale, new Vector3f())
                     .rotateY(rotationY)
                     .add(origin);
@@ -417,7 +417,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 .mul(1.0f / originPose.worldScale)
                 .rotateY(-originPose.rotationY);
 
-        if(type == PlayerPoseType.RELATIVE){
+        if(type == PlayerPoseType.ROOM){
             return roomPose;
         }
 
@@ -436,14 +436,14 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
 
 
-        if (originType == PlayerPoseType.RELATIVE) {
+        if (originType == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(rotationY).mul(rotationMatrix);
         }
 
 
         LocalPlayerPose originPose = ClientContext.localPlayer.getPoseData(originType);
 
-        if (this.type == PlayerPoseType.RELATIVE) {
+        if (this.type == PlayerPoseType.ROOM) {
             return new Matrix4f().rotationY(-originPose.rotationY).mul(rotationMatrix);
         }
 

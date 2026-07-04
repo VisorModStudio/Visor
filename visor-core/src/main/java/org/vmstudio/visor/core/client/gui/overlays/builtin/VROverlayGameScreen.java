@@ -130,7 +130,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                 || relativePosition == null
                 || relativeRotation == null) {
             VRPose hmd = ClientContext.localPlayer
-                    .getPoseData(PlayerPoseType.RELATIVE)
+                    .getPoseData(PlayerPoseType.ROOM)
                     .getHmd();
             Vector3f forwardVec = new Vector3f(0.0f, 0.0f, -2.0f);
 
@@ -272,7 +272,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public void onFinishedDragging() {
-        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE);
+        var relativePose = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM);
         relativePosition = relativePose.convertPositionFrom(
                 PlayerPoseType.RENDER,
                 getPose().getPosition()

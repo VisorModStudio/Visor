@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.common.player;
 
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.common.HandType;
 
@@ -16,7 +15,7 @@ public interface VRPlayer extends VisorPlayer{
     VRPlayerPose getPoseDataPrevious();
 
     @NotNull
-    VRPlayerPose getPoseDataRelative();
+    VRPlayerPose getPoseDataRoom();
 
     @NotNull
     VRPlayerPose getPoseData();
@@ -28,7 +27,7 @@ public interface VRPlayer extends VisorPlayer{
      * @return pose history
      */
     @NotNull
-    VRPoseHistory getPoseHistoryRelative();
+    VRPoseHistory getPoseHistoryRoom();
 
     /**
      * get pose history for tick type
@@ -88,7 +87,7 @@ public interface VRPlayer extends VisorPlayer{
      * @return actual height
      */
     default float getActualHeight(){
-        return getPoseDataRelative().getHeadPivot().y();
+        return getPoseDataRoom().getHeadPivot().y();
     }
 
     /**

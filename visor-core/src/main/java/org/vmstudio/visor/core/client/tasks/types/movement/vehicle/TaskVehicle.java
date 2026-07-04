@@ -95,7 +95,7 @@ public class TaskVehicle extends VisorTask {
         LocalPlayerPose tickPose = localPlayer.getPoseData(PlayerPoseType.TICK);
 
         final Vector3fc headPivot = localPlayer
-                .getPoseData(PlayerPoseType.RELATIVE)
+                .getPoseData(PlayerPoseType.ROOM)
                 .getHeadPivot();
         premountPosRoom = new Vec3(headPivot.x(), 0.0D, headPivot.z());
 

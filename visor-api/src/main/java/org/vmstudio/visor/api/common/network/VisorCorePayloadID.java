@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.common.network.toclient.HandshakePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
 import org.vmstudio.visor.api.common.network.toserver.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 
@@ -21,7 +22,9 @@ public enum VisorCorePayloadID {
     //TO CLIENT
     SERVER_SETTINGS,
     BLOCK_DAMAGE,
+    OTHER_VR_START_TRACKING,
     OTHER_VR_POSE_DATA,
+    OTHER_VR_ROTATION_Y,
     OTHER_VR_LEFT_HANDED,
     OTHER_VR_BODY_TYPE,
     OTHER_VR_WORLD_SCALE,
@@ -53,7 +56,7 @@ public enum VisorCorePayloadID {
     public static VisorCorePayloadID fromOrdinal(byte ordinalByte){
         // -127...127 to 0..255
         int unsignedByte = ordinalByte & 0xFF;
-        return unsignedByte < values().length ? values()[unsignedByte] : null;
+        return values()[unsignedByte];
     }
 
     @Environment(EnvType.CLIENT)
@@ -61,17 +64,19 @@ public enum VisorCorePayloadID {
                                              FriendlyByteBuf buffer) {
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToClient.read(buffer);
+            case SERVER_SETTINGS -> SettingsPayloadToClient.read(buffer);
             case OFFHAND_SLOT -> OffhandSlotPayloadToClient.read(buffer);
             case ROTATION_Y -> RotationYPayloadToClient.read(buffer);
-            case OTHER_VR_OVERLAY_FOCUSED -> VROtherOverlayFocusedPayloadToClient.read(buffer);
+            case BLOCK_DAMAGE -> BlockDamagePayloadToClient.read(buffer);
+            case OTHER_VR_START_TRACKING -> VROtherStartTrackingPayloadToClient.read(buffer);
+            case OTHER_VR_POSE_DATA -> VROtherPoseDataPayloadToClient.read(buffer);
             case OTHER_VR_BODY_TYPE -> VROtherBodyTypePayloadToClient.read(buffer);
+            case OTHER_VR_LEFT_HANDED -> VROtherLeftHandedPayloadToClient.read(buffer);
+            case OTHER_VR_ROTATION_Y -> VROtherRotationYPayloadToClient.read(buffer);
+            case OTHER_VR_WORLD_SCALE -> VROtherWorldScalePayloadToClient.read(buffer);
+            case OTHER_VR_OVERLAY_FOCUSED -> VROtherOverlayFocusedPayloadToClient.read(buffer);
             case OTHER_VR_FULL_HEIGHT -> VROtherFullHeightPayloadToClient.read(buffer);
             case OTHER_GUN_ANGLE -> VROtherGunAnglePayloadToClient.read(buffer);
-            case OTHER_VR_LEFT_HANDED -> VROtherLeftHandedPayloadToClient.read(buffer);
-            case OTHER_VR_POSE_DATA -> VROtherPoseDataPayloadToClient.read(buffer);
-            case OTHER_VR_WORLD_SCALE -> VROtherWorldScalePayloadToClient.read(buffer);
-            case SERVER_SETTINGS -> SettingsPayloadToClient.read(buffer);
-            case BLOCK_DAMAGE -> BlockDamagePayloadToClient.read(buffer);
             default -> {
                 VisorAPI.client().getLogger().error(
                         "Visor: Got unexpected payload identifier on client: {}", payloadID

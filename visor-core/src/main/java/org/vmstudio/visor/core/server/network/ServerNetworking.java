@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.common.network.VisorChannel;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
@@ -119,17 +119,12 @@ public class ServerNetworking {
         UUID uuid = serverPlayer.getUUID();
         String vrBody = vrPlayer.getVrBodyType();
         boolean leftHanded = vrPlayer.isLeftHanded();
+        var rotationY = vrPlayer.getRotationY();
         var worldScale = vrPlayer.getWorldScale();
         var fullHeight = vrPlayer.getFullHeight();
         var gunAngle = vrPlayer.getGunAngle();
         boolean overlayFocused = vrPlayer.isOverlayFocused();
 
-        // Pose data
-        sendPacketToConnections(
-                serverPlayer, trackerConnections,
-                false, null,
-                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer())
-        );
 
         // ----- Send initial data to new trackers -----
         if (!newTrackers.isEmpty()) {
@@ -140,12 +135,21 @@ public class ServerNetworking {
                 if (trackerConnection.getPlayer() == serverPlayer) {
                     continue;
                 }
-                trackerConnection.send(createVRPacket(new VROtherBodyTypePayloadToClient(uuid, vrBody)));
-                trackerConnection.send(createVRPacket(new VROtherLeftHandedPayloadToClient(uuid, leftHanded)));
-                trackerConnection.send(createVRPacket(new VROtherWorldScalePayloadToClient(uuid, worldScale)));
-                trackerConnection.send(createVRPacket(new VROtherFullHeightPayloadToClient(uuid, fullHeight)));
-                trackerConnection.send(createVRPacket(new VROtherGunAnglePayloadToClient(uuid, gunAngle)));
-                trackerConnection.send(createVRPacket(new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)));
+                trackerConnection.send(
+                        createVRPacket(
+                                new VROtherStartTrackingPayloadToClient(
+                                        uuid,
+                                        new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer()),
+                                        new VROtherBodyTypePayloadToClient(uuid, vrBody),
+                                        new VROtherLeftHandedPayloadToClient(uuid, leftHanded),
+                                        new VROtherRotationYPayloadToClient(uuid, rotationY),
+                                        new VROtherWorldScalePayloadToClient(uuid, worldScale),
+                                        new VROtherFullHeightPayloadToClient(uuid, fullHeight),
+                                        new VROtherGunAnglePayloadToClient(uuid, gunAngle),
+                                        new VROtherOverlayFocusedPayloadToClient(uuid, overlayFocused)
+                                )
+                        )
+                );
             }
         }
 
@@ -167,6 +171,15 @@ public class ServerNetworking {
                     new VROtherLeftHandedPayloadToClient(uuid, leftHanded)
             );
             vrPlayer.setLeftHandedLastSent(leftHanded);
+        }
+
+        if (rotationY != vrPlayer.getRotationYLastSent()) {
+            sendPacketToConnections(
+                    serverPlayer, trackerConnections,
+                    false, newTrackers,
+                    new VROtherRotationYPayloadToClient(uuid, rotationY)
+            );
+            vrPlayer.setRotationYLastSent(rotationY);
         }
 
         if (worldScale != vrPlayer.getWorldScaleLastSent()) {
@@ -205,6 +218,13 @@ public class ServerNetworking {
             );
             vrPlayer.setOverlayFocusedLastSent(overlayFocused);
         }
+
+        // Pose data
+        sendPacketToConnections(
+                serverPlayer, trackerConnections,
+                false, newTrackers,
+                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer())
+        );
     }
 
 

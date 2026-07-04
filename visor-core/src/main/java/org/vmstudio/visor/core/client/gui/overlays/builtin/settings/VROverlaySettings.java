@@ -318,9 +318,9 @@ public class VROverlaySettings extends VROverlayScreen
                 posOffset,
                 rotationOffset
         );
-        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+        relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                 .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+        relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                 .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
     }
 
@@ -363,9 +363,9 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
         if(getForcedAnchor() != null && forcedAnchor == null){
-            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+            relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
-            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.RELATIVE)
+            relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
         }
         super.setForcedAnchor(forcedAnchor);

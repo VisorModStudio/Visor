@@ -47,14 +47,14 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VRLocalPlayerImpl implements VRLocalPlayer {
 
-    private final LocalPlayerPose roomRelativePose;
+    private final LocalPlayerPose roomPose;
 
     private final LocalPlayerPose prevPose;
     private final LocalPlayerPose pose;
     private final LocalPlayerPose renderPose;
 
     @Getter
-    private final PoseHistoryImpl poseHistoryRelative;
+    private final PoseHistoryImpl poseHistoryRoom;
     @Getter
     private final PoseHistoryImpl poseHistoryTick;
 
@@ -80,12 +80,12 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     private boolean overlayFocused;
 
     public VRLocalPlayerImpl() {
-        this.roomRelativePose = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
+        this.roomPose = new LocalPlayerPose(this, PlayerPoseType.ROOM);
         this.prevPose = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
         this.pose = new LocalPlayerPose(this, PlayerPoseType.TICK);
         this.renderPose  = new LocalPlayerPose(this, PlayerPoseType.RENDER);
 
-        this.poseHistoryRelative = new PoseHistoryImpl(roomRelativePose);
+        this.poseHistoryRoom = new PoseHistoryImpl(roomPose);
         this.poseHistoryTick = new PoseHistoryImpl(pose);
     }
 
@@ -94,12 +94,12 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         boolean sendEvent = this.bodyType != null && this.bodyType != bodyType;
         this.bodyType = bodyType;
 
-        this.roomRelativePose.bodyTypeChanged(bodyType);
+        this.roomPose.bodyTypeChanged(bodyType);
         this.prevPose.bodyTypeChanged(bodyType);
         this.pose.bodyTypeChanged(bodyType);
         this.renderPose.bodyTypeChanged(bodyType);
 
-        this.poseHistoryRelative.clear();
+        this.poseHistoryRoom.clear();
         this.poseHistoryTick.clear();
         if(sendEvent){
             VisorAPI.eventBus().callEvent(
@@ -124,7 +124,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     }
 
     public void onGameLoopStart(){
-        this.roomRelativePose.updateTracking(
+        this.roomPose.updateTracking(
                 VRMathUtils.ZERO_VECTOR,
                 1.0f, 0.0f
         );
@@ -147,9 +147,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 this.pose.getRotationY()
         );
 
-        var historyEntry = new LocalPlayerPose(this, PlayerPoseType.RELATIVE);
-        historyEntry.copyFrom(roomRelativePose);
-        poseHistoryRelative.addEntry(historyEntry);
+        var historyEntry = new LocalPlayerPose(this, PlayerPoseType.ROOM);
+        historyEntry.copyFrom(roomPose);
+        poseHistoryRoom.addEntry(historyEntry);
 
         historyEntry = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
         historyEntry.copyFrom(prevPose);
@@ -530,7 +530,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             case PREV_TICK -> prevPose;
             case TICK -> pose;
             case RENDER -> renderPose;
-            default -> roomRelativePose;
+            default -> roomPose;
         };
     }
 
@@ -570,7 +570,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 pose: %s
                 render pose: %s"""
         ).formatted(
-                this.roomRelativePose,
+                this.roomPose,
                 this.prevPose,
                 this.pose,
                 this.renderPose

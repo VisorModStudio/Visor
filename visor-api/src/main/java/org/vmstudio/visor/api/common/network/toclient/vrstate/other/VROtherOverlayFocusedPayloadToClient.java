@@ -1,8 +1,9 @@
-package org.vmstudio.visor.api.common.network.toclient.vrstate;
+package org.vmstudio.visor.api.common.network.toclient.vrstate.other;
 
 import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 
 import java.util.UUID;
 
@@ -10,6 +11,9 @@ public record VROtherOverlayFocusedPayloadToClient(UUID playerUUID, boolean over
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
+        writeSimple(buffer);
+    }
+    public void writeSimple(FriendlyByteBuf buffer){
         buffer.writeBoolean(overlayFocused);
     }
 
@@ -19,6 +23,14 @@ public record VROtherOverlayFocusedPayloadToClient(UUID playerUUID, boolean over
     }
 
     public static VROtherOverlayFocusedPayloadToClient read(FriendlyByteBuf buffer) {
-        return new VROtherOverlayFocusedPayloadToClient(buffer.readUUID(), buffer.readBoolean());
+        var uuid = buffer.readUUID();
+        return readSimple(uuid, buffer);
+    }
+    public static VROtherOverlayFocusedPayloadToClient readSimple(UUID uuid, FriendlyByteBuf buffer) {
+
+        return new VROtherOverlayFocusedPayloadToClient(
+                uuid,
+                buffer.readBoolean()
+        );
     }
 }

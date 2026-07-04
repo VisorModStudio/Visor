@@ -1,8 +1,9 @@
-package org.vmstudio.visor.api.common.network.toclient.vrstate;
+package org.vmstudio.visor.api.common.network.toclient.vrstate.other;
 
 import net.minecraft.network.FriendlyByteBuf;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 
 import java.util.UUID;
 
@@ -12,6 +13,9 @@ public record VROtherGunAnglePayloadToClient(UUID playerUUID,
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
+        writeSimple(buffer);
+    }
+    public void writeSimple(FriendlyByteBuf buffer){
         buffer.writeFloat(gunAngle);
     }
 
@@ -23,8 +27,12 @@ public record VROtherGunAnglePayloadToClient(UUID playerUUID,
 
 
     public static VROtherGunAnglePayloadToClient read(FriendlyByteBuf buffer) {
+        var uuid = buffer.readUUID();
+        return readSimple(uuid, buffer);
+    }
+    public static VROtherGunAnglePayloadToClient readSimple(UUID uuid, FriendlyByteBuf buffer) {
         return new VROtherGunAnglePayloadToClient(
-                buffer.readUUID(),
+                uuid,
                 buffer.readFloat()
         );
     }

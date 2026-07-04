@@ -208,15 +208,9 @@ public class ClientNetworking {
         boolean modRecording = RecorderModHelper.isRecording();
         if(modRecording && !recording){
             recording = true;
-            RecorderModHelper.sendInitPacketsLocal(CHANNEL,
-                    List.of(
-                            new FullHeightPayloadToServer(height),
-                            new WorldScalePayloadToServer(worldScale),
-                            new LeftHandedPayloadToServer(leftHanded),
-                            new GunAnglePayloadToServer(gunAngle),
-                            new VRBodyTypePayloadToServer(vrBody.getId()),
-                            new OverlayFocusedPayloadToServer(overlayFocused)
-                    )
+            RecorderModHelper.sendInitPacketsLocal(
+                    CHANNEL,
+                    localPlayer
             );
             RecorderModHelper.sendInitPacketsRemote(
                     CHANNEL,

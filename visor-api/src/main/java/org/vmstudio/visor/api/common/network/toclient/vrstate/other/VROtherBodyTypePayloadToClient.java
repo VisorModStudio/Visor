@@ -1,8 +1,6 @@
-package org.vmstudio.visor.api.common.network.toclient.vrstate;
+package org.vmstudio.visor.api.common.network.toclient.vrstate.other;
 
-import com.google.common.base.Charsets;
 import net.minecraft.network.FriendlyByteBuf;
-import org.vmstudio.visor.api.common.network.VisorPayload;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 
@@ -13,9 +11,10 @@ public record VROtherBodyTypePayloadToClient(UUID playerUUID,
     @Override
     public void onWrite(FriendlyByteBuf buffer) {
         buffer.writeUUID(playerUUID);
-        buffer.writeBytes(
-                bodyType.getBytes(Charsets.UTF_8)
-        );
+        writeSimple(buffer);
+    }
+    public void writeSimple(FriendlyByteBuf buffer){
+        buffer.writeUtf(bodyType);
     }
 
     @Override
@@ -26,10 +25,13 @@ public record VROtherBodyTypePayloadToClient(UUID playerUUID,
 
 
     public static VROtherBodyTypePayloadToClient read(FriendlyByteBuf buffer) {
-
+        var uuid = buffer.readUUID();
+        return readSimple(uuid, buffer);
+    }
+    public static VROtherBodyTypePayloadToClient readSimple(UUID uuid, FriendlyByteBuf buffer) {
         return new VROtherBodyTypePayloadToClient(
-                buffer.readUUID(),
-                VisorPayload.readString(buffer)
+                uuid,
+                buffer.readUtf()
         );
     }
 }

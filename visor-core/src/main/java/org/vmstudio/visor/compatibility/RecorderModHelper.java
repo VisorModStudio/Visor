@@ -6,10 +6,14 @@ import org.vmstudio.visor.api.common.network.VisorChannel;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
-import org.vmstudio.visor.api.common.network.toclient.vrstate.*;
+import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 
 import java.util.Collection;
@@ -26,10 +30,23 @@ public class RecorderModHelper {
     public static boolean isRecording(){
         return ReplayCompatHelper.isRecording() || FlashbackCompatHelper.isRecording();
     }
-    public static void sendInitPacketsLocal(VisorChannel channel, List<VisorPayloadToServer> packets){
-        for(var packet : packets){
-            storeVisorPacketLocal(channel, packet);
-        }
+
+    public static void sendInitPacketsLocal(VisorChannel channel, VRLocalPlayerImpl localPlayer){
+        var uuid = localPlayer.getMcPlayer().getUUID();
+        storePacket(
+                channel,
+                new VROtherStartTrackingPayloadToClient(
+                        uuid,
+                        new VROtherPoseDataPayloadToClient(uuid, PoseDataBuffer.create(localPlayer)),
+                        new VROtherBodyTypePayloadToClient(uuid, localPlayer.getBodyType().getId()),
+                        new VROtherLeftHandedPayloadToClient(uuid, localPlayer.isLeftHanded()),
+                        new VROtherRotationYPayloadToClient(uuid, localPlayer.getRotationY()),
+                        new VROtherWorldScalePayloadToClient(uuid, localPlayer.getPoseData().getWorldScale()),
+                        new VROtherFullHeightPayloadToClient(uuid, localPlayer.getFullHeight()),
+                        new VROtherGunAnglePayloadToClient(uuid, localPlayer.getGunAngle()),
+                        new VROtherOverlayFocusedPayloadToClient(uuid, localPlayer.isOverlayFocused())
+                )
+        );
     }
     public static void sendInitPacketsRemote(VisorChannel channel,
                                              Collection<VRRemotePlayerImpl> remotePlayers){
@@ -37,51 +54,16 @@ public class RecorderModHelper {
             var uuid = remotePlayer.getMcPlayer().getUUID();
             storePacket(
                     channel,
-                    new VROtherPoseDataPayloadToClient(
+                    new VROtherStartTrackingPayloadToClient(
                             uuid,
-                            remotePlayer.getPoseBufferReceived()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherBodyTypePayloadToClient(
-                            uuid,
-                            remotePlayer.getBodyType().getId()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherLeftHandedPayloadToClient(
-                            uuid,
-                            remotePlayer.isLeftHanded()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherWorldScalePayloadToClient(
-                            uuid,
-                            remotePlayer.getPoseData().getWorldScale()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherFullHeightPayloadToClient(
-                            uuid,
-                            remotePlayer.getFullHeight()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherGunAnglePayloadToClient(
-                            uuid,
-                            remotePlayer.getGunAngle()
-                    )
-            );
-            storePacket(
-                    channel,
-                    new VROtherOverlayFocusedPayloadToClient(
-                            uuid,
-                            remotePlayer.isOverlayFocused()
+                            new VROtherPoseDataPayloadToClient(uuid, remotePlayer.getPoseBufferReceived()),
+                            new VROtherBodyTypePayloadToClient(uuid, remotePlayer.getBodyType().getId()),
+                            new VROtherLeftHandedPayloadToClient(uuid, remotePlayer.isLeftHanded()),
+                            new VROtherRotationYPayloadToClient(uuid, remotePlayer.getRotationYReceived()),
+                            new VROtherWorldScalePayloadToClient(uuid, remotePlayer.getPoseData().getWorldScale()),
+                            new VROtherFullHeightPayloadToClient(uuid, remotePlayer.getFullHeight()),
+                            new VROtherGunAnglePayloadToClient(uuid, remotePlayer.getGunAngle()),
+                            new VROtherOverlayFocusedPayloadToClient(uuid, remotePlayer.isOverlayFocused())
                     )
             );
         }
@@ -110,6 +92,13 @@ public class RecorderModHelper {
                 storePayload = new VROtherLeftHandedPayloadToClient(
                         selfUUID,
                         payloadInstance.leftHanded()
+                );
+            }
+            case ROTATION_Y -> {
+                var payloadInstance = (RotationYPayloadToServer)payload;
+                storePayload = new VROtherRotationYPayloadToClient(
+                        selfUUID,
+                        payloadInstance.rotationY()
                 );
             }
             case WORLD_SCALE -> {

@@ -28,7 +28,7 @@ public class TaskRoomJump extends VisorTask {
 
     @Override
     protected void onRun(LocalPlayer player) {
-        var historyRelative = ClientContext.localPlayer.getPoseHistoryRelative();
+        var historyRelative = ClientContext.localPlayer.getPoseHistoryRoom();
 
         double yDelta = historyRelative.headPivotNetMovement(5).y;
         if (yDelta < 0.1D) {

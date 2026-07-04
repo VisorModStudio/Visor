@@ -75,15 +75,15 @@ public class ServerConfig{
                 } else if (field.getType() == boolean.class && value instanceof Boolean) {
                     field.setBoolean(null, (Boolean) value);
                 } else if (field.getType() == byte.class && value instanceof Number) {
-                    field.setLong(null, ((Number) value).byteValue());
+                    field.setByte(null, ((Number) value).byteValue());
                 } else if (field.getType() == short.class && value instanceof Number) {
-                    field.setLong(null, ((Number) value).shortValue());
+                    field.setShort(null, ((Number) value).shortValue());
                 } else if (field.getType() == int.class && value instanceof Number) {
-                    field.setLong(null, ((Number) value).intValue());
+                    field.setInt(null, ((Number) value).intValue());
                 } else if (field.getType() == long.class && value instanceof Number) {
                     field.setLong(null, ((Number) value).longValue());
                 } else if (field.getType() == float.class && value instanceof Number) {
-                    field.setDouble(null, ((Number) value).floatValue());
+                    field.setFloat(null, ((Number) value).floatValue());
                 } else if (field.getType() == double.class && value instanceof Number) {
                     field.setDouble(null, ((Number) value).doubleValue());
                 }
