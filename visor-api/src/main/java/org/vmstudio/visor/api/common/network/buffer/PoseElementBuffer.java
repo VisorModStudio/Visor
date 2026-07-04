@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.common.player.VRBodyPartType;
 
 public record PoseElementBuffer(VRBodyPartType type,
                                 Vector3fc position,
-                                Quaternionfc orientation) implements BufferSerializable {
+                                Quaternionfc orientation) implements VRDataBuffer {
 
     @Override
     public void serialize(FriendlyByteBuf buffer) {

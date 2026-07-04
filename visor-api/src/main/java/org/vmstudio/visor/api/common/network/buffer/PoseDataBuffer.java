@@ -15,7 +15,7 @@ import org.vmstudio.visor.api.common.player.VRBodyPartType;
 public record PoseDataBuffer(@NotNull PoseElementBuffer hmd,
                              @NotNull PoseElementBuffer mainHand,
                              @NotNull PoseElementBuffer offhand,
-                             @NotNull PoseTrackersBuffer trackers) implements BufferSerializable {
+                             @NotNull PoseTrackersBuffer trackers) implements VRDataBuffer {
 
 
     @Override

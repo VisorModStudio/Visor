@@ -24,7 +24,7 @@ public record PoseTrackersBuffer(@Nullable PoseElementBuffer waist,
                                  @Nullable PoseElementBuffer leftElbow,
                                  @Nullable PoseElementBuffer rightElbow,
                                  @Nullable PoseElementBuffer leftShoulder,
-                                 @Nullable PoseElementBuffer rightShoulder)  implements BufferSerializable {
+                                 @Nullable PoseElementBuffer rightShoulder) implements VRDataBuffer {
 
     private static final VRBodyPartType[] TYPES = {
             VRBodyPartType.WAIST,
