@@ -9,8 +9,8 @@ loom-quiltflower    = "1.8.0"
 
 
 #Annotations
-lombok                 = "1.18.30"
-jetbrains              = "23.0.0"
+lombok                 = "1.18.46"
+jetbrains              = "26.1.0"
 
 #Core
 minecraftVersion       = "1.20.1"
