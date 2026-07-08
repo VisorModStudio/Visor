@@ -1,0 +1,150 @@
+name: Publish to Modrinth / CurseForge
+
+# Required repository configuration:
+#   Variables: MODRINTH_ID, CURSEFORGE_ID
+#   Secrets:   MODRINTH_TOKEN, CURSEFORGE_TOKEN
+
+run-name: Publish ${{ inputs.tag }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish
+        type: string
+        required: true
+      modrinth:
+        description: Publish to Modrinth
+        type: boolean
+        default: true
+      curseforge:
+        description: Publish to CurseForge
+        type: boolean
+        default: true
+      version_type:
+        description: Release channel
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+        default: release
+
+concurrency:
+  group: publish-${{ inputs.tag }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  assets:
+    name: Read release assets
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+    steps:
+      - name: Build asset matrix
+        id: list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          MATRIX=$(gh release view "${{ inputs.tag }}" --repo "${{ github.repository }}" \
+            --json assets \
+            --jq '[ .assets[].name
+                    | select(endswith(".jar"))
+                    | select(test("-sources\\.jar$") | not)
+                    | { file: ., loader: (split("-")[1]), mc: (split("-")[2]) } ]')
+
+          echo "Resolved assets: $MATRIX"
+          if [ "$MATRIX" = "[]" ] || [ -z "$MATRIX" ]; then
+            echo "::error::No publishable jars found on release '${{ inputs.tag }}'. Run the Release build workflow first."
+            exit 1
+          fi
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+      - name: Save changelog from release body
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ inputs.tag }}" --repo "${{ github.repository }}" \
+            --json body --jq '.body // ""' > changelog.md
+
+      - name: Upload changelog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: changelog.md
+          retention-days: 1
+
+  publish:
+    name: Publish ${{ matrix.entry.file }}
+    needs: assets
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        entry: ${{ fromJSON(needs.assets.outputs.matrix) }}
+    steps:
+      - name: Download changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog
+
+      - name: Download jar from release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download "${{ inputs.tag }}" --repo "${{ github.repository }}" \
+            --pattern "${{ matrix.entry.file }}" --dir dist
+
+      - name: Compute publish metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          FILE="${{ matrix.entry.file }}"
+          LOADER="${{ matrix.entry.loader }}"
+          MC="${{ matrix.entry.mc }}"
+          MODVER=$(echo "${FILE%.jar}" | cut -d- -f4-)
+
+          {
+            echo "display_name=Visor $MODVER - MC $MC ($LOADER)"
+            echo "version=$MODVER+mc$MC-$LOADER"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Modrinth
+        if: ${{ inputs.modrinth }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: ${{ vars.MODRINTH_ID }}
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          modrinth-featured: false
+          files: dist/${{ matrix.entry.file }}
+          name: ${{ steps.meta.outputs.display_name }}
+          version: ${{ steps.meta.outputs.version }}
+          version-type: ${{ inputs.version_type }}
+          loaders: ${{ matrix.entry.loader }}
+          game-versions: ${{ matrix.entry.mc }}
+          changelog-file: changelog.md
+          fail-mode: warn
+
+      - name: Publish to CurseForge
+        if: ${{ inputs.curseforge }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ vars.CURSEFORGE_ID }}
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: dist/${{ matrix.entry.file }}
+          name: ${{ steps.meta.outputs.display_name }}
+          version: ${{ steps.meta.outputs.version }}
+          version-type: ${{ inputs.version_type }}
+          loaders: ${{ matrix.entry.loader }}
+          game-versions: ${{ matrix.entry.mc }}
+          changelog-file: changelog.md
+          fail-mode: warn

@@ -1,0 +1,70 @@
+name: Discover version branches
+
+on:
+  workflow_call:
+    outputs:
+      branches:
+        description: JSON array of ship branches resolved from .github/branches.json
+        value: ${{ jobs.discover.outputs.branches }}
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    name: Resolve branches
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.list.outputs.branches }}
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Resolve branch list from branches.json
+        id: list
+        run: |
+          set -euo pipefail
+
+          if [ ! -f .github/branches.json ]; then
+            echo "::error::.github/branches.json not found. Create it with the branch names/patterns to build, e.g. [\"dev\", \"mc/*\"]"
+            exit 1
+          fi
+
+          ENTRIES=$(jq -c 'if type=="array" then . else .branches end' .github/branches.json)
+
+          mapfile -t REMOTE_BRANCHES < <(git ls-remote --heads origin | sed 's#.*refs/heads/##')
+
+          RESOLVED=()
+          while IFS= read -r entry; do
+            case "$entry" in
+              *[\*\?\[]*)
+                matched=0
+                for b in "${REMOTE_BRANCHES[@]}"; do
+                  if [[ "$b" == $entry ]]; then
+                    RESOLVED+=("$b")
+                    matched=1
+                  fi
+                done
+                [ "$matched" -eq 0 ] && echo "::warning::Pattern '$entry' in branches.json matched no branches"
+                ;;
+              *)
+                if printf '%s\n' "${REMOTE_BRANCHES[@]}" | grep -qx -- "$entry"; then
+                  RESOLVED+=("$entry")
+                else
+                  echo "::warning::Branch '$entry' in branches.json does not exist, skipping"
+                fi
+                ;;
+            esac
+          done < <(echo "$ENTRIES" | jq -r '.[]')
+
+          if [ "${#RESOLVED[@]}" -eq 0 ]; then
+            echo "::error::No branches resolved from branches.json entries: $ENTRIES"
+            exit 1
+          fi
+
+          BRANCHES=$(printf '%s\n' "${RESOLVED[@]}" | awk '!seen[$0]++' | jq -R . | jq -sc .)
+
+          echo "Branches to build: $BRANCHES"
+          echo "branches=$BRANCHES" >> "$GITHUB_OUTPUT"
