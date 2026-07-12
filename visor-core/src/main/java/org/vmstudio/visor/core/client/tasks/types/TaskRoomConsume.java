@@ -58,6 +58,9 @@ public class TaskRoomConsume extends VisorTask {
                 .add(hmdPos);
 
         for (HandType hand : HandType.values()) {
+            if(ClientContext.cursorHandler.isHandFocused(hand)){
+                continue;
+            }
             Vector3fc handPos = calculateHandPosition(roomPose, hand);
             if (mouthPos.distance(handPos) >= MOUTH_DISTANCE) {
                 consuming.put(hand, false);
@@ -134,6 +137,9 @@ public class TaskRoomConsume extends VisorTask {
 
         if (MC.gameMode == null || player == null
                 || !player.isAlive() || player.isSleeping() || player.isSpectator()) {
+            return false;
+        }
+        if(MC.screen != null){
             return false;
         }
         return isConsumable(player.getMainHandItem())
