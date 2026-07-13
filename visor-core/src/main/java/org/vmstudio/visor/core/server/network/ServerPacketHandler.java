@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.*;
 import org.vmstudio.visor.api.common.network.toclient.HandshakePayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.SettingsPayloadToClient;
+import org.vmstudio.visor.api.common.network.toclient.UnknownPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.OffhandSlotPayloadToClient;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.*;
@@ -40,6 +41,7 @@ public class ServerPacketHandler {
     public static void handlePacket(VisorPayloadToServer payloadToServer,
                                     ServerPlayer serverPlayer,
                                     Consumer<VisorPayloadToClient> packetConsumer){
+        if (payloadToServer instanceof UnknownPayloadToServer) return;
 
         VisorServerPlayerImpl packetReceiver = VisorServerImpl.INSTANCE.getVisorPlayer(serverPlayer);
 

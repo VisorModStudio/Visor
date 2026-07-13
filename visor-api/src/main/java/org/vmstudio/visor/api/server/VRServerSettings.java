@@ -7,47 +7,47 @@ import net.fabricmc.api.Environment;
 
 
 public class VRServerSettings {
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean serverDebug = false;
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean vrOnly = false;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean twoHandedVR = true;
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean betterSwinging = true;
 
     @Getter
     private static long swingingRepairDelay = 400;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean roomCrawlingSupported = true;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean roomClimbingSupported = true;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean pvpVRvsVanilla = true;
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean pvpVRvsVR = true;
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean notifyPvpBlocked = false;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static double creeperSwellDistance = 1.75;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static SupportedMovement supportedMovement = SupportedMovement.BOTH;
 
 
-    @Getter
+    @Getter @SendSettingToClient
     protected static int teleportUpLimit = 1;
-    @Getter
+    @Getter @SendSettingToClient
     protected static int teleportDownLimit = 4;
-    @Getter
+    @Getter @SendSettingToClient
     protected static int teleportForwardLimit = 16;
 
-    @Getter
+    @Getter @SendSettingToClient
     private static boolean trackersSupported = true;
 
 
