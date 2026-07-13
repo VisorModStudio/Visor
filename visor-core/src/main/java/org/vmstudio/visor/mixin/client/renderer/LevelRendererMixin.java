@@ -139,8 +139,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                              LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo info
     ) {
         if (VRRenderState.getPhase().isNotVanilla()) {
-
-            VREffectsHelper.drawEyeStencil();
+            //@TODO rework to fix Quest 3 issue
+            //VREffectsHelper.drawEyeStencil();
         }
     }
 
