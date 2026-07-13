@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
@@ -62,12 +63,14 @@ public class VisorState implements VisorClientState {
 
         //HANDLE DELAYED ERROR IN WORLD
         if(delayedErrorHandling != null
+                && MC != null
+                && MC.screen != null
                 && (MC.screen instanceof DisconnectedScreen
                 || MC.screen instanceof TitleScreen)){
             delayedErrorHandling.run();
             delayedErrorHandling = null;
         }
-        if(MC.level != null){
+        if(MC != null && MC.level != null){
             //clean message
             vrInitFailed = false;
         }
@@ -121,6 +124,14 @@ public class VisorState implements VisorClientState {
     }
 
     private static void startClient() {
+        if (ModLoader.get().isModLoaded("vivecraft")) {
+            throw new IllegalStateException(
+                "Visor cannot run with Vivecraft installed! " +
+                "Both mods provide VR functionality and will conflict. " +
+                "Please remove one of the mods to continue."
+            );
+        }
+        
         try {
             if (ClientContext.visor != null) {
                 return;
