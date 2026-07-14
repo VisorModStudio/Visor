@@ -15,7 +15,7 @@ jetbrains              = "26.1.0"
 #Core
 minecraftVersion       = "1.20.1"
 parchment              = "2023.09.03"
-architectury-lib       = "11.0.5"
+architectury-lib       = "9.2.14"
 lwjgl                  = "3.3.6"
 atum-vr                = "1.13.0beta"
 atum-config            = '1.2.0pre2'
