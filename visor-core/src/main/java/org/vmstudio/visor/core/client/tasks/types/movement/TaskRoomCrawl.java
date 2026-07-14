@@ -55,6 +55,7 @@ public class TaskRoomCrawl extends VisorTask {
             return false;
         }
         if(!VRClientSettings.isRoomCrawlEnabled()) return false;
+        if(!VRClientSettings.isRoomscaleActive()) return false;
         if(!VRServerSettings.isRoomCrawlingSupported()) return false;
         return isEnabled()
                 && player != null

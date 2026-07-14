@@ -50,6 +50,7 @@ public class ClientNetworking {
     private static float gunAngleLastSent = VRPlayer.DEFAULT_GUN_ANGLE;
 
     private static boolean leftHandedLastSent = false;
+    private static boolean seatedLastSent = false;
     private static HandType activeHandLastSent = HandType.MAIN;
     private static VRBodyType vrBodyLastSent = null;
     private static boolean overlayFocusedLastSent = false;
@@ -163,6 +164,14 @@ public class ClientNetworking {
                     new LeftHandedPayloadToServer(leftHanded)
             );
             leftHandedLastSent = leftHanded;
+        }
+
+        boolean seated = VRClientSettings.isSeated();
+        if(seated != seatedLastSent){
+            sendVRPacket(
+                    new SeatedPayloadToServer(seated)
+            );
+            seatedLastSent = seated;
         }
 
         HandType activeHamd = localPlayer.getActiveHand();

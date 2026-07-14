@@ -61,6 +61,7 @@ public class TaskRoomJump extends VisorTask {
             return false;
         }
         if(!VRClientSettings.isRoomJumpEnabled()) return false;
+        if(!VRClientSettings.isRoomscaleActive()) return false;
         // Only allow jump if the player is on solid ground
         // and not performing other actions.
         if (!p.isInWater() && !p.isInLava() && p.onGround()) {

@@ -494,7 +494,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     public double visor$getRoomYOffset() {
         double out = 0.0D;
 
-        if (this.getPose() == Pose.SPIN_ATTACK
+        // In seated mode, use the pre-calculated offset
+        if (VRClientSettings.isSeated()) {
+            out = VRClientSettings.getSeatedYOffset();
+        } else if (this.getPose() == Pose.SPIN_ATTACK
                 || this.getPose() == Pose.FALL_FLYING
                 || this.getPose() == Pose.SWIMMING) {
             out = -0.01;

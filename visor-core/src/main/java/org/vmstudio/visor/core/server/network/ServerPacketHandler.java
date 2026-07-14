@@ -83,6 +83,11 @@ public class ServerPacketHandler {
 
                 vrPlayer.setLeftHanded(payload.leftHanded());
             }
+            case SEATED -> {
+                var payload = (SeatedPayloadToServer) payloadToServer;
+
+                vrPlayer.setSeated(payload.seated());
+            }
             case ACTIVE_HAND -> {
                 var payload = (ActiveHandPayloadToServer) payloadToServer;
 

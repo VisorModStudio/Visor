@@ -123,6 +123,7 @@ public class TaskVehicle extends VisorTask {
 
     private void handleAutoDismount(LocalPlayer player) {
         if(!VRClientSettings.isRoomDismountVehicleEnabled()) return;
+        if(!VRClientSettings.isRoomscaleActive()) return;
         if (!canAutoDismount(player)) return;
 
 

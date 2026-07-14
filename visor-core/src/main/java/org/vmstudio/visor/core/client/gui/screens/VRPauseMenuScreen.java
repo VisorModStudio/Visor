@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.gui.screens;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -106,10 +107,23 @@ public class VRPauseMenuScreen extends Screen {
             case MAIN -> {
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.inventory").getString(), left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.calibrate_height").getString(), right, y, b -> {
-                    VRClientSettings.calibrateHeight();
+                
+                // Change button text and function based on seated mode
+                String heightButtonKey = VRClientSettings.isSeated() 
+                        ? "visor.screen.pause_menu.button.reset_seated" 
+                        : "visor.screen.pause_menu.button.calibrate_height";
+                Button calibrateBtn = makeHalfBtn(Component.translatable(heightButtonKey).getString(), right, y, b -> {
+                    if (VRClientSettings.isSeated()) {
+                        // In seated mode: recalibrate seated offset
+                        VRClientSettings.calibrateSeatedOffset();
+                    } else {
+                        // In standing mode: calibrate height
+                        VRClientSettings.calibrateHeight();
+                    }
                     ClientContext.settingsManager.saveOptions();
-                }));
+                });
+                calibrateBtn.setTooltip(Tooltip.create(Component.translatable(heightButtonKey + ".tooltip")));
+                addRenderableWidget(calibrateBtn);
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.keyboard").getString(), left, y, b ->{

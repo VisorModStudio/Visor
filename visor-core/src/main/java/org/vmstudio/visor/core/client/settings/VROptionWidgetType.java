@@ -196,6 +196,19 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             (it) -> null
     ),
+    PLAY_MODE_SEATED(
+            VROptionCategory.MOVEMENT,
+            (it) -> OptionBehaviourFactory
+                    .simple(it)
+                    .setOnUpdateName((pair) -> {
+                        boolean isSeated = (boolean) pair.second();
+                        String mode = isSeated 
+                                ? Component.translatable("visor.options.play_mode.seated").getString()
+                                : Component.translatable("visor.options.play_mode.standing").getString();
+                        return pair.first() + mode;
+                    })
+                    .build()
+    ),
     ROTATION_MODE(
             VROptionCategory.MOVEMENT,
             (it) -> null

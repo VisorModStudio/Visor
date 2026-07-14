@@ -47,6 +47,9 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
     @Setter
     private boolean leftHanded;
 
+    @Setter
+    private boolean seated = false;
+
     private boolean crawling;
 
     private int offhandSlot;

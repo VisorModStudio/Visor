@@ -52,6 +52,7 @@ public class TaskRoomSneak extends VisorTask {
     @Override
     public boolean isActive(LocalPlayer player) {
         if(!VRClientSettings.isRoomSneakEnabled()) return false;
+        if(!VRClientSettings.isRoomscaleActive()) return false;
         if(ClientContext.visor
                 .isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;

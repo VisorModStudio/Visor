@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.client.player.pose.*;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.ActiveHandPayloadToServer;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.VRServerSettings;

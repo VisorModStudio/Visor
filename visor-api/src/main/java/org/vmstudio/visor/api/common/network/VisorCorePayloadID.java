@@ -36,6 +36,7 @@ public enum VisorCorePayloadID {
     POSE_DATA,
     VR_BODY_TYPE,
     LEFT_HANDED,
+    SEATED,
     ACTIVE_HAND,
     WORLD_SCALE,
     GUN_ANGLE,
@@ -95,6 +96,7 @@ public enum VisorCorePayloadID {
             case FULL_HEIGHT -> FullHeightPayloadToServer.read(buffer);
             case GUN_ANGLE -> GunAnglePayloadToServer.read(buffer);
             case LEFT_HANDED -> LeftHandedPayloadToServer.read(buffer);
+            case SEATED -> SeatedPayloadToServer.read(buffer);
             case OFFHAND_SLOT -> OffhandSlotPayloadToServer.read(buffer);
             case POSE_DATA -> PoseDataPayloadToServer.read(buffer);
             case ROTATION_Y -> RotationYPayloadToServer.read(buffer);

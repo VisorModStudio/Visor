@@ -203,6 +203,7 @@ public class TaskRoomClimb extends VisorTask
         if (!isEnabled()) return false;
         if (ClientContext.visor.isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)) return false;
         if(!VRClientSettings.isRoomClimbEnabled()) return false;
+        if(!VRClientSettings.isRoomscaleActive()) return false;
         if(!VRServerSettings.isRoomClimbingSupported()) return false;
         if (MC.gameMode == null) return false;
         if (player == null || !player.isAlive() || player.isPassenger()) return false;

@@ -39,6 +39,17 @@ public class VRClientSettings {
     protected static VRPlayMode vrPlayMode = VRPlayMode.ENABLED;
 
     @Getter
+    @VROptionField(widgetType = VROptionWidgetType.PLAY_MODE_SEATED,
+            key = "play_mode",
+            category = VROptionCategory.MOVEMENT,
+            excludeForcedChange = true)
+    protected static boolean seated = false;
+
+    // Static offset calculated when seated mode is enabled
+    @Getter
+    protected static float seatedYOffset = 0.0F;
+
+    @Getter
     @VROptionField(widgetType = VROptionWidgetType.LEFT_HANDED,
             key = "left_handed",
             excludeForcedChange = true)
@@ -371,6 +382,48 @@ public class VRClientSettings {
         );
     }
 
+    public static void setSeated(boolean seated) {
+        VRClientSettings.seated = seated;
+        
+        // Calculate seated offset when enabling seated mode
+        if (seated) {
+            calibrateSeatedOffset();
+        } else {
+            seatedYOffset = 0.0F;
+        }
+        
+        VisorClientImpl.LOGGER.info(
+                "Changed Play Mode to: {}",
+                seated ? "Seated" : "Standing"
+        );
+    }
+
+    /**
+     * Calculate the Y offset for seated mode based on current HMD height.
+     * This offset will raise the player so their seated position acts like standing height.
+     */
+    public static void calibrateSeatedOffset() {
+        var hmdData = ClientContext.rawPoseHandler.getHmdData();
+        if (hmdData.isTracking()) {
+            float currentHmdHeight = hmdData.getPosition().y();
+            float targetHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
+            seatedYOffset = targetHeight - currentHmdHeight;
+            
+            VisorClientImpl.LOGGER.info(
+                    "Calibrated seated offset: {} (HMD height: {}, target: {})",
+                    seatedYOffset, currentHmdHeight, targetHeight
+            );
+        }
+    }
+
+    /**
+     * Check if roomscale features should be active.
+     * Roomscale features are disabled in seated mode.
+     */
+    public static boolean isRoomscaleActive() {
+        return !seated;
+    }
+
     public static MovementMode getMoveMode(Player player) {
         var out = movementMode;
         var supported = VRServerSettings.getSupportedMovement();
@@ -451,6 +504,11 @@ public class VRClientSettings {
     public static final float MIN_CALIBRATION_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
 
     public static float getFullHeight() {
+        // In seated mode, always use default height (no calibration needed)
+        if (seated) {
+            return VRPlayer.DEFAULT_FULL_HEIGHT;
+        }
+        
         if (fullHeight < 0) {
             return VRPlayer.DEFAULT_FULL_HEIGHT;
         }
