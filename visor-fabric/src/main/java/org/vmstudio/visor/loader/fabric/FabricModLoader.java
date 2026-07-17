@@ -39,7 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
 
 public class FabricModLoader implements ModLoader {
-    private final File configFolder = net.fabricmc.loader.api.FabricLoader.getInstance()
+    private final File configFolder = FabricLoader.getInstance()
             .getConfigDir().toFile();
 
     private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
@@ -55,7 +55,7 @@ public class FabricModLoader implements ModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
-        return net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(id);
+        return FabricLoader.getInstance().isModLoaded(id);
     }
     @Override
     public @NotNull String getModVersion(@NotNull String id) {

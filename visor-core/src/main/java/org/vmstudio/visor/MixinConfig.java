@@ -1,14 +1,12 @@
 package org.vmstudio.visor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.AnnotationNode;
-import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.api.VisorAPI;
 
 import org.vmstudio.visor.compatibility.ClassDependentMixin;
 import org.vmstudio.visor.compatibility.FieldDependentMixin;
 import org.vmstudio.visor.compatibility.MethodDependentMixin;
-import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
-import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -21,6 +19,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MixinConfig implements IMixinConfigPlugin {
+    private static final Logger LOGGER = LogManager.getLogger(MixinModLoader.MOD_NAME);
 
     @Override
     public String getRefMapperConfig() {
@@ -62,8 +61,8 @@ public class MixinConfig implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        if (!ModLoader.get().isModLoaded(VisorAPI.MOD_ID)) {
-            VisorClientImpl.LOGGER.info("Visor failed to load, canceled applying mixin '{}'", mixinClassName);
+        if (!MixinModLoader.get().isModLoaded(MixinModLoader.MOD_ID)) {
+            LOGGER.info("Visor failed to load, canceled applying mixin '{}'", mixinClassName);
             return false;
         }
 
@@ -95,7 +94,7 @@ public class MixinConfig implements IMixinConfigPlugin {
                 return true;
             }
         } catch (ClassNotFoundException | IOException e) {
-            VisorClientImpl.LOGGER.info("Visor: skipping mixin '{}'", mixinClassName);
+            LOGGER.info("Visor: skipping mixin '{}'", mixinClassName);
             return false;
         }
 
@@ -108,14 +107,14 @@ public class MixinConfig implements IMixinConfigPlugin {
             }
             String mod = mixinClassName.split("\\.")[4];
             if (appliedModFixes.add(mod)) {
-                VisorClientImpl.LOGGER.info("Visor: applying '{}' compatibility patch", mod);
+                LOGGER.info("Visor: applying '{}' compatibility patch", mod);
             }
         }
 
 
 
         if(mixinClassName.contains("NoSodium")
-                && SodiumHelper.isLoaded()){
+                && MixinModLoader.get().isSodiumLoaded()){
             return false;
         }
 

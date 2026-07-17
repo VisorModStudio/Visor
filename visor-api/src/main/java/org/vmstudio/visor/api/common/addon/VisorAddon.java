@@ -22,10 +22,11 @@ public interface VisorAddon {
     /**
      * Called when addon is registered
      *<p>
-     *     Use it if you want to load something early.
+     *     Use it if you need to load something early. For example, network channel
      *</p>
      */
-    void onAddonRegister();
+    default void onAddonRegister(){}
+
     /**
      * Called when addon is loaded
      */
