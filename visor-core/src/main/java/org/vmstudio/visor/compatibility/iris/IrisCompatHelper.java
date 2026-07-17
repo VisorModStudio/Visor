@@ -58,6 +58,56 @@ public final class IrisCompatHelper {
         throw new ClassNotFoundException(String.join(" / ", names));
     }
 
+    private static final int TARGET_VERSION_STRIDE = 1 << 20;
+    private static int targetVersionGeneration = 0;
+    private static Field depthBufferVersionField;
+    private static Field colorBufferVersionField;
+    private static volatile Boolean targetVersionStampAvailable;
+
+    public static boolean isTargetVersionStampAvailable() {
+        Boolean available = targetVersionStampAvailable;
+        if (available != null) {
+            return available;
+        }
+        synchronized (IrisCompatHelper.class) {
+            if (targetVersionStampAvailable != null) {
+                return targetVersionStampAvailable;
+            }
+            try {
+                Field depth = RenderTarget.class.getDeclaredField("iris$depthBufferVersion");
+                Field color = RenderTarget.class.getDeclaredField("iris$colorBufferVersion");
+                depth.setAccessible(true);
+                color.setAccessible(true);
+                depthBufferVersionField = depth;
+                colorBufferVersionField = color;
+                targetVersionStampAvailable = true;
+            } catch (Throwable t) {
+                targetVersionStampAvailable = false;
+                LoggerUtils.getLogger().info(
+                        "Visor: Iris render-target version fields not found ({}); the shader "
+                                + "pipeline will be fully rebuilt whenever VR targets are recreated",
+                        t.toString());
+            }
+            return targetVersionStampAvailable;
+        }
+    }
+
+    public static void stampTargetVersions(@NotNull RenderTarget target) {
+        if (!isTargetVersionStampAvailable()) {
+            return;
+        }
+        try {
+            int stamp = ++targetVersionGeneration * TARGET_VERSION_STRIDE;
+            depthBufferVersionField.setInt(target, stamp);
+            colorBufferVersionField.setInt(target, stamp);
+        } catch (Throwable t) {
+            targetVersionStampAvailable = false;
+            LoggerUtils.getLogger().warn(
+                    "Visor: failed to stamp Iris render-target versions; the shader pipeline "
+                            + "will be fully rebuilt whenever VR targets are recreated.", t);
+        }
+    }
+
     public static void bumpSodiumReloadCounter(Object pipelineManager) {
         try {
             Field counter =
@@ -328,6 +378,14 @@ public final class IrisCompatHelper {
                 lastBuiltEyeHeight = eyeRenderHeight;
                 knownGoodPipeline = null;
             }
+            if (!IrisCompatHelper.isTargetVersionStampAvailable()) {
+                IrisCompatHelper.requestPipelineReload();
+            }
+        }
+
+        @Override
+        public void onRenderTargetCreated(RenderTarget target) {
+            IrisCompatHelper.stampTargetVersions(target);
         }
 
         @Override
