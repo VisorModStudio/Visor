@@ -221,7 +221,7 @@ public abstract class GameRendererMixin
 
     @Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)D", cancellable = true)
     public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Double> info) {
-        if (VRRenderState.getSceneType().isMainMenu()) {
+        if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
             info.setReturnValue(Double.valueOf(this.minecraft.options.fov().get()));
         }
     }
