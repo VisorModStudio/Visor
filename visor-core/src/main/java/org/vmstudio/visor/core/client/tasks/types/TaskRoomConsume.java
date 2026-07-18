@@ -9,7 +9,6 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
-import org.vmstudio.visor.core.client.input.actions.ActionRightMouse;
 import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,7 +23,8 @@ import org.joml.Vector3fc;
 import java.util.EnumMap;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
-
+//@TODO Reconsider logic later
+// (I don't like that it might be imbalanced to use both consume and swinging)
 @RegisterVisorTask
 public class TaskRoomConsume extends VisorTask {
     private static final String ID = "room_consume";
@@ -41,10 +41,14 @@ public class TaskRoomConsume extends VisorTask {
     private final EnumMap<HandType, Boolean> consuming = new EnumMap<>(HandType.class);
     private final EnumMap<HandType, Long> eatStartMap = new EnumMap<>(HandType.class);
 
-    private boolean eatingPressed;
     public TaskRoomConsume(@NotNull VisorAddon owner) {
         super(owner);
         instance = this;
+    }
+
+    public boolean isGestureConsuming() {
+        return consuming.getOrDefault(HandType.MAIN, false)
+                || consuming.getOrDefault(HandType.OFFHAND, false);
     }
 
     @Override
@@ -107,21 +111,6 @@ public class TaskRoomConsume extends VisorTask {
             }
         }
 
-        boolean isEating = consuming.getOrDefault(HandType.MAIN, false)
-                || consuming.getOrDefault(HandType.OFFHAND, false);
-
-
-        if(isEating){
-            var actionRightMouse = (ActionRightMouse) ClientContext.inputManager
-                    .getActionRightMouse(HandType.MAIN);
-            actionRightMouse.forcePress();
-            eatingPressed = true;
-        }else if(eatingPressed){
-            var actionRightMouse = (ActionRightMouse) ClientContext.inputManager
-                    .getActionRightMouse(HandType.MAIN);
-            actionRightMouse.forceRelease();
-            eatingPressed = false;
-        }
     }
 
     @Override

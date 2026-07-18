@@ -17,6 +17,7 @@ import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
+import org.vmstudio.visor.core.client.tasks.types.TaskRoomConsume;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
@@ -27,11 +28,13 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -483,6 +486,21 @@ public abstract class MinecraftMixin implements MinecraftExtension {
             ClientContext.handRenderer.setSwingType(HandAction.USE);
         }
         original.call(instance, hand);
+    }
+
+    /* ********************** *\
+  //--------ROOM CONSUME--------\\
+    \* ********************** */
+
+
+    @WrapOperation(method = "handleKeybinds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;releaseUsingItem(Lnet/minecraft/world/entity/player/Player;)V"))
+    private void visor$keepConsume(MultiPlayerGameMode instance, Player player, Operation<Void> original) {
+        if (VisorState.get().isActive()
+                && TaskRoomConsume.getInstance() != null
+                && TaskRoomConsume.getInstance().isGestureConsuming()) {
+            return;
+        }
+        original.call(instance, player);
     }
 
     /* ************** *\

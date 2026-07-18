@@ -121,16 +121,18 @@ public abstract class VRActionButton implements VRAction {
         if(actionSet.isKeyModifiersActive(currentProfile.getType())) {
             boolean leftPressed = ActionBinding.getKeyModifier(currentProfile, ControllerType.LEFT).isPressed();
             boolean rightPressed = ActionBinding.getKeyModifier(currentProfile, ControllerType.RIGHT).isPressed();
-            if(leftPressed && rightPressed){
-                return;
-            }
-            if(!leftPressed && keyModifier == ActionKeyModifierType.LEFT_TRIGGER){
-                return;
-            }
-            if(!rightPressed && keyModifier == ActionKeyModifierType.RIGHT_TRIGGER){
-                return;
-            }
-            if((leftPressed || rightPressed) && keyModifier == ActionKeyModifierType.OFF){
+            boolean blocked = (leftPressed && rightPressed)
+                    || (!leftPressed && keyModifier == ActionKeyModifierType.LEFT_TRIGGER)
+                    || (!rightPressed && keyModifier == ActionKeyModifierType.RIGHT_TRIGGER)
+                    || ((leftPressed || rightPressed) && keyModifier == ActionKeyModifierType.OFF);
+            if(blocked){
+                if(pressed){
+                    var gatedData = getButtonData(actionBinding, currentProfile, leftHanded);
+                    if(gatedData == null || !gatedData.isPressed()){
+                        releaseDelayed = true;
+                        pressDelayed = false;
+                    }
+                }
                 return;
             }
         }
@@ -214,8 +216,10 @@ public abstract class VRActionButton implements VRAction {
     }
     public void forceRelease(){
         pressDelayed = false;
-        releaseDelayed = true;
-        if (!pressed) {
+        if (pressed) {
+            releaseDelayed = true;
+        } else {
+            releaseDelayed = false;
             forcedState = false;
         }
     }
