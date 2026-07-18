@@ -402,7 +402,7 @@ public class VRSettingsActions extends VROptionsSet {
         if(!VisorState.get().isInitialized()){
             return List.of(VRInteractionProfileType.valuesController());
         }
-        return ClientContext.inputProvider.getSupportedProfileTypes();
+        return ClientContext.inputProvider.getSupportedProfileTypes(VRInteractionProfileType.Kind.CONTROLLER);
     }
 
 
