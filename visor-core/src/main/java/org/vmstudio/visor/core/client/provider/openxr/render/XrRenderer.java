@@ -305,6 +305,25 @@ public class XrRenderer extends VRRendererBase {
 
     @Override
     protected void setupHiddenArea(MemoryStack stack) {
+        if (!getVrProvider().getSession().getInstance()
+                .getHandle().getCapabilities().XR_KHR_visibility_mask) {
+            getVrProvider().getLogger().logInfo(
+                    "XR_KHR_visibility_mask not supported by runtime, skipping hidden-area mesh"
+            );
+            return;
+        }
+        try {
+            loadHiddenAreaMesh(stack);
+        } catch (Throwable e) {
+            hiddenArea.clear();
+            getVrProvider().getLogger().logError(
+                    "Failed to load hidden-area mesh, continuing without it: "
+                            + e.getClass().getSimpleName() + ": " + e.getMessage()
+            );
+        }
+    }
+
+    private void loadHiddenAreaMesh(MemoryStack stack) {
         XrSession xrSession = getVrProvider().getSession().getHandle();
         for (int eye = 0; eye < 2; ++eye) {
             // 1) Allocate the mask struct
