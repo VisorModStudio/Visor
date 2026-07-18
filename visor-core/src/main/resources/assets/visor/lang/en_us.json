@@ -149,6 +149,8 @@
   "visor.options.immersion.advanced.room_crawl.threshold.tooltip": "§bCrawl Threshold§r\n\nThe percent from the full height where crawling starts.",
   "visor.options.immersion.advanced.room_jump.threshold": "Jump Threshold",
   "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bJump Threshold§r\n\nThe percent from the full height where your character will jump.",
+  "visor.options.immersion.advanced.swing.speed_threshold": "Swing Threshold",
+  "visor.options.immersion.advanced.swing.speed_threshold.tooltip": "§bSwing Threshold§r\n\nHow fast (m/s) you need to move a controller for the swing to count as an attack or a mining hit.\nLower = swings register easier.\nHigher = fewer accidental hits.",
 
 
   "_comment18": "*--------OPTION ENUMS--------*",

@@ -20,6 +20,10 @@ public class VRServerSettings {
     @Getter
     private static long swingingRepairDelay = 400;
 
+
+    @Getter
+    private static float swingingMiningSpeed = 1.5f;
+
     @Getter @SendSettingToClient
     private static boolean roomCrawlingSupported = true;
 

@@ -148,6 +148,8 @@
   "visor.options.immersion.advanced.room_crawl.threshold.tooltip": "§bПорог ползания§r\n\nПроцент от полного роста, при котором персонаж ложится.",
   "visor.options.immersion.advanced.room_jump.threshold": "Порог прыжка",
   "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bПорог прыжка§r\n\nВысота, которую нужно достичь при рывке вверх для прыжка.",
+  "visor.options.immersion.advanced.swing.speed_threshold": "Порог замаха",
+  "visor.options.immersion.advanced.swing.speed_threshold.tooltip": "§bПорог замаха§r\n\nСкорость контроллера (м/с), необходимая, чтобы взмах засчитался как удар или добыча блока.\nНиже — удары срабатывают легче.\nВыше — меньше случайных ударов.",
 
 
   "_comment18": "*--------ПЕРЕЧИСЛЕНИЯ--------*",

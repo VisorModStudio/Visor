@@ -35,6 +35,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import java.util.Objects;
+
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin
         extends Common_PlayerMixin implements ServerPlayerExtension {
@@ -187,15 +189,19 @@ public abstract class ServerPlayerMixin
         VRServerPlayer vrPlayer = visor$getVrPlayer();
 
         if (vrPlayer != null) {
-            var mainHand = vrPlayer.getPoseData().getMainHand();
+            var handPose = vrPlayer.getPoseData().getHand(
+                    Objects.requireNonNullElseGet(
+                            visor$swingHand,
+                            vrPlayer::getActiveHand
+                    )
+            );
 
-            var handDir = mainHand.getDirection();
-            var handPos = mainHand.getPosition();
+            var handDir = handPose.getDirection();
+            var handPos = handPose.getPosition();
 
-
-            float handAngle = (float) Math.toDegrees(Mth.atan2(handDir.x(), -handDir.z()));
-            double offsetX = -Mth.sin(handAngle * ((float) Math.PI / 180F));
-            double offsetZ = Mth.cos(handAngle * ((float) Math.PI / 180F));
+            float handAngle = (float) Mth.atan2(-handDir.x(), handDir.z());
+            double offsetX = -Mth.sin(handAngle);
+            double offsetZ = Mth.cos(handAngle);
 
             if (this.level() instanceof ServerLevel) {
                 ((ServerLevel) this.level()).sendParticles(

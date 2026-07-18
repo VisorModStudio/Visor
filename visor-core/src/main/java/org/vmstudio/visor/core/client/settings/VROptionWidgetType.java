@@ -344,6 +344,26 @@ public enum VROptionWidgetType {
                         }
                 ).build();
             }
+    ),
+    SWING_SPEED_THRESHOLD(
+            VROptionCategory.IMMERSION_ADVANCED,
+            (it) -> {
+                List<Float> entries = List.of(1.5f, 1.75f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.25f, 3.5f, 3.75f, 4.0f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getSwingSpeedThreshold());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.2f m/s", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
     );
 
     @Getter

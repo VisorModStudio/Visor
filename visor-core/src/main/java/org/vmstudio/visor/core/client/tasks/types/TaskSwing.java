@@ -12,6 +12,7 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -28,6 +29,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.SwingEntityVREvent;
@@ -48,16 +51,18 @@ import org.vmstudio.visor.compatibility.BlockClassifier;
 import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.PlayerExtension;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-
+//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH AFTER 0.7.0
 @RegisterVisorTask
 public class TaskSwing extends VisorTask {
     public static final String ID = "swing";
@@ -66,9 +71,26 @@ public class TaskSwing extends VisorTask {
     private static TaskSwing instance;
     @Getter
     public static class HandSwingData {
-        private Vec3 lastNonCollidingPosition = new Vec3(0.0D, 0.0D, 0.0D);
         private boolean lastSwingBlock = false;
         private final Vector3fHistory handHistory = new Vector3fHistory(200);
+
+        private List<Entity> lastHitEntities = List.of();
+
+        private Vec3 lastHandPos = null;
+        private Quaternionf lastHandRot = null;
+        private Vec3 lastSwingPoint = null;
+        private Vec3 lastAttackPoint = null;
+        private Vec3 lastWeaponTip = null;
+
+        private void resetSwingState() {
+            lastSwingBlock = false;
+            lastHitEntities = List.of();
+            lastHandPos = null;
+            lastHandRot = null;
+            lastSwingPoint = null;
+            lastAttackPoint = null;
+            lastWeaponTip = null;
+        }
     }
 
 
@@ -76,7 +98,9 @@ public class TaskSwing extends VisorTask {
     private static final float SWORD_LENGTH = 0.6F;
     private static final float TOOL_LENGTH = 0.35F;
     private static final float DEFAULT_ITEM_LENGTH = 0.1F;
-    private static final double SWING_SPEED_THRESHOLD = 3.0D;
+    private static final float FIST_REACH = 0.3F;
+    private static final float TIP_OFFSET = 0.3F;
+    private static final int MAX_ARC_SUBDIVISIONS = 8;
 
 
     private final EnumMap<HandType, HandSwingData> handData = new EnumMap<>(HandType.class);
@@ -113,35 +137,48 @@ public class TaskSwing extends VisorTask {
             // Cache frequently accessed values
             final Vec3 handPos = tickPose.getHand(hand).getPositionVec3();
             final Vec3 handDir = tickPose.getHand(hand).getCustomVector3(VRMathUtils.BACK_VECTOR);
-            final ItemStack handItemStack = player.getItemInHand(interactionHand);
-            final Item handItem = handItemStack.getItem();
-
-            boolean itemRecognized;
-            boolean isSword = false;
-            if (!ItemClassifier.SWORD.is(handItem) && !ItemClassifier.SPEAR.is(handItem)) {
-                itemRecognized = isTool(handItem);
-            } else {
-                isSword = true;
-                itemRecognized = true;
-            }
-
-            // Get item properties (length and damage range)
-            final ItemProperties properties = getItemProperties(handItemStack, equipmentSlot);
-            final float itemLength = properties.itemLength;
-            final float damageRange = properties.damageRange;
-
-            // Calculate the swing point based on hand position, direction, and item length
-            final Vec3 swingPoint = calculateSwingPoint(handPos, handDir, itemLength);
+            final Quaternionf handRot = new Quaternionf()
+                    .setFromNormalized(tickPose.getHand(hand).getRotation());
 
             // Update hand history for average speed calculation
             final Vec3 controllerPos = relativePose.getHand(hand).getPositionVec3();
             final Vec3 handCustomVector = relativePose.getHand(hand)
                     .getCustomVector3(VRMathUtils.BACK_VECTOR)
-                    .scale(0.3D);
+                    .scale(TIP_OFFSET);
             data.handHistory.add(controllerPos.add(handCustomVector).toVector3f());
-
             final float speed = data.handHistory.averageSpeed(0.33f);
-            boolean canSwing = speed > SWING_SPEED_THRESHOLD && !data.lastSwingBlock;
+
+            // Don't swing with a hand that is busy using an item
+            if (player.isUsingItem()
+                    && player.getUsedItemHand() == interactionHand) {
+                data.resetSwingState();
+                continue;
+            }
+
+            final ItemStack handItemStack = player.getItemInHand(interactionHand);
+            final Item handItem = handItemStack.getItem();
+
+            // Get item properties (length and damage range)
+            final ItemProperties properties = getItemProperties(handItemStack, equipmentSlot);
+            final float itemLength = properties.itemLength;
+            final float damageRange = properties.damageRange;
+            final boolean isSword = properties.isSword;
+            final boolean itemRecognized = isSword || isTool(handItem);
+
+            // Calculate the swing point based on hand position, direction, and item length
+            final Vec3 swingPoint = calculateSwingPoint(handPos, handDir, itemLength);
+
+            // Previous tick pose for arc interpolation
+            final Vec3 prevHandPos = data.lastHandPos;
+            final Quaternionf prevHandRot = data.lastHandRot;
+            final Vec3 prevSwingPoint = data.lastSwingPoint;
+            data.lastHandPos = handPos;
+            data.lastHandRot = handRot;
+            data.lastSwingPoint = swingPoint;
+
+            boolean canSwing = speed > effectiveSpeedThreshold() && !data.lastSwingBlock;
+            // Re-armed unless a block gets hit below
+            data.lastSwingBlock = false;
 
             //----ENTITY ATTACK----
             VREvent event = new SwingEntityVREvent(
@@ -153,51 +190,44 @@ public class TaskSwing extends VisorTask {
             );
             VisorAPI.eventBus().callEvent(event);
             if(event.isCanceled()){
+                data.lastAttackPoint = null;
+                data.lastWeaponTip = null;
+                data.lastHitEntities = List.of();
                 continue;
             }
-            boolean entityHit = handleEntitySwing(
-                    player, hand,
+            final boolean attackedEntity = handleEntitySwing(
+                    player, hand, data,
                     handPos, handDir,
                     swingPoint,
                     itemLength,
                     damageRange,
+                    speed,
                     canSwing
             );
 
             //----BLOCK MINING----
-            // Only allow block swing if not a sword and no entity was hit.
-            canSwing = canSwing && !isSword && !entityHit;
+            // Only allow block swing if no entity was attacked.
+            canSwing = canSwing && !attackedEntity;
 
             // If climbing and the item isn’t recognized, skip swinging
             if (TaskRoomClimb.getInstance().isGrabbed() && !itemRecognized) {
                 continue;
             }
-
-            final BlockPos blockpos = BlockPos.containing(swingPoint);
-            final BlockState blockState = MC.level.getBlockState(blockpos);
-            final BlockHitResult blockHit = MC.level.clip(new ClipContext(
-                    data.lastNonCollidingPosition,
-                    swingPoint,
-                    ClipContext.Block.OUTLINE,
-                    ClipContext.Fluid.NONE,
-                    MC.player
-            ));
-
-            if (blockState.isAir() ||
-                    blockHit.getType() != HitResult.Type.BLOCK ||
-                    data.lastNonCollidingPosition.length() == 0) {
-                data.lastNonCollidingPosition = swingPoint;
-                data.lastSwingBlock = false;
+            if (!canSwing) {
                 continue;
             }
 
-            data.lastSwingBlock = true;
-            final boolean sameBlock = blockHit.getBlockPos().equals(blockpos);
-            final boolean restrictedBlock = TaskRoomClimb.isClimbableBlock(blockState.getBlock());
-
-            if (!canSwing || restrictedBlock || !sameBlock) {
+            final BlockHitResult blockHit = findBlockHitAlongArc(
+                    player, handItemStack, isSword,
+                    prevHandPos, prevHandRot, prevSwingPoint,
+                    handPos, handRot, swingPoint,
+                    itemLength
+            );
+            if (blockHit == null) {
                 continue;
             }
+            final BlockState blockState = MC.level.getBlockState(blockHit.getBlockPos());
+
             event = new SwingBlockVREvent(
                     player, hand, handItem, blockState, blockHit, speed
             );
@@ -206,6 +236,7 @@ public class TaskSwing extends VisorTask {
                 continue;
             }
 
+            data.lastSwingBlock = true;
             handleBlockSwing(player, hand, handItem, blockState, blockHit, speed);
         }
     }
@@ -214,8 +245,7 @@ public class TaskSwing extends VisorTask {
     public void onClear(@Nullable LocalPlayer player) {
         for (HandType hand : HandType.values()) {
             HandSwingData data = handData.get(hand);
-            data.lastNonCollidingPosition = new Vec3(0.0D, 0.0D, 0.0D);
-            data.lastSwingBlock = false;
+            data.resetSwingState();
             data.handHistory.clear();
         }
     }
@@ -244,6 +274,10 @@ public class TaskSwing extends VisorTask {
         return handPos.add(handDir.scale(itemLength));
     }
 
+    private static float effectiveSpeedThreshold() {
+        return Math.max(0.5F, VRClientSettings.getSwingSpeedThreshold());
+    }
+
 
 
     // Computes the effective item length and damage range based on the item type.
@@ -266,8 +300,8 @@ public class TaskSwing extends VisorTask {
             itemLength = DEFAULT_ITEM_LENGTH;
             damageRange = damageRangeBase * 0.16F - itemLength;
         } else {
-            itemLength = DEFAULT_ITEM_LENGTH;
-            damageRange = 0F;
+            itemLength = 0F;
+            damageRange = FIST_REACH;
         }
 
         itemLength *= ClientContext.localPlayer
@@ -275,14 +309,17 @@ public class TaskSwing extends VisorTask {
         return new ItemProperties(itemLength, damageRange, isSword);
     }
 
+    // Attacks entities within the weapon reach. Each entity gets hit at most once per swing.
     private boolean handleEntitySwing(final LocalPlayer player,
                                       final HandType hand,
+                                      final HandSwingData data,
                                       final Vec3 handPos,
                                       final Vec3 handDir,
                                       final Vec3 swingPoint,
                                       final float itemLength,
                                       final float damageRange,
-                                      boolean canSwing) {
+                                      final float speed,
+                                      final boolean canSwing) {
         boolean canAttack = canSwing;
         if (canAttack) {
             final BlockHitResult blockHitResult = MC.level.clip(new ClipContext(
@@ -303,32 +340,119 @@ public class TaskSwing extends VisorTask {
                 handPos,
                 handPos.add(handDir.scale(itemLength + damageRange))
         );
-        final AABB damageAreaMobs = new AABB(handPos, attackPointMobs);
-
         final Vec3 attackPointPlayers = restrictToFirstBlock(handPos, swingPoint);
-        final AABB damageAreaPlayers = new AABB(handPos, attackPointPlayers);
 
-        final List<Entity> mobs = MC.level.getEntities(MC.player, damageAreaMobs).stream()
-                .filter(entity -> !(entity instanceof Player))
-                .collect(Collectors.toList());
-        final List<Entity> players = MC.level.getEntities(MC.player, damageAreaPlayers).stream()
-                .filter(entity -> entity instanceof Player)
-                .toList();
+        AABB damageAreaMobs = new AABB(handPos, attackPointMobs);
+        AABB damageAreaPlayers = new AABB(handPos, attackPointPlayers);
+        // Include previous tick points, so fast swings can't skip past targets
+        if (data.lastWeaponTip != null) {
+            damageAreaMobs = includePoint(damageAreaMobs, data.lastWeaponTip);
+        }
+        if (data.lastAttackPoint != null) {
+            damageAreaPlayers = includePoint(damageAreaPlayers, data.lastAttackPoint);
+        }
+        data.lastWeaponTip = attackPointMobs;
+        data.lastAttackPoint = attackPointPlayers;
 
-        mobs.addAll(players);
+        // Shorter reach against players, to avoid accidental pvp hits
+        final List<Entity> targets = MC.level.getEntities(MC.player, damageAreaMobs);
+        targets.removeIf(entity -> entity instanceof Player);
+        final List<Entity> players = MC.level.getEntities(MC.player, damageAreaPlayers);
+        players.removeIf(entity -> !(entity instanceof Player));
+        targets.addAll(players);
 
-        boolean entityHit = false;
-        for (final Entity entity : mobs) {
-            if (!entity.isPickable() || entity == MC.getCameraEntity().getVehicle()) {
+        boolean attacked = false;
+        for (final Entity entity : targets) {
+            if (!entity.isPickable() || entity == MC.getCameraEntity().getVehicle()
+                    || data.lastHitEntities.contains(entity)) {
                 continue;
             }
-            entityHit = true;
-            if (!canAttack) {
-                break;
+            if (canAttack) {
+                swingAttack(player, entity, hand);
+                attacked = true;
             }
-            swingAttack(player, entity, hand);
         }
-        return entityHit;
+        data.lastHitEntities = speed > effectiveSpeedThreshold()
+                ? targets : List.of();
+        return attacked;
+    }
+
+
+    private BlockHitResult findBlockHitAlongArc(final LocalPlayer player,
+                                                final ItemStack handItemStack,
+                                                final boolean isSword,
+                                                final Vec3 prevHandPos,
+                                                final Quaternionf prevHandRot,
+                                                final Vec3 prevSwingPoint,
+                                                final Vec3 handPos,
+                                                final Quaternionf handRot,
+                                                final Vec3 swingPoint,
+                                                final float itemLength) {
+        final List<Vec3> points = new ArrayList<>();
+        if (prevHandPos != null && prevHandRot != null && prevSwingPoint != null) {
+            final float dot = Math.min(1.0F, Math.abs(handRot.dot(prevHandRot)));
+            final float angle = 2.0F * (float) Math.acos(dot);
+            final int subdivisions = Mth.floor(angle / Mth.PI * MAX_ARC_SUBDIVISIONS);
+
+            points.add(prevSwingPoint);
+            final Quaternionf lerpRot = new Quaternionf();
+            final Vector3f lerpTip = new Vector3f();
+            for (int s = 1; s < subdivisions; s++) {
+                final float lerp = s / (float) subdivisions;
+                prevHandRot.slerp(handRot, lerp, lerpRot);
+                lerpRot.transform(0.0F, 0.0F, -itemLength, lerpTip);
+                points.add(new Vec3(
+                        Mth.lerp(lerp, prevHandPos.x, handPos.x) + lerpTip.x,
+                        Mth.lerp(lerp, prevHandPos.y, handPos.y) + lerpTip.y,
+                        Mth.lerp(lerp, prevHandPos.z, handPos.z) + lerpTip.z
+                ));
+            }
+        } else {
+            points.add(swingPoint);
+        }
+        points.add(swingPoint);
+
+        for (int p = 1; p < points.size(); p++) {
+            final Vec3 start = points.get(p - 1);
+            Vec3 end = points.get(p);
+            if (start.subtract(end).lengthSqr() < 1.0E-7D) {
+                // mc short circuits to a miss if start and end are too close
+                end = end.add(0.001D, 0.001D, 0.001D);
+            }
+            final BlockHitResult hit = MC.level.clip(new ClipContext(
+                    start, end,
+                    ClipContext.Block.OUTLINE,
+                    ClipContext.Fluid.NONE,
+                    player
+            ));
+            if (hit.getType() != HitResult.Type.BLOCK) {
+                continue;
+            }
+            final BlockState state = MC.level.getBlockState(hit.getBlockPos());
+            if (TaskRoomClimb.isClimbableBlock(state.getBlock())) {
+                continue;
+            }
+            // Swords only interact with blocks they break instantly
+            if (isSword && !canSwordBreak(player, handItemStack, state, hit)) {
+                continue;
+            }
+            // An inside hit means the tip started buried in the block
+            return hit.isInside() ? null : hit;
+        }
+        return null;
+    }
+
+    private static boolean canSwordBreak(final LocalPlayer player,
+                                         final ItemStack itemStack,
+                                         final BlockState state,
+                                         final BlockHitResult hit) {
+        return CommonUtils.withForcedHand(itemStack, () ->
+                itemStack.isCorrectToolForDrops(state)
+                        || state.getDestroyProgress(player, player.level(), hit.getBlockPos()) == 1.0F);
+    }
+
+    private static AABB includePoint(final AABB box, final Vec3 point) {
+        return box.minmax(new AABB(point, point));
     }
 
     private void handleBlockSwing(final LocalPlayer player,
@@ -347,7 +471,7 @@ public class TaskSwing extends VisorTask {
             MC.gameMode.useItemOn(player, interactionHand, blockHit);
         } else {
             // Swing faster = more damage.
-            totalHits = (int) (totalHits + Math.min(speed - SWING_SPEED_THRESHOLD, 4.0D));
+            totalHits = (int) (totalHits + Math.min(speed - effectiveSpeedThreshold(), 4.0D));
             swingMining(blockHit, blockState, totalHits, hand);
         }
         ClientContext.inputManager.triggerHapticPulseMicroSec(hand, 250 * totalHits);
@@ -360,7 +484,6 @@ public class TaskSwing extends VisorTask {
             attackVanilla(player, entity);
         }
         ClientContext.inputManager.triggerHapticPulseMicroSec(handType, 1000);
-        handData.get(handType).lastSwingBlock = true;
     }
 
     public static void attackBetter(final Player player, final Entity entity, HandType handType) {

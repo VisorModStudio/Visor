@@ -349,6 +349,11 @@ public class VRClientSettings {
             key = "room_jump.threshold")
     protected static float roomJumpThreshold = 1.05f;
 
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.SWING_SPEED_THRESHOLD,
+            key = "swing.speed_threshold")
+    protected static float swingSpeedThreshold = 3.0f;
+
 
 
     // ---- OTHER

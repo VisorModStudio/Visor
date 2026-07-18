@@ -81,6 +81,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     private Map<Long, PairRecord<Long, Float>>
             visor$blockDamage = new HashMap<>();
 
+    @Unique
+    private Map<Long, Integer> visor$blockDamageStart = new HashMap<>();
+
+    @Unique
+    private static final int visor$MINING_BONUS_TICKS = 2;
+
 
     @Shadow
     protected abstract void debugLogging(BlockPos blockPos,
@@ -129,10 +135,10 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     private void visor$tickCleanupForVanillaMining(CallbackInfo ci) {
         if (visor$isBetterSwingingNotActive()) return;
         if (this.hasDelayedDestroy) {
-            visor$blockDamage.remove(this.delayedDestroyPos.asLong());
+            visor$forgetBlockDamage(this.delayedDestroyPos.asLong());
             visor$sendSwingDamageCleanUp(this.delayedDestroyPos, true);
         } else if (this.isDestroyingBlock) {
-            visor$blockDamage.remove(this.destroyPos.asLong());
+            visor$forgetBlockDamage(this.destroyPos.asLong());
             visor$sendSwingDamageCleanUp(this.destroyPos, true);
         }
     }
@@ -153,9 +159,15 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             entry.getValue().setFirst(delay - 1);
         }
         remove.forEach(key -> {
-            visor$blockDamage.remove(key);
+            visor$forgetBlockDamage(key);
             visor$sendSwingDamageCleanUp(BlockPos.of(key), false);
         });
+    }
+
+    @Unique
+    private void visor$forgetBlockDamage(long key) {
+        visor$blockDamage.remove(key);
+        visor$blockDamageStart.remove(key);
     }
 
     @Unique
@@ -215,12 +227,18 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             if (savedBlockDamage != null) {
                 savedDamage = savedBlockDamage.second();
             }
-            blockDamage = visor$getDestroyProgress(
+            float step = visor$getDestroyProgress(
                     blockState,
                     this.player,
                     this.player.level(),
                     blockPos, usedItem
-            ) + savedDamage;
+            );
+            Integer startTick = visor$blockDamageStart.get(blockPos.asLong());
+            int elapsed = startTick != null
+                    ? Math.max(0, this.gameTicks - startTick) : 0;
+            float speedFactor = Math.max(0.1F, VRServerSettings.getSwingingMiningSpeed());
+            float allowed = step * (elapsed + visor$MINING_BONUS_TICKS) * speedFactor;
+            blockDamage = Math.max(savedDamage, Math.min(savedDamage + step, allowed));
         }
 
         if (!blockState.isAir() && blockDamage >= 1.0F) {
@@ -259,6 +277,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                             blockDamage
                     )
             );
+            visor$blockDamageStart.putIfAbsent(blockPos.asLong(), this.gameTicks);
 
             this.debugLogging(blockPos,
                     true, j, "actual start of destroying"
@@ -271,7 +290,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                                     int i, String string,
                                     ItemStack usedItem
     ) {
-        visor$blockDamage.remove(blockPos.asLong());
+        visor$forgetBlockDamage(blockPos.asLong());
         visor$sendSwingDamageCleanUp(blockPos, false);
 
         if (this.visor$destroyBlock(blockPos, usedItem)) {

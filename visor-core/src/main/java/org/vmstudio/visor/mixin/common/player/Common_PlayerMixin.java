@@ -46,7 +46,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     public AbstractContainerMenu containerMenu;
 
     @Unique
-    private HandType visor$swingHand = null;
+    protected HandType visor$swingHand = null;
 
 
 
