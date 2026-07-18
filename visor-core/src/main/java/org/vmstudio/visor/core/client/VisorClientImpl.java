@@ -21,6 +21,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.immediatelyfast.ImmediatelyFastCompatHelper;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.input.actions.*;
@@ -177,6 +178,7 @@ public class VisorClientImpl implements VisorClient {
 
         ImmPortalsCompatHelper.prepare(ClientContext.coreAddon);
         IrisCompatHelper.prepare(ClientContext.coreAddon);
+        ImmediatelyFastCompatHelper.prepare(ClientContext.coreAddon);
 
     }
 
