@@ -184,8 +184,8 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         if (vrPlayer == null) {
             return original.call(self, attribute);
         }
-        if(visor$swingHand == HandType.OFFHAND
-                || vrPlayer.getActiveHand() == HandType.OFFHAND){
+        if(Objects.requireNonNullElseGet(visor$swingHand, vrPlayer::getActiveHand)
+                == HandType.OFFHAND){
             return visor$withOffhandAttributes(() -> original.call(self, attribute));
         }
         return original.call(self, attribute);
@@ -202,8 +202,8 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         if (vrPlayer == null) {
             return original.call(selfEntity);
         }
-        if(visor$swingHand == HandType.OFFHAND
-                || vrPlayer.getActiveHand() == HandType.OFFHAND){
+        if(Objects.requireNonNullElseGet(visor$swingHand, vrPlayer::getActiveHand)
+                == HandType.OFFHAND){
             return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
         }
         return original.call(selfEntity);
