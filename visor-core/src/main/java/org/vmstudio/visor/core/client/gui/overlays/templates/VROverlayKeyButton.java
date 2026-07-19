@@ -9,7 +9,9 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsKeyButton;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -33,6 +35,8 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
 
     private ButtonImaged button;
 
+    private int heldKeyCode = -1;
+
     public VROverlayKeyButton(@NotNull VisorAddon owner,
                               @NotNull String id) {
         super(owner, id);
@@ -47,15 +51,23 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
     @Override
     protected void init() {
         super.init();
+        buttonReleased();
         button = new ButtonImaged(
                 new WidgetInfoButtonImaged(),
-                (it)->buttonPressed()
+                (it)-> buttonPressed(),
+                (it)-> buttonReleased()
         );
         addRenderableWidget(button);
     }
 
     @Override
     protected void onTick() {
+        if (heldKeyCode != -1
+                && (ClientContext.cursorHandler.getFocusedOverlayScreen() != this
+                 || !button.isHovered())) {
+            button.forceRelease();
+        }
+
         int x = (width - optionsKeyButton.getWidth()) / 2;
         int y = (height - optionsKeyButton.getHeight()) / 2;
         int bWidth = optionsKeyButton.getWidth();
@@ -74,7 +86,38 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
     }
 
     private void buttonPressed(){
-        InputHelper.typeChar(optionsKeyButton.getKey());
+        String key = optionsKeyButton.getKey();
+        if(key.length() == 1
+                && InputHelper.sendChar(key.charAt(0), 0)){
+            return;
+        }
+
+        int keyCode = optionsKeyButton.getKeyCode();
+        if(keyCode == -1) return;
+
+        heldKeyCode = keyCode;
+        InputHelper.pressKey(keyCode);
+    }
+
+    private void buttonReleased(){
+        if(heldKeyCode == -1) return;
+        InputHelper.releaseKey(heldKeyCode);
+        heldKeyCode = -1;
+    }
+
+
+    @Override
+    protected void onDisable() {
+        super.onDisable();
+        buttonReleased();
+    }
+
+    @Override
+    protected void onVisibilityChanged() {
+        super.onVisibilityChanged();
+        if(!isVisible()){
+            buttonReleased();
+        }
     }
 
     @Override
@@ -146,7 +189,7 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
                         it -> {
                             it.setWidth(200);
                             it.setHeight(200);
-                            it.setKey('e');
+                            it.setKey("e");
                             it.setText("Key");
                             it.setCustomizationType(OverlayOptionsKeyButton.CustomizationType.COLOR);
                             it.setColor(AtumColor.DARK_GRAY);

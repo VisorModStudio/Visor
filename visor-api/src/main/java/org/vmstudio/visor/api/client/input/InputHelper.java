@@ -6,10 +6,12 @@ import org.vmstudio.visor.api.VisorAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 public class InputHelper {
@@ -105,15 +107,44 @@ public class InputHelper {
                 && isKeyDown(key.getValue());
     }
 
+
+
+    public static int getKeyCode(char character) {
+        return keyCodes.getOrDefault(
+                Character.toUpperCase(character),
+                -1
+        );
+    }
+
+
+
+    public static int getKeyCode(@Nullable String name) {
+        if (name == null || name.isBlank()) return -1;
+
+        String normalized = name.trim()
+                .toLowerCase(Locale.ROOT)
+                .replace(' ', '_');
+        if (normalized.length() == 1) {
+            return getKeyCode(normalized.charAt(0));
+        }
+        try {
+            InputConstants.Key key = InputConstants.getKey(
+                    "key.keyboard." + normalized
+            );
+            return key.getType() == InputConstants.Type.KEYSYM
+                    ? key.getValue()
+                    : -1;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
     public static void pressChar(char character) {
         pressChar(character, 0);
     }
     public static void pressChar(char character, int modifiers) {
 
-        int keyCode = keyCodes.getOrDefault(
-                Character.toUpperCase(character),
-                -1
-        );
+        int keyCode = getKeyCode(character);
         if(keyCode == -1) return;
         pressKey(keyCode);
     }
@@ -122,14 +153,13 @@ public class InputHelper {
     }
     public static void releaseChar(char character, int modifiers) {
 
-        int keyCode = keyCodes.getOrDefault(
-                Character.toUpperCase(character),
-                -1
-        );
+        int keyCode = getKeyCode(character);
         if(keyCode == -1) return;
         releaseKey(keyCode);
     }
-    public static void typeChar(char character, int modifiers) {
+
+
+    public static boolean sendChar(char character, int modifiers) {
         var keyboardAccessor = VisorAPI.client().getGuiManager()
                 .getOverlayManager()
                 .getKeyboardAccessor();
@@ -137,7 +167,7 @@ public class InputHelper {
         if(screen != null){
             //overlays
             screen.charTyped(character,modifiers);
-            return;
+            return true;
         }
         Minecraft mc = Minecraft.getInstance();
         if(mc.screen != null) {
@@ -147,11 +177,14 @@ public class InputHelper {
             );
 
         }
+        return false;
+    }
+
+    public static void typeChar(char character, int modifiers) {
+        if(sendChar(character, modifiers)) return;
+
         //keybindings
-        int keyCode = keyCodes.getOrDefault(
-                Character.toUpperCase(character),
-                -1
-        );
+        int keyCode = getKeyCode(character);
         if(keyCode == -1) return;
         pressKey(keyCode);
         releaseKey(keyCode);

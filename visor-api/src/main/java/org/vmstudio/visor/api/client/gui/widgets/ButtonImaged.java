@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -21,17 +22,30 @@ public class ButtonImaged extends AbstractButton {
 
     private final Consumer<ButtonImaged> onPress;
 
+    @Nullable
+    private final Consumer<ButtonImaged> onRelease;
+
     @Getter
     private boolean selected;
 
+    @Getter
+    private boolean pressed;
+
     public ButtonImaged(WidgetInfoButtonImaged widgetInfo,
                         Consumer<ButtonImaged> onPress) {
+        this(widgetInfo, onPress, null);
+    }
+
+    public ButtonImaged(WidgetInfoButtonImaged widgetInfo,
+                        Consumer<ButtonImaged> onPress,
+                        @Nullable Consumer<ButtonImaged> onRelease) {
         super(widgetInfo.getX(), widgetInfo.getY(),
                 widgetInfo.getWidth(), widgetInfo.getHeight(),
                 widgetInfo.getText()
         );
         this.widgetInfo = widgetInfo;
         this.onPress = onPress;
+        this.onRelease = onRelease;
     }
 
     public void setSelected(boolean selected) {
@@ -43,9 +57,23 @@ public class ButtonImaged extends AbstractButton {
 
     @Override
     public void onPress() {
+        pressed = true;
         if (this.onPress != null) {
             this.onPress.accept(this);
         }
+    }
+
+    @Override
+    public void onRelease(double mouseX, double mouseY) {
+        if (!pressed) return;
+        pressed = false;
+        if (this.onRelease != null) {
+            this.onRelease.accept(this);
+        }
+    }
+
+    public void forceRelease() {
+        onRelease(getX(), getY());
     }
 
     @Override

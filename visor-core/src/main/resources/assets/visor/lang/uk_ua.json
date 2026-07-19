@@ -302,8 +302,6 @@
   "visor.overlay.settings.description": "Створення та налаштування оверлеїв.",
   "visor.overlay.movement_state.name": "Стан руху",
   "visor.overlay.movement_state.description": "Відображає значок вашого поточного стану (біг, присідання тощо).",
-  "visor.overlay.item_pose_test.name": "Тест поз предметів",
-  "visor.overlay.item_pose_test.description": "Інструмент розробника для тестування позицій предметів.",
   "visor.overlay.template.key_button.name": "Віртуальна кнопка",
   "visor.overlay.template.key_button.description": "Кнопка, що імітує натискання клавіші.",
   "visor.overlay.template.hud.name": "Інтерфейс (HUD)",

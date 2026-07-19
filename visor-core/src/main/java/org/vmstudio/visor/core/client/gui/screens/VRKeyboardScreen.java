@@ -16,6 +16,10 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayo
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.VROverlayKeyboard;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class VRKeyboardScreen extends Screen {
     @Getter
     @Setter
@@ -27,6 +31,8 @@ public class VRKeyboardScreen extends Screen {
     @Getter
     @Setter
     private int pressTick;
+
+    private final Map<Integer, Integer> pressedKeys = new HashMap<>();
 
     @Getter
     private int cursorBoundsX = -1;
@@ -73,6 +79,7 @@ public class VRKeyboardScreen extends Screen {
                         (p) -> pressKeyboardKey(key)
                 ).size(keyWidth, keyHeight)
                         .pos(rowStartX + column * (keyWidth + keyGap), rowY)
+                        .onRelease((p) -> releaseKeyboardKey(key))
                         .build();
                 this.addRenderableWidget(button);
             }
@@ -112,6 +119,7 @@ public class VRKeyboardScreen extends Screen {
                         (p) -> pressSpace())
                         .size(5 * (keyWidth + keyGap), keyHeight)
                         .pos(spaceX, bottomY)
+                        .onRelease((p) -> releaseKey(GLFW.GLFW_KEY_SPACE))
                         .build()
         );
         //BACKSPACE
@@ -282,16 +290,17 @@ public class VRKeyboardScreen extends Screen {
             InputHelper.typeChars(key.getInput());
             return;
         }
-
-        pressFallbackKey(key);
-    }
-
-    private void pressFallbackKey(KeyboardKey key) {
         if (!key.hasFallback()) {
             return;
         }
 
-        pressKeyAction(key.getFallbackKey(), key.getFallbackModifiers());
+        pressKey(key.getFallbackKey(), key.getFallbackModifiers());
+    }
+
+    private void releaseKeyboardKey(KeyboardKey key) {
+        if (key.hasFallback()) {
+            releaseKey(key.getFallbackKey());
+        }
     }
 
     private void pressSpace() {
@@ -300,7 +309,7 @@ public class VRKeyboardScreen extends Screen {
             return;
         }
 
-        pressKeyAction(GLFW.GLFW_KEY_SPACE);
+        pressKey(GLFW.GLFW_KEY_SPACE, 0);
     }
 
     private void pressNavigationKey(int key) {
@@ -308,6 +317,36 @@ public class VRKeyboardScreen extends Screen {
                 ? GLFW.GLFW_MOD_SHIFT
                 : 0;
         pressKeyAction(key, modifiers);
+    }
+
+    private void pressKey(int key, int modifiers) {
+        if (pressedKeys.containsKey(key)) {
+            return;
+        }
+        pressedTask = null;
+        pressTick = 0;
+
+        pressedKeys.put(key, modifiers);
+        pressModifiers(modifiers);
+        InputHelper.pressKey(key, modifiers);
+    }
+
+    private void releaseKey(int key) {
+        Integer modifiers = pressedKeys.remove(key);
+        if (modifiers == null) {
+            return;
+        }
+        InputHelper.releaseKey(key, modifiers);
+        releaseModifiers(modifiers);
+    }
+
+    private void releaseKeys() {
+        if (pressedKeys.isEmpty()) {
+            return;
+        }
+        for (int key : new ArrayList<>(pressedKeys.keySet())) {
+            releaseKey(key);
+        }
     }
 
     private void pressKeyAction(int key) {
@@ -353,6 +392,7 @@ public class VRKeyboardScreen extends Screen {
     public void clearPress() {
         pressedTask = null;
         pressTick = 0;
+        releaseKeys();
     }
 
     @Override

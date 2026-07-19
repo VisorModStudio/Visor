@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
+import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.gui.screens.overlayoptions.OptionsScreenKeyButton;
 import net.minecraft.client.Minecraft;
@@ -44,7 +45,10 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
     private boolean worldOnly;
 
-    private char key;
+
+    private String key;
+
+    private int keyCode;
 
     public OverlayOptionsKeyButton(@NotNull VROverlay owner,
                                    @NotNull Consumer<OverlayOptionsKeyButton> defaultSettings) {
@@ -61,7 +65,7 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         width = config.getIntOrDefault("width", 60);
         height = config.getIntOrDefault("height", 60);
         text = config.getStringOrDefault("text", "E");
-        key = config.getStringOrDefault("key", "e").charAt(0);
+        setKey(config.getStringOrDefault("key", "e"));
 
         customizationType = CustomizationType.valueOf(
                 config.getStringOrDefault(
@@ -165,8 +169,9 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         changesNotSaved = true;
     }
 
-    public void setKey(char key) {
-        this.key = key;
+    public void setKey(@Nullable String key) {
+        this.key = key == null ? "" : key.trim();
+        this.keyCode = InputHelper.getKeyCode(this.key);
         changesNotSaved = true;
     }
 

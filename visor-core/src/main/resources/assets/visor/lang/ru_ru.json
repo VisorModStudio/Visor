@@ -303,8 +303,6 @@
   "visor.overlay.settings.description": "Создание и настройка оверлеев.",
   "visor.overlay.movement_state.name": "Состояние движения",
   "visor.overlay.movement_state.description": "Отображает значок вашего текущего состояния (бег, присед и т.д.).",
-  "visor.overlay.item_pose_test.name": "Тест поз предметов",
-  "visor.overlay.item_pose_test.description": "Инструмент разработчика для тестирования позиций предметов.",
   "visor.overlay.template.key_button.name": "Виртуальная кнопка",
   "visor.overlay.template.key_button.description": "Кнопка, имитирующая нажатие клавиши.",
   "visor.overlay.template.hud.name": "Интерфейс (HUD)",

@@ -145,7 +145,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         // Row 4
         y += ROW_SPACING;
 
-        int keyFieldW = 40;
+        int keyFieldW = halfW;
         int keyFieldX = startX + (fullW - keyFieldW) / 2;
 
         keyField = new EditBoxImaged(
@@ -155,13 +155,9 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .setTexture(OptionTextures.GRAY_TEXTURE)
                         .setHint(Component.translatable("visor.overlay.options.key_button.key"))
         );
-        keyField.setValue(String.valueOf(optionsGroup.getKey()));
-        keyField.setResponder(text -> {
-            if (!text.isEmpty()) {
-                optionsGroup.setKey(text.charAt(0));
-            }
-        });
-        keyField.setMaxLength(1);
+        keyField.setValue(optionsGroup.getKey());
+        keyField.setResponder(optionsGroup::setKey);
+        keyField.setMaxLength(32);
 
 
         // Row 5
@@ -219,7 +215,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(baseX, y)
                         .size(fieldW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.key"))
+                        .setHint(Component.translatable("visor.overlay.options.key_button.color"))
         );
         colorField.setValue(colorToString(optionsGroup.getColor()));
         colorField.setResponder(text -> {
