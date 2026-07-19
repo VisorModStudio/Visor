@@ -339,7 +339,7 @@
   "visor.overlay.options.overlays.filters.main.no_options": "No options",
   "visor.overlay.options.overlays.create_overlay": "Create Overlay",
   "visor.overlay.options.overlays.create_overlay.type_id": "Id...",
-  "visor.overlay.options.overlays.create_overlay.type_id.tooltip": "Enter overlay id",
+  "visor.overlay.options.overlays.create_overlay.type_id.tooltip": "Enter overlay id\nYou can type whatever you want, it only affects on overlay configFile name and how overlay will be identified in Visor",
   "visor.overlay.options.overlays.create_overlay.type_name": "Name...",
   "visor.overlay.options.overlays.create_overlay.type_name.tooltip": "Enter overlay name",
   "visor.overlay.options.overlays.create_overlay.type_description": "Description...",
