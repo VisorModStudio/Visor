@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.gui.overlays.templates;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.input.InputHelper;
@@ -169,6 +170,10 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
     @Override
     protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
         return List.of(
+                new OverlayOptionsVisibility(
+                        this,
+                        it -> it.setVisible(true)
+                ),
                 new OverlayOptionsPose(
                         this,
                         it->{
