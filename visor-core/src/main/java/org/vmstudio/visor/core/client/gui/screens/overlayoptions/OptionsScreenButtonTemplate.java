@@ -11,14 +11,14 @@ import org.vmstudio.visor.api.client.gui.widgets.color.ColorSampleButton;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSlider;
-import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsKeyButton;
+import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsButtonTemplate;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButton> {
+public class OptionsScreenButtonTemplate extends OptionsScreen<OverlayOptionsButtonTemplate> {
 
     private static final int FIELD_HEIGHT = 18;
     private static final int ROW_SPACING = 32;
@@ -40,7 +40,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private ButtonImaged visibilityButton;
 
-    private SliderWidget<OverlayOptionsKeyButton.CustomizationType> customizationTypeSlider;
+    private SliderWidget<OverlayOptionsButtonTemplate.CustomizationType> customizationTypeSlider;
 
     private ColorSampleButton colorSample;
 
@@ -49,7 +49,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
     private ColorPickerWidgetSet colorPicker;
     private ButtonImaged backButton;
 
-    public OptionsScreenKeyButton(@NotNull OverlayOptionsKeyButton optionsGroup) {
+    public OptionsScreenButtonTemplate(@NotNull OverlayOptionsButtonTemplate optionsGroup) {
         super(optionsGroup, Background.VERTICAL_WIDER);
     }
 
@@ -75,7 +75,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(startX, y)
                         .size(halfW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.width"))
+                        .setHint(Component.translatable("visor.overlay.options.button_template.width"))
                         .setFilter( s -> s.matches("\\d*"))
         );
         widthField.setValue(String.valueOf(optionsGroup.getWidth()));
@@ -92,7 +92,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(startX + halfW + GAP, y)
                         .size(halfW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.height"))
+                        .setHint(Component.translatable("visor.overlay.options.button_template.height"))
                         .setFilter( s -> s.matches("\\d*"))
         );
         heightField.setValue(String.valueOf(optionsGroup.getHeight()));
@@ -112,7 +112,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(startX, y)
                         .size(halfW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.text"))
+                        .setHint(Component.translatable("visor.overlay.options.button_template.text"))
         );
         buttonTextField.setValue(optionsGroup.getText() != null ? optionsGroup.getText() : "");
         buttonTextField.setResponder(optionsGroup::setText);
@@ -161,7 +161,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(keyFieldX, y)
                         .size(keyFieldW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.key"))
+                        .setHint(Component.translatable("visor.overlay.options.button_template.key"))
         );
         keyField.setValue(optionsGroup.getKey());
         keyField.setResponder(optionsGroup::setKey);
@@ -183,7 +183,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .setKnobTexture(OptionTextures.LIGHT_GRAY_TEXTURE_2)
                         .setDynamicTextScale(true)
                         .setTextColor(AtumColor.WHITE),
-                List.of(OverlayOptionsKeyButton.CustomizationType.values()),
+                List.of(OverlayOptionsButtonTemplate.CustomizationType.values()),
                 slider -> {
                     optionsGroup.setCustomizationType(slider.getSelected());
                     slider.setText(modeText());
@@ -208,7 +208,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         addRenderableWidget(customizationTypeSlider);
 
         if (optionsGroup.getCustomizationType()
-                == OverlayOptionsKeyButton.CustomizationType.COLOR) {
+                == OverlayOptionsButtonTemplate.CustomizationType.COLOR) {
             initColorFields(startX, y, fullW);
         } else {
             initTextureFields(startX, y, fullW);
@@ -236,7 +236,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(baseX, y)
                         .size(fieldW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.texture"))
+                        .setHint(Component.translatable("visor.overlay.options.button_template.texture"))
         );
         textureField.setValue(optionsGroup.getRawTexturePath() != null
                 ? optionsGroup.getRawTexturePath()
@@ -343,26 +343,26 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
         // ---- Row 1 ----
         guiGraphics.drawString(font, Component.translatable(
-                        "visor.overlay.options.key_button.width"),
+                        "visor.overlay.options.button_template.width"),
                 startX, labelY,
                 0xFFFFFF
         );
         guiGraphics.drawString(font, Component.translatable(
-                "visor.overlay.options.key_button.height"), startX + halfW + GAP, labelY, 0xFFFFFF);
+                "visor.overlay.options.button_template.height"), startX + halfW + GAP, labelY, 0xFFFFFF);
 
         // ---- Row 2 ----
         labelY += ROW_SPACING;
         guiGraphics.drawString(font, Component.translatable(
-                "visor.overlay.options.key_button.text"), startX, labelY, 0xFFFFFF);
+                "visor.overlay.options.button_template.text"), startX, labelY, 0xFFFFFF);
         guiGraphics.drawString(font, Component.translatable(
-                "visor.overlay.options.key_button.text_color"), startX + halfW + GAP, labelY, 0xFFFFFF);
+                "visor.overlay.options.button_template.text_color"), startX + halfW + GAP, labelY, 0xFFFFFF);
 
         // ---- Row 3  ----
         labelY += ROW_SPACING;
 
         // ---- Row 4 ----
         labelY += ROW_SPACING;
-        Component keyLabel = Component.translatable("visor.overlay.options.key_button.key");
+        Component keyLabel = Component.translatable("visor.overlay.options.button_template.key");
         int keyLabelW = font.width(keyLabel);
         guiGraphics.drawString(font, keyLabel,
                 startX + (fullW - keyLabelW) / 2, labelY, 0xFFFFFF);
@@ -370,9 +370,9 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         // ---- Row 6 ----
         labelY += ROW_SPACING * 2;
         Component customizationLabel = optionsGroup.getCustomizationType()
-                == OverlayOptionsKeyButton.CustomizationType.COLOR
-                ? Component.translatable("visor.overlay.options.key_button.color")
-                : Component.translatable("visor.overlay.options.key_button.texture");
+                == OverlayOptionsButtonTemplate.CustomizationType.COLOR
+                ? Component.translatable("visor.overlay.options.button_template.color")
+                : Component.translatable("visor.overlay.options.button_template.texture");
         guiGraphics.drawString(font, customizationLabel, startX, labelY, 0xFFFFFF);
     }
 
@@ -393,16 +393,16 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private Component visibilityText() {
         return Component.translatable(
-                "visor.overlay.options.key_button.visible",
+                "visor.overlay.options.button_template.visible",
                 Component.translatable(optionsGroup.isWorldOnly()
-                        ? "visor.overlay.options.key_button.visible.world"
-                        : "visor.overlay.options.key_button.visible.always")
+                        ? "visor.overlay.options.button_template.visible.world"
+                        : "visor.overlay.options.button_template.visible.always")
         );
     }
 
     private Component modeText() {
         return Component.translatable(
-                "visor.overlay.options.key_button.mode",
+                "visor.overlay.options.button_template.mode",
                 optionsGroup.getCustomizationType().name()
         );
     }
@@ -415,8 +415,8 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
 
     private enum ColorTarget {
-        FILL("visor.overlay.options.key_button.color"),
-        TEXT("visor.overlay.options.key_button.text_color");
+        FILL("visor.overlay.options.button_template.color"),
+        TEXT("visor.overlay.options.button_template.text_color");
 
         private final String titleKey;
 

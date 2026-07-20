@@ -10,10 +10,9 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.framework.template.VROverlayTemplateScreen;
-import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsKeyButton;
+import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsButtonTemplate;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,28 +21,28 @@ import java.util.List;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @RegisterVROverlayTemplate(
-        id = VROverlayKeyButton.ID,
-        name = VROverlayKeyButton.NAME,
-        description = VROverlayKeyButton.DESCRIPTION
+        id = VROverlayButton.ID,
+        name = VROverlayButton.NAME,
+        description = VROverlayButton.DESCRIPTION
 )
-public class VROverlayKeyButton extends VROverlayTemplateScreen {
+public class VROverlayButton extends VROverlayTemplateScreen {
 
-    public static final String ID = "key_button";
+    public static final String ID = "button";
     public static final String NAME = "visor.overlay.template." + ID + ".name";
     public static final String DESCRIPTION = "visor.overlay.template." + ID + ".description";
 
-    private final OverlayOptionsKeyButton optionsKeyButton;
+    private final OverlayOptionsButtonTemplate optionsButtonTemplate;
 
     private ButtonImaged button;
 
     private int heldKeyCode = -1;
 
-    public VROverlayKeyButton(@NotNull VisorAddon owner,
-                              @NotNull String id) {
+    public VROverlayButton(@NotNull VisorAddon owner,
+                           @NotNull String id) {
         super(owner, id);
-        optionsKeyButton = getOption(
-                OverlayOptionsKeyButton.ID,
-                OverlayOptionsKeyButton.class
+        optionsButtonTemplate = getOption(
+                OverlayOptionsButtonTemplate.ID,
+                OverlayOptionsButtonTemplate.class
         );
         setEnabled(true);
 
@@ -69,32 +68,32 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
             button.forceRelease();
         }
 
-        int x = (width - optionsKeyButton.getWidth()) / 2;
-        int y = (height - optionsKeyButton.getHeight()) / 2;
-        int bWidth = optionsKeyButton.getWidth();
-        int bHeight = optionsKeyButton.getHeight();
+        int x = (width - optionsButtonTemplate.getWidth()) / 2;
+        int y = (height - optionsButtonTemplate.getHeight()) / 2;
+        int bWidth = optionsButtonTemplate.getWidth();
+        int bHeight = optionsButtonTemplate.getHeight();
 
 
         button.getWidgetInfo()
-                .setTexture(optionsKeyButton.getTexture())
-                .setFillColor(optionsKeyButton.getFillColor())
+                .setTexture(optionsButtonTemplate.getTexture())
+                .setFillColor(optionsButtonTemplate.getFillColor())
                 .setDynamicTextScale(true)
                 .setDynamicTextMaxScale(20)
-                .setTextColor(optionsKeyButton.getTextColor());
-        button.setMessage(Component.translatable(optionsKeyButton.getText()));
+                .setTextColor(optionsButtonTemplate.getTextColor());
+        button.setMessage(Component.translatable(optionsButtonTemplate.getText()));
         button.setPosition(x,y);
         button.setWidth(bWidth);
         button.height = bHeight;
     }
 
     private void buttonPressed(){
-        String key = optionsKeyButton.getKey();
+        String key = optionsButtonTemplate.getKey();
         if(key.length() == 1
                 && InputHelper.sendChar(key.charAt(0), 0)){
             return;
         }
 
-        int keyCode = optionsKeyButton.getKeyCode();
+        int keyCode = optionsButtonTemplate.getKeyCode();
         if(keyCode == -1) return;
 
         heldKeyCode = keyCode;
@@ -124,7 +123,7 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
 
     @Override
     public boolean updateVisibility() {
-        return MC.screen == null || !optionsKeyButton.isWorldOnly();
+        return MC.screen == null || !optionsButtonTemplate.isWorldOnly();
     }
 
     @Override
@@ -190,14 +189,14 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
                             it.setScale(0.15f);
                         }
                 ),
-                new OverlayOptionsKeyButton(
+                new OverlayOptionsButtonTemplate(
                         this,
                         it -> {
                             it.setWidth(200);
                             it.setHeight(200);
                             it.setKey("e");
                             it.setText("Key");
-                            it.setCustomizationType(OverlayOptionsKeyButton.CustomizationType.COLOR);
+                            it.setCustomizationType(OverlayOptionsButtonTemplate.CustomizationType.COLOR);
                             it.setColor(AtumColor.DARK_GRAY);
                             it.setTextColor(AtumColor.WHITE);
                             it.setTexturePath(VisorAddon.MISSING_ICON.getResourceLocation().getPath());

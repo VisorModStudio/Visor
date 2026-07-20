@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.core.client.gui.screens.overlayoptions.OptionsScreenKeyButton;
+import org.vmstudio.visor.core.client.gui.screens.overlayoptions.OptionsScreenButtonTemplate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,8 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 @Getter
-public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKeyButton> {
-    public static final String ID = "key_button";
+public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOptionsButtonTemplate> {
+    public static final String ID = "button_template";
     private static final Component NAME = Component.translatable("visor.overlay.options." + ID);
 
     private int width;
@@ -51,8 +51,8 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
     private int keyCode;
 
-    public OverlayOptionsKeyButton(@NotNull VROverlay owner,
-                                   @NotNull Consumer<OverlayOptionsKeyButton> defaultSettings) {
+    public OverlayOptionsButtonTemplate(@NotNull VROverlay owner,
+                                        @NotNull Consumer<OverlayOptionsButtonTemplate> defaultSettings) {
         super(owner, defaultSettings);
     }
 
@@ -239,7 +239,7 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
     @Override
     public @NotNull OptionsScreen<?> getScreen() {
-        return new OptionsScreenKeyButton(this);
+        return new OptionsScreenButtonTemplate(this);
     }
 
     @Override
