@@ -6,6 +6,8 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.SliderWidget;
+import org.vmstudio.visor.api.client.gui.widgets.color.ColorPickerWidgetSet;
+import org.vmstudio.visor.api.client.gui.widgets.color.ColorSampleButton;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSlider;
@@ -13,7 +15,6 @@ import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsKeyButt
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -24,11 +25,16 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
     private static final int GAP = 6;
 
 
+    private Page page = Page.MAIN;
+
+    private ColorTarget colorTarget = ColorTarget.FILL;
+
+
     private EditBoxImaged widthField;
     private EditBoxImaged heightField;
 
     private EditBoxImaged buttonTextField;
-    private EditBoxImaged textColorField;
+    private ColorSampleButton textColorSample;
 
     private EditBoxImaged keyField;
 
@@ -36,9 +42,12 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private SliderWidget<OverlayOptionsKeyButton.CustomizationType> customizationTypeSlider;
 
-    private EditBoxImaged colorField;
+    private ColorSampleButton colorSample;
 
     private EditBoxImaged textureField;
+
+    private ColorPickerWidgetSet colorPicker;
+    private ButtonImaged backButton;
 
     public OptionsScreenKeyButton(@NotNull OverlayOptionsKeyButton optionsGroup) {
         super(optionsGroup, Background.VERTICAL_WIDER);
@@ -46,6 +55,14 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     @Override
     protected void onInit() {
+        if (page == Page.COLOR) {
+            initColorPage();
+            return;
+        }
+        initMainPage();
+    }
+
+    private void initMainPage() {
 
         int startX = cursorBoundsX + 10;
         int fullW = cursorBoundsWidth - 20;
@@ -102,20 +119,12 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         buttonTextField.setMaxLength(64);
 
 
-        textColorField =new EditBoxImaged(
-                new WidgetInfoEditBox()
-                        .pos(startX + halfW + GAP, y)
-                        .size(halfW, FIELD_HEIGHT)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.text_color"))
+        textColorSample = new ColorSampleButton(
+                startX + halfW + GAP, y,
+                halfW, FIELD_HEIGHT,
+                colorOf(ColorTarget.TEXT),
+                it -> openColorPage(ColorTarget.TEXT)
         );
-        textColorField.setValue(colorToString(optionsGroup.getTextColor()));
-        textColorField.setResponder(text -> {
-            AtumColor parsed = parseColor(text);
-            if (parsed != null) {
-                optionsGroup.setTextColor(parsed);
-            }
-        });
 
 
         // Row 3
@@ -129,15 +138,14 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                         .pos(visibilityButtonX, y)
                         .size(visibilityButtonW, FIELD_HEIGHT)
                         .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setText(Component.translatable("visor.overlay.options.key_button.visible",
-                                Component.translatable(optionsGroup.isWorldOnly() ? "visor.overlay.options.key_button.visible.world" : "visor.overlay.options.key_button.visible.always")))
+                        .setText(visibilityText())
                         .highlight(
                                 OptionTextures.HOVERED_HIGHLIGHT,
                                 OptionTextures.SELECTED_HIGHLIGHT
                         ),
                 button -> {
                     optionsGroup.setWorldOnly(!optionsGroup.isWorldOnly());
-                    button.setMessage(Component.translatable("Visible: "+(optionsGroup.isWorldOnly()?"In-game":"Always")));
+                    button.setMessage(visibilityText());
                 }
         );
 
@@ -178,14 +186,14 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
                 List.of(OverlayOptionsKeyButton.CustomizationType.values()),
                 slider -> {
                     optionsGroup.setCustomizationType(slider.getSelected());
-                    slider.setText(Component.translatable("visor.overlay.options.key_button.mode", optionsGroup.getCustomizationType().name()));
+                    slider.setText(modeText());
                     init();
                 });
         customizationTypeSlider.setSelected(
                 optionsGroup.getCustomizationType(),
                 false
         );
-        customizationTypeSlider.setText(Component.literal("Mode: " + optionsGroup.getCustomizationType().name()));
+        customizationTypeSlider.setText(modeText());
 
 
         // Row 6
@@ -194,7 +202,7 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         addRenderableWidget(widthField);
         addRenderableWidget(heightField);
         addRenderableWidget(buttonTextField);
-        addRenderableWidget(textColorField);
+        addRenderableWidget(textColorSample);
         addRenderableWidget(visibilityButton);
         addRenderableWidget(keyField);
         addRenderableWidget(customizationTypeSlider);
@@ -210,22 +218,13 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
 
     private void initColorFields(int baseX, int y, int fieldW) {
 
-        colorField = new EditBoxImaged(
-                new WidgetInfoEditBox()
-                        .pos(baseX, y)
-                        .size(fieldW, FIELD_HEIGHT)
-                        .setTexture(OptionTextures.GRAY_TEXTURE)
-                        .setHint(Component.translatable("visor.overlay.options.key_button.color"))
+        colorSample = new ColorSampleButton(
+                baseX, y,
+                fieldW, FIELD_HEIGHT,
+                colorOf(ColorTarget.FILL),
+                it -> openColorPage(ColorTarget.FILL)
         );
-        colorField.setValue(colorToString(optionsGroup.getColor()));
-        colorField.setResponder(text -> {
-            AtumColor parsed = parseColor(text);
-            if (parsed != null) {
-                optionsGroup.setColor(parsed);
-            }
-        });
-        colorField.setMaxLength(32);
-        addRenderableWidget(colorField);
+        addRenderableWidget(colorSample);
     }
 
 
@@ -249,10 +248,93 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
     }
 
 
+    private void initColorPage() {
+
+        int startX = cursorBoundsX + 10;
+        int fullW = cursorBoundsWidth - 20;
+        int pickerY = cursorBoundsY + 12 + 14;
+
+        colorPicker = new ColorPickerWidgetSet(
+                startX, pickerY, fullW,
+                colorOf(colorTarget),
+                // only the background can be turned off - transparent text
+                // would just be invisible
+                colorTarget == ColorTarget.FILL,
+                this::applyTargetColor
+        );
+        colorPicker.initWidgets().forEach(this::addRenderableWidget);
+
+        backButton = new ButtonImaged(
+                new WidgetInfoButtonImaged()
+                        .pos(startX, pickerY + colorPicker.getHeight() + GAP + 2)
+                        .size(fullW, FIELD_HEIGHT)
+                        .setTexture(OptionTextures.GRAY_TEXTURE)
+                        .setText(Component.translatable("visor.button.back"))
+                        .highlight(
+                                OptionTextures.HOVERED_HIGHLIGHT,
+                                OptionTextures.SELECTED_HIGHLIGHT
+                        ),
+                button -> {
+                    page = Page.MAIN;
+                    init();
+                }
+        );
+        addRenderableWidget(backButton);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (page == Page.COLOR && colorPicker != null) {
+            colorPicker.onTick();
+        }
+    }
+
     @Override
     protected void onRender(GuiGraphics guiGraphics,
                             int mouseX, int mouseY,
                             float partialTick) {
+        if (page == Page.COLOR) {
+            renderColorPage(guiGraphics, mouseX, mouseY, partialTick);
+            return;
+        }
+        renderMainPage(guiGraphics);
+    }
+
+    private void openColorPage(@NotNull ColorTarget target) {
+        this.colorTarget = target;
+        this.page = Page.COLOR;
+        init();
+    }
+
+    private AtumColor colorOf(@NotNull ColorTarget target) {
+        if (target == ColorTarget.TEXT) {
+            AtumColor textColor = optionsGroup.getTextColor();
+            return textColor != null ? textColor : AtumColor.WHITE;
+        }
+
+        AtumColor color = optionsGroup.getColor();
+        if (color == null) {
+            color = AtumColor.WHITE;
+        }
+        if (!optionsGroup.isTransparentBackground()) {
+            return color;
+        }
+        return AtumColor.immutable(
+                color.getRedInt(), color.getGreenInt(), color.getBlueInt(), 0
+        );
+    }
+
+    private void applyTargetColor(@NotNull AtumColor color) {
+        if (colorTarget == ColorTarget.FILL) {
+            optionsGroup.setColor(color);
+            return;
+        }
+        optionsGroup.setTextColor(color);
+    }
+
+
+    private void renderMainPage(GuiGraphics guiGraphics) {
 
         int startX = cursorBoundsX + 10;
         int fullW = cursorBoundsWidth - 20;
@@ -285,32 +367,65 @@ public class OptionsScreenKeyButton extends OptionsScreen<OverlayOptionsKeyButto
         guiGraphics.drawString(font, keyLabel,
                 startX + (fullW - keyLabelW) / 2, labelY, 0xFFFFFF);
 
-
+        // ---- Row 6 ----
+        labelY += ROW_SPACING * 2;
+        Component customizationLabel = optionsGroup.getCustomizationType()
+                == OverlayOptionsKeyButton.CustomizationType.COLOR
+                ? Component.translatable("visor.overlay.options.key_button.color")
+                : Component.translatable("visor.overlay.options.key_button.texture");
+        guiGraphics.drawString(font, customizationLabel, startX, labelY, 0xFFFFFF);
     }
 
+    private void renderColorPage(GuiGraphics guiGraphics,
+                                 int mouseX, int mouseY,
+                                 float partialTick) {
 
-    private static String colorToString(@Nullable AtumColor color) {
-        if (color == null) return "128;128;128";
-        return color.getRedInt() + ";" + color.getGreenInt() + ";" + color.getBlueInt();
-    }
+        int startX = cursorBoundsX + 10;
+        int titleY = cursorBoundsY + 12 + 3;
 
-    private static @Nullable AtumColor parseColor(@Nullable String text) {
-        if (text == null || text.isBlank()) return null;
-        String[] parts = text.split(";");
-        if (parts.length != 3) return null;
-        try {
-            int r = clampComponent(Integer.parseInt(parts[0].trim()));
-            int g = clampComponent(Integer.parseInt(parts[1].trim()));
-            int b = clampComponent(Integer.parseInt(parts[2].trim()));
-            return AtumColor.immutable(r, g, b, 255);
-        } catch (NumberFormatException e) {
-            return null;
+        guiGraphics.drawString(font, colorTarget.title(), startX, titleY, 0xFFFFFF);
+
+        if (colorPicker != null) {
+            colorPicker.onPreRender(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
 
-    private static int clampComponent(int value) {
-        return Math.max(0, Math.min(255, value));
+
+    private Component visibilityText() {
+        return Component.translatable(
+                "visor.overlay.options.key_button.visible",
+                Component.translatable(optionsGroup.isWorldOnly()
+                        ? "visor.overlay.options.key_button.visible.world"
+                        : "visor.overlay.options.key_button.visible.always")
+        );
+    }
+
+    private Component modeText() {
+        return Component.translatable(
+                "visor.overlay.options.key_button.mode",
+                optionsGroup.getCustomizationType().name()
+        );
     }
 
 
+    private enum Page {
+        MAIN,
+        COLOR
+    }
+
+
+    private enum ColorTarget {
+        FILL("visor.overlay.options.key_button.color"),
+        TEXT("visor.overlay.options.key_button.text_color");
+
+        private final String titleKey;
+
+        ColorTarget(String titleKey) {
+            this.titleKey = titleKey;
+        }
+
+        Component title() {
+            return Component.translatable(titleKey);
+        }
+    }
 }

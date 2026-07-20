@@ -34,6 +34,9 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
     private AtumColor color;
     private AtumColor textColor;
 
+
+    private boolean transparentBackground;
+
     //TEXTURE CUSTOMIZATION
     private String rawTexturePath;
 
@@ -80,6 +83,11 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         }catch (Exception e){
             textColor = AtumColor.WHITE;
         }
+
+       transparentBackground = config.getBool("transparentBackground")
+                || color.getAlphaInt() == 0;
+        color = opaque(color);
+        textColor = opaque(textColor);
         worldOnly = config.getBool("world_only");
 
         var defaultTexture = VisorAddon.MISSING_ICON.getResourceLocation();
@@ -105,6 +113,7 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
         config.set("color", color.asString());
         config.set("textColor", textColor.asString());
+        config.set("transparentBackground", transparentBackground);
         config.set("text", text);
 
         config.set("texturePath", rawTexturePath);
@@ -164,11 +173,22 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
     }
 
 
+
     @Nullable
     public AtumColor getFillColor(){
-        return customizationType == CustomizationType.COLOR
-                ? color
-                : null;
+        if (customizationType != CustomizationType.COLOR || transparentBackground) {
+            return null;
+        }
+        return color;
+    }
+
+    private static AtumColor opaque(@NotNull AtumColor value) {
+        if (value.getAlphaInt() == 255) {
+            return value;
+        }
+        return AtumColor.immutable(
+                value.getRedInt(), value.getGreenInt(), value.getBlueInt(), 255
+        );
     }
     public void setText(@Nullable String buttonText) {
         this.text = buttonText == null ? "" : buttonText;
@@ -181,12 +201,25 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
         changesNotSaved = true;
     }
 
+
     public void setColor(AtumColor color) {
-        this.color = color;
+        if (color == null) {
+            return;
+        }
+        this.transparentBackground = color.getAlphaInt() == 0;
+        this.color = opaque(color);
         changesNotSaved = true;
     }
     public void setTextColor(AtumColor color) {
-        this.textColor = color;
+        if (color == null) {
+            return;
+        }
+        this.textColor = opaque(color);
+        changesNotSaved = true;
+    }
+
+    public void setTransparentBackground(boolean flag) {
+        this.transparentBackground = flag;
         changesNotSaved = true;
     }
     public void setCustomizationType(CustomizationType type){

@@ -315,6 +315,7 @@
   "visor.overlay.no_description": "No description",
 
   "_comment16": "*--------OVERLAY OPTIONS--------*",
+
   "visor.overlay.options.overlays": "Overlays",
   "visor.overlay.options.overlays.find": "Find...",
   "visor.overlay.options.overlays.id": "Id: %s",
@@ -395,7 +396,7 @@
   "visor.overlay.options.key_button.width": "Width",
   "visor.overlay.options.key_button.height": "Height",
   "visor.overlay.options.key_button.key": "Key",
-  "visor.overlay.options.key_button.color": "Color",
+  "visor.overlay.options.key_button.color": "Background Color",
   "visor.overlay.options.key_button.text_color": "Text color",
   "visor.overlay.options.key_button.text": "Text",
   "visor.overlay.options.key_button.texture": "Texture",
@@ -442,7 +443,13 @@
   "visor.screen.pause_menu.section.time": "TIME",
   "visor.screen.pause_menu.section.weather": "WEATHER",
 
-  "_comment19": "*--------COMMON BUTTONS--------*",
+  "_comment19": "*--------WIDGETS--------*",
+  "visor.widgets.color_picker.hex": "Hex",
+  "visor.widgets.color_picker.transparent": "Transparent: %s",
+  "visor.widgets.color_picker.transparent.on": "ON",
+  "visor.widgets.color_picker.transparent.off": "OFF",
+
+  "_comment20": "*--------COMMON BUTTONS--------*",
   "visor.button.load_defaults": "Load Defaults",
   "visor.button.overlay": "Overlay",
   "visor.button.profiler": "Profiler",
@@ -457,6 +464,7 @@
   "visor.button.discord": "Our discord",
   "visor.button.apply_changes": "Apply Changes",
   "visor.button.cancel": "Cancel",
+  "visor.button.back": "Back",
 
   "_comment999": "*--------MESSAGES--------*",
   "visor.messages.error.generic": "An unexpected VR error occurred!",
