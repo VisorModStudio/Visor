@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
 
 
@@ -31,6 +32,11 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     @Setter @Getter
     @Accessors(chain = true)
     private GuiTexture textureInactive;
+
+
+    @Getter
+    @Accessors(chain = true)
+    private AtumColor fillColor;
 
     @Setter @Getter
     @Accessors(chain = true)
@@ -107,6 +113,8 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     private Tooltip tooltip;
 
 
+    private int fillColorInt;
+
     private int highlightHoveredInt = AtumColor.WHITE.asInt();
     private int highlightSelectedInt = AtumColor.GRAY.asInt();
     private int highlightHoveredSelectedInt = AtumColor.LIGHT_GRAY.asInt();
@@ -121,6 +129,8 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         textureSelected = copyFrom.textureSelected;
         textureHoveredSelected = copyFrom.textureHoveredSelected;
         textureInactive = copyFrom.textureInactive;
+        fillColor = copyFrom.fillColor;
+        fillColorInt = copyFrom.fillColorInt;
         highlightEnabled = copyFrom.highlightEnabled;
         highlightCorners = copyFrom.highlightCorners;
         highlightHovered = copyFrom.highlightHovered;
@@ -190,6 +200,12 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
 
     }
 
+    public WidgetInfoButtonImaged setFillColor(@Nullable AtumColor color) {
+        this.fillColor = color;
+        this.fillColorInt = color == null ? 0 : color.asInt();
+        return this;
+    }
+
     public WidgetInfoButtonImaged setHighlightHovered(AtumColor color) {
         this.highlightHovered = color;
         this.highlightHoveredInt = color.asInt();
@@ -225,6 +241,18 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         return (WidgetInfoButtonImaged) super.size(width, height);
     }
 
+
+    public void drawFill(GuiGraphics guiGraphics) {
+        if (fillColor == null) return;
+
+        int x0 = getX();
+        int y0 = getY();
+        guiGraphics.fill(
+                x0, y0,
+                x0 + getWidth(), y0 + getHeight(),
+                fillColorInt
+        );
+    }
 
     public void drawHighlight(GuiGraphics guiGraphics,
                               boolean active,

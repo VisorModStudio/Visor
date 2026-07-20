@@ -76,6 +76,7 @@ public class VROverlayKeyButton extends VROverlayTemplateScreen {
 
         button.getWidgetInfo()
                 .setTexture(optionsKeyButton.getTexture())
+                .setFillColor(optionsKeyButton.getFillColor())
                 .setDynamicTextScale(true)
                 .setDynamicTextMaxScale(20)
                 .setTextColor(optionsKeyButton.getTextColor());

@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.phoenixra.atumconfig.api.config.Config;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
-import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
@@ -40,7 +39,6 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
 
 
-    private GuiTexture textureColor;
     private GuiTexture texturePath;
 
     private boolean worldOnly;
@@ -92,7 +90,6 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
                         + defaultTexture.getPath()
         );
 
-        textureColor = TexturesHelper.getColorGuiTexture(color);
         setTexturePath(rawTexturePath);
 
         changesNotSaved = true;
@@ -159,10 +156,19 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
     }
 
 
+    @Nullable
     public GuiTexture getTexture(){
         return customizationType == CustomizationType.TEXTURE
                 ? texturePath
-                : textureColor;
+                : null;
+    }
+
+
+    @Nullable
+    public AtumColor getFillColor(){
+        return customizationType == CustomizationType.COLOR
+                ? color
+                : null;
     }
     public void setText(@Nullable String buttonText) {
         this.text = buttonText == null ? "" : buttonText;
@@ -177,7 +183,6 @@ public class OverlayOptionsKeyButton extends OverlayOptionGroup<OverlayOptionsKe
 
     public void setColor(AtumColor color) {
         this.color = color;
-        this.textureColor = TexturesHelper.getColorGuiTexture(color);
         changesNotSaved = true;
     }
     public void setTextColor(AtumColor color) {
