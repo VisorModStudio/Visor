@@ -40,8 +40,8 @@ dependencies {
 
 
     // ---- LOCAL DEPENDENCY
-    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#9')) { transitive = false }
-    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#9')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#11')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#11')) { transitive = false }
     // ----
     //shadowCommon(libs.atumvr.api) { transitive = false }
     //shadowCommon(libs.atumvr.core) { transitive = false }

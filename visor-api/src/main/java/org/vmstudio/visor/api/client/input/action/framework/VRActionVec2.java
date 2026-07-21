@@ -181,7 +181,6 @@ public abstract class VRActionVec2 implements VRAction {
             case VIVE_COSMOS -> ViveCosmosProfile.VEC2_IDS;
             case HP_MIXED_REALITY -> HpMixedRealityProfile.VEC2_IDS;
             case WINDOWS_MOTION -> WindowsMotionProfile.VEC2_IDS;
-            case VIVE_FOCUS3 -> ViveFocus3Profile.VEC2_IDS;
             case VIVE_TRACKER -> List.of();
         });
         return list;

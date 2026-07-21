@@ -2,8 +2,7 @@ package org.vmstudio.visor.core.client.input.actions.game;
 
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
-import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
@@ -179,6 +178,26 @@ public class GameActionMovement extends VRActionVec2 {
                 new ActionBinding(
                         OculusTouchProfile.VEC2_THUMBSTICK_LEFT,
                         OculusTouchProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.VIVE,
+                new ActionBinding(
+                        ViveProfile.VEC2_TRACKPAD_LEFT,
+                        ViveProfile.VEC2_TRACKPAD_RIGHT
+                ),
+                VRInteractionProfileType.VIVE_COSMOS,
+                new ActionBinding(
+                        ViveCosmosProfile.VEC2_THUMBSTICK_LEFT,
+                        ViveCosmosProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.HP_MIXED_REALITY,
+                new ActionBinding(
+                        HpMixedRealityProfile.VEC2_THUMBSTICK_LEFT,
+                        HpMixedRealityProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.WINDOWS_MOTION,
+                new ActionBinding(
+                        WindowsMotionProfile.VEC2_THUMBSTICK_LEFT,
+                        WindowsMotionProfile.VEC2_THUMBSTICK_RIGHT
                 )
         );
     }

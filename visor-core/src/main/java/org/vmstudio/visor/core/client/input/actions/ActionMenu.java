@@ -1,8 +1,7 @@
 package org.vmstudio.visor.core.client.input.actions;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
-import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
@@ -62,6 +61,26 @@ public class ActionMenu extends VRActionButton {
                 new ActionBinding(
                         OculusTouchProfile.BUTTON_Y,
                         OculusTouchProfile.BUTTON_B
+                ),
+                VRInteractionProfileType.VIVE,
+                new ActionBinding(
+                        ViveProfile.BUTTON_MENU_LEFT,
+                        ViveProfile.BUTTON_MENU_RIGHT
+                ),
+                VRInteractionProfileType.VIVE_COSMOS,
+                new ActionBinding(
+                        ViveCosmosProfile.BUTTON_Y,
+                        ViveCosmosProfile.BUTTON_B
+                ),
+                VRInteractionProfileType.HP_MIXED_REALITY,
+                new ActionBinding(
+                        HpMixedRealityProfile.BUTTON_Y,
+                        HpMixedRealityProfile.BUTTON_B
+                ),
+                VRInteractionProfileType.WINDOWS_MOTION,
+                new ActionBinding(
+                        WindowsMotionProfile.BUTTON_MENU_LEFT,
+                        WindowsMotionProfile.BUTTON_MENU_RIGHT
                 )
         );
     }
