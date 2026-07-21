@@ -125,7 +125,7 @@ public class ButtonImaged extends AbstractButton {
                 .pos(getX(), getY())
                 .size(getWidth(), getHeight());
 
-        widgetInfo.drawFill(guiGraphics);
+        widgetInfo.drawFill(guiGraphics, isHovered);
 
         if(texture != null) {
             texture.blit(

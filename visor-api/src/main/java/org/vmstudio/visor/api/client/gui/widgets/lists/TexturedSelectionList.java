@@ -104,7 +104,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         resetEntries(rawEntries);
     }
 
-    // ── Column geometry helpers ──────────────────────────────────────
+    // Column geometry helpers
 
     /**
      * Total width available for columns (excludes scrollbar + padding).
@@ -141,7 +141,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         return -1;
     }
 
-    // ── Row building ─────────────────────────────────────────────────
+    // Row building
 
     /**
      * Pack a flat list of entries into rows of N columns.
@@ -157,7 +157,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         }
     }
 
-    // ── Rendering ────────────────────────────────────────────────────
+    //Rendering
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -283,7 +283,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         return visor$attachedTo;
     }
 
-    // ── Entry management (public API unchanged) ──────────────────────
+    //Entry management
 
     public void filterEntries(
             @NotNull Function<Map.Entry<String, String>, Boolean> filter
@@ -351,7 +351,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         }
     }
 
-    // ── Selection ────────────────────────────────────────────────────
+    //Selection
 
     /**
      * Select a logical entry by reference.
@@ -365,6 +365,11 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
             this.selectedEntry = null;
             onSelected.accept(null);
         }
+    }
+
+
+    public void clearSelection() {
+        this.selectedEntry = null;
     }
 
     /**
@@ -398,7 +403,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         handler.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
-    // ── Scrolling ────────────────────────────────────────────────────
+    //Scrolling
 
     @Override
     protected void updateScrollingState(double mouseX, double mouseY, int button) {
@@ -424,7 +429,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    // ── Layout overrides ─────────────────────────────────────────────
+    //Layout overrides
 
     @Override
     protected int getScrollbarPosition() {

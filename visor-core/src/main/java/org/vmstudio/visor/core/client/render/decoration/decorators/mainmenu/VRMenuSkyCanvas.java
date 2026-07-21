@@ -43,7 +43,7 @@ import org.vmstudio.visor.core.client.settings.options.enums.MainMenuSceneMode;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH
+//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH AFTER 0.7.0
 public final class VRMenuSkyCanvas implements VREventListener {
 
     private static VRMenuSkyCanvas INSTANCE;

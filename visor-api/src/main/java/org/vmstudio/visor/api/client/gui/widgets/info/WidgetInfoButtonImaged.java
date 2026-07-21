@@ -38,6 +38,11 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     @Accessors(chain = true)
     private AtumColor fillColor;
 
+
+    @Getter
+    @Accessors(chain = true)
+    private AtumColor fillColorHovered;
+
     @Setter @Getter
     @Accessors(chain = true)
     private boolean highlightEnabled = false;
@@ -114,6 +119,7 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
 
 
     private int fillColorInt;
+    private int fillColorHoveredInt;
 
     private int highlightHoveredInt = AtumColor.WHITE.asInt();
     private int highlightSelectedInt = AtumColor.GRAY.asInt();
@@ -131,6 +137,8 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         textureInactive = copyFrom.textureInactive;
         fillColor = copyFrom.fillColor;
         fillColorInt = copyFrom.fillColorInt;
+        fillColorHovered = copyFrom.fillColorHovered;
+        fillColorHoveredInt = copyFrom.fillColorHoveredInt;
         highlightEnabled = copyFrom.highlightEnabled;
         highlightCorners = copyFrom.highlightCorners;
         highlightHovered = copyFrom.highlightHovered;
@@ -206,6 +214,12 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         return this;
     }
 
+    public WidgetInfoButtonImaged setFillColorHovered(@Nullable AtumColor color) {
+        this.fillColorHovered = color;
+        this.fillColorHoveredInt = color == null ? 0 : color.asInt();
+        return this;
+    }
+
     public WidgetInfoButtonImaged setHighlightHovered(AtumColor color) {
         this.highlightHovered = color;
         this.highlightHoveredInt = color.asInt();
@@ -243,14 +257,25 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
 
 
     public void drawFill(GuiGraphics guiGraphics) {
-        if (fillColor == null) return;
+        drawFill(guiGraphics, false);
+    }
+
+    public void drawFill(GuiGraphics guiGraphics, boolean hovered) {
+        int color;
+        if (hovered && fillColorHovered != null) {
+            color = fillColorHoveredInt;
+        } else if (fillColor != null) {
+            color = fillColorInt;
+        } else {
+            return;
+        }
 
         int x0 = getX();
         int y0 = getY();
         guiGraphics.fill(
                 x0, y0,
                 x0 + getWidth(), y0 + getHeight(),
-                fillColorInt
+                color
         );
     }
 
