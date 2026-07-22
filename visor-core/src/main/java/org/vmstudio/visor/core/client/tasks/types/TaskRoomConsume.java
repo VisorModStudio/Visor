@@ -51,6 +51,12 @@ public class TaskRoomConsume extends VisorTask {
                 || consuming.getOrDefault(HandType.OFFHAND, false);
     }
 
+    public boolean isGestureConsuming(@NotNull InteractionHand hand) {
+        HandType handType = (hand == InteractionHand.MAIN_HAND)
+                ? HandType.MAIN : HandType.OFFHAND;
+        return consuming.getOrDefault(handType, false);
+    }
+
     @Override
     protected void onRun(LocalPlayer player) {
         LocalPlayerPose roomPose = ClientContext.localPlayer
@@ -63,6 +69,7 @@ public class TaskRoomConsume extends VisorTask {
 
         for (HandType hand : HandType.values()) {
             if(ClientContext.cursorHandler.isHandFocused(hand)){
+                consuming.put(hand, false);
                 continue;
             }
             Vector3fc handPos = calculateHandPosition(roomPose, hand);
@@ -77,6 +84,9 @@ public class TaskRoomConsume extends VisorTask {
                     ? player.getMainHandItem() : player.getOffhandItem();
 
             if (!isConsumable(foodItem)) {
+                // item finished or swapped while the hand is still at the mouth -
+                // clear the flag, otherwise releaseUsingItem stays suppressed
+                consuming.put(hand, false);
                 continue;
             }
 

@@ -495,9 +495,12 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @WrapOperation(method = "handleKeybinds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;releaseUsingItem(Lnet/minecraft/world/entity/player/Player;)V"))
     private void visor$keepConsume(MultiPlayerGameMode instance, Player player, Operation<Void> original) {
+        // only keep the item in use if THIS hand is the one gesture-consuming,
+        // so a real trigger release on the other hand (bow, shield, manual eating)
+        // is not swallowed while eating
         if (VisorState.get().isActive()
                 && TaskRoomConsume.getInstance() != null
-                && TaskRoomConsume.getInstance().isGestureConsuming()) {
+                && TaskRoomConsume.getInstance().isGestureConsuming(player.getUsedItemHand())) {
             return;
         }
         original.call(instance, player);
