@@ -22,9 +22,11 @@ import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -37,6 +39,11 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     public static final String ID_MAIN = "hotbar_mainhand";
     public static final String ID_OFFHAND = "hotbar_offhand";
+
+    private static final int ITEM_NAME_GAP = 4;
+    private static final int ITEM_NAME_PADDING_X = 3;
+    private static final int ITEM_NAME_PADDING_Y = 2;
+    private static final int ITEM_NAME_BACKGROUND = 0x80000000;
 
 
     private GuiTexture hotbarSelectedMain0Tex = new GuiTexture(
@@ -252,6 +259,10 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         }
 
 
+        //----Name of the item in the selected slot
+        renderSelectedItemName(guiGraphics, inventory, selectedSlice, x, y, size);
+
+
         //----Highlighting for selected slots
         HotBarSlice slice = HotBarSlice.fromSlot(TaskHotBar.getInstance().getSlotMain());
         if (slice == HotBarSlice.NOT_SELECTED) return;
@@ -298,6 +309,37 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         }
 
 
+    }
+
+    private void renderSelectedItemName(GuiGraphics guiGraphics,
+                                        Inventory inventory,
+                                        int selectedSlice,
+                                        int x, int y, int size) {
+        if (selectedSlice < 0 || selectedSlice >= 9) return;
+
+        ItemStack itemStack = inventory.getItem(selectedSlice);
+        if (itemStack.isEmpty()) return;
+
+        MutableComponent itemName = Component.empty()
+                .append(itemStack.getHoverName())
+                .withStyle(itemStack.getRarity().color);
+        if (itemStack.hasCustomHoverName()) {
+            itemName.withStyle(ChatFormatting.ITALIC);
+        }
+
+        int nameWidth = font.width(itemName);
+        int nameHeight = font.lineHeight - 1;
+        int nameX = x + (size - nameWidth) / 2;
+        int nameY = y + size + ITEM_NAME_GAP;
+
+        guiGraphics.fill(
+                nameX - ITEM_NAME_PADDING_X,
+                nameY - ITEM_NAME_PADDING_Y,
+                nameX + nameWidth + ITEM_NAME_PADDING_X,
+                nameY + nameHeight + ITEM_NAME_PADDING_Y,
+                ITEM_NAME_BACKGROUND
+        );
+        guiGraphics.drawString(font, itemName, nameX, nameY, 0xFFFFFFFF);
     }
 
     @Override
