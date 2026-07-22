@@ -68,7 +68,6 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     private boolean wasHoveredOrFocused;
     @Nullable
     private String tooltipEntryIdForTimer;
-    private Screen visor$attachedTo;
 
     /**
      * Tracked for tooltip: the entry currently hovered.
@@ -263,24 +262,13 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         }
     }
 
+    //Use Only during rendering of this widget!!!!
     private Screen getAttachedTo() {
-        if (visor$attachedTo == null) {
-            if (VisorAPI.clientState().stateMode().isNotActive()) {
-                visor$attachedTo = Minecraft.getInstance().screen;
-                return visor$attachedTo;
-            }
-            VROverlayScreen overlay = VisorAPI.client().getGuiManager()
-                    .getCursorHandler()
-                    .getFocusedOverlayScreen();
-
-            if (overlay != null) {
-                visor$attachedTo = overlay;
-            } else {
-                visor$attachedTo = Minecraft.getInstance().screen;
-            }
-            return visor$attachedTo;
+        VROverlayScreen overlay = VROverlayScreen.getRenderingOverlay();
+        if (overlay != null) {
+            return overlay;
         }
-        return visor$attachedTo;
+        return Minecraft.getInstance().screen;
     }
 
     //Entry management

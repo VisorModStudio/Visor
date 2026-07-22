@@ -45,4 +45,13 @@ public class VROverlayCursorData {
                 && rawCursorY >= 0f && rawCursorY <= 1f;
     }
 
+
+
+    public void clear(){
+        cursorX = -1;
+        cursorY = -1;
+        rawCursorX = -1f;
+        rawCursorY = -1f;
+    }
+
 }

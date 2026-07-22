@@ -39,6 +39,8 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
     private final CursorState mainHandState = new CursorState();
     private final CursorState offhandState = new CursorState();
 
+    private final VROverlay[] activeCursorTargets = new VROverlay[2];
+
     public void process() {
         VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
 
@@ -88,15 +90,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         // Clean up previous focus
         if(previouslyFocused != null
                 && newFocused != previouslyFocused) {
-            previouslyFocused.updateCursorData(
-                    true,
-                    -1, -1
-            );
-            previouslyFocused.updateCursorData(
-                    false,
-                    -1, -1
-            );
-
+            previouslyFocused.clearCursorData();
         }
     }
 
@@ -108,6 +102,25 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
 
         CursorState activeState = (cursorHand == HandType.MAIN) ? mainHandState : offhandState;
         CursorState inactiveState = (cursorHand == HandType.MAIN) ? offhandState : mainHandState;
+
+        boolean isInactiveCursor = twoHandedCursor
+                && activeState.focusedOverlay != inactiveState.focusedOverlay;
+
+        VROverlay primaryTarget = activeState.focusedOverlay;
+        VROverlay secondaryTarget = isInactiveCursor
+                ? inactiveState.focusedOverlay
+                : null;
+
+        for (int i = 0; i < activeCursorTargets.length; i++) {
+            VROverlay previousTarget = activeCursorTargets[i];
+            if (previousTarget != null
+                    && previousTarget != primaryTarget
+                    && previousTarget != secondaryTarget) {
+                previousTarget.clearCursorData(true);
+            }
+        }
+        activeCursorTargets[0] = primaryTarget;
+        activeCursorTargets[1] = secondaryTarget;
 
         // Update the overlay for the active hand
         if (activeState.isFocused()) {
@@ -121,8 +134,7 @@ public class VRCursorHandlerImpl implements VRCursorHandler {
         // Update the overlay for the inactive hand
         if (inactiveState.isFocused()) {
             inactiveState.focusedOverlay.updateCursorData(
-                    twoHandedCursor
-                            && activeState.focusedOverlay != inactiveState.focusedOverlay,
+                    isInactiveCursor,
                     inactiveState.cursorPos.x(),
                     inactiveState.cursorPos.y()
             );

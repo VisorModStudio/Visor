@@ -609,6 +609,32 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
                           float rawX, float rawY);
 
     /**
+     * Move the cursor outside of the overlay bounds.
+     *
+     * <p>{@link #updateCursorData(boolean, float, float)} ignores out of bounds
+     * positions, so this is the only way to tell an overlay
+     * that the cursor no longer points at it. Without it the overlay keeps
+     * the last known position and its widgets stay hovered forever</p>
+     *
+     * @param activeCursor if active or inactive cursor
+     */
+    default void clearCursorData(boolean activeCursor){
+        if(activeCursor){
+            getActiveCursorData().clear();
+        }else {
+            getInactiveCursorData().clear();
+        }
+    }
+
+    /**
+     * Overload of {@link #clearCursorData(boolean)} clearing both cursors
+     */
+    default void clearCursorData(){
+        clearCursorData(true);
+        clearCursorData(false);
+    }
+
+    /**
      * If specified cursor raw data is within overlay bounds
      *
      * @param rawX the raw cursor X position relative to overlay bounds

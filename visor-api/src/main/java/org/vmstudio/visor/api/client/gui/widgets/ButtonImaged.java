@@ -10,7 +10,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
@@ -31,6 +32,9 @@ public class ButtonImaged extends AbstractButton {
     @Getter
     private boolean pressed;
 
+    @Nullable
+    private Tooltip tooltipOverride;
+
     public ButtonImaged(WidgetInfoButtonImaged widgetInfo,
                         Consumer<ButtonImaged> onPress) {
         this(widgetInfo, onPress, null);
@@ -46,6 +50,14 @@ public class ButtonImaged extends AbstractButton {
         this.widgetInfo = widgetInfo;
         this.onPress = onPress;
         this.onRelease = onRelease;
+        super.setTooltip(widgetInfo.getTooltip());
+    }
+
+
+    @Override
+    public void setTooltip(@Nullable Tooltip tooltip) {
+        this.tooltipOverride = tooltip;
+        super.setTooltip(tooltip == null ? widgetInfo.getTooltip() : tooltip);
     }
 
     public void setSelected(boolean selected) {
@@ -78,22 +90,15 @@ public class ButtonImaged extends AbstractButton {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (tooltipOverride == null && getTooltip() != widgetInfo.getTooltip()) {
+            super.setTooltip(widgetInfo.getTooltip());
+        }
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+    }
 
-        Tooltip tooltip = widgetInfo.getTooltip();
-        if (tooltip == null || !this.visible) {
-            return;
-        }
-        if (this.isHovered || this.isFocused()) {
-            Screen screen = Minecraft.getInstance().screen;
-            if (screen != null) {
-                screen.setTooltipForNextRenderPass(
-                        tooltip,
-                        ClampedTooltipPositioner.INSTANCE,
-                        this.isFocused()
-                );
-            }
-        }
+    @Override
+    protected @NotNull ClientTooltipPositioner createTooltipPositioner() {
+        return ClampedTooltipPositioner.INSTANCE;
     }
 
     @Override
