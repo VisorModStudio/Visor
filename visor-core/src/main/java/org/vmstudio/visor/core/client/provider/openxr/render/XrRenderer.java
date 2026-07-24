@@ -25,7 +25,7 @@ public class XrRenderer extends VRRendererBase {
     @Getter
     private final XrProvider vrProvider;
 
-    protected int swapIndex;
+    protected final int[] swapIndices = new int[2];
 
     protected XrEyeTexture[] leftFramebuffers;
     protected XrEyeTexture[] rightFramebuffers;
@@ -146,37 +146,38 @@ public class XrRenderer extends VRRendererBase {
 
     }
     private void prepareSwapChains(){
-        XrSwapchain xrSwapchain = vrProvider.getSession().getSwapChain().getHandle();
         this.projectionLayerViews = XrCompositionLayerProjectionView.calloc(2);
         try (MemoryStack stack = MemoryStack.stackPush()) {
 
             IntBuffer intBuf2 = stack.callocInt(1);
 
-            vrProvider.checkXRError(
-                    XR10.xrAcquireSwapchainImage(
-                            xrSwapchain,
-                            XrSwapchainImageAcquireInfo
-                                    .calloc(stack)
-                                    .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO),
-                            intBuf2
-                    ),
-                    "xrAcquireSwapchainImage", ""
-            );
-
-            vrProvider.checkXRError(
-                    XR10.xrWaitSwapchainImage(xrSwapchain,
-                            XrSwapchainImageWaitInfo.calloc(stack)
-                                    .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO)
-                                    .timeout(XR10.XR_INFINITE_DURATION)
-                    ),
-                    "xrWaitSwapchainImage", ""
-            );
-
-            this.swapIndex = intBuf2.get(0);
-
-            // Render view to the appropriate part of the swapchain image.
             for (EyeType eyeType : EyeType.values()) {
                 int index = eyeType.getIndex();
+                XrSwapchain xrSwapchain = vrProvider.getSession()
+                        .getSwapChain().getHandle(index);
+
+                vrProvider.checkXRError(
+                        XR10.xrAcquireSwapchainImage(
+                                xrSwapchain,
+                                XrSwapchainImageAcquireInfo
+                                        .calloc(stack)
+                                        .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO),
+                                intBuf2
+                        ),
+                        "xrAcquireSwapchainImage", eyeType.name()
+                );
+
+                vrProvider.checkXRError(
+                        XR10.xrWaitSwapchainImage(xrSwapchain,
+                                XrSwapchainImageWaitInfo.calloc(stack)
+                                        .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO)
+                                        .timeout(XR10.XR_INFINITE_DURATION)
+                        ),
+                        "xrWaitSwapchainImage", eyeType.name()
+                );
+
+                this.swapIndices[index] = intBuf2.get(0);
+
                 XrView xrView = vrProvider.getInputHandler()
                         .getDevice(AtumVRDeviceHMD.ID, XRDeviceHMD.class)
                         .getXrView(eyeType);
@@ -188,15 +189,13 @@ public class XrRenderer extends VRRendererBase {
                 subImage.swapchain(xrSwapchain);
                 subImage.imageRect().offset().set(0, 0);
                 subImage.imageRect().extent().set(resolutionWidth, resolutionHeight);
-                subImage.imageArrayIndex(index);
+                subImage.imageArrayIndex(0);
             }
 
         }
     }
 
     public void finishFrame(){
-        XrSwapchain xrSwapchain = vrProvider.getSession().getSwapChain().getHandle();
-
         if (steamVRLinuxWorkaround) {
             int sceneErr = GLUtils.drainGLErrors();
             if (sceneErr != lastSceneGLError) {
@@ -219,13 +218,16 @@ public class XrRenderer extends VRRendererBase {
                     .environmentBlendMode(XR10.XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
 
             if (frameShouldRender) {
-                vrProvider.checkXRError(
-                        XR10.xrReleaseSwapchainImage(
-                                xrSwapchain,
-                                XrSwapchainImageReleaseInfo.calloc(stack)
-                                        .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO)),
-                        "xrReleaseSwapchainImage", ""
-                );
+                for (EyeType eyeType : EyeType.values()) {
+                    vrProvider.checkXRError(
+                            XR10.xrReleaseSwapchainImage(
+                                    vrProvider.getSession().getSwapChain()
+                                            .getHandle(eyeType.getIndex()),
+                                    XrSwapchainImageReleaseInfo.calloc(stack)
+                                            .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO)),
+                            "xrReleaseSwapchainImage", eyeType.name()
+                    );
+                }
 
                 XrCompositionLayerProjection compositionLayerProjection = XrCompositionLayerProjection.calloc(stack)
                         .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION)
@@ -284,40 +286,39 @@ public class XrRenderer extends VRRendererBase {
     @Override
     protected void setupEyes() {
         try (MemoryStack stack = MemoryStack.stackPush()) {
+            for (EyeType eyeType : EyeType.values()) {
+                int eyeIndex = eyeType.getIndex();
+                XrSwapchain xrSwapchain = vrProvider.getSession()
+                        .getSwapChain().getHandle(eyeIndex);
 
-            // Get amount of views in the swapchain
-            IntBuffer intBuffer = stack.ints(0); //Set value to 0
-            int error = XR10.xrEnumerateSwapchainImages(vrProvider.getSession().getSwapChain().getHandle(), intBuffer, null);
-            vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get count");
+                IntBuffer intBuffer = stack.ints(0); //Set value to 0
+                int error = XR10.xrEnumerateSwapchainImages(xrSwapchain, intBuffer, null);
+                vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get count");
 
-            // Now we know the amount, create the image buffer
-            int imageCount = intBuffer.get(0);
-            XrSwapchainImageOpenGLKHR.Buffer swapchainImageBuffer = vrProvider
-                    .getSession().getSwapChain().createImageBuffers(imageCount,
-                            stack);
+                int imageCount = intBuffer.get(0);
+                XrSwapchainImageOpenGLKHR.Buffer swapchainImageBuffer = vrProvider
+                        .getSession().getSwapChain().createImageBuffers(imageCount,
+                                stack);
 
-            error = XR10.xrEnumerateSwapchainImages(vrProvider.getSession().getSwapChain().getHandle(), intBuffer,
-                    XrSwapchainImageBaseHeader.create(swapchainImageBuffer.address(), swapchainImageBuffer.capacity()));
-            vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get images");
+                error = XR10.xrEnumerateSwapchainImages(xrSwapchain, intBuffer,
+                        XrSwapchainImageBaseHeader.create(swapchainImageBuffer.address(), swapchainImageBuffer.capacity()));
+                vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get images");
 
-            this.leftFramebuffers = new XrEyeTexture[imageCount];
-            this.rightFramebuffers = new XrEyeTexture[imageCount];
-
-            for (int i = 0; i < imageCount; i++) {
-                XrSwapchainImageOpenGLKHR openxrImage = swapchainImageBuffer.get(i);
-                this.leftFramebuffers[i] = new XrEyeTexture(
-                        resolutionWidth, resolutionHeight,
-                        openxrImage.image(),
-                        0
-                ).init();
-                GLUtils.checkGLError("Left Eye " + i + " framebuffer setup");
-                this.rightFramebuffers[i] = new XrEyeTexture(
-                        resolutionWidth, resolutionHeight,
-                        openxrImage.image(),
-                        1
-                ).init();
-                GLUtils.checkGLError("Right Eye " + i + " framebuffer setup");
-
+                XrEyeTexture[] framebuffers = new XrEyeTexture[imageCount];
+                for (int i = 0; i < imageCount; i++) {
+                    XrSwapchainImageOpenGLKHR openxrImage = swapchainImageBuffer.get(i);
+                    framebuffers[i] = new XrEyeTexture(
+                            resolutionWidth, resolutionHeight,
+                            openxrImage.image(),
+                            eyeIndex
+                    ).init();
+                    GLUtils.checkGLError(eyeType.name() + " " + i + " framebuffer setup");
+                }
+                if (eyeType == EyeType.LEFT) {
+                    this.leftFramebuffers = framebuffers;
+                } else {
+                    this.rightFramebuffers = framebuffers;
+                }
             }
         }
 
@@ -418,7 +419,7 @@ public class XrRenderer extends VRRendererBase {
         if(leftFramebuffers==null){
             return null;
         }
-        return leftFramebuffers[swapIndex];
+        return leftFramebuffers[swapIndices[EyeType.LEFT.getIndex()]];
     }
 
     @Override
@@ -426,7 +427,7 @@ public class XrRenderer extends VRRendererBase {
         if(rightFramebuffers==null){
             return null;
         }
-        return rightFramebuffers[swapIndex];
+        return rightFramebuffers[swapIndices[EyeType.RIGHT.getIndex()]];
     }
 
     protected void restoreGLContext() {

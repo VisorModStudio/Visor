@@ -8,14 +8,11 @@ import org.lwjgl.opengl.GL30;
 
 public class XrRenderTarget extends RenderTarget {
 
-    private final int colorTextureIndex;
-
     public XrRenderTarget(int width, int height, int colorId, int index) {
         super(false);
         RenderSystem.assertOnRenderThreadOrInit();
 
         this.colorTextureId = colorId;
-        this.colorTextureIndex = index;
 
         this.resize(width, height, Minecraft.ON_OSX);
 
@@ -35,11 +32,11 @@ public class XrRenderTarget extends RenderTarget {
 
             GlStateManager._glBindFramebuffer(36160, this.frameBufferId);
             //Binding our eye texture here
-            GL30.glFramebufferTextureLayer(
+            GL30.glFramebufferTexture2D(
                     GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0,
+                    GL30.GL_TEXTURE_2D,
                     colorTextureId,
-                    0,
-                    colorTextureIndex
+                    0
             );
 
 
