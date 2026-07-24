@@ -118,6 +118,8 @@ public class VisorState implements VisorClientState {
                 }
                 setState(VRStateMode.ACTIVE);
             }
+        } else {
+            ClientContext.visor.idleVRFrame();
         }
 
 

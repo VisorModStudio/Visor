@@ -196,6 +196,14 @@ public class VisorClientImpl implements VisorClient {
         vrProvider.syncState();
     }
 
+    public void idleVRFrame(){
+        try {
+            vrProvider.idleFrame();
+        } catch (Throwable e) {
+            VisorState.destroyVRWithErrorScreen(e);
+        }
+    }
+
 
     public void onGameLoopStart(){
         try {

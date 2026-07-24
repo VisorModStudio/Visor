@@ -39,6 +39,8 @@ public class XrRenderer extends VRRendererBase {
     private final VisorScene currentScene;
 
 
+    protected boolean frameShouldRender;
+
     /** SteamVR + Linux workaround on GL issue */
     private boolean steamVRLinuxWorkaround;
     private int lastSceneGLError;
@@ -84,26 +86,36 @@ public class XrRenderer extends VRRendererBase {
             );
 
 
-            XrViewState viewState = XrViewState.calloc(stack).type(XR10.XR_TYPE_VIEW_STATE);
-            IntBuffer intBuf = stack.callocInt(1);
+            frameShouldRender = frameState.shouldRender();
 
-            XrViewLocateInfo viewLocateInfo = XrViewLocateInfo.calloc(stack);
-            viewLocateInfo.set(
-                    XR10.XR_TYPE_VIEW_LOCATE_INFO,
-                    0,
-                    XR10.XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
-                    frameState.predictedDisplayTime(),
-                    vrProvider.getSession().getXrAppSpace()
-            );
+            if (frameShouldRender) {
+                XrViewState viewState = XrViewState.calloc(stack).type(XR10.XR_TYPE_VIEW_STATE);
+                IntBuffer intBuf = stack.callocInt(1);
 
-            vrProvider.checkXRError(
-                    XR10.xrLocateViews(
-                            vrProvider.getSession().getHandle(),
-                            viewLocateInfo, viewState,
-                            intBuf, vrProvider.getSession().getSwapChain().getXrViewBuffer()
-                    ),
-                    "xrLocateViews", ""
-            );
+                XrViewLocateInfo viewLocateInfo = XrViewLocateInfo.calloc(stack);
+                viewLocateInfo.set(
+                        XR10.XR_TYPE_VIEW_LOCATE_INFO,
+                        0,
+                        XR10.XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO,
+                        frameState.predictedDisplayTime(),
+                        vrProvider.getSession().getXrAppSpace()
+                );
+
+                vrProvider.checkXRError(
+                        XR10.xrLocateViews(
+                                vrProvider.getSession().getHandle(),
+                                viewLocateInfo, viewState,
+                                intBuf, vrProvider.getSession().getSwapChain().getXrViewBuffer()
+                        ),
+                        "xrLocateViews", ""
+                );
+
+                long requiredView = XR10.XR_VIEW_STATE_ORIENTATION_VALID_BIT
+                        | XR10.XR_VIEW_STATE_POSITION_VALID_BIT;
+                if ((viewState.viewStateFlags() & requiredView) != requiredView) {
+                    frameShouldRender = false;
+                }
+            }
 
             if (steamVRLinuxWorkaround) {
                 restoreGLContext();
@@ -119,9 +131,11 @@ public class XrRenderer extends VRRendererBase {
 
 
         try {
-            prepareSwapChains();
+            if (frameShouldRender) {
+                prepareSwapChains();
 
-            getCurrentScene().render(context);
+                getCurrentScene().render(context);
+            }
         }finally {
             frameStarted = false;
             finishFrame();
@@ -199,34 +213,40 @@ public class XrRenderer extends VRRendererBase {
         }
 
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            PointerBuffer layers = stack.callocPointer(1);
-            int error;
+            XrFrameEndInfo frameEndInfo = XrFrameEndInfo.calloc(stack)
+                    .type(XR10.XR_TYPE_FRAME_END_INFO)
+                    .displayTime(vrProvider.getXrDisplayTime())
+                    .environmentBlendMode(XR10.XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
 
-            error = XR10.xrReleaseSwapchainImage(
-                    xrSwapchain,
-                    XrSwapchainImageReleaseInfo.calloc(stack)
-                            .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO));
-            vrProvider.checkXRError(error, "xrReleaseSwapchainImage", "");
+            if (frameShouldRender) {
+                vrProvider.checkXRError(
+                        XR10.xrReleaseSwapchainImage(
+                                xrSwapchain,
+                                XrSwapchainImageReleaseInfo.calloc(stack)
+                                        .type(XR10.XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO)),
+                        "xrReleaseSwapchainImage", ""
+                );
 
-            XrCompositionLayerProjection compositionLayerProjection = XrCompositionLayerProjection.calloc(stack)
-                    .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION)
-                    .space(vrProvider.getSession().getXrAppSpace())
-                    .views(this.projectionLayerViews);
+                XrCompositionLayerProjection compositionLayerProjection = XrCompositionLayerProjection.calloc(stack)
+                        .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION)
+                        .space(vrProvider.getSession().getXrAppSpace())
+                        .views(this.projectionLayerViews);
 
-            layers.put(compositionLayerProjection);
+                PointerBuffer layers = stack.callocPointer(1);
+                layers.put(compositionLayerProjection);
+                layers.flip();
 
-            layers.flip();
+                frameEndInfo.layers(layers);
+            }
 
-            error = XR10.xrEndFrame(
-                    vrProvider.getSession().getHandle(),
-                    XrFrameEndInfo.calloc(stack)
-                            .type(XR10.XR_TYPE_FRAME_END_INFO)
-                            .displayTime(vrProvider.getXrDisplayTime())
-                            .environmentBlendMode(XR10.XR_ENVIRONMENT_BLEND_MODE_OPAQUE)
-                            .layers(layers));
-            vrProvider.checkXRError(error, "xrEndFrame", "");
+            vrProvider.checkXRError(
+                    XR10.xrEndFrame(vrProvider.getSession().getHandle(), frameEndInfo),
+                    "xrEndFrame", ""
+            );
 
-            this.projectionLayerViews.close();
+            if (frameShouldRender) {
+                this.projectionLayerViews.close();
+            }
         }
 
         if (steamVRLinuxWorkaround) {
