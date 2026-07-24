@@ -132,9 +132,19 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
 
     private int getSliceFromPos(Vector2f mousePosition) {
+        int x = (int) mousePosition.x;
+        int y = (int) mousePosition.y;
+
+        //helps to prevent flicker between two neighbour slots
+        SelectionBox selected = selectionBoxes.get(selectedSlice);
+        if (selected != null
+                && !disabledBoxes.contains(selectedSlice)
+                && selected.isInBoxSticky(x, y)) {
+            return selectedSlice;
+        }
+
         for (SelectionBox selectionBox : selectionBoxes.values()) {
-            if (selectionBox.isInBox((int) mousePosition.x,
-                    (int) mousePosition.y)) {
+            if (selectionBox.isInBox(x, y)) {
                 if (disabledBoxes.contains(selectionBox.id)) return -1;
                 return selectionBox.getId();
             }
@@ -160,6 +170,10 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
 
 
         public abstract boolean isInBox(int x, int y);
+
+        public boolean isInBoxSticky(int x, int y) {
+            return isInBox(x, y);
+        }
 
     }
 

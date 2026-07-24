@@ -10,6 +10,7 @@ public enum VROptionCategory {
     EMPTY("empty"),
     MAIN("main"),
     GUI("gui"),
+    GUI_HOTBAR("gui.hotbar"),
     RENDERING("rendering"),
     RENDERING_SHADERS("rendering.shaders"),
     RENDERING_EYE_EFFECTS("rendering.eye_effects"),

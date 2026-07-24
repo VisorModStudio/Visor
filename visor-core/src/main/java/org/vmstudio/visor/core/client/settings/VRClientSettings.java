@@ -223,8 +223,20 @@ public class VRClientSettings {
     protected static float guiScale = 0;
 
     @Getter
-    @VROptionField(widgetType = VROptionWidgetType.HUD_DISABLED_HOTBAR, key = "hud_disabled_hotbar")
+    @VROptionField(widgetType = VROptionWidgetType.HUD_DISABLED_HOTBAR, key = "hud_disabled")
     protected static boolean hudDisableHotBar = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.HOTBAR_CENTER_RADIUS, key = "center_radius")
+    protected static float hotBarCenterRadius = 50;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.HOTBAR_HYSTERESIS_MARGIN, key = "hysteresis_margin")
+    protected static float hotBarHysteresisMargin = 7;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.HOTBAR_SLOT_NUMBERS, key = "slot_numbers")
+    protected static boolean hotBarSlotNumbers = false;
 
 
     //----

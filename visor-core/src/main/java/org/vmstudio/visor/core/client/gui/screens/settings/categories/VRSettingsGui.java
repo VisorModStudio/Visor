@@ -36,6 +36,13 @@ public class VRSettingsGui extends VROptionsSet {
                         OptionWidgetPosition.LEFT,
                         0,
                         "visor.options.controls.keyboard_layouts.button"
+                ),
+                new OptionWidgetEntry(
+                        this,
+                        new VRSettingsGuiHotbar(getScreen(), this, onWidgetsChanged),
+                        OptionWidgetPosition.RIGHT,
+                        0,
+                        "visor.options.gui.hotbar.button"
                 )
         };
     }

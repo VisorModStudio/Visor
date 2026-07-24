@@ -115,7 +115,51 @@ public enum VROptionWidgetType {
             }
     ),
     HUD_DISABLED_HOTBAR(
-            VROptionCategory.GUI,
+            VROptionCategory.GUI_HOTBAR,
+            (it) -> null
+    ),
+    HOTBAR_CENTER_RADIUS(
+            VROptionCategory.GUI_HOTBAR,
+            (it) -> {
+                List<Float> entries = List.of(
+                        10f, 20f, 30f, 40f, 50f, 60f, 70f, 80f, 90f
+                );
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getHotBarCenterRadius());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            return pair.first() + String.format("%.0f", (float) pair.second());
+                        }
+                ).build();
+            }
+    ),
+    HOTBAR_HYSTERESIS_MARGIN(
+            VROptionCategory.GUI_HOTBAR,
+            (it) -> {
+                List<Float> entries = List.of(0f, 3f, 5f, 7f, 10f, 15f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getHotBarHysteresisMargin());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            return pair.first() + String.format("%.0f" + "°"/*degrees*/, (float) pair.second());
+                        }
+                ).build();
+            }
+    ),
+    HOTBAR_SLOT_NUMBERS(
+            VROptionCategory.GUI_HOTBAR,
             (it) -> null
     ),
     SHADER_GUI_RENDER(

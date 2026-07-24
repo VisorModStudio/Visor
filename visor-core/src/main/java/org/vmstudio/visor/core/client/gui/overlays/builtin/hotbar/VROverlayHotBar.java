@@ -2,7 +2,6 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar;
 
 
 import lombok.Getter;
-import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import me.phoenixra.atumvr.api.utils.MathUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -21,6 +20,7 @@ import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
+import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -45,6 +45,14 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     private static final int ITEM_NAME_PADDING_Y = 2;
     private static final int ITEM_NAME_BACKGROUND = 0x80000000;
 
+    private static final int HOTBAR_IMAGE_SIZE = 98;
+    private static final int SLOT_NUMBERS_IMAGE_DIFF = (112-HOTBAR_IMAGE_SIZE)/2;
+
+    private GuiTexture hotbarSlotNumbers = new GuiTexture(
+            new ResourceLocation(
+                    VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/slot_numbers.png"
+            )
+    );
 
     private GuiTexture hotbarSelectedMain0Tex = new GuiTexture(
             new ResourceLocation(
@@ -82,75 +90,51 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                 hand == HandType.MAIN
                         ? ComponentPriority.HIGH
                         : ComponentPriority.NORMAL,
-                98,
+                HOTBAR_IMAGE_SIZE,
                 new SelectionBoxHotBar(
                         HotBarSlice.CENTER.getSlot(),
                         41, 41,
-                        new PairRecord<>(0d, 0d) //separately checked
+                        0 //dead zone, angle unused
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.TOP_LEFT.getSlot(),
                         5, 5,
-                        new PairRecord<>(
-                                (-7 * Math.PI) / 8,
-                                (-5 * Math.PI) / 8
-                        )
+                        (-3 * Math.PI) / 4
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.TOP.getSlot(),
                         41, 5,
-                        new PairRecord<>(
-                                (-5 * Math.PI) / 8,
-                                (-3 * Math.PI) / 8
-                        )
+                        -Math.PI / 2
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.TOP_RIGHT.getSlot(),
                         77, 5,
-                        new PairRecord<>(
-                                (-3 * Math.PI) / 8,
-                                (-1 * Math.PI) / 8
-                        )
+                        -Math.PI / 4
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.RIGHT.getSlot(),
                         77, 41,
-                        new PairRecord<>(
-                                (-1 * Math.PI) / 8,
-                                (1 * Math.PI) / 8
-                        )
+                        0
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.BOTTOM_RIGHT.getSlot(),
                         77, 77,
-                        new PairRecord<>(
-                                (1 * Math.PI) / 8,
-                                (3 * Math.PI) / 8
-                        )
+                        Math.PI / 4
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.BOTTOM.getSlot(),
                         41, 77,
-                        new PairRecord<>(
-                                (3 * Math.PI) / 8,
-                                (5 * Math.PI) / 8
-                        )
+                        Math.PI / 2
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.BOTTOM_LEFT.getSlot(),
                         5, 77,
-                        new PairRecord<>(
-                                (5 * Math.PI) / 8,
-                                (7 * Math.PI) / 8
-                        )
+                        (3 * Math.PI) / 4
                 ),
                 new SelectionBoxHotBar(
                         HotBarSlice.LEFT.getSlot(),
                         5, 41,
-                        new PairRecord<>(
-                                -1d, //separately checked
-                                -1d  //separately checked
-                        )
+                        Math.PI
                 ));
         VisorAPI.eventBus().registerListener(owner,this);
     }
@@ -231,6 +215,15 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                         size, size
                 );
 
+        //----Slot numbers
+        if (VRClientSettings.isHotBarSlotNumbers()) {
+            hotbarSlotNumbers.blit(
+                    guiGraphics,
+                    x - SLOT_NUMBERS_IMAGE_DIFF, y - SLOT_NUMBERS_IMAGE_DIFF,
+                    size + 2 * SLOT_NUMBERS_IMAGE_DIFF, size + 2 * SLOT_NUMBERS_IMAGE_DIFF
+            );
+        }
+
 
         //----Items
         Inventory inventory = Minecraft.getInstance().player.getInventory();
@@ -257,6 +250,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
             );
             guiGraphics.pose().popPose();
         }
+
 
 
         //----Name of the item in the selected slot
@@ -308,7 +302,6 @@ public class VROverlayHotBar extends VROverlayRadialSelector
             );
         }
 
-
     }
 
     private void renderSelectedItemName(GuiGraphics guiGraphics,
@@ -331,6 +324,9 @@ public class VROverlayHotBar extends VROverlayRadialSelector
         int nameHeight = font.lineHeight - 1;
         int nameX = x + (size - nameWidth) / 2;
         int nameY = y + size + ITEM_NAME_GAP;
+        if (VRClientSettings.isHotBarSlotNumbers()) {
+            nameY += SLOT_NUMBERS_IMAGE_DIFF;
+        }
 
         guiGraphics.fill(
                 nameX - ITEM_NAME_PADDING_X,
@@ -400,43 +396,62 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
     @Getter
     private static class SelectionBoxHotBar extends SelectionBox {
-        //max and min angle bounds
-        private final PairRecord<Double, Double> selectionAngle;
+        private static final double SECTOR_HALF_ANGLE = Math.PI / 8;
+        private static final int STICKY_RADIUS_MARGIN = 8;
 
+        //direction this box is thrown at, unused by the center one
+        private final double sectorAngle;
 
         private final int itemX;
         private final int itemY;
 
         public SelectionBoxHotBar(int id,
                                   int itemX, int itemY,
-                                  @NotNull PairRecord<Double, Double> selectionAngle
+                                  double sectorAngle
         ) {
             super(id);
-            this.selectionAngle = selectionAngle;
+            this.sectorAngle = sectorAngle;
             this.itemX = itemX;
             this.itemY = itemY;
         }
 
         @Override
         public boolean isInBox(int x, int y) {
-            if (getId() == HotBarSlice.LEFT.getSlot()) {
-                double angle = MathUtils.fastAtan2(y, x);
-                //handle boundary between positive
-                // and negative angle
-                return (angle <= Math.PI
-                        && angle >= (7 * Math.PI) / 8)
-                        ||
-                        (angle >= -Math.PI
-                                && angle <= (-7 * Math.PI) / 8);
+            return isInBox(x, y, 0, 0);
+        }
+
+        @Override
+        public boolean isInBoxSticky(int x, int y) {
+            return isInBox(
+                    x, y,
+                    Math.toRadians(VRClientSettings.getHotBarHysteresisMargin()),
+                    STICKY_RADIUS_MARGIN
+            );
+        }
+
+        private boolean isInBox(int x, int y,
+                                double angleMargin,
+                                int radiusMargin) {
+            double centerSlotRadius = VRClientSettings.getHotBarCenterRadius();
+            double distance = Math.sqrt((double) x * x + (double) y * y);
+
+            if (getId() == HotBarSlice.CENTER.getSlot()) {
+                return distance <= centerSlotRadius + radiusMargin;
             }
-            if(getId() == HotBarSlice.CENTER.getSlot()){
-                return Math.sqrt(x*x+y*y) <= 20;
+            if (distance < centerSlotRadius - radiusMargin) {
+                return false;
             }
 
-            double angle = MathUtils.fastAtan2(y, x);
+            double delta = wrapAngle(MathUtils.fastAtan2(y, x) - sectorAngle);
 
-            return angle >= selectionAngle.first()
-                    && angle <= selectionAngle.second();
+            return Math.abs(delta) <= SECTOR_HALF_ANGLE + angleMargin;
+        }
+
+        private static double wrapAngle(double angle) {
+            angle %= 2 * Math.PI;
+            if (angle > Math.PI) return angle - 2 * Math.PI;
+            if (angle < -Math.PI) return angle + 2 * Math.PI;
+            return angle;
         }
     }
 
