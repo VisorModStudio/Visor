@@ -36,7 +36,7 @@ configurations {
     developmentForge.extendsFrom common
 }
 
-version = version+"-forge"
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-forge"
 
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))

@@ -18,7 +18,7 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 }
-version = version+"-fabric"
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-fabric"
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
 

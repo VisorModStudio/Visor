@@ -52,10 +52,17 @@ jobs:
           set -euo pipefail
           MATRIX=$(gh release view "${{ inputs.tag }}" --repo "${{ github.repository }}" \
             --json assets \
-            --jq '[ .assets[].name
+            | jq -c '[ .assets[].name
                     | select(endswith(".jar"))
                     | select(test("-sources\\.jar$") | not)
-                    | { file: ., loader: (split("-")[1]), mc: (split("-")[2]) } ]')
+                    | select(contains("+mc"))
+                    | . as $file
+                    | ($file | rtrimstr(".jar") | split("+")) as $parts
+                    | ($parts | .[1] | split("-")) as $tail
+                    | { file: $file,
+                        modver: ($parts | .[0] | sub("^[^-]+-"; "")),
+                        mc: ($tail | .[:-1] | join("-") | ltrimstr("mc")),
+                        loader: ($tail | .[-1]) } ]')
 
           echo "Resolved assets: $MATRIX"
           if [ "$MATRIX" = "[]" ] || [ -z "$MATRIX" ]; then
@@ -108,10 +115,9 @@ jobs:
         id: meta
         run: |
           set -euo pipefail
-          FILE="${{ matrix.entry.file }}"
           LOADER="${{ matrix.entry.loader }}"
           MC="${{ matrix.entry.mc }}"
-          MODVER=$(echo "${FILE%.jar}" | cut -d- -f4-)
+          MODVER="${{ matrix.entry.modver }}"
 
           {
             echo "display_name=Visor $MODVER - MC $MC ($LOADER)"
