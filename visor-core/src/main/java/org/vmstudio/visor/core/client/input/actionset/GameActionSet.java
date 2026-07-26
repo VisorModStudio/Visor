@@ -40,6 +40,7 @@ public class GameActionSet extends VRActionSet {
 
                 VRActions.createShift(this),
                 VRActions.createMenu(this),
+                VRActions.createScreenshot(this),
 
                 new GameActionMovement(this),
                 new GameActionRotate(this),

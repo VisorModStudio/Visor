@@ -212,6 +212,7 @@
   "visor.action.shift": "Shift",
   "visor.action.hotbar_main": "Hotbar (Main)",
   "visor.action.hotbar_offhand": "Hotbar (Offhand)",
+  "visor.action.screenshot": "Screenshot",
 
   "_comment111": "*--------ACTION BINDINGS--------*",
   "visor.action.bindings.null": "DISABLED",

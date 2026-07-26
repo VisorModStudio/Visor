@@ -209,6 +209,7 @@
   "visor.action.shift": "Shift",
   "visor.action.hotbar_main": "Хотбар (Осн. рука)",
   "visor.action.hotbar_offhand": "Хотбар (Друга рука)",
+  "visor.action.screenshot": "Скріншот",
 
   "_comment111": "*--------ПРИВ'ЯЗКА ДІЙ--------*",
   "visor.action.bindings.null": "НЕ ПРИЗНАЧЕНО",
