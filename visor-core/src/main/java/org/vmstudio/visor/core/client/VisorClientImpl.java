@@ -142,6 +142,7 @@ public class VisorClientImpl implements VisorClient {
 
         VRActions.Provider.setShift(ActionShift::new);
         VRActions.Provider.setMenu(ActionMenu::new);
+        VRActions.Provider.setScreenshot(ActionScreenshot::new);
 
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
