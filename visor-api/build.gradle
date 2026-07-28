@@ -10,8 +10,8 @@ dependencies {
     compileOnly(libs.fabric.loader)
 
     // ---- LOCAL DEPENDENCY
-    modApi name: 'atumvr-api-1.14.0beta-snapshot#12'
-    modApi name: 'atumvr-core-1.14.0beta-snapshot#12'
+    modApi name: 'atumvr-api-1.14.0beta-snapshot#13'
+    modApi name: 'atumvr-core-1.14.0beta-snapshot#13'
     // ----
     //api(libs.atumvr.api)
     //api(libs.atumvr.core)

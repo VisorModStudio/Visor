@@ -196,6 +196,7 @@ public class VisorClientImpl implements VisorClient {
         vrProvider.syncState();
     }
 
+    //When VR runtime asks app to become idle and don't send swapChains
     public void idleVRFrame(){
         try {
             vrProvider.idleFrame();

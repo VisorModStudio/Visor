@@ -26,10 +26,8 @@ public class XrProvider extends XRProvider {
 
         super.initializeVR();
 
-        var trackersManager = getInputHandler().getTrackerManager();
         ClientContext.rawPoseHandler.getTrackersData().setTracking(
-                trackersManager.isSupported()
-                        && !trackersManager.getDevicesMap().isEmpty()
+                !getInputHandler().getTrackerProviders().isEmpty()
         );
 
         ClientContext.settingsManager.loadOptions();

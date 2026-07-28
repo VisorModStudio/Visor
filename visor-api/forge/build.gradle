@@ -32,7 +32,7 @@ configurations {
     developmentForge.extendsFrom common
 }
 
-version = version+"-api_forge"
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-api-forge"
 
 dependencies {
 
@@ -50,8 +50,8 @@ dependencies {
 
 
     // ---- LOCAL DEPENDENCY
-    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#12')) { transitive = false }
-    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#12')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#13')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#13')) { transitive = false }
     // ----
     //shadowCommon(libs.atumvr.api) { transitive = false }
     //shadowCommon(libs.atumvr.core) { transitive = false }

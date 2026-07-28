@@ -18,7 +18,7 @@ dependencies {
     modApi(libs.architectury.lib)
 
     // ---- LOCAL DEPENDENCY
-    modApi name: 'atumvr-core-1.14.0beta-snapshot#12'
+    modApi name: 'atumvr-core-1.14.0beta-snapshot#13'
     // ----
     //api(libs.atumvr.core)
 

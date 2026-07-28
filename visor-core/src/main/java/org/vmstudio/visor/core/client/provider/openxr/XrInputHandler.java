@@ -5,16 +5,19 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.input.action.data.VRActionData;
+import me.phoenixra.atumvr.api.input.body.AtumVRBodyView;
 import me.phoenixra.atumvr.core.XRProvider;
 import me.phoenixra.atumvr.core.input.XRInputHandler;
 import me.phoenixra.atumvr.core.input.action.XRActionSet;
 
+import me.phoenixra.atumvr.core.input.body.EmulatedBodyPreset;
+import me.phoenixra.atumvr.core.input.body.XRCommonBodyView;
 import me.phoenixra.atumvr.core.input.device.XRDevice;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
-import me.phoenixra.atumvr.core.input.profile.tracker.EmulatedTrackerPreset;
-import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerManager;
+import me.phoenixra.atumvr.core.input.profile.tracker.FBBodyTrackingProvider;
+import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerProvider;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
 
@@ -26,8 +29,6 @@ public class XrInputHandler extends XRInputHandler {
 
     @Getter
     private XRProfileManager profileSetHolder;
-    @Getter
-    private ViveTrackerManager trackerManager;
 
     @Getter @Setter
     private Consumer<VRActionIdentifier> actionListener;
@@ -47,11 +48,21 @@ public class XrInputHandler extends XRInputHandler {
     @Override
     protected List<? extends XRActionSet> generateActionSets(MemoryStack stack) {
         profileSetHolder = new XRProfileManager(getVrProvider());
+        return profileSetHolder.getAllActionSets();
+    }
 
-        trackerManager = new ViveTrackerManager(getVrProvider());
-        List<XRActionSet> actionSets = new ArrayList<>(profileSetHolder.getAllActionSets());
-        actionSets.addAll(trackerManager.getActionSets());
-        return actionSets;
+    @Override
+    protected @NotNull List<? extends AtumVRBodyView> generateBodyViews(@NotNull MemoryStack stack) {
+        var viveTrackers = new ViveTrackerProvider(getVrProvider());
+        //TRACKERS EMULATION TESTING
+        //viveTrackers.setEmulated(true);
+        //viveTrackers.setEmulationPreset(EmulatedBodyPreset.T_POSE);
+        //--------
+        return List.of(
+                new XRCommonBodyView(getVrProvider()),
+                viveTrackers,
+                new FBBodyTrackingProvider(getVrProvider())
+        );
     }
 
     @Override
@@ -78,11 +89,6 @@ public class XrInputHandler extends XRInputHandler {
                         profileSetHolder.getCommonSet().getHapticPulse()
                 )
         );
-        //TRACKERS EMULATION TESTING
-        //trackerManager.setEmulated(true);
-        //trackerManager.setEmulationPreset(EmulatedTrackerPreset.T_POSE);
-        //--------
-        devices.addAll(trackerManager.createDevices());
         return devices;
     }
 
