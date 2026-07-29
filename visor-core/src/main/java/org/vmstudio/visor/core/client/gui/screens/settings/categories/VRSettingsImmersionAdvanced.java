@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,7 +18,7 @@ public class VRSettingsImmersionAdvanced extends VROptionsSet {
 
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
-        return VROptionCategory.IMMERSION_ADVANCED.types()
+        return VROptionWidgetType.byCategory(VROptionCategory.IMMERSION_ADVANCED)
                 .toArray(new VROptionWidgetType[0]);
     }
 

@@ -23,7 +23,7 @@ import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.SettingsTextures;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 
 import java.util.ArrayList;

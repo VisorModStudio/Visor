@@ -12,7 +12,7 @@ import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;

@@ -21,7 +21,7 @@ import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.api.client.gui.settings.VRPresetSettingsType;
 import org.vmstudio.visor.core.client.settings.presets.types.VRSettingsPresetCustom;

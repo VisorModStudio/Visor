@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.extensions.client.GuiExtension;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;

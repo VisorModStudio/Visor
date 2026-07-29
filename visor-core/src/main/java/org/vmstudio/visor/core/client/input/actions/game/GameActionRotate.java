@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 

@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings;
 
 import lombok.Getter;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.*;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

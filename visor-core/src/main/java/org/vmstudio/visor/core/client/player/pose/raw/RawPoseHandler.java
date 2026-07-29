@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.player.pose.raw;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import org.vmstudio.visor.api.common.HandType;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 

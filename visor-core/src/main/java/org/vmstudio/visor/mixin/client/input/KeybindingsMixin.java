@@ -17,7 +17,6 @@ import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 
 import java.io.File;
@@ -37,7 +36,7 @@ public class KeybindingsMixin {
                 if (key == GLFW.GLFW_KEY_F7
                         && VisorAPI.clientState().sceneType() == VRSceneType.MAIN_MENU) {
                     VRPlayMode mode = VisorAPI.clientState().playMode().next();
-                    VRClientSettings.setVrPlayMode(mode);
+                    VisorState.setVrPlayMode(mode);
                     ClientContext.settingsManager.saveOptions();
                     ci.cancel();
                 }

@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;

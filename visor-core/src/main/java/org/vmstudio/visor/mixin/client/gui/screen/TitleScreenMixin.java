@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.widgets.lists.DropDownListWidget;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -121,7 +121,7 @@ public abstract class TitleScreenMixin extends Screen {
                 .setMessage(Component.translatable("visor.options.common.vr_play_mode.tooltip"))
                 .setResponder(index -> {
                     VRPlayMode mode = modes[index];
-                    VRClientSettings.setVrPlayMode(mode);
+                    VisorState.setVrPlayMode(mode);
                     ClientContext.settingsManager.saveOptions();
                     visor$playModeLast = mode;
                 })

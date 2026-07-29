@@ -19,7 +19,7 @@ import org.vmstudio.visor.core.client.input.actions.ActionMiddleMouse;
 import org.vmstudio.visor.core.client.input.actions.ActionRightMouse;
 import org.vmstudio.visor.core.client.input.actions.ActionScrollMouse;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

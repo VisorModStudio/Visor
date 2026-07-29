@@ -1,4 +1,4 @@
-package org.vmstudio.visor.core.client.settings.options.enums;
+package org.vmstudio.visor.api.client.settings.enums;
 
 public enum RotationMode {
     OFFHAND,

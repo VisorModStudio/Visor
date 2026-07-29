@@ -60,8 +60,6 @@
 
   "_comment.gui": "----Настройки интерфейса----",
   "visor.options.gui.button": "Интерфейс",
-  "visor.options.gui.shader_gui_render": "Шейдерный GUI",
-  "visor.options.gui.shader_gui_render.tooltip": "§bШейдерный GUI§r\n\n§7Эта функция находится в разработке.§r",
   "visor.options.gui.settings_text_scale": "Масштаб текста",
   "visor.options.gui.settings_text_scale.tooltip": "§bМасштаб текста в настройках",
   "visor.options.gui.keyboard.auto_layout": "Автоклавиатура",
@@ -190,9 +188,6 @@
   "visor.options.enums.RotationMode.HMD": "Шлем",
   "visor.options.enums.MovementMode.CONTROLLER": "Стик",
   "visor.options.enums.MovementMode.TELEPORT": "Телепорт",
-  "visor.options.enums.ShaderGUIRenderMode.AFTER_SHADER": "После шейдеров",
-  "visor.options.enums.ShaderGUIRenderMode.AFTER_TRANSLUCENT": "Прозрачность",
-  "visor.options.enums.ShaderGUIRenderMode.BEFORE_TRANSLUCENT_SOLID": "Непрозрачность",
 
   "_comment14": "*--------ДЕЙСТВИЯ--------*",
   "visor.action_sets.menu": "Меню",

@@ -4,7 +4,7 @@ import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetPosition;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.controls.VRSettingsKeyboardLayouts;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -23,7 +23,7 @@ public class VRSettingsGui extends VROptionsSet {
 
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
-        return VROptionCategory.GUI.types()
+        return VROptionWidgetType.byCategory(VROptionCategory.GUI)
                 .toArray(new VROptionWidgetType[0]);
     }
 

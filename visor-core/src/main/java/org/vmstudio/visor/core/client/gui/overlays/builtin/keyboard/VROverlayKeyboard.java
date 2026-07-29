@@ -21,7 +21,6 @@ import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 
 import java.util.List;
 
@@ -217,7 +216,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
     }
 
     public @NotNull List<KeyboardLayout> getEnabledLayoutIds() {
-        List<KeyboardLayout> enabledLayouts = VRClientSettings.getEffectiveKeyboardLayouts();
+        List<KeyboardLayout> enabledLayouts = KeyboardLayouts.getEffectiveSelected();
         if (enabledLayouts.isEmpty()) {
             return List.of(KeyboardLayout.ENGLISH);
         }

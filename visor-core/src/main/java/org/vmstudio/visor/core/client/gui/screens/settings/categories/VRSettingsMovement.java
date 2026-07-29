@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +19,7 @@ public class VRSettingsMovement extends VROptionsSet {
 
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
-        return VROptionCategory.MOVEMENT.types()
+        return VROptionWidgetType.byCategory(VROptionCategory.MOVEMENT)
                 .toArray(new VROptionWidgetType[0]);
     }
 

@@ -1,10 +1,7 @@
-package org.vmstudio.visor.core.client.settings;
+package org.vmstudio.visor.api.client.settings;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
-import java.util.List;
 
 public enum VROptionCategory {
     EMPTY("empty"),
@@ -27,11 +24,5 @@ public enum VROptionCategory {
 
     VROptionCategory(@NotNull String key){
         this.key = key;
-    }
-
-    public List<VROptionWidgetType> types() {
-        return Arrays.stream(VROptionWidgetType.values())
-                .filter(t -> t.getCategory() == this)
-                .toList();
     }
 }

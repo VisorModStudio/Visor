@@ -51,7 +51,7 @@ import org.vmstudio.visor.compatibility.BlockClassifier;
 import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.PlayerExtension;

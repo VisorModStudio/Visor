@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering
 
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ public class VRSettingsEyeEffects extends VROptionsSet {
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
 
-        return VROptionCategory.RENDERING_EYE_EFFECTS.types()
+        return VROptionWidgetType.byCategory(VROptionCategory.RENDERING_EYE_EFFECTS)
                 .toArray(new VROptionWidgetType[0]);
     }
 

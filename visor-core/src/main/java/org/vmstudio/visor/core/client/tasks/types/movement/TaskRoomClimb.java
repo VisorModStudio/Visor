@@ -17,7 +17,7 @@ import org.vmstudio.visor.api.common.network.toserver.ClimbingPayloadToServer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;

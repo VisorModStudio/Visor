@@ -12,8 +12,6 @@ import org.vmstudio.visor.api.client.gui.overlays.VROverlayPose;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.ShaderGUIRenderMode;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -84,10 +82,6 @@ public class RenderGuiHelper {
                     GlStateManager.SourceFactor.ONE_MINUS_DST_ALPHA,
                     GlStateManager.DestFactor.ONE
             );
-            if (VRClientSettings.getShaderGUIRender() == ShaderGUIRenderMode.BEFORE_TRANSLUCENT_SOLID
-                    && ShadersHelper.isShaderActive()) {
-                RenderSystem.disableBlend();
-            }
         } else {
             RenderSystem.enableBlend();
         }

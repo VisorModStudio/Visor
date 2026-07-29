@@ -11,7 +11,7 @@ import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.compatibility.shaders.IrisVRBridge;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

@@ -18,7 +18,7 @@ import org.vmstudio.visor.api.client.render.VRSceneType;
 import org.vmstudio.visor.core.client.gui.screens.VRPauseMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -255,7 +255,7 @@ public class VisorState implements VisorClientState {
 
         destroyVR();
 
-        VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
+        setVrPlayMode(VRPlayMode.DISABLED);
 
         if(MC.level != null) {
             MC.level.disconnect();
@@ -265,7 +265,7 @@ public class VisorState implements VisorClientState {
     private static void initFailed(Throwable throwable){
         destroyVR();
 
-        VRClientSettings.setVrPlayMode(VRPlayMode.DISABLED);
+        setVrPlayMode(VRPlayMode.DISABLED);
         ClientContext.settingsManager.saveOptions();
 
         vrInitFailed = true;
@@ -286,6 +286,17 @@ public class VisorState implements VisorClientState {
     }
     public static void clearVrInitFailed() {
         vrInitFailed = false;
+    }
+
+    public static void setVrPlayMode(@NotNull VRPlayMode vrPlayMode) {
+        if(vrPlayMode != VRPlayMode.DISABLED) {
+            clearVrInitFailed();
+        }
+        VRClientSettings.setVrPlayMode(vrPlayMode);
+        VisorClientImpl.LOGGER.info(
+                "Changed VR Play Mode to: {}",
+                VRClientSettings.getVrPlayMode()
+        );
     }
 
     @Override

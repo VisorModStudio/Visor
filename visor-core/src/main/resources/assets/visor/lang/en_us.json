@@ -61,8 +61,6 @@
 
   "_comment.gui": "----GUI Settings----",
   "visor.options.gui.button": "GUI",
-  "visor.options.gui.shader_gui_render": "Shaders GUI",
-  "visor.options.gui.shader_gui_render.tooltip": "§bShaders GUI§r\n\n§7This feature is currently\nin development.§r",
   "visor.options.gui.settings_text_scale": "Text scale",
   "visor.options.gui.settings_text_scale.tooltip": "§bSettings text scale",
   "visor.options.gui.keyboard.auto_layout": "Auto Keyboard",
@@ -192,9 +190,6 @@
   "visor.options.enums.RotationMode.HMD": "HMD",
   "visor.options.enums.MovementMode.CONTROLLER": "Controller",
   "visor.options.enums.MovementMode.TELEPORT": "Teleport",
-  "visor.options.enums.ShaderGUIRenderMode.AFTER_SHADER": "After Shader",
-  "visor.options.enums.ShaderGUIRenderMode.AFTER_TRANSLUCENT": "Translucent",
-  "visor.options.enums.ShaderGUIRenderMode.BEFORE_TRANSLUCENT_SOLID": "Opaque",
 
   "_comment14": "*--------ACTIONS--------*",
   "visor.action_sets.menu": "Menu actions",

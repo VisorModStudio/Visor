@@ -39,7 +39,7 @@ import org.vmstudio.visor.core.client.input.VRInputManagerImpl;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.vmstudio.visor.core.client.render.decoration.DecorationRendererImpl;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VRClientSettingsManager;
 import org.vmstudio.visor.core.client.tasks.VisorTaskRegistry;
 import org.vmstudio.visor.core.common.addon.AddonManagerImpl;

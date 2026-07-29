@@ -28,8 +28,8 @@ import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 
 import java.util.List;

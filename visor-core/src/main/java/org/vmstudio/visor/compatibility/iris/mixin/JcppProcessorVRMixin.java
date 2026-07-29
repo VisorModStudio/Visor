@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.compatibility.shaders.ShaderPatcher;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 @Pseudo
 @Mixin(targets = {

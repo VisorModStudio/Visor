@@ -1,9 +1,13 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -98,6 +102,39 @@ public final class KeyboardLayouts {
 
     public static @NotNull List<KeyboardLayout> getSelectableLayouts() {
         return List.of(KeyboardLayout.values());
+    }
+
+    public static @NotNull List<KeyboardLayout> getSelected() {
+        return deserialize(VRClientSettings.getKeyboardLayoutsRaw());
+    }
+
+    public static void setSelected(@NotNull Collection<KeyboardLayout> layouts) {
+        VRClientSettings.setKeyboardLayoutsRaw(serialize(layouts));
+    }
+
+    /**
+     * Includes auto keyboard layout if supported
+     */
+    public static @NotNull List<KeyboardLayout> getEffectiveSelected() {
+        List<KeyboardLayout> base = getSelected();
+        KeyboardLayout autoLayout = getAutoLayout();
+        if (autoLayout == null || base.contains(autoLayout)) {
+            return base;
+        }
+        var merged = new ArrayList<>(base);
+        if(merged.isEmpty()){
+            merged.add(KeyboardLayout.ENGLISH);
+        }
+        merged.add(autoLayout);
+        return List.copyOf(merged);
+    }
+
+    public static @Nullable KeyboardLayout getAutoLayout() {
+        if (!VRClientSettings.isKeyboardAutoLayout()) return null;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null) return null;
+        String langCode = mc.options.languageCode;
+        return KeyboardLayout.fromLangCode(langCode);
     }
 
     public static @NotNull List<KeyboardLayout> deserialize(

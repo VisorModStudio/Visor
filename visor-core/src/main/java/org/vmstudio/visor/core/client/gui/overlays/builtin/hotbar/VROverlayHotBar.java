@@ -20,7 +20,7 @@ import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

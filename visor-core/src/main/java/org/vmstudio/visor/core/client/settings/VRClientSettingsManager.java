@@ -9,9 +9,11 @@ import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
 import org.vmstudio.visor.api.common.VRException;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionField;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.VROptionRecord;
 import org.vmstudio.visor.core.client.settings.overlays.OverlayConfigsManager;
 import org.vmstudio.visor.core.client.settings.presets.PresetsCatalogListener;
@@ -391,10 +393,6 @@ public class VRClientSettingsManager {
                 String optionKey = annotation.key().isEmpty()
                         ? field.getName() : annotation.key();
                 var category = annotation.category();
-                if(category == VROptionCategory.EMPTY){
-                    category = annotation.widgetType()
-                            .getCategory();
-                }
                 if(category != VROptionCategory.EMPTY){
                     optionKey = category.getKey()
                             + "."
@@ -404,23 +402,30 @@ public class VRClientSettingsManager {
 
                 var optionRecord = new VROptionRecord(
                         field,
-                        annotation.widgetType(),
                         optionKey,
                         annotation.excludeForcedChange()
                 );
 
-                if (annotation.widgetType() != VROptionWidgetType.EMPTY) {
-                    if (optionWidgets.containsValue(annotation.widgetType())) {
-                        throw new RuntimeException(
-                                "duplicate option widget in client settings! " +
-                                        "field: " + annotation.widgetType()
-                        );
-                    }
-                    annotation.widgetType().setKey(optionKey);
-                    optionWidgets.put(optionKey, annotation.widgetType());
-                }
-
                 allOptions.put(optionKey, optionRecord);
+            }
+
+            for (VROptionWidgetType widgetType : VROptionWidgetType.values()) {
+                if (widgetType == VROptionWidgetType.EMPTY) {
+                    continue;
+                }
+                String optionKey = widgetType.getKey();
+                if (!allOptions.containsKey(optionKey)) {
+                    throw new RuntimeException(
+                            "option widget does not match any client settings field! " +
+                                    "widget: " + widgetType + ", key: " + optionKey
+                    );
+                }
+                if (optionWidgets.put(optionKey, widgetType) != null) {
+                    throw new RuntimeException(
+                            "duplicate option widget key in client settings! " +
+                                    "widget: " + widgetType
+                    );
+                }
             }
         } catch (Exception ex) {
             throw new VRException(ex);

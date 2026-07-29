@@ -5,7 +5,7 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayThirdPersonCamera;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetPosition;
@@ -24,7 +24,7 @@ public class VRSettingsMixedReality extends VROptionsSet {
 
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
-        return VROptionCategory.RENDERING_MIXED_REALITY.types()
+        return VROptionWidgetType.byCategory(VROptionCategory.RENDERING_MIXED_REALITY)
                 .toArray(new VROptionWidgetType[0]);
     }
 

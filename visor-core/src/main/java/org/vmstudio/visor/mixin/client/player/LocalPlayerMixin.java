@@ -12,7 +12,7 @@ import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.mixin.common.player.Common_PlayerMixin;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;

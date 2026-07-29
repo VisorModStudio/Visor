@@ -7,7 +7,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 
@@ -107,7 +106,7 @@ public class VRPauseMenuScreen extends Screen {
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.inventory").getString(), left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.calibrate_height").getString(), right, y, b -> {
-                    VRClientSettings.calibrateHeight();
+                    ClientUtils.calibrateHeight();
                     ClientContext.settingsManager.saveOptions();
                 }));
                 y += BTN_H + GAP;

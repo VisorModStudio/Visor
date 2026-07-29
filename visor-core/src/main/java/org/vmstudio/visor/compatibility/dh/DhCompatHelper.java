@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 public final class DhCompatHelper {
     public static final String MOD_ID = "distanthorizons";
