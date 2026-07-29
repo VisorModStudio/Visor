@@ -52,7 +52,10 @@ public class VRServerSettings {
     protected static int teleportForwardLimit = 16;
 
     @Getter @SendSettingToClient
-    private static boolean trackersSupported = true;
+    private static boolean bodyTrackersSupported = true;
+
+    @Getter @SendSettingToClient
+    private static boolean handTrackersSupported = true;
 
 
     /**
@@ -77,7 +80,8 @@ public class VRServerSettings {
         betterSwinging = false;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
-        trackersSupported = false;
+        bodyTrackersSupported = false;
+        handTrackersSupported = false;
 
 
     }

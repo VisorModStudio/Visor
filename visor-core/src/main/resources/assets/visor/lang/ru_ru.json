@@ -118,6 +118,11 @@
   "_comment.vr_body": "----Настройки тела VR----",
   "visor.options.vr_body.button": "Тело VR",
   "visor.options.vr_body.select": "Выберите тип тела",
+  "visor.options.vr_body.select.button": "Выбрать тело VR...",
+  "visor.options.vr_body.fbt": "FBT",
+  "visor.options.vr_body.fbt.tooltip": "§bПолное отслеживание тела§r\n\nИспользовать трекеры для отслеживания всего тела.\nВыключите, чтобы пропустить обработку трекеров тела §7(оптимизация)§r.",
+  "visor.options.vr_body.hand_tracking": "Отслеживание рук",
+  "visor.options.vr_body.hand_tracking.tooltip": "§bОтслеживание пальцев рук§r\n\nИспользовать данные отслеживания пальцев рук.\nВыключите, чтобы пропустить обработку отслеживания рук §7(оптимизация)§r.",
   "visor.vr_body_type.hands_only.name": "Только руки",
   "visor.vr_body_type.full_body.name": "Полное тело",
 

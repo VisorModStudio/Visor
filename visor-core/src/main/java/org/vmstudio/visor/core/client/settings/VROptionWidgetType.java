@@ -236,6 +236,14 @@ public enum VROptionWidgetType {
             VROptionCategory.RENDERING,
             (it) -> null
     ),
+    FBT(
+            VROptionCategory.VR_BODY,
+            (it) -> null
+    ),
+    HAND_TRACKING(
+            VROptionCategory.VR_BODY,
+            (it) -> null
+    ),
     MOVEMENT_MODE(
             VROptionCategory.MOVEMENT,
             (it) -> null

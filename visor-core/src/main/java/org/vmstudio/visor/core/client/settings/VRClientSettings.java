@@ -167,6 +167,14 @@ public class VRClientSettings {
     protected static String defaultVrBody = VRBodyTypeHandsOnly.ID;
 
     @Getter
+    @VROptionField(widgetType = VROptionWidgetType.FBT, key = "fbt")
+    protected static boolean fbtEnabled = true;
+
+    @Getter
+    @VROptionField(widgetType = VROptionWidgetType.HAND_TRACKING, key = "hand_tracking")
+    protected static boolean handTrackingEnabled = true;
+
+    @Getter
     @VROptionField
     protected static float playerModelArmsScale = 0.5F;
     @Getter
@@ -411,6 +419,14 @@ public class VRClientSettings {
             return rotationFlyMode;
         }
         return rotationMode;
+    }
+
+    public static boolean isFbtActive() {
+        return fbtEnabled && VRServerSettings.isBodyTrackersSupported();
+    }
+
+    public static boolean isHandTrackingActive() {
+        return handTrackingEnabled && VRServerSettings.isHandTrackersSupported();
     }
 
     public static @NotNull List<KeyboardLayout> getKeyboardLayouts() {

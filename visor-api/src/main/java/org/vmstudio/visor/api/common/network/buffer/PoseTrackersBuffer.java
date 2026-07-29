@@ -112,7 +112,7 @@ public record PoseTrackersBuffer(@Nullable PoseElementBuffer waist,
     private static PoseElementBuffer createTracker(VRBodyPartType type,
                                                    VRLocalPlayer vrPlayer,
                                                    VRPlayerPoseClient pose) {
-        if(!VRServerSettings.isTrackersSupported()){
+        if(!VRServerSettings.isBodyTrackersSupported()){
             return null;
         }
 
