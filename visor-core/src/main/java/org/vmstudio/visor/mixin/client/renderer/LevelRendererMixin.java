@@ -26,6 +26,7 @@ import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -208,6 +209,15 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
   //--------BETTER SWINGING--------\\
     \* ************************* */
 
+    @Inject(at = @At("HEAD"), method = "setLevel")
+    private void visor$clearSwingDamage(ClientLevel level, CallbackInfo ci) {
+        visor$damagedBlocksVrSave.keySet().forEach(
+                key -> destructionProgress.remove(key.longValue())
+        );
+        visor$damagedBlocksVr.clear();
+        visor$damagedBlocksVrSave.clear();
+    }
+
     @Inject(at = @At("HEAD"), method = "removeProgress", cancellable = true)
     private void visor$removeProgress(BlockDestructionProgress progress,
                                       CallbackInfo ci
@@ -226,8 +236,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At("HEAD"), method = "renderLevel")
     private void visor$betterSwinging(CallbackInfo ci) {
-        if (!VRServerSettings.isBetterSwinging()
-                || !VisorState.get().isActive()) {
+        if (visor$damagedBlocksVr.isEmpty()
+                && visor$damagedBlocksVrSave.isEmpty()) {
             return;
         }
 
