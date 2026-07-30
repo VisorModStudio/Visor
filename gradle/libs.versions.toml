@@ -18,7 +18,7 @@ parchment              = "2023.09.03"
 architectury-lib       = "9.2.14"
 lwjgl                  = "3.3.6"
 atum-vr                = "1.13.0beta"
-atum-config            = '1.2.0pre2'
+atum-config            = '1.2.0pre3'
 
 #Fabric
 fabric-loader          = "0.16.5"

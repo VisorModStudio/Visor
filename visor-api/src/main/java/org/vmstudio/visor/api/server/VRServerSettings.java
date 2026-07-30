@@ -46,10 +46,12 @@ public class VRServerSettings {
 
     @Getter @SendSettingToClient
     @VRServerOptionField(key = "supported_movement")
+    @ConfigComment("Movement allowed for VR players: CONTROLLER, TELEPORT or BOTH")
     private static SupportedMovement supportedMovement;
 
 
     @Getter @SendSettingToClient
+    @ConfigComment("Teleport distance limits in blocks")
     protected static int teleportUpLimit;
     @Getter @SendSettingToClient
     protected static int teleportDownLimit;
@@ -57,6 +59,7 @@ public class VRServerSettings {
     protected static int teleportForwardLimit;
 
     @Getter @SendSettingToClient
+    @ConfigComment({"[TRACKERS] - Potentially, more network consumption when enabled",})
     private static boolean bodyTrackersSupported;
 
     @Getter @SendSettingToClient
