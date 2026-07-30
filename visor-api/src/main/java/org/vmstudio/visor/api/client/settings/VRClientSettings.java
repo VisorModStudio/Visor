@@ -194,7 +194,7 @@ public class VRClientSettings {
     //----GUI && HUD
     @Getter
     @VROptionField(key = "settings_text_scale", category = VROptionCategory.GUI)
-    protected static float settingsTextScale = 0.9f;
+    protected static float settingsTextScale = 0.85f;
 
     @Getter
     @VROptionField(key = "gui.scale")

@@ -194,7 +194,7 @@ public class OptionWidgetEntry {
                 + (getWidgetHeight() + 4) * this.row;
     }
     public int getWidgetWidth(){
-        return owner.getScreen().getScaleHelper().scaledSize(52);
+        return owner.getScreen().getScaleHelper().scaledSize(62);
     }
     public int getWidgetHeight(){
         return owner.getScreen().getScaleHelper().scaledSize(10);
