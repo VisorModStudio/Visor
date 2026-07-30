@@ -458,6 +458,32 @@ public enum VROptionWidgetType {
                         }
                 ).build();
             }
+    ),
+
+    WORLD_TWO_HANDED(
+            VROptionCategory.WORLD,
+            "two_handed",
+            (it) -> null
+    ),
+    WORLD_BETTER_SWINGING(
+            VROptionCategory.WORLD,
+            "better_swinging",
+            (it) -> null
+    ),
+    WORLD_ROOM_CRAWLING(
+            VROptionCategory.WORLD,
+            "room_crawling",
+            (it) -> null
+    ),
+    WORLD_ROOM_CLIMBING(
+            VROptionCategory.WORLD,
+            "room_climbing",
+            (it) -> null
+    ),
+    WORLD_SUPPORTED_MOVEMENT(
+            VROptionCategory.WORLD,
+            "supported_movement",
+            (it) -> null
     );
 
     @Getter

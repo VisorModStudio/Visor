@@ -8,54 +8,84 @@ import net.fabricmc.api.Environment;
 
 public class VRServerSettings {
     @Getter @SendSettingToClient
-    private static boolean serverDebug = false;
+    private static boolean serverDebug;
     @Getter @SendSettingToClient
-    private static boolean vrOnly = false;
+    private static boolean vrOnly;
 
     @Getter @SendSettingToClient
-    private static boolean twoHandedVR = true;
+    @VRServerOptionField(key = "two_handed")
+    private static boolean twoHandedVR;
     @Getter @SendSettingToClient
-    private static boolean betterSwinging = true;
-
-    @Getter
-    private static long swingingRepairDelay = 400;
-
+    @VRServerOptionField(key = "better_swinging")
+    private static boolean betterSwinging;
 
     @Getter
-    private static float swingingMiningSpeed = 1.5f;
-
-    @Getter @SendSettingToClient
-    private static boolean roomCrawlingSupported = true;
-
-    @Getter @SendSettingToClient
-    private static boolean roomClimbingSupported = true;
-
-    @Getter @SendSettingToClient
-    private static boolean pvpVRvsVanilla = true;
-    @Getter @SendSettingToClient
-    private static boolean pvpVRvsVR = true;
-    @Getter @SendSettingToClient
-    private static boolean notifyPvpBlocked = false;
-
-    @Getter @SendSettingToClient
-    private static double creeperSwellDistance = 1.75;
-
-    @Getter @SendSettingToClient
-    private static SupportedMovement supportedMovement = SupportedMovement.BOTH;
+    private static long swingingRepairDelay;
 
 
-    @Getter @SendSettingToClient
-    protected static int teleportUpLimit = 1;
-    @Getter @SendSettingToClient
-    protected static int teleportDownLimit = 4;
-    @Getter @SendSettingToClient
-    protected static int teleportForwardLimit = 16;
+    @Getter
+    private static float swingingMiningSpeed;
 
     @Getter @SendSettingToClient
-    private static boolean bodyTrackersSupported = true;
+    @VRServerOptionField(key = "room_crawling")
+    private static boolean roomCrawlingSupported;
 
     @Getter @SendSettingToClient
-    private static boolean handTrackersSupported = true;
+    @VRServerOptionField(key = "room_climbing")
+    private static boolean roomClimbingSupported;
+
+    @Getter @SendSettingToClient
+    private static boolean pvpVRvsVanilla;
+    @Getter @SendSettingToClient
+    private static boolean pvpVRvsVR;
+    @Getter @SendSettingToClient
+    private static boolean notifyPvpBlocked;
+
+    @Getter @SendSettingToClient
+    private static double creeperSwellDistance;
+
+    @Getter @SendSettingToClient
+    @VRServerOptionField(key = "supported_movement")
+    private static SupportedMovement supportedMovement;
+
+
+    @Getter @SendSettingToClient
+    protected static int teleportUpLimit;
+    @Getter @SendSettingToClient
+    protected static int teleportDownLimit;
+    @Getter @SendSettingToClient
+    protected static int teleportForwardLimit;
+
+    @Getter @SendSettingToClient
+    private static boolean bodyTrackersSupported;
+
+    @Getter @SendSettingToClient
+    private static boolean handTrackersSupported;
+
+    static {
+        resetToDefaults();
+    }
+
+    public static void resetToDefaults(){
+        serverDebug = false;
+        vrOnly = false;
+        twoHandedVR = true;
+        betterSwinging = true;
+        swingingRepairDelay = 400;
+        swingingMiningSpeed = 1.5f;
+        roomCrawlingSupported = true;
+        roomClimbingSupported = true;
+        pvpVRvsVanilla = true;
+        pvpVRvsVR = true;
+        notifyPvpBlocked = false;
+        creeperSwellDistance = 1.75;
+        supportedMovement = SupportedMovement.BOTH;
+        teleportUpLimit = 1;
+        teleportDownLimit = 4;
+        teleportForwardLimit = 16;
+        bodyTrackersSupported = true;
+        handTrackersSupported = true;
+    }
 
 
     /**

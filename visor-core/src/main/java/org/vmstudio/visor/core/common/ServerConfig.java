@@ -27,6 +27,7 @@ public class ServerConfig{
 
 
     public void onServerInit() throws Throwable{
+        VRServerSettings.resetToDefaults();
         config = VisorAPI.server().
                 getConfigManager().createConfigFile(
                         ConfigType.YAML,

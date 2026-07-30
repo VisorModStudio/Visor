@@ -17,7 +17,8 @@ public enum VROptionCategory {
     MOVEMENT("movement"),
     CONTROLS("controls"),
     IMMERSION("immersion"),
-    IMMERSION_ADVANCED("immersion.advanced");
+    IMMERSION_ADVANCED("immersion.advanced"),
+    WORLD("world");
 
     @Getter
     private final String key;
