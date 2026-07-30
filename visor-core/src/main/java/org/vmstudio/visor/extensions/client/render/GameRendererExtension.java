@@ -1,12 +1,15 @@
 package org.vmstudio.visor.extensions.client.render;
 
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRCameraEntityCache;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -61,6 +64,17 @@ public interface GameRendererExtension {
     void visor$resetProjectionMatrix(float partialTicks);
 
     Vec3 visor$getCrossVec();
+
+    @Nullable Vec3 visor$getCrossVec(HandType hand);
+
+    @Nullable HitResult visor$getHandHitResult(HandType hand);
+
+    /**
+     * Applies the last computed pick of the given hand
+     * to the game hit result, so hand switching
+     * doesn't act with stale aim data
+     */
+    void visor$applyHandPick(HandType hand);
 
     VRCameraEntityCache visor$getCameraEntityCache();
 

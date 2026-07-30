@@ -118,6 +118,11 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         }
         this.activeHand = activeHand;
 
+        if (VisorState.get().isActive() && MC.level != null) {
+            // refresh aim data, so the switching active hand can be instant
+            ((GameRendererExtension) MC.gameRenderer).visor$applyHandPick(activeHand);
+        }
+
         ClientNetworking.sendVRPacket(
                 new ActiveHandPayloadToServer(this.activeHand == HandType.MAIN)
         );

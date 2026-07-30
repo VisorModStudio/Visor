@@ -33,7 +33,6 @@ public class MouseClickHandler {
     private VROverlay pressedOverlay;
     private boolean wasPressedOverlay;
     private boolean ignoreSingleClick;
-    private boolean ignoreSingleRelease;
 
     private boolean gamePressed;
 
@@ -208,8 +207,6 @@ public class MouseClickHandler {
             InputHelper.releaseMouse(buttonType);
             gamePressed = false;
         }
-
-        ignoreSingleRelease = false;
     }
 
     public void onClear() {
@@ -228,7 +225,6 @@ public class MouseClickHandler {
         pressedOverlay = null;
         wasPressedOverlay = false;
         ignoreSingleClick = false;
-        ignoreSingleRelease = false;
         gamePressed = false;
     }
 
@@ -272,21 +268,18 @@ public class MouseClickHandler {
     }
 
     private void processGame(@NotNull HandType handType) {
-        // update active hand if only one hand is pressed
-        var activeHand = ClientContext.localPlayer.getActiveHand();
-        if (activeHand != handType) {
+        // switch active hand if only one hand is pressed
+        var localPlayer = ClientContext.localPlayer;
+        if (localPlayer.getActiveHand() != handType) {
             if ((mainHandPressed && !offhandPressed)
                     || (!mainHandPressed && offhandPressed)) {
-                ClientContext.localPlayer.setActiveHand(handType);
-                if(!(forcedMain && mainHandPressed)
-                        && !(forcedOffhand && offhandPressed)) {
-                    ignoreSingleRelease = true;
+                localPlayer.setActiveHand(handType);
+                boolean forced = (forcedMain && mainHandPressed)
+                        || (forcedOffhand && offhandPressed);
+                if (localPlayer.getActiveHand() != handType && !forced) {
+                    // twoHanded gameplay disabled
                     return;
                 }
-            }
-            if (ignoreSingleRelease) {
-                ignoreSingleRelease = false;
-                return;
             }
         }
         InputHelper.pressMouse(buttonType);

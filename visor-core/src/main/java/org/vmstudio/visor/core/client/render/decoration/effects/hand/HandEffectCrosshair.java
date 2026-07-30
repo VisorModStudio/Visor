@@ -12,6 +12,7 @@ import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHan
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
@@ -43,6 +44,7 @@ public class HandEffectCrosshair extends VRHandEffect {
     private static final float LIGHT_OFFSET = -0.01f;
     private static final float FULL_BRIGHTNESS = 1.0f;
     private static final float MISS_BRIGHTNESS = 0.5f;
+    private static final float INACTIVE_BRIGHTNESS = 0.4f;
 
     public HandEffectCrosshair(@NotNull VisorAddon owner) {
         super(owner);
@@ -57,7 +59,13 @@ public class HandEffectCrosshair extends VRHandEffect {
 
         // --- Prepare variables ---
         VRPlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        var rawCross = ((GameRendererExtension)MC.gameRenderer).visor$getCrossVec().toVector3f();
+        var renderer = (GameRendererExtension) MC.gameRenderer;
+        var crossVec = renderer.visor$getCrossVec(hand);
+        if (crossVec == null) {
+            return;
+        }
+        HitResult handHit = renderer.visor$getHandHitResult(hand);
+        var rawCross = crossVec.toVector3f();
         var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
         float scale = BASE_SCALE * worldScale;
@@ -65,9 +73,12 @@ public class HandEffectCrosshair extends VRHandEffect {
         // nudge back for correct lighting
         var crossPos = rawCross.add(aim.normalize().mul(LIGHT_OFFSET));
 
-        float baseBrightness = (MC.hitResult == null || MC.hitResult.getType() == HitResult.Type.MISS)
+        float baseBrightness = (handHit == null || handHit.getType() == HitResult.Type.MISS)
                 ? MISS_BRIGHTNESS
                 : FULL_BRIGHTNESS;
+        if (hand != ClientContext.localPlayer.getActiveHand()) {
+            baseBrightness *= INACTIVE_BRIGHTNESS;
+        }
         float brightness = getBrightness(crossPos) * baseBrightness;
 
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
@@ -99,7 +110,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         Vector3f translate = crossPos.sub(camPos);
         poseStack.translate(translate.x, translate.y, translate.z);
 
-        applyCrossHairRotation(poseStack, hand, pose);
+        applyCrossHairRotation(poseStack, hand, pose, handHit);
 
         poseStack.scale(scale, scale, scale);
 
@@ -137,8 +148,9 @@ public class HandEffectCrosshair extends VRHandEffect {
 
     private void applyCrossHairRotation(PoseStack poseStack,
                                         HandType hand,
-                                        VRPlayerPoseClient pose) {
-        if (MC.hitResult instanceof BlockHitResult bhr && bhr.getType() != HitResult.Type.MISS) {
+                                        VRPlayerPoseClient pose,
+                                        HitResult hit) {
+        if (hit instanceof BlockHitResult bhr && bhr.getType() != HitResult.Type.MISS) {
             switch (bhr.getDirection()) {
                 case DOWN -> {
                     rotateInDegrees(poseStack, pose.getHand(hand).getYawDegrees(), 0, 1, 0);
@@ -183,7 +195,12 @@ public class HandEffectCrosshair extends VRHandEffect {
             return false;
         }
         if(hand != ClientContext.localPlayer.getActiveHand()){
-            return false;
+            if(!VRServerSettings.isTwoHandedVR()){
+                return false;
+            }
+            if(((GameRendererExtension) MC.gameRenderer).visor$getCrossVec(hand) == null){
+                return false;
+            }
         }
         boolean insideBlock = ((GameRendererExtension) MC.gameRenderer).visor$isInBlock();
         if(insideBlock){
