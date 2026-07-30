@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -39,6 +40,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -442,6 +444,23 @@ public abstract class MinecraftMixin implements MinecraftExtension {
             return;
         }
         original.call(instance, hand);
+    }
+
+    @Unique
+    private boolean visor$attackKeyDown;
+
+    @Inject(method = "handleKeybinds", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/Minecraft;startAttack()Z"))
+    private void visor$markAttackKeyDown(CallbackInfo ci) {
+        visor$attackKeyDown = true;
+    }
+
+    @WrapWithCondition(method = "continueAttack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;stopDestroyBlock()V"))
+    private boolean visor$keepSwingMining(MultiPlayerGameMode instance) {
+        boolean allowStop = VisorState.get().isNotActive() || visor$attackKeyDown;
+        visor$attackKeyDown = false;
+        return allowStop;
     }
 
 
