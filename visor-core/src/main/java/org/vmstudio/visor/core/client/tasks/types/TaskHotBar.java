@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.tasks.TaskType;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
 import net.minecraft.client.player.LocalPlayer;
@@ -87,54 +88,57 @@ public class TaskHotBar extends VisorTask {
         }
 
         //OFFHAND
-        if (!ClientContext.decorationRenderer.getHandState(HandType.OFFHAND).isWorldHand()) {
-            hotBarOffhand.setEnabled(
-                    false
-            );
-
-        } else {
-            if (inputPressedOffhand && !pressedOffhand) {
-                ClientContext.inputManager
-                        .triggerHapticPulse(
-                                HandType.OFFHAND, 0.002f
-                        );
+        if(VRServerSettings.isTwoHandedVR()){
+            if (!ClientContext.decorationRenderer.getHandState(HandType.OFFHAND).isWorldHand()) {
                 hotBarOffhand.setEnabled(
-                        true
+                        false
                 );
-                pressedOffhand = true;
 
-            }
-
-            if (pressedOffhand) {
-                slotOffhand = hotBarOffhand.getSelectedSlice();
-                if (slotOffhand != NOT_SELECTED) {
-
-                    if (slotMainBack != NULL
-                            && slotOffhand != slotMainBack) {
-                        //switching back
-                        slotMain = slotMainBack;
-                        inventory.selected = slotMain;
-                        slotMainBack = NULL;
-                    } else if (slotOffhand == slotMain) {
-                        //switching if collide
-                        handleSlotCollision(HandType.MAIN, true);
-                    }
-
-                }
-                if (!inputPressedOffhand) {
+            } else {
+                if (inputPressedOffhand && !pressedOffhand) {
                     ClientContext.inputManager
                             .triggerHapticPulse(
-                                    HandType.OFFHAND, 0.003f
+                                    HandType.OFFHAND, 0.002f
                             );
                     hotBarOffhand.setEnabled(
-                            false
+                            true
                     );
-                    pressedOffhand = false;
-                    slotOffhandBack = NULL;
-                    slotMainBack = NULL;
+                    pressedOffhand = true;
+
+                }
+
+                if (pressedOffhand) {
+                    slotOffhand = hotBarOffhand.getSelectedSlice();
+                    if (slotOffhand != NOT_SELECTED) {
+
+                        if (slotMainBack != NULL
+                                && slotOffhand != slotMainBack) {
+                            //switching back
+                            slotMain = slotMainBack;
+                            inventory.selected = slotMain;
+                            slotMainBack = NULL;
+                        } else if (slotOffhand == slotMain) {
+                            //switching if collide
+                            handleSlotCollision(HandType.MAIN, true);
+                        }
+
+                    }
+                    if (!inputPressedOffhand) {
+                        ClientContext.inputManager
+                                .triggerHapticPulse(
+                                        HandType.OFFHAND, 0.003f
+                                );
+                        hotBarOffhand.setEnabled(
+                                false
+                        );
+                        pressedOffhand = false;
+                        slotOffhandBack = NULL;
+                        slotMainBack = NULL;
+                    }
                 }
             }
         }
+
         //MAIN HAND
         if (!ClientContext.decorationRenderer.getHandState(HandType.MAIN).isWorldHand()) {
             hotBarMainHand.setEnabled(
