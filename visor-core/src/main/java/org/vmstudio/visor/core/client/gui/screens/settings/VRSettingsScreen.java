@@ -16,8 +16,10 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -404,7 +406,8 @@ public class VRSettingsScreen extends Screen {
                 scaleHelper.scaledSize(BACKGROUND.getHeight())
         );
         if(maxCategoryScroll() > 0){
-            renderCategoryScrollBar(guiGraphics);
+            renderCategoryScrollBar(guiGraphics, mouseX, mouseY);
+            renderCategoryScrollHints(guiGraphics, mouseX, mouseY);
         }
         VisorAPI.NOD_ICON.blit(
                 guiGraphics,
@@ -482,25 +485,110 @@ public class VRSettingsScreen extends Screen {
         }
     }
 
+    private void scrollCategories(int delta){
+        int scroll = Math.max(0, Math.min(
+                categoryScroll + delta,
+                maxCategoryScroll()
+        ));
+        if(scroll != categoryScroll){
+            categoryScroll = scroll;
+            layoutCategoryButtons();
+        }
+    }
+
     private boolean isOverCategoryList(double mouseX, double mouseY){
         int x = scaleHelper.scaledX(4);
         int y = scaleHelper.scaledY(CATEGORY_LIST_TOP);
         int bottom = scaleHelper.scaledY(CATEGORY_SCROLL_TOP + CATEGORY_SCROLL_HEIGHT);
-        return mouseX >= x && mouseX <= x + scaleHelper.scaledSize(50)
+        return mouseX >= x && mouseX <= scaleHelper.scaledX(56)
                 && mouseY >= y && mouseY <= bottom;
     }
 
-    private void renderCategoryScrollBar(GuiGraphics guiGraphics){
+    private boolean isOverCategoryArrowUp(double mouseX, double mouseY){
+        return categoryScroll > 0
+                && mouseX >= scaleHelper.scaledX(4) && mouseX <= scaleHelper.scaledX(54)
+                && mouseY >= scaleHelper.scaledY(39) && mouseY < scaleHelper.scaledY(45);
+    }
+
+    private boolean isOverCategoryArrowDown(double mouseX, double mouseY){
+        return categoryScroll < maxCategoryScroll()
+                && mouseX >= scaleHelper.scaledX(4) && mouseX <= scaleHelper.scaledX(54)
+                && mouseY >= scaleHelper.scaledY(127) && mouseY < scaleHelper.scaledY(134);
+    }
+
+    private boolean isOverCategoryScrollBar(double mouseX, double mouseY){
+        return maxCategoryScroll() > 0
+                && mouseX >= scaleHelper.scaledX(52) && mouseX <= scaleHelper.scaledX(56)
+                && mouseY >= scaleHelper.scaledY(CATEGORY_SCROLL_TOP)
+                && mouseY < scaleHelper.scaledY(CATEGORY_SCROLL_TOP + CATEGORY_SCROLL_HEIGHT);
+    }
+
+    private void renderCategoryScrollBar(GuiGraphics guiGraphics, int mouseX, int mouseY){
         int max = maxCategoryScroll();
         int x = scaleHelper.scaledX(54);
+        int xEnd = Math.max(x + 1, scaleHelper.scaledX(56));
         int y = scaleHelper.scaledY(CATEGORY_SCROLL_TOP);
-        int width = Math.max(1, scaleHelper.scaledSize(1));
         int height = scaleHelper.scaledSize(CATEGORY_SCROLL_HEIGHT);
-        guiGraphics.fill(x, y, x + width, y + height, 0xFF202020);
+        guiGraphics.fill(x, y, xEnd, y + height, 0xFF000000);
 
         int thumbHeight = Math.max(scaleHelper.scaledSize(10), height / (max + 1));
         int thumbY = y + (height - thumbHeight) * categoryScroll / max;
-        guiGraphics.fill(x, thumbY, x + width, thumbY + thumbHeight, INACTIVE_COLOR.asInt());
+        int thumbColor = isOverCategoryScrollBar(mouseX, mouseY)
+                ? 0xFFBEBEBE
+                : 0xFF969696;
+        guiGraphics.fill(x, thumbY, xEnd, thumbY + thumbHeight, thumbColor);
+    }
+
+    private void renderCategoryScrollHints(GuiGraphics guiGraphics, int mouseX, int mouseY){
+        if(categoryScroll > 0){
+            drawCategoryArrow(guiGraphics, 40, true,
+                    isOverCategoryArrowUp(mouseX, mouseY) ? 0xFFFFFFFF : 0xFF969696);
+        }
+        if(categoryScroll < maxCategoryScroll()){
+            drawCategoryArrow(guiGraphics, 127, false,
+                    isOverCategoryArrowDown(mouseX, mouseY) ? 0xFFFFFFFF : 0xFF969696);
+        }
+    }
+
+    private void drawCategoryArrow(GuiGraphics guiGraphics, int topY, boolean up, int color){
+        for(int row = 0; row < 5; row++){
+            int inset = up ? 4 - row : row;
+            guiGraphics.fill(
+                    scaleHelper.scaledX(25 + inset),
+                    scaleHelper.scaledY(topY + row),
+                    scaleHelper.scaledX(34 - inset),
+                    scaleHelper.scaledY(topY + row + 1),
+                    color
+            );
+        }
+    }
+
+    private boolean handleCategoryScrollClick(double mouseX, double mouseY){
+        if(isOverCategoryArrowUp(mouseX, mouseY)){
+            scrollCategories(-1);
+            playScrollClickSound();
+            return true;
+        }
+        if(isOverCategoryArrowDown(mouseX, mouseY)){
+            scrollCategories(1);
+            playScrollClickSound();
+            return true;
+        }
+        if(isOverCategoryScrollBar(mouseX, mouseY)){
+            int max = maxCategoryScroll();
+            int y = scaleHelper.scaledY(CATEGORY_SCROLL_TOP);
+            int height = scaleHelper.scaledSize(CATEGORY_SCROLL_HEIGHT);
+            int target = (int) ((mouseY - y) * (max + 1) / height);
+            scrollCategories(Math.max(0, Math.min(target, max)) - categoryScroll);
+            return true;
+        }
+        return false;
+    }
+
+    private void playScrollClickSound(){
+        MC.getSoundManager().play(
+                SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+        );
     }
 
     public void repopulateWidgets() {
@@ -519,19 +607,15 @@ public class VRSettingsScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean success = super.mouseClicked(mouseX, mouseY, button);
         options.mouseClicked(mouseX, mouseY, button, success);
+        if(!success && button == 0 && maxCategoryScroll() > 0){
+            return handleCategoryScrollClick(mouseX, mouseY);
+        }
         return success;
     }
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if(isOverCategoryList(mouseX, mouseY) && maxCategoryScroll() > 0){
-            int scroll = Math.max(0, Math.min(
-                    categoryScroll + (delta < 0 ? 1 : -1),
-                    maxCategoryScroll()
-            ));
-            if(scroll != categoryScroll){
-                categoryScroll = scroll;
-                layoutCategoryButtons();
-            }
+            scrollCategories(delta < 0 ? 1 : -1);
             return true;
         }
         options.mouseScrolled(mouseX, mouseY, delta);
