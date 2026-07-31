@@ -19,6 +19,8 @@ import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
 import net.minecraft.client.player.RemotePlayer;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.Math;
+
 public class VRRemotePlayerImpl implements VRRemotePlayer {
     private final RemotePlayerPose roomPose;
 
@@ -217,11 +219,11 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         //Interpolated Rotation
         float rotationPre = this.prevPose.getRotationY();
         float rotationPost = this.pose.getRotationY();
-        if (java.lang.Math.abs(rotationPost - rotationPre) > java.lang.Math.PI) {
+        if (Math.abs(rotationPost - rotationPre) > Math.PI) {
             if (rotationPost > rotationPre) {
-                rotationPre = (float) (rotationPre + (java.lang.Math.PI * 2));
+                rotationPre = (float) (rotationPre + (Math.PI * 2));
             } else {
-                rotationPost = (float) (rotationPost + (java.lang.Math.PI * 2));
+                rotationPost = (float) (rotationPost + (Math.PI * 2));
             }
         }
         float rotationPartial = rotationPost * partialTicks

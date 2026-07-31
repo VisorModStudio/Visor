@@ -2,7 +2,11 @@ package org.vmstudio.visor.mixin.common.player;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.compatibility.ItemClassifier;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
@@ -18,12 +22,16 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,7 +43,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import java.util.Objects;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin
@@ -50,6 +57,12 @@ public abstract class ServerPlayerMixin
 
     @Unique
     private int visor$offhandSlotCached;
+
+    @Unique
+    private ItemStack visor$roomscaleShieldItem;
+
+    @Unique
+    private InteractionHand visor$roomscaleShieldHand;
 
 
 
@@ -190,10 +203,7 @@ public abstract class ServerPlayerMixin
 
         if (vrPlayer != null) {
             var handPose = vrPlayer.getPoseData().getHand(
-                    Objects.requireNonNullElseGet(
-                            visor$swingHand,
-                            vrPlayer::getActiveHand
-                    )
+                    visor$attackHand(vrPlayer)
             );
 
             var handDir = handPose.getDirection();
@@ -220,6 +230,124 @@ public abstract class ServerPlayerMixin
     }
 
 
+
+    @Override
+    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
+                                                    DamageSource damageSource,
+                                                    LocalBooleanRef roomscaleBlocked) {
+        visor$roomscaleShieldItem = null;
+        visor$roomscaleShieldHand = null;
+
+        if (isBlocking || !VRServerSettings.isRoomscaleShieldBlocking()) {
+            return isBlocking;
+        }
+
+        Vec3 dmgPos = damageSource.getSourcePosition();
+        if (dmgPos == null) {
+            return false;
+        }
+        if (damageSource.getDirectEntity() instanceof AbstractArrow arrow
+                && arrow.getPierceLevel() > 0) {
+            return false;
+        }
+
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+        if (vrPlayer == null || !vrPlayer.hasPoseData()) {
+            return false;
+        }
+
+        ServerPlayer player = visor$getPlayer();
+        boolean projectile = false;
+        Entity direct = damageSource.getDirectEntity();
+        if (direct != null && dmgPos == direct.position()) {
+            projectile = direct instanceof Projectile;
+            dmgPos = direct.getBoundingBox().getCenter()
+                    .subtract(direct.getDeltaMovement().normalize());
+        }
+
+        for (HandType hand : HandType.values()) {
+            ItemStack stack = player.getItemBySlot(
+                    hand == HandType.MAIN
+                            ? EquipmentSlot.MAINHAND
+                            : EquipmentSlot.OFFHAND
+            );
+            if (!visor$isShield(stack)
+                    || player.getCooldowns().isOnCooldown(stack.getItem())) {
+                continue;
+            }
+
+            Vector3fc sideDir;
+            if (vrPlayer.isLeftHanded()) {
+                sideDir = hand == HandType.MAIN
+                        ? VRMathUtils.RIGHT_VECTOR : VRMathUtils.LEFT_VECTOR;
+            } else {
+                sideDir = hand == HandType.MAIN
+                        ? VRMathUtils.LEFT_VECTOR : VRMathUtils.RIGHT_VECTOR;
+            }
+
+            var handPose = vrPlayer.getPoseData().getHand(hand);
+            Vec3 shieldDir = handPose.getCustomVector3(sideDir);
+
+            //0.5 = 120 degree blocking cone
+            double angle;
+            if (projectile) {
+                Vec3 dmgDir = dmgPos.subtract(handPose.getPositionVec3()).normalize();
+                angle = shieldDir.dot(dmgDir);
+            } else {
+                Vec3 dmgDir = dmgPos.subtract(player.position());
+                dmgDir = new Vec3(dmgDir.x, 0, dmgDir.z).normalize();
+                Vec3 shieldHor = new Vec3(shieldDir.x, 0, shieldDir.z).normalize();
+                angle = shieldHor.dot(dmgDir);
+            }
+
+            if (angle > 0.5) {
+                roomscaleBlocked.set(true);
+                visor$roomscaleShieldItem = stack;
+                visor$roomscaleShieldHand = hand.asInteractionHand();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    protected void visor$roomscaleShieldItemDamage(float damageAmount, Operation<Void> original) {
+        if (visor$roomscaleShieldItem == null) {
+            original.call(damageAmount);
+            return;
+        }
+        ItemStack backup = this.useItem;
+        this.useItem = visor$roomscaleShieldItem;
+        try {
+            original.call(damageAmount);
+        } finally {
+            this.useItem = backup;
+            visor$roomscaleShieldItem = null;
+            visor$roomscaleShieldHand = null;
+        }
+    }
+
+    @Override
+    protected InteractionHand visor$roomscaleShieldHand(InteractionHand original) {
+        return visor$roomscaleShieldHand != null ? visor$roomscaleShieldHand : original;
+    }
+
+    @Unique
+    private boolean visor$isShield(ItemStack stack) {
+        return !stack.isEmpty()
+                && (ItemClassifier.SHIELD.is(stack)
+                || stack.getUseAnimation() == UseAnim.BLOCK);
+    }
+
+    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    private void visor$noAttackWhileBlocking(Entity target, CallbackInfo ci) {
+        if (VRServerSettings.isAttacksWhileBlocking()) {
+            return;
+        }
+        if (visor$getVrPlayer() != null && visor$getPlayer().isBlocking()) {
+            ci.cancel();
+        }
+    }
 
     @Override
     protected void visor$spawnVRItemParticles(ItemStack itemStack,

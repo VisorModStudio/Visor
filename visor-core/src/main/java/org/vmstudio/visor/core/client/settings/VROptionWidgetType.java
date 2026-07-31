@@ -470,6 +470,16 @@ public enum VROptionWidgetType {
             "better_swinging",
             (it) -> null
     ),
+    WORLD_ROOMSCALE_SHIELD(
+            VROptionCategory.WORLD,
+            "roomscale_shield",
+            (it) -> null
+    ),
+    WORLD_ATTACKS_WHILE_BLOCKING(
+            VROptionCategory.WORLD,
+            "attacks_while_blocking",
+            (it) -> null
+    ),
     WORLD_ROOM_CRAWLING(
             VROptionCategory.WORLD,
             "room_crawling",

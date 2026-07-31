@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.common.player;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -35,7 +36,6 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.PlayerExtension;
 
-import java.util.Objects;
 
 @Mixin(Player.class)
 public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
@@ -72,6 +72,18 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     @Inject(method = "die", at = @At("TAIL"))
     protected void visor$afterDie(DamageSource damageSource, CallbackInfo ci){
 
+    }
+
+    @WrapMethod(method = "hurtCurrentlyUsedShield")
+    protected void visor$roomscaleShieldItemDamage(float damageAmount, Operation<Void> original) {
+        original.call(damageAmount);
+    }
+
+    @ModifyExpressionValue(method = "hurtCurrentlyUsedShield",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;getUsedItemHand()Lnet/minecraft/world/InteractionHand;"))
+    protected InteractionHand visor$roomscaleShieldHand(InteractionHand original) {
+        return original;
     }
 
 
@@ -141,6 +153,21 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         }
     }
 
+    // common method to resolve edge cases like with shield,
+    // when we want to swing with shield raised and item should not be used as shield obviously
+    @Unique
+    protected HandType visor$attackHand(VRPlayer vrPlayer) {
+        if (visor$swingHand != null) {
+            return visor$swingHand;
+        }
+        HandType hand = vrPlayer.getActiveHand();
+        Player self = (Player) (Object) this;
+        if (self.isBlocking() && hand.asInteractionHand() == self.getUsedItemHand()) {
+            return hand.opposite();
+        }
+        return hand;
+    }
+
     // 1. replace getMainHand with getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
@@ -150,10 +177,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
             return original.call(self);
         }
         return self.getItemInHand(
-                Objects.requireNonNullElseGet(
-                        visor$swingHand,
-                        vrPlayer::getActiveHand
-                ).asInteractionHand()
+                visor$attackHand(vrPlayer).asInteractionHand()
         );
 
     }
@@ -168,10 +192,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         }
         return original.call(
                 self,
-                Objects.requireNonNullElseGet(
-                        visor$swingHand,
-                        vrPlayer::getActiveHand
-                ).asInteractionHand()
+                visor$attackHand(vrPlayer).asInteractionHand()
         );
 
     }
@@ -184,8 +205,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         if (vrPlayer == null) {
             return original.call(self, attribute);
         }
-        if(Objects.requireNonNullElseGet(visor$swingHand, vrPlayer::getActiveHand)
-                == HandType.OFFHAND){
+        if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
             return visor$withOffhandAttributes(() -> original.call(self, attribute));
         }
         return original.call(self, attribute);
@@ -202,8 +222,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         if (vrPlayer == null) {
             return original.call(selfEntity);
         }
-        if(Objects.requireNonNullElseGet(visor$swingHand, vrPlayer::getActiveHand)
-                == HandType.OFFHAND){
+        if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
             return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
         }
         return original.call(selfEntity);

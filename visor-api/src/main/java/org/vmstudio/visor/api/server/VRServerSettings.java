@@ -19,6 +19,15 @@ public class VRServerSettings {
     @VRServerOptionField(key = "better_swinging")
     private static boolean betterSwinging;
 
+    @Getter @SendSettingToClient
+    @VRServerOptionField(key = "roomscale_shield")
+    @ConfigComment("Block with a raised shield without holding use")
+    private static boolean roomscaleShieldBlocking;
+
+    @Getter @SendSettingToClient
+    @VRServerOptionField(key = "attacks_while_blocking")
+    private static boolean attacksWhileBlocking;
+
     @Getter
     private static long swingingRepairDelay;
 
@@ -74,6 +83,8 @@ public class VRServerSettings {
         vrOnly = false;
         twoHandedVR = true;
         betterSwinging = true;
+        roomscaleShieldBlocking = true;
+        attacksWhileBlocking = true;
         swingingRepairDelay = 400;
         swingingMiningSpeed = 1.5f;
         roomCrawlingSupported = true;
@@ -111,6 +122,8 @@ public class VRServerSettings {
         notifyPvpBlocked = false;
         twoHandedVR = false;
         betterSwinging = false;
+        roomscaleShieldBlocking = false;
+        attacksWhileBlocking = true;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
         bodyTrackersSupported = false;

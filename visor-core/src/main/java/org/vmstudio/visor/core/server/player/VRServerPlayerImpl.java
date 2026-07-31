@@ -105,6 +105,11 @@ public class VRServerPlayerImpl extends VisorServerPlayerImpl implements VRServe
 
     }
 
+    @Override
+    public boolean hasPoseData(){
+        return poseDataBuffer != null;
+    }
+
     public void setCrawling(boolean crawling) {
         this.crawling = crawling;
         if(crawling) {

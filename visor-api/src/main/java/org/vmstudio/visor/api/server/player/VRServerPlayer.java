@@ -10,6 +10,8 @@ public interface VRServerPlayer extends VisorServerPlayer, VRPlayer {
     @NotNull PlayerPoseServer getPoseDataRoom();
     @NotNull PlayerPoseServer getPoseData();
 
+    boolean hasPoseData();
+
 
     boolean isCrawling();
 

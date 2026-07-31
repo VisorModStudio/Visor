@@ -383,10 +383,10 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
         if (player.isBlocking()) {
-            HandType activeHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN
+            HandType blockHand = player.getUsedItemHand() == InteractionHand.MAIN_HAND
                     ? HandType.MAIN
                     : HandType.OFFHAND;
-            visor$applyPoseLook(player, data.getHand(activeHand));
+            visor$applyPoseLook(player, data.getHand(blockHand));
             return;
         }
 

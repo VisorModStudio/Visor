@@ -1,4 +1,10 @@
 package org.vmstudio.visor.mixin.common.player;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -26,4 +32,19 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
     protected void visor$spawnVRItemParticles(ItemStack itemStack,
                                               int count,
                                               CallbackInfo ci){}
+
+    @ModifyExpressionValue(method = "isDamageSourceBlocked",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/LivingEntity;isBlocking()Z"))
+    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
+                                                    @Local(argsOnly = true) DamageSource damageSource,
+                                                    @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
+        return isBlocking;
+    }
+
+    @ModifyReturnValue(method = "isDamageSourceBlocked", at = @At("RETURN"))
+    private boolean visor$roomscaleShieldBlocked(boolean blocked,
+                                                 @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
+        return blocked || roomscaleBlocked.get();
+    }
 }
