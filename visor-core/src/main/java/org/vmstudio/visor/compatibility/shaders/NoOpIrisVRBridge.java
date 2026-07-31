@@ -1,5 +1,6 @@
 package org.vmstudio.visor.compatibility.shaders;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.atumvr.api.enums.EyeType;
 
 public final class NoOpIrisVRBridge implements IrisVRBridge {
@@ -36,6 +37,10 @@ public final class NoOpIrisVRBridge implements IrisVRBridge {
 
     @Override
     public void onVisorTargetsRecreated(int eyeRenderWidth, int eyeRenderHeight) {
+    }
+
+    @Override
+    public void onRenderTargetCreated(RenderTarget target) {
     }
 
     @Override

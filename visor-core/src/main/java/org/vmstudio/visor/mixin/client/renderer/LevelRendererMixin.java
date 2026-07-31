@@ -41,7 +41,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.core.client.render.helpers.CullFrustumHelper;
 
 import org.vmstudio.visor.core.client.ClientContext;
 
@@ -94,6 +96,11 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     /* ****************** *\
   //--------RENDERING--------\\
     \* ****************** */
+
+    @ModifyVariable(method = "prepareCullFrustum", at = @At("HEAD"), index = 3, argsOnly = true)
+    private Matrix4f visor$widenCullFrustum(Matrix4f projection) {
+        return CullFrustumHelper.widenCullProjection(projection);
+    }
 
     @Redirect(
             method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V",
