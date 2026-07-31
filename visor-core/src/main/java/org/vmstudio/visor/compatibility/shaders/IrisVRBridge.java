@@ -1,5 +1,6 @@
 package org.vmstudio.visor.compatibility.shaders;
 
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import me.phoenixra.atumvr.api.enums.EyeType;
 
 public interface IrisVRBridge {
@@ -20,6 +21,8 @@ public interface IrisVRBridge {
     void setIsMainBound(boolean bound);
 
     void onVisorTargetsRecreated(int eyeRenderWidth, int eyeRenderHeight);
+
+    void onRenderTargetCreated(RenderTarget target);
 
     void onPackChanged();
 }

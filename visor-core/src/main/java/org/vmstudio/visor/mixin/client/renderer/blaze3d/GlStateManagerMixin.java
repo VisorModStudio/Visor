@@ -1,10 +1,14 @@
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GlStateManager.class)
 public class GlStateManagerMixin {
@@ -26,6 +30,30 @@ public class GlStateManagerMixin {
             return GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value;
         } else {
             return dstAlpha;
+        }
+    }
+
+    @Inject(method = "_deleteTexture", at = @At("RETURN"), remap = false)
+    private static void visor$forgetDeletedTexture(int texture, CallbackInfo ci) {
+        ShaderTextureHelper.onTextureDeleted(texture);
+    }
+
+    @Inject(method = "_deleteTextures", at = @At("RETURN"), remap = false)
+    private static void visor$forgetDeletedTextures(int[] textures, CallbackInfo ci) {
+        for (int texture : textures) {
+            ShaderTextureHelper.onTextureDeleted(texture);
+        }
+    }
+
+    @Inject(method = "_genTexture", at = @At("RETURN"), remap = false)
+    private static void visor$trackCreatedTexture(CallbackInfoReturnable<Integer> cir) {
+        ShaderTextureHelper.onTextureCreated(cir.getReturnValue());
+    }
+
+    @Inject(method = "_genTextures", at = @At("RETURN"), remap = false)
+    private static void visor$trackCreatedTextures(int[] textures, CallbackInfo ci) {
+        for (int texture : textures) {
+            ShaderTextureHelper.onTextureCreated(texture);
         }
     }
 }
