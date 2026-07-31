@@ -4,13 +4,13 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.compatibility.nvidium.NvidiumHelper;
 import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
 
 public class CullFrustumHelper {
     private static final Matrix4f lastCenterProjection = new Matrix4f();
