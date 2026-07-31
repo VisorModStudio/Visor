@@ -1,6 +1,7 @@
 package org.vmstudio.visor.compatibility.sodium.mixin;
 
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.compatibility.nvidium.NvidiumHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -39,7 +40,12 @@ public class SodiumWorldRendererMixin {
         }
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        return renderPass == VRRenderPass.worldUpdater()
-                || renderPass == VRRenderPass.THIRD_PERSON;
+        if (renderPass == VRRenderPass.worldUpdater()) {
+            NvidiumHelper.ensureVRTemporalCoherence();
+            return true;
+        }
+        return (renderPass == VRRenderPass.THIRD_PERSON
+                || renderPass == VRRenderPass.CENTER)
+                && !NvidiumHelper.isRendererActive();
     }
 }
