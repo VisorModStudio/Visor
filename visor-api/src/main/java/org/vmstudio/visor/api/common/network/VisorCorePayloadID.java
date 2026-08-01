@@ -97,6 +97,12 @@ public enum VisorCorePayloadID {
 
     public static VisorPayloadToServer readToServer(VisorCorePayloadID payloadID,
                                              FriendlyByteBuf buffer) {
+        if (payloadID == null) {
+            VisorAPI.server().getLogger().error(
+                    "Visor: Got unexpected payload identifier on server: null"
+            );
+            return UnknownPayloadToServer.read(buffer);
+        }
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToServer.read(buffer);
             case ACTIVE_HAND -> ActiveHandPayloadToServer.read(buffer);
