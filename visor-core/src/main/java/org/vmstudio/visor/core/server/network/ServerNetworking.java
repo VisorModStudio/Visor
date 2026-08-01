@@ -44,7 +44,7 @@ public class ServerNetworking {
                 VisorNetwork.CORE_NETWORK_VERSION
         ).toServer(
                 (id, buffer)->{
-                    VisorCorePayloadID payloadId = VisorCorePayloadID.values()[id];
+                    VisorCorePayloadID payloadId = VisorCorePayloadID.fromOrdinal(id);
                     return VisorCorePayloadID.readToServer(payloadId, buffer);
                 },
                 ServerPacketHandler::handlePacket
