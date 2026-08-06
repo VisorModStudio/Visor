@@ -69,7 +69,7 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
             // make sure it doesn't go below -PI
             xRotation.set(xRotation.get() < -Mth.PI ? xRotation.get() + Mth.TWO_PI : xRotation.get());
 
-            this.visor$bodyRot.transform(VRMathUtils.LEFT_VECTOR, this.visor$tempV);
+            this.visor$bodyRot.transform(VRMathUtils.RIGHT_VECTOR, this.visor$tempV);
             yRotation.set((float) -Math.atan2(this.visor$tempV.x, this.visor$tempV.y) + Mth.HALF_PI);
 
             // transform offset to be body relative

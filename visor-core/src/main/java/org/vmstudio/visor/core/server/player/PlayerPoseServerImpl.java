@@ -86,7 +86,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         Matrix4f hmdRotation = new Matrix4f().rotationY(-turnRotationY)
                 .mul(hmdPose.orientation().get(new Matrix4f()));
         Vector3f hmdDir = hmdPose.orientation()
-                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f())
                 .rotateY(-turnRotationY);
 
         Vector3f mainHandPos = mainHandPose.position()
@@ -94,7 +94,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         Matrix4f mainHandRotation = new Matrix4f().rotationY(-turnRotationY)
                 .mul(mainHandPose.orientation().get(new Matrix4f()));
         Vector3f mainHandDir = mainHandPose.orientation()
-                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f())
                 .rotateY(-turnRotationY);
 
         Vector3f offhandPos = offhandPose.position()
@@ -102,7 +102,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         Matrix4f offhandRotation = new Matrix4f().rotationY(-turnRotationY)
                 .mul(offhandPose.orientation().get(new Matrix4f()));
         Vector3f offhandDir = offhandPose.orientation()
-                .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f())
                 .rotateY(-turnRotationY);
 
         this.hmd.update(

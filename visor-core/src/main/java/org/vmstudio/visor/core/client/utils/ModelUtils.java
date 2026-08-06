@@ -147,7 +147,7 @@ public class ModelUtils {
     {
         tempVDir.set(targetX - part.x, targetY - part.y, targetZ - part.z);
 
-        tempVDir.cross(VRMathUtils.LEFT_VECTOR, tempVUp);
+        tempVDir.cross(VRMathUtils.RIGHT_VECTOR, tempVUp);
 
         pointAtModel(tempVDir, tempVUp, tempM);
     }

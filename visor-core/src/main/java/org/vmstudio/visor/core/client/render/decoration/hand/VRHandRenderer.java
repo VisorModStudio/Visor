@@ -405,7 +405,7 @@ public class VRHandRenderer {
 
         AtumColorImmutable color;
 
-        Vector3fc dir = VRMathUtils.BACK_VECTOR;
+        Vector3fc dir = VRMathUtils.FORWARD_VECTOR;
 
         Vector3f start = new Vector3f(0.0f, 0.0f, 0.0f);
         Vector3f end = new Vector3f(

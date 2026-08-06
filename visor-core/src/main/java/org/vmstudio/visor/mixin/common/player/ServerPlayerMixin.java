@@ -279,10 +279,10 @@ public abstract class ServerPlayerMixin
             Vector3fc sideDir;
             if (vrPlayer.isLeftHanded()) {
                 sideDir = hand == HandType.MAIN
-                        ? VRMathUtils.RIGHT_VECTOR : VRMathUtils.LEFT_VECTOR;
+                        ? VRMathUtils.LEFT_VECTOR : VRMathUtils.RIGHT_VECTOR;
             } else {
                 sideDir = hand == HandType.MAIN
-                        ? VRMathUtils.LEFT_VECTOR : VRMathUtils.RIGHT_VECTOR;
+                        ? VRMathUtils.RIGHT_VECTOR : VRMathUtils.LEFT_VECTOR;
             }
 
             var handPose = vrPlayer.getPoseData().getHand(hand);
