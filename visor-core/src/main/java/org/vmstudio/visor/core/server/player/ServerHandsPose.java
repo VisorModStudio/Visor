@@ -104,7 +104,7 @@ public class ServerHandsPose implements VRPoseHands {
                             Vector3fc origin){
             for(var joint : handBuffer.joints()){
                 Vector3f dir = joint.orientation()
-                        .transform(VRMathUtils.BACK_VECTOR, new Vector3f());
+                        .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
                 joints[joint.type().ordinal()].update(
                         joint.position(),
                         joint.orientation().get(new Matrix4f()),

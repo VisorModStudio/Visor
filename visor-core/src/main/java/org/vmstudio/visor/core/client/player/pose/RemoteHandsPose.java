@@ -110,14 +110,12 @@ public class RemoteHandsPose implements VRPoseHands {
                             float rotationY,
                             float worldScale){
             for(var joint : handBuffer.joints()){
-                // wire data is world-aligned; store room-relative raw,
-                // mirroring the hmd/hands path of RemotePlayerPose
                 Vector3f pos = joint.position()
                         .rotateY(-turnRotationY, new Vector3f());
                 Matrix4f rotation = new Matrix4f().rotationY(-turnRotationY)
                         .mul(joint.orientation().get(new Matrix4f()));
                 Vector3f dir = joint.orientation()
-                        .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                        .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f())
                         .rotateY(-turnRotationY);
 
                 joints[joint.type().ordinal()].update(

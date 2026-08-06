@@ -49,6 +49,6 @@ public class RawHandJointImpl implements RawHandJoint {
 
     public Vector3f getVector() {
         return this.rotation
-                .transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
+                .transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
     }
 }

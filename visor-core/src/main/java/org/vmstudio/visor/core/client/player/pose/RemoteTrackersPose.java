@@ -97,14 +97,12 @@ public class RemoteTrackersPose implements VRPoseTrackers {
             if(poseElement == null){
                 continue;
             }
-            // wire data is world-aligned; store room-relative raw,
-            // mirroring the hmd/hands path of RemotePlayerPose
             Vector3f pos = poseElement.position()
                     .rotateY(-turnRotationY, new Vector3f());
             Matrix4f rotation = new Matrix4f().rotationY(-turnRotationY)
                     .mul(poseElement.orientation().get(new Matrix4f()));
             Vector3f dir = poseElement.orientation()
-                    .transform(VRMathUtils.BACK_VECTOR, new Vector3f())
+                    .transform(VRMathUtils.FORWARD_VECTOR, new Vector3f())
                     .rotateY(-turnRotationY);
 
             entry.getKey().update(
