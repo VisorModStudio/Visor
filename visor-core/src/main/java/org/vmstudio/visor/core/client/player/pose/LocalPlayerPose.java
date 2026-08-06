@@ -226,7 +226,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
         Matrix4fc camRot = VRClientSettings.getThirdPersonCameraRotation()
                 .get(new Matrix4f());
-        Vector3f camDir = camRot.transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
+        Vector3f camDir = camRot.transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
                 camPos.sub(headsetPos).add(headsetPos),
                 camRot,

@@ -64,14 +64,14 @@ public class RawControllerImpl implements RawController {
      @NotNull
      public Vector3f getAimVector() {
         return getAimRotation().transformDirection(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
     }
 
      @NotNull
      public Vector3f getGripVector() {
         return getGripRotation().transformDirection(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
     }
 

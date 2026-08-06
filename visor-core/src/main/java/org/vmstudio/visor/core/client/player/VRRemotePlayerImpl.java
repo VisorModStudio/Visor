@@ -249,7 +249,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         );
         Matrix4f hmdRotationPartial = hmdQ.get(new Matrix4f());
         Vector3f hmdDirPartial = hmdQ.transform(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
 
         //main hand
@@ -264,7 +264,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         );
         Matrix4f mainHandRotationPartial = mainHandQ.get(new Matrix4f());
         Vector3f mainHandDirPartial = mainHandQ.transform(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
 
         //offhand
@@ -279,7 +279,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
         );
         Matrix4f offhandRotationPartial = offhandQ.get(new Matrix4f());
         Vector3f offhandDirPartial = offhandQ.transform(
-                VRMathUtils.BACK_VECTOR, new Vector3f()
+                VRMathUtils.FORWARD_VECTOR, new Vector3f()
         );
 
         //Applying

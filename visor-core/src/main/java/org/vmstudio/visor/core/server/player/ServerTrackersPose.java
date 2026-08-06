@@ -99,7 +99,7 @@ public class ServerTrackersPose implements VRPoseTrackers {
             var poseElement = entry.getValue().apply(trackersBuffer);
             if(poseElement != null){
                 Vector3f dir = poseElement
-                        .orientation().transform(VRMathUtils.BACK_VECTOR, new Vector3f());
+                        .orientation().transform(VRMathUtils.FORWARD_VECTOR, new Vector3f());
                 entry.getKey().update(
                         poseElement.position(),
                         poseElement.orientation().get(new Matrix4f()),

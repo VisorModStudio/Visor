@@ -48,7 +48,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
             this.visor$bodyRot.transform(VRMathUtils.UP_VECTOR, this.visor$tempV);
             float xRotation = (float) Math.atan2(this.visor$tempV.y, this.visor$tempV.z) - Mth.HALF_PI;
 
-            this.visor$bodyRot.transform(VRMathUtils.LEFT_VECTOR, this.visor$tempV);
+            this.visor$bodyRot.transform(VRMathUtils.RIGHT_VECTOR, this.visor$tempV);
             float yRotation = (float) -Math.atan2(this.visor$tempV.x, this.visor$tempV.y) + Mth.HALF_PI;
 
             // position the cape behind the body
