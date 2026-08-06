@@ -18,6 +18,7 @@ loom {
         mixinConfig "visor.replaymod.mixins.json"
         mixinConfig "visor.flashback.mixins.json"
         mixinConfig "visor.dh.mixins.json"
+        mixinConfig "visor.dynamicfps.mixins.json"
         mixinConfig "visor.iris.mixins.json"
         mixinConfig "visor.mixins.forge.json"
     }

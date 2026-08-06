@@ -27,6 +27,7 @@
     "visor.mixins.fabric.json",
     "visor.immportals.mixins.json",
     "visor.dh.mixins.json",
+    "visor.dynamicfps.mixins.json",
     "visor.iris.mixins.json",
     "visor.nvidium.mixins.json"
   ],
