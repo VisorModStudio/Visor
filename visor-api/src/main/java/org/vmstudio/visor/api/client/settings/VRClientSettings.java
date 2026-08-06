@@ -145,10 +145,10 @@ public class VRClientSettings {
     protected static String defaultVrBody = "hands_only";
 
     @VROptionField(key = "fbt", category = VROptionCategory.VR_BODY)
-    protected static boolean fbtEnabled = true;
+    protected static boolean fbtEnabled = false;
 
     @VROptionField(key = "hand_tracking", category = VROptionCategory.VR_BODY)
-    protected static boolean handTrackingEnabled = true;
+    protected static boolean handTrackingEnabled = false;
 
     @Getter
     @VROptionField

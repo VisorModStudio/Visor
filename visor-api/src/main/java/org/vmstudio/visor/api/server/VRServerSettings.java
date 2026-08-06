@@ -74,6 +74,14 @@ public class VRServerSettings {
     @Getter @SendSettingToClient
     private static boolean handTrackersSupported;
 
+    @Getter
+    @ConfigComment("Send body tracker data to other players (if enabled, players with Visor mod and within VR player visibility range receive such data)")
+    private static boolean bodyTrackersSendToOthers;
+
+    @Getter
+    @ConfigComment("Send hand tracking data to other players (if enabled, players with Visor mod and within VR player visibility range receive such data)")
+    private static boolean handTrackersSendToOthers;
+
     static {
         resetToDefaults();
     }
@@ -99,6 +107,8 @@ public class VRServerSettings {
         teleportForwardLimit = 16;
         bodyTrackersSupported = true;
         handTrackersSupported = true;
+        bodyTrackersSendToOthers = true;
+        handTrackersSendToOthers = true;
     }
 
 

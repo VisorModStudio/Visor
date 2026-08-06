@@ -297,6 +297,13 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
                 worldScalePartial,
                 rotationPartial
         );
+
+        this.renderPose.getTrackers().update(
+                poseBufferReceived.trackers(), rotationYReceived
+        );
+        this.renderPose.getHands().update(
+                poseBufferReceived.hands(), rotationYReceived
+        );
     }
 
     private static Quaternionf slerpRotation(Matrix4fc from,

@@ -85,6 +85,8 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                         mainHand, offhand
                 )
         );
+        elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
         if(body != null) {
             elements.addAll(body.getAllPoses());
         }
@@ -100,6 +102,10 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         this.body.init();
         this.body.update();
 
+        resetPoseElements();
+    }
+
+    public void resetPoseElements(){
         elements.clear();
         elements.addAll(
                 List.of(
@@ -107,7 +113,11 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                         mainHand, offhand
                 )
         );
-        elements.addAll(body.getAllPoses());
+        elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
+        if(body != null) {
+            elements.addAll(body.getAllPoses());
+        }
     }
 
     public void update(Vector3fc hmdPos,
@@ -216,6 +226,9 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
                 worldScale,
                 appliedRotationY
         );
+
+        trackers.update(poseBuffer.trackers(), turnRotationY);
+        hands.update(poseBuffer.hands(), turnRotationY);
     }
 
     public void updateModifiers(Vector3fc newOrigin,
@@ -262,6 +275,9 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         hmd.copyFrom(other.hmd);
         mainHand.copyFrom(other.mainHand);
         offhand.copyFrom(other.offhand);
+
+        trackers.copyFrom(other.trackers);
+        hands.copyFrom(other.hands);
 
         if(body.getType() != other.body.getType()) {
             bodyTypeChanged(other.body.getType());
