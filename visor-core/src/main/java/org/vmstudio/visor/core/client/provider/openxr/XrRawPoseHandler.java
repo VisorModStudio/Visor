@@ -10,6 +10,7 @@ import me.phoenixra.atumvr.api.misc.pose.AtumVRPose;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import org.vmstudio.visor.api.common.player.VRHandDataSource;
 import org.vmstudio.visor.api.common.player.VRHandJointType;
@@ -154,21 +155,35 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
         //TRACKERS
         if(trackersData.isTracking()){
-            var body = provider.getInputHandler().getVRBody();
-            for(VRBodyPartType part : BODY_PARTS){
-                AtumVRBodyJoint joint = toBodyJoint(part);
-                if(joint == null){
-                    continue;
+            if(VRClientSettings.isFbtEnabled()){
+                var body = provider.getInputHandler().getVRBody();
+                for(VRBodyPartType part : BODY_PARTS){
+                    AtumVRBodyJoint joint = toBodyJoint(part);
+                    if(joint == null){
+                        continue;
+                    }
+                    updateTracker(trackersData.getTracker(part), body.getJointPose(joint));
                 }
-                updateTracker(trackersData.getTracker(part), body.getJointPose(joint));
+            }else{
+                for(VRBodyPartType part : BODY_PARTS){
+                    if(toBodyJoint(part) == null){
+                        continue;
+                    }
+                    trackersData.getTracker(part).setTracking(false);
+                }
             }
         }
 
         //HANDS
         if(handsData.isTracking()){
-            var hands = provider.getInputHandler().getVRHands();
-            updateHand(handsData.getLeftHand(), hands.getLeftHand());
-            updateHand(handsData.getRightHand(), hands.getRightHand());
+            if(VRClientSettings.isHandTrackingEnabled()){
+                var hands = provider.getInputHandler().getVRHands();
+                updateHand(handsData.getLeftHand(), hands.getLeftHand());
+                updateHand(handsData.getRightHand(), hands.getRightHand());
+            }else{
+                clearHand(handsData.getLeftHand());
+                clearHand(handsData.getRightHand());
+            }
         }
     }
 
@@ -195,11 +210,7 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
     private void updateHand(RawHandImpl handData, AtumVRHandView handView){
         if(!handView.isTracked()){
-            handData.setTracking(false);
-            handData.setDataSource(VRHandDataSource.UNKNOWN);
-            for(int i = 0; i < VRHandJointType.COUNT; i++){
-                handData.getJoint(VRHandJointType.fromIndex(i)).setTracking(false);
-            }
+            clearHand(handData);
             return;
         }
         handData.setDataSource(toDataSource(handView.getDataSource()));
@@ -219,6 +230,14 @@ public class XrRawPoseHandler extends RawPoseHandler {
             jointData.setTracking(true);
         }
         handData.setTracking(true);
+    }
+
+    private static void clearHand(RawHandImpl handData){
+        handData.setTracking(false);
+        handData.setDataSource(VRHandDataSource.UNKNOWN);
+        for(int i = 0; i < VRHandJointType.COUNT; i++){
+            handData.getJoint(VRHandJointType.fromIndex(i)).setTracking(false);
+        }
     }
 
     private static VRHandDataSource toDataSource(AtumVRHandView.DataSource source){
