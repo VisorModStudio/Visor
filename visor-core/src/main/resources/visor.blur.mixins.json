@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "org.vmstudio.visor.compatibility.blur.mixin",
+  "plugin": "org.vmstudio.visor.MixinConfig",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "Blur1_20Mixin",
+    "BlurAnimationHandler1_21_ppMixin"
+  ],
+  "server": [
+  ],
+  "minVersion": "0.8.4"
+}

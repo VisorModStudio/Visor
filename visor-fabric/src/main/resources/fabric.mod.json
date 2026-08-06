@@ -29,7 +29,8 @@
     "visor.dh.mixins.json",
     "visor.dynamicfps.mixins.json",
     "visor.iris.mixins.json",
-    "visor.nvidium.mixins.json"
+    "visor.nvidium.mixins.json",
+    "visor.blur.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.14",
