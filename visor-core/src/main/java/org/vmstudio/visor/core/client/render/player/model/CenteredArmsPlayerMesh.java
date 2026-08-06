@@ -23,7 +23,7 @@ public final class CenteredArmsPlayerMesh {
         float addBoxZ = -2.0F;
         float pivotY = slim ? 2.5F : 2.0F;
         float pivotX = 5.0F + (halfWidth - 1.0F);
-        float sleeveExtend = 0.25F;
+        float sleeveExtend = slim ? 0.12F : 0.25F;
 
         // ---- Left arm ----
         root.addOrReplaceChild("left_arm", CubeListBuilder.create()
