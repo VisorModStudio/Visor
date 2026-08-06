@@ -499,7 +499,12 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public RawTrackers getRawTrackers() {
-        return ClientContext.localPlayer.getRawTrackers();
+        return ClientContext.rawPoseHandler.getTrackersData();
+    }
+
+    @Override
+    public RawHands getRawHands() {
+        return ClientContext.rawPoseHandler.getHandsData();
     }
 
     @Override

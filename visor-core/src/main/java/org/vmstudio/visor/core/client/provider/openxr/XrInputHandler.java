@@ -18,6 +18,7 @@ import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import me.phoenixra.atumvr.core.input.profile.tracker.FBBodyTrackingProvider;
 import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerProvider;
+import me.phoenixra.atumvr.core.input.profile.tracker.hand.EXTHandTrackingProvider;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
 
@@ -61,7 +62,9 @@ public class XrInputHandler extends XRInputHandler {
         return List.of(
                 new XRCommonBodyView(getVrProvider()),
                 viveTrackers,
-                new FBBodyTrackingProvider(getVrProvider())
+                new FBBodyTrackingProvider(getVrProvider()),
+                //@TODO weeeird, change AtumVR to allow other approach
+                new EXTHandTrackingProvider(getVrProvider())
         );
     }
 

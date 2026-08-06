@@ -20,6 +20,9 @@ public abstract class RawPoseHandler {
     protected RawTrackersImpl trackersData;
 
     @Getter
+    protected RawHandsImpl handsData;
+
+    @Getter
     protected float gunAngle = 0.0f;
 
 
@@ -29,6 +32,7 @@ public abstract class RawPoseHandler {
         this.controllerLeftData = new RawControllerImpl();
         this.controllerRightData = new RawControllerImpl();
         this.trackersData = new RawTrackersImpl();
+        this.handsData = new RawHandsImpl();
     }
 
 

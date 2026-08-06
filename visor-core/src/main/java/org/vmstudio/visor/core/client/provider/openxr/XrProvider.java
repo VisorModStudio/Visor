@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.provider.openxr;
 import me.phoenixra.atumvr.api.AtumVRLogger;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
 import me.phoenixra.atumvr.core.XRProvider;
+import me.phoenixra.atumvr.core.input.profile.tracker.hand.EXTHandTrackingProvider;
 import me.phoenixra.atumvr.core.XRState;
 import me.phoenixra.atumvr.core.enums.XRSessionState;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -28,6 +29,10 @@ public class XrProvider extends XRProvider {
 
         ClientContext.rawPoseHandler.getTrackersData().setTracking(
                 !getInputHandler().getTrackerProviders().isEmpty()
+        );
+        //@TODO weird, change AtumVR for different approach
+        ClientContext.rawPoseHandler.getHandsData().setTracking(
+                getInputHandler().getTrackerProvider(EXTHandTrackingProvider.class) != null
         );
 
         ClientContext.settingsManager.loadOptions();

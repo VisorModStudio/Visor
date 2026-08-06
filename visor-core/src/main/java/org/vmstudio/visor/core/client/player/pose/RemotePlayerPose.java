@@ -41,6 +41,8 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
 
     protected final RemoteTrackersPose trackers;
 
+    protected final RemoteHandsPose hands;
+
     private final List<VRPose> elements;
 
     private VRBody body;
@@ -65,6 +67,7 @@ public class RemotePlayerPose implements VRPlayerPoseClient {
         this.offhand = new VRPoseImpl();
 
         this.trackers = new RemoteTrackersPose(this);
+        this.hands = new RemoteHandsPose(this);
 
         var bodyType = vrPlayer.getBodyType();
         if(bodyType != null) {

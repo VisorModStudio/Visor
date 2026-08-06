@@ -2,6 +2,8 @@ package org.vmstudio.visor.core.client.provider.openxr;
 
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.input.body.AtumVRBodyJoint;
+import me.phoenixra.atumvr.api.input.body.hand.AtumVRHandJoint;
+import me.phoenixra.atumvr.api.input.body.hand.AtumVRHandView;
 import me.phoenixra.atumvr.api.input.device.AtumVRDeviceController;
 import me.phoenixra.atumvr.api.input.device.AtumVRDeviceHMD;
 import me.phoenixra.atumvr.api.misc.pose.AtumVRPose;
@@ -9,6 +11,8 @@ import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
+import org.vmstudio.visor.api.common.player.VRHandDataSource;
+import org.vmstudio.visor.api.common.player.VRHandJointType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.pose.raw.RawPoseHandler;
 import org.joml.Matrix4f;
@@ -16,6 +20,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.player.pose.raw.RawHandImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawTrackerImpl;
 
 public class XrRawPoseHandler extends RawPoseHandler {
@@ -148,16 +153,22 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
 
         //TRACKERS
-        if(!trackersData.isTracking()){
-            return;
-        }
-        var body = provider.getInputHandler().getVRBody();
-        for(VRBodyPartType part : BODY_PARTS){
-            AtumVRBodyJoint joint = toBodyJoint(part);
-            if(joint == null){
-                continue;
+        if(trackersData.isTracking()){
+            var body = provider.getInputHandler().getVRBody();
+            for(VRBodyPartType part : BODY_PARTS){
+                AtumVRBodyJoint joint = toBodyJoint(part);
+                if(joint == null){
+                    continue;
+                }
+                updateTracker(trackersData.getTracker(part), body.getJointPose(joint));
             }
-            updateTracker(trackersData.getTracker(part), body.getJointPose(joint));
+        }
+
+        //HANDS
+        if(handsData.isTracking()){
+            var hands = provider.getInputHandler().getVRHands();
+            updateHand(handsData.getLeftHand(), hands.getLeftHand());
+            updateHand(handsData.getRightHand(), hands.getRightHand());
         }
     }
 
@@ -179,6 +190,42 @@ public class XrRawPoseHandler extends RawPoseHandler {
             case RIGHT_SHOULDER -> AtumVRBodyJoint.RIGHT_SHOULDER;
             //delivered by the HMD/controller devices, not trackers
             case HEAD, MAIN_HAND, OFFHAND -> null;
+        };
+    }
+
+    private void updateHand(RawHandImpl handData, AtumVRHandView handView){
+        if(!handView.isTracked()){
+            handData.setTracking(false);
+            handData.setDataSource(VRHandDataSource.UNKNOWN);
+            for(int i = 0; i < VRHandJointType.COUNT; i++){
+                handData.getJoint(VRHandJointType.fromIndex(i)).setTracking(false);
+            }
+            return;
+        }
+        handData.setDataSource(toDataSource(handView.getDataSource()));
+
+        for(int i = 0; i < VRHandJointType.COUNT; i++){
+            var jointData = handData.getJoint(VRHandJointType.fromIndex(i));
+            AtumVRHandJoint joint = AtumVRHandJoint.fromIndex(i);
+            AtumVRPose jointPose = handView.getJointPose(joint);
+            if(jointPose == null){
+                jointData.setTracking(false);
+                continue;
+            }
+            jointData.getDevicePoseMutable().set(jointPose.matrix());
+            jointData.getRotationMutable().set(jointPose.orientation());
+            jointData.getRotationMutable().set3x3(jointData.getDevicePoseMutable());
+            jointData.setRadius(handView.getJointRadius(joint));
+            jointData.setTracking(true);
+        }
+        handData.setTracking(true);
+    }
+
+    private static VRHandDataSource toDataSource(AtumVRHandView.DataSource source){
+        return switch (source){
+            case HAND -> VRHandDataSource.HAND;
+            case CONTROLLER -> VRHandDataSource.CONTROLLER;
+            case UNKNOWN -> VRHandDataSource.UNKNOWN;
         };
     }
 

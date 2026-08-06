@@ -51,6 +51,8 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
     protected final LocalTrackersPose trackers;
 
+    protected final LocalHandsPose hands;
+
     private final List<VRPose> elements;
 
     private VRBody body;
@@ -79,6 +81,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         this.thirdPersonCamera = new VRPoseImpl();
 
         this.trackers = new LocalTrackersPose(this);
+        this.hands = new LocalHandsPose(this);
 
         var bodyType = vrPlayer.getBodyType();
         if(bodyType != null) {
@@ -100,6 +103,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 )
         );
         elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
         if(body != null) {
             elements.addAll(body.getAllPoses());
         }
@@ -131,6 +135,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 )
         );
         elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
         elements.addAll(body.getAllPoses());
     }
 
@@ -207,6 +212,9 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
 
         trackers.updateTracking(
+                origin, worldScale, rotationY
+        );
+        hands.updateTracking(
                 origin, worldScale, rotationY
         );
 
@@ -304,6 +312,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         thirdPersonCamera.copyFrom(other.thirdPersonCamera);
 
         trackers.copyFrom(other.trackers);
+        hands.copyFrom(other.hands);
 
         if(body.getType() != other.body.getType()) {
             bodyTypeChanged(other.body.getType());

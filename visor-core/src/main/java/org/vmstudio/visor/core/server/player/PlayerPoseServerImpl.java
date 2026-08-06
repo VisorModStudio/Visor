@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import org.joml.*;
 
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -24,6 +25,8 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
     protected final VRPoseImpl offhand;
 
     protected final ServerTrackersPose trackers;
+
+    protected final ServerHandsPose hands;
 
     private final List<VRPose> elements;
 
@@ -47,14 +50,15 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
         this.offhand = new VRPoseImpl();
 
         this.trackers = new ServerTrackersPose(this);
+        this.hands = new ServerHandsPose(this);
 
         origin = VRMathUtils.ZERO_VECTOR;
         headPivot = VRMathUtils.ZERO_VECTOR;
 
-        elements = List.of(
+        elements = new ArrayList<>(List.of(
                 hmd,
                 mainHand, offhand
-        );
+        ));
 
     }
 
@@ -67,6 +71,7 @@ public class PlayerPoseServerImpl implements PlayerPoseServer {
                 )
         );
         elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
     }
 
 
