@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -172,7 +173,8 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         rendererArm.visible = true;
 
         rendererArmwear.copyFrom(rendererArm);
-        rendererArmwear.visible = true;
+        PlayerModelPart sleevePart = left ? PlayerModelPart.LEFT_SLEEVE : PlayerModelPart.RIGHT_SLEEVE;
+        rendererArmwear.visible = player.isModelPartShown(sleevePart);
 
         ResourceLocation playerSkin = this.getTextureLocation(player);
 
