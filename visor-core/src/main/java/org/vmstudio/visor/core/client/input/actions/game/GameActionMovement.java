@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MovementMode;
+import org.vmstudio.visor.core.client.input.TreadmillInput;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
@@ -29,6 +30,8 @@ public class GameActionMovement extends VRActionVec2 {
 
     private boolean wasMovement;
     private boolean wasAutoSprinting;
+
+    private final Vector2f cachedTreadmillMove = new Vector2f();
 
     private static HandType handType = HandType.OFFHAND;
 
@@ -62,6 +65,8 @@ public class GameActionMovement extends VRActionVec2 {
         }
 
 
+        Vector2f treadmillMove = TreadmillInput.pollMovement(cachedTreadmillMove);
+
         boolean climbing = ClientContext.localPlayer.isClimbing();
         boolean moving = ClientContext.localPlayer.isMoving();
         float forward = 0F;
@@ -69,8 +74,12 @@ public class GameActionMovement extends VRActionVec2 {
                 && */!climbing) {
             movement.zero();
 
-            movement.x = applyDeadzone(rawMove.x, 0.05F);
-            movement.y = applyDeadzone(rawMove.y, 0.05F);
+            if (treadmillMove != null) {
+                movement.set(treadmillMove);
+            } else {
+                movement.x = applyDeadzone(rawMove.x, 0.05F);
+                movement.y = applyDeadzone(rawMove.y, 0.05F);
+            }
 
             moving = (
                     movement.x != 0.0F || movement.y != 0.0F

@@ -38,8 +38,8 @@ dependencies {
 
     // ---- LOCAL DEPENDENCY
     // modCompileOnly: flatDir jars have no maven coordinates, so they must stay out of the published POM (bundled via shadowCommon instead)
-    shadowCommon(modCompileOnly(name: 'atumvr-api-1.14.0beta-snapshot#15')) { transitive = false }
-    shadowCommon(modCompileOnly(name: 'atumvr-core-1.14.0beta-snapshot#15')) { transitive = false }
+    shadowCommon(modCompileOnly(name: 'atumvr-api-1.14.0beta-snapshot#17')) { transitive = false }
+    shadowCommon(modCompileOnly(name: 'atumvr-core-1.14.0beta-snapshot#17')) { transitive = false }
     // ----
     //shadowCommon(libs.atumvr.api) { transitive = false }
     //shadowCommon(libs.atumvr.core) { transitive = false }

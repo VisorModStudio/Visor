@@ -340,6 +340,32 @@ public enum VROptionWidgetType {
                         }
                 ).build();
             }),
+    TREADMILL(
+            VROptionCategory.MOVEMENT,
+            "treadmill.enabled",
+            (it) -> null
+    ),
+    TREADMILL_SPEED_SCALE(
+            VROptionCategory.MOVEMENT,
+            "treadmill.speed_scale",
+            (it) -> {
+                List<Float> entries = List.of(0.25f, 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f, 2.5f, 3.0f);
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getTreadmillSpeedScale());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.size() / 2;
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("x%.2f", (float) pair.second());
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
+    ),
     ROOM_SNEAK(
             VROptionCategory.IMMERSION,
             "room_sneak",

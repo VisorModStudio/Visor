@@ -58,6 +58,11 @@
   "visor.options.movement.compatible_look_direction": "Сумісний погляд",
   "visor.options.movement.compatible_look_direction.tooltip": "§bРежим сумісності погляду§r\n\nВикористовує §eнапрямок шолома§r як основний напрямок погляду для сервера.\n\nПри використанні предметів погляд тимчасово перемикається на §eруку§r.\n\n§7Це допомагає в модах, залежних від погляду гравця, але може змінити поведінку прицілювання.§r",
 
+  "visor.options.movement.treadmill.enabled": "Бігова доріжка",
+  "visor.options.movement.treadmill.enabled.tooltip": "§bБігова доріжка§r\n\nХодьба у грі через VR-платформи\n(§eKAT Walk§r, §eInfinadeck§r).\n\nВизначається автоматично під час запуску VR,\nпід час ходьби крок замінює джойстик.\n\n§7Працює лише в режимі пересування «Контролер».§r",
+  "visor.options.movement.treadmill.speed_scale": "Швидкість доріжки",
+  "visor.options.movement.treadmill.speed_scale.tooltip": "§bШвидкість доріжки§r\n\nНаскільки швидко рухається гравець\nвідносно вашого темпу ходьби на доріжці.",
+
   "_comment.gui": "----Налаштування інтерфейсу----",
   "visor.options.gui.button": "Інтерфейс",
   "visor.options.gui.settings_text_scale": "Масштаб тексту",

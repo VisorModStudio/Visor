@@ -68,6 +68,14 @@ public class VRClientSettings {
     @VROptionField(key = "compatible_look_direction", category = VROptionCategory.MOVEMENT)
     protected static boolean compatibleLookDirection = true;
 
+    @Getter
+    @VROptionField(key = "treadmill.enabled", category = VROptionCategory.MOVEMENT)
+    protected static boolean treadmillEnabled = false;
+
+    @Getter
+    @VROptionField(key = "treadmill.speed_scale", category = VROptionCategory.MOVEMENT)
+    protected static float treadmillSpeedScale = 1.0f;
+
 
 
     @Getter

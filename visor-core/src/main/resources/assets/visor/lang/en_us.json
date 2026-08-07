@@ -59,6 +59,11 @@
   "visor.options.movement.compatible_look_direction": "Compatible Look",
   "visor.options.movement.compatible_look_direction.tooltip": "§bCompatible Look Direction§r\n\nUses the §eHMD direction§r as your default reported look direction.\n\nWhen you actively use an item, the look direction temporarily follows the §eusing hand§r instead.\n\n§7This can help mods that depend on player look direction, but it is a best-effort compatibility mode and may change aiming behavior.§r",
 
+  "visor.options.movement.treadmill.enabled": "Treadmill",
+  "visor.options.movement.treadmill.enabled.tooltip": "§bTreadmill§r\n\nWalk in-game using locomotion hardware\n(§eKAT Walk§r, §eInfinadeck§r).\n\nDetected automatically on VR start,\nthe gait overrides the joystick while you walk.\n\n§7Only applies with the Controller movement mode.§r",
+  "visor.options.movement.treadmill.speed_scale": "Treadmill Speed",
+  "visor.options.movement.treadmill.speed_scale.tooltip": "§bTreadmill Speed§r\n\nScales how fast the player moves\nfor your walking pace on the treadmill.",
+
   "_comment.gui": "----GUI Settings----",
   "visor.options.gui.button": "GUI",
   "visor.options.gui.settings_text_scale": "Text scale",

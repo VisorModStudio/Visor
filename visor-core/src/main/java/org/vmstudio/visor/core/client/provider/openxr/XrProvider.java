@@ -30,9 +30,8 @@ public class XrProvider extends XRProvider {
         ClientContext.rawPoseHandler.getTrackersData().setTracking(
                 !getInputHandler().getTrackerProviders().isEmpty()
         );
-        //@TODO weird, change AtumVR for different approach
         ClientContext.rawPoseHandler.getHandsData().setTracking(
-                getInputHandler().getTrackerProvider(EXTHandTrackingProvider.class) != null
+                getInputHandler().getHandsProvider() != null
         );
 
         ClientContext.settingsManager.loadOptions();

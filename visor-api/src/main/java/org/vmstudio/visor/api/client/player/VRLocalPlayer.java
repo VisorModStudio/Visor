@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.player;
 
 
+import me.phoenixra.atumvr.api.input.treadmill.AtumVRTreadmillView;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -109,6 +110,13 @@ public interface VRLocalPlayer extends VRClientPlayer{
      * @return RawHands instance
      */
     RawHands getRawHands();
+
+    /**
+     * Get treadmill view (locomotion hardware)
+     *
+     * @return the treadmill view, empty when no hardware is connected
+     */
+    @NotNull AtumVRTreadmillView getTreadmill();
 
     /**
      * Set the inventory hotbar slot used as the VR offhand slot.

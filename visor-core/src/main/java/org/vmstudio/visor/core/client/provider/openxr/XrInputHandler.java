@@ -19,6 +19,11 @@ import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import me.phoenixra.atumvr.core.input.profile.tracker.FBBodyTrackingProvider;
 import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerProvider;
 import me.phoenixra.atumvr.core.input.profile.tracker.hand.EXTHandTrackingProvider;
+import me.phoenixra.atumvr.core.input.profile.tracker.hand.XRHandsProvider;
+import me.phoenixra.atumvr.core.input.treadmill.XRTreadmillProvider;
+import me.phoenixra.atumvr.core.input.treadmill.infinadeck.InfinadeckTreadmillProvider;
+import me.phoenixra.atumvr.core.input.treadmill.kat.KATLegacyTreadmillProvider;
+import me.phoenixra.atumvr.core.input.treadmill.kat.KATTreadmillProvider;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
 
@@ -62,11 +67,26 @@ public class XrInputHandler extends XRInputHandler {
         return List.of(
                 new XRCommonBodyView(getVrProvider()),
                 viveTrackers,
-                new FBBodyTrackingProvider(getVrProvider()),
-                //@TODO weeeird, change AtumVR to allow other approach
+                new FBBodyTrackingProvider(getVrProvider())
+        );
+    }
+
+    @Override
+    protected @NotNull List<? extends XRHandsProvider> generateHandsProviders(@NotNull MemoryStack stack) {
+        return List.of(
                 new EXTHandTrackingProvider(getVrProvider())
         );
     }
+
+    @Override
+    protected @NotNull List<? extends XRTreadmillProvider> generateTreadmillProviders(@NotNull MemoryStack stack) {
+        return List.of(
+                new KATTreadmillProvider(getVrProvider()),
+                new KATLegacyTreadmillProvider(getVrProvider()),
+                new InfinadeckTreadmillProvider(getVrProvider())
+        );
+    }
+
 
     @Override
     protected List<? extends XRDevice> generateDevices(MemoryStack stack) {
