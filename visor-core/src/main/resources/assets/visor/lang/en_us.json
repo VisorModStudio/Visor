@@ -128,6 +128,8 @@
   "visor.options.vr_body.fbt.tooltip": "§bFull Body Tracking§r\n\nUse body trackers to track your full body.\nTurn §cOff§r to skip body tracker processing §7(optimization)§r.",
   "visor.options.vr_body.hand_tracking": "Hand Tracking",
   "visor.options.vr_body.hand_tracking.tooltip": "§bHand Fingers Tracking§r\n\nUse hand tracking data for your hand fingers.\nTurn §cOff§r to skip hand tracking processing §7(optimization)§r.",
+  "visor.options.vr_body.body_haptics": "Body Haptics",
+  "visor.options.vr_body.body_haptics.tooltip": "§bBody Haptics§r\n\nUse haptic vests and suits (e.g. bHaptics) for in-game feedback.\nTurn §cOff§r to skip body haptics processing §7(optimization)§r.",
   "visor.vr_body_type.hands_only.name": "Hands Only",
   "visor.vr_body_type.full_body.name": "Full Body",
 

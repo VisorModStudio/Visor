@@ -214,6 +214,7 @@ public class VRClientSettingsManager {
             VisorClientImpl.LOGGER.info("Failed to load VR options!");
             LoggerUtils.printError(ex);
         }
+        VRClientSettings.applySettingsToVR();
     }
 
 
@@ -226,6 +227,7 @@ public class VRClientSettingsManager {
             }
             var optionWidget = optionWidgets.get(key);
             optionRecord.field().set(null, value);
+            VRClientSettings.applySettingsToVR();
             if(optionWidget != null) {
                 optionWidget.getBehaviour().onChanged();
             }
@@ -313,6 +315,7 @@ public class VRClientSettingsManager {
                     )
             );
             field.set(null, result);
+            VRClientSettings.applySettingsToVR();
 
         } catch (Exception ex) {
             VisorClientImpl.LOGGER.info("Failed to load default VR option: " + key);

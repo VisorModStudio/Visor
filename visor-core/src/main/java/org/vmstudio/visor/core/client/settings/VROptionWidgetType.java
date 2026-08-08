@@ -268,6 +268,11 @@ public enum VROptionWidgetType {
             "hand_tracking",
             (it) -> null
     ),
+    BODY_HAPTICS(
+            VROptionCategory.VR_BODY,
+            "body_haptics",
+            (it) -> null
+    ),
     MOVEMENT_MODE(
             VROptionCategory.MOVEMENT,
             "mode",

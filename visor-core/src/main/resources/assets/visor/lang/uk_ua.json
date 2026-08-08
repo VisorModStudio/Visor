@@ -126,6 +126,8 @@
   "visor.options.vr_body.fbt.tooltip": "§bПовне відстеження тіла§r\n\nВикористовувати трекери для відстеження всього тіла.\nВимкніть, щоб пропустити обробку трекерів тіла §7(оптимізація)§r.",
   "visor.options.vr_body.hand_tracking": "Відстеження рук",
   "visor.options.vr_body.hand_tracking.tooltip": "§bВідстеження рук§r\n\nВикористовувати дані відстеження рук.\nВимкніть, щоб пропустити обробку відстеження рук §7(оптимізація)§r.",
+  "visor.options.vr_body.body_haptics": "Тактильний відгук тіла",
+  "visor.options.vr_body.body_haptics.tooltip": "§bТактильний відгук тіла§r\n\nВикористовувати тактильні жилети та костюми (напр. bHaptics) для ігрового відгуку.\nВимкніть, щоб пропустити обробку тактильного відгуку §7(оптимізація)§r.",
   "visor.vr_body_type.hands_only.name": "Тільки руки",
   "visor.vr_body_type.full_body.name": "Повне тіло",
 

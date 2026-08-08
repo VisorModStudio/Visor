@@ -32,6 +32,7 @@ import org.vmstudio.visor.api.client.events.provider.RegisterBodyHapticsVREvent;
 import org.vmstudio.visor.api.client.events.provider.RegisterBodyTrackersVREvent;
 import org.vmstudio.visor.api.client.events.provider.RegisterHandTrackersVREvent;
 import org.vmstudio.visor.api.client.events.provider.RegisterTreadmillsVREvent;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +48,12 @@ public class XrInputHandler extends XRInputHandler {
 
     public XrInputHandler(XRProvider provider) {
         super(provider);
+    }
+
+    @Override
+    public void init() {
+        VRClientSettings.applySettingsToVR();
+        super.init();
     }
 
     @Override

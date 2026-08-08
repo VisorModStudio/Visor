@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.settings.enums.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
@@ -152,11 +153,17 @@ public class VRClientSettings {
     @VROptionField
     protected static String defaultVrBody = "hands_only";
 
+    @Getter
     @VROptionField(key = "fbt", category = VROptionCategory.VR_BODY)
     protected static boolean fbtEnabled = false;
 
+    @Getter
     @VROptionField(key = "hand_tracking", category = VROptionCategory.VR_BODY)
     protected static boolean handTrackingEnabled = false;
+
+    @Getter
+    @VROptionField(key = "body_haptics", category = VROptionCategory.VR_BODY)
+    protected static boolean bodyHapticsEnabled = false;
 
     @Getter
     @VROptionField
@@ -363,14 +370,6 @@ public class VRClientSettings {
         return rotationMode;
     }
 
-    public static boolean isFbtEnabled() {
-        return fbtEnabled && VRServerSettings.isBodyTrackersSupported();
-    }
-
-    public static boolean isHandTrackingEnabled() {
-        return handTrackingEnabled && VRServerSettings.isHandTrackersSupported();
-    }
-
     public static void updateThirdPersonCamera(@NotNull Vector3fc position,
                                                @NotNull Quaternionfc rotation){
         thirdPersonCameraPosX = position.x();
@@ -401,4 +400,38 @@ public class VRClientSettings {
         return true; //leave it, for later easier navigation in code to change movement
     }
 
+
+
+    public static void setBodyHapticsEnabled(boolean flag) {
+        VRClientSettings.bodyHapticsEnabled = flag;
+        VisorAPI.client().getVrProvider().getInputHandler()
+                .setBodyHapticsEnabled(flag);
+    }
+
+    public static void setHandTrackingEnabled(boolean flag) {
+        VRClientSettings.handTrackingEnabled = flag;
+        VisorAPI.client().getVrProvider().getInputHandler()
+                .setHandTrackingEnabled(flag);
+    }
+
+    public static void setFbtEnabled(boolean flag) {
+        VRClientSettings.fbtEnabled = flag;
+        VisorAPI.client().getVrProvider().getInputHandler()
+                .setBodyTrackingEnabled(flag);
+    }
+
+    public static void setTreadmillEnabled(boolean flag) {
+        VRClientSettings.treadmillEnabled = flag;
+        VisorAPI.client().getVrProvider().getInputHandler()
+                .setTreadmillEnabled(flag);
+    }
+
+
+    public static void applySettingsToVR() {
+        var inputHandler = VisorAPI.client().getVrProvider().getInputHandler();
+        inputHandler.setBodyTrackingEnabled(fbtEnabled);
+        inputHandler.setHandTrackingEnabled(handTrackingEnabled);
+        inputHandler.setTreadmillEnabled(treadmillEnabled);
+        inputHandler.setBodyHapticsEnabled(bodyHapticsEnabled);
+    }
 }

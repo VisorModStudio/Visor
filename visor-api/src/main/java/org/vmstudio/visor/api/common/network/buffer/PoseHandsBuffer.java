@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRHandJointType;
 import org.vmstudio.visor.api.common.player.VRPoseHand;
+import org.vmstudio.visor.api.server.VRServerSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,8 @@ public record PoseHandsBuffer(@NotNull PoseHandBuffer leftHand,
 
     public static PoseHandsBuffer create(VRLocalPlayer vrPlayer,
                                          VRPlayerPoseClient pose) {
-        if(!VRClientSettings.isHandTrackingEnabled()){
+        if(!VRClientSettings.isHandTrackingEnabled()
+                || !VRServerSettings.isHandTrackersSupported()){
             return createEmpty();
         }
         var hands = pose.getHands();
