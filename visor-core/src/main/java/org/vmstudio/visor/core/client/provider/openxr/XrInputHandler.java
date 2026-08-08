@@ -10,11 +10,12 @@ import me.phoenixra.atumvr.core.XRProvider;
 import me.phoenixra.atumvr.core.input.XRInputHandler;
 import me.phoenixra.atumvr.core.input.action.XRActionSet;
 
-import me.phoenixra.atumvr.core.input.body.EmulatedBodyPreset;
 import me.phoenixra.atumvr.core.input.body.XRCommonBodyView;
 import me.phoenixra.atumvr.core.input.device.XRDevice;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
+import me.phoenixra.atumvr.core.input.haptics.XRBodyHapticsProvider;
+import me.phoenixra.atumvr.core.input.haptics.bhaptics.BHapticsProvider;
 import me.phoenixra.atumvr.core.input.profile.XRProfileManager;
 import me.phoenixra.atumvr.core.input.profile.tracker.FBBodyTrackingProvider;
 import me.phoenixra.atumvr.core.input.profile.tracker.ViveTrackerProvider;
@@ -26,6 +27,11 @@ import me.phoenixra.atumvr.core.input.treadmill.kat.KATLegacyTreadmillProvider;
 import me.phoenixra.atumvr.core.input.treadmill.kat.KATTreadmillProvider;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.events.provider.RegisterBodyHapticsVREvent;
+import org.vmstudio.visor.api.client.events.provider.RegisterBodyTrackersVREvent;
+import org.vmstudio.visor.api.client.events.provider.RegisterHandTrackersVREvent;
+import org.vmstudio.visor.api.client.events.provider.RegisterTreadmillsVREvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,29 +70,51 @@ public class XrInputHandler extends XRInputHandler {
         //viveTrackers.setEmulated(true);
         //viveTrackers.setEmulationPreset(EmulatedBodyPreset.T_POSE);
         //--------
-        return List.of(
-                new XRCommonBodyView(getVrProvider()),
-                viveTrackers,
-                new FBBodyTrackingProvider(getVrProvider())
+        var event = new RegisterBodyTrackersVREvent(
+                List.of(
+                        new XRCommonBodyView(getVrProvider()),
+                        viveTrackers,
+                        new FBBodyTrackingProvider(getVrProvider())
+                )
         );
+        VisorAPI.eventBus().callEvent(event);
+        return event.getProviders();
     }
 
     @Override
     protected @NotNull List<? extends XRHandsProvider> generateHandsProviders(@NotNull MemoryStack stack) {
-        return List.of(
-                new EXTHandTrackingProvider(getVrProvider())
+        var event = new RegisterHandTrackersVREvent(
+                List.of(
+                        new EXTHandTrackingProvider(getVrProvider())
+                )
         );
+        VisorAPI.eventBus().callEvent(event);
+        return event.getProviders();
     }
 
     @Override
     protected @NotNull List<? extends XRTreadmillProvider> generateTreadmillProviders(@NotNull MemoryStack stack) {
-        return List.of(
-                new KATTreadmillProvider(getVrProvider()),
-                new KATLegacyTreadmillProvider(getVrProvider()),
-                new InfinadeckTreadmillProvider(getVrProvider())
+        var event = new RegisterTreadmillsVREvent(
+                List.of(
+                        new KATTreadmillProvider(getVrProvider()),
+                        new KATLegacyTreadmillProvider(getVrProvider()),
+                        new InfinadeckTreadmillProvider(getVrProvider())
+                )
         );
+        VisorAPI.eventBus().callEvent(event);
+        return event.getProviders();
     }
 
+    @Override
+    protected @NotNull List<? extends XRBodyHapticsProvider> generateBodyHapticsProviders(@NotNull MemoryStack stack) {
+        var event = new RegisterBodyHapticsVREvent(
+                List.of(
+                        new BHapticsProvider(getVrProvider())
+                )
+        );
+        VisorAPI.eventBus().callEvent(event);
+        return event.getProviders();
+    }
 
     @Override
     protected List<? extends XRDevice> generateDevices(MemoryStack stack) {

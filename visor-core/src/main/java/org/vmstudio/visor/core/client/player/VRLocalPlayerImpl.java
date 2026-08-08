@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.player;
 import lombok.Getter;
 
 import lombok.Setter;
+import me.phoenixra.atumvr.api.input.haptics.AtumVRBodyHaptics;
 import me.phoenixra.atumvr.api.input.treadmill.AtumVRTreadmillView;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
@@ -515,6 +516,15 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         }
         return ClientContext.visor.getVrProvider()
                 .getInputHandler().getVRTreadmill();
+    }
+
+    @Override
+    public @NotNull AtumVRBodyHaptics getBodyHaptics() {
+        if (VisorState.get().isNotActive()) {
+            return AtumVRBodyHaptics.EMPTY;
+        }
+        return ClientContext.visor.getVrProvider()
+                .getInputHandler().getVRBodyHaptics();
     }
 
     @Override
