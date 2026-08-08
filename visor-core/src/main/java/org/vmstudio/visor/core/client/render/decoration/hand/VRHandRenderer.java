@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import lombok.Getter;
 import lombok.Setter;
-import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.HumanoidArm;
@@ -23,8 +22,6 @@ import org.vmstudio.visor.api.client.render.decoration.hand.HandRenderState;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
-import org.vmstudio.visor.api.common.player.VRHandJointType;
-import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -47,7 +44,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
@@ -73,52 +69,6 @@ public class VRHandRenderer {
     );
 
     private static final float CURSOR_BOX_HALF_SIZE = 0.0016f;
-
-    private static final AtumColorImmutable HAND_BONE_COLOR = new AtumColorImmutable(
-            8, 56, 64,
-            255
-    );
-
-    private static final AtumColorImmutable HAND_JOINT_COLOR = new AtumColorImmutable(
-            20, 128, 140,
-            255
-    );
-
-    private static final float HAND_BONE_HALF_SIZE = 0.004f;
-    private static final float HAND_JOINT_FALLBACK_RADIUS = 0.008f;
-
-    private static final VRHandJointType[][] HAND_BONES = {
-            {VRHandJointType.WRIST, VRHandJointType.PALM},
-
-            {VRHandJointType.WRIST, VRHandJointType.THUMB_METACARPAL},
-            {VRHandJointType.THUMB_METACARPAL, VRHandJointType.THUMB_PROXIMAL},
-            {VRHandJointType.THUMB_PROXIMAL, VRHandJointType.THUMB_DISTAL},
-            {VRHandJointType.THUMB_DISTAL, VRHandJointType.THUMB_TIP},
-
-            {VRHandJointType.WRIST, VRHandJointType.INDEX_METACARPAL},
-            {VRHandJointType.INDEX_METACARPAL, VRHandJointType.INDEX_PROXIMAL},
-            {VRHandJointType.INDEX_PROXIMAL, VRHandJointType.INDEX_INTERMEDIATE},
-            {VRHandJointType.INDEX_INTERMEDIATE, VRHandJointType.INDEX_DISTAL},
-            {VRHandJointType.INDEX_DISTAL, VRHandJointType.INDEX_TIP},
-
-            {VRHandJointType.WRIST, VRHandJointType.MIDDLE_METACARPAL},
-            {VRHandJointType.MIDDLE_METACARPAL, VRHandJointType.MIDDLE_PROXIMAL},
-            {VRHandJointType.MIDDLE_PROXIMAL, VRHandJointType.MIDDLE_INTERMEDIATE},
-            {VRHandJointType.MIDDLE_INTERMEDIATE, VRHandJointType.MIDDLE_DISTAL},
-            {VRHandJointType.MIDDLE_DISTAL, VRHandJointType.MIDDLE_TIP},
-
-            {VRHandJointType.WRIST, VRHandJointType.RING_METACARPAL},
-            {VRHandJointType.RING_METACARPAL, VRHandJointType.RING_PROXIMAL},
-            {VRHandJointType.RING_PROXIMAL, VRHandJointType.RING_INTERMEDIATE},
-            {VRHandJointType.RING_INTERMEDIATE, VRHandJointType.RING_DISTAL},
-            {VRHandJointType.RING_DISTAL, VRHandJointType.RING_TIP},
-
-            {VRHandJointType.WRIST, VRHandJointType.LITTLE_METACARPAL},
-            {VRHandJointType.LITTLE_METACARPAL, VRHandJointType.LITTLE_PROXIMAL},
-            {VRHandJointType.LITTLE_PROXIMAL, VRHandJointType.LITTLE_INTERMEDIATE},
-            {VRHandJointType.LITTLE_INTERMEDIATE, VRHandJointType.LITTLE_DISTAL},
-            {VRHandJointType.LITTLE_DISTAL, VRHandJointType.LITTLE_TIP}
-    };
 
     @Getter
     private final VRHandItemPoseRegistry itemPosesRegistry = new VRHandItemPoseRegistry();
@@ -426,18 +376,15 @@ public class VRHandRenderer {
 
         poseStack.setIdentity();
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
+        RenderPoseHelper.applyHandPose(hand, poseStack);
 
 
         RenderSystem.enableDepthTest();
         RenderSystem.defaultBlendFunc();
 
         if (isGui) {
-            if (!renderGuiHandJoints(hand, renderPass, poseStack)) {
-                RenderPoseHelper.applyHandPose(hand, poseStack);
-                renderGuiHand(poseStack);
-            }
+            renderGuiHand(poseStack);
         } else {
-            RenderPoseHelper.applyHandPose(hand, poseStack);
             renderWorldHand(poseStack, hand, state, partialTicks);
         }
 
@@ -456,6 +403,8 @@ public class VRHandRenderer {
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
 
+        AtumColorImmutable color;
+
         Vector3fc dir = VRMathUtils.FORWARD_VECTOR;
 
         Vector3f start = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -465,7 +414,29 @@ public class VRHandRenderer {
                 start.z - dir.z() * 0.18f
         );
 
-        AtumColorImmutable color = applyGuiHandLight(GUI_HANDS_COLOR);
+        if (MC.level != null) {
+            float light = (float) MC.level.getMaxLocalRawBrightness(
+                    BlockPos.containing(
+                            new Vec3(
+                                    (Vector3f) ClientContext.localPlayer
+                                            .getPoseData(PlayerPoseType.RENDER)
+                                            .getHmd().getPosition()
+                            )
+                    )
+            );
+
+            light = Math.max(light, ShadersHelper.shaderLight());
+            float lightPercent = light / (float) MC.level.getMaxLightLevel();
+
+            color = new AtumColorImmutable(
+                    Mth.floor(GUI_HANDS_COLOR.getRedInt() * lightPercent),
+                    Mth.floor(GUI_HANDS_COLOR.getGreenInt() * lightPercent),
+                    Mth.floor(GUI_HANDS_COLOR.getBlueInt() * lightPercent),
+                    255
+            );
+        }else{
+            color = GUI_HANDS_COLOR;
+        }
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
@@ -481,111 +452,6 @@ public class VRHandRenderer {
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderSystem.depthMask(true);
 
-    }
-
-
-    private boolean renderGuiHandJoints(HandType hand,
-                                        VRRenderPass renderPass,
-                                        PoseStack poseStack) {
-        if (!VRClientSettings.isHandTrackingEnabled()) {
-            return false;
-        }
-        var renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        ControllerType side = hand.asControllerType(VRClientSettings.isLeftHanded());
-        var handPose = renderPose.getHands().getHand(side);
-        if (!handPose.isActive() || handPose.getActiveJointsType().isEmpty()) {
-            return false;
-        }
-
-        Vector3fc cameraPos = RenderPoseHelper.getCameraPosition(renderPass, renderPose);
-        float worldScale = renderPose.getWorldScale();
-        var rawHand = ClientContext.rawPoseHandler.getHandsData().getHand(side);
-
-        MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
-        RenderSystem.setShaderTexture(
-                0,
-                TexturesHelper.getWhiteTexture()
-        );
-
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-
-        AtumColorImmutable boneColor = applyGuiHandLight(HAND_BONE_COLOR);
-        AtumColorImmutable jointColor = applyGuiHandLight(HAND_JOINT_COLOR);
-
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        Matrix4f poseMatrix = poseStack.last().pose();
-
-        float boneHalf = HAND_BONE_HALF_SIZE * worldScale;
-        for (VRHandJointType[] bone : HAND_BONES) {
-            VRPose from = handPose.getJoint(bone[0]);
-            VRPose to = handPose.getJoint(bone[1]);
-            if (from == null || to == null) {
-                continue;
-            }
-            RenderHelper.renderCuboid(
-                    builder, poseMatrix,
-                    from.getPosition().sub(cameraPos, new Vector3f()),
-                    to.getPosition().sub(cameraPos, new Vector3f()),
-                    -boneHalf, boneHalf,
-                    -boneHalf, boneHalf,
-                    boneColor
-            );
-        }
-
-        for (VRHandJointType type : handPose.getActiveJointsType()) {
-            VRPose joint = handPose.getJoint(type);
-            if (joint == null) {
-                continue;
-            }
-            float radius = rawHand.getJoint(type).getRadius();
-            if (radius <= 0) {
-                radius = HAND_JOINT_FALLBACK_RADIUS;
-            }
-            float half = radius * worldScale;
-
-            Vector3f pos = joint.getPosition().sub(cameraPos, new Vector3f());
-            Vector3f dir = joint.getDirection().mul(half, new Vector3f());
-
-            RenderHelper.renderCuboid(
-                    builder, poseMatrix,
-                    pos.sub(dir, new Vector3f()),
-                    pos.add(dir, new Vector3f()),
-                    -half, half,
-                    -half, half,
-                    jointColor
-            );
-        }
-
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        return true;
-    }
-
-    private static AtumColorImmutable applyGuiHandLight(AtumColorImmutable color) {
-        if (MC.level == null) {
-            return color;
-        }
-        float light = (float) MC.level.getMaxLocalRawBrightness(
-                BlockPos.containing(
-                        new Vec3(
-                                (Vector3f) ClientContext.localPlayer
-                                        .getPoseData(PlayerPoseType.RENDER)
-                                        .getHmd().getPosition()
-                        )
-                )
-        );
-
-        light = Math.max(light, ShadersHelper.shaderLight());
-        float lightPercent = light / (float) MC.level.getMaxLightLevel();
-
-        return new AtumColorImmutable(
-                Mth.floor(color.getRedInt() * lightPercent),
-                Mth.floor(color.getGreenInt() * lightPercent),
-                Mth.floor(color.getBlueInt() * lightPercent),
-                255
-        );
     }
 
     private void renderWorldHand(PoseStack poseStack,
