@@ -112,9 +112,6 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public void setActiveHand(@NotNull HandType activeHand) {
-        if (!VRServerSettings.isTwoHandedVR()) {
-            activeHand = HandType.MAIN;
-        }
         if(this.activeHand == activeHand){
             return;
         }

@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.MouseButtonType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -273,11 +274,13 @@ public class MouseClickHandler {
         if (localPlayer.getActiveHand() != handType) {
             if ((mainHandPressed && !offhandPressed)
                     || (!mainHandPressed && offhandPressed)) {
-                localPlayer.setActiveHand(handType);
                 boolean forced = (forcedMain && mainHandPressed)
                         || (forcedOffhand && offhandPressed);
-                if (localPlayer.getActiveHand() != handType && !forced) {
-                    // twoHanded gameplay disabled
+                if (VRServerSettings.isTwoHandedVR()) {
+                    localPlayer.setActiveHand(handType);
+                } else if (handType == HandType.OFFHAND && !forced) {
+                    //two-handed mode disabled, offhand cannot be active
+                    // (except rare cases outside mouse clicks)
                     return;
                 }
             }
