@@ -83,6 +83,7 @@ subprojects {
 
 
         compileOnly(libs.lwjgl.openxr)
+        compileOnly(libs.lwjgl.vulkan)
 
         compileOnly(libs.bundles.annotations)
         annotationProcessor(libs.bundles.annotations)

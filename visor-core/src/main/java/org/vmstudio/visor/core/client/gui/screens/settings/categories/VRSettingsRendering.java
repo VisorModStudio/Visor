@@ -72,6 +72,16 @@ public class VRSettingsRendering extends VROptionsSet {
             );
         }
 
+        options.add(
+                new OptionWidgetEntry(
+                        this,
+                        VROptionWidgetType.GRAPHICS_API,
+                        OptionWidgetPosition.RIGHT,
+                        IrisCompatHelper.isLoaded() ? 2 : 1,
+                        null
+                )
+        );
+
         MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
 
         if(mirrorMode == MirrorMode.CROPPED

@@ -6,6 +6,8 @@ import me.phoenixra.atumvr.api.input.device.AtumVRDeviceHMD;
 
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import me.phoenixra.atumvr.core.enums.XRGraphicsApi;
+import me.phoenixra.atumvr.core.session.vulkan.XRVulkanBridge;
 import me.phoenixra.atumvr.core.utils.XRUtils;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
 import org.vmstudio.visor.core.client.provider.VisorScene;
@@ -32,6 +34,8 @@ public class XrRenderer extends VRRendererBase {
 
     protected XrCompositionLayerProjectionView.Buffer projectionLayerViews;
 
+    protected XrPosef.Buffer bridgePrevPoses;
+    protected XrFovf.Buffer bridgePrevFovs;
 
     boolean frameStarted;
 
@@ -134,6 +138,9 @@ public class XrRenderer extends VRRendererBase {
             if (frameShouldRender) {
                 prepareSwapChains();
 
+                if (isVulkanBridge()) {
+                    vrProvider.getSession().getVulkanBridge().beginFrameGL();
+                }
                 getCurrentScene().render(context);
             }
         }finally {
@@ -150,6 +157,14 @@ public class XrRenderer extends VRRendererBase {
         try (MemoryStack stack = MemoryStack.stackPush()) {
 
             IntBuffer intBuf2 = stack.callocInt(1);
+
+            boolean bridge = isVulkanBridge();
+            boolean delayedContent = bridge && vrProvider.getSession()
+                    .getVulkanBridge().isContentOneFrameDelayed();
+            if (bridge && bridgePrevPoses == null) {
+                bridgePrevPoses = XrPosef.calloc(2);
+                bridgePrevFovs = XrFovf.calloc(2);
+            }
 
             for (EyeType eyeType : EyeType.values()) {
                 int index = eyeType.getIndex();
@@ -181,11 +196,20 @@ public class XrRenderer extends VRRendererBase {
                 XrView xrView = vrProvider.getInputHandler()
                         .getDevice(AtumVRDeviceHMD.ID, XRDeviceHMD.class)
                         .getXrView(eyeType);
-                XrSwapchainSubImage subImage = this.projectionLayerViews.get(index)
-                        .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW)
-                        .pose(xrView.pose())
-                        .fov(xrView.fov())
-                        .subImage();
+                var projectionView = this.projectionLayerViews.get(index)
+                        .type(XR10.XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW);
+                if (delayedContent) {
+                    projectionView.pose(bridgePrevPoses.get(index))
+                            .fov(bridgePrevFovs.get(index));
+                } else {
+                    projectionView.pose(xrView.pose())
+                            .fov(xrView.fov());
+                }
+                if (bridge) {
+                    bridgePrevPoses.get(index).set(xrView.pose());
+                    bridgePrevFovs.get(index).set(xrView.fov());
+                }
+                XrSwapchainSubImage subImage = projectionView.subImage();
                 subImage.swapchain(xrSwapchain);
                 subImage.imageRect().offset().set(0, 0);
                 subImage.imageRect().extent().set(resolutionWidth, resolutionHeight);
@@ -218,6 +242,13 @@ public class XrRenderer extends VRRendererBase {
                     .environmentBlendMode(XR10.XR_ENVIRONMENT_BLEND_MODE_OPAQUE);
 
             if (frameShouldRender) {
+                if (isVulkanBridge()) {
+                    //must be submitted before the images are released
+                    vrProvider.getSession().getVulkanBridge().transferFrame(
+                            swapIndices[EyeType.LEFT.getIndex()],
+                            swapIndices[EyeType.RIGHT.getIndex()]
+                    );
+                }
                 for (EyeType eyeType : EyeType.values()) {
                     vrProvider.checkXRError(
                             XR10.xrReleaseSwapchainImage(
@@ -285,6 +316,10 @@ public class XrRenderer extends VRRendererBase {
 
     @Override
     protected void setupEyes() {
+        if (isVulkanBridge()) {
+            setupEyesVulkanBridge();
+            return;
+        }
         try (MemoryStack stack = MemoryStack.stackPush()) {
             for (EyeType eyeType : EyeType.values()) {
                 int eyeIndex = eyeType.getIndex();
@@ -322,6 +357,49 @@ public class XrRenderer extends VRRendererBase {
             }
         }
 
+    }
+
+    protected void setupEyesVulkanBridge() {
+        XRVulkanBridge bridge = vrProvider.getSession().getVulkanBridge();
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            for (EyeType eyeType : EyeType.values()) {
+                int eyeIndex = eyeType.getIndex();
+                XrSwapchain xrSwapchain = vrProvider.getSession()
+                        .getSwapChain().getHandle(eyeIndex);
+
+                IntBuffer intBuffer = stack.ints(0);
+                int error = XR10.xrEnumerateSwapchainImages(xrSwapchain, intBuffer, null);
+                vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get count");
+
+                int imageCount = intBuffer.get(0);
+                XrSwapchainImageVulkanKHR.Buffer swapchainImageBuffer =
+                        bridge.createImageBuffers(imageCount, stack);
+                error = XR10.xrEnumerateSwapchainImages(xrSwapchain, intBuffer,
+                        XrSwapchainImageBaseHeader.create(swapchainImageBuffer.address(), swapchainImageBuffer.capacity()));
+                vrProvider.checkXRError(error, "xrEnumerateSwapchainImages", "get images");
+
+                int textureId = bridge.setupEye(
+                        eyeIndex, swapchainImageBuffer,
+                        resolutionWidth, resolutionHeight
+                );
+                XrEyeTexture texture = new XrEyeTexture(
+                        resolutionWidth, resolutionHeight,
+                        textureId,
+                        eyeIndex
+                ).init();
+                GLUtils.checkGLError(eyeType.name() + " bridge framebuffer setup");
+
+                if (eyeType == EyeType.LEFT) {
+                    this.leftFramebuffers = new XrEyeTexture[]{texture};
+                } else {
+                    this.rightFramebuffers = new XrEyeTexture[]{texture};
+                }
+            }
+        }
+    }
+
+    private boolean isVulkanBridge() {
+        return vrProvider.getSession().getGraphicsApi() == XRGraphicsApi.VULKAN;
     }
 
     @Override
@@ -419,7 +497,8 @@ public class XrRenderer extends VRRendererBase {
         if(leftFramebuffers==null){
             return null;
         }
-        return leftFramebuffers[swapIndices[EyeType.LEFT.getIndex()]];
+        //the bridge has a single intermediate target per eye
+        return leftFramebuffers[isVulkanBridge() ? 0 : swapIndices[EyeType.LEFT.getIndex()]];
     }
 
     @Override
@@ -427,7 +506,7 @@ public class XrRenderer extends VRRendererBase {
         if(rightFramebuffers==null){
             return null;
         }
-        return rightFramebuffers[swapIndices[EyeType.RIGHT.getIndex()]];
+        return rightFramebuffers[isVulkanBridge() ? 0 : swapIndices[EyeType.RIGHT.getIndex()]];
     }
 
     protected void restoreGLContext() {

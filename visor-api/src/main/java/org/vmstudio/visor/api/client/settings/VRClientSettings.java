@@ -118,6 +118,10 @@ public class VRClientSettings {
     @VROptionField(key = "dh_mirror_passes", category = VROptionCategory.RENDERING)
     protected static boolean dhMirrorPasses = false;
 
+    @Getter
+    @VROptionField(key = "graphics_api", category = VROptionCategory.RENDERING)
+    protected static GraphicsApi graphicsApi = GraphicsApi.AUTO;
+
     //----Shaders
     @Getter
     @VROptionField(key = "per_eye_pipelines", category = VROptionCategory.RENDERING_SHADERS)

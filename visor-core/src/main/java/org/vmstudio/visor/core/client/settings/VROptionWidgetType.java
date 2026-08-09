@@ -258,6 +258,11 @@ public enum VROptionWidgetType {
             "dh_mirror_passes",
             (it) -> null
     ),
+    GRAPHICS_API(
+            VROptionCategory.RENDERING,
+            "graphics_api",
+            (it) -> null
+    ),
     FBT(
             VROptionCategory.VR_BODY,
             "fbt",

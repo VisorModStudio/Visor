@@ -40,8 +40,8 @@ dependencies {
 
 
     // ---- LOCAL DEPENDENCY
-    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#19')) { transitive = false }
-    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#19')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#23')) { transitive = false }
     // ----
     //shadowCommon(libs.atumvr.api) { transitive = false }
     //shadowCommon(libs.atumvr.core) { transitive = false }
@@ -52,6 +52,9 @@ dependencies {
     include(implementation(libs.lwjgl.openxr.get()))
     include(implementation("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux"))
     include(implementation("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows"))
+
+    //vulkan bridge rail; no natives jar - lwjgl-vulkan loads the system loader
+    include(implementation(libs.lwjgl.vulkan.get()))
 
 
 

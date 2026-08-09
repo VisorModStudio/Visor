@@ -49,6 +49,7 @@ jetbrains        = { module = "org.jetbrains:annotations",         version.ref =
 # Core
 architectury-lib   = {module = "dev.architectury:architectury-fabric", version.ref = "architectury-lib"}
 lwjgl-openxr       = { module = "org.lwjgl:lwjgl-openxr",           version.ref = "lwjgl" }
+lwjgl-vulkan       = { module = "org.lwjgl:lwjgl-vulkan",           version.ref = "lwjgl" }
 atumvr-api         = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-api",     version.ref = "atum-vr"}
 atumvr-core        = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-core",    version.ref = "atum-vr"}
 atumvr-config      = { module = "com.github.Phoenix-Ra:AtumConfiguration",    version.ref = "atum-config"}
