@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorClientState;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.events.SessionStateChangedVREvent;
@@ -62,17 +62,17 @@ public class VisorState implements VisorClientState {
         }
 
         //HANDLE DELAYED ERROR IN WORLD
-        if(delayedErrorHandling != null
-                && MC != null
-                && MC.screen != null
-                && (MC.screen instanceof DisconnectedScreen
-                || MC.screen instanceof TitleScreen)){
-            delayedErrorHandling.run();
-            delayedErrorHandling = null;
-        }
-        if(MC != null && MC.level != null){
-            //clean message
-            vrInitFailed = false;
+        if(MC != null){
+            if(delayedErrorHandling != null
+                    && (MC.screen instanceof DisconnectedScreen
+                    || MC.screen instanceof TitleScreen)){
+                delayedErrorHandling.run();
+                delayedErrorHandling = null;
+            }
+            if(MC.level != null){
+                //clean message
+                vrInitFailed = false;
+            }
         }
 
         //INIT & DESTROY
@@ -126,14 +126,7 @@ public class VisorState implements VisorClientState {
     }
 
     private static void startClient() {
-        if (ModLoader.get().isModLoaded("vivecraft")) {
-            throw new IllegalStateException(
-                "Visor cannot run with Vivecraft installed! " +
-                "Both mods provide VR functionality and will conflict. " +
-                "Please remove one of the mods to continue."
-            );
-        }
-        
+        checkVRModConflict();
         try {
             if (ClientContext.visor != null) {
                 return;
@@ -158,6 +151,17 @@ public class VisorState implements VisorClientState {
             destroyVRWithErrorScreen(e);
         }
 
+    }
+
+    private static void checkVRModConflict() {
+        if(!ModLoader.get().isModLoaded("vivecraft")){
+            return;
+        }
+        throw new IllegalStateException(
+                "Visor detected Vivecraft in the mod list."
+                        + " Two VR mods cannot drive Minecraft at the same time,"
+                        + " so remove either Visor or Vivecraft and launch again."
+        );
     }
 
     private static void initVR() {
