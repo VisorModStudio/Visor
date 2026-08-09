@@ -262,7 +262,7 @@ public class TaskSwing extends VisorTask {
                 && p != null
                 && p.isAlive()
                 && !p.isSleeping()
-                && !p.isCreative()
+                && (VRClientSettings.isSwingInCreative() || !p.isCreative())
                 && !p.isSpectator()
                 && p.getVehicle() == null
                 && !TaskRoomClimb.getInstance().isGrabbed()

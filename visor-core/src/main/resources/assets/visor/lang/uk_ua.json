@@ -171,6 +171,8 @@
   "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bПоріг стрибка§r\n\nВисота, яку потрібно досягти при ривку вгору для стрибка.",
   "visor.options.immersion.advanced.swing.speed_threshold": "Поріг замаху",
   "visor.options.immersion.advanced.swing.speed_threshold.tooltip": "§bПоріг замаху§r\n\nШвидкість контролера (м/с), потрібна, щоб замах зарахувався як удар або видобуток блока.\nНижче — удари спрацьовують легше.\nВище — менше випадкових ударів.",
+  "visor.options.immersion.advanced.swing.in_creative": "Замах у креативі",
+  "visor.options.immersion.advanced.swing.in_creative.tooltip": "§bЗамах у креативі§r\n\nДозволяє удари та видобуток блоків замахом у творчому режимі.\nВимкніть, щоб випадково не бити мобів і не ламати блоки під час будівництва.",
 
   "_comment18": "*--------ПЕРЕЛІКИ--------*",
   "visor.options.enums.VRPlayMode.DISABLED": "Вимкнено",

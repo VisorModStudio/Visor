@@ -495,6 +495,11 @@ public enum VROptionWidgetType {
                 ).build();
             }
     ),
+    SWING_IN_CREATIVE(
+            VROptionCategory.IMMERSION_ADVANCED,
+            "swing.in_creative",
+            (it) -> null
+    ),
 
     WORLD_TWO_HANDED(
             VROptionCategory.WORLD,

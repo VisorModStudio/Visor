@@ -337,7 +337,9 @@ public class VRClientSettings {
     @VROptionField(key = "swing.speed_threshold", category = VROptionCategory.IMMERSION_ADVANCED)
     protected static float swingSpeedThreshold = 3.0f;
 
-
+    @Getter
+    @VROptionField(key = "swing.in_creative", category = VROptionCategory.IMMERSION_ADVANCED)
+    protected static boolean swingInCreative = true;
 
     // ---- OTHER
 

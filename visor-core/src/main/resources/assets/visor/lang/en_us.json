@@ -173,6 +173,8 @@
   "visor.options.immersion.advanced.room_jump.threshold.tooltip": "§bJump Threshold§r\n\nThe percent from the full height where your character will jump.",
   "visor.options.immersion.advanced.swing.speed_threshold": "Swing Threshold",
   "visor.options.immersion.advanced.swing.speed_threshold.tooltip": "§bSwing Threshold§r\n\nHow fast (m/s) you need to move a controller for the swing to count as an attack or a mining hit.\nLower = swings register easier.\nHigher = fewer accidental hits.",
+  "visor.options.immersion.advanced.swing.in_creative": "Swing In Creative",
+  "visor.options.immersion.advanced.swing.in_creative.tooltip": "§bSwing In Creative§r\n\nAllow swing attacks and mining in Creative mode.\nTurn off to avoid hitting mobs or breaking blocks by accident while building.",
   "_comment.world": "----World Settings----",
   "visor.options.world.button": "World",
   "visor.options.world.note.editable": "Settings for worlds you host",
