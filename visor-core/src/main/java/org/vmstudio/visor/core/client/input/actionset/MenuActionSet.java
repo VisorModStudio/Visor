@@ -38,7 +38,8 @@ public class MenuActionSet extends VRActionSet {
                 VRActions.createMouseScroll(this, HandType.OFFHAND),
 
                 VRActions.createShift(this),
-                VRActions.createMenu(this)
+                VRActions.createMenu(this),
+                VRActions.createScreenshot(this)
 
         );
     }

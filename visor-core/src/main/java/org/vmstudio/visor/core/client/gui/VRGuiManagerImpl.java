@@ -5,7 +5,7 @@ import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.VRGuiManager;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 

@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.gui.screens.settings;
 
 import lombok.Getter;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.*;
-import org.vmstudio.visor.core.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,8 @@ public enum VRSettingsCategory {
     CONTROLS(VROptionCategory.CONTROLS, (settingsScreen)->new VRSettingsControls(settingsScreen, null, settingsScreen::repopulateWidgets)),
     MOVEMENT(VROptionCategory.MOVEMENT, (settingsScreen)->new VRSettingsMovement(settingsScreen, null, settingsScreen::repopulateWidgets)),
     IMMERSION(VROptionCategory.IMMERSION, (settingsScreen)->new VRSettingsImmersion(settingsScreen, null, settingsScreen::repopulateWidgets)),
-    GUI(VROptionCategory.GUI, (settingsScreen)->new VRSettingsGui(settingsScreen, null, settingsScreen::repopulateWidgets));
+    GUI(VROptionCategory.GUI, (settingsScreen)->new VRSettingsGui(settingsScreen, null, settingsScreen::repopulateWidgets)),
+    WORLD(VROptionCategory.WORLD, (settingsScreen)->new VRSettingsWorld(settingsScreen, null, settingsScreen::repopulateWidgets));
 
     @Getter
     private final Function<VRSettingsScreen,VROptionsSet> supplier;

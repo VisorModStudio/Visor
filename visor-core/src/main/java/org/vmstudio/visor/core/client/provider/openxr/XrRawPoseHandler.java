@@ -1,13 +1,19 @@
 package org.vmstudio.visor.core.client.provider.openxr;
 
 import me.phoenixra.atumvr.api.enums.EyeType;
+import me.phoenixra.atumvr.api.input.body.AtumVRBodyJoint;
+import me.phoenixra.atumvr.api.input.body.hand.AtumVRHandJoint;
+import me.phoenixra.atumvr.api.input.body.hand.AtumVRHandView;
 import me.phoenixra.atumvr.api.input.device.AtumVRDeviceController;
 import me.phoenixra.atumvr.api.input.device.AtumVRDeviceHMD;
-import me.phoenixra.atumvr.api.input.profile.tracker.ViveTrackerRole;
+import me.phoenixra.atumvr.api.misc.pose.AtumVRPose;
 import me.phoenixra.atumvr.core.input.device.XRDeviceController;
 import me.phoenixra.atumvr.core.input.device.XRDeviceHMD;
-import me.phoenixra.atumvr.core.input.device.XRDeviceViveTracker;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.common.player.VRBodyPartType;
+import org.vmstudio.visor.api.common.player.VRHandDataSource;
+import org.vmstudio.visor.api.common.player.VRHandJointType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.pose.raw.RawPoseHandler;
 import org.joml.Matrix4f;
@@ -15,9 +21,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.player.pose.raw.RawHandImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawTrackerImpl;
 
 public class XrRawPoseHandler extends RawPoseHandler {
+
+    private static final VRBodyPartType[] BODY_PARTS = VRBodyPartType.values();
+
     private final XrProvider provider;
     public XrRawPoseHandler(XrProvider provider){
         this.provider = provider;
@@ -144,149 +154,107 @@ public class XrRawPoseHandler extends RawPoseHandler {
 
 
         //TRACKERS
-        var trackersManager = provider.getInputHandler().getTrackerManager();
-
-        if(!trackersData.isTracking()){
-            return;
-        }
-        // ---- WAIST
-        var trackerDevice = trackersManager.getDevicesMap()
-                .get(ViveTrackerRole.WAIST);
-        var tracker = trackersData.getWaist();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- CHEST
-        trackerDevice = trackersManager.getDevicesMap()
-                .get(ViveTrackerRole.CHEST);
-        tracker = trackersData.getChest();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT FOOT
-        trackerDevice = trackersManager.getDevicesMap()
-                .get(ViveTrackerRole.LEFT_FOOT);
-        tracker = trackersData.getLeftFoot();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT FOOT
-        trackerDevice = trackersManager.getDevicesMap()
-                .get(ViveTrackerRole.RIGHT_FOOT);
-        tracker = trackersData.getRightFoot();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT ANKLE
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.LEFT_ANKLE);
-        tracker = trackersData.getLeftAnkle();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT ANKLE
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.RIGHT_ANKLE);
-        tracker = trackersData.getRightAnkle();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT KNEE
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.LEFT_KNEE);
-        tracker = trackersData.getLeftKnee();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT KNEE
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.RIGHT_KNEE);
-        tracker = trackersData.getRightKnee();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT WRIST
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.LEFT_WRIST);
-        tracker = trackersData.getLeftWrist();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT WRIST
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.RIGHT_WRIST);
-        tracker = trackersData.getRightWrist();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT ELBOW
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.LEFT_ELBOW);
-        tracker = trackersData.getLeftElbow();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT ELBOW
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.RIGHT_ELBOW);
-        tracker = trackersData.getRightElbow();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- LEFT SHOULDER
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.LEFT_SHOULDER);
-        tracker = trackersData.getLeftShoulder();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
-        }
-        // ---- RIGHT SHOULDER
-        trackerDevice = trackersManager.getDevicesMap().get(ViveTrackerRole.RIGHT_SHOULDER);
-        tracker = trackersData.getRightShoulder();
-        if(trackerDevice == null){
-            tracker.setTracking(false);
-        }else{
-            updateTracker(tracker, trackerDevice);
-            tracker.setTracking(trackerDevice.isActive());
+        if(trackersData.isTracking()){
+            if(VRClientSettings.isFbtEnabled()){
+                var body = provider.getInputHandler().getVRBody();
+                for(VRBodyPartType part : BODY_PARTS){
+                    AtumVRBodyJoint joint = toBodyJoint(part);
+                    if(joint == null){
+                        continue;
+                    }
+                    updateTracker(trackersData.getTracker(part), body.getJointPose(joint));
+                }
+            }else{
+                for(VRBodyPartType part : BODY_PARTS){
+                    if(toBodyJoint(part) == null){
+                        continue;
+                    }
+                    trackersData.getTracker(part).setTracking(false);
+                }
+            }
         }
 
-
+        //HANDS
+        if(handsData.isTracking()){
+            if(VRClientSettings.isHandTrackingEnabled()){
+                var hands = provider.getInputHandler().getVRHands();
+                updateHand(handsData.getLeftHand(), hands.getLeftHand());
+                updateHand(handsData.getRightHand(), hands.getRightHand());
+            }else{
+                clearHand(handsData.getLeftHand());
+                clearHand(handsData.getRightHand());
+            }
+        }
     }
 
-    private void updateTracker(RawTrackerImpl tracker,
-                               XRDeviceViveTracker trackerDevice){
-        tracker.getDevicePoseMutable().set(trackerDevice.getPose().matrix());
-        tracker.getRotationMutable().set(trackerDevice.getPose().orientation());
+    private static AtumVRBodyJoint toBodyJoint(VRBodyPartType part){
+        return switch (part){
+            case WAIST -> AtumVRBodyJoint.WAIST;
+            case CHEST -> AtumVRBodyJoint.CHEST;
+            case LEFT_FOOT -> AtumVRBodyJoint.LEFT_FOOT;
+            case RIGHT_FOOT -> AtumVRBodyJoint.RIGHT_FOOT;
+            case LEFT_ANKLE -> AtumVRBodyJoint.LEFT_ANKLE;
+            case RIGHT_ANKLE -> AtumVRBodyJoint.RIGHT_ANKLE;
+            case LEFT_KNEE -> AtumVRBodyJoint.LEFT_KNEE;
+            case RIGHT_KNEE -> AtumVRBodyJoint.RIGHT_KNEE;
+            case LEFT_WRIST -> AtumVRBodyJoint.LEFT_WRIST;
+            case RIGHT_WRIST -> AtumVRBodyJoint.RIGHT_WRIST;
+            case LEFT_ELBOW -> AtumVRBodyJoint.LEFT_ELBOW;
+            case RIGHT_ELBOW -> AtumVRBodyJoint.RIGHT_ELBOW;
+            case LEFT_SHOULDER -> AtumVRBodyJoint.LEFT_SHOULDER;
+            case RIGHT_SHOULDER -> AtumVRBodyJoint.RIGHT_SHOULDER;
+            //delivered by the HMD/controller devices, not trackers
+            case HEAD, MAIN_HAND, OFFHAND -> null;
+        };
+    }
+
+    private void updateHand(RawHandImpl handData, AtumVRHandView handView){
+        if(!handView.isTracked()){
+            clearHand(handData);
+            return;
+        }
+        handData.setDataSource(toDataSource(handView.getDataSource()));
+
+        for(int i = 0; i < VRHandJointType.COUNT; i++){
+            var jointData = handData.getJoint(VRHandJointType.fromIndex(i));
+            AtumVRHandJoint joint = AtumVRHandJoint.fromIndex(i);
+            AtumVRPose jointPose = handView.getJointPose(joint);
+            if(jointPose == null){
+                jointData.setTracking(false);
+                continue;
+            }
+            jointData.getDevicePoseMutable().set(jointPose.matrix());
+            jointData.getRotationMutable().set(jointPose.orientation());
+            jointData.getRotationMutable().set3x3(jointData.getDevicePoseMutable());
+            jointData.setRadius(handView.getJointRadius(joint));
+            jointData.setTracking(true);
+        }
+        handData.setTracking(true);
+    }
+
+    private static void clearHand(RawHandImpl handData){
+        handData.setTracking(false);
+        handData.setDataSource(VRHandDataSource.UNKNOWN);
+        for(int i = 0; i < VRHandJointType.COUNT; i++){
+            handData.getJoint(VRHandJointType.fromIndex(i)).setTracking(false);
+        }
+    }
+
+    private static VRHandDataSource toDataSource(AtumVRHandView.DataSource source){
+        return switch (source){
+            case HAND -> VRHandDataSource.HAND;
+            case CONTROLLER -> VRHandDataSource.CONTROLLER;
+            case UNKNOWN -> VRHandDataSource.UNKNOWN;
+        };
+    }
+
+    private void updateTracker(RawTrackerImpl tracker, AtumVRPose jointPose){
+        if(jointPose == null){
+            tracker.setTracking(false);
+            return;
+        }
+        tracker.getDevicePoseMutable().set(jointPose.matrix());
+        tracker.getRotationMutable().set(jointPose.orientation());
 
         Matrix4f trackerPose = tracker.getDevicePoseMutable();
         Matrix4f trackerRotation = tracker.getRotationMutable();
@@ -298,6 +266,6 @@ public class XrRawPoseHandler extends RawPoseHandler {
         tracker.getRotationHistory()
                 .add(new Quaternionf().setFromNormalized(trackerRotation)
                         .rotateY(ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getRotationY()));
-
+        tracker.setTracking(true);
     }
 }

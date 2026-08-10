@@ -19,7 +19,8 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 }
-version = version+"-api_fabric"
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-api-fabric"
+
 dependencies {
     compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
 
@@ -36,8 +37,9 @@ dependencies {
 
 
     // ---- LOCAL DEPENDENCY
-    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#8')) { transitive = false }
-    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#8')) { transitive = false }
+    // modCompileOnly: flatDir jars have no maven coordinates, so they must stay out of the published POM (bundled via shadowCommon instead)
+    shadowCommon(modCompileOnly(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }
+    shadowCommon(modCompileOnly(name: 'atumvr-core-1.14.0beta-snapshot#23')) { transitive = false }
     // ----
     //shadowCommon(libs.atumvr.api) { transitive = false }
     //shadowCommon(libs.atumvr.core) { transitive = false }

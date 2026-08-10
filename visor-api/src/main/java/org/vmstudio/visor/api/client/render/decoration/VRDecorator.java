@@ -85,8 +85,6 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
      * Called before any pipeline stages, at the very beginning
      * of the frame for this decorator.
      *
-     * <p>Use for setup work like in-block effects, panorama
-     * rendering, light layer toggling, etc.</p>
      *
      * @param poseStack    the current pose stack
      * @param partialTicks partial tick time
@@ -98,14 +96,8 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
      * Called at {@code AFTER_SOLID} — before translucents.
      *
      * <p>Render depth-tested elements that should be visible
-     * through water and translucent blocks
-     * (e.g. depth overlays, VR hands).</p>
+     * through water and translucent blocks</p>
      *
-     * <p>The default implementation does nothing.
-     * The orchestrator ({@code DecorationRendererImpl}) handles
-     * the standard pipeline (depth overlays + hands) automatically.
-     * Override only to add custom decorator-specific rendering
-     * at this stage.</p>
      *
      * @param poseStack    the current pose stack
      * @param partialTicks partial tick time
@@ -119,7 +111,6 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
      * <p>Render elements that should properly sort with
      * translucent world geometry.</p>
      *
-     * <p>The default implementation does nothing.</p>
      *
      * @param poseStack    the current pose stack
      * @param partialTicks partial tick time
@@ -131,12 +122,7 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
      * Called at {@code AFTER_WORLD} — the final 3D stage.
      *
      * <p>Render elements that go on top of the entire 3D scene
-     * (e.g. game effects, HUD overlays, cursor).</p>
      *
-     * <p>The default implementation does nothing.
-     * The orchestrator handles the standard pipeline
-     * (game effects + HUD overlays + cursor) automatically.
-     * Override only for custom decorator-specific rendering.</p>
      *
      * @param poseStack    the current pose stack
      * @param partialTicks partial tick time

@@ -2,16 +2,16 @@ package org.vmstudio.visor.core.client.input.actions.game;
 
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
-import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MovementMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MovementMode;
+import org.vmstudio.visor.core.client.input.TreadmillInput;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
@@ -30,6 +30,8 @@ public class GameActionMovement extends VRActionVec2 {
 
     private boolean wasMovement;
     private boolean wasAutoSprinting;
+
+    private final Vector2f cachedTreadmillMove = new Vector2f();
 
     private static HandType handType = HandType.OFFHAND;
 
@@ -63,6 +65,8 @@ public class GameActionMovement extends VRActionVec2 {
         }
 
 
+        Vector2f treadmillMove = TreadmillInput.pollMovement(cachedTreadmillMove);
+
         boolean climbing = ClientContext.localPlayer.isClimbing();
         boolean moving = ClientContext.localPlayer.isMoving();
         float forward = 0F;
@@ -70,8 +74,12 @@ public class GameActionMovement extends VRActionVec2 {
                 && */!climbing) {
             movement.zero();
 
-            movement.x = applyDeadzone(rawMove.x, 0.05F);
-            movement.y = applyDeadzone(rawMove.y, 0.05F);
+            if (treadmillMove != null) {
+                movement.set(treadmillMove);
+            } else {
+                movement.x = applyDeadzone(rawMove.x, 0.05F);
+                movement.y = applyDeadzone(rawMove.y, 0.05F);
+            }
 
             moving = (
                     movement.x != 0.0F || movement.y != 0.0F
@@ -179,6 +187,26 @@ public class GameActionMovement extends VRActionVec2 {
                 new ActionBinding(
                         OculusTouchProfile.VEC2_THUMBSTICK_LEFT,
                         OculusTouchProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.VIVE,
+                new ActionBinding(
+                        ViveProfile.VEC2_TRACKPAD_LEFT,
+                        ViveProfile.VEC2_TRACKPAD_RIGHT
+                ),
+                VRInteractionProfileType.VIVE_COSMOS,
+                new ActionBinding(
+                        ViveCosmosProfile.VEC2_THUMBSTICK_LEFT,
+                        ViveCosmosProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.HP_MIXED_REALITY,
+                new ActionBinding(
+                        HpMixedRealityProfile.VEC2_THUMBSTICK_LEFT,
+                        HpMixedRealityProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.WINDOWS_MOTION,
+                new ActionBinding(
+                        WindowsMotionProfile.VEC2_THUMBSTICK_LEFT,
+                        WindowsMotionProfile.VEC2_THUMBSTICK_RIGHT
                 )
         );
     }

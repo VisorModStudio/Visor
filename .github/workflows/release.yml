@@ -57,23 +57,21 @@ jobs:
       - name: Build
         run: ./gradlew build --stacktrace
 
-      - name: Collect and name release jars
+      - name: Collect release jars
         id: collect
         run: |
 
-          BASE=$(grep -oP '^project_name\s*=\s*\K.*' gradle.properties | tr -d '[:space:]')
-          MC=$(grep -oP 'minecraftVersion\s*=\s*"\K[^"]+' gradle/libs.versions.toml)
           PLATFORMS=$(grep -oP '^enabled_platforms\s*=\s*\K.*' gradle.properties | tr -d '[:space:]')
 
           mkdir -p release-assets
 
-          if [ -z "$BASE" ] || [ -z "$MC" ] || [ -z "$PLATFORMS" ]; then
-            echo "::warning::Branch ${{ matrix.branch }}: could not resolve project_name/minecraftVersion/enabled_platforms (BASE='$BASE' MC='$MC' PLATFORMS='$PLATFORMS'). This branch's gradle.properties or gradle/libs.versions.toml doesn't match the expected layout — skipping jar collection for it."
+          if [ -z "$PLATFORMS" ]; then
+            echo "::warning::Branch ${{ matrix.branch }}: could not resolve enabled_platforms from gradle.properties. This branch doesn't match the expected layout — skipping jar collection for it."
             echo "found=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          echo "base=$BASE minecraft=$MC platforms=$PLATFORMS"
+          echo "platforms=$PLATFORMS"
 
           any_found=0
           IFS=',' read -ra PLATS <<< "$PLATFORMS"
@@ -83,12 +81,16 @@ jobs:
             found=0
             while IFS= read -r f; do
               [ -z "$f" ] && continue
-              stem=$(basename "$f" .jar)
-              rest=${stem#${BASE}-}
-              rest=${rest%-${p}}
-              newname="${BASE}-${p}-${MC}-${rest}.jar"
-              cp "$f" "release-assets/$newname"
-              echo "  $f -> release-assets/$newname"
+              # gradle already names jars <base>-<modver>+mc<mc>-<loader>.jar; publish.yml parses that
+              name=$(basename "$f")
+              case "$name" in
+                *+mc*-"$p".jar) ;;
+                *) echo "::warning::Jar '$name' is not <base>-<modver>+mc<mc>-$p.jar — publish.yml will skip it" ;;
+              esac
+              # gh release upload reads assets as `file#label`, so '#' must not reach the name
+              name=$(printf '%s' "$name" | tr -c 'A-Za-z0-9._+-' '.')
+              cp "$f" "release-assets/$name"
+              echo "  $f -> release-assets/$name"
               found=1
               any_found=1
             done < <(find . -path "*/visor-${p}/build/libs/*.jar" ! -name '*-dev.jar' ! -name '*-sources.jar')

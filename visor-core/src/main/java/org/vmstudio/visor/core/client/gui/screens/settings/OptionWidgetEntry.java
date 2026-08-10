@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -194,7 +194,7 @@ public class OptionWidgetEntry {
                 + (getWidgetHeight() + 4) * this.row;
     }
     public int getWidgetWidth(){
-        return owner.getScreen().getScaleHelper().scaledSize(52);
+        return owner.getScreen().getScaleHelper().scaledSize(62);
     }
     public int getWidgetHeight(){
         return owner.getScreen().getScaleHelper().scaledSize(10);

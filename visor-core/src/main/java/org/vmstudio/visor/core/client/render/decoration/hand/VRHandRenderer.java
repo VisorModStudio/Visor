@@ -24,8 +24,8 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.compatibility.ShadersHelper;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.decoration.registry.VRHandEffectRegistry;
@@ -405,7 +405,7 @@ public class VRHandRenderer {
 
         AtumColorImmutable color;
 
-        Vector3fc dir = VRMathUtils.BACK_VECTOR;
+        Vector3fc dir = VRMathUtils.FORWARD_VECTOR;
 
         Vector3f start = new Vector3f(0.0f, 0.0f, 0.0f);
         Vector3f end = new Vector3f(
@@ -614,13 +614,7 @@ public class VRHandRenderer {
 
         poseStack.scale(0.4f, 0.4F, 0.4F);
 
-        //Fix?
-        // Always use the default arm.
-        // The player's skin model type(slim/default) can flip between launches
-        // depending on what skin metadata has loaded,
-        // which would change hand size what we don't want to happen,
-        // we want full control over the arm size in first person.
-        boolean slim = false;
+        boolean slim = "slim".equals(player.getModelName());
 
         poseStack.translate(
                 (slim ? -0.34375F : -0.375F) * handFactor,

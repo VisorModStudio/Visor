@@ -29,7 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.core.common.addon.CoreAddonClient;
 import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 
@@ -125,7 +125,7 @@ public class ClientNetworking {
         }
 
         if(handshakeReceived){
-            if(VRClientSettings.tryCalibrateHeight()){
+            if(ClientUtils.tryCalibrateHeight()){
                 handshakeReceived = false;
             }
         }

@@ -50,6 +50,10 @@ public final class VRActions {
         return Provider.menu.apply(actionSet);
     }
 
+    public static VRAction createScreenshot(@NotNull VRActionSet actionSet) {
+        return Provider.screenshot.apply(actionSet);
+    }
+
 
     private VRActions() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
@@ -86,6 +90,9 @@ public final class VRActions {
 
         @Getter @Setter
         private static Function<VRActionSet, VRAction> menu;
+
+        @Getter @Setter
+        private static Function<VRActionSet, VRAction> screenshot;
 
     }
 }

@@ -3,10 +3,12 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate;
@@ -26,6 +28,12 @@ public class RenderSystemMixin {
     private static GlStateManager.DestFactor visor$defaultBlendFuncAlphaBlending(
             GlStateManager.DestFactor destFactor) {
         return GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
+    }
+
+    @ModifyVariable(method = "_setShaderTexture(II)V", at = @At("HEAD"),
+            index = 1, argsOnly = true, remap = false)
+    private static int visor$dropDeletedShaderTexture(int textureId) {
+        return ShaderTextureHelper.sanitize(textureId);
     }
 
 }

@@ -59,6 +59,14 @@ public interface VRPlayerPose {
     VRPoseTrackers getTrackers();
 
     /**
+     * Get hands pose
+     *
+     * @return the hands pose
+     */
+    @NotNull
+    VRPoseHands getHands();
+
+    /**
      * Get the hand pose for the given hand type.
      * <p>
      *   This represents the aiming pose of VR controller

@@ -200,18 +200,12 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 yaw = -25;
             }
             case SHIELD -> {
-
+                scale = 1.0f;
                 if (player.isUsingItem() && player.getUsedItemHand() == mcHand) {
-                    translateY = 0.005f-0.04f;;
-                    translateX = handDir * -0.17f;
+                    translateX = handDir == 1 ? -0.25f : 0.17f;
+                    translateY = handDir == 1 ? -0.04f : 0f;
                     yaw = -45;
                     pitch = handDir * 45;
-
-                }else{
-                    translateY = 0.005f-0.04f;
-                    translateZ += 0.1f;
-                    translateX += handDir * 0.015f;
-                    yaw = -50 + (handDir == 1 ? 105 : 115) - gunAngle;
                 }
 
             }
@@ -286,6 +280,11 @@ public class VRItemPoseDefault extends VRHandItemPose {
         if (itemStack.getUseAnimation() == UseAnim.EAT
                 || itemStack.getUseAnimation() == UseAnim.DRINK) {
             return TransformType.CONSUMABLE;
+        }
+
+        //tagged modded shields may also be tools or block items
+        if (ItemClassifier.SHIELD.is(itemStack)) {
+            return TransformType.SHIELD;
         }
 
         if (isTool(item)) {

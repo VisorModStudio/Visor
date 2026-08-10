@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.gui.overlays.templates;
 
 
 
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -67,6 +68,10 @@ public class VROverlayChat extends VROverlayTemplateScreen {
     @Override
     protected @NotNull List<OverlayOptionGroup<?>> createTemplateOptions() {
         return List.of(
+                new OverlayOptionsVisibility(
+                        this,
+                        it -> it.setVisible(true)
+                ),
                 new OverlayOptionsMisc(
                         this,
                         it->{

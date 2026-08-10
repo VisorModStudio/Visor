@@ -15,8 +15,8 @@ import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMe
 import org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu.VRMenuSkyCanvas;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MainMenuSceneMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MainMenuSceneMode;
 import org.jetbrains.annotations.NotNull;
 
 import org.vmstudio.visor.core.client.ClientContext;

@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.MouseButtonType;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
@@ -33,7 +34,6 @@ public class MouseClickHandler {
     private VROverlay pressedOverlay;
     private boolean wasPressedOverlay;
     private boolean ignoreSingleClick;
-    private boolean ignoreSingleRelease;
 
     private boolean gamePressed;
 
@@ -208,8 +208,6 @@ public class MouseClickHandler {
             InputHelper.releaseMouse(buttonType);
             gamePressed = false;
         }
-
-        ignoreSingleRelease = false;
     }
 
     public void onClear() {
@@ -228,7 +226,6 @@ public class MouseClickHandler {
         pressedOverlay = null;
         wasPressedOverlay = false;
         ignoreSingleClick = false;
-        ignoreSingleRelease = false;
         gamePressed = false;
     }
 
@@ -272,21 +269,20 @@ public class MouseClickHandler {
     }
 
     private void processGame(@NotNull HandType handType) {
-        // update active hand if only one hand is pressed
-        var activeHand = ClientContext.localPlayer.getActiveHand();
-        if (activeHand != handType) {
+        // switch active hand if only one hand is pressed
+        var localPlayer = ClientContext.localPlayer;
+        if (localPlayer.getActiveHand() != handType) {
             if ((mainHandPressed && !offhandPressed)
                     || (!mainHandPressed && offhandPressed)) {
-                ClientContext.localPlayer.setActiveHand(handType);
-                if(!(forcedMain && mainHandPressed)
-                        && !(forcedOffhand && offhandPressed)) {
-                    ignoreSingleRelease = true;
+                boolean forced = (forcedMain && mainHandPressed)
+                        || (forcedOffhand && offhandPressed);
+                if (VRServerSettings.isTwoHandedVR()) {
+                    localPlayer.setActiveHand(handType);
+                } else if (handType == HandType.OFFHAND && !forced) {
+                    //two-handed mode disabled, offhand cannot be active
+                    // (except rare cases outside mouse clicks)
                     return;
                 }
-            }
-            if (ignoreSingleRelease) {
-                ignoreSingleRelease = false;
-                return;
             }
         }
         InputHelper.pressMouse(buttonType);

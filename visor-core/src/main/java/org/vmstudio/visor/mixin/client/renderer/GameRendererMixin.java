@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
@@ -25,8 +26,8 @@ import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -118,6 +119,14 @@ public abstract class GameRendererMixin
     private float visor$farClipPlane = 128.0F;
     @Unique
     public Vec3 visor$crossVec;
+    @Unique
+    private HandType visor$pickingHand;
+    @Unique
+    private final HitResult[] visor$handHitResult = new HitResult[2];
+    @Unique
+    private final Vec3[] visor$handCrossVec = new Vec3[2];
+    @Unique
+    private final Entity[] visor$handPickEntity = new Entity[2];
     @Unique
     public boolean visor$onfire;
     @Unique
@@ -330,13 +339,38 @@ public abstract class GameRendererMixin
             return;
         }
 
+        HandType activeHand = ClientContext.localPlayer.getActiveHand();
+        visor$pickWithHand(activeHand, partialTick, original);
+
+        HandType otherHand = activeHand.opposite();
+        if (VRServerSettings.isTwoHandedVR()
+                && ClientContext.rawPoseHandler.getControllerData(otherHand).isTracking()) {
+            HitResult activeHit = this.minecraft.hitResult;
+            Entity activePickEntity = this.minecraft.crosshairPickEntity;
+
+            visor$pickWithHand(otherHand, partialTick, original);
+
+            this.minecraft.hitResult = activeHit;
+            this.minecraft.crosshairPickEntity = activePickEntity;
+            this.visor$crossVec = visor$handCrossVec[activeHand.ordinal()];
+        } else {
+            visor$handHitResult[otherHand.ordinal()] = null;
+            visor$handCrossVec[otherHand.ordinal()] = null;
+            visor$handPickEntity[otherHand.ordinal()] = null;
+        }
+    }
+
+    @Unique
+    private void visor$pickWithHand(HandType hand, float partialTick, Operation<Void> original) {
+        visor$pickingHand = hand;
+
         AABB originalBB = this.minecraft.getCameraEntity().getBoundingBox();
         // set the entity position and view to the controller
         this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
         this.visor$setupCameraEntity(
                 ClientContext.localPlayer
                         .getPoseData(PlayerPoseType.RENDER)
-                        .getHand(ClientContext.localPlayer.getActiveHand())
+                        .getHand(hand)
         );
         // move the bounding box as well, this is used for entity hits
         this.minecraft.getCameraEntity().setBoundingBox(originalBB.move(
@@ -350,6 +384,16 @@ public abstract class GameRendererMixin
         // restore entity
         this.visor$restoreCameraEntity(this.minecraft.getCameraEntity());
         this.minecraft.getCameraEntity().setBoundingBox(originalBB);
+
+        HitResult hitResult = this.minecraft.hitResult;
+        if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
+            // includes entity hits missed by visor$pickPos
+            this.visor$crossVec = hitResult.getLocation();
+        }
+        visor$handHitResult[hand.ordinal()] = hitResult;
+        visor$handCrossVec[hand.ordinal()] = this.visor$crossVec;
+        visor$handPickEntity[hand.ordinal()] = this.minecraft.crosshairPickEntity;
+        visor$pickingHand = null;
     }
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel")
@@ -361,9 +405,6 @@ public abstract class GameRendererMixin
         if (VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
             this.pick(pPartialTicks);
 
-            if (this.minecraft.hitResult != null && this.minecraft.hitResult.getType() != HitResult.Type.MISS) {
-                this.visor$crossVec = this.minecraft.hitResult.getLocation();
-            }
             if(MC.screen == null){
                 TaskTeleport.updateTeleportDestination(MC.player);
             }
@@ -395,23 +436,25 @@ public abstract class GameRendererMixin
         LocalPlayerPose renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
 
-        HandType activeHand = ClientContext.localPlayer.getActiveHand();
+        HandType hand = visor$pickingHand != null
+                ? visor$pickingHand
+                : ClientContext.localPlayer.getActiveHand();
 
         HitResult hitResult = visor$pickBlock(
-                renderPose.getHand(activeHand),
+                renderPose.getHand(hand),
                 this.minecraft.gameMode.getPickRange(),
                 false
         );
         this.minecraft.hitResult = hitResult;
         Vec3 fallbackCrossVec = visor$aimedPointAtDistance(
-                renderPose.getHand(activeHand),
+                renderPose.getHand(hand),
                 this.minecraft.gameMode.getPickRange()
         );
         this.visor$crossVec = hitResult != null && hitResult.getType() != HitResult.Type.MISS
                 ? hitResult.getLocation()
                 : fallbackCrossVec;
 
-        return new Vec3((Vector3f) renderPose.getHand(activeHand).getPosition());
+        return new Vec3((Vector3f) renderPose.getHand(hand).getPosition());
     }
 
     @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 1)
@@ -419,11 +462,13 @@ public abstract class GameRendererMixin
         if (VisorState.get().isNotActive()) {
             return original;
         }
-        HandType activeHand = ClientContext.localPlayer.getActiveHand();
+        HandType hand = visor$pickingHand != null
+                ? visor$pickingHand
+                : ClientContext.localPlayer.getActiveHand();
 
         return new Vec3(
                 (Vector3f) ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                        .getHand(activeHand).getDirection()
+                        .getHand(hand).getDirection()
         );
     }
 
@@ -716,6 +761,32 @@ public abstract class GameRendererMixin
     @Unique
     public Vec3 visor$getCrossVec() {
         return visor$crossVec;
+    }
+
+    @Override
+    @Unique
+    public Vec3 visor$getCrossVec(HandType hand) {
+        return visor$handCrossVec[hand.ordinal()];
+    }
+
+    @Override
+    @Unique
+    public HitResult visor$getHandHitResult(HandType hand) {
+        return visor$handHitResult[hand.ordinal()];
+    }
+
+    @Override
+    @Unique
+    public void visor$applyHandPick(HandType hand) {
+        HitResult hitResult = visor$handHitResult[hand.ordinal()];
+        Vec3 crossVec = visor$handCrossVec[hand.ordinal()];
+        if (hitResult == null || crossVec == null) {
+            this.pick(1.0f);
+            return;
+        }
+        this.minecraft.hitResult = hitResult;
+        this.minecraft.crosshairPickEntity = visor$handPickEntity[hand.ordinal()];
+        this.visor$crossVec = crossVec;
     }
 
     @Override

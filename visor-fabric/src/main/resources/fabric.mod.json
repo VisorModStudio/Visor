@@ -9,7 +9,7 @@
     "PhoenixRa"
   ],
   "icon": "assets/visor/icon.png",
-  "license": "LGPLv3",
+  "license": "MPL-2.0",
   "environment": "*",
   "entrypoints": {
     "mm:early_risers": [
@@ -27,7 +27,10 @@
     "visor.mixins.fabric.json",
     "visor.immportals.mixins.json",
     "visor.dh.mixins.json",
-    "visor.iris.mixins.json"
+    "visor.dynamicfps.mixins.json",
+    "visor.iris.mixins.json",
+    "visor.nvidium.mixins.json",
+    "visor.blur.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.14",

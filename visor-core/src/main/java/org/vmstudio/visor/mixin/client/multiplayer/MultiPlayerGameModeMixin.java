@@ -184,9 +184,10 @@ public abstract class MultiPlayerGameModeMixin {
         boolean isBow = heldItem.getItem() instanceof BowItem;
         boolean isChargedCrossbow = heldItem.getItem() instanceof CrossbowItem
                 && CrossbowItem.isCharged(heldItem);
+        boolean isShield = ItemClassifier.SHIELD.is(heldItem);
 
         // If the held item affects aiming, update the look direction.
-        if (isThrowable || isPotion || isBow || isChargedCrossbow) {
+        if (isThrowable || isPotion || isBow || isChargedCrossbow || isShield) {
             VRPlayerPoseClient preTickPose = ClientContext
                     .localPlayer.getPoseData(PlayerPoseType.TICK);
             lookDirection = new Vec3(

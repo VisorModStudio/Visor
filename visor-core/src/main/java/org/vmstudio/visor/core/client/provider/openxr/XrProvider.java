@@ -4,11 +4,14 @@ import me.phoenixra.atumvr.api.AtumVRLogger;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
 import me.phoenixra.atumvr.core.XRProvider;
 import me.phoenixra.atumvr.core.XRState;
+import me.phoenixra.atumvr.core.enums.XRGraphicsApi;
 import me.phoenixra.atumvr.core.enums.XRSessionState;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.provider.openxr.render.XrRenderer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -26,10 +29,11 @@ public class XrProvider extends XRProvider {
 
         super.initializeVR();
 
-        var trackersManager = getInputHandler().getTrackerManager();
         ClientContext.rawPoseHandler.getTrackersData().setTracking(
-                trackersManager.isSupported()
-                        && !trackersManager.getDevicesMap().isEmpty()
+                !getInputHandler().getTrackerProviders().isEmpty()
+        );
+        ClientContext.rawPoseHandler.getHandsData().setTracking(
+                getInputHandler().getHandsProvider() != null
         );
 
         ClientContext.settingsManager.loadOptions();
@@ -41,6 +45,11 @@ public class XrProvider extends XRProvider {
     public void startFrame() {
         super.startFrame();
         ClientContext.rawPoseHandler.updatePose();
+    }
+
+    @Override
+    public @Nullable XRGraphicsApi getGraphicsApiPreference() {
+        return VRClientSettings.getGraphicsApi().toPreference();
     }
 
     @Override

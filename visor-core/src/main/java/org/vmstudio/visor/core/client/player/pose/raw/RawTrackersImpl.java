@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.player.pose.raw;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.client.player.pose.RawTrackers;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
 
@@ -48,4 +49,8 @@ public class RawTrackersImpl implements RawTrackers {
     private final RawTrackerImpl rightShoulder = new RawTrackerImpl(VRBodyPartType.RIGHT_SHOULDER);
 
 
+    @Override
+    public @NotNull RawTrackerImpl getTracker(@NotNull VRBodyPartType bodyPartType) {
+        return (RawTrackerImpl) RawTrackers.super.getTracker(bodyPartType);
+    }
 }

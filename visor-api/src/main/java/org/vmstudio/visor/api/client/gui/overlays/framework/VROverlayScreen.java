@@ -38,6 +38,17 @@ import java.util.*;
  */
 public abstract class VROverlayScreen extends Screen implements VROverlay {
 
+    private static VROverlayScreen renderingOverlay;
+
+    /**
+     * Get the overlay screen that is currently rendered
+     * (used in tooltip)
+     */
+    @Nullable
+    public static VROverlayScreen getRenderingOverlay(){
+        return renderingOverlay;
+    }
+
     @Getter @NotNull
     private final String id;
 
@@ -284,19 +295,25 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
             if(!visible) return;
         }
 
-        onPreRender(
-                guiGraphics,
-                pMouseX, pMouseY,
-                partialTicks
-        );
+        VROverlayScreen previousRendering = renderingOverlay;
+        renderingOverlay = this;
+        try {
+            onPreRender(
+                    guiGraphics,
+                    pMouseX, pMouseY,
+                    partialTicks
+            );
 
-        super.render(guiGraphics, pMouseX, pMouseY, partialTicks);
+            super.render(guiGraphics, pMouseX, pMouseY, partialTicks);
 
-        onRender(
-                guiGraphics,
-                pMouseX, pMouseY,
-                partialTicks
-        );
+            onRender(
+                    guiGraphics,
+                    pMouseX, pMouseY,
+                    partialTicks
+            );
+        } finally {
+            renderingOverlay = previousRendering;
+        }
     }
 
     @Override

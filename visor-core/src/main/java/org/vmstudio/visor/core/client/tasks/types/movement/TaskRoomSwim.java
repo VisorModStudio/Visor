@@ -14,7 +14,7 @@ import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -74,8 +74,8 @@ public class TaskRoomSwim extends VisorTask {
                 .add(preTickPose.getHmd().getDirection())
                 .mul(0.5f);
 
-        var mainHandAim = mainHand.getCustomVector(VRMathUtils.BACK_VECTOR)
-                .add(mainHand.getCustomVector(VRMathUtils.BACK_VECTOR))
+        var mainHandAim = mainHand.getCustomVector(VRMathUtils.FORWARD_VECTOR)
+                .add(mainHand.getCustomVector(VRMathUtils.FORWARD_VECTOR))
                 .mul(0.5f);
 
         float swimPower = mainHandAim.add(betweenHandsDir).length() / 2.0f;

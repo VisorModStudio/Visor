@@ -2,8 +2,7 @@ package org.vmstudio.visor.core.client.input.actions;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
-import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
@@ -96,6 +95,26 @@ public class ActionRightMouse extends VRActionButton {
                     new ActionBinding(
                             OculusTouchProfile.BUTTON_A,
                             OculusTouchProfile.BUTTON_X
+                    ),
+                    VRInteractionProfileType.VIVE,
+                    new ActionBinding(
+                            ViveProfile.BUTTON_GRIP_RIGHT,
+                            ViveProfile.BUTTON_GRIP_LEFT
+                    ),
+                    VRInteractionProfileType.VIVE_COSMOS,
+                    new ActionBinding(
+                            ViveCosmosProfile.BUTTON_A,
+                            ViveCosmosProfile.BUTTON_X
+                    ),
+                    VRInteractionProfileType.HP_MIXED_REALITY,
+                    new ActionBinding(
+                            HpMixedRealityProfile.BUTTON_A,
+                            HpMixedRealityProfile.BUTTON_X
+                    ),
+                    VRInteractionProfileType.WINDOWS_MOTION,
+                    new ActionBinding(
+                            WindowsMotionProfile.BUTTON_GRIP_RIGHT,
+                            WindowsMotionProfile.BUTTON_GRIP_LEFT
                     )
             );
         } else {
@@ -109,6 +128,26 @@ public class ActionRightMouse extends VRActionButton {
                     new ActionBinding(
                             OculusTouchProfile.BUTTON_X,
                             OculusTouchProfile.BUTTON_A
+                    ),
+                    VRInteractionProfileType.VIVE,
+                    new ActionBinding(
+                            ViveProfile.BUTTON_GRIP_LEFT,
+                            ViveProfile.BUTTON_GRIP_RIGHT
+                    ),
+                    VRInteractionProfileType.VIVE_COSMOS,
+                    new ActionBinding(
+                            ViveCosmosProfile.BUTTON_X,
+                            ViveCosmosProfile.BUTTON_A
+                    ),
+                    VRInteractionProfileType.HP_MIXED_REALITY,
+                    new ActionBinding(
+                            HpMixedRealityProfile.BUTTON_X,
+                            HpMixedRealityProfile.BUTTON_A
+                    ),
+                    VRInteractionProfileType.WINDOWS_MOTION,
+                    new ActionBinding(
+                            WindowsMotionProfile.BUTTON_GRIP_LEFT,
+                            WindowsMotionProfile.BUTTON_GRIP_RIGHT
                     )
             );
         }

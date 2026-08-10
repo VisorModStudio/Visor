@@ -21,6 +21,7 @@ import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.immediatelyfast.ImmediatelyFastCompatHelper;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.input.actions.*;
@@ -39,7 +40,7 @@ import org.vmstudio.visor.core.client.input.VRInputManagerImpl;
 import org.vmstudio.visor.core.client.provider.openxr.XrProvider;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
 import org.vmstudio.visor.core.client.render.decoration.DecorationRendererImpl;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VRClientSettingsManager;
 import org.vmstudio.visor.core.client.tasks.VisorTaskRegistry;
 import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
@@ -142,6 +143,7 @@ public class VisorClientImpl implements VisorClient {
 
         VRActions.Provider.setShift(ActionShift::new);
         VRActions.Provider.setMenu(ActionMenu::new);
+        VRActions.Provider.setScreenshot(ActionScreenshot::new);
 
         //-------Addons-------
         taskRegistry = new VisorTaskRegistry();
@@ -177,6 +179,7 @@ public class VisorClientImpl implements VisorClient {
 
         ImmPortalsCompatHelper.prepare(ClientContext.coreAddon);
         IrisCompatHelper.prepare(ClientContext.coreAddon);
+        ImmediatelyFastCompatHelper.prepare(ClientContext.coreAddon);
 
     }
 
@@ -194,6 +197,15 @@ public class VisorClientImpl implements VisorClient {
 
     public void syncVRState(){
         vrProvider.syncState();
+    }
+
+    //When VR runtime asks app to become idle and don't send swapChains
+    public void idleVRFrame(){
+        try {
+            vrProvider.idleFrame();
+        } catch (Throwable e) {
+            VisorState.destroyVRWithErrorScreen(e);
+        }
     }
 
 

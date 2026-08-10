@@ -7,8 +7,12 @@ import org.vmstudio.visor.api.common.network.VisorChannel;
 import org.vmstudio.visor.api.common.network.VisorCorePayloadID;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
+import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
+import org.vmstudio.visor.api.common.network.buffer.PoseHandsBuffer;
+import org.vmstudio.visor.api.common.network.buffer.PoseTrackersBuffer;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
@@ -139,7 +143,7 @@ public class ServerNetworking {
                         createVRPacket(
                                 new VROtherStartTrackingPayloadToClient(
                                         uuid,
-                                        new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer()),
+                                        new VROtherPoseDataPayloadToClient(uuid, getPoseDataForOthers(vrPlayer)),
                                         new VROtherBodyTypePayloadToClient(uuid, vrBody),
                                         new VROtherLeftHandedPayloadToClient(uuid, leftHanded),
                                         new VROtherRotationYPayloadToClient(uuid, rotationY),
@@ -223,7 +227,23 @@ public class ServerNetworking {
         sendPacketToConnections(
                 serverPlayer, trackerConnections,
                 false, newTrackers,
-                new VROtherPoseDataPayloadToClient(uuid, vrPlayer.getPoseDataBuffer())
+                new VROtherPoseDataPayloadToClient(uuid, getPoseDataForOthers(vrPlayer))
+        );
+    }
+
+    private static PoseDataBuffer getPoseDataForOthers(VRServerPlayerImpl vrPlayer) {
+        PoseDataBuffer buffer = vrPlayer.getPoseDataBuffer();
+        boolean stripTrackers = !VRServerSettings.isBodyTrackersSendToOthers();
+        boolean stripHands = !VRServerSettings.isHandTrackersSendToOthers();
+        if (!stripTrackers && !stripHands) {
+            return buffer;
+        }
+        return new PoseDataBuffer(
+                buffer.hmd(),
+                buffer.mainHand(),
+                buffer.offhand(),
+                stripTrackers ? PoseTrackersBuffer.createEmpty() : buffer.trackers(),
+                stripHands ? PoseHandsBuffer.createEmpty() : buffer.hands()
         );
     }
 

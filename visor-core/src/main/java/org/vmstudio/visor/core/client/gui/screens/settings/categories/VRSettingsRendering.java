@@ -10,9 +10,9 @@ import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsMixedReality;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsShaders;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsThirdPerson;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
-import org.vmstudio.visor.core.client.settings.options.enums.MirrorMode;
+import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetPosition;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -71,6 +71,16 @@ public class VRSettingsRendering extends VROptionsSet {
                     )
             );
         }
+
+        options.add(
+                new OptionWidgetEntry(
+                        this,
+                        VROptionWidgetType.GRAPHICS_API,
+                        OptionWidgetPosition.RIGHT,
+                        IrisCompatHelper.isLoaded() ? 2 : 1,
+                        null
+                )
+        );
 
         MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
 

@@ -1,9 +1,13 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
+import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -100,6 +104,39 @@ public final class KeyboardLayouts {
         return List.of(KeyboardLayout.values());
     }
 
+    public static @NotNull List<KeyboardLayout> getSelected() {
+        return deserialize(VRClientSettings.getKeyboardLayoutsRaw());
+    }
+
+    public static void setSelected(@NotNull Collection<KeyboardLayout> layouts) {
+        VRClientSettings.setKeyboardLayoutsRaw(serialize(layouts));
+    }
+
+    /**
+     * Includes auto keyboard layout if supported
+     */
+    public static @NotNull List<KeyboardLayout> getEffectiveSelected() {
+        List<KeyboardLayout> base = getSelected();
+        KeyboardLayout autoLayout = getAutoLayout();
+        if (autoLayout == null || base.contains(autoLayout)) {
+            return base;
+        }
+        var merged = new ArrayList<>(base);
+        if(merged.isEmpty()){
+            merged.add(KeyboardLayout.ENGLISH);
+        }
+        merged.add(autoLayout);
+        return List.copyOf(merged);
+    }
+
+    public static @Nullable KeyboardLayout getAutoLayout() {
+        if (!VRClientSettings.isKeyboardAutoLayout()) return null;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc == null) return null;
+        String langCode = mc.options.languageCode;
+        return KeyboardLayout.fromLangCode(langCode);
+    }
+
     public static @NotNull List<KeyboardLayout> deserialize(
             @Nullable String rawValue
     ) {
@@ -165,21 +202,24 @@ public final class KeyboardLayouts {
                                                    int fallbackModifiers) {
         int[] rowKeyCodes = ROW_KEY_CODES[rowIndex];
         String[] symbols = splitSymbols(rowContent);
-        if (symbols.length != rowKeyCodes.length) {
+        if (symbols.length < rowKeyCodes.length) {
             throw new IllegalArgumentException(
                     "Keyboard layout " + layout
                             + " row " + rowIndex
-                            + " expected " + rowKeyCodes.length
+                            + " expected at least " + rowKeyCodes.length
                             + " symbols but got " + symbols.length
             );
         }
 
         KeyboardKey[] result = new KeyboardKey[symbols.length];
         for (int i = 0; i < symbols.length; i++) {
+            // Symbols placed after the US key grid (like the ISO key of the Hungarian layout)
+            // have no key code to emulate, so they can only be typed as text
+            int fallbackKey = i < rowKeyCodes.length ? rowKeyCodes[i] : -1;
             result[i] = new KeyboardKey(
                     symbols[i],
                     symbols[i],
-                    rowKeyCodes[i],
+                    fallbackKey,
                     fallbackModifiers
             );
         }

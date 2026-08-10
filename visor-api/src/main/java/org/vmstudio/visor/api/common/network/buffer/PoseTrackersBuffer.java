@@ -6,6 +6,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import org.vmstudio.visor.api.server.VRServerSettings;
 
@@ -112,7 +113,8 @@ public record PoseTrackersBuffer(@Nullable PoseElementBuffer waist,
     private static PoseElementBuffer createTracker(VRBodyPartType type,
                                                    VRLocalPlayer vrPlayer,
                                                    VRPlayerPoseClient pose) {
-        if(!VRServerSettings.isTrackersSupported()){
+        if(!VRClientSettings.isFbtEnabled()
+                || !VRServerSettings.isBodyTrackersSupported()){
             return null;
         }
 

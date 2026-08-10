@@ -99,7 +99,6 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
                     Vector3f refUp = new Vector3f(VRMathUtils.UP_VECTOR);
                     refUp.sub(new Vector3f(aim).mul(refUp.dot(aim)));
                     if (refUp.lengthSquared() < 1.0e-6f) {
-                        // Aim ~vertical: fall back to world-forward reference.
                         refUp.set(VRMathUtils.FORWARD_VECTOR);
                         refUp.sub(new Vector3f(aim).mul(refUp.dot(aim)));
                     }

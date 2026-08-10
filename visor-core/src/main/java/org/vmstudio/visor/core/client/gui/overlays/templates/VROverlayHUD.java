@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
+import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
@@ -180,6 +181,10 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
                 }
         );
         return List.of(
+                new OverlayOptionsVisibility(
+                        this,
+                        it -> it.setVisible(true)
+                ),
                 new OverlayOptionsGeneral(
                         this,
                         List.of(hudLayerProperty)

@@ -19,7 +19,6 @@ import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayout;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardLayouts;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
             rawEntries.put(layoutId.name(), layoutId.getDisplayName());
         }
 
-        List<String> selectedIds = VRClientSettings.getKeyboardLayouts()
+        List<String> selectedIds = KeyboardLayouts.getSelected()
                 .stream()
                 .map(Enum::name)
                 .toList();
@@ -120,7 +119,7 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
 
     @Override
     public void loadDefaults() {
-        VRClientSettings.setKeyboardLayouts(List.of(KeyboardLayout.ENGLISH));
+        KeyboardLayouts.setSelected(List.of(KeyboardLayout.ENGLISH));
         ClientContext.settingsManager.saveOptions();
         reinit();
     }
@@ -141,7 +140,7 @@ public class VRSettingsKeyboardLayouts extends VROptionsSet {
                 //empty
             }
         }
-        VRClientSettings.setKeyboardLayouts(enabledLayouts);
+        KeyboardLayouts.setSelected(enabledLayouts);
         ClientContext.settingsManager.saveOptions();
     }
 }

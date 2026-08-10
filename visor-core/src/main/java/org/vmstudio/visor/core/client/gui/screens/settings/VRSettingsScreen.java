@@ -16,8 +16,10 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -179,6 +181,14 @@ public class VRSettingsScreen extends Screen {
     private VROptionsSet options;
 
     private List<ButtonImaged> settingsButtons;
+    private int categoryScroll;
+
+    private static final int CATEGORY_LIST_TOP = 27;
+    //presets stays pinned; the rows below it scroll
+    private static final int CATEGORY_SCROLL_TOP = 45;
+    private static final int CATEGORY_SCROLL_HEIGHT = 88;
+    private static final int CATEGORY_BUTTON_HEIGHT = 12;
+    private static final int CATEGORY_STEP = 14;
 
 
     @Getter
@@ -311,13 +321,12 @@ public class VRSettingsScreen extends Screen {
 
         settingsButtons = new ArrayList<>();
 
-        int yOffset = 0;
         for(var category : VRSettingsCategory.values()){
             ButtonImaged button;
             if(category == VRSettingsCategory.PRESETS){
                 button = new ButtonImaged(
                         new WidgetInfoButtonImaged()
-                                .pos(scaleHelper.scaledX(4), scaleHelper.scaledY(27 + yOffset))
+                                .pos(0, 0)
                                 .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
                                 .setTexture(PRESETS_BUTTON)
                                 .setTextureHovered(PRESETS_BUTTON_HOVERED)
@@ -334,11 +343,10 @@ public class VRSettingsScreen extends Screen {
 
                         }
                 );
-                yOffset += 18;
             }else {
                 button = new ButtonImaged(
                         new WidgetInfoButtonImaged()
-                                .pos(scaleHelper.scaledX(4), scaleHelper.scaledY(27 + yOffset))
+                                .pos(0, 0)
                                 .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
                                 .setTexture(OptionTextures.BLACK_TEXTURE)
                                 .setInactiveOnSelected(false)
@@ -356,7 +364,6 @@ public class VRSettingsScreen extends Screen {
 
                         }
                 );
-                yOffset += 14;
             }
             if(category == settingsCategory){
                 button.setSelected(true);
@@ -364,6 +371,8 @@ public class VRSettingsScreen extends Screen {
 
             settingsButtons.add(button);
         }
+        categoryScroll = Math.min(categoryScroll, maxCategoryScroll());
+        layoutCategoryButtons();
 
 
         options = initialized
@@ -372,6 +381,7 @@ public class VRSettingsScreen extends Screen {
         options.initWidgets();
 
         buttonBack.active = options.canOpenPreviousPage();
+        buttonLoadDefaults.active = options.canLoadDefaults();
 
         initialized = true;
         repopulateWidgets();
@@ -395,6 +405,10 @@ public class VRSettingsScreen extends Screen {
                 scaleHelper.scaledSize(BACKGROUND.getWidth()),
                 scaleHelper.scaledSize(BACKGROUND.getHeight())
         );
+        if(maxCategoryScroll() > 0){
+            renderCategoryScrollBar(guiGraphics, mouseX, mouseY);
+            renderCategoryScrollHints(guiGraphics, mouseX, mouseY);
+        }
         VisorAPI.NOD_ICON.blit(
                 guiGraphics,
                 scaleHelper.scaledX(4),
@@ -440,6 +454,143 @@ public class VRSettingsScreen extends Screen {
         repopulateWidgets();
     }
 
+    private int maxCategoryScroll(){
+        int scrollable = VRSettingsCategory.values().length - 1;
+        int scroll = 0;
+        while (scroll < scrollable - 1
+                && (scrollable - scroll - 1) * CATEGORY_STEP + CATEGORY_BUTTON_HEIGHT
+                > CATEGORY_SCROLL_HEIGHT){
+            scroll++;
+        }
+        return scroll;
+    }
+
+    private void layoutCategoryButtons(){
+        var categories = VRSettingsCategory.values();
+        int scrollable = 0;
+        for(int i = 0; i < settingsButtons.size(); i++){
+            var button = settingsButtons.get(i);
+            button.setX(scaleHelper.scaledX(4));
+            if(categories[i] == VRSettingsCategory.PRESETS){
+                button.visible = true;
+                button.setY(scaleHelper.scaledY(CATEGORY_LIST_TOP));
+                continue;
+            }
+            int relOffset = (scrollable - categoryScroll) * CATEGORY_STEP;
+            scrollable++;
+
+            button.visible = relOffset >= 0
+                    && relOffset + CATEGORY_BUTTON_HEIGHT <= CATEGORY_SCROLL_HEIGHT;
+            button.setY(scaleHelper.scaledY(CATEGORY_SCROLL_TOP + relOffset));
+        }
+    }
+
+    private void scrollCategories(int delta){
+        int scroll = Math.max(0, Math.min(
+                categoryScroll + delta,
+                maxCategoryScroll()
+        ));
+        if(scroll != categoryScroll){
+            categoryScroll = scroll;
+            layoutCategoryButtons();
+        }
+    }
+
+    private boolean isOverCategoryList(double mouseX, double mouseY){
+        int x = scaleHelper.scaledX(4);
+        int y = scaleHelper.scaledY(CATEGORY_LIST_TOP);
+        int bottom = scaleHelper.scaledY(CATEGORY_SCROLL_TOP + CATEGORY_SCROLL_HEIGHT);
+        return mouseX >= x && mouseX <= scaleHelper.scaledX(56)
+                && mouseY >= y && mouseY <= bottom;
+    }
+
+    private boolean isOverCategoryArrowUp(double mouseX, double mouseY){
+        return categoryScroll > 0
+                && mouseX >= scaleHelper.scaledX(4) && mouseX <= scaleHelper.scaledX(54)
+                && mouseY >= scaleHelper.scaledY(39) && mouseY < scaleHelper.scaledY(45);
+    }
+
+    private boolean isOverCategoryArrowDown(double mouseX, double mouseY){
+        return categoryScroll < maxCategoryScroll()
+                && mouseX >= scaleHelper.scaledX(4) && mouseX <= scaleHelper.scaledX(54)
+                && mouseY >= scaleHelper.scaledY(127) && mouseY < scaleHelper.scaledY(134);
+    }
+
+    private boolean isOverCategoryScrollBar(double mouseX, double mouseY){
+        return maxCategoryScroll() > 0
+                && mouseX >= scaleHelper.scaledX(52) && mouseX <= scaleHelper.scaledX(56)
+                && mouseY >= scaleHelper.scaledY(CATEGORY_SCROLL_TOP)
+                && mouseY < scaleHelper.scaledY(CATEGORY_SCROLL_TOP + CATEGORY_SCROLL_HEIGHT);
+    }
+
+    private void renderCategoryScrollBar(GuiGraphics guiGraphics, int mouseX, int mouseY){
+        int max = maxCategoryScroll();
+        int x = scaleHelper.scaledX(54);
+        int xEnd = Math.max(x + 1, scaleHelper.scaledX(56));
+        int y = scaleHelper.scaledY(CATEGORY_SCROLL_TOP);
+        int height = scaleHelper.scaledSize(CATEGORY_SCROLL_HEIGHT);
+        guiGraphics.fill(x, y, xEnd, y + height, 0xFF000000);
+
+        int thumbHeight = Math.max(scaleHelper.scaledSize(10), height / (max + 1));
+        int thumbY = y + (height - thumbHeight) * categoryScroll / max;
+        int thumbColor = isOverCategoryScrollBar(mouseX, mouseY)
+                ? 0xFFBEBEBE
+                : 0xFF969696;
+        guiGraphics.fill(x, thumbY, xEnd, thumbY + thumbHeight, thumbColor);
+    }
+
+    private void renderCategoryScrollHints(GuiGraphics guiGraphics, int mouseX, int mouseY){
+        if(categoryScroll > 0){
+            drawCategoryArrow(guiGraphics, 40, true,
+                    isOverCategoryArrowUp(mouseX, mouseY) ? 0xFFFFFFFF : 0xFF969696);
+        }
+        if(categoryScroll < maxCategoryScroll()){
+            drawCategoryArrow(guiGraphics, 127, false,
+                    isOverCategoryArrowDown(mouseX, mouseY) ? 0xFFFFFFFF : 0xFF969696);
+        }
+    }
+
+    private void drawCategoryArrow(GuiGraphics guiGraphics, int topY, boolean up, int color){
+        for(int row = 0; row < 5; row++){
+            int inset = up ? 4 - row : row;
+            guiGraphics.fill(
+                    scaleHelper.scaledX(25 + inset),
+                    scaleHelper.scaledY(topY + row),
+                    scaleHelper.scaledX(34 - inset),
+                    scaleHelper.scaledY(topY + row + 1),
+                    color
+            );
+        }
+    }
+
+    private boolean handleCategoryScrollClick(double mouseX, double mouseY){
+        if(isOverCategoryArrowUp(mouseX, mouseY)){
+            scrollCategories(-1);
+            playScrollClickSound();
+            return true;
+        }
+        if(isOverCategoryArrowDown(mouseX, mouseY)){
+            scrollCategories(1);
+            playScrollClickSound();
+            return true;
+        }
+        if(isOverCategoryScrollBar(mouseX, mouseY)){
+            int max = maxCategoryScroll();
+            int y = scaleHelper.scaledY(CATEGORY_SCROLL_TOP);
+            int height = scaleHelper.scaledSize(CATEGORY_SCROLL_HEIGHT);
+            int target = (int) ((mouseY - y) * (max + 1) / height);
+            scrollCategories(Math.max(0, Math.min(target, max)) - categoryScroll);
+            return true;
+        }
+        return false;
+    }
+
+    private void playScrollClickSound(){
+        MC.getSoundManager().play(
+                SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+        );
+    }
+
     public void repopulateWidgets() {
         clearWidgets();
         addRenderableWidget(buttonClose);
@@ -456,10 +607,17 @@ public class VRSettingsScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean success = super.mouseClicked(mouseX, mouseY, button);
         options.mouseClicked(mouseX, mouseY, button, success);
+        if(!success && button == 0 && maxCategoryScroll() > 0){
+            return handleCategoryScrollClick(mouseX, mouseY);
+        }
         return success;
     }
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if(isOverCategoryList(mouseX, mouseY) && maxCategoryScroll() > 0){
+            scrollCategories(delta < 0 ? 1 : -1);
+            return true;
+        }
         options.mouseScrolled(mouseX, mouseY, delta);
         return super.mouseScrolled(mouseX, mouseY, delta);
     }

@@ -9,9 +9,13 @@ import me.phoenixra.atumconfig.api.config.catalog.ConfigCatalog;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
 import org.vmstudio.visor.api.common.VRException;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
+import org.vmstudio.visor.api.client.settings.VROptionField;
+import org.vmstudio.visor.api.server.VRServerOptionField;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.core.client.settings.options.VROptionField;
 import org.vmstudio.visor.core.client.settings.options.VROptionRecord;
 import org.vmstudio.visor.core.client.settings.overlays.OverlayConfigsManager;
 import org.vmstudio.visor.core.client.settings.presets.PresetsCatalogListener;
@@ -117,7 +121,7 @@ public class VRClientSettingsManager {
         defaultSettings = ClientContext.visor.getConfigManager()
                 .createConfig(ConfigType.YAML,null);
 
-        applyOptionsTo(defaultSettings);
+        applyOptionsTo(defaultSettings, false, true);
     }
 
     public Config createPresetSnapshot() {
@@ -132,12 +136,21 @@ public class VRClientSettingsManager {
     }
 
     public void applyOptionsTo(@NotNull Config config, boolean forPreset) {
+        applyOptionsTo(config, forPreset, false);
+    }
+
+    public void applyOptionsTo(@NotNull Config config,
+                               boolean forPreset,
+                               boolean includeServerOptions) {
         try {
             for (Map.Entry<String, VROptionRecord> entry : allOptions.entrySet()) {
                 String optionKey = entry.getKey();
                 VROptionRecord optionRecord = entry.getValue();
 
                 if (forPreset && optionRecord.excludeForcedChange()) {
+                    continue;
+                }
+                if (!includeServerOptions && optionRecord.serverOption()) {
                     continue;
                 }
                 Field field = optionRecord.field();
@@ -174,6 +187,10 @@ public class VRClientSettingsManager {
                     if(exclude && entry.getValue().excludeForcedChange()){
                         continue;
                     }
+                    //server statics are driven by server_settings.yml only
+                    if(entry.getValue().serverOption()){
+                        continue;
+                    }
                     Object value = config.get(entry.getKey());
                     if(value == null) continue;
 
@@ -197,6 +214,7 @@ public class VRClientSettingsManager {
             VisorClientImpl.LOGGER.info("Failed to load VR options!");
             LoggerUtils.printError(ex);
         }
+        VRClientSettings.applySettingsToVR();
     }
 
 
@@ -209,10 +227,15 @@ public class VRClientSettingsManager {
             }
             var optionWidget = optionWidgets.get(key);
             optionRecord.field().set(null, value);
+            VRClientSettings.applySettingsToVR();
             if(optionWidget != null) {
                 optionWidget.getBehaviour().onChanged();
             }
-            this.saveOptions();
+            if (optionRecord.serverOption()) {
+                ServerSettingsFileStore.save();
+            } else {
+                this.saveOptions();
+            }
         } catch (Exception exception) {
             System.out.println("Failed to set VR option field: " + key);
             LoggerUtils.printError(exception);
@@ -292,6 +315,7 @@ public class VRClientSettingsManager {
                     )
             );
             field.set(null, result);
+            VRClientSettings.applySettingsToVR();
 
         } catch (Exception ex) {
             VisorClientImpl.LOGGER.info("Failed to load default VR option: " + key);
@@ -391,10 +415,6 @@ public class VRClientSettingsManager {
                 String optionKey = annotation.key().isEmpty()
                         ? field.getName() : annotation.key();
                 var category = annotation.category();
-                if(category == VROptionCategory.EMPTY){
-                    category = annotation.widgetType()
-                            .getCategory();
-                }
                 if(category != VROptionCategory.EMPTY){
                     optionKey = category.getKey()
                             + "."
@@ -404,23 +424,48 @@ public class VRClientSettingsManager {
 
                 var optionRecord = new VROptionRecord(
                         field,
-                        annotation.widgetType(),
                         optionKey,
                         annotation.excludeForcedChange()
                 );
 
-                if (annotation.widgetType() != VROptionWidgetType.EMPTY) {
-                    if (optionWidgets.containsValue(annotation.widgetType())) {
-                        throw new RuntimeException(
-                                "duplicate option widget in client settings! " +
-                                        "field: " + annotation.widgetType()
-                        );
-                    }
-                    annotation.widgetType().setKey(optionKey);
-                    optionWidgets.put(optionKey, annotation.widgetType());
+                allOptions.put(optionKey, optionRecord);
+            }
+
+            for (Field field : VRServerSettings.class.getDeclaredFields()) {
+                if (!java.lang.reflect.Modifier.isStatic(field.getModifiers())){
+                    continue;
+                }
+                field.setAccessible(true);
+                VRServerOptionField annotation = field.getAnnotation(VRServerOptionField.class);
+                if (annotation == null) {
+                    continue;
                 }
 
-                allOptions.put(optionKey, optionRecord);
+                String optionKey = VROptionCategory.WORLD.getKey()
+                        + "."
+                        + (annotation.key().isEmpty()
+                        ? field.getName() : annotation.key());
+
+                allOptions.put(optionKey, new VROptionRecord(field, optionKey, true));
+            }
+
+            for (VROptionWidgetType widgetType : VROptionWidgetType.values()) {
+                if (widgetType == VROptionWidgetType.EMPTY) {
+                    continue;
+                }
+                String optionKey = widgetType.getKey();
+                if (!allOptions.containsKey(optionKey)) {
+                    throw new RuntimeException(
+                            "option widget does not match any client settings field! " +
+                                    "widget: " + widgetType + ", key: " + optionKey
+                    );
+                }
+                if (optionWidgets.put(optionKey, widgetType) != null) {
+                    throw new RuntimeException(
+                            "duplicate option widget key in client settings! " +
+                                    "widget: " + widgetType
+                    );
+                }
             }
         } catch (Exception ex) {
             throw new VRException(ex);

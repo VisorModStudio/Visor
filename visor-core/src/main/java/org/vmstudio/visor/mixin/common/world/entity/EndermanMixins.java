@@ -22,8 +22,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 public class EndermanMixins {
 
@@ -35,24 +36,24 @@ public class EndermanMixins {
         @Nullable
         private LivingEntity target;
 
-        @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/control/LookControl;setLookAt(DDD)V"),
+        @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/control/LookControl;setLookAt(DDD)V"),
                 method = "tick")
         public void visor$lookAtHmd(LookControl instance,
-                                    double d, double e, double f) {
+                                    double d, double e, double f,
+                                    Operation<Void> original) {
             if (this.target instanceof ServerPlayer player) {
                 VRServerPlayer vrPlayer = VisorAPI.server()
                         .getVRPlayer(
                                 player
                         );
                 if (vrPlayer != null) {
-                    instance.setLookAt(
-                            vrPlayer.getPoseData().getHmd()
-                                    .getPositionVec3()
-                    );
+                    Vec3 hmdPos = vrPlayer.getPoseData().getHmd()
+                            .getPositionVec3();
+                    original.call(instance, hmdPos.x, hmdPos.y, hmdPos.z);
                     return;
                 }
             }
-            instance.setLookAt(d,e,f);
+            original.call(instance, d, e, f);
         }
     }
 
@@ -73,7 +74,8 @@ public class EndermanMixins {
                 cir.setReturnValue(
                         visor$canAttackVrPlayer(
                                 (EnderMan) (Object) this,
-                                serverPlayer
+                                serverPlayer,
+                                vrPlayer
                         )
                 );
             }
@@ -81,13 +83,11 @@ public class EndermanMixins {
 
         @Unique
         private static boolean visor$canAttackVrPlayer(EnderMan enderman,
-                                                       ServerPlayer player) {
+                                                       ServerPlayer player,
+                                                       VRServerPlayer vrPlayer) {
             ItemStack itemstack = player.getInventory().armor.get(3);
             if (!itemstack.is(Items.CARVED_PUMPKIN)) { //no ender item
                 if (player.level() != enderman.level()) return false;
-                VRServerPlayer vrPlayer = VisorAPI.server()
-                        .getVRPlayer(player);
-                if (vrPlayer == null) return false;
 
                 var hmd = vrPlayer.getPoseData().getHmd();
 
@@ -104,12 +104,13 @@ public class EndermanMixins {
                 double dotProd = hmd.getDirectionVec3()
                         .dot(relativePos);
 
-                return dotProd > 0.975
+                return dotProd > 1.0 - 0.1 / relativeLength
                         && relativeLength < 128.0
                         &&
                         visor$canEntityBeSeen(
                                 enderman,
-                                hmdPos
+                                hmdPos,
+                                player
                         );
             }
 
@@ -118,7 +119,8 @@ public class EndermanMixins {
 
         @Unique
         private static boolean visor$canEntityBeSeen(Entity entity,
-                                                     Vec3 playerEyePos) {
+                                                     Vec3 playerEyePos,
+                                                     Entity viewer) {
             Vec3 entityEyePos = new Vec3(
                     entity.getX(),
                     entity.getEyeY(),
@@ -130,7 +132,7 @@ public class EndermanMixins {
                             entityEyePos,
                             ClipContext.Block.COLLIDER,
                             ClipContext.Fluid.NONE,
-                            entity
+                            viewer
                     )
             ).getType() == HitResult.Type.MISS;
         }

@@ -38,12 +38,12 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.input.actions.ActionLeftMouse;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.settings.options.enums.MainMenuSceneMode;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.enums.MainMenuSceneMode;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH
+//@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH AFTER 0.7.0
 public final class VRMenuSkyCanvas implements VREventListener {
 
     private static VRMenuSkyCanvas INSTANCE;

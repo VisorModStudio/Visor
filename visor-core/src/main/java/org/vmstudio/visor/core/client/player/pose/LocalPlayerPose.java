@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawControllerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawHmdImpl;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -51,6 +51,8 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
 
     protected final LocalTrackersPose trackers;
 
+    protected final LocalHandsPose hands;
+
     private final List<VRPose> elements;
 
     private VRBody body;
@@ -79,6 +81,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         this.thirdPersonCamera = new VRPoseImpl();
 
         this.trackers = new LocalTrackersPose(this);
+        this.hands = new LocalHandsPose(this);
 
         var bodyType = vrPlayer.getBodyType();
         if(bodyType != null) {
@@ -100,6 +103,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 )
         );
         elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
         if(body != null) {
             elements.addAll(body.getAllPoses());
         }
@@ -131,6 +135,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
                 )
         );
         elements.addAll(trackers.getActiveTrackersPose());
+        elements.addAll(hands.getActiveJointsPose());
         elements.addAll(body.getAllPoses());
     }
 
@@ -209,6 +214,9 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         trackers.updateTracking(
                 origin, worldScale, rotationY
         );
+        hands.updateTracking(
+                origin, worldScale, rotationY
+        );
 
 
         Vector3f camPos = new Vector3f(
@@ -218,7 +226,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
         Matrix4fc camRot = VRClientSettings.getThirdPersonCameraRotation()
                 .get(new Matrix4f());
-        Vector3f camDir = camRot.transformDirection(VRMathUtils.BACK_VECTOR, new Vector3f());
+        Vector3f camDir = camRot.transformDirection(VRMathUtils.FORWARD_VECTOR, new Vector3f());
         this.thirdPersonCamera.update(
                 camPos.sub(headsetPos).add(headsetPos),
                 camRot,
@@ -304,6 +312,7 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         thirdPersonCamera.copyFrom(other.thirdPersonCamera);
 
         trackers.copyFrom(other.trackers);
+        hands.copyFrom(other.hands);
 
         if(body.getType() != other.body.getType()) {
             bodyTypeChanged(other.body.getType());

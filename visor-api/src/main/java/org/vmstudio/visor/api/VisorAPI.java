@@ -28,7 +28,6 @@ import java.util.function.Function;
 
 /**
  * Central access point for all Visor API functionality.
- *
  */
 public interface VisorAPI {
 

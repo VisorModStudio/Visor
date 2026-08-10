@@ -3,6 +3,8 @@ package org.vmstudio.visor.core.client.player;
 import lombok.Getter;
 
 import lombok.Setter;
+import me.phoenixra.atumvr.api.input.haptics.AtumVRBodyHaptics;
+import me.phoenixra.atumvr.api.input.treadmill.AtumVRTreadmillView;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.BodyChangedVREvent;
@@ -26,7 +28,7 @@ import org.vmstudio.visor.core.common.player.PoseHistoryImpl;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.player.LocalPlayer;
@@ -110,13 +112,15 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public void setActiveHand(@NotNull HandType activeHand) {
-        if (!VRServerSettings.isTwoHandedVR()) {
-            activeHand = HandType.MAIN;
-        }
         if(this.activeHand == activeHand){
             return;
         }
         this.activeHand = activeHand;
+
+        if (VisorState.get().isActive() && MC.level != null) {
+            // refresh aim data, so the switching active hand can be instant
+            ((GameRendererExtension) MC.gameRenderer).visor$applyHandPick(activeHand);
+        }
 
         ClientNetworking.sendVRPacket(
                 new ActiveHandPayloadToServer(this.activeHand == HandType.MAIN)
@@ -378,10 +382,10 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
         if (player.isBlocking()) {
-            HandType activeHand = ClientContext.localPlayer.getActiveHand() == HandType.MAIN
+            HandType blockHand = player.getUsedItemHand() == InteractionHand.MAIN_HAND
                     ? HandType.MAIN
                     : HandType.OFFHAND;
-            visor$applyPoseLook(player, data.getHand(activeHand));
+            visor$applyPoseLook(player, data.getHand(blockHand));
             return;
         }
 
@@ -494,7 +498,30 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     @Override
     public RawTrackers getRawTrackers() {
-        return ClientContext.localPlayer.getRawTrackers();
+        return ClientContext.rawPoseHandler.getTrackersData();
+    }
+
+    @Override
+    public RawHands getRawHands() {
+        return ClientContext.rawPoseHandler.getHandsData();
+    }
+
+    @Override
+    public @NotNull AtumVRTreadmillView getTreadmill() {
+        if (VisorState.get().isNotActive()) {
+            return AtumVRTreadmillView.EMPTY;
+        }
+        return ClientContext.visor.getVrProvider()
+                .getInputHandler().getVRTreadmill();
+    }
+
+    @Override
+    public @NotNull AtumVRBodyHaptics getBodyHaptics() {
+        if (VisorState.get().isNotActive()) {
+            return AtumVRBodyHaptics.EMPTY;
+        }
+        return ClientContext.visor.getVrProvider()
+                .getInputHandler().getVRBodyHaptics();
     }
 
     @Override

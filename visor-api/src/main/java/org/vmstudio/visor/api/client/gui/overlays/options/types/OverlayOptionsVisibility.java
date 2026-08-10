@@ -49,6 +49,11 @@ public class OverlayOptionsVisibility extends OverlayOptionGroup<OverlayOptionsV
         changesNotSaved = true;
     }
 
+
+    public void setVisibleRuntime(boolean visible) {
+        this.visible = visible;
+    }
+
     @Override
     public boolean supportsCopying() {
         return true;

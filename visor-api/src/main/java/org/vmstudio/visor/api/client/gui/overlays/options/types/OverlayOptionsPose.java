@@ -81,12 +81,6 @@ public class OverlayOptionsPose extends OverlayOptionGroup<OverlayOptionsPose> {
                     config.getFloatOrDefault("rotation.quaternion.z", 0),
                     config.getFloatOrDefault("rotation.quaternion.w", 1)
             ).normalize();
-        } else {
-            //@TODO compatibility with old settings. [Remove in 0.5.0]
-            float ex = config.getFloatOrDefault("rotation.offset.x", 0);
-            float ey = config.getFloatOrDefault("rotation.offset.y", 0);
-            float ez = config.getFloatOrDefault("rotation.offset.z", 0);
-            rotationOffset = new Quaternionf().rotationZYX(ez, ey, ex);
         }
 
 

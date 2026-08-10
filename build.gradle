@@ -16,7 +16,7 @@ buildscript {
 
 
     if (isSnapshot) {
-        version = "${version_major}.${version_minor}.${version_patch}${version_stage}-snapshot#${version_build}"
+        version = "${version_major}.${version_minor}.${version_patch}${version_stage}-snapshot-${version_build}"
         System.out.println("VERSIONING-SNAPSHOT")
     } else {
         version = "${version_major}.${version_minor}.${version_patch}${version_stage}"
@@ -83,6 +83,7 @@ subprojects {
 
 
         compileOnly(libs.lwjgl.openxr)
+        compileOnly(libs.lwjgl.vulkan)
 
         compileOnly(libs.bundles.annotations)
         annotationProcessor(libs.bundles.annotations)

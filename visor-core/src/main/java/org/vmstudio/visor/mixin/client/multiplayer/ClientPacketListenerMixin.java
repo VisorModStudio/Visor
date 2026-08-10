@@ -5,13 +5,14 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.common.network.VisorNetwork;
 import org.vmstudio.visor.api.common.network.toserver.HandshakePayloadToServer;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
@@ -37,5 +38,6 @@ public class ClientPacketListenerMixin {
     @Inject(method = "close", at = @At("TAIL"))
     private void visor$cleanup(CallbackInfo ci) {
         ClientNetworking.dispose();
+        VRServerSettings.resetToDefaults();
     }
 }

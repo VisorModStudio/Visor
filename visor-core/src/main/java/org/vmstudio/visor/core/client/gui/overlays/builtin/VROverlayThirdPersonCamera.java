@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -139,9 +139,11 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
 
         VRClientSettings.updateThirdPersonCamera(
                 newPosition,
-                newRotation,
-                save
+                newRotation
         );
+        if(save) {
+            ClientContext.settingsManager.saveOptions();
+        }
     }
 
     @Override

@@ -7,12 +7,14 @@ import me.phoenixra.atumconfig.api.config.ConfigFile;
 import me.phoenixra.atumconfig.api.config.ConfigType;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.VRException;
+import org.vmstudio.visor.api.server.ConfigComment;
 import org.vmstudio.visor.api.server.SendSettingToClient;
 import org.vmstudio.visor.api.server.VRServerSettings;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class ServerConfig{
     protected static ServerConfig INSTANCE;
@@ -27,6 +29,7 @@ public class ServerConfig{
 
 
     public void onServerInit() throws Throwable{
+        VRServerSettings.resetToDefaults();
         config = VisorAPI.server().
                 getConfigManager().createConfigFile(
                         ConfigType.YAML,
@@ -101,10 +104,17 @@ public class ServerConfig{
                     continue;
                 }
                 writeFieldTo(config, field);
+                writeCommentTo(config, field);
             }
         }catch (Exception e){
             throw new VRException(e);
         }
+    }
+
+    private static void writeCommentTo(Config config, Field field) {
+        ConfigComment comment = field.getAnnotation(ConfigComment.class);
+        if (comment == null) return;
+        config.setComments(field.getName(), Arrays.asList(comment.value()));
     }
 
     private static void writeFieldTo(Config config, Field field)

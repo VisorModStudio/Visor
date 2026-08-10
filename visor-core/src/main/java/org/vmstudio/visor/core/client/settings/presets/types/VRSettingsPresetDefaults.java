@@ -5,7 +5,8 @@ import org.vmstudio.visor.api.client.gui.settings.RegisterVRSettingsPreset;
 import org.vmstudio.visor.api.client.gui.settings.VRSettingsPreset;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ public class VRSettingsPresetDefaults extends VRSettingsPreset {
 
         ClientContext.settingsManager.loadDefaults();
 
-        VRClientSettings.setVrPlayMode(playMode);
+        VisorState.setVrPlayMode(playMode);
         ClientContext.settingsManager.saveOptions();
 
         for(var actionSet : ClientContext.inputManager.getActionSetRegistry().getAllComponents()){

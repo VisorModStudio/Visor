@@ -2,8 +2,7 @@ package org.vmstudio.visor.core.client.input.actions;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
-import me.phoenixra.atumvr.api.input.profile.types.OculusTouchProfile;
-import me.phoenixra.atumvr.api.input.profile.types.ValveIndexProfile;
+import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
@@ -60,6 +59,26 @@ public class ActionScrollMouse extends VRActionVec2 {
                     new ActionBinding(
                             OculusTouchProfile.VEC2_THUMBSTICK_RIGHT,
                             OculusTouchProfile.VEC2_THUMBSTICK_LEFT
+                    ),
+                    VRInteractionProfileType.VIVE,
+                    new ActionBinding(
+                            ViveProfile.VEC2_TRACKPAD_RIGHT,
+                            ViveProfile.VEC2_TRACKPAD_LEFT
+                    ),
+                    VRInteractionProfileType.VIVE_COSMOS,
+                    new ActionBinding(
+                            ViveCosmosProfile.VEC2_THUMBSTICK_RIGHT,
+                            ViveCosmosProfile.VEC2_THUMBSTICK_LEFT
+                    ),
+                    VRInteractionProfileType.HP_MIXED_REALITY,
+                    new ActionBinding(
+                            HpMixedRealityProfile.VEC2_THUMBSTICK_RIGHT,
+                            HpMixedRealityProfile.VEC2_THUMBSTICK_LEFT
+                    ),
+                    VRInteractionProfileType.WINDOWS_MOTION,
+                    new ActionBinding(
+                            WindowsMotionProfile.VEC2_THUMBSTICK_RIGHT,
+                            WindowsMotionProfile.VEC2_THUMBSTICK_LEFT
                     )
             );
         }else{
@@ -73,6 +92,26 @@ public class ActionScrollMouse extends VRActionVec2 {
                     new ActionBinding(
                             OculusTouchProfile.VEC2_THUMBSTICK_LEFT,
                             OculusTouchProfile.VEC2_THUMBSTICK_RIGHT
+                    ),
+                    VRInteractionProfileType.VIVE,
+                    new ActionBinding(
+                            ViveProfile.VEC2_TRACKPAD_LEFT,
+                            ViveProfile.VEC2_TRACKPAD_RIGHT
+                    ),
+                    VRInteractionProfileType.VIVE_COSMOS,
+                    new ActionBinding(
+                            ViveCosmosProfile.VEC2_THUMBSTICK_LEFT,
+                            ViveCosmosProfile.VEC2_THUMBSTICK_RIGHT
+                    ),
+                    VRInteractionProfileType.HP_MIXED_REALITY,
+                    new ActionBinding(
+                            HpMixedRealityProfile.VEC2_THUMBSTICK_LEFT,
+                            HpMixedRealityProfile.VEC2_THUMBSTICK_RIGHT
+                    ),
+                    VRInteractionProfileType.WINDOWS_MOTION,
+                    new ActionBinding(
+                            WindowsMotionProfile.VEC2_THUMBSTICK_LEFT,
+                            WindowsMotionProfile.VEC2_THUMBSTICK_RIGHT
                     )
             );
         }
