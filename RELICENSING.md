@@ -25,10 +25,12 @@ account that made your contributions - is the record of your consent.
 - I, ninix44, author of contributions made to this repository under that
   account, agree to relicense all my past contributions under the Mozilla
   Public License 2.0. - 2026-08-10
+- I, Weever1337, author of contributions made to this repository under that
+  account, agree to relicense all my past contributions under the Mozilla
+  Public License 2.0. - 2026-08-10
 
 ## Awaiting
 
-- [ ] Weever1337
 
 ## Consent not required
 
