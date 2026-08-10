@@ -22,11 +22,13 @@ account that made your contributions - is the record of your consent.
 - I, Phoenix-Ra, author of contributions made to this repository under that
   account, agree to relicense all my past contributions under the Mozilla
   Public License 2.0. - 2026-08-10
+- I, ninix44, author of contributions made to this repository under that
+  account, agree to relicense all my past contributions under the Mozilla
+  Public License 2.0. - 2026-08-10
 
 ## Awaiting
 
 - [ ] Weever1337
-- [ ] Ninix44
 
 ## Consent not required
 
