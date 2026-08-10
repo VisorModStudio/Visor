@@ -9,7 +9,7 @@
     "PhoenixRa"
   ],
   "icon": "assets/visor/icon.png",
-  "license": "LGPLv3",
+  "license": "MPL-2.0",
   "environment": "*",
   "entrypoints": {
     "mm:early_risers": [

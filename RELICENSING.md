@@ -1,6 +1,6 @@
 # Relicensing: LGPL-3.0 to MPL-2.0
 
-In August 2026 Visor is changing its license from the GNU Lesser General Public
+In August 2026 Visor changed its license from the GNU Lesser General Public
 License 3.0 to the Mozilla Public License 2.0. The change takes effect with the
 first release published under MPL-2.0.
 
@@ -10,12 +10,9 @@ first release published under MPL-2.0.
   [CONTRIBUTING.md](CONTRIBUTING.md), so this file only concerns contributions
   made while the project was LGPL-3.0.
 
-## How to give consent
-
-Open a pull request **from your own GitHub account** that adds one line to the
-Consents section below (following the format of the existing entries) and
-removes your name from the Awaiting section. The commit - authored by the same
-account that made your contributions - is the record of your consent.
+All required consents were collected on 2026-08-10, each added by a commit
+from its author's own GitHub account (see the history of this file). This file
+is kept as the permanent record of the relicensing.
 
 ## Consents
 
@@ -28,9 +25,6 @@ account that made your contributions - is the record of your consent.
 - I, Weever1337, author of contributions made to this repository under that
   account, agree to relicense all my past contributions under the Mozilla
   Public License 2.0. - 2026-08-10
-
-## Awaiting
-
 
 ## Consent not required
 
