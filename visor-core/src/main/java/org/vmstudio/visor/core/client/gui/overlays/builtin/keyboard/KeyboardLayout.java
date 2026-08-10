@@ -110,6 +110,19 @@ public enum KeyboardLayout {
                     "QWERTYUIOP*`^",
                     "ASDFGHJKLÇª",
                     "ZXCVBNM;:_"
+            }),
+    HUNGARIAN("HU", "Hungarian",
+            new String[]{
+                    "0123456789öüó",
+                    "qwertzuiopőúű",
+                    "asdfghjkléá",
+                    "yxcvbnm,.-í"
+            },
+            new String[]{
+                    "§'\"+!%/=()ÖÜÓ",
+                    "QWERTZUIOPŐÚŰ",
+                    "ASDFGHJKLÉÁ",
+                    "YXCVBNM?:_Í"
             });
 
     private final String label;
@@ -149,6 +162,7 @@ public enum KeyboardLayout {
         if (lower.startsWith("es")) return SPANISH;
         if (lower.startsWith("it")) return ITALIAN;
         if (lower.startsWith("pt")) return PORTUGUESE;
+        if (lower.startsWith("hu")) return HUNGARIAN;
         return null;
     }
 }
