@@ -202,21 +202,24 @@ public final class KeyboardLayouts {
                                                    int fallbackModifiers) {
         int[] rowKeyCodes = ROW_KEY_CODES[rowIndex];
         String[] symbols = splitSymbols(rowContent);
-        if (symbols.length != rowKeyCodes.length) {
+        if (symbols.length < rowKeyCodes.length) {
             throw new IllegalArgumentException(
                     "Keyboard layout " + layout
                             + " row " + rowIndex
-                            + " expected " + rowKeyCodes.length
+                            + " expected at least " + rowKeyCodes.length
                             + " symbols but got " + symbols.length
             );
         }
 
         KeyboardKey[] result = new KeyboardKey[symbols.length];
         for (int i = 0; i < symbols.length; i++) {
+            // Symbols placed after the US key grid (like the ISO key of the Hungarian layout)
+            // have no key code to emulate, so they can only be typed as text
+            int fallbackKey = i < rowKeyCodes.length ? rowKeyCodes[i] : -1;
             result[i] = new KeyboardKey(
                     symbols[i],
                     symbols[i],
-                    rowKeyCodes[i],
+                    fallbackKey,
                     fallbackModifiers
             );
         }
