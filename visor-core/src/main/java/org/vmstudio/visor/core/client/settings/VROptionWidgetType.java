@@ -334,7 +334,7 @@ public enum VROptionWidgetType {
             VROptionCategory.MOVEMENT,
             "world_rotation.smooth_sensitivity",
             (it) -> {
-                List<Float> entries = List.of(0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.11f, 0.12f, 0.13f, 0.14f, 0.15f);
+                List<Float> entries = List.of(0.04f, 0.05f, 0.06f, 0.07f, 0.08f, 0.09f, 0.1f, 0.12f, 0.14f, 0.16f, 0.18f, 0.2f, 0.25f, 0.3f);
                 return OptionBehaviourFactory.discreteSlider(
                         it, entries,
                         () -> {
