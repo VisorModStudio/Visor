@@ -4,6 +4,7 @@ import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorState;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -12,7 +13,16 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class MouseScrollHandler {
     public static final MouseScrollHandler INSTANCE = new MouseScrollHandler();
 
-    private double deltaSaved;
+    private static final float DEAD_ZONE = 0.1f;
+
+    private static final int REPEAT_DELAY_TICKS = 6;
+    private static final double MIN_STEPS_PER_SECOND = 3.0;
+    private static final double MAX_STEPS_PER_SECOND = 15.0;
+
+    private int heldDirection;
+    private int ticksHeld;
+    private double repeatSaved;
+    private int lastHandledTick = -1;
 
     private Vector2f mainHandState = new Vector2f(0,0);
     private Vector2f offhandState = new Vector2f(0,0);
@@ -29,6 +39,12 @@ public class MouseScrollHandler {
         if(!ClientContext.visor.isFeatureEnabled(ClientFeature.INPUT_MOUSE)){
             return;
         }
+
+        if(lastHandledTick == VisorState.TICK_COUNT){
+            return;
+        }
+        lastHandledTick = VisorState.TICK_COUNT;
+
         HandType handType;
         if(!ClientContext.cursorHandler.isCursorHandFocused()
                 && MC.screen == null && MC.player != null){
@@ -38,22 +54,38 @@ public class MouseScrollHandler {
         }
 
         float scrollPos = getState(handType);
-        if (Math.abs(scrollPos) < 1) {
-            if ((deltaSaved > 0 && scrollPos < 0)
-                    || (deltaSaved < 0 && scrollPos > 0)) {
-                deltaSaved = 0;
-            }
-            deltaSaved += scrollPos;
-            if (Math.abs(deltaSaved) < 1) {
-                return;
-            }
-            doScroll(deltaSaved);
-            deltaSaved = 0;
+        if (Math.abs(scrollPos) < DEAD_ZONE) {
+            heldDirection = 0;
             return;
         }
-        deltaSaved = 0;
-        doScroll(scrollPos);
 
+        int direction = scrollPos > 0 ? 1 : -1;
+        if (direction != heldDirection) {
+            heldDirection = direction;
+            ticksHeld = 0;
+            repeatSaved = 0;
+            doScroll(direction);
+            return;
+        }
+
+        if (++ticksHeld < REPEAT_DELAY_TICKS) {
+            return;
+        }
+
+        double strength = Math.min(
+                1.0,
+                (Math.abs(scrollPos) - DEAD_ZONE) / (1.0 - DEAD_ZONE)
+        );
+        double stepsPerSecond = MIN_STEPS_PER_SECOND
+                + (MAX_STEPS_PER_SECOND - MIN_STEPS_PER_SECOND) * strength;
+
+        repeatSaved += stepsPerSecond / 20.0;
+        if (repeatSaved < 1) {
+            return;
+        }
+        // keep the remainder, so the repeat speed stays even
+        repeatSaved -= 1;
+        doScroll(direction);
     }
 
     public float getState(@NotNull HandType handType){

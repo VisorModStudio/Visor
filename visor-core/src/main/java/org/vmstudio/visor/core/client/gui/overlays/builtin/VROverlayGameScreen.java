@@ -319,13 +319,21 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        // we use here screen directly
-        // since the scrollDelta received is already calculated
-        // and not applicable to InputHelper scroll method
-        if(MC.screen != null){
-            return MC.screen.mouseScrolled(mouseX, mouseY, scrollDelta);
+        if(MC.screen == null){
+            return false;
         }
-        return false;
+        //scroll delta is already calculated...
+        // but we still have to use mouse scroll this way
+        // for screens compatibility with UI mods like JEI
+        double wheelSensitivity = MC.options.mouseWheelSensitivity().get();
+        double rawDelta = wheelSensitivity == 0
+                ? 0
+                : scrollDelta / wheelSensitivity;
+        if(rawDelta == 0){
+            return false;
+        }
+        InputHelper.scrollMouse(0, rawDelta);
+        return true;
     }
 
     @Override
