@@ -11,7 +11,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -31,8 +31,6 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.PlayerExtension;
 
@@ -168,7 +166,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return hand;
     }
 
-    // 1. replace getMainHand with getItemInHand()
+    // replace getMainHand with getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
@@ -182,7 +180,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
-    // 2. getItemInHand()
+    //getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$itemInHand(Player self, InteractionHand hand, Operation<ItemStack> original) {
@@ -197,7 +195,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
-    // 3. ATTACK_DAMAGE attribute for offhand
+    //ATTACK_DAMAGE attribute for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
     private double visor$attackDamage(Player self, Attribute attribute, Operation<Double> original) {
@@ -211,7 +209,7 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return original.call(self, attribute);
     }
 
-    // 4. EnchantmentHelper for offhand
+    // EnchantmentHelper for offhand
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
     private int visor$knockback(LivingEntity selfEntity, Operation<Integer> original) {
@@ -226,6 +224,33 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
             return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
         }
         return original.call(selfEntity);
+    }
+
+    // knockback for living entities targets
+    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
+    private void visor$vrKnockbackDirection(LivingEntity target, double strength, double x, double z,
+                                            Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
+        if (knockBack != null) {
+            x = knockBack.x;
+            z = knockBack.z;
+        }
+        original.call(target, strength, x, z);
+    }
+
+    // knockback for non-living entities targets
+    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
+    private void visor$vrPushDirection(Entity target, double x, double y, double z,
+                                       Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
+        if (knockBack != null) {
+            double strength = Math.sqrt(x * x + z * z);
+            x = -knockBack.x * strength;
+            z = -knockBack.z * strength;
+        }
+        original.call(target, x, y, z);
     }
 
 

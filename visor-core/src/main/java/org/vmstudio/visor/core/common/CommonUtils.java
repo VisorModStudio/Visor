@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.common;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,6 +16,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3fc;
+import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.server.player.VRServerPlayer;
 
 import java.util.function.Supplier;
 
@@ -73,6 +78,34 @@ public class CommonUtils {
                 headsize *= 1.5;
             }
             return new AABB(headpos.subtract(headsize, headsize, headsize), headpos.add(headsize, headsize, headsize)).inflate(inflate * 0.25).expandTowards(headpos.subtract(entity.position()).scale(inflate));
+        }
+        return null;
+    }
+
+
+
+    public static @Nullable Vec3 calcVRKnockback(@Nullable Entity attacker, Entity target) {
+        if (!(attacker instanceof ServerPlayer serverPlayer)
+                || VisorAPI.server() == null) {
+            return null;
+        }
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);
+        if (vrPlayer == null) {
+            return null;
+        }
+        double x = serverPlayer.getX() - target.getX();
+        double z = serverPlayer.getZ() - target.getZ();
+        if (x * x + z * z >= 1.0E-4d) {
+            return new Vec3(x, 0.0, z).normalize();
+        }
+        //Edge case: when entities too close, use hmdDir instead
+        if (vrPlayer.hasPoseData()) {
+            Vector3fc hmdDir = vrPlayer.getPoseData().getHmd().getDirection();
+            double hx = hmdDir.x();
+            double hz = hmdDir.z();
+            if (hx * hx + hz * hz >= 1.0E-4d) {
+                return new Vec3(-hx, 0.0, -hz).normalize();
+            }
         }
         return null;
     }
