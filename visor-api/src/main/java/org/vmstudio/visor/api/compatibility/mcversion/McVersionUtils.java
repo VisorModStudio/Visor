@@ -8,9 +8,9 @@ public class McVersionUtils {
     }
     public static ResourceLocation newResourceLoc(String namespace,
                                                   String path){
-        return McVersionUtils.newResourceLoc(namespace, path);
+        return new ResourceLocation(namespace, path);
     }
     public static ResourceLocation newResourceLoc(String location){
-        return McVersionUtils.newResourceLoc(location);
+        return new ResourceLocation(location);
     }
 }
