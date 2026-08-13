@@ -4,8 +4,7 @@
 #Gradle Addons
 shadow              = "8.1.1"
 architectury        = "3.4-SNAPSHOT"
-architectury-loom   = "1.7-SNAPSHOT"
-loom-quiltflower    = "1.8.0"
+architectury-loom   = "1.11-SNAPSHOT"
 
 
 #Annotations
@@ -13,29 +12,28 @@ lombok                 = "1.18.46"
 jetbrains              = "26.1.0"
 
 #Core
-minecraftVersion       = "1.20.1"
-parchment              = "2023.09.03"
+minecraftVersion       = "1.21.1"
+parchment              = "2024.11.17"
 lwjgl                  = "3.3.6"
 atum-vr                = "1.13.0beta"
 atum-config            = '1.2.0pre3'
 
 #Fabric
-fabric-loader          = "0.16.5"
-fabric_api             = "0.92.3"
+fabric-loader          = "0.16.14"
+fabric_api             = "0.116.11"
 mixinExtras            = "0.4.1"
 
 #Forge
-forgeVersion           = "47.4.0"
+forgeVersion           = "52.1.16"
 
 #Other mods
-mods_sodium                 = "mc1.20.1-0.5.8"
-mods_iris                   = "1.7.1+1.20.1"
+mods_sodium                 = "mc1.21.1-0.6.13-fabric"
+mods_iris                   = "1.8.8+1.21.1-fabric"
 
 
 [plugins]
 architectury         = { id = "architectury-plugin",            version.ref = "architectury" }
 architectury-loom    = { id = "dev.architectury.loom",          version.ref = "architectury-loom" }
-loom-quiltflower     = { id = "io.github.juuxel.loom-quiltflower", version.ref = "loom-quiltflower" }
 shadow               = { id = "com.github.johnrengelman.shadow",  version.ref = "shadow" }
 
 
