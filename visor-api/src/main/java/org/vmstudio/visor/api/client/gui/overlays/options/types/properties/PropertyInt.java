@@ -74,7 +74,7 @@ public class PropertyInt extends Property<Integer> {
         ) + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(maxDigits);
 
-        widget.moveCursorToStart();
+        widget.moveCursorToStart(false);
 
         return widget;
     }

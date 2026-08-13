@@ -80,7 +80,7 @@ public class PropertyFloat extends Property<Float> {
         int maxLen = intPartWidth + 1 /* '.' */ + 8 /* decimals */ + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(Math.max(maxLen, 6));
 
-        widget.moveCursorToStart();
+        widget.moveCursorToStart(false);
 
         return widget;
     }

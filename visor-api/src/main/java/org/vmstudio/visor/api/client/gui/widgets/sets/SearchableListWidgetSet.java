@@ -69,9 +69,6 @@ public class SearchableListWidgetSet extends DynamicWidgetSet{
 
     @Override
     public void onTick() {
-        if(searchBox != null) {
-            searchBox.tick();
-        }
         if(filterButton != null
                 && filterWidgetSet != null
                 && filterButton.isSelected()){

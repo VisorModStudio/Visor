@@ -1,6 +1,9 @@
 package org.vmstudio.visor.api.compatibility.mcversion;
 
+
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringUtil;
+
 
 public class McVersionUtils {
     private McVersionUtils() {
@@ -13,4 +16,15 @@ public class McVersionUtils {
     public static ResourceLocation newResourceLoc(String location){
         return ResourceLocation.parse(location);
     }
+
+    //---------- chat text helpers (moved from SharedConstants to StringUtil in 1.20.3) ----------
+
+    public static String filterText(String text, boolean allowLineBreaks){
+        return StringUtil.filterText(text, allowLineBreaks);
+    }
+
+    public static boolean isAllowedChatCharacter(char character){
+        return StringUtil.isAllowedChatCharacter(character);
+    }
+
 }

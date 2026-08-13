@@ -275,7 +275,7 @@ public class WidgetSetList implements GuiEventListener, Renderable, NarratableEn
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
         if (!isMouseOver(mouseX, mouseY)) return false;
         setScrollAmount(scrollAmount - delta * (getRowHeight()));
         return true;

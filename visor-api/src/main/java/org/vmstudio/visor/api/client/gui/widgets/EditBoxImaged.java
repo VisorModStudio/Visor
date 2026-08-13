@@ -32,7 +32,7 @@ public class EditBoxImaged extends EditBox {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(visible) {
             if(texture != null) {
                 texture.blit(
@@ -44,7 +44,7 @@ public class EditBoxImaged extends EditBox {
         }
 
         // draw text, cursor, selection
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
     }
 
 

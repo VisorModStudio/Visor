@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
-import net.minecraft.SharedConstants;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -436,7 +436,7 @@ public class TextBoxEditable extends AbstractWidget {
         int k = this.maxLength - this.value.length() - (i - j);
         if (k <= 0) return;
 
-        String string = SharedConstants.filterText(textToWrite, true);
+        String string = McVersionUtils.filterText(textToWrite, true);
         if (string.length() > k) string = string.substring(0, k);
 
         String string2 = new StringBuilder(this.value)
@@ -802,7 +802,7 @@ public class TextBoxEditable extends AbstractWidget {
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
         if (!this.canConsumeInput()) return false;
-        if (SharedConstants.isAllowedChatCharacter(codePoint)) {
+        if (McVersionUtils.isAllowedChatCharacter(codePoint)) {
             if (!readOnly) {
                 this.insertText(Character.toString(codePoint));
             }
@@ -979,7 +979,7 @@ public class TextBoxEditable extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollDelta) {
         if (this.isHoveredOrFocused() && this.visible) {
             // Manual scroll -> stop following caret
             followCaret = false;

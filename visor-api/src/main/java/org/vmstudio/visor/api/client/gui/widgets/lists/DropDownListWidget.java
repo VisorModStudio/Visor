@@ -283,7 +283,7 @@ public class DropDownListWidget extends AbstractButton {
 
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollDelta) {
         if (expanded && items.size() > visibleItems) {
             scrollOffset = (int) Mth.clamp(scrollOffset - scrollDelta, 0, items.size() - visibleItems);
             return true;

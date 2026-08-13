@@ -59,7 +59,7 @@ public class PropertyString extends Property<String> {
             }
         });
 
-        widget.moveCursorToStart();
+        widget.moveCursorToStart(false);
 
         return widget;
     }

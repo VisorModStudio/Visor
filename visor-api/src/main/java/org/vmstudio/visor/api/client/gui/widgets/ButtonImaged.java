@@ -10,9 +10,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 
 import java.util.function.Consumer;
 
@@ -50,14 +51,19 @@ public class ButtonImaged extends AbstractButton {
         this.widgetInfo = widgetInfo;
         this.onPress = onPress;
         this.onRelease = onRelease;
-        super.setTooltip(widgetInfo.getTooltip());
     }
 
 
+    // Tooltip is kept out of the vanilla WidgetTooltipHolder on purpose: the holder lost
+    // custom-positioner support in 1.20.2, so it is submitted manually in renderWidget().
     @Override
     public void setTooltip(@Nullable Tooltip tooltip) {
         this.tooltipOverride = tooltip;
-        super.setTooltip(tooltip == null ? widgetInfo.getTooltip() : tooltip);
+    }
+
+    @Override
+    public @Nullable Tooltip getTooltip() {
+        return tooltipOverride != null ? tooltipOverride : widgetInfo.getTooltip();
     }
 
     public void setSelected(boolean selected) {
@@ -89,20 +95,18 @@ public class ButtonImaged extends AbstractButton {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (tooltipOverride == null && getTooltip() != widgetInfo.getTooltip()) {
-            super.setTooltip(widgetInfo.getTooltip());
-        }
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-    }
-
-    @Override
-    protected @NotNull ClientTooltipPositioner createTooltipPositioner() {
-        return ClampedTooltipPositioner.INSTANCE;
-    }
-
-    @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (this.isHoveredOrFocused()) {
+            var screen = getTooltipScreen();
+            var tooltip = getTooltip();
+            if(screen != null && tooltip != null){
+                screen.setTooltipForNextRenderPass(
+                        tooltip,
+                        ClampedTooltipPositioner.INSTANCE,
+                        this.isFocused()
+                );
+            }
+        }
 
         GuiTexture texture;
         if(!active){
@@ -170,6 +174,15 @@ public class ButtonImaged extends AbstractButton {
                     true
             );
         }
+    }
+
+    //Use Only during rendering of this widget!!!!
+    private static @Nullable Screen getTooltipScreen() {
+        VROverlayScreen overlay = VROverlayScreen.getRenderingOverlay();
+        if (overlay != null) {
+            return overlay;
+        }
+        return Minecraft.getInstance().screen;
     }
 
 

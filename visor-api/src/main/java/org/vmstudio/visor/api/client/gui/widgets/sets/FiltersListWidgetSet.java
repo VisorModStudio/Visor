@@ -94,9 +94,6 @@ public class FiltersListWidgetSet<T> implements FilterListWidgetSet<T> {
 
     @Override
     public void onTick() {
-        if(searchBox != null){
-            searchBox.tick();
-        }
     }
 
     @Override

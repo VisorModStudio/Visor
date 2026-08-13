@@ -94,11 +94,6 @@ public class WidgetsList extends DynamicWidgetSet {
 
     @Override
     public void onTick() {
-        for (var widget : widgets) {
-            if (widget instanceof EditBox editBox) {
-                editBox.tick();
-            }
-        }
     }
 
     public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
@@ -209,7 +204,7 @@ public class WidgetsList extends DynamicWidgetSet {
     // ---------- mouse scroll integration ----------
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        if (scrollbar.mouseScrolled(mouseX, mouseY, delta)) return true;
+        if (scrollbar.mouseScrolled(mouseX, mouseY, 0, delta)) return true;
 
         // if over viewport, scroll content
         if (mouseX >= x && mouseX < x + width && mouseY >= y && mouseY < y + height) {
@@ -322,7 +317,7 @@ public class WidgetsList extends DynamicWidgetSet {
         }
 
         @Override
-        public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
             if (!this.visible) return false;
             if (mouseX >= this.getX() && mouseX < this.getX() + this.getWidth()
                     && mouseY >= this.getY() && mouseY < this.getY() + this.height) {

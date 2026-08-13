@@ -1,5 +1,7 @@
 package org.vmstudio.visor.api.client.gui.widgets.color;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
+
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.ColorsHelper;
@@ -129,7 +131,7 @@ public class ColorPickerWidgetSet implements WidgetSet {
         );
         hexField.setMaxLength(7);
         hexField.setValue(getColor().asHex(false));
-        hexField.moveCursorToStart();
+        hexField.moveCursorToStart(false);
         hexField.setResponder(this::onHexTyped);
 
         presetSwatches.clear();
@@ -156,9 +158,6 @@ public class ColorPickerWidgetSet implements WidgetSet {
 
     @Override
     public void onTick() {
-        if (hexField != null) {
-            hexField.tick();
-        }
     }
 
     @Override

@@ -81,9 +81,9 @@ public abstract class VROverlayTemplateScreenInScreen<T extends Screen> extends 
 
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollDelta) {
         if(screen==null) return true;
-        return screen.mouseScrolled(mouseX, mouseY, scrollDelta);
+        return screen.mouseScrolled(mouseX, mouseY, scrollX, scrollDelta);
     }
 
     @Override

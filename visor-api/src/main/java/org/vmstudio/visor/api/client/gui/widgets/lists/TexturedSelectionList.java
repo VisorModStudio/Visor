@@ -14,8 +14,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
+import org.vmstudio.visor.api.compatibility.mcversion.McSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 
-public class TexturedSelectionList extends AbstractSelectionList<TexturedSelectionList.TexturedRow> {
+public class TexturedSelectionList extends McSelectionList<TexturedSelectionList.TexturedRow> {
 
     @Getter
     private final WidgetInfoSelectionList widgetInfo;
@@ -81,8 +81,8 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         super(Minecraft.getInstance(),
                 widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
+                widgetInfo.getX(),
                 widgetInfo.getY(),
-                widgetInfo.getY() + widgetInfo.getHeight(),
                 widgetInfo.getEntryHeight()
         );
 
@@ -94,11 +94,6 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         this.columnGap = widgetInfo.getColumnGap();
 
         this.onSelected = onSelected;
-
-        this.setLeftPos(widgetInfo.getX());
-        this.setRenderTopAndBottom(false);
-        this.setRenderBackground(false);
-        this.setRenderSelection(false);
 
         resetEntries(rawEntries);
     }
@@ -159,7 +154,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //Rendering
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Determine hovered entry across columns
         this.hoveredEntry = null;
         if (this.isMouseOver(mouseX, mouseY)) {
@@ -183,14 +178,14 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         }
 
         this.enableScissor(guiGraphics);
-        this.renderList(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderRows(guiGraphics, mouseX, mouseY, partialTick);
         guiGraphics.disableScissor();
 
-        int scrollX = this.getScrollbarPosition();
+        int scrollX = this.scrollbarX();
         int maxScroll = this.getMaxScroll();
         if (maxScroll > 0) {
-            int trackTop = this.y0 + this.paddingTop;
-            int trackBottom = this.y1 - this.paddingTop;
+            int trackTop = this.listTop() + this.paddingTop;
+            int trackBottom = this.listBottom() - this.paddingTop;
             int viewH = trackBottom - trackTop;
 
             int thumbH = (int) (viewH * (float) viewH / ((float) viewH + maxScroll));
@@ -213,7 +208,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     }
 
     @Override
-    protected void renderList(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = this.itemHeight - paddingTop;
@@ -222,7 +217,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         for (int m = 0; m < l; ++m) {
             int n = this.getRowTop(m);
             int o = this.getRowBottom(m);
-            if (o >= this.y0 && n <= this.y1) {
+            if (o >= this.listTop() && n <= this.listBottom()) {
                 this.renderItem(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
             }
         }
@@ -420,8 +415,8 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //Layout overrides
 
     @Override
-    protected int getScrollbarPosition() {
-        return this.x0 + this.width - (scrollBarWidth + 2);
+    protected int scrollbarX() {
+        return this.listLeft() + this.width - (scrollBarWidth + 2);
     }
 
     @Override
@@ -431,21 +426,17 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
 
     @Override
     public int getRowLeft() {
-        return this.x0 + paddingLeft;
+        return this.listLeft() + paddingLeft;
     }
 
     @Override
     protected int getRowTop(int index) {
-        return this.y0 + paddingTop - (int) this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
+        return this.listTop() + paddingTop - (int) this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
     }
 
     @Override
     protected int getRowBottom(int index) {
         return super.getRowBottom(index) - paddingTop;
-    }
-
-    @Override
-    public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
     }
 
     // ══════════════════════════════════════════════════════════════════

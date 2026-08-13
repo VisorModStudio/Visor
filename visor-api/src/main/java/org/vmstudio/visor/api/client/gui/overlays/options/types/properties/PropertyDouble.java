@@ -74,7 +74,7 @@ public class PropertyDouble extends Property<Double> {
         int maxLen = intPartWidth + 1 /* '.' */ + 15 /* decimals */ + (minValue < 0 ? 1 : 0);
         widget.setMaxLength(Math.max(maxLen, 8));
 
-        widget.moveCursorToStart();
+        widget.moveCursorToStart(false);
 
         return widget;
     }

@@ -116,7 +116,7 @@ public class ValueEditorDouble implements WidgetSet{
         int intPartWidth = Math.max(intPartWidth(minValue), intPartWidth(maxValue));
         int maxLen = intPartWidth + 1 /* '.' */ + 15 /* decimals */ + (minValue < 0 ? 1 : 0);
         editBox.setMaxLength(Math.max(maxLen, 8));
-        editBox.moveCursorToStart();
+        editBox.moveCursorToStart(false);
 
 
         leftArrow = new ValueDragWidget(leftArrowInfo);
@@ -143,7 +143,6 @@ public class ValueEditorDouble implements WidgetSet{
 
     @Override
     public void onTick() {
-        editBox.tick();
     }
 
     private static String formatDouble(double v) {
