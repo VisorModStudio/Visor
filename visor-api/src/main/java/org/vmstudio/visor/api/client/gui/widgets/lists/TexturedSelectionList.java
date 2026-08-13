@@ -26,13 +26,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.compatibility.mcversion.McSelectionList;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 
-public class TexturedSelectionList extends AbstractSelectionList<TexturedSelectionList.TexturedRow> {
+public class TexturedSelectionList extends McSelectionList<TexturedSelectionList.TexturedRow> {
 
     @Getter
     private final WidgetInfoSelectionList widgetInfo;
@@ -81,8 +82,8 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
         super(Minecraft.getInstance(),
                 widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
+                widgetInfo.getX(),
                 widgetInfo.getY(),
-                widgetInfo.getY() + widgetInfo.getHeight(),
                 widgetInfo.getEntryHeight()
         );
 
@@ -95,7 +96,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
 
         this.onSelected = onSelected;
 
-        this.setLeftPos(widgetInfo.getX());
+
         this.setRenderTopAndBottom(false);
         this.setRenderBackground(false);
         this.setRenderSelection(false);
@@ -159,7 +160,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //Rendering
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Determine hovered entry across columns
         this.hoveredEntry = null;
         if (this.isMouseOver(mouseX, mouseY)) {
@@ -213,7 +214,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     }
 
     @Override
-    protected void renderList(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = this.itemHeight - paddingTop;
@@ -420,7 +421,7 @@ public class TexturedSelectionList extends AbstractSelectionList<TexturedSelecti
     //Layout overrides
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollbarX() {
         return this.x0 + this.width - (scrollBarWidth + 2);
     }
 

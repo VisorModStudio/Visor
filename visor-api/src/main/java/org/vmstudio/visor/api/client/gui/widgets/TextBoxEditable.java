@@ -24,6 +24,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -436,7 +437,7 @@ public class TextBoxEditable extends AbstractWidget {
         int k = this.maxLength - this.value.length() - (i - j);
         if (k <= 0) return;
 
-        String string = SharedConstants.filterText(textToWrite, true);
+        String string = McVersionUtils.filterText(textToWrite, true);
         if (string.length() > k) string = string.substring(0, k);
 
         String string2 = new StringBuilder(this.value)
@@ -802,7 +803,7 @@ public class TextBoxEditable extends AbstractWidget {
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
         if (!this.canConsumeInput()) return false;
-        if (SharedConstants.isAllowedChatCharacter(codePoint)) {
+        if (McVersionUtils.isAllowedChatCharacter(codePoint)) {
             if (!readOnly) {
                 this.insertText(Character.toString(codePoint));
             }

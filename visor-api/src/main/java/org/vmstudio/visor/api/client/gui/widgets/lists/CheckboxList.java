@@ -20,12 +20,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.compatibility.mcversion.McSelectionList;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEntry> {
+public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
 
     private final int paddingTop;
@@ -53,8 +54,8 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
         super(Minecraft.getInstance(),
                 widgetInfo.getWidth(),
                 widgetInfo.getHeight(),
+                widgetInfo.getX(),
                 widgetInfo.getY(),
-                widgetInfo.getY()+widgetInfo.getHeight(),
                 widgetInfo.getItemHeight()
         );
 
@@ -67,7 +68,7 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
 
         this.onChanged = onChanged;
 
-        this.setLeftPos(widgetInfo.getX());
+
         this.setRenderTopAndBottom(false);
         this.setRenderBackground(false);
         this.setRenderSelection(false);
@@ -77,7 +78,7 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
 
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.hovered = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
         if (VisorAPI.clientState().stateMode().isActive()
                 && scrolling
@@ -117,7 +118,7 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
     }
 
     @Override
-    protected void renderList(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = this.itemHeight - paddingTop;
@@ -295,7 +296,7 @@ public class CheckboxList extends AbstractSelectionList<CheckboxList.CheckboxEnt
 
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollbarX() {
         return this.x0 + this.width
                 - (scrollBarWidth + 2)  - paddingCheckbox;
     }
