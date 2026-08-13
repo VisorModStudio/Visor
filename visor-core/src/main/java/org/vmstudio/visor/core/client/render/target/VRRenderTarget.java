@@ -26,7 +26,7 @@ public class VRRenderTarget extends RenderTarget {
                           boolean linearFilter,
                           boolean useStencil) {
         super(usedepth);
-        RenderSystem.assertOnGameThreadOrInit();
+        RenderSystem.assertOnRenderThreadOrInit();
 
         this.textureSupplier = textureSupplier;
         this.name = name;

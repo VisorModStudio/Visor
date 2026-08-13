@@ -12,6 +12,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -262,12 +263,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
 
     public boolean willBeInMenuRoom(Screen newScreen) {
-        return MC.level == null ||
-                newScreen instanceof WinScreen ||
-                newScreen instanceof ReceivingLevelScreen ||
-                newScreen instanceof ProgressScreen ||
-                newScreen instanceof GenericDirtMessageScreen ||
-                MC.getOverlay() != null;
+        return MC.level == null
+                || newScreen instanceof WinScreen
+                || McVersionUtilsClient.isLevelTransitionScreen(newScreen)
+                || MC.getOverlay() != null;
     }
 
     @Override

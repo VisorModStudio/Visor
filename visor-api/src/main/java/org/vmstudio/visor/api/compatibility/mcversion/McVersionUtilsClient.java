@@ -20,5 +20,10 @@ public class McVersionUtilsClient {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
+    public static boolean isLevelTransitionScreen(@Nullable Screen screen) {
+        return screen instanceof ReceivingLevelScreen
+                || screen instanceof ProgressScreen
+                || screen instanceof GenericMessageScreen;
+    }
 
 }

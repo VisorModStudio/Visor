@@ -83,7 +83,7 @@ public class GameEffectOnFire extends VRGameEffect {
         RenderPoseHelper.applyCameraPose(renderPass, stack);
 
         // --- Render ---
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        BufferBuilder buf;
         for (int i = 0; i < 4; i++) {
             stack.pushPose();
             // spin quad around player
@@ -93,16 +93,16 @@ public class GameEffectOnFire extends VRGameEffect {
             stack.translate(0, -fireHeight, 0);
 
             Matrix4f mat = stack.last().pose();
-            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            buf.vertex(mat, -FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
-                    .uv(u1, v1).color(1,1,1,FIRE_ALPHA).endVertex();
-            buf.vertex(mat,  FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
-                    .uv(u0, v1).color(1,1,1,FIRE_ALPHA).endVertex();
-            buf.vertex(mat,  FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
-                    .uv(u0, v0).color(1,1,1,FIRE_ALPHA).endVertex();
-            buf.vertex(mat, -FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
-                    .uv(u1, v0).color(1,1,1,FIRE_ALPHA).endVertex();
-            BufferUploader.drawWithShader(buf.end());
+            buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            buf.addVertex(mat, -FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
+                    .setUv(u1, v1).setColor(1,1,1,FIRE_ALPHA);
+            buf.addVertex(mat,  FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
+                    .setUv(u0, v1).setColor(1,1,1,FIRE_ALPHA);
+            buf.addVertex(mat,  FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
+                    .setUv(u0, v0).setColor(1,1,1,FIRE_ALPHA);
+            buf.addVertex(mat, -FIRE_HALF_WIDTH, fireHeight,  -FIRE_HALF_WIDTH)
+                    .setUv(u1, v0).setColor(1,1,1,FIRE_ALPHA);
+            BufferUploader.drawWithShader(buf.buildOrThrow());
 
             stack.popPose();
         }

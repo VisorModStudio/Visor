@@ -119,7 +119,7 @@ public abstract class VRRendererBase implements VRRenderer {
         MC.mainRenderTarget.bindWrite(true);
 
         // push pose to pop it in scene
-        RenderSystem.getModelViewStack().pushPose();
+        RenderSystem.getModelViewStack().pushMatrix();
 
         ((GameRendererExtension)MC.gameRenderer).visor$setVRGuiVisible(
                 renderLevel && MC.getEntityRenderDispatcher().camera != null

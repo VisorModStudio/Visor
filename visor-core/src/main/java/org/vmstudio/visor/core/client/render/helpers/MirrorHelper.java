@@ -170,9 +170,9 @@ public class MirrorHelper {
 
         // 3) push / configure model-view
         var mv = RenderSystem.getModelViewStack();
-        mv.pushPose();
+        mv.pushMatrix();
         try {
-            mv.setIdentity();
+            mv.identity();
             mv.translate(0, 0, -CAMERA_Z);
             RenderSystem.applyModelViewMatrix();
 
@@ -202,7 +202,7 @@ public class MirrorHelper {
 
             gui.flush();
         } finally {
-            mv.popPose();
+            mv.popMatrix();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
             RenderStateHelper.restoreAfterExternalRender();

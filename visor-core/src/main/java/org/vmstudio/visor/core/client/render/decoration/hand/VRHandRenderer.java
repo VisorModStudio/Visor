@@ -347,9 +347,7 @@ public class VRHandRenderer {
         }
 
         // --- Render ---
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
         RenderHelper.renderCuboid(
-                builder,
                 poseStack.last().pose(),
                 start, end,
                 -CURSOR_BOX_HALF_SIZE, CURSOR_BOX_HALF_SIZE,
@@ -440,9 +438,7 @@ public class VRHandRenderer {
 
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        Tesselator tesselator = Tesselator.getInstance();
         RenderHelper.renderCuboid(
-                tesselator.getBuilder(),
                 poseStack.last().pose(),
                 start, end,
                 -0.02F, 0.02F,
@@ -599,7 +595,7 @@ public class VRHandRenderer {
     ) {
         boolean mainHand = humanoidArm != HumanoidArm.LEFT;
         float handFactor = mainHand ? 1.0F : -1.0F;
-        RenderSystem.setShaderTexture(0, player.getSkinTextureLocation());
+        RenderSystem.setShaderTexture(0, player.getSkin().texture());
 
 
         poseStack.pushPose();
@@ -614,7 +610,7 @@ public class VRHandRenderer {
 
         poseStack.scale(0.4f, 0.4F, 0.4F);
 
-        boolean slim = "slim".equals(player.getModelName());
+        boolean slim = "slim".equals(player.getSkin().model().id());
 
         poseStack.translate(
                 (slim ? -0.34375F : -0.375F) * handFactor,

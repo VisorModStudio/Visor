@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.render.decoration.effects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -121,9 +122,7 @@ public class GameEffectTrackerDebug extends VRGameEffect {
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
         Matrix4f pose = poseStack.last().pose();
 
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         for (var entry : active.entrySet()) {
             VRPose ancestor = findActiveAncestor(entry.getKey(), active);
@@ -140,7 +139,7 @@ public class GameEffectTrackerDebug extends VRGameEffect {
             addAxis(builder, pose, center, projectDir(tracker.getCustomVector(AXIS_Y), cos, sin), 64, 235, 90);  // Y green
             addAxis(builder, pose, center, projectDir(tracker.getCustomVector(AXIS_Z), cos, sin), 66, 135, 245); // Z blue
         }
-        tesselator.end();
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         poseStack.popPose();
 
@@ -257,10 +256,10 @@ public class GameEffectTrackerDebug extends VRGameEffect {
     }
 
     private void vertex(BufferBuilder buf, Matrix4f pose, Vec3 p, int r, int g, int b) {
-        buf.vertex(pose, (float) p.x, (float) p.y, (float) p.z)
-                .color(r, g, b, 255)
-                .normal(0f, 1f, 0f)
-                .endVertex();
+        buf.addVertex(pose, (float) p.x, (float) p.y, (float) p.z)
+                .setColor(r, g, b, 255)
+                .setNormal(0f, 1f, 0f)
+        ;
     }
 
     @Override

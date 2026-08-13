@@ -103,9 +103,7 @@ public class HandEffectTeleport extends VRHandEffect {
         MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS,
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         double VOffset = lastArcDisplayOffset;
@@ -182,7 +180,7 @@ public class HandEffectTeleport extends VRHandEffect {
 
             float shift = (float) progress * 2.0F;
             renderBox(
-                    tesselator,
+                    builder,
                     start, end,
                     -segmentHalfWidth, segmentHalfWidth,
                     (-1.0F + shift) * segmentHalfWidth,
@@ -192,7 +190,7 @@ public class HandEffectTeleport extends VRHandEffect {
                     poseStack
             );
         }
-        tesselator.end();
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         // Custom Shader Landing Pad Effect using our own shader
         if (validLocation && TaskTeleport.getInstance().isArcActive()) {
@@ -246,7 +244,7 @@ public class HandEffectTeleport extends VRHandEffect {
     }
 
 
-    public static void renderBox(Tesselator tes, Vec3 start, Vec3 end,
+    public static void renderBox(BufferBuilder bufferbuilder, Vec3 start, Vec3 end,
                                  float minX, float maxX,
                                  float minY, float maxY,
                                  Vec3i color, byte alpha,
@@ -274,7 +272,6 @@ public class HandEffectTeleport extends VRHandEffect {
         Vec3 frontLeftBottom = end.add(left.x + down.x, left.y + down.y, left.z + down.z);
         Vec3 frontLeftTop = end.add(left.x + up.x, left.y + up.y, left.z + up.z);
 
-        BufferBuilder bufferbuilder = tes.getBuilder();
         Matrix4f mat = poseStack.last().pose();
 
         addVertex(bufferbuilder, mat, backRightBottom, color, alpha, forward);
@@ -314,10 +311,10 @@ public class HandEffectTeleport extends VRHandEffect {
     private static void addVertex(BufferBuilder buff,
                                   Matrix4f mat, Vec3 pos, Vec3i color,
                                   int alpha, Vec3 normal) {
-        buff.vertex(mat, (float) pos.x, (float) pos.y, (float) pos.z)
-                .color(color.getX(), color.getY(), color.getZ(), alpha)
-                .normal((float) normal.x, (float) normal.y, (float) normal.z)
-                .endVertex();
+        buff.addVertex(mat, (float) pos.x, (float) pos.y, (float) pos.z)
+                .setColor(color.getX(), color.getY(), color.getZ(), alpha)
+                .setNormal((float) normal.x, (float) normal.y, (float) normal.z)
+        ;
     }
 
     @Override

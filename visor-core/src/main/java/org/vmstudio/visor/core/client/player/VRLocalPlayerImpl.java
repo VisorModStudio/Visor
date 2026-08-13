@@ -308,7 +308,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
         if (canAutoClimb && player.fallDistance == 0.0F) {
             // Reduce the collision box width for climbing checks.
-            float climbShrink = player.getDimensions(player.getPose()).width * 0.45F;
+            float climbShrink = player.getDimensions(player.getPose()).width() * 0.45F;
             double climbShrinkHalfWidth = playerHalfWidth - climbShrink;
 
             AABB collisionBoxClimb = new AABB(

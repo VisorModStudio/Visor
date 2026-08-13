@@ -1,5 +1,6 @@
 package org.vmstudio.visor.extensions.client.render;
 
+import net.minecraft.client.gui.GuiGraphics;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -15,6 +16,8 @@ import org.joml.Matrix4f;
 
 public interface GameRendererExtension {
 
+
+    void visor$renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks);
 
     boolean visor$isVRGuiVisible();
 

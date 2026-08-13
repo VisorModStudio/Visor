@@ -91,7 +91,6 @@ public class GameEffectShadow extends VRGameEffect {
 
         // --- Render ---
         RenderHelper.renderFlatQuad(
-                Tesselator.getInstance().getBuilder(),
                 poseStack.last().pose(),
                 VRMathUtils.ZERO_VECTOR,
                 playerWidth,

@@ -214,7 +214,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 preYaw = 90;
 
                 float progress = 0.0F;
-                int riptideLevel = EnchantmentHelper.getRiptide(itemStack);
+                // riptide levels became a spin-attack strength (level * 1.5) in 1.21
+                float riptideLevel = EnchantmentHelper.getTridentSpinAttackStrength(itemStack, player) / 1.5F;
 
                 if (player.isUsingItem()
                         && player.getUseItemRemainingTicks() > 0
@@ -222,7 +223,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
                     if (riptideLevel <= 0 || player.isInWaterOrRain()) {
                         progress =
-                                itemStack.getUseDuration() - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
+                                itemStack.getUseDuration(player) - (player.getUseItemRemainingTicks() - partialTicks + 1.0F);
 
                         if (progress > TridentItem.THROW_THRESHOLD_TIME) {
                             float rotationProgress = progress - TridentItem.THROW_THRESHOLD_TIME;

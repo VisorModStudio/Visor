@@ -17,7 +17,7 @@ import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import net.minecraft.client.gui.Gui;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -38,9 +38,11 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class HandEffectCrosshair extends VRHandEffect {
     public static final String ID = "crosshair";
 
-    private static final ResourceLocation ICONS_LOC = Gui.GUI_ICONS_LOCATION;
+    // the icons atlas was split into single sprite textures in 1.20.2
+    private static final ResourceLocation ICONS_LOC =
+            McVersionUtils.newResourceLoc("textures/gui/sprites/hud/crosshair.png");
     private static final float BASE_SCALE = 0.125f;
-    private static final float UV_SIZE = 15f / 256f;
+    private static final float UV_SIZE = 1f;
     private static final float LIGHT_OFFSET = -0.01f;
     private static final float FULL_BRIGHTNESS = 1.0f;
     private static final float MISS_BRIGHTNESS = 0.5f;
@@ -81,7 +83,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         }
         float brightness = getBrightness(crossPos) * baseBrightness;
 
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        BufferBuilder buf;
 
         // --- GL setup ---
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
@@ -115,27 +117,27 @@ public class HandEffectCrosshair extends VRHandEffect {
         poseStack.scale(scale, scale, scale);
 
         // --- Render ---
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = poseStack.last().pose();
 
-        buf.vertex(mat, -1f,1f,0f)
-                .uv(UV_SIZE, 0f)
-                .color(brightness, brightness, brightness, 1f)
-                .endVertex();
-        buf.vertex(mat,1f,1f,0f)
-                .uv(0f,0f)
-                .color(brightness, brightness, brightness, 1f)
-                .endVertex();
-        buf.vertex(mat,1f, -1f, 0f)
-                .uv(0f, UV_SIZE)
-                .color(brightness, brightness, brightness, 1f)
-                .endVertex();
-        buf.vertex(mat,-1f, -1f,0f)
-                .uv(UV_SIZE, UV_SIZE)
-                .color(brightness, brightness, brightness, 1f)
-                .endVertex();
+        buf.addVertex(mat, -1f,1f,0f)
+                .setUv(UV_SIZE, 0f)
+                .setColor(brightness, brightness, brightness, 1f)
+        ;
+        buf.addVertex(mat,1f,1f,0f)
+                .setUv(0f,0f)
+                .setColor(brightness, brightness, brightness, 1f)
+        ;
+        buf.addVertex(mat,1f, -1f, 0f)
+                .setUv(0f, UV_SIZE)
+                .setColor(brightness, brightness, brightness, 1f)
+        ;
+        buf.addVertex(mat,-1f, -1f,0f)
+                .setUv(UV_SIZE, UV_SIZE)
+                .setColor(brightness, brightness, brightness, 1f)
+        ;
 
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.buildOrThrow());
 
         // --- Restore GL & pose ---
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

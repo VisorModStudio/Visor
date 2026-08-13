@@ -176,9 +176,9 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         ResourceLocation skin = this.getTextureLocation(player);
 
         arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+                OverlayTexture.NO_OVERLAY);
         sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+                OverlayTexture.NO_OVERLAY);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -186,14 +186,14 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     @Override
     protected void setupRotations(
-            AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick)
+            AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float scale)
     {
         if (VRRenderState.getPhase().isVRGui()) {
             if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
                 return;
             }
-            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
             return;
         }
 
@@ -203,7 +203,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         }
 
         // vanilla below here
-        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
+        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
     }
 
 }

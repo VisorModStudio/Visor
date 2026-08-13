@@ -98,7 +98,7 @@ public class RenderGuiHelper {
         // --- Pose ---
         poseStack.pushPose();
         poseStack.translate(position.x() - eye.x(), position.y() - eye.y(), position.z() - eye.z());
-        poseStack.mulPoseMatrix((Matrix4f) orientation);
+        poseStack.mulPose((Matrix4f) orientation);
         poseStack.scale(scale, scale, scale);
 
         // --- Quad + light ---
@@ -202,8 +202,8 @@ public class RenderGuiHelper {
         float barCenterY    = regionBottom - barGap - barHalfHeight;
 
         var pose = poseStack.last().pose();
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buf;
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         float r = barColor.getRed()   * brightness;
         float g = barColor.getGreen() * brightness;
@@ -213,12 +213,12 @@ public class RenderGuiHelper {
         float right  = barCenterX + barHalfWidth;
         float top    = barCenterY + barHalfHeight;
         float bottom = barCenterY - barHalfHeight;
-        buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, top,    0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
+        buf.addVertex(pose, left,  bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, top,    0f).setColor(r, g, b, a);
+        buf.addVertex(pose, left,  top,    0f).setColor(r, g, b, a);
 
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.buildOrThrow());
     }
 
 
@@ -270,15 +270,15 @@ public class RenderGuiHelper {
         float a = color.getAlpha();
 
         var pose = poseStack.last().pose();
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buf;
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, top,    0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
+        buf.addVertex(pose, left,  bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, top,    0f).setColor(r, g, b, a);
+        buf.addVertex(pose, left,  top,    0f).setColor(r, g, b, a);
 
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.buildOrThrow());
     }
 
     private static void drawResizeOutline(VROverlay overlay,
@@ -298,8 +298,8 @@ public class RenderGuiHelper {
         float a = color.getAlpha();
 
         var pose = poseStack.last().pose();
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buf;
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         // top edge
         emitRect(buf, pose, -halfWidth, halfHeight - thickness, halfWidth, halfHeight, r, g, b, a);
@@ -310,16 +310,16 @@ public class RenderGuiHelper {
         // right edge
         emitRect(buf, pose, halfWidth - thickness, -halfHeight + thickness, halfWidth, halfHeight - thickness, r, g, b, a);
 
-        BufferUploader.drawWithShader(buf.end());
+        BufferUploader.drawWithShader(buf.buildOrThrow());
     }
 
     private static void emitRect(BufferBuilder buf, Matrix4f pose,
                                  float left, float bottom, float right, float top,
                                  float r, float g, float b, float a) {
-        buf.vertex(pose, left,  bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, bottom, 0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, right, top,    0f).color(r, g, b, a).endVertex();
-        buf.vertex(pose, left,  top,    0f).color(r, g, b, a).endVertex();
+        buf.addVertex(pose, left,  bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, bottom, 0f).setColor(r, g, b, a);
+        buf.addVertex(pose, right, top,    0f).setColor(r, g, b, a);
+        buf.addVertex(pose, left,  top,    0f).setColor(r, g, b, a);
     }
 
 }

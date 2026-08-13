@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.render.RenderPhaseStartedVREvent;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.render.VRSceneType;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -210,9 +211,7 @@ public class VRRenderState {
         }
         return MC.level == null
                 || MC.gameRenderer == null
-                || MC.screen instanceof ReceivingLevelScreen
-                || MC.screen instanceof ProgressScreen
-                || MC.screen instanceof GenericDirtMessageScreen
+                || McVersionUtilsClient.isLevelTransitionScreen(MC.screen)
                 || MC.getOverlay() != null;
     }
 

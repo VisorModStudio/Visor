@@ -5,7 +5,7 @@ import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
+import net.minecraft.client.gui.screens.GenericMessageScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -175,15 +175,15 @@ public class ClientUtils {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
         boolean bl = minecraft.isLocalServer();
-        boolean bl2 = minecraft.isConnectedToRealms();
+        boolean bl2 = minecraft.getCurrentServer() != null && minecraft.getCurrentServer().isRealm();
         var connection = minecraft.getConnection();
         if(connection != null){
             connection.getConnection().disconnect(Component.literal(message));
         }
         if (bl) {
-            minecraft.clearLevel(new GenericDirtMessageScreen(Component.translatable("visor.messages.saving_world", message)));
+            minecraft.disconnect(new GenericMessageScreen(Component.translatable("visor.messages.saving_world", message)));
         } else {
-            minecraft.clearLevel();
+            minecraft.disconnect();
         }
 
         TitleScreen titleScreen = new TitleScreen();

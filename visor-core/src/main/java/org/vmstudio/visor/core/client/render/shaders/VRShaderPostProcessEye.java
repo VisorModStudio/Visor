@@ -7,6 +7,8 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomModelData;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
@@ -139,7 +141,8 @@ public class VRShaderPostProcessEye implements VRShader{
 
             if(VRClientSettings.isPumpkinEffectEnabled()) {
                 boolean hasPumpkin = headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
-                        && (!headItem.hasTag() || headItem.getTag().getInt("CustomModelData") == 0);
+                        && headItem.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,
+                        CustomModelData.DEFAULT).value() == 0;
                 if (hasPumpkin) {
                     vignetteColor = PUMPKIN_VIGNETTE_COLOR;
                     vignetteRadius = 0.3f;

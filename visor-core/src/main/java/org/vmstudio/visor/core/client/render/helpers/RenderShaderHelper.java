@@ -44,15 +44,15 @@ public class RenderShaderHelper {
     private static final float[]  UV_V   = {  0.0F,  0.0F,  1.0F,  1.0F };
 
     public static void renderFullscreenQuad(VertexFormat format) {
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
+        BufferBuilder buf;
 
 
-        buf.begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
         for (int i = 0; i < 4; i++) {
             putFullscreenVertex(buf, format, i);
         }
 
-        BufferUploader.draw(buf.end());
+        BufferUploader.draw(buf.buildOrThrow());
     }
 
     public static void renderQuad(VertexFormat format,
@@ -62,25 +62,25 @@ public class RenderShaderHelper {
                                   float z0,
                                   float x1,
                                   float z1) {
-        BufferBuilder buf = Tesselator.getInstance().getBuilder();
-        buf.begin(VertexFormat.Mode.QUADS, format);
+        BufferBuilder buf;
+        buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, format);
 
         putQuadVertex(buf, format, matrix, x0, y, z0, 0.0F, 0.0F);
         putQuadVertex(buf, format, matrix, x1, y, z0, 1.0F, 0.0F);
         putQuadVertex(buf, format, matrix, x1, y, z1, 1.0F, 1.0F);
         putQuadVertex(buf, format, matrix, x0, y, z1, 0.0F, 1.0F);
 
-        BufferUploader.draw(buf.end());
+        BufferUploader.draw(buf.buildOrThrow());
     }
 
     private static void putFullscreenVertex(BufferBuilder buf, VertexFormat format, int index) {
-        var vertex = buf.vertex(POS_X[index], POS_Y[index], 0.0);
+        var vertex = buf.addVertex((float) POS_X[index], (float) POS_Y[index], 0.0F);
         if (format == DefaultVertexFormat.POSITION_TEX) {
-            vertex.uv(UV_U[index], UV_V[index]).endVertex();
+            vertex.setUv(UV_U[index], UV_V[index]);
         } else if (format == DefaultVertexFormat.POSITION_TEX_COLOR) {
-            vertex.uv(UV_U[index], UV_V[index])
-                    .color(255, 255, 255, 255)
-                    .endVertex();
+            vertex.setUv(UV_U[index], UV_V[index])
+                    .setColor(255, 255, 255, 255)
+            ;
         } else {
             throw new IllegalArgumentException("Unexpected vertexx format " + format);
         }
@@ -94,15 +94,15 @@ public class RenderShaderHelper {
                                       float z,
                                       float u,
                                       float v) {
-        var vertex = buf.vertex(matrix, x, y, z);
+        var vertex = buf.addVertex(matrix, x, y, z);
         if (format == DefaultVertexFormat.POSITION) {
-            vertex.endVertex();
+            // position only: nothing else to write for this vertex
         } else if (format == DefaultVertexFormat.POSITION_TEX) {
-            vertex.uv(u, v).endVertex();
+            vertex.setUv(u, v);
         } else if (format == DefaultVertexFormat.POSITION_TEX_COLOR) {
-            vertex.uv(u, v)
-                    .color(255, 255, 255, 255)
-                    .endVertex();
+            vertex.setUv(u, v)
+                    .setColor(255, 255, 255, 255)
+            ;
         } else {
             throw new IllegalArgumentException("Unexpected vertexx format " + format);
         }

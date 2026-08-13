@@ -7,6 +7,7 @@ import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
@@ -48,7 +49,6 @@ import org.vmstudio.visor.core.common.addon.CoreAddonClient;
 
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.OptionsScreen;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;

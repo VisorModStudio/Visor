@@ -402,7 +402,7 @@ public final class VRMenuSky {
     public static void renderFirst(PoseStack poseStack) {
 
         // --- Prepare variables ---
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        BufferBuilder builder = null;
         Matrix4f pose = poseStack.last().pose();
         prepareSkyBox();
         currentTime = Util.getMillis();
@@ -441,7 +441,7 @@ public final class VRMenuSky {
 
     public static void renderLast(PoseStack poseStack) {
         // --- Prepare variables ---
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        BufferBuilder builder = null;
         Matrix4f pose = poseStack.last().pose();
 
         // --- Setup ---
@@ -572,7 +572,7 @@ public final class VRMenuSky {
 
     private static void renderSkyBox(BufferBuilder builder,
                                      Matrix4f pose){
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         // -Z wall
         horizon(builder, pose, -SKY_BOX, -SKY_BOX, -SKY_BOX);
@@ -605,7 +605,7 @@ public final class VRMenuSky {
         horizon(builder, pose, SKY_BOX, -SKY_BOX, -SKY_BOX);
         horizon(builder, pose, -SKY_BOX, -SKY_BOX, -SKY_BOX);
 
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
     }
 
     // ====== CELESTIAL BODIES ======
@@ -665,12 +665,12 @@ public final class VRMenuSky {
         RenderSystem.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), visible);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp, -size, -size, u0, v0);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp,  size, -size, u1, v0);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp,  size,  size, u1, v1);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp, -size,  size, u0, v1);
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -688,7 +688,7 @@ public final class VRMenuSky {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int star = 0; star < STAR_QUAD.length; star++) {
             float twinkle = 0.65f + 0.35f * (float) Math.sin(currentTimeSec * 1.6f + STAR_PHASE[star]);
             int alpha = (int) (255f * night * twinkle * STAR_BRIGHT);
@@ -701,7 +701,7 @@ public final class VRMenuSky {
 
         emitShootingStar(builder, pose, night);
 
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         RenderSystem.defaultBlendFunc();
     }
@@ -796,33 +796,33 @@ public final class VRMenuSky {
         float headHalfWidth = SHOOTINGSTAR_WIDTH;
         float tailHalfWidth = SHOOTINGSTAR_WIDTH * 0.15f;
 
-        builder.vertex(
+        builder.addVertex(
                 pose,
                 tailDirX * meteorRadius - sideDirX * tailHalfWidth,
                 tailDirY * meteorRadius - sideDirY * tailHalfWidth,
                 tailDirZ * meteorRadius - sideDirZ * tailHalfWidth
-        ).color(255, 248, 230, 0).endVertex();
+        ).setColor(255, 248, 230, 0);
 
-        builder.vertex(
+        builder.addVertex(
                 pose,
                 tailDirX * meteorRadius + sideDirX * tailHalfWidth,
                 tailDirY * meteorRadius + sideDirY * tailHalfWidth,
                 tailDirZ * meteorRadius + sideDirZ * tailHalfWidth
-        ).color(255, 248, 230, 0).endVertex();
+        ).setColor(255, 248, 230, 0);
 
-        builder.vertex(
+        builder.addVertex(
                 pose,
                 headDirX * meteorRadius + sideDirX * headHalfWidth,
                 headDirY * meteorRadius + sideDirY * headHalfWidth,
                 headDirZ * meteorRadius + sideDirZ * headHalfWidth
-        ).color(255, 252, 245, meteorAlpha).endVertex();
+        ).setColor(255, 252, 245, meteorAlpha);
 
-        builder.vertex(
+        builder.addVertex(
                 pose,
                 headDirX * meteorRadius - sideDirX * headHalfWidth,
                 headDirY * meteorRadius - sideDirY * headHalfWidth,
                 headDirZ * meteorRadius - sideDirZ * headHalfWidth
-        ).color(255, 252, 245, meteorAlpha).endVertex();
+        ).setColor(255, 252, 245, meteorAlpha);
     }
 
     // ====== UFO ======
@@ -855,7 +855,7 @@ public final class VRMenuSky {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < UFO_DOTS_AMOUNT; i++) {
             float dotX = ufoX + scratchRight.x * UFO_LX[i] + scratchUp.x * UFO_LY[i];
             float dotY = ufoY + scratchRight.y * UFO_LX[i] + scratchUp.y * UFO_LY[i];
@@ -877,7 +877,7 @@ public final class VRMenuSky {
                         UFO_DOT_CORE, UFO_BODY_CORE, (int) (235 * fade));
             }
         }
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -918,7 +918,7 @@ public final class VRMenuSky {
         }
 
         int[] cloudTint = {0, 0, 0};
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < VISOR_SIGN.n; i++) {
             float gleam = 1f + VISOR_GLEAM_AMT * Math.max(0f, 1f - Math.abs(VISOR_SIGN.col[i] - gleamPos) / VISOR_GLEAM_W);
             float cx = VISOR_SIGN.px[i], cy = VISOR_SIGN.py[i], cz = VISOR_SIGN.pz[i]; // anchored
@@ -939,7 +939,7 @@ public final class VRMenuSky {
                 spriteQuad(builder, pose, cx, cy, cz, VISOR_STAR_CORE * pulse, color, coreAlpha);
             }
         }
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -960,7 +960,7 @@ public final class VRMenuSky {
 
         float cullDistance = CLOUD_RANGE + 24f;
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
             for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
                 if (hash01(cellX, cellZ, 0) > CLOUD_FILL) {
@@ -982,7 +982,7 @@ public final class VRMenuSky {
                 emitCloud(builder, pose, cloudCenterX, cloudCenterZ, cellX, cellZ);
             }
         }
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
     }
 
     private static void emitCloud(BufferBuilder builder, Matrix4f pose,
@@ -1075,7 +1075,7 @@ public final class VRMenuSky {
         float dissolve = 1f - smoothstep(ALPHA_FADE_START, CLOUD_RANGE, dist);
         int a = (int) (255f * dissolve);
 
-        builder.vertex(pose, x, y, z).color(r, g, b, a).endVertex();
+        builder.addVertex(pose, x, y, z).setColor(r, g, b, a);
     }
 
     // ---- USER SKY DOTS ----
@@ -1142,7 +1142,7 @@ public final class VRMenuSky {
         }
 
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < userDotCount; i++) {
             scratchDir.set(userDotX[i], userDotY[i], userDotZ[i]);
             billboardBasis(scratchDir, scratchRight, scratchUp);
@@ -1162,7 +1162,7 @@ public final class VRMenuSky {
                 dotQuad(builder, pose, scratchRight, scratchUp, cx, cy, cz, VISOR_STAR_CORE, colorCore, 255);
             }
         }
-        BufferUploader.drawWithShader(builder.end());
+        BufferUploader.drawWithShader(builder.buildOrThrow());
 
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -1193,9 +1193,9 @@ public final class VRMenuSky {
 
     // --- SKY BOX
     private static void zenith(BufferBuilder builder, Matrix4f pose, float x, float y, float z) {
-        builder.vertex(pose, x, y, z)
-                .color(currentZenith.getRedInt(), currentZenith.getGreenInt(), currentZenith.getBlueInt(), 255)
-                .endVertex();
+        builder.addVertex(pose, x, y, z)
+                .setColor(currentZenith.getRedInt(), currentZenith.getGreenInt(), currentZenith.getBlueInt(), 255)
+        ;
     }
 
     private static void horizon(BufferBuilder builder, Matrix4f pose, float x, float y, float z) {
@@ -1203,7 +1203,7 @@ public final class VRMenuSky {
         float sunWeight = 0.5f + 0.5f * (x * inverseLen * sunAzimuthX + z * inverseLen * sunAzimuthZ);
         float duskAmount = currentTwilight * (0.25f + 0.75f * sunWeight);
         int[] rgb = currentHorizonBase.blend(DUSK_HORIZON, duskAmount, new int[3]);
-        builder.vertex(pose, x, y, z).color(rgb[0], rgb[1], rgb[2], 255).endVertex();
+        builder.addVertex(pose, x, y, z).setColor(rgb[0], rgb[1], rgb[2], 255);
     }
 
 
@@ -1243,7 +1243,7 @@ public final class VRMenuSky {
         float x = center.x + right.x * rightOffset + up.x * upOffset;
         float y = center.y + right.y * rightOffset + up.y * upOffset;
         float z = center.z + right.z * rightOffset + up.z * upOffset;
-        builder.vertex(pose, x, y, z).uv(u, v).endVertex();
+        builder.addVertex(pose, x, y, z).setUv(u, v);
     }
 
 
@@ -1257,7 +1257,7 @@ public final class VRMenuSky {
     private static void starVertex(BufferBuilder builder,
                                    Matrix4f pose,
                                    float[] p, int alpha) {
-        builder.vertex(pose, p[0], p[1], p[2]).color(255, 255, 255, alpha).endVertex();
+        builder.addVertex(pose, p[0], p[1], p[2]).setColor(255, 255, 255, alpha);
     }
 
     // ---- GLOWING DOTS
@@ -1298,7 +1298,7 @@ public final class VRMenuSky {
         float x = cx + right.x * offsetX + up.x * offsetY;
         float y = cy + right.y * offsetX + up.y * offsetY;
         float z = cz + right.z * offsetX + up.z * offsetY;
-        builder.vertex(pose, x, y, z).uv(u, v).color(r, g, b, a).endVertex();
+        builder.addVertex(pose, x, y, z).setUv(u, v).setColor(r, g, b, a);
     }
 
     private static void ensureGlowSprite() {
