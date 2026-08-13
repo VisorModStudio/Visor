@@ -7,7 +7,6 @@ import net.irisshaders.iris.compat.sodium.impl.shader_overrides.IrisChunkProgram
 import net.irisshaders.iris.compat.sodium.impl.shader_overrides.IrisChunkShaderInterface;
 import net.irisshaders.iris.compat.sodium.impl.shader_overrides.IrisTerrainPass;
 import net.irisshaders.iris.pipeline.SodiumTerrainPipeline;
-import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
@@ -27,6 +26,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 
 import java.util.EnumMap;
 
+
 @Pseudo
 @ClassDependentMixin("me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType")
 @Mixin(value = IrisChunkProgramOverrides.class, remap = false)
@@ -40,7 +40,8 @@ public class IrisChunkProgramOverridesMixin {
             new EnumMap<>(VRRenderPass.class);
 
     @Redirect(method = "getProgramOverride", at = @At(value = "INVOKE",
-            target = "Lnet/irisshaders/iris/compat/sodium/impl/shader_overrides/IrisChunkProgramOverrides;createShaders(Lnet/irisshaders/iris/pipeline/SodiumTerrainPipeline;Lme/jellysquid/mods/sodium/client/render/chunk/vertex/format/ChunkVertexType;)V"))
+            target = "Lnet/irisshaders/iris/compat/sodium/impl/shader_overrides/IrisChunkProgramOverrides;createShaders(Lnet/irisshaders/iris/pipeline/SodiumTerrainPipeline;Lme/jellysquid/mods/sodium/client/render/chunk/vertex/format/ChunkVertexType;)V"),
+            expect = 0, require = 0)
     private void visor$createAllPassShaders(IrisChunkProgramOverrides instance,
                                             SodiumTerrainPipeline sodiumTerrainPipeline,
                                             ChunkVertexType vertexType) {
@@ -55,10 +56,8 @@ public class IrisChunkProgramOverridesMixin {
                 if (!pass.isWorld()) {
                     continue;
                 }
-                if (!(manager.visor$getPassPipeline(pass) instanceof WorldRenderingPipeline passPipeline)) {
-                    continue;
-                }
-                SodiumTerrainPipeline passSodiumPipeline = passPipeline.getSodiumTerrainPipeline();
+                SodiumTerrainPipeline passSodiumPipeline =
+                        visor$getSodiumTerrainPipeline(manager.visor$getPassPipeline(pass));
                 if (passSodiumPipeline == null) {
                     continue;
                 }
@@ -75,12 +74,30 @@ public class IrisChunkProgramOverridesMixin {
             visor$deletePassPrograms();
         }
         SodiumTerrainPipeline baseSodiumPipeline = sodiumTerrainPipeline;
-        if (((IrisPipelineManagerExtension) Iris.getPipelineManager())
-                .visor$getBasePipeline() instanceof WorldRenderingPipeline basePipeline
-                && basePipeline.getSodiumTerrainPipeline() != null) {
-            baseSodiumPipeline = basePipeline.getSodiumTerrainPipeline();
+        SodiumTerrainPipeline fromBasePipeline = visor$getSodiumTerrainPipeline(
+                ((IrisPipelineManagerExtension) Iris.getPipelineManager()).visor$getBasePipeline());
+        if (fromBasePipeline != null) {
+            baseSodiumPipeline = fromBasePipeline;
         }
         instance.createShaders(baseSodiumPipeline, vertexType);
+    }
+
+    /**
+     * Old Iris' WorldRenderingPipeline#getSodiumTerrainPipeline does not exist in the
+     * Iris version compiled against, so the legacy pipeline is accessed reflectively.
+     */
+    @Unique
+    private static SodiumTerrainPipeline visor$getSodiumTerrainPipeline(Object pipeline) {
+        if (pipeline == null) {
+            return null;
+        }
+        try {
+            return (SodiumTerrainPipeline) pipeline.getClass()
+                    .getMethod("getSodiumTerrainPipeline")
+                    .invoke(pipeline);
+        } catch (ReflectiveOperationException | ClassCastException e) {
+            return null;
+        }
     }
 
     @Redirect(method = "getProgramOverride", at = @At(value = "INVOKE",

@@ -31,7 +31,7 @@ public class IrisLodRenderProgramVRMixin {
             return;
         }
 
-        Matrix4f vrProjection = CapturedRenderingState.INSTANCE.getGbufferProjection();
+        Matrix4f vrProjection = new Matrix4f(CapturedRenderingState.INSTANCE.getGbufferProjection());
         projectionMatrix.m00(vrProjection.m00());
         projectionMatrix.m11(vrProjection.m11());
         projectionMatrix.m20(vrProjection.m20());

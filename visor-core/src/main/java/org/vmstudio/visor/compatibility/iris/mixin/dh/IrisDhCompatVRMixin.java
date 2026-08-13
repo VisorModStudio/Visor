@@ -21,7 +21,7 @@ public class IrisDhCompatVRMixin {
             return;
         }
 
-        Matrix4f vrProjection = CapturedRenderingState.INSTANCE.getGbufferProjection();
+        Matrix4f vrProjection = new Matrix4f(CapturedRenderingState.INSTANCE.getGbufferProjection());
         Matrix4f dhProjection = cir.getReturnValue();
         if (dhProjection == null) {
             return;

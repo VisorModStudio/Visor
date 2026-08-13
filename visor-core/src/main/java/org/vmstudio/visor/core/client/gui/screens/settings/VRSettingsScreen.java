@@ -613,12 +613,12 @@ public class VRSettingsScreen extends Screen {
         return success;
     }
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double delta) {
         if(isOverCategoryList(mouseX, mouseY) && maxCategoryScroll() > 0){
             scrollCategories(delta < 0 ? 1 : -1);
             return true;
         }
         options.mouseScrolled(mouseX, mouseY, delta);
-        return super.mouseScrolled(mouseX, mouseY, delta);
+        return super.mouseScrolled(mouseX, mouseY, 0, delta);
     }
 }
