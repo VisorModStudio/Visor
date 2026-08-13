@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -28,7 +29,7 @@ public class VROverlayThirdPersonCamera extends VROverlayScreen {
     public static final String ID = "third_person_camera";
 
     private final GuiTexture cameraTexture = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID, "textures/gui/overlays/camera.png"
             )
     );

@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.widgets.CreateOverlayWidgetSet;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.widgets.OverlaysWidgetSet;
@@ -40,17 +41,17 @@ public class VROverlaySettings extends VROverlayScreen
 
     public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.overlays.find");
 
-    private static final ResourceLocation BACKGROUND_OVERLAYS = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_OVERLAYS = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_1.png"
     );
-    private static final ResourceLocation BACKGROUND_CREATE = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_CREATE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_2.png"
     );
 
-    private static final ResourceLocation BACKGROUND_EXTRA = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_EXTRA = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_extra_1.png"
     );
-    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = new ResourceLocation(
+    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_extra_2.png"
     );
 

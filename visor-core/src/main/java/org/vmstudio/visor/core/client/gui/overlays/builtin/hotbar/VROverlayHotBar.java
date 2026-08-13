@@ -18,6 +18,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -49,29 +50,29 @@ public class VROverlayHotBar extends VROverlayRadialSelector
     private static final int SLOT_NUMBERS_IMAGE_DIFF = (112-HOTBAR_IMAGE_SIZE)/2;
 
     private GuiTexture hotbarSlotNumbers = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/slot_numbers.png"
             )
     );
 
     private GuiTexture hotbarSelectedMain0Tex = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected0.png"
             )
     );
     private GuiTexture hotbarSelectedMain1Tex = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_main_selected1.png"
             )
     );
 
     private GuiTexture hotbarSelectedOffhand0Tex = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected0.png"
             )
     );
     private GuiTexture hotbarSelectedOffhand1Tex = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     VisorAPI.MOD_ID,"textures/gui/overlays/hotbar/hotbar_offhand_selected1.png"
             )
     );

@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.gui.helpers.ScaleHelper;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
@@ -30,14 +31,14 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class VRSettingsScreen extends Screen {
 
     public static AtumColor INACTIVE_COLOR = AtumColor.immutable(91,91,91,255);
-    private static final ResourceLocation RESOURCE = new ResourceLocation(
+    private static final ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;
     private static final int RESOURCE_HEIGHT = 260;
 
     public static final GuiTexture BACKGROUND = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     "visor:textures/gui/settings/background.png"
             ),
             0, 0,

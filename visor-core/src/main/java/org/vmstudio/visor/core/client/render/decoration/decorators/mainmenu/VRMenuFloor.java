@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 /**
@@ -14,7 +15,7 @@ import org.vmstudio.visor.core.client.utils.ClientUtils;
  */
 public final class VRMenuFloor {
     private static final ResourceLocation floorTexture =
-            new ResourceLocation(VRClientSettings.getMainMenuFloor());
+            McVersionUtils.newResourceLoc(VRClientSettings.getMainMenuFloor());
 
     private VRMenuFloor() {
     }

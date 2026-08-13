@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.gui.widgets.sets.WidgetSet;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -159,7 +160,7 @@ public class SetupIconWidgetSet implements WidgetSet {
                 return;
             }
 
-            var resourceLoc = new ResourceLocation(path);
+            var resourceLoc = McVersionUtils.newResourceLoc(path);
 
 
             var resource = resourceManager.getResource(resourceLoc);
