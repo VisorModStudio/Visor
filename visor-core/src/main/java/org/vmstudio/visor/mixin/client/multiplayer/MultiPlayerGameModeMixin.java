@@ -10,7 +10,7 @@ import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.server.VRServerSettings;
-import org.vmstudio.visor.compatibility.ItemClassifier;
+import org.vmstudio.visor.api.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;

@@ -1,4 +1,4 @@
-package org.vmstudio.visor.compatibility;
+package org.vmstudio.visor.api.compatibility;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;

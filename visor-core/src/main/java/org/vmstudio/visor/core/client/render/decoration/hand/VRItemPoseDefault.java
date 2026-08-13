@@ -22,7 +22,7 @@ import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.compatibility.ItemClassifier;
+import org.vmstudio.visor.api.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
