@@ -33,6 +33,9 @@ dependencies {
     modImplementation(libs.fabric.loader)
 
 
+    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
+
+
     // ---- LOCAL DEPENDENCY
     // modCompileOnly: flatDir jars have no maven coordinates, so they must stay out of the published POM (bundled via shadowCommon instead)
     shadowCommon(modCompileOnly(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[52,)"
+loaderVersion = "[46,)"
 license = "MPL-2.0"
 
 [[mods]]

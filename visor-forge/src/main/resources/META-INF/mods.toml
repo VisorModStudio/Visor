@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[52,)"
+loaderVersion = "[46,)"
 license = "MPL-2.0"
 
 [[mods]]
@@ -17,13 +17,13 @@ The VR mod that is built to support addons
 [[dependencies.visor]]
 modId = "forge"
 mandatory = true
-versionRange = "[52,)"
+versionRange = "[46,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.visor]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.21,1.21.1]"
+versionRange = "[1.20,1.20.1]"
 ordering = "AFTER"
 side = "BOTH"

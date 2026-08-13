@@ -35,6 +35,9 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:$fabricApiVersion"
 
 
+    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
+
+
 
     // ---- LOCAL DEPENDENCY
     shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }

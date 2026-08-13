@@ -34,6 +34,7 @@ plugins {
     id 'maven-publish'
     alias(libs.plugins.architectury)
     alias(libs.plugins.architectury.loom)  apply false
+    alias(libs.plugins.loom.quiltflower)   apply false
 }
 
 group = project_group
@@ -52,6 +53,7 @@ subprojects {
     apply plugin: libs.plugins.architectury.asProvider().get().pluginId
 
     apply plugin: libs.plugins.architectury.loom.get().pluginId
+    apply plugin: libs.plugins.loom.quiltflower.get().pluginId
 
 
 
@@ -68,7 +70,7 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
-        options.release.set(21)
+        options.release.set(17)
     }
 
 
