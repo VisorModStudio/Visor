@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.player.VisorPlayer;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.api.server.player.VisorServerPlayer;
 
@@ -42,7 +43,7 @@ public interface VisorAPI {
 
     /**Visor mod icon**/
     GuiTexture NOD_ICON = new GuiTexture(
-            new ResourceLocation(VisorAPI.MOD_ID, "icon.png")
+            McVersionUtils.newResourceLoc(VisorAPI.MOD_ID, "icon.png")
     );
 
     /**

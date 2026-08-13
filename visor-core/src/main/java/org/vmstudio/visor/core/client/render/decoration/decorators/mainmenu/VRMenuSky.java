@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -64,11 +65,11 @@ public final class VRMenuSky {
     private static final long SKY_UPDATE_FREQUENCY = 200L;
 
     // ---- CELESTIAL BODIES ----
-    private static final ResourceLocation SUN_TEXTURE = new ResourceLocation("textures/environment/sun.png");
+    private static final ResourceLocation SUN_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/sun.png");
     private static final float SUN_DISTANCE = 92.0f;
     private static final float SUN_SIZE = 13.0f;
 
-    private static final ResourceLocation MOON_TEXTURE = new ResourceLocation("textures/environment/moon_phases.png");
+    private static final ResourceLocation MOON_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/moon_phases.png");
     private static final float MOON_DISTANCE = 90.0f;
     private static final float MOON_SIZE = 10.0f;
 

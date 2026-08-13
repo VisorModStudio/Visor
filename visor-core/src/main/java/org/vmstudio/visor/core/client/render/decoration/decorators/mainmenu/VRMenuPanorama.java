@@ -8,15 +8,16 @@ import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 
 public class VRMenuPanorama {
-    private static final ResourceLocation cubeFront = new ResourceLocation(VRClientSettings.getPanoramaFront());
-    private static final ResourceLocation cubeBack = new ResourceLocation(VRClientSettings.getPanoramaBack());
-    private static final ResourceLocation cubeRight = new ResourceLocation(VRClientSettings.getPanoramaRight());
-    private static final ResourceLocation cubeLeft = new ResourceLocation(VRClientSettings.getPanoramaLeft());
-    private static final ResourceLocation cubeUp = new ResourceLocation(VRClientSettings.getPanoramaUp());
-    private static final ResourceLocation cubeBelow = new ResourceLocation(VRClientSettings.getPanoramaBelow());
+    private static final ResourceLocation cubeFront = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaFront());
+    private static final ResourceLocation cubeBack = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBack());
+    private static final ResourceLocation cubeRight = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaRight());
+    private static final ResourceLocation cubeLeft = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaLeft());
+    private static final ResourceLocation cubeUp = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaUp());
+    private static final ResourceLocation cubeBelow = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBelow());
 
     public static void render(PoseStack poseStack) {
         BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();

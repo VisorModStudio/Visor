@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 /**
  * Base interface for Visor addons.
@@ -16,7 +17,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 public interface VisorAddon {
 
     GuiTexture MISSING_ICON = new GuiTexture(
-            new ResourceLocation(VisorAPI.MOD_ID, "textures/gui/overlays/missing_icon.png")
+            McVersionUtils.newResourceLoc(VisorAPI.MOD_ID, "textures/gui/overlays/missing_icon.png")
     );
 
     /**

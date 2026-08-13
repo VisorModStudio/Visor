@@ -2,10 +2,11 @@ package org.vmstudio.visor.core.client.gui.screens.overlayoptions.pose;
 
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public interface OptionsPoseTextures {
 
-    ResourceLocation RESOURCE_2 = new ResourceLocation(
+    ResourceLocation RESOURCE_2 = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/general_2.png"
     );
     int TEX_WIDTH_2 = 119;

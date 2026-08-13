@@ -2,17 +2,18 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.settings;
 
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public interface SettingsTextures {
 
-    ResourceLocation RESOURCE = new ResourceLocation(
+    ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/general_1.png"
     );
     int TEX_WIDTH = 179;
     int TEX_HEIGHT = 188;
 
     GuiTexture FILTER_BACKGROUND = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     "visor:textures/gui/overlays/settings/bg_main_filters.png"
             )
     );

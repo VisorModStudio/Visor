@@ -1,9 +1,10 @@
-package org.vmstudio.visor.compatibility;
+package org.vmstudio.visor.api.compatibility;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 //@TODO use it in more cases with ItemClassifier
 public class VisorItemTags {
@@ -15,6 +16,6 @@ public class VisorItemTags {
     public static final TagKey<Item> SHIELDS = tag("shields");
 
     private static TagKey<Item> tag(String name) {
-        return TagKey.create(Registries.ITEM, new ResourceLocation("visor", name));
+        return TagKey.create(Registries.ITEM, McVersionUtils.newResourceLoc("visor", name));
     }
 }

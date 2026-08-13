@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class VisorNetwork {
         throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
-    public static final ResourceLocation CORE_CHANNEL_ID = new ResourceLocation("visor:channel");
+    public static final ResourceLocation CORE_CHANNEL_ID = McVersionUtils.newResourceLoc("visor:channel");
 
     public static final int CORE_NETWORK_VERSION = 5; // 5: since Visor 0.5.0
 

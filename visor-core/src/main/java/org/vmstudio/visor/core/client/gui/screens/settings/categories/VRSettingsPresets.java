@@ -16,6 +16,7 @@ import org.vmstudio.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -51,7 +52,7 @@ public class VRSettingsPresets extends VROptionsSet {
     );
 
     public static final GuiTexture BACKGROUND_BUILT_IN = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     "visor:textures/gui/settings/presets_built_in_background.png"
             ),
             0, 0,
@@ -59,7 +60,7 @@ public class VRSettingsPresets extends VROptionsSet {
             144, 125
     );
     public static final GuiTexture BACKGROUND_CUSTOM = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     "visor:textures/gui/settings/presets_custom_background.png"
             ),
             0, 0,
@@ -67,7 +68,7 @@ public class VRSettingsPresets extends VROptionsSet {
             144, 125
     );
     public static final GuiTexture BACKGROUND_CREATE = new GuiTexture(
-            new ResourceLocation(
+            McVersionUtils.newResourceLoc(
                     "visor:textures/gui/settings/presets_create_background.png"
             ),
             0, 0,
@@ -76,7 +77,7 @@ public class VRSettingsPresets extends VROptionsSet {
     );
 
 
-    private static final ResourceLocation RESOURCE = new ResourceLocation(
+    private static final ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;

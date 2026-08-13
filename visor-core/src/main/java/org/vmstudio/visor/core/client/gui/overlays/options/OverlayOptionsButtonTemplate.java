@@ -12,6 +12,7 @@ import org.vmstudio.visor.api.client.input.action.VRAction;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.gui.screens.overlayoptions.OptionsScreenButtonTemplate;
 import org.vmstudio.visor.core.client.input.actions.ActionLeftMouse;
 import org.vmstudio.visor.core.client.input.actions.ActionMiddleMouse;
@@ -217,7 +218,7 @@ public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOpti
                     this.rawTexturePath = null;
                 } else {
                     ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-                    var resourceLoc = new ResourceLocation(rawTexturePath);
+                    var resourceLoc = McVersionUtils.newResourceLoc(rawTexturePath);
                     var resource = resourceManager.getResource(resourceLoc);
                     if (resource.isEmpty()) {
                         this.rawTexturePath = null;
@@ -229,7 +230,7 @@ public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOpti
         }
 
         this.texturePath = this.rawTexturePath != null
-                ? GuiTexture.of(new ResourceLocation(this.rawTexturePath))
+                ? GuiTexture.of(McVersionUtils.newResourceLoc(this.rawTexturePath))
                 : VisorAddon.MISSING_ICON;
 
         changesNotSaved = true;
@@ -248,7 +249,7 @@ public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOpti
                     this.rawHoverTexturePath = null;
                 } else {
                     ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-                    var resourceLoc = new ResourceLocation(rawHoverTexturePath);
+                    var resourceLoc = McVersionUtils.newResourceLoc(rawHoverTexturePath);
                     var resource = resourceManager.getResource(resourceLoc);
                     if (resource.isEmpty()) {
                         this.rawHoverTexturePath = null;
@@ -260,7 +261,7 @@ public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOpti
         }
 
         this.hoverTexturePath = this.rawHoverTexturePath != null
-                ? GuiTexture.of(new ResourceLocation(this.rawHoverTexturePath))
+                ? GuiTexture.of(McVersionUtils.newResourceLoc(this.rawHoverTexturePath))
                 : null;
 
         changesNotSaved = true;

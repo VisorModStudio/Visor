@@ -112,6 +112,9 @@ accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWith
 
 # to create custom END shader
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+accessible class net/minecraft/client/renderer/RenderType$CompositeState
+accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
+accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 
 # to render item activation outside of gamerenderer
 accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
@@ -140,3 +143,6 @@ accessible method net/minecraft/world/item/BrushItem spawnDustParticles (Lnet/mi
 
 # do not kick climbing players
 accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I
+
+# for fishinghook mixin superclass ctor
+accessible method net/minecraft/world/entity/projectile/Projectile <init> (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V

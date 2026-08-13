@@ -1,4 +1,4 @@
-package org.vmstudio.visor.compatibility;
+package org.vmstudio.visor.api.compatibility;
 
 import lombok.Getter;
 import net.minecraft.world.level.block.AttachedStemBlock;

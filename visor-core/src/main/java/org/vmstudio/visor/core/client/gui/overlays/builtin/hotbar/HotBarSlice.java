@@ -3,36 +3,37 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar;
 import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public enum HotBarSlice {
-    CENTER(0, GuiTexture.of(new ResourceLocation(
+    CENTER(0, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/default.png"
     ))),
-    TOP(1, GuiTexture.of(new ResourceLocation(
+    TOP(1, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/top.png"
     ))),
-    TOP_RIGHT(2, GuiTexture.of(new ResourceLocation(
+    TOP_RIGHT(2, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/top_right.png"
     ))),
-    RIGHT(3, GuiTexture.of(new ResourceLocation(
+    RIGHT(3, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/right.png"
     ))),
-    BOTTOM_RIGHT(4, GuiTexture.of(new ResourceLocation(
+    BOTTOM_RIGHT(4, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/bottom_right.png"
     ))),
-    BOTTOM(5, GuiTexture.of(new ResourceLocation(
+    BOTTOM(5, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/bottom.png"
     ))),
-    BOTTOM_LEFT(6, GuiTexture.of(new ResourceLocation(
+    BOTTOM_LEFT(6, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/bottom_left.png"
     ))),
-    LEFT(7, GuiTexture.of(new ResourceLocation(
+    LEFT(7, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/left.png"
     ))),
-    TOP_LEFT(8, GuiTexture.of(new ResourceLocation(
+    TOP_LEFT(8, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/top_left.png"
     ))),
-    NOT_SELECTED(-1, GuiTexture.of(new ResourceLocation(
+    NOT_SELECTED(-1, GuiTexture.of(McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/hotbar/default.png"
     )));
     @Getter
