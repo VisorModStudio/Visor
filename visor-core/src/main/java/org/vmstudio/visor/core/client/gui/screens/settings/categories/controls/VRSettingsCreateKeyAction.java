@@ -131,9 +131,6 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
     @Override
     public void onTick() {
         super.onTick();
-        actionIdEdit.tick();
-        actionNameEdit.tick();
-        actionKeyEdit.tick();
 
         checkCreateRequirements();
     }

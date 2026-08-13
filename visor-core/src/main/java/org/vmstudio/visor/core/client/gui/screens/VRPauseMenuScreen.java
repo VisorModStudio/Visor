@@ -204,8 +204,8 @@ public class VRPauseMenuScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics gfx, int mouseX, int mouseY, float delta) {
-        super.renderBackground(gfx);
+    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(gfx, mouseX, mouseY, partialTick);
 
         int cx = this.width / 2;
         int startY = this.height / 2 - totalColumnHeight() / 2;

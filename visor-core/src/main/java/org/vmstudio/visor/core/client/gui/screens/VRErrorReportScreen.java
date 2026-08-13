@@ -79,8 +79,8 @@ public class VRErrorReportScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics gfx, int mx, int my, float pt) {
-        this.renderBackground(gfx);
+    public void render(@NotNull GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(gfx, mouseX, mouseY, partialTick);
 
         gfx.drawCenteredString(this.font, this.title, this.width/2, 15, 0xFF5555);
 
@@ -92,7 +92,7 @@ public class VRErrorReportScreen extends Screen {
             y += this.font.lineHeight;
         }
 
-        super.render(gfx, mx, my, pt);
+        super.render(gfx, mouseX, mouseY, partialTick);
     }
 
     public static void catchError(Throwable t, boolean log) {

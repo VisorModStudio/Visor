@@ -118,10 +118,6 @@ public class SetupIdentityWidgetSet implements WidgetSet {
 
     @Override
     public void onTick() {
-        if(idWidget != null) {
-            idWidget.tick();
-        }
-        nameWidget.tick();
         descriptionWidget.tick();
         setupIconWidget.onTick();
     }

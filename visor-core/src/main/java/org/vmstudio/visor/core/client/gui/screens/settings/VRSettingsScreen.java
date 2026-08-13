@@ -433,10 +433,9 @@ public class VRSettingsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics) {
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
-
 
     public void openCategory(@NotNull VRSettingsCategory category){
         this.settingsCategory = category;

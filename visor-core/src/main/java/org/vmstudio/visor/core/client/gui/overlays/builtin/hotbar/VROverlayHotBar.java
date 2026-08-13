@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar;
 
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.MathUtils;
+import net.minecraft.core.component.DataComponents;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
@@ -316,8 +317,8 @@ public class VROverlayHotBar extends VROverlayRadialSelector
 
         MutableComponent itemName = Component.empty()
                 .append(itemStack.getHoverName())
-                .withStyle(itemStack.getRarity().color);
-        if (itemStack.hasCustomHoverName()) {
+                .withStyle(itemStack.getRarity().color());
+        if (itemStack.has(DataComponents.CUSTOM_NAME)) {
             itemName.withStyle(ChatFormatting.ITALIC);
         }
 

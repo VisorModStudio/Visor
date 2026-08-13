@@ -86,8 +86,6 @@ public class VRSettingsAddonsScreen extends Screen {
                     )
             );
         }
-        list.setRenderBackground(false);
-        list.setRenderTopAndBottom(false);
         this.addWidget(this.list);
 
         //Back button
@@ -112,9 +110,8 @@ public class VRSettingsAddonsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
-        this.list.renderBackground(guiGraphics);
         this.list.render(guiGraphics, mouseX, mouseY, partialTicks);
 
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
@@ -125,7 +122,8 @@ public class VRSettingsAddonsScreen extends Screen {
 
     private static class AddonList extends ObjectSelectionList<AddonEntry> {
         public AddonList(int width, int height, int top, int bottom, int itemHeight) {
-            super(MC, width, height, top, bottom, itemHeight);
+            // 1.21.1: the list is positioned by y + its own height instead of top/bottom
+            super(MC, width, bottom - top, top, itemHeight);
         }
 
         @Override
@@ -139,10 +137,10 @@ public class VRSettingsAddonsScreen extends Screen {
         }
 
         @Override
-        protected void renderBackground(GuiGraphics guiGraphics) {
+        protected void renderListBackground(GuiGraphics guiGraphics) {
             guiGraphics.fill(
-                    this.x0, this.y0,
-                    this.x1, this.y1,
+                    this.getX(), this.getY(),
+                    this.getRight(), this.getBottom(),
                     AtumColor.BLACK.withAlpha(0.5f).asInt()
             );
         }

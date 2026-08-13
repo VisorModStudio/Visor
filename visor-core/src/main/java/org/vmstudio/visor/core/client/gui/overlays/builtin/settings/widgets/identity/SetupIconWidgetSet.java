@@ -138,7 +138,7 @@ public class SetupIconWidgetSet implements WidgetSet {
 
     @Override
     public void onTick() {
-        editorTexturePath.tick();
+
     }
 
     public void setIconPath(String path){

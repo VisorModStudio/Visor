@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.gui.overlays.templates;
 
 
 
+import net.minecraft.client.gui.screens.ChatScreen;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
@@ -39,7 +40,8 @@ public class VROverlayChat extends VROverlayTemplateScreen {
     protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
         minecraft.gui.getChat().render(
                 guiGraphics,
-                minecraft.gui.getGuiTicks(),0, 0
+                minecraft.gui.getGuiTicks(),0, 0,
+                minecraft.screen instanceof ChatScreen
         );
     }
 

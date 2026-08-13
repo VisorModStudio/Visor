@@ -230,7 +230,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     @Override
     public void onRender(@NotNull GuiGraphics guiGraphics,
                          int mouseX, int mouseY, float partialTicks) {
-        renderBackground(guiGraphics);
+        renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         poseEditorWidgetSet.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
     }
 

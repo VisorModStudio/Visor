@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.joml.Matrix4fStack;
 import org.vmstudio.visor.api.client.gui.VRKeyboardAccessor;
 import org.vmstudio.visor.api.client.gui.VROverlayManager;
 import org.vmstudio.visor.api.client.gui.OverlayConfigAccessor;
@@ -107,10 +108,10 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
         RenderSystem.backupProjectionMatrix();
 
-        PoseStack posestack = RenderSystem.getModelViewStack();
-        posestack.pushPose();
-        posestack.setIdentity();
-        posestack.translate(0.0D, 0.0D, -11000.0D);
+        Matrix4fStack posestack = RenderSystem.getModelViewStack();
+        posestack.pushMatrix();
+        posestack.identity();
+        posestack.translate(0.0f, 0.0f, -11000.0f);
         RenderSystem.applyModelViewMatrix();
         RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
@@ -173,7 +174,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         // --- Restore ---
         RenderSystem.restoreProjectionMatrix();
 
-        posestack.popPose();
+        posestack.popMatrix();
 
     }
 

@@ -926,8 +926,6 @@ public class VRSettingsPresets extends VROptionsSet {
         @Override
         public void onTick() {
             updateConfirmState();
-            idEditBix.tick();
-            nameEditBix.tick();
             descriptionTextBox.tick();
         }
 

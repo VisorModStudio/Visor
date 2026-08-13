@@ -33,8 +33,6 @@ import org.vmstudio.visor.extensions.common.ServerPlayerGameModeExtension;
 
 import java.util.function.Consumer;
 
-import static net.minecraft.server.network.ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
-
 public class ServerPacketHandler {
 
 
@@ -175,7 +173,7 @@ public class ServerPacketHandler {
                     }
 
                     AABB aABB = entity.getBoundingBox();
-                    if (aABB.distanceToSqr(serverPlayer.getEyePosition()) < MAX_INTERACTION_DISTANCE) {
+                    if (aABB.distanceToSqr(serverPlayer.getEyePosition()) < serverPlayer.entityInteractionRange()) {
 
                         if (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrb)
                                 && !(entity instanceof AbstractArrow) && entity != serverPlayer) {
