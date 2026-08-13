@@ -15,7 +15,6 @@ jetbrains              = "26.1.0"
 #Core
 minecraftVersion       = "1.20.1"
 parchment              = "2023.09.03"
-architectury-lib       = "9.2.14"
 lwjgl                  = "3.3.6"
 atum-vr                = "1.13.0beta"
 atum-config            = '1.2.0pre3'
@@ -47,7 +46,6 @@ lombok           = { module = "org.projectlombok:lombok",           version.ref 
 jetbrains        = { module = "org.jetbrains:annotations",         version.ref = "jetbrains" }
 
 # Core
-architectury-lib   = {module = "dev.architectury:architectury-fabric", version.ref = "architectury-lib"}
 lwjgl-openxr       = { module = "org.lwjgl:lwjgl-openxr",           version.ref = "lwjgl" }
 lwjgl-vulkan       = { module = "org.lwjgl:lwjgl-vulkan",           version.ref = "lwjgl" }
 atumvr-api         = { module = "com.github.Phoenix-Ra.AtumVR:atumvr-api",     version.ref = "atum-vr"}

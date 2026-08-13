@@ -33,7 +33,6 @@ dependencies {
     modImplementation(libs.fabric.loader)
 
 
-    modApi(libs.architectury.lib) { exclude group: "net.fabricmc" exclude group: "net.fabricmc.fabric-api" }
 
 
     // ---- LOCAL DEPENDENCY
