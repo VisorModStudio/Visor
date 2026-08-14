@@ -5,8 +5,11 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.event.EventNetworkChannel;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraftforge.event.network.CustomPayloadEvent;
+import net.minecraftforge.network.ChannelBuilder;
+import net.minecraftforge.network.EventNetworkChannel;
+import net.minecraftforge.network.NetworkProtocol;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
@@ -19,6 +22,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,8 +37,6 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData;
-import net.minecraftforge.network.NetworkDirection;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -98,24 +100,34 @@ public class ForgeModLoader implements ModLoader {
         return true;
     }
 
+    /**
+     * 1.21.1: Forge's ENTITY_REACH became the vanilla
+     * ENTITY_INTERACTION_RANGE attribute, and item modifiers are
+     * component-based (forEachModifier); AttributeModifier is a record
+     * with renamed operations
+     */
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {
-        Collection<AttributeModifier> attributes = itemStack.getAttributeModifiers(slot)
-                .get(ForgeMod.ENTITY_REACH.get());
+        List<AttributeModifier> attributes = new ArrayList<>();
+        itemStack.forEachModifier(slot, (holder, modifier) -> {
+            if (holder == Attributes.ENTITY_INTERACTION_RANGE) {
+                attributes.add(modifier);
+            }
+        });
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.ADDITION) {
-                baseRange += entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_VALUE) {
+                baseRange += entry.amount();
             }
         }
         double totalRange = baseRange;
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.MULTIPLY_BASE) {
-                totalRange += baseRange * entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_BASE) {
+                totalRange += baseRange * entry.amount();
             }
         }
         for (AttributeModifier entry : attributes) {
-            if (entry.getOperation() == AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                totalRange *= 1.0 + entry.getAmount();
+            if (entry.operation() == AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL) {
+                totalRange *= 1.0 + entry.amount();
             }
         }
         return totalRange;
@@ -158,29 +170,32 @@ public class ForgeModLoader implements ModLoader {
 
     }
 
+    /**
+     * Forge 52: ChannelBuilder moved to its own class with int protocol
+     * versions, and CustomPayloadEvent replaced NetworkEvent (context is
+     * no longer behind a Supplier)
+     */
     @Override
     public void registerNetworkChannel(@NotNull VisorChannel channel) {
-        String version = String.valueOf(channel.getNetworkVersion());
-        EventNetworkChannel eventChannel = NetworkRegistry.ChannelBuilder
+        EventNetworkChannel eventChannel = ChannelBuilder
                 .named(channel.getChannelId())
-                .clientAcceptedVersions(s -> true)
-                .serverAcceptedVersions(s -> true)
-                .networkProtocolVersion(() -> version)
+                .networkProtocolVersion(channel.getNetworkVersion())
+                .optional()
                 .eventNetworkChannel();
 
-        eventChannel.addListener(event -> {
+        eventChannel.addListener((CustomPayloadEvent event) -> {
             FriendlyByteBuf payload = event.getPayload();
             if (payload == null) return;
 
             FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
             copy.writeBytes(payload.copy());
 
-            var context = event.getSource().get();
-            if (context.getDirection().getOriginationSide().isClient()) {
+            CustomPayloadEvent.Context context = event.getSource();
+            if (context.isServerSide()) {
                 if (channel.hasPacketsToServer() && context.getSender() != null) {
                     var sender = context.getSender();
                     context.enqueueWork(() -> channel.handleToServer(copy, sender,
-                            p -> context.getNetworkManager().send(
+                            p -> context.getConnection().send(
                                     ModLoader.get().createPacketToClient(channel.getChannelId(), p)
                             )));
                 }
@@ -196,17 +211,13 @@ public class ForgeModLoader implements ModLoader {
     @Override
     public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
                                                    @NotNull VisorPayloadToClient payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return NetworkDirection.PLAY_TO_CLIENT.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
+        return NetworkProtocol.PLAY.buildPacket(PacketFlow.CLIENTBOUND, channelId, payload::write);
     }
 
     @Override
     public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
                                                    @NotNull VisorPayloadToServer payload) {
-        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
-        payload.write(buffer);
-        return NetworkDirection.PLAY_TO_SERVER.buildPacket(new ImmutablePair<>(buffer, 0), channelId).getThis();
+        return NetworkProtocol.PLAY.buildPacket(PacketFlow.SERVERBOUND, channelId, payload::write);
     }
 
     @Override
@@ -233,7 +244,9 @@ public class ForgeModLoader implements ModLoader {
         List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
         if (callbacks == null || callbacks.isEmpty()) return;
 
-        PoseStack poseStack = event.getPoseStack();
+        // Forge 52: the event exposes the model-view Matrix4f instead of a PoseStack
+        PoseStack poseStack = new PoseStack();
+        poseStack.mulPose(event.getPoseStack());
         float partialTicks = event.getPartialTick();
 
         for (RenderPipelineCallback callback : callbacks) {

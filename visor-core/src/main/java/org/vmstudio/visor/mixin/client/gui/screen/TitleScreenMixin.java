@@ -93,11 +93,16 @@ public abstract class TitleScreenMixin extends Screen {
         }
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(FF)V"), method = "render", index = 1)
-    public float visor$noPanorama(float alpha) {
-        return VisorState.get().isActive()
-                ? 0.0F
-                : alpha;
+    /**
+     * 1.21.1: the panorama render moved behind TitleScreen#renderPanorama
+     * (which overrides Screen's with its own fade); cancel it in VR instead
+     * of overriding, so the vanilla fade logic stays intact outside VR
+     */
+    @Inject(method = "renderPanorama", at = @At("HEAD"), cancellable = true)
+    private void visor$noPanorama(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci) {
+        if (VisorState.get().isActive()) {
+            ci.cancel();
+        }
     }
 
     @Unique

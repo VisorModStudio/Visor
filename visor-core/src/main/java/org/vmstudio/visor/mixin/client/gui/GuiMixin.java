@@ -8,7 +8,6 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.BossHealthOverlay;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -32,7 +31,8 @@ public abstract class GuiMixin implements GuiExtension {
     /* ********************************** *\
   //--------DISABLE VANILLA OVERLAYS--------\\
     \* ********************************** */
-    @Inject(at = @At("HEAD"), method = "renderHotbar", cancellable = true)
+    // 1.21.1: renderHotbar split into renderHotbarAndDecorations/renderItemHotbar
+    @Inject(at = @At("HEAD"), method = "renderItemHotbar", cancellable = true)
     public void visor$noVanillaHotbar(CallbackInfo ci) {
         if(VisorState.get().isNotActive()
                 || (minecraft.screen == null
@@ -64,28 +64,27 @@ public abstract class GuiMixin implements GuiExtension {
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
-    @Redirect(at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/components/BossHealthOverlay;render(Lnet/minecraft/client/gui/GuiGraphics;)V"),
-            method = "render")
-    public void visor$noVanillaGuiBossHealth(BossHealthOverlay instance,
-                                             GuiGraphics guiGraphics) {
+    // 1.21.1: the level number is drawn by its own layer now
+    @Inject(at = @At("HEAD"), method = "renderExperienceLevel", cancellable = true)
+    public void visor$noVanillaExperienceLevel(CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
-                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) {
-            instance.render(guiGraphics);
-        }
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
+        ci.cancel();
     }
+    // 1.21.1: the boss bar call lives in a constructor lambda now,
+    // so it is cancelled in BossHealthOverlayMixin instead of redirected here
     @Redirect(at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;III)V"),
-            method = "render")
+            target = "Lnet/minecraft/client/gui/components/ChatComponent;render(Lnet/minecraft/client/gui/GuiGraphics;IIIZ)V"),
+            method = "renderChat")
     public void visor$noVanillaGuiChat(ChatComponent instance,
                                        GuiGraphics guiGraphics,
-                                       int i, int j, int k) {
+                                       int i, int j, int k, boolean focused) {
         if(VisorState.get().isNotActive()) {
-            instance.render(guiGraphics,i,j,k);
+            instance.render(guiGraphics, i, j, k, focused);
             return;
         }
         if(minecraft.screen instanceof ChatScreen) {
-            instance.render(guiGraphics, i, j, k);
+            instance.render(guiGraphics, i, j, k, focused);
         }
     }
 
@@ -129,12 +128,13 @@ public abstract class GuiMixin implements GuiExtension {
     }
 
     @Inject(at = @At("HEAD"), method = "renderCrosshair", cancellable = true)
-    public void visor$noCrosshair(GuiGraphics guiGraphics, CallbackInfo ci) {
+    public void visor$noCrosshair(CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }
 
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getSleepTimer()I"), method = "render")
+    // 1.21.1: sleep overlay drawn by its own layer method
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getSleepTimer()I"), method = "renderSleepOverlay")
     public int visor$noSleepOverlay(LocalPlayer instance) {
         return VisorState.get().isActive()
                 ? 0

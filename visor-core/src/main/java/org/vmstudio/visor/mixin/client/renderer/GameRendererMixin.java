@@ -3,6 +3,8 @@ package org.vmstudio.visor.mixin.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.DeltaTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -143,20 +145,22 @@ public abstract class GameRendererMixin
 
 
 
-    @Shadow public abstract void render(float f, long l, boolean bl);
-
     @Shadow
-    public abstract void renderItemActivationAnimation(int i, int j, float par1);
+    protected abstract void renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTick);
 
     /* ******************* *\
   //--------RENDERING--------\\
     \* ******************* */
 
     /**
-     * Cancels GUI rendering for VRWorld stage and render VR main menu room
+     * Cancels GUI rendering for VRWorld stage and render VR main menu room.
+     * <p>
+     * 1.21.1: getWindow() ordinal 6 = the "Window window = getWindow()" load
+     * right before the GUI ortho setup (ordinals 0-5 are the mouse-pos and
+     * viewport lines), verified against the decompiled source.
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V", cancellable = true)
-    public void visor$onRenderGUI(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V", cancellable = true)
+    public void visor$onRenderGUI(DeltaTracker deltaTracker, boolean renderWorldIn, CallbackInfo info) {
 
         if (VRRenderState.getPhase().isNotVRWorld()) {
             // Proceed rendering GUI for Vanilla and VRGui stage
@@ -175,7 +179,7 @@ public abstract class GameRendererMixin
             //render VR main menu
             ClientContext.decorationRenderer.renderMainMenu(
                     poseStack,
-                    partialTicks
+                    deltaTracker.getGameTimeDeltaPartialTick(false)
             );
         }
     }
@@ -196,7 +200,7 @@ public abstract class GameRendererMixin
     /**
      * Draw GUI only after first level render
      */
-    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(FJZ)V", ordinal = 0, argsOnly = true)
+    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V", ordinal = 0, argsOnly = true)
     private boolean visor$renderGui(boolean doRender) {
         if (VRRenderState.getPhase().isVanilla()) {
             return doRender;
@@ -221,8 +225,8 @@ public abstract class GameRendererMixin
 
 
     /* **************** *\
-  //--------CAMERA--------\\
-    \* **************** */
+      //--------CAMERA--------\\
+        \* **************** */
     @Redirect(method = "<init>", at = @At(value = "NEW", target = "net/minecraft/client/Camera"))
     public Camera visor$replaceCamera() {
         return new VRGameCamera();
@@ -246,7 +250,7 @@ public abstract class GameRendererMixin
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         if(renderPass == VRRenderPass.EYE_LEFT){
-            posestack.mulPoseMatrix(
+            posestack.mulPose(
                     ClientContext.renderer.getEyeProjection(EyeType.LEFT)
             );
             info.setReturnValue(
@@ -255,7 +259,7 @@ public abstract class GameRendererMixin
             return;
         }
         if (renderPass == VRRenderPass.EYE_RIGHT) {
-            posestack.mulPoseMatrix(
+            posestack.mulPose(
                     ClientContext.renderer.getEyeProjection(EyeType.RIGHT)
             );
             info.setReturnValue(posestack.last().pose());
@@ -263,7 +267,7 @@ public abstract class GameRendererMixin
         }
         if (renderPass == VRRenderPass.THIRD_PERSON) {
             if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
-                posestack.mulPoseMatrix(
+                posestack.mulPose(
                         new Matrix4f().setPerspective(
                                 VRClientSettings.getMixedRealityFov() * 0.01745329238474369F,
                                 VRClientSettings.getMixedRealityAspectRatio(), this.visor$nearClipPlane,
@@ -271,7 +275,7 @@ public abstract class GameRendererMixin
                         )
                 );
             }else {
-                posestack.mulPoseMatrix(
+                posestack.mulPose(
                         new Matrix4f().setPerspective(
                                 VRClientSettings.getThirdPersonFov() * 0.01745329238474369F,
                                 (float) this.minecraft.getWindow().getScreenWidth()
@@ -289,7 +293,7 @@ public abstract class GameRendererMixin
             posestack.translate(this.zoomX, -this.zoomY, 0.0D);
             posestack.scale(this.zoom, this.zoom, 1.0F);
         }
-        posestack.mulPoseMatrix(
+        posestack.mulPose(
                 new Matrix4f()
                         .setPerspective(
                                 (float) d * Mth.DEG_TO_RAD,
@@ -303,20 +307,20 @@ public abstract class GameRendererMixin
         info.setReturnValue(posestack.last().pose());
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V")
-    public void visor$matrix(float partialTicks, long nanoTime, boolean renderWorldIn, CallbackInfo info) {
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V")
+    public void visor$matrix(DeltaTracker deltaTracker, boolean renderWorldIn, CallbackInfo info) {
         if(VisorState.get().isNotActive()) return;
         this.resetProjectionMatrix(
                 this.getProjectionMatrix(
                         minecraft.options.fov().get()
                 )
         );
-        RenderSystem.getModelViewStack().setIdentity();
+        RenderSystem.getModelViewStack().identity();
         RenderSystem.applyModelViewMatrix();
     }
 
 
-    @WrapMethod(method = "pick")
+    @WrapMethod(method = "pick(F)V")
     private void visor$vrPick(float partialTick, Operation<Void> original) {
         if(VisorState.get().isNotActive()){
             original.call(partialTick);
@@ -416,7 +420,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At(value = "TAIL"), method = "renderLevel")
-    public void visor$restoreCamera(float f, long j, PoseStack p, CallbackInfo i) {
+    public void visor$restoreCamera(DeltaTracker deltaTracker, CallbackInfo i) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             this.visor$restoreCameraEntity(
                     this.minecraft.getCameraEntity()
@@ -428,10 +432,40 @@ public abstract class GameRendererMixin
     /* ********************* *\
   //--------RAY TRACING--------\\
     \* ********************* */
-    @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 0)
+    /**
+     * Replaces the ray origin (vanilla: camera entity eye position)
+     * with the exact hand pose position.
+     * <p>
+     * 1.21.1: the actual ray trace lives in the private
+     * pick(Entity, double, double, float) overload; pick(F)V no longer
+     * has any Vec3 locals.
+     */
+    @ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 0)
     public Vec3 visor$pickPos(Vec3 original) {
         if (VisorState.get().isNotActive()) {
             return original;
+        }
+        HandType hand = visor$pickingHand != null
+                ? visor$pickingHand
+                : ClientContext.localPlayer.getActiveHand();
+
+        return new Vec3((Vector3f) ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.RENDER)
+                .getHand(hand).getPosition());
+    }
+
+    /**
+     * Replaces the vanilla eye block-ray (Entity#pick) with the
+     * ImmPortals-aware hand ray and updates the crosshair position.
+     * <p>
+     * 1.21.1: pick no longer writes Minecraft.hitResult itself but
+     * returns the result to pick(F)V, so the block ray has to be
+     * swapped at its call site instead of assigning the field here.
+     */
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;")
+    public HitResult visor$pickBlockWithHand(Entity instance, double hitDistance, float partialTicks, boolean hitFluids, Operation<HitResult> original) {
+        if (VisorState.get().isNotActive()) {
+            return original.call(instance, hitDistance, partialTicks, hitFluids);
         }
         LocalPlayerPose renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
@@ -442,22 +476,25 @@ public abstract class GameRendererMixin
 
         HitResult hitResult = visor$pickBlock(
                 renderPose.getHand(hand),
-                this.minecraft.gameMode.getPickRange(),
-                false
+                hitDistance,
+                hitFluids
         );
-        this.minecraft.hitResult = hitResult;
         Vec3 fallbackCrossVec = visor$aimedPointAtDistance(
                 renderPose.getHand(hand),
-                this.minecraft.gameMode.getPickRange()
+                hitDistance
         );
         this.visor$crossVec = hitResult != null && hitResult.getType() != HitResult.Type.MISS
                 ? hitResult.getLocation()
                 : fallbackCrossVec;
 
-        return new Vec3((Vector3f) renderPose.getHand(hand).getPosition());
+        if (hitResult == null) {
+            // vanilla dereferences the result right after: never hand back null
+            return original.call(instance, hitDistance, partialTicks, hitFluids);
+        }
+        return hitResult;
     }
 
-    @ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 1)
+    @ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 1)
     public Vec3 visor$pickDirection(Vec3 original) {
         if (VisorState.get().isNotActive()) {
             return original;
@@ -539,7 +576,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At("TAIL"), method = "renderLevel")
-    public void visor$disableStencil(float f, long l, PoseStack poseStack, CallbackInfo ci) {
+    public void visor$disableStencil(DeltaTracker deltaTracker, CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             VREffectsHelper.disableStencilTest();
         }
@@ -552,7 +589,7 @@ public abstract class GameRendererMixin
 
     //ITEM ACTIVATION ANIMATION
     @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"))
-    private void visor$noScaleItem(PoseStack poseStack, float x, float y, float z, int width, int height,
+    private void visor$noScaleItem(PoseStack poseStack, float x, float y, float z, GuiGraphics guiGraphics,
                                    float partialTicks
     ) {
         if (VRRenderState.getPhase().isVanilla()) {
@@ -584,10 +621,10 @@ public abstract class GameRendererMixin
         poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
         poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
     }
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
-    private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f) {
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
+    private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphics guiGraphics, float f) {
         if(VRRenderState.getPhase().isVanilla()) {
-            renderItemActivationAnimation(i, j, f);
+            renderItemActivationAnimation(guiGraphics, f);
         }
     }
     @Redirect(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))

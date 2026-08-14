@@ -19,7 +19,7 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
     @Shadow public int height;
 
     @Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
-    public void visor$noBackground(GuiGraphics guiGraphics, CallbackInfo ci) {
+    public void visor$noBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if((Object)this instanceof CreateWorldScreen){
             return;
         }

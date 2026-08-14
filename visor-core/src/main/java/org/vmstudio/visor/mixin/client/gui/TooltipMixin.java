@@ -3,18 +3,22 @@ package org.vmstudio.visor.mixin.client.gui;
 
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.WidgetTooltipHolder;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 
-@Mixin(AbstractWidget.class)
+/**
+ * 1.21.1: AbstractWidget#updateTooltip logic moved into
+ * WidgetTooltipHolder#refreshTooltipForNextRenderPass
+ */
+@Mixin(WidgetTooltipHolder.class)
 public class TooltipMixin {
 
     @Redirect(
-            method = "updateTooltip",
+            method = "refreshTooltipForNextRenderPass",
             at = @At(
                     value = "FIELD",
                     target = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;"

@@ -10,7 +10,12 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.common.HandType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,9 +45,37 @@ public class EntityRendererMixin {
     @Inject(method = "renderNameTag", at = @At("HEAD"), cancellable = true)
     private void visor$hideSpectatedVRNameTag(Entity entity, Component displayName,
                                                 PoseStack poseStack, MultiBufferSource buffer,
-                                                int packedLight, CallbackInfo ci) {
+                                                int packedLight, float partialTick, CallbackInfo ci) {
         if (VRRenderState.isSpectatedVRView(entity)) {
             ci.cancel();
         }
+    }
+
+    /**
+     * 1.21.1: leash rendering moved from MobRenderer to EntityRenderer
+     * (Leashable rework), so the hand-held leash end is redirected here
+     */
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getRopeHoldPosition(F)Lnet/minecraft/world/phys/Vec3;"), method = "renderLeash")
+    public Vec3 visor$vrRenderLeash(Entity instance, float partialTick) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
+            return instance.getRopeHoldPosition(partialTick);
+        }
+
+        if (!(instance instanceof Player player)) {
+            return instance.getRopeHoldPosition(partialTick);
+        }
+
+        var vrPlayer = VRClientPlayers.getPlayer(player);
+        if (vrPlayer == null) {
+            return instance.getRopeHoldPosition(partialTick);
+        }
+
+        return new Vec3(
+                new Vector3f(
+                        vrPlayer.getPoseData(PlayerPoseType.RENDER)
+                                .getHand(HandType.MAIN)
+                                .getPosition()
+                )
+        );
     }
 }

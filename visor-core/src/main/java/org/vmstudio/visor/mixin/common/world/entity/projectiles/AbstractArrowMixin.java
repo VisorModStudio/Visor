@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -36,8 +37,9 @@ public abstract class AbstractArrowMixin extends Entity {
     @Shadow
     private double baseDamage;
 
-    @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;)V")
-    public void visor$setupPos(EntityType entityType, LivingEntity livingEntity, Level level, CallbackInfo ci
+    @Inject(at = @At("RETURN"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)V")
+    public void visor$setupPos(EntityType entityType, LivingEntity livingEntity, Level level,
+                               ItemStack pickupItemStack, ItemStack firedFromWeapon, CallbackInfo ci
     ) {
         if (!(livingEntity instanceof ServerPlayer player)) {
            return;

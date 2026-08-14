@@ -1,9 +1,13 @@
 package org.vmstudio.visor.mixin.common.player;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -11,13 +15,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Abilities;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
@@ -196,9 +201,10 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     }
 
     //ATTACK_DAMAGE attribute for offhand
+    // 1.21.1: attributes are Holder-based now
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
-    private double visor$attackDamage(Player self, Attribute attribute, Operation<Double> original) {
+            target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/core/Holder;)D"))
+    private double visor$attackDamage(Player self, Holder<Attribute> attribute, Operation<Double> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
         if (vrPlayer == null) {
             return original.call(self, attribute);
@@ -209,21 +215,18 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return original.call(self, attribute);
     }
 
-    // EnchantmentHelper for offhand
+
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
-    private int visor$knockback(LivingEntity selfEntity, Operation<Integer> original) {
-        if(!(selfEntity instanceof Player self)){
-            return original.call(selfEntity);
-        }
+            target = "Lnet/minecraft/world/entity/player/Player;getKnockback(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)F"))
+    private float visor$knockback(Player self, Entity target, DamageSource damageSource, Operation<Float> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
-        if (vrPlayer == null) {
-            return original.call(selfEntity);
+        if (vrPlayer == null || visor$attackHand(vrPlayer) != HandType.OFFHAND) {
+            return original.call(self, target, damageSource);
         }
-        if(visor$attackHand(vrPlayer) == HandType.OFFHAND){
-            return EnchantmentHelper.getItemEnchantmentLevel(Enchantments.KNOCKBACK, self.getOffhandItem());
-        }
-        return original.call(selfEntity);
+        float base = (float) self.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+        return self.level() instanceof ServerLevel serverLevel
+                ? EnchantmentHelper.modifyKnockback(serverLevel, self.getOffhandItem(), target, damageSource, base)
+                : base;
     }
 
     // knockback for living entities targets
@@ -257,6 +260,17 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
 
 
+    /**
+     * 1.21.1: ItemStack#getAttributeModifiers(EquipmentSlot) is gone;
+     * the modifiers are collected through forEachModifier instead
+     */
+    @Unique
+    private static Multimap<Holder<Attribute>, AttributeModifier> visor$mainHandModifiers(ItemStack stack) {
+        Multimap<Holder<Attribute>, AttributeModifier> modifiers = HashMultimap.create();
+        stack.forEachModifier(EquipmentSlot.MAINHAND, modifiers::put);
+        return modifiers;
+    }
+
     @Unique
     private <T> T visor$withOffhandAttributes(java.util.function.Supplier<T> action) {
         Player self = (Player)(Object)this;
@@ -266,12 +280,12 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         // Strip mainhand modifiers, apply offhand modifiers as if it were mainhand
         if (!main.isEmpty()) {
             self.getAttributes().removeAttributeModifiers(
-                    main.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                    visor$mainHandModifiers(main)
             );
         }
         if (!off.isEmpty()) {
             self.getAttributes().addTransientAttributeModifiers(
-                    off.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                    visor$mainHandModifiers(off)
             );
         }
 
@@ -281,12 +295,12 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
             // Always restore, even if action.get() threw
             if (!off.isEmpty()) {
                 self.getAttributes().removeAttributeModifiers(
-                        off.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                        visor$mainHandModifiers(off)
                 );
             }
             if (!main.isEmpty()) {
                 self.getAttributes().addTransientAttributeModifiers(
-                        main.getAttributeModifiers(EquipmentSlot.MAINHAND)
+                        visor$mainHandModifiers(main)
                 );
             }
         }

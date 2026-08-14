@@ -2,15 +2,21 @@ package org.vmstudio.visor.mixin.common.player;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -60,8 +66,6 @@ public abstract class Common_EntityMixin {
 
     @Shadow public abstract boolean isSilent();
 
-    @Shadow public abstract void setMaxUpStep(float maxUpStep);
-
     @Shadow protected Vec3 stuckSpeedMultiplier;
 
     @Shadow public abstract void setOnGround(boolean onGround);
@@ -96,5 +100,33 @@ public abstract class Common_EntityMixin {
     }
 
 
+    @Unique
+    private static final AttributeModifier VISOR$WALK_UP_BLOCKS = new AttributeModifier(
+            ResourceLocation.fromNamespaceAndPath("visor", "walk_up_blocks"),
+            0.4D, AttributeModifier.Operation.ADD_VALUE
+    );
+
+    /**
+     * 1.21.1: Entity#setMaxUpStep is gone, step height is the
+     * STEP_HEIGHT attribute now (base 0.6). Heights above the
+     * default apply a transient +0.4 modifier instead.
+     */
+    @Unique
+    protected void visor$setMaxUpStep(float height) {
+        if (!((Object) this instanceof LivingEntity living)) {
+            return;
+        }
+        AttributeInstance attribute = living.getAttribute(Attributes.STEP_HEIGHT);
+        if (attribute == null) {
+            return;
+        }
+        if (height > 0.6F) {
+            if (!attribute.hasModifier(VISOR$WALK_UP_BLOCKS.id())) {
+                attribute.addTransientModifier(VISOR$WALK_UP_BLOCKS);
+            }
+        } else {
+            attribute.removeModifier(VISOR$WALK_UP_BLOCKS.id());
+        }
+    }
 
 }

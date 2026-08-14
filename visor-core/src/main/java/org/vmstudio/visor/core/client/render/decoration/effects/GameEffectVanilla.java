@@ -24,7 +24,7 @@ public class GameEffectVanilla extends VRGameEffect {
     public void render(@NotNull VRRenderPass renderPass,
                        @NotNull PoseStack poseStack,
                        float partialTicks) {
-        ((GameRendererExtension) MC.gameRenderer).visor$renderItemActivationAnimation(
+        MC.gameRenderer.renderItemActivationAnimation(
                 new GuiGraphics(MC, MC.renderBuffers().bufferSource()),
                 partialTicks
         );

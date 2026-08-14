@@ -17,7 +17,6 @@ import org.joml.Matrix4f;
 public interface GameRendererExtension {
 
 
-    void visor$renderItemActivationAnimation(GuiGraphics guiGraphics, float partialTicks);
 
     boolean visor$isVRGuiVisible();
 

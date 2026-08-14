@@ -61,7 +61,8 @@ public class PlayerRenderMixins {
                 if(vrPlayer == null){
                     return;
                 }
-                String modelName = player.getModelName();
+                // 1.21.1: getModelName() removed; PlayerSkin.Model#id() is "slim"/"default"
+                String modelName = player.getSkin().model().id();
                 var model = vrPlayer.getBodyType().getRenderer().getModelRenderer(
                         vrPlayer, modelName
                 );

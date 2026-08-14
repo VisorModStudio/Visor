@@ -15,6 +15,7 @@ import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
@@ -185,8 +186,8 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         if (vrPlayer == null) return;
 
-        double dist = this.player.getEyePosition().distanceToSqr(Vec3.atCenterOf(blockPos));
-        if (dist > ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE) {
+        // 1.21.1: interaction range is attribute-driven, same check vanilla uses
+        if (!this.player.canInteractWithBlock(blockPos, 1.0)) {
             this.debugLogging(blockPos, false, j, "too far");
             return;
         } else if (blockPos.getY() >= i) {
@@ -359,7 +360,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return false;
         } else {
             return itemUsed.isEmpty()
-                    || !itemUsed.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, blockPos, false));
+                    || !itemUsed.canBreakBlockInAdventureMode(new BlockInWorld(level, blockPos, false));
         }
     }
 
@@ -387,12 +388,12 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                                       @NotNull ItemStack itemUsed,
                                       BlockState blockState
     ) {
+        // mirrors 1.21.1 Player#getDestroySpeed, with the VR hand item
+        // instead of the inventory selection; efficiency and aqua affinity
+        // are attribute-driven now (MINING_EFFICIENCY / SUBMERGED_MINING_SPEED)
         float f = itemUsed.getDestroySpeed(blockState);
-        if (f > 1.0F) {
-            int i = EnchantmentHelper.getBlockEfficiency(player);
-            if (i > 0 && !itemUsed.isEmpty()) {
-                f += (float) (i * i + 1);
-            }
+        if (f > 1.0F && !itemUsed.isEmpty()) {
+            f += (float) player.getAttributeValue(Attributes.MINING_EFFICIENCY);
         }
 
         if (MobEffectUtil.hasDigSpeed(player)) {
@@ -411,9 +412,9 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             f *= g;
         }
 
-        if (player.isEyeInFluid(FluidTags.WATER)
-                && !EnchantmentHelper.hasAquaAffinity(player)) {
-            f /= 5.0F;
+        f *= (float) player.getAttributeValue(Attributes.BLOCK_BREAK_SPEED);
+        if (player.isEyeInFluid(FluidTags.WATER)) {
+            f *= (float) player.getAttribute(Attributes.SUBMERGED_MINING_SPEED).getValue();
         }
 
         if (!player.onGround()) {

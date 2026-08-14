@@ -3,6 +3,7 @@ package org.vmstudio.visor.mixin.client;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
@@ -27,6 +28,7 @@ import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.*;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Overlay;
+import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -44,7 +46,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import org.vmstudio.visor.core.client.VisorState;
 
@@ -70,15 +71,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     @Shadow
     public static boolean ON_OSX;
 
-    @Shadow
-    private boolean pause;
-
-    @Shadow
-    private float pausePartialTick;
-
     @Final
     @Shadow
-    private Timer timer;
+    private DeltaTracker.Timer timer;
 
     @Final
     @Shadow
@@ -92,6 +87,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Shadow
     public LocalPlayer player;
+
+    @Shadow
+    public boolean noRender;
 
     @Shadow
     public abstract Entity getCameraEntity();
@@ -212,7 +210,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * @param renderLevel s
      * @return s
      */
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"), method = "runTick")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "runTick")
     public boolean visor$startVRGuiPhase(boolean renderLevel) {
         if (VisorState.get().isActive()) {
 
@@ -229,14 +227,19 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Calls VR rendering after mc rendered
+     * <p>
+     * 1.21.1: anchored at the "blit" profiler constant — right after
+     * gameRenderer.render() + fpsPie drew into the main target, before it
+     * is unbound and blitted to screen. nanoTime is the frame-start
+     * Util.getNanos() local, the only long in scope here.
      *
      * @param renderLevel s
      * @param ci          s
      * @param nanoTime    s
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", locals = LocalCapture.CAPTURE_FAILHARD)
-    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, long nanoTime) {
-        if (ClientContext.visor != null) {
+    @Inject(at = @At(value = "CONSTANT", args = "stringValue=blit"), method = "runTick")
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, @Local(ordinal = 0) long nanoTime) {
+        if (ClientContext.visor != null && !this.noRender) {
             ClientContext.visor
                     .renderVR(
                             new RenderContext(
@@ -416,12 +419,14 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     /**
      * Resets room origin when world changed
+     * <p>
+     * 1.21.1: setLevel gained a ReceivingLevelScreen.Reason parameter
      *
      * @param pLevelClient s
      * @param info         s
      */
     @Inject(at = @At("HEAD"), method = "setLevel")
-    public void visor$onLevelChange(ClientLevel pLevelClient, CallbackInfo info) {
+    public void visor$onLevelChange(ClientLevel pLevelClient, ReceivingLevelScreen.Reason reason, CallbackInfo info) {
         if (VisorState.get().isActive()) {
             ClientContext.localPlayer.setOrigin(
                     0.0f, 0.0f, 0.0f, true
@@ -597,6 +602,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Override
     public float visor$getPartialTicks() {
-        return pause ? pausePartialTick : this.timer.partialTick;
+        // 1.21.1: DeltaTracker.Timer handles the pause freeze internally;
+        // (false) = pause-respecting partial tick, same as the old
+        // "pause ? pausePartialTick : timer.partialTick"
+        return this.timer.getGameTimeDeltaPartialTick(false);
     }
 }

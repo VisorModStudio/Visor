@@ -236,7 +236,7 @@ public class VRPauseMenuScreen extends Screen {
             }
         }
 
-        super.render(gfx, mouseX, mouseY, delta);
+        super.render(gfx, mouseX, mouseY, partialTick);
     }
 
     private int totalColumnHeight() {

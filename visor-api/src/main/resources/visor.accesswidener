@@ -117,7 +117,7 @@ accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
 accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 
 # to render item activation outside of gamerenderer
-#1.20.1 accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
+accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
 
 # tohave differnt postEffects per pass
 accessible field net/minecraft/client/renderer/GameRenderer postEffect Lnet/minecraft/client/renderer/PostChain;

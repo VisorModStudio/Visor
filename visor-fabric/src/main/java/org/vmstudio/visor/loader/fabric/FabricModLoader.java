@@ -15,7 +15,9 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import org.vmstudio.visor.loader.fabric.network.VisorRawPayload;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -81,20 +83,24 @@ public class FabricModLoader implements ModLoader {
                 .add(callback);
 
         if (!worldEventsRegistered) {
+
             // Closest equivalent of AFTER_SOLID
             WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
-                fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(), context.tickDelta());
+                fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(),
+                        context.tickCounter().getGameTimeDeltaPartialTick(true));
                 return true; // don't cancel block outline
             });
 
             // AFTER_TRANSLUCENT
             WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-                fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(), context.tickDelta());
+                fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(),
+                        context.tickCounter().getGameTimeDeltaPartialTick(true));
             });
 
             // AFTER_WORLD
             WorldRenderEvents.END.register(context -> {
-                fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(), context.tickDelta());
+                fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(),
+                        context.tickCounter().getGameTimeDeltaPartialTick(true));
             });
 
             worldEventsRegistered = true;
@@ -184,27 +190,33 @@ public class FabricModLoader implements ModLoader {
     }
 
 
+    /**
+     * 1.21.1: Fabric networking is payload-typed; Visor's raw buffers are
+     * wrapped in a VisorRawPayload per channel. Codecs must be registered
+     * for every direction actually used, and play handlers already run on
+     * the game thread.
+     */
     @Override
     public void registerNetworkChannel(@NotNull VisorChannel channel) {
+        var type = VisorRawPayload.typeOf(channel.getChannelId());
+        var codec = VisorRawPayload.codecOf(type);
         if (channel.hasPacketsToServer()) {
-            ServerPlayNetworking.registerGlobalReceiver(channel.getChannelId(),
-                    (server, player, handler, buffer, responseSender) -> {
-                        // Copy the buffer immediately — Fabric reclaims it after this callback returns.
-                        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
-                        copy.writeBytes(buffer.copy());
-                        server.execute(() -> channel.handleToServer(
-                                copy, player, p -> responseSender.sendPacket(ModLoader.get().createPacketToClient(channel.getChannelId(), p))
-                        ));
-                    });
+            PayloadTypeRegistry.playC2S().register(type, codec);
+            ServerPlayNetworking.registerGlobalReceiver(type,
+                    (payload, context) -> channel.handleToServer(
+                            payload.toBuffer(),
+                            context.player(),
+                            p -> context.responseSender().sendPacket(
+                                    ModLoader.get().createPacketToClient(channel.getChannelId(), p)
+                            )
+                    ));
         }
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
-                && channel.hasPacketsToClient()) {
-            ClientPlayNetworking.registerGlobalReceiver(channel.getChannelId(),
-                    (client, handler, buffer, responseSender) -> {
-                        FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
-                        copy.writeBytes(buffer.copy());
-                        client.execute(() -> channel.handleToClient(copy));
-                    });
+        if (channel.hasPacketsToClient()) {
+            PayloadTypeRegistry.playS2C().register(type, codec);
+            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                ClientPlayNetworking.registerGlobalReceiver(type,
+                        (payload, context) -> channel.handleToClient(payload.toBuffer()));
+            }
         }
     }
 
@@ -213,7 +225,7 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return ServerPlayNetworking.createS2CPacket(channelId, buffer);
+        return ServerPlayNetworking.createS2CPacket(VisorRawPayload.of(channelId, buffer));
     }
 
     @Override
@@ -221,7 +233,7 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return ClientPlayNetworking.createC2SPacket(channelId, buffer);
+        return ClientPlayNetworking.createC2SPacket(VisorRawPayload.of(channelId, buffer));
     }
 
 

@@ -83,8 +83,9 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         InteractionHand mcHand = hand == HandType.MAIN
                 ? InteractionHand.MAIN_HAND
                 : InteractionHand.OFF_HAND;
+        // 1.21.1: getFrameTime() removed; pause-aware partial tick comes from the DeltaTracker
         float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
-                .visor$getEquipProgress(mcHand, MC.getFrameTime());
+                .visor$getEquipProgress(mcHand, MC.getTimer().getGameTimeDeltaPartialTick(false));
 
         //@TODO rework this since the change is globally applied and might be a problem for addons to work with
         if (!VRRenderState.isSelfModelRender(entity)) {
@@ -123,7 +124,8 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         }
 
         ClientContext.handRenderer.applyItemHandPose(
-                player, hand, itemStack, poseStack, equipProgress, MC.getFrameTime()
+                player, hand, itemStack, poseStack, equipProgress,
+                MC.getTimer().getGameTimeDeltaPartialTick(false)
         );
     }
 }
