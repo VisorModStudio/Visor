@@ -96,6 +96,9 @@ public abstract class GameRendererMixin
     public abstract Matrix4f getProjectionMatrix(double fov);
 
     @Shadow
+    public abstract float getDepthFar();
+
+    @Shadow
     protected abstract double getFov(Camera mainCamera2, float partialTicks, boolean b);
 
     @Shadow
@@ -747,7 +750,11 @@ public abstract class GameRendererMixin
     @Unique
     public void visor$setupClipPlanes() {
         this.renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
-        this.visor$farClipPlane = this.renderDistance + 1024.0F;
+        // honor vanilla's depthFar (and far-distance mods extending it)
+        this.visor$farClipPlane = Math.max(
+                this.renderDistance + 1024.0F,
+                this.getDepthFar()
+        );
     }
 
     @Override

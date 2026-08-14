@@ -1,8 +1,10 @@
 package org.vmstudio.visor.core.client.render.decoration;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.joml.Matrix4fStack;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -63,34 +65,62 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         //REGISTERING RENDERING PIPELINE
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_SOLID,
-                (poseStack, partialTicks) -> {
+                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterSolid(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
                     GLUtils.checkGLError("post AFTER_SOLID events stage");
-                }
+                })
         );
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_TRANSLUCENT,
-                (poseStack, partialTicks) -> {
+                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterTranslucent(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
                     GLUtils.checkGLError("post AFTER_TRANSLUCENT events stage");
-                }
+                })
         );
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_WORLD,
-                (poseStack, partialTicks) -> {
+                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterWorld(poseStack, partialTicks);
                     }
                     callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
                     GLUtils.checkGLError("post AFTER_WORLD events stage");
-                }
+                })
         );
+    }
+
+    /**
+     * 1.21.1 keeps the world view rotation multiplied onto the GLOBAL
+     * RenderSystem modelview stack for most of LevelRenderer.renderLevel,
+     * which is exactly where the AFTER_SOLID / AFTER_TRANSLUCENT stages
+     * fire on both loaders (AFTER_WORLD fires after it is popped). The
+     * decoration renderers build the full camera transform into their
+     * pose stack themselves (the 1.20.1 contract, when the global stack
+     * stayed identity during world render), so shield them from the
+     * global view rotation or it applies twice — world hands moving
+     * opposite to the HMD, depth overlays stuck in world space.
+     */
+    private void runStageWithIdentityModelView(Runnable stageRenderer) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            stageRenderer.run();
+            return;
+        }
+        Matrix4fStack modelView = RenderSystem.getModelViewStack();
+        modelView.pushMatrix();
+        modelView.identity();
+        RenderSystem.applyModelViewMatrix();
+        try {
+            stageRenderer.run();
+        } finally {
+            modelView.popMatrix();
+            RenderSystem.applyModelViewMatrix();
+        }
     }
 
     @Override
@@ -262,6 +292,14 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
     private void renderAfterWorld(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
+
+        // Other AFTER_LEVEL listeners may leave the default framebuffer bound
+        // (RenderTarget.copyDepthFrom does this). Iris restores the eye target
+        // before its UI pass; the vanilla pipeline needs the same restoration.
+        if (!ShadersHelper.isShaderActive()) {
+            MC.mainRenderTarget.bindWrite(true);
+        }
+
         if(currentDecorator.isFullControl()){
             currentDecorator.renderAfterWorld(poseStack, partialTicks);
             return;

@@ -1,6 +1,6 @@
 package org.vmstudio.visor.core.client.render;
 
-import com.mojang.math.Axis;
+
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
@@ -77,6 +77,8 @@ public class VRGameCamera extends Camera {
         this.yRot =  cameraElement.getYawDegrees();
 
         // Look, Up, Left vectors
+        // (VRMathUtils.LEFT_VECTOR is already -X, matching Camera's 1.21.1
+        // LEFT basis — unlike the legacy +X constant older builds used)
         var dir = cameraElement.getDirection();
         var upVec = cameraElement.getCustomVector(VRMathUtils.UP_VECTOR);
         var leftVec = cameraElement.getCustomVector(VRMathUtils.LEFT_VECTOR);
@@ -85,10 +87,12 @@ public class VRGameCamera extends Camera {
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
         this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
-        // Build rotation quaternion: Yaw then Pitch
-        this.rotation().identity()
-                .mul(Axis.YP.rotationDegrees(-this.yRot))
-                .mul(Axis.XP.rotationDegrees( this.xRot));
+        // 1.21.1 builds the world view matrix directly from rotation()
+        // (and changed the camera basis/Euler convention), so copy the
+        // exact tracked orientation instead of rebuilding yaw+pitch —
+        // this also preserves headset roll.
+        cameraElement.getRotation()
+                .getNormalizedRotation(this.rotation());
     }
 
     private void setupSpectatedVR(Entity entity) {
@@ -112,9 +116,8 @@ public class VRGameCamera extends Camera {
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
         this.getLeftVector().set(leftVec.x, leftVec.y, leftVec.z);
 
-        this.rotation().identity()
-                .mul(Axis.YP.rotationDegrees(-this.yRot))
-                .mul(Axis.XP.rotationDegrees( this.xRot));
+        hmd.getRotation()
+                .getNormalizedRotation(this.rotation());
     }
 
 }

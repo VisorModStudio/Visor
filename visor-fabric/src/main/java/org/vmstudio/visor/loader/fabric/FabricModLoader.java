@@ -14,8 +14,8 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.vmstudio.visor.loader.fabric.network.VisorRawPayload;
 import net.fabricmc.loader.api.FabricLoader;
@@ -46,6 +46,10 @@ public class FabricModLoader implements ModLoader {
 
     private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
             = new EnumMap<>(RenderPipelineStage.class);
+
+    private final Map<ResourceLocation, VisorChannel> networkChannels = new HashMap<>();
+    private boolean serverReceiverRegistered = false;
+    private boolean clientReceiverRegistered = false;
 
     private boolean worldEventsRegistered = false;
 
@@ -84,27 +88,37 @@ public class FabricModLoader implements ModLoader {
 
         if (!worldEventsRegistered) {
 
+            // matrixStack() can be null for some events (notably BEFORE_BLOCK_OUTLINE)
             // Closest equivalent of AFTER_SOLID
             WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
-                fireCallbacks(RenderPipelineStage.AFTER_SOLID, context.matrixStack(),
+                fireCallbacks(RenderPipelineStage.AFTER_SOLID, visor$poseStackOf(context),
                         context.tickCounter().getGameTimeDeltaPartialTick(true));
                 return true; // don't cancel block outline
             });
 
             // AFTER_TRANSLUCENT
             WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
-                fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, context.matrixStack(),
+                fireCallbacks(RenderPipelineStage.AFTER_TRANSLUCENT, visor$poseStackOf(context),
                         context.tickCounter().getGameTimeDeltaPartialTick(true));
             });
 
             // AFTER_WORLD
+            // NOTE: pass the context stack through unmodified — the decoration
+            // renderers build their camera transform internally (verified
+            // against the runtime-working community 1.21.1 fabric port;
+            // seeding the view matrix here double-transforms them)
             WorldRenderEvents.END.register(context -> {
-                fireCallbacks(RenderPipelineStage.AFTER_WORLD, context.matrixStack(),
+                fireCallbacks(RenderPipelineStage.AFTER_WORLD, visor$poseStackOf(context),
                         context.tickCounter().getGameTimeDeltaPartialTick(true));
             });
 
             worldEventsRegistered = true;
         }
+    }
+
+    private static PoseStack visor$poseStackOf(WorldRenderContext context) {
+        PoseStack poseStack = context.matrixStack();
+        return poseStack != null ? poseStack : new PoseStack();
     }
 
     private void fireCallbacks(RenderPipelineStage stage, PoseStack poseStack, float partialTicks) {
@@ -191,32 +205,53 @@ public class FabricModLoader implements ModLoader {
 
 
     /**
-     * 1.21.1: Fabric networking is payload-typed; Visor's raw buffers are
-     * wrapped in a VisorRawPayload per channel. Codecs must be registered
-     * for every direction actually used, and play handlers already run on
-     * the game thread.
+     * 1.21.1: Fabric networking is payload-typed. All Visor channels share
+     * the single VisorRawPayload tunnel (registered at mod init) and are
+     * dispatched here by the channel id carried in the payload — receivers
+     * are registered once, so channels may register at any time.
      */
     @Override
     public void registerNetworkChannel(@NotNull VisorChannel channel) {
-        var type = VisorRawPayload.typeOf(channel.getChannelId());
-        var codec = VisorRawPayload.codecOf(type);
-        if (channel.hasPacketsToServer()) {
-            PayloadTypeRegistry.playC2S().register(type, codec);
-            ServerPlayNetworking.registerGlobalReceiver(type,
-                    (payload, context) -> channel.handleToServer(
-                            payload.toBuffer(),
-                            context.player(),
-                            p -> context.responseSender().sendPacket(
-                                    ModLoader.get().createPacketToClient(channel.getChannelId(), p)
-                            )
-                    ));
+        networkChannels.put(channel.getChannelId(), channel);
+
+        if (channel.hasPacketsToServer() && !serverReceiverRegistered) {
+            ServerPlayNetworking.registerGlobalReceiver(VisorRawPayload.TYPE, (payload, context) -> {
+                VisorChannel registeredChannel = networkChannels.get(payload.channelId());
+                if (registeredChannel == null || !registeredChannel.hasPacketsToServer()) {
+                    return;
+                }
+                context.server().execute(() -> {
+                    FriendlyByteBuf buffer = payload.toBuffer();
+                    try {
+                        registeredChannel.handleToServer(buffer, context.player(),
+                                p -> context.responseSender().sendPacket(
+                                        ModLoader.get().createPacketToClient(registeredChannel.getChannelId(), p)
+                                ));
+                    } finally {
+                        buffer.release();
+                    }
+                });
+            });
+            serverReceiverRegistered = true;
         }
-        if (channel.hasPacketsToClient()) {
-            PayloadTypeRegistry.playS2C().register(type, codec);
-            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-                ClientPlayNetworking.registerGlobalReceiver(type,
-                        (payload, context) -> channel.handleToClient(payload.toBuffer()));
-            }
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
+                && channel.hasPacketsToClient()
+                && !clientReceiverRegistered) {
+            ClientPlayNetworking.registerGlobalReceiver(VisorRawPayload.TYPE, (payload, context) -> {
+                VisorChannel registeredChannel = networkChannels.get(payload.channelId());
+                if (registeredChannel == null || !registeredChannel.hasPacketsToClient()) {
+                    return;
+                }
+                context.client().execute(() -> {
+                    FriendlyByteBuf buffer = payload.toBuffer();
+                    try {
+                        registeredChannel.handleToClient(buffer);
+                    } finally {
+                        buffer.release();
+                    }
+                });
+            });
+            clientReceiverRegistered = true;
         }
     }
 

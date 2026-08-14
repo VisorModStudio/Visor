@@ -29,4 +29,15 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
         }
 
     }
+
+    @Inject(at = @At("HEAD"), method = "renderBlurredBackground", cancellable = true)
+    private void visor$noBlurredBackground(float partialTick, CallbackInfo ci) {
+        // 1.21.1: the vanilla blur chain rebinds the original window render
+        // target. In VR, running it while the GUI target is active leaves a
+        // window-sized viewport behind and compresses the remaining screen
+        // into the bottom-left corner.
+        if (VisorState.get().isActive()) {
+            ci.cancel();
+        }
+    }
 }
