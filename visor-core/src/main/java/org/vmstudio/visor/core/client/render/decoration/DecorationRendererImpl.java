@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
@@ -65,7 +66,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         //REGISTERING RENDERING PIPELINE
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_SOLID,
-                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
+                (poseStack, partialTicks) -> runStageWithVRContract(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterSolid(poseStack, partialTicks);
                     }
@@ -75,7 +76,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         );
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_TRANSLUCENT,
-                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
+                (poseStack, partialTicks) -> runStageWithVRContract(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterTranslucent(poseStack, partialTicks);
                     }
@@ -85,7 +86,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         );
         ModLoader.get().addToRenderPipeline(
                 RenderPipelineStage.AFTER_WORLD,
-                (poseStack, partialTicks) -> runStageWithIdentityModelView(() -> {
+                (poseStack, partialTicks) -> runStageWithVRContract(() -> {
                     if (VRRenderState.getPhase().isNotVanilla()) {
                         renderAfterWorld(poseStack, partialTicks);
                     }
@@ -95,18 +96,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         );
     }
 
-    /**
-     * 1.21.1 keeps the world view rotation multiplied onto the GLOBAL
-     * RenderSystem modelview stack for most of LevelRenderer.renderLevel,
-     * which is exactly where the AFTER_SOLID / AFTER_TRANSLUCENT stages
-     * fire on both loaders (AFTER_WORLD fires after it is popped). The
-     * decoration renderers build the full camera transform into their
-     * pose stack themselves (the 1.20.1 contract, when the global stack
-     * stayed identity during world render), so shield them from the
-     * global view rotation or it applies twice — world hands moving
-     * opposite to the HMD, depth overlays stuck in world space.
-     */
-    private void runStageWithIdentityModelView(Runnable stageRenderer) {
+
+    private void runStageWithVRContract(Runnable stageRenderer) {
         if (VRRenderState.getPhase().isVanilla()) {
             stageRenderer.run();
             return;
@@ -115,9 +106,11 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         modelView.pushMatrix();
         modelView.identity();
         RenderSystem.applyModelViewMatrix();
+        RenderPoseHelper.setupEyeSpaceLevelLights(VRRenderState.getRenderPass());
         try {
             stageRenderer.run();
         } finally {
+            RenderPoseHelper.restoreLevelLights();
             modelView.popMatrix();
             RenderSystem.applyModelViewMatrix();
         }
@@ -127,14 +120,16 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     public void renderMainMenu(PoseStack poseStack, float partialTicks) {
         if (currentDecorator == null) return;
 
-        renderAfterSolid(poseStack, partialTicks);
-        callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
+        runStageWithVRContract(() -> {
+            renderAfterSolid(poseStack, partialTicks);
+            callStageEvent(RenderPipelineStage.AFTER_SOLID, poseStack, partialTicks);
 
-        renderAfterTranslucent(poseStack, partialTicks);
-        callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
+            renderAfterTranslucent(poseStack, partialTicks);
+            callStageEvent(RenderPipelineStage.AFTER_TRANSLUCENT, poseStack, partialTicks);
 
-        renderAfterWorld(poseStack, partialTicks);
-        callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
+            renderAfterWorld(poseStack, partialTicks);
+            callStageEvent(RenderPipelineStage.AFTER_WORLD, poseStack, partialTicks);
+        });
     }
 
     private void callStageEvent(RenderPipelineStage stage,

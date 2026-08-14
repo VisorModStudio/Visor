@@ -256,7 +256,7 @@ public class ForgeModLoader implements ModLoader {
 
 
     private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
-         if (forgeStage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
+        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             return RenderPipelineStage.AFTER_SOLID;
         }
         if (forgeStage == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {

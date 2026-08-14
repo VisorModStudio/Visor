@@ -1,5 +1,7 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.HandType;
@@ -14,6 +16,8 @@ import org.joml.Matrix4f;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+
+import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class RenderPoseHelper {
 
@@ -31,33 +35,59 @@ public class RenderPoseHelper {
 
     public static void applyCameraOrientation(VRRenderPass renderPass,
                                               PoseStack poseStack) {
-        float mirrorSmooth = VRClientSettings.getMirrorSmooth();
+        Matrix4f rotationMatrix = getViewRotation(renderPass);
 
-        LocalPlayerPose renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
-        final Matrix4f rotationMatrix;
+        // apply to both blockPos & normal
+        poseStack.last().pose().mul(rotationMatrix);
+        poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
+    }
+
+
+    public static Matrix4f getViewRotation(VRRenderPass renderPass) {
+        float mirrorSmooth = VRClientSettings.getMirrorSmooth();
 
         boolean smooth = renderPass == VRRenderPass.CENTER && mirrorSmooth > 0f;
         if (smooth) {
-
             // average rotation over history
-            rotationMatrix = new Matrix4f()
+            return new Matrix4f()
                     .rotation(
                             ClientContext.rawPoseHandler
                                     .getHmdData()
                                     .getRotationHistory()
                                     .averageRotation(mirrorSmooth)
                     );
-        } else {
-            // direct VR eye/head rotation
-            rotationMatrix = renderPose
-                    .getCameraPose(renderPass)
-                    .getRotation()
-                    .transpose(new Matrix4f());
         }
+        // direct VR eye/head rotation
+        return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
+                .getCameraPose(renderPass)
+                .getRotation()
+                .transpose(new Matrix4f());
+    }
 
-        // apply to both blockPos & normal
-        poseStack.last().pose().mul(rotationMatrix);
-        poseStack.last().normal().mul(new Matrix3f(rotationMatrix));
+   private static final Vector3fc LEVEL_LIGHT_0 = new Vector3f(0.2f, 1.0f, -0.7f).normalize();
+    private static final Vector3fc LEVEL_LIGHT_1 = new Vector3f(-0.2f, 1.0f, 0.7f).normalize();
+    private static final Vector3fc NETHER_LEVEL_LIGHT_1 = new Vector3f(-0.2f, -1.0f, 0.7f).normalize();
+
+
+    public static void setupEyeSpaceLevelLights(VRRenderPass renderPass) {
+        boolean constantAmbient = MC.level != null
+                && MC.level.effects().constantAmbientLight();
+        Vector3fc light1 = constantAmbient ? NETHER_LEVEL_LIGHT_1 : LEVEL_LIGHT_1;
+
+        Matrix4f view = getViewRotation(renderPass);
+        RenderSystem.setShaderLights(
+                view.transformDirection(LEVEL_LIGHT_0, new Vector3f()),
+                view.transformDirection(light1, new Vector3f())
+        );
+    }
+
+
+    public static void restoreLevelLights() {
+        if (MC.level != null && MC.level.effects().constantAmbientLight()) {
+            Lighting.setupNetherLevel();
+        } else {
+            Lighting.setupLevel();
+        }
     }
 
     public static void applyCameraTranslation(VRRenderPass renderPass,

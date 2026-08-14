@@ -90,10 +90,9 @@ public class FabricModLoader implements ModLoader {
 
             // matrixStack() can be null for some events (notably BEFORE_BLOCK_OUTLINE)
             // Closest equivalent of AFTER_SOLID
-            WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context, hitResult) -> {
+            WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
                 fireCallbacks(RenderPipelineStage.AFTER_SOLID, visor$poseStackOf(context),
                         context.tickCounter().getGameTimeDeltaPartialTick(true));
-                return true; // don't cancel block outline
             });
 
             // AFTER_TRANSLUCENT
