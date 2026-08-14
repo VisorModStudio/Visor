@@ -5,7 +5,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,12 +17,8 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
     @Shadow public int width;
     @Shadow public int height;
 
-    @Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
-    public void visor$noBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        if((Object)this instanceof CreateWorldScreen){
-            return;
-        }
-
+    @Inject(method = {"renderBackground", "renderPanorama", "renderTransparentBackground"}, at = @At("HEAD"), cancellable = true)
+    public void visor$noBackground(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
         }
@@ -32,10 +27,6 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
 
     @Inject(at = @At("HEAD"), method = "renderBlurredBackground", cancellable = true)
     private void visor$noBlurredBackground(float partialTick, CallbackInfo ci) {
-        // 1.21.1: the vanilla blur chain rebinds the original window render
-        // target. In VR, running it while the GUI target is active leaves a
-        // window-sized viewport behind and compresses the remaining screen
-        // into the bottom-left corner.
         if (VisorState.get().isActive()) {
             ci.cancel();
         }
