@@ -94,9 +94,17 @@ public class ButtonImaged extends AbstractButton {
         onRelease(getX(), getY());
     }
 
+    /**
+     * Mirrors WidgetTooltipHolder#refreshTooltipForNextRenderPass
+     */
+    private boolean visorShouldShowTooltip() {
+        return this.isHovered()
+                || (this.isFocused()
+                        && Minecraft.getInstance().getLastInputType().isKeyboard());
+    }
     @Override
     public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (this.isHoveredOrFocused()) {
+        if (visorShouldShowTooltip()) {
             var screen = getTooltipScreen();
             var tooltip = getTooltip();
             if(screen != null && tooltip != null){
