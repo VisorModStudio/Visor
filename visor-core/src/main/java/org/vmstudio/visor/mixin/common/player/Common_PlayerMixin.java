@@ -171,6 +171,25 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return hand;
     }
 
+
+    @Inject(method = "getWeaponItem", at = @At("HEAD"), cancellable = true)
+    private void visor$vrWeaponItem(CallbackInfoReturnable<ItemStack> cir) {
+        if (!VRServerSettings.isTwoHandedVR()) {
+            return;
+        }
+        Player self = (Player) (Object) this;
+        if (self.isAutoSpinAttack()) {
+            return;
+        }
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        if (vrPlayer == null) {
+            return;
+        }
+        if (visor$attackHand(vrPlayer) == HandType.OFFHAND) {
+            cir.setReturnValue(self.getOffhandItem());
+        }
+    }
+
     // replace getMainHand with getItemInHand()
     @WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))

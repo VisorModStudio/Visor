@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -113,10 +114,13 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     /* ***************************************** *\
   //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
     \* ***************************************** */
-    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/level/ServerPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
-    public ItemStack visor$destroyBlock(ServerPlayer player) {
-        if(!VRServerSettings.isTwoHandedVR()) return player.getMainHandItem();
+
+    /**
+     * Item the player is actually mining with, per the VR active hand.
+     */
+    @Unique
+    private ItemStack visor$vrHandItem(ServerPlayer player) {
+        if (!VRServerSettings.isTwoHandedVR()) return player.getMainHandItem();
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
         if (vrPlayer == null) {
             return player.getMainHandItem();
@@ -126,6 +130,19 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         } else {
             return player.getMainHandItem();
         }
+    }
+
+    @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+    public ItemStack visor$destroyBlock(ServerPlayer player) {
+        return visor$vrHandItem(player);
+    }
+
+
+    @Redirect(method = "handleBlockBreakAction", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack visor$hitBlockHandItem(ServerPlayer player) {
+        return visor$vrHandItem(player);
     }
 
     /* ************************* *\

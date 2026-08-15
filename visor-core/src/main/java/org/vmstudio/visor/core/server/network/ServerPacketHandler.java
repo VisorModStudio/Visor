@@ -173,7 +173,7 @@ public class ServerPacketHandler {
                     }
 
                     AABB aABB = entity.getBoundingBox();
-                    if (aABB.distanceToSqr(serverPlayer.getEyePosition()) < serverPlayer.entityInteractionRange()) {
+                    if (serverPlayer.canInteractWithEntity(aABB, 1.0)) {
 
                         if (!(entity instanceof ItemEntity) && !(entity instanceof ExperienceOrb)
                                 && !(entity instanceof AbstractArrow) && entity != serverPlayer) {
