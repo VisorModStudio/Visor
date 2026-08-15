@@ -91,6 +91,7 @@ public class ClientNetworking {
 
     public static void sendHandShake(HandshakePayloadToServer payload) {
         if (MC.getConnection() == null) return;
+        if (!ModLoader.get().canSendToServer(VisorNetwork.CORE_CHANNEL_ID)) return;
         MC.getConnection().send(createVRPacket(payload));
         if(!Minecraft.getInstance().isLocalServer()) {
             VRServerSettings.joinedDedicatedServer();

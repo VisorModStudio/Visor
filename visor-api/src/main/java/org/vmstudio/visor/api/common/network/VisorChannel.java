@@ -110,6 +110,7 @@ public final class VisorChannel {
     @Environment(EnvType.CLIENT)
     public void sendToServer(@NotNull VisorPayloadToServer payload) {
         if (Minecraft.getInstance().getConnection() == null) return;
+        if (!ModLoader.get().canSendToServer(channelId)) return;
         Minecraft.getInstance().getConnection().send(
                 ModLoader.get().createPacketToServer(channelId, payload));
     }

@@ -33,7 +33,8 @@ public interface MixinModLoader {
 
     enum LoaderType{
         FABRIC,
-        FORGE
+        FORGE,
+        NEOFORGE
     }
 
 
@@ -55,6 +56,14 @@ public interface MixinModLoader {
                 Class<?> clazz = Class.forName("org.vmstudio.visor.loader.forge.ForgeMixinModLoader");
                 api = (MixinModLoader) clazz.getConstructor().newInstance();
             } catch (Exception ignored) {
+            }
+            //NEOFORGE
+            if(api == null){
+                try {
+                    Class<?> clazz = Class.forName("org.vmstudio.visor.loader.neoforge.NeoForgeMixinModLoader");
+                    api = (MixinModLoader) clazz.getConstructor().newInstance();
+                } catch (Exception ignored) {
+                }
             }
             //FABRIC
             if(api == null){

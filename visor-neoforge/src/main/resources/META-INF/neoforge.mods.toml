@@ -1,0 +1,49 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MPL-2.0"
+
+[[mods]]
+modId = "visor"
+version = "${version}"
+displayName = "Visor"
+logoFile = "assets/visor/icon.png"
+authors = "PhoenixRa"
+description = '''
+The VR mod that is built to support addons
+
+'''
+
+[[dependencies.visor]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.visor]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21,1.21.1]"
+ordering = "AFTER"
+side = "BOTH"
+
+[[mixins]]
+config = "visor.mixins.json"
+[[mixins]]
+config = "visor.sodium.mixins.json"
+[[mixins]]
+config = "visor.replaymod.mixins.json"
+[[mixins]]
+config = "visor.flashback.mixins.json"
+[[mixins]]
+config = "visor.dh.mixins.json"
+[[mixins]]
+config = "visor.dynamicfps.mixins.json"
+[[mixins]]
+config = "visor.iris.mixins.json"
+[[mixins]]
+config = "visor.blur.mixins.json"
+
+# generated from visor.accesswidener at build time
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"

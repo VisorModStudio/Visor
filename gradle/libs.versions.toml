@@ -26,6 +26,9 @@ mixinExtras            = "0.4.1"
 #Forge
 forgeVersion           = "52.1.16"
 
+#NeoForge
+neoforgeVersion        = "21.1.248"
+
 #Other mods
 mods_sodium                 = "mc1.21.1-0.6.13-fabric"
 mods_iris                   = "1.8.8+1.21.1-fabric"

@@ -19,6 +19,7 @@ dependencyResolutionManagement {
         maven { url = 'https://maven.architectury.dev/' }
         maven { url = "https://maven.fabricmc.net/" }
         maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.neoforged.net/releases' }
         exclusiveContent {
             forRepository { maven { url = "https://api.modrinth.com/maven" } }
             filter { includeGroup "maven.modrinth" }
@@ -27,11 +28,13 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = 'Visor'
-include 'visor-core','visor-forge','visor-fabric','visor-api'
+include 'visor-core','visor-forge','visor-neoforge','visor-fabric','visor-api'
 include 'visor-api:fabric'
 findProject(':visor-api:fabric')?.name = 'fabric'
 include 'visor-api:forge'
 findProject(':visor-api:forge')?.name = 'forge'
+include 'visor-api:neoforge'
+findProject(':visor-api:neoforge')?.name = 'neoforge'
 include 'visor-core:stubs'
 findProject(':visor-core:stubs')?.name = 'stubs'
 

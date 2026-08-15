@@ -1,0 +1,125 @@
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+loom {
+   accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+
+
+}
+
+configurations {
+    common
+    shadowCommon
+    bundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+}
+
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-neoforge"
+
+dependencies {
+    compileOnly(project(path: ':visor-api', configuration: 'namedElements'))
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive = false }
+    shadowCommon(project(path: ":visor-core", configuration: "transformProductionNeoForge")) { transitive = false }
+    common(project(path: ":visor-core", configuration: "namedElements")) { transitive false }
+
+
+    //
+    String lwjglVersion = "${libs.versions.lwjgl.get()}"
+
+    neoForge "net.neoforged:neoforge:${libs.versions.neoforgeVersion.get()}"
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"))
+
+
+    // ---- LOCAL DEPENDENCY
+    shadowCommon(modApi(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }
+    shadowCommon(modApi(name: 'atumvr-core-1.14.0beta-snapshot#23')) { transitive = false }
+    // ----
+    //shadowCommon(libs.atumvr.api) { transitive = false }
+    //shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.config)
+
+
+    forgeRuntimeLibrary(libs.lwjgl.openxr)
+    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux")
+    forgeRuntimeLibrary("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows")
+
+    forgeRuntimeLibrary(libs.lwjgl.vulkan)
+
+    // shadow the natives
+    bundle(libs.lwjgl.openxr) { transitive = false }
+    bundle("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-linux") { transitive = false }
+    bundle("org.lwjgl:lwjgl-openxr:$lwjglVersion:natives-windows") { transitive = false }
+    bundle(libs.lwjgl.vulkan) { transitive = false }
+
+}
+
+processResources {
+    inputs.property "version", parent.version
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": parent.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    exclude "org.joml"
+    exclude "org.lwjgl"
+    exclude "org.slf4j"
+
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    configurations = [
+            project.configurations.shadowCommon,
+            project.configurations.bundle
+    ]
+    archiveClassifier.set("dev")
+
+    relocate("org.yaml","${project.group}.libs.org.yaml")
+    relocate("org.tomlj","${project.group}.libs.org.tomlj")
+    relocate("org.checkerframework","${project.group}.libs.org.checkerframework")
+    relocate("org.antlr","${project.group}.libs.org.antlr")
+
+    relocate("com.google.gson","${project.group}.libs.com.google.gson")
+
+    relocate("com.google.errorprone","${project.group}.libs.com.google.errorprone")
+    relocate("redempt.crunch","${project.group}.libs.redempt.crunch")
+
+
+}
+
+remapJar {
+    // turns the bundled visor.accesswidener into META-INF/accesstransformer.cfg
+    atAccessWideners.add loom.accessWidenerPath.get().asFile.name
+
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    def commonSources = project(":visor-core").sourcesJar
+    def apiSources = project(":visor-api").sourcesJar
+    dependsOn commonSources, apiSources
+    from commonSources.archiveFile.map { zipTree(it) }
+    from apiSources.archiveFile.map { zipTree(it) }
+}
+
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}

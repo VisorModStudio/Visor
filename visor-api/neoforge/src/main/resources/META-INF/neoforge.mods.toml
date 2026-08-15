@@ -1,0 +1,17 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MPL-2.0"
+
+[[mods]]
+modId = "visor"
+version = "${version}"
+displayName = "Visor"
+authors = "PhoenixRa"
+description = '''
+The Visor API. Not a mod!
+Use only in a development as a dependency.
+
+'''
+
+[[accessTransformers]]
+file = "META-INF/accesstransformer.cfg"

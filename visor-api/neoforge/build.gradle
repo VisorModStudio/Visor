@@ -1,0 +1,107 @@
+plugins {
+    id "maven-publish"
+    alias(libs.plugins.shadow)
+}
+
+architectury {
+    platformSetupLoomIde()
+    neoForge()
+}
+
+loom {
+    accessWidenerPath = project(":visor-api").file("src/main/resources/visor.accesswidener")
+}
+
+configurations {
+    common
+    shadowCommon
+    bundle {
+
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+}
+
+version = version+"+mc"+libs.versions.minecraftVersion.get()+"-api-neoforge"
+
+dependencies {
+
+    shadowCommon(project(path: ":visor-api", configuration: "namedElements")) { transitive = false }
+    common(project(path: ":visor-api", configuration: "namedElements")) { transitive false }
+
+
+    neoForge "net.neoforged:neoforge:${libs.versions.neoforgeVersion.get()}"
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${libs.versions.mixinExtras.get()}"))
+
+
+    // ---- LOCAL DEPENDENCY
+    shadowCommon(modCompileOnly(name: 'atumvr-api-1.14.0beta-snapshot#23')) { transitive = false }
+    shadowCommon(modCompileOnly(name: 'atumvr-core-1.14.0beta-snapshot#23')) { transitive = false }
+    // ----
+    //shadowCommon(libs.atumvr.api) { transitive = false }
+    //shadowCommon(libs.atumvr.core) { transitive = false }
+    shadowCommon(libs.atumvr.config)
+
+
+}
+
+processResources {
+    inputs.property "version", parent.version
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand "version": parent.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "architectury.common.json"
+    exclude "org.joml"
+    exclude "org.lwjgl"
+    exclude "org.slf4j"
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    configurations = [
+            project.configurations.shadowCommon,
+            project.configurations.bundle
+    ]
+    archiveClassifier.set("dev")
+
+    relocate("org.yaml","${project.group}.libs.org.yaml")
+    relocate("org.tomlj","${project.group}.libs.org.tomlj")
+    relocate("org.checkerframework","${project.group}.libs.org.checkerframework")
+    relocate("org.antlr","${project.group}.libs.org.antlr")
+
+    relocate("com.google.gson","${project.group}.libs.com.google.gson")
+    // neoforge builds JPMS module layers: two modules exporting
+    // com.google.errorprone.annotations kills module resolution
+    relocate("com.google.errorprone","${project.group}.libs.com.google.errorprone")
+    relocate("redempt.crunch","${project.group}.libs.redempt.crunch")
+
+
+
+}
+
+remapJar {
+    atAccessWideners.add loom.accessWidenerPath.get().asFile.name
+
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+    archiveClassifier.set('')
+}
+
+sourcesJar {
+    def apiSources = project(":visor-api").sourcesJar
+    dependsOn apiSources
+    from apiSources.archiveFile.map { zipTree(it) }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
