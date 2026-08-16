@@ -19,7 +19,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -77,7 +77,7 @@ public class GameEffectShadow extends VRGameEffect {
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
 
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
 

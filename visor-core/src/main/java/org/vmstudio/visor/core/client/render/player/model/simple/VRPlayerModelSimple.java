@@ -3,24 +3,22 @@ package org.vmstudio.visor.core.client.render.player.model.simple;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.player.VRPose;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
 import java.util.UUID;
 
-public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> {
+// 1.21.2: PlayerModel is no longer generic - it is fixed to PlayerRenderState
+public class VRPlayerModelSimple extends PlayerModel {
 
     protected VRClientPlayer vrPlayer;
     protected float bodyYaw;
@@ -31,32 +29,54 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         super(root, isSlim);
     }
 
+    // 1.21.2: the model is handed a render-state snapshot instead of the entity
     @Override
-    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        super.setupAnim(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    public void setupAnim(PlayerRenderState renderState) {
+        // no crouch hip movement when roomscale crawling.
+        // PlayerModel.crouching is gone; the flag lives on the render state now.
+        renderState.isCrouching &= !renderState.isVisuallySwimming;
+
+        super.setupAnim(renderState);
 
         if (VRRenderState.getPhase().isVRGui()) {
-            if (entity.isFallFlying() || entity.isVisuallySwimming()) {
-                this.head.xRot = headPitch * Mth.DEG_TO_RAD;
+            if (renderState.isFallFlying || renderState.isVisuallySwimming) {
+                this.head.xRot = renderState.xRot * Mth.DEG_TO_RAD;
                 this.hat.copyFrom(this.head);
             }
             return;
         }
-        if (!VRClientPlayers.isTracked(entity)) {
-            return;
+
+        // entity-derived VR data is resolved during extractRenderState and parked on the state
+        EntityRenderStateExtension ext = (EntityRenderStateExtension) renderState;
+        var vrPlayer = ext.visor$getVRPlayer();
+
+        // 1.21.2 removed PlayerRenderer#setModelProperties, so the part visibility it used
+        // to apply belongs here - super.setupAnim resets these every frame.
+        if (vrPlayer != null && VRRenderState.isSpectatedVRView(vrPlayer.getMcPlayer())) {
+            this.head.visible = false;
+            this.hat.visible = false;
+            this.body.visible = false;
+            this.jacket.visible = false;
+            this.leftArm.visible = false;
+            this.rightArm.visible = false;
+            this.leftSleeve.visible = false;
+            this.rightSleeve.visible = false;
+            this.leftLeg.visible = false;
+            this.rightLeg.visible = false;
+            this.leftPants.visible = false;
+            this.rightPants.visible = false;
         }
 
-        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
         if (vrPlayer == null) {
             this.vrPlayer = null;
             return;
         }
 
-        animateThirdPersonVRModel(this, entity, vrPlayer);
+        animateThirdPersonVRModel(this, renderState, vrPlayer);
     }
 
-    private static void animateThirdPersonVRModel(VRPlayerModelSimple<?> model,
-                                                  LivingEntity entity,
+    private static void animateThirdPersonVRModel(VRPlayerModelSimple model,
+                                                  PlayerRenderState renderState,
                                                   VRClientPlayer vrPlayer) {
         var poseRender = vrPlayer.getPoseData(PlayerPoseType.RENDER);
         VRBody vrBody = poseRender.getBody();
@@ -69,13 +89,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         applyYawPitchToArm(model, playerId, mainArm, vrBody.getMainHand().getPose(), bodyYaw);
         applyYawPitchToArm(model, playerId, offArm,  vrBody.getOffhand().getPose(),  bodyYaw);
         applyHmdHead(model, poseRender.getHmd(), bodyYaw);
-
-        if (entity instanceof AbstractClientPlayer player) {
-            float partialTicks = ClientContext.visor != null
-                    ? ClientContext.visor.getPartialTicks()
-                    : 1.0F;
-            applyVanillaSwingPose(model, player, partialTicks);
-        }
+        applyVanillaSwingPose(model, renderState);
 
         model.leftSleeve.copyFrom(model.leftArm);
         model.rightSleeve.copyFrom(model.rightArm);
@@ -86,7 +100,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         model.isMainPlayer = false;
     }
 
-    private static void applyYawPitchToArm(VRPlayerModelSimple<?> model,
+    private static void applyYawPitchToArm(VRPlayerModelSimple model,
                                            UUID playerId,
                                            HumanoidArm arm,
                                            VRPose handPose,
@@ -102,21 +116,17 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         armPart.setRotation(-Mth.HALF_PI - frame.armPitch, frame.armYawDelta, 0.0F);
     }
 
-    private static void applyVanillaSwingPose(VRPlayerModelSimple<?> model,
-                                              AbstractClientPlayer player,
-                                              float partialTicks) {
-        InteractionHand swinging = player.swingingArm;
-        if (swinging == null) {
-            return;
-        }
-        float attackTime = player.getAttackAnim(partialTicks);
+    // 1.21.2: swingingArm/getAttackAnim/getMainArm are pre-resolved into the render state
+    private static void applyVanillaSwingPose(VRPlayerModelSimple model,
+                                              PlayerRenderState renderState) {
+        float attackTime = renderState.attackTime;
         if (attackTime <= 0.0F) {
             return;
         }
-
-        HumanoidArm attackArm = (swinging == InteractionHand.MAIN_HAND)
-                ? player.getMainArm()
-                : player.getMainArm().getOpposite();
+        HumanoidArm attackArm = renderState.attackArm;
+        if (attackArm == null) {
+            return;
+        }
 
         float bodyTwist = model.body.yRot;
         model.leftArm.yRot  += bodyTwist;
@@ -144,7 +154,7 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
         }
     }
 
-    private static void applyHmdHead(VRPlayerModelSimple<?> model,   // <-- Simple uses VRPlayerModelSimple<?>
+    private static void applyHmdHead(VRPlayerModelSimple model,
                                      VRPose hmd,
                                      float bodyYaw) {
         model.head.xRot = -hmd.getPitch();

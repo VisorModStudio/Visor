@@ -399,7 +399,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         }
 
         if (player.isSprinting()
-                && (player.input.jumping || MC.options.keyJump.isDown())
+                && (player.input.keyPresses.jump() || MC.options.keyJump.isDown())
                 || player.isFallFlying()
                 || player.isSwimming()
                 && player.zza > 0.0F) {

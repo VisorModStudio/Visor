@@ -1,14 +1,14 @@
 package org.vmstudio.visor.core.common.player;
 
-import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.equipment.Equippable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.VisorAPI;
@@ -23,22 +23,29 @@ public class OffhandSlot extends Slot {
     }
 
     //-----COPY FROM VANILLA
+    // 1.21.2 made setByPlayer(new, old) the override point; the single-arg form now
+    // delegates to it, and vanilla calls the two-arg form directly in places the
+    // single-arg override never saw (InventoryMenu#quickMoveStack).
     @Override
-    public void setByPlayer(ItemStack stack) {
+    public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
         if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
-            Equipable equipable = Equipable.get(stack);
-            if (equipable != null) {
-                owner.onEquipItem(EquipmentSlot.OFFHAND, this.getItem(), stack);
+            // 1.21.2 turned Equipable into the EQUIPPABLE data component.
+            // Vanilla's own offhand slot dropped this check and always notifies;
+            // kept here to preserve Visor's behaviour.
+            Equippable equippable = newStack.get(DataComponents.EQUIPPABLE);
+            if (equippable != null) {
+                owner.onEquipItem(EquipmentSlot.OFFHAND, oldStack, newStack);
             }
-            super.setByPlayer(stack);
+            super.setByPlayer(newStack, oldStack);
         }
 
     }
 
+    // 1.21.2: no longer a Pair - the atlas is implied
     @Override
-    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
-        return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
+    public ResourceLocation getNoItemIcon() {
+        return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;
     }
 
 

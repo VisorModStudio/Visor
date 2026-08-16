@@ -30,7 +30,7 @@ public class RenderSystemMixin {
         return GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
     }
 
-    @ModifyVariable(method = "_setShaderTexture(II)V", at = @At("HEAD"),
+    @ModifyVariable(method = "setShaderTexture(II)V", at = @At("HEAD"),
             index = 1, argsOnly = true, remap = false)
     private static int visor$dropDeletedShaderTexture(int textureId) {
         return ShaderTextureHelper.sanitize(textureId);

@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.DeltaTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.EyeType;
@@ -83,26 +84,25 @@ public abstract class GameRendererMixin
     @Shadow
     private float zoomY;
     @Shadow
-    private float fov;
+    private float fovModifier;
 
     @Shadow
-    private float oldFov;
+    private float oldFovModifier;
 
 
     @Shadow
     private int itemActivationTicks;
 
     @Shadow
-    public abstract Matrix4f getProjectionMatrix(double fov);
+    public abstract Matrix4f getProjectionMatrix(float fov);
 
     @Shadow
     public abstract float getDepthFar();
 
     @Shadow
-    protected abstract double getFov(Camera mainCamera2, float partialTicks, boolean b);
-
-    @Shadow
-    public abstract void resetProjectionMatrix(Matrix4f projectionMatrix);
+    private float getFov(Camera mainCamera2, float partialTicks, boolean b) {
+        throw new AssertionError();
+    }
 
     @Shadow
     public abstract void pick(float f);
@@ -235,15 +235,15 @@ public abstract class GameRendererMixin
         return new VRGameCamera();
     }
 
-    @Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)D", cancellable = true)
-    public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Double> info) {
+    @Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)F", cancellable = true)
+    public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Float> info) {
         if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
-            info.setReturnValue(Double.valueOf(this.minecraft.options.fov().get()));
+            info.setReturnValue(Float.valueOf(this.minecraft.options.fov().get()));
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "getProjectionMatrix(D)Lorg/joml/Matrix4f;", cancellable = true)
-    public void visor$projection(double d, CallbackInfoReturnable<Matrix4f> info) {
+    @Inject(at = @At("HEAD"), method = "getProjectionMatrix(F)Lorg/joml/Matrix4f;", cancellable = true)
+    public void visor$projection(float d, CallbackInfoReturnable<Matrix4f> info) {
         if (VisorState.get().isNotActive()) {
             return;
         }
@@ -313,13 +313,13 @@ public abstract class GameRendererMixin
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V")
     public void visor$matrix(DeltaTracker deltaTracker, boolean renderWorldIn, CallbackInfo info) {
         if(VisorState.get().isNotActive()) return;
-        this.resetProjectionMatrix(
+        RenderSystem.setProjectionMatrix(
                 this.getProjectionMatrix(
                         minecraft.options.fov().get()
-                )
+                ),
+                ProjectionType.PERSPECTIVE
         );
         RenderSystem.getModelViewStack().identity();
-        RenderSystem.applyModelViewMatrix();
     }
 
 
@@ -531,7 +531,7 @@ public abstract class GameRendererMixin
     @Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
     public void visor$noFOVchangeInVR(CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
-            this.oldFov = this.fov = 1.0f;
+            this.oldFovModifier = this.fovModifier = 1.0f;
             ci.cancel();
         }
     }
@@ -557,13 +557,6 @@ public abstract class GameRendererMixin
                                 float f,
                                 CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
-            ci.cancel();
-        }
-    }
-
-    @Inject(at = @At("HEAD"), method = "renderConfusionOverlay", cancellable = true)
-    private void visor$noConfusionOverlayInGUI(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
-        if (VRRenderState.getPhase().isVRGui()) {
             ci.cancel();
         }
     }
@@ -797,7 +790,10 @@ public abstract class GameRendererMixin
     @Override
     @Unique
     public void visor$resetProjectionMatrix(float partialTicks) {
-        this.resetProjectionMatrix(this.getProjectionMatrix(this.getFov(this.mainCamera, partialTicks, true)));
+        RenderSystem.setProjectionMatrix(
+                this.getProjectionMatrix(this.getFov(this.mainCamera, partialTicks, true)),
+                ProjectionType.PERSPECTIVE
+        );
     }
 
 

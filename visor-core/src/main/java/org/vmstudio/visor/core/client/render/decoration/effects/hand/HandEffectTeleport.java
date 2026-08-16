@@ -15,12 +15,13 @@ import org.vmstudio.visor.compatibility.ShadersHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRShaders;
+import org.vmstudio.visor.core.client.render.shaders.VRShaderTeleportPoint;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.CompiledShaderProgram;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
@@ -30,6 +31,9 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
+import net.minecraft.util.profiling.Profiler;
+import net.minecraft.world.level.lighting.LightEngine;
 
 @RegisterVRHandEffect
 public class HandEffectTeleport extends VRHandEffect {
@@ -96,11 +100,11 @@ public class HandEffectTeleport extends VRHandEffect {
 
     private void renderTeleportArc(VRRenderPass renderPass,
                                    PoseStack poseStack) {
-        MC.getProfiler().push("teleportArc");
+        Profiler.get().push("teleportArc");
 
         RenderSystem.enableCull();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+        McVersionUtilsClient.bindTexture(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
         BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS,
@@ -144,7 +148,7 @@ public class HandEffectTeleport extends VRHandEffect {
                 light = (float) minLight;
             }
 
-            float lightPercent = Math.min(1.0f, light / (float) MC.level.getMaxLightLevel());
+            float lightPercent = Math.min(1.0f, light / (float) LightEngine.MAX_LEVEL);
             color = AtumColor.immutable(
                     Mth.floor(color.getRedInt() * lightPercent),
                     Mth.floor(color.getGreenInt() * lightPercent),
@@ -203,7 +207,7 @@ public class HandEffectTeleport extends VRHandEffect {
                     timer,
                     color
             );
-            ShaderInstance shaderInstance = VRShaders.getTeleportPoint().getHandle();
+            CompiledShaderProgram shaderInstance = VRShaders.getTeleportPoint().getHandle();
 
 
             // Calculate destination relative to camera and add slight offset to avoid z-fighting
@@ -219,7 +223,7 @@ public class HandEffectTeleport extends VRHandEffect {
             RenderSystem.enableCull();
         }
 
-        MC.getProfiler().pop();
+        Profiler.get().pop();
 
     }
 
@@ -229,7 +233,7 @@ public class HandEffectTeleport extends VRHandEffect {
         Matrix4f matrix = poseStack.last().pose();
 
         RenderShaderHelper.renderQuad(
-                VRShaders.getTeleportPoint().getHandle().getVertexFormat(),
+                VRShaderTeleportPoint.PROGRAM.vertexFormat(),
                 matrix,
                 (float) center.x - halfSize,
                 (float) center.y,

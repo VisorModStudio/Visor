@@ -3,6 +3,7 @@ package org.vmstudio.visor.mixin.client.gui;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.GuiExtension;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,14 @@ public abstract class GuiMixin implements GuiExtension {
     /* ********************************** *\
   //--------DISABLE VANILLA OVERLAYS--------\\
     \* ********************************** */
+    // 1.21.4: renderConfusionOverlay moved here from GameRenderer
+    @Inject(at = @At("HEAD"), method = "renderConfusionOverlay", cancellable = true)
+    private void visor$noConfusionOverlayInGUI(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
+        if (VRRenderState.getPhase().isVRGui()) {
+            ci.cancel();
+        }
+    }
+
     // 1.21.1: renderHotbar split into renderHotbarAndDecorations/renderItemHotbar
     @Inject(at = @At("HEAD"), method = "renderItemHotbar", cancellable = true)
     public void visor$noVanillaHotbar(CallbackInfo ci) {

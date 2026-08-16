@@ -27,7 +27,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
@@ -48,10 +47,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ForgeModLoader implements ModLoader {
     private File configFolder = FMLPaths.CONFIGDIR.get().toFile();
 
-    private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
+    private static final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
             = new EnumMap<>(RenderPipelineStage.class);
-
-    private boolean levelStageListenerRegistered = false;
 
 
     @Override
@@ -85,10 +82,22 @@ public class ForgeModLoader implements ModLoader {
         pipelineCallbacks
                 .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
                 .add(callback);
+    }
 
-        if (!levelStageListenerRegistered) {
-            MinecraftForge.EVENT_BUS.addListener(this::onRenderLevelStage);
-            levelStageListenerRegistered = true;
+    /**
+     * 1.21.4: Forge 54 removed RenderLevelStageEvent along with the rest of the pre-framegraph
+     * level render hooks, and its only replacement (AddFramePassEvent) appends a single pass
+     * after every vanilla one, so it cannot express AFTER_SOLID or AFTER_TRANSLUCENT.
+     * The stages are driven by ForgeLevelRendererVRMixin instead, which calls this.
+     */
+    public static void fireRenderPipelineStage(@NotNull RenderPipelineStage stage,
+                                               @NotNull PoseStack poseStack,
+                                               float partialTicks) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
         }
     }
 
@@ -237,34 +246,4 @@ public class ForgeModLoader implements ModLoader {
 
     // ----- INNER -----
 
-    private void onRenderLevelStage(RenderLevelStageEvent event) {
-        RenderPipelineStage stage = mapForgeStage(event.getStage());
-        if (stage == null) return;
-
-        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
-        if (callbacks == null || callbacks.isEmpty()) return;
-
-        // Forge 52: the event exposes the model-view Matrix4f instead of a PoseStack
-        PoseStack poseStack = new PoseStack();
-        poseStack.mulPose(event.getPoseStack());
-        float partialTicks = event.getPartialTick();
-
-        for (RenderPipelineCallback callback : callbacks) {
-            callback.render(poseStack, partialTicks);
-        }
-    }
-
-
-    private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
-        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
-            return RenderPipelineStage.AFTER_SOLID;
-        }
-        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            return RenderPipelineStage.AFTER_TRANSLUCENT;
-        }
-        if (forgeStage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
-            return RenderPipelineStage.AFTER_WORLD;
-        }
-        return null;
-    }
 }

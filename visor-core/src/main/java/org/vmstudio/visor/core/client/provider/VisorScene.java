@@ -8,6 +8,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
 import me.phoenixra.atumvr.api.rendering.AtumVRScene;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import net.minecraft.util.profiling.Profiler;
 import org.joml.Matrix4fStack;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
@@ -52,7 +53,6 @@ public class VisorScene implements AtumVRScene {
 
 
         RenderSystem.depthMask(true);
-        RenderSystem.applyModelViewMatrix();
 
 
         profiler.push("prepare VROverlays and cursor");
@@ -64,7 +64,7 @@ public class VisorScene implements AtumVRScene {
         profiler.push("VROverlay texturing");
         GuiGraphics guiGraphics = new GuiGraphics(MC, MC.renderBuffers().bufferSource());
         ClientContext.overlayManager.renderOverlayTextures(
-                MC.getProfiler(),
+                Profiler.get(),
                 guiGraphics,
                 renderContext.partialTicks()
         );
@@ -121,7 +121,7 @@ public class VisorScene implements AtumVRScene {
 
             MC.mainRenderTarget.unbindWrite();
             ClientUtils.takeScreenshot(rendertarget);
-            MC.getWindow().updateDisplay();
+            MC.getWindow().updateDisplay(null);
             ClientContext.renderer.setAskedForScreenShot(false);
         }
     }
@@ -145,7 +145,7 @@ public class VisorScene implements AtumVRScene {
 
         MC.mainRenderTarget.bindWrite(true);
         RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
-        RenderSystem.clear(16384, Minecraft.ON_OSX);
+        RenderSystem.clear(16384);
         RenderSystem.enableDepthTest();
 
         ShadersHelper.bridge().beginEye(renderPass.getEyeOrLeft());
@@ -157,7 +157,7 @@ public class VisorScene implements AtumVRScene {
         }
 
         MC.gameRenderer.render(
-                MC.getTimer(),
+                MC.getDeltaTracker(),
                 context.renderLevel()
         );
 
@@ -166,10 +166,8 @@ public class VisorScene implements AtumVRScene {
             Matrix4fStack modelView = RenderSystem.getModelViewStack();
             modelView.pushMatrix();
             modelView.identity();
-            RenderSystem.applyModelViewMatrix();
             ClientContext.decorationRenderer.renderShaderUi(new PoseStack(), context.partialTicks());
             modelView.popMatrix();
-            RenderSystem.applyModelViewMatrix();
         }
 
         if (renderPass.isEye()) {

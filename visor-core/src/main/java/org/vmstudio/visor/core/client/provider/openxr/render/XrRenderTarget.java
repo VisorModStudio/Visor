@@ -14,12 +14,12 @@ public class XrRenderTarget extends RenderTarget {
 
         this.colorTextureId = colorId;
 
-        this.resize(width, height, Minecraft.ON_OSX);
+        this.resize(width, height);
 
     }
 
     @Override
-    public void createBuffers(int width, int height, boolean getError) {
+    public void createBuffers(int width, int height) {
         RenderSystem.assertOnRenderThreadOrInit();
         int maxSize = RenderSystem.maxSupportedTextureSize();
         if (width > 0 && width <= maxSize && height > 0 && height <= maxSize) {
@@ -41,7 +41,7 @@ public class XrRenderTarget extends RenderTarget {
 
 
             this.checkStatus();
-            this.clear(getError);
+            this.clear();
             this.unbindRead();
         } else {
             throw new IllegalArgumentException("Window " + width + "x" + height + " size out of bounds (max. size: " + maxSize + ")");

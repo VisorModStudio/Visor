@@ -16,14 +16,14 @@ The VR mod that is built to support addons
 [[dependencies.visor]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1,)"
+versionRange = "[21.4,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.visor]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,1.21.1]"
+versionRange = "[1.21.4,1.21.4]"
 ordering = "AFTER"
 side = "BOTH"
 

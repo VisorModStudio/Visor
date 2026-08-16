@@ -25,8 +25,10 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
 
 public class VRPlayerRendererFull extends PlayerRenderer {
@@ -47,25 +49,42 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim) {
         super(context, slim);
-        this.model = new VRPlayerModelFull<>(
+        this.model = new VRPlayerModelFull(
                 slim ? VR_LAYER_SLIM.bakeRoot()
                         : VR_LAYER_DEFAULT.bakeRoot(),
                 slim
         );
     }
 
+    // 1.21.2: everything entity-derived has to be resolved here, because render() and the
+    // model only ever see the PlayerRenderState snapshot.
     @Override
-    public void render(
-            AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
-            int packedLight)
+    public void extractRenderState(AbstractClientPlayer player,
+                                   PlayerRenderState renderState,
+                                   float partialTick) {
+        super.extractRenderState(player, renderState, partialTick);
+
+        EntityRenderStateExtension ext = (EntityRenderStateExtension) renderState;
+        ext.visor$setVRPlayer(VRClientPlayers.getPlayer(player.getUUID()));
+        ext.visor$setSelfModelRender(VRRenderState.isSelfModelRender(player));
+        ext.visor$setSelfModelPlayer(VRRenderState.isSelfModelPlayer(player));
+    }
+
+    @Override
+    public void render(PlayerRenderState renderState, PoseStack poseStack, MultiBufferSource buffer,
+                       int packedLight)
     {
 
         poseStack.pushPose();
 
-        var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
+        var vrPlayer = ((EntityRenderStateExtension) renderState).visor$getVRPlayer();
 
         if (vrPlayer != null) {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
+            AbstractClientPlayer player = (AbstractClientPlayer) vrPlayer.getMcPlayer();
+            float partialTick = ClientContext.visor != null
+                    ? ClientContext.visor.getPartialTicks()
+                    : 1.0F;
 
             float scale = vrPlayer.getFullHeightScale();
             if ((VisorState.get().isActive()
@@ -75,85 +94,61 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                 scale *= pose.getWorldScale() / ScaleHelper.getEntityEyeHeightScale(player, partialTick);
             }
 
-            if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
+            if (renderState.isAutoSpinAttack && !VRRenderState.getPhase().isVRGui()) {
                 // offset player to head
-                float offset = player.getViewXRot(partialTick) / 90F * 0.2F;
+                float offset = renderState.xRot / 90F * 0.2F;
                 poseStack.translate(0, pose.getHmd().getPosition().y() + offset, 0);
             }
 
             poseStack.scale(scale, scale, scale);
         }
 
-        super.render(player, entityYaw, partialTick, poseStack, buffer, packedLight);
+        super.render(renderState, poseStack, buffer, packedLight);
 
         poseStack.popPose();
 
-        if (vrPlayer != null && VRRenderState.isSpectatedVRView(player)) {
+        if (vrPlayer != null && VRRenderState.isSpectatedVRView(vrPlayer.getMcPlayer())) {
             ClientContext.handRenderer.renderSpectatedHands(
-                    this, player, vrPlayer, poseStack, buffer, packedLight, partialTick);
+                    this, (AbstractClientPlayer) vrPlayer.getMcPlayer(), vrPlayer, poseStack, buffer, packedLight,
+                    ClientContext.visor != null ? ClientContext.visor.getPartialTicks() : 1.0F);
         }
     }
 
     @Override
-    public Vec3 getRenderOffset(AbstractClientPlayer player, float partialTick) {
-        if (VRRenderState.isSelfModelPlayer(player)) {
-            return player.isVisuallySwimming() ?
+    public Vec3 getRenderOffset(PlayerRenderState renderState) {
+        if (((EntityRenderStateExtension) renderState).visor$isSelfModelPlayer()) {
+            return renderState.isVisuallySwimming ?
                     new Vec3(0.0F, -0.125F * ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
         } else {
-            return player.isVisuallySwimming() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+            return renderState.isVisuallySwimming ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
         }
     }
 
-    @Override
-    public void setModelProperties(AbstractClientPlayer player) {
-        super.setModelProperties(player);
-
-        // no crouch hip movement when roomscale crawling
-        this.getModel().crouching &= !player.isVisuallySwimming();
-
-        if (VRRenderState.isSelfModelRender(player)) {
-            this.model.head.visible = false;
-            this.model.hat.visible = false;
-
-            VRBodyType.ModelSelfVisibility visibility =
-                    ClientContext.localPlayer.getBodyType().getSelfModelVisibility();
-            if (visibility == VRBodyType.ModelSelfVisibility.WITHOUT_HANDS
-                    && this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
-                vrModel.hideLeftArm();
-                vrModel.hideRightArm();
-            }
-        } else if (VRRenderState.isSpectatedVRView(player)) {
-            this.model.head.visible = false;
-            this.model.hat.visible = false;
-            if (this.getModel() instanceof VRPlayerModelFull<?> vrModel) {
-                vrModel.hideLeftArm();
-                vrModel.hideRightArm();
-            }
-        }
-
-    }
+    // 1.21.2 removed setModelProperties; the part visibility it applied now lives in
+    // VRPlayerModelFull#setupAnim, which is the only hook that runs after the model resets.
 
 
+    // 1.21.2: the hand renderers take a resolved skin and sleeve flag, not the player
     @Override
     public void renderRightHand(
-            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin,
+            boolean isSleeveVisible)
     {
-        renderVRHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player);
+        renderVRHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, skin);
     }
 
     @Override
     public void renderLeftHand(
-            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin,
+            boolean isSleeveVisible)
     {
-        renderVRHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player);
+        renderVRHand(ControllerType.LEFT, poseStack, buffer, combinedLight, skin);
     }
 
     private void renderVRHand(
             ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            AbstractClientPlayer player)
+            ResourceLocation skin)
     {
-        this.setModelProperties(player);
-
         boolean left = side == ControllerType.LEFT;
         ModelPart arm = left ? this.model.leftArm : this.model.rightArm;
         ModelPart sleeve = left ? this.model.leftSleeve : this.model.rightSleeve;
@@ -173,8 +168,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         sleeve.copyFrom(arm);
         sleeve.visible = true;
 
-        ResourceLocation skin = this.getTextureLocation(player);
-
         arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
         sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
@@ -184,26 +177,27 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
+    // 1.21.2: setupRotations lost ageInTicks and partialTick - both are baked into the state
     @Override
     protected void setupRotations(
-            AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float scale)
+            PlayerRenderState renderState, PoseStack poseStack, float bodyRot, float scale)
     {
         if (VRRenderState.getPhase().isVRGui()) {
-            if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
+            if (renderState.isFallFlying || renderState.isVisuallySwimming || renderState.isAutoSpinAttack) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
                 return;
             }
-            super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
+            super.setupRotations(renderState, poseStack, bodyRot, scale);
             return;
         }
 
-        var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
+        var vrPlayer = ((EntityRenderStateExtension) renderState).visor$getVRPlayer();
         if (vrPlayer != null) {
-            rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
+            bodyRot = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
         }
 
         // vanilla below here
-        super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick, scale);
+        super.setupRotations(renderState, poseStack, bodyRot, scale);
     }
 
 }

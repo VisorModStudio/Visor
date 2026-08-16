@@ -35,7 +35,7 @@ public class RenderTargetFirst implements RenderTargetHolder {
     public void resize(int width, int height) throws Exception {
         if(width < 1 || height < 1) return;
         if (this.target != null) {
-            target.resize(width, height, Minecraft.ON_OSX);
+            target.resize(width, height);
         }
     }
 

@@ -6,11 +6,12 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.renderer.entity.GuardianRenderer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -18,17 +19,14 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 @Mixin(GuardianRenderer.class)
 public abstract class GuardianRendererMixin {
 
-    @Shadow
-    protected abstract Vec3 getPosition(LivingEntity livingEntity, double d, float f);
-
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/GuardianRenderer;getPosition(Lnet/minecraft/world/entity/LivingEntity;DF)Lnet/minecraft/world/phys/Vec3;"), method = "render(Lnet/minecraft/world/entity/monster/Guardian;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V")
-    public Vec3 visor$vrRenderBeam(GuardianRenderer instance,
-                               LivingEntity livingEntity,
-                               double yOffset,
-                               float partialTick) {
+    // 1.21.2: the beam endpoints are resolved in extractRenderState, not in render, so the
+    // hook moved onto getPosition itself rather than the (now non-existent) call site.
+    @Inject(method = "getPosition", at = @At("HEAD"), cancellable = true)
+    public void visor$vrRenderBeam(CallbackInfoReturnable<Vec3> cir,
+                                   @Local(argsOnly = true) LivingEntity livingEntity) {
         if (VRRenderState.getPhase().isVanilla()
                 || livingEntity != MC.getCameraEntity()) {
-            return this.getPosition(livingEntity, yOffset, partialTick);
+            return;
         }
 
         float worldScale = ClientContext
@@ -43,6 +41,6 @@ public abstract class GuardianRendererMixin {
                         0.0f,
                         new Vector3f()
                 );;
-        return new Vec3(beamPos);
+        cir.setReturnValue(new Vec3(beamPos));
     }
 }

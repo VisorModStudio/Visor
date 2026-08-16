@@ -207,7 +207,9 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         if (!this.player.canInteractWithBlock(blockPos, 1.0)) {
             this.debugLogging(blockPos, false, j, "too far");
             return;
-        } else if (blockPos.getY() >= i) {
+            // 1.21.2: vanilla passes Level#getMaxY (inclusive) here instead of the old
+            // exclusive getMaxBuildHeight, so the bound check is > rather than >=
+        } else if (blockPos.getY() > i) {
             this.player.connection.send(new ClientboundBlockUpdatePacket(blockPos, this.level.getBlockState(blockPos)));
             this.debugLogging(blockPos, false, j, "too high");
             return;

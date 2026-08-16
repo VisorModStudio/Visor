@@ -103,8 +103,10 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         return CullFrustumHelper.widenCullProjection(projection);
     }
 
+    // 1.21.2: renderLevel no longer does the entity visibility pass itself, the isDetached
+    // check moved into collectVisibleEntities
     @Redirect(
-            method = "renderLevel(Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V",
+            method = "collectVisibleEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
     )
     private boolean visor$renderSpectatedVRSelfView(Camera camera) {
@@ -143,41 +145,12 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;getRenderDistance()F", shift = Shift.BEFORE),
-            method = "renderLevel(Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V")
-    public void visor$stencil(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
-                             LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo info
-    ) {
+            method = "renderLevel(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V")
+    public void visor$stencil(CallbackInfo info) {
         if (VRRenderState.getPhase().isNotVanilla()) {
             //@TODO rework to fix Quest 3 issue
             //VREffectsHelper.drawEyeStencil();
         }
-    }
-
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
-    public double visor$rainAndSnowX(double x) {
-        if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getHmd().getPosition().x();
-        }
-        return x;
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
-    public double visor$rainAndSnowY(double y) {
-        if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER)
-                    .getHmd().getPosition().y();
-        }
-        return y;
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
-    public double visor$rainAndSnowZ(double z) {
-        if (VRRenderState.getRenderPass().isEye()) {
-            return ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getHmd().getPosition().z();
-        }
-        return z;
     }
 
 
@@ -187,14 +160,14 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
      * (like for FIRST_PERSON, THIRD_PERSON VR cameras
      * that use different resolution from initial)
      */
-    @Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
+    @Inject(method = "initOutline", at = @At("HEAD"))
     private void visor$ensureVanillaPhase(CallbackInfo ci) {
         if (VisorState.get().isActive() && VRRenderState.getPhase().isNotVanilla()) {
             this.visor$savedRenderTarget = MC.mainRenderTarget;
             MC.mainRenderTarget = VRRenderState.getVanillaTarget();
         }
     }
-    @Inject(method = {"initOutline", "initTransparency"}, at = @At("TAIL"))
+    @Inject(method = "initOutline", at = @At("TAIL"))
     private void visor$restoreAfterInit(CallbackInfo ci) {
         if (this.visor$savedRenderTarget != null) {
             MC.mainRenderTarget = this.visor$savedRenderTarget;
@@ -346,35 +319,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         visor$damagedBlocksVrSave.put(blockPos.asLong(), progress);
     }
 
-    @Inject(at = @At("HEAD"), method = "levelEvent")
-    public void visor$hapticOnSound(int i, BlockPos blockPos, int j, CallbackInfo ci) {
-        if(VisorState.get().isNotActive()) return;
-
-        if (this.minecraft.player != null
-                && this.minecraft.player.isAlive()
-                && this.minecraft.player.blockPosition().distSqr(blockPos) < 25.0D) {
-            switch (i) {
-                case 1019,      // ZOMBIE_ATTACK_WOODEN_DOOR
-                     1020,   // ZOMBIE_ATTACK_IRON_DOOR
-                     1021    // ZOMBIE_BREAK_WOODEN_DOOR
-                        -> {
-                    ClientContext.inputManager
-                            .triggerHapticPulse(HandType.MAIN, 0.0075f);
-                    ClientContext.inputManager
-                            .triggerHapticPulse(HandType.OFFHAND, 0.0075f);
-                }
-                case 1030 ->    // ANVIL_USE
-                        ClientContext.inputManager
-                                .triggerHapticPulse(HandType.MAIN, 0.005f);
-                case 1031 -> {  // ANVIL_LAND
-                    ClientContext.inputManager
-                            .triggerHapticPulse(HandType.MAIN, 0.0125f);
-                    ClientContext.inputManager
-                            .triggerHapticPulse(HandType.OFFHAND, 0.0125f);
-                }
-            }
-        }
-    }
 
     /* ************************ *\
   //--------PUBLIC METHODS--------\\

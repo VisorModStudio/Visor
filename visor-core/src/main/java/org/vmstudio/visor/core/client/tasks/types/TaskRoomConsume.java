@@ -14,7 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -162,9 +162,9 @@ public class TaskRoomConsume extends VisorTask {
         if (item == ItemStack.EMPTY) {
             return false;
         }
-        UseAnim useAnim = item.getUseAnimation();
-        return useAnim == UseAnim.EAT
-                || useAnim == UseAnim.DRINK
-                || useAnim == UseAnim.TOOT_HORN;
+        ItemUseAnimation useAnim = item.getUseAnimation();
+        return useAnim == ItemUseAnimation.EAT
+                || useAnim == ItemUseAnimation.DRINK
+                || useAnim == ItemUseAnimation.TOOT_HORN;
     }
 }

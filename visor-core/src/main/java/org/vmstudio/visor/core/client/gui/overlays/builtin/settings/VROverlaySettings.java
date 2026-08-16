@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 
 public class VROverlaySettings extends VROverlayScreen
         implements VREventListener {
@@ -192,18 +193,21 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
         //MAIN BACKGROUND
-        guiGraphics.blit(
-                settingsTab.background(),
+        // 1.21.2 gave GuiGraphics#blit a RenderType factory and reordered its parameters;
+        // the short overload that assumed a 256x256 texture is gone, so the size is explicit.
+        McVersionUtilsClient.blitTiled(
+                guiGraphics, settingsTab.background(),
                 menuBoundsX, menuBoundsY,
+                256, 256,
                 0, 0,
                 256, 256
         );
         //EXTRA BACKGROUND
-        guiGraphics.blit(
-                settingsTab.backgroundExtra(this),
+        McVersionUtilsClient.blitTiled(
+                guiGraphics, settingsTab.backgroundExtra(this),
                 menuBoundsX + 230, menuBoundsY + 6,
-                0, 0,
                 backgroundExtended ? 128 : 27, 245,
+                0, 0,
                 backgroundExtended ? 128 : 27, 245
         );
 

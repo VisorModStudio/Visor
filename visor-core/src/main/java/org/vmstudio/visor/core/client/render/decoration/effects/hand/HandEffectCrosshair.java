@@ -18,7 +18,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -33,6 +33,7 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import net.minecraft.world.level.lighting.LightEngine;
 
 @RegisterVRHandEffect
 public class HandEffectCrosshair extends VRHandEffect {
@@ -101,7 +102,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         );
 
         RenderSystem.setShaderTexture(0, ICONS_LOC);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
 
         // --- Pose setup ---
         poseStack.pushPose();
@@ -186,7 +187,7 @@ public class HandEffectCrosshair extends VRHandEffect {
                 BlockPos.containing(new Vec3(crossPos))
         );
         float light =Math.max(rawLight, ShadersHelper.shaderLight());
-        return light / (float) MC.level.getMaxLightLevel();
+        return light / (float) LightEngine.MAX_LEVEL;
     }
 
     @Override

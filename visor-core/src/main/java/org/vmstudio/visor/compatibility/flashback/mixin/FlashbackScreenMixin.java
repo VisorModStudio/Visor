@@ -23,7 +23,7 @@ public class FlashbackScreenMixin {
     private void visor$stopIllegalFlashbackEntry(CallbackInfo ci) {
         if (!VisorState.get().isInitialized()) return;
 
-        Minecraft.getInstance().tell(() -> {
+        Minecraft.getInstance().execute(() -> {
             Minecraft.getInstance().setScreen(new AlertScreen(
                     () -> Minecraft.getInstance().setScreen(null),
                     Component.literal("§cReplay editor is disabled in VR mode or WORLD_ONLY playMode"),

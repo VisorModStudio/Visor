@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Shoot power modified
@@ -28,12 +29,8 @@ public abstract class BowItemMixin extends ProjectileWeaponItem {
 
 
     @Inject(method = "releaseUsing", at = @At("HEAD"))
-    public void visor$releaseUsing(ItemStack itemStack,
-                                  Level level,
-                                  LivingEntity livingEntity,
-                                  int i,
-                                  CallbackInfo callbackInfo) {
-        if (livingEntity instanceof Player player) {
+    public void visor$releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft, CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof Player player) {
             visor$lastShooter = player;
         }
 

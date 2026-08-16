@@ -28,7 +28,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -153,8 +153,9 @@ public abstract class ServerPlayerMixin
         );
     }
 
-    @Inject(at = @At("HEAD"), method = "hurt", cancellable = true)
-    public void visor$canGetHurtByPlayer(DamageSource damageSource, float f, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(at = @At("HEAD"), method = "hurtServer", cancellable = true)
+    public void visor$canGetHurtByPlayer(ServerLevel serverLevel, DamageSource damageSource, float f,
+                                         CallbackInfoReturnable<Boolean> cir) {
         Entity entity = damageSource.getEntity();
         ServerPlayer damager = null;
 
@@ -231,29 +232,31 @@ public abstract class ServerPlayerMixin
 
 
 
+    // 1.21.2: the hook is on getItemBlockingWith() rather than isBlocking(), so this deals in
+    // the blocking stack (null when not blocking) instead of a boolean
     @Override
-    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
-                                                    DamageSource damageSource,
-                                                    LocalBooleanRef roomscaleBlocked) {
+    protected ItemStack visor$roomscaleShieldBlocking(ItemStack blockingWith,
+                                                      DamageSource damageSource,
+                                                      LocalBooleanRef roomscaleBlocked) {
         visor$roomscaleShieldItem = null;
         visor$roomscaleShieldHand = null;
 
-        if (isBlocking || !VRServerSettings.isRoomscaleShieldBlocking()) {
-            return isBlocking;
+        if (blockingWith != null || !VRServerSettings.isRoomscaleShieldBlocking()) {
+            return blockingWith;
         }
 
         Vec3 dmgPos = damageSource.getSourcePosition();
         if (dmgPos == null) {
-            return false;
+            return null;
         }
         if (damageSource.getDirectEntity() instanceof AbstractArrow arrow
                 && arrow.getPierceLevel() > 0) {
-            return false;
+            return null;
         }
 
         VRServerPlayer vrPlayer = visor$getVrPlayer();
         if (vrPlayer == null || !vrPlayer.hasPoseData()) {
-            return false;
+            return null;
         }
 
         ServerPlayer player = visor$getPlayer();
@@ -272,7 +275,7 @@ public abstract class ServerPlayerMixin
                             : EquipmentSlot.OFFHAND
             );
             if (!visor$isShield(stack)
-                    || player.getCooldowns().isOnCooldown(stack.getItem())) {
+                    || player.getCooldowns().isOnCooldown(stack)) {
                 continue;
             }
 
@@ -304,10 +307,10 @@ public abstract class ServerPlayerMixin
                 roomscaleBlocked.set(true);
                 visor$roomscaleShieldItem = stack;
                 visor$roomscaleShieldHand = hand.asInteractionHand();
-                return true;
+                return stack;
             }
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -336,7 +339,7 @@ public abstract class ServerPlayerMixin
     private boolean visor$isShield(ItemStack stack) {
         return !stack.isEmpty()
                 && (ItemClassifier.SHIELD.is(stack)
-                || stack.getUseAnimation() == UseAnim.BLOCK);
+                || stack.getUseAnimation() == ItemUseAnimation.BLOCK);
     }
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)

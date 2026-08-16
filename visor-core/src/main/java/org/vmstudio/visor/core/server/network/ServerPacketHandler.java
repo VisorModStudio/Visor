@@ -217,7 +217,7 @@ public class ServerPacketHandler {
                         .visor$handleVrBlockDamage(
                                 payload.blockPos(),
                                 payload.direction(),
-                                serverPlayer.level().getMaxBuildHeight(),
+                                serverPlayer.level().getMaxY(),
                                 payload.sequence(),
                                 itemStack
                         );

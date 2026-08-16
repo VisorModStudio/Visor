@@ -41,8 +41,8 @@ public class MultiCameraRenderTarget extends RenderTarget {
     }
 
     @Override
-    public void resize(int width, int height, boolean clearError) {
-        getCurrentTarget().resize(width, height, clearError);
+    public void resize(int width, int height) {
+        getCurrentTarget().resize(width, height);
     }
 
     @Override
@@ -57,8 +57,8 @@ public class MultiCameraRenderTarget extends RenderTarget {
     }
 
     @Override
-    public void createBuffers(int width, int height, boolean clearError) {
-        getCurrentTarget().createBuffers(width, height, clearError);
+    public void createBuffers(int width, int height) {
+        getCurrentTarget().createBuffers(width, height);
     }
 
     @Override
@@ -101,14 +101,16 @@ public class MultiCameraRenderTarget extends RenderTarget {
         getCurrentTarget().blitToScreen(width, height);
     }
 
+    // 1.21.2 dropped the blitToScreen(w, h, disableBlend) overload; the blend-enabled
+    // variant is now a separate method.
     @Override
-    public void blitToScreen(int width, int height, boolean disableBlend) {
-        getCurrentTarget().blitToScreen(width, height, disableBlend);
+    public void blitAndBlendToScreen(int width, int height) {
+        getCurrentTarget().blitAndBlendToScreen(width, height);
     }
 
     @Override
-    public void clear(boolean clearError) {
-        getCurrentTarget().clear(clearError);
+    public void clear() {
+        getCurrentTarget().clear();
     }
 
     @Override

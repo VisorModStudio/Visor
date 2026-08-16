@@ -115,7 +115,8 @@ public abstract class VRRendererBase implements VRRenderer {
         RenderSystem.depthMask(true);
         RenderSystem.colorMask(true, true, true, true);
 
-        MC.mainRenderTarget.clear(Minecraft.ON_OSX);
+        // 1.21.2 dropped the clearError flag; the mac GL error check is gone
+        MC.mainRenderTarget.clear();
         MC.mainRenderTarget.bindWrite(true);
 
         // push pose to pop it in scene

@@ -136,7 +136,11 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         );
         elements.addAll(trackers.getActiveTrackersPose());
         elements.addAll(hands.getActiveJointsPose());
-        elements.addAll(body.getAllPoses());
+        // body stays null until the body type is resolved - the constructor
+        // tolerates that, and tracker/hand changes can reset elements before then
+        if (body != null) {
+            elements.addAll(body.getAllPoses());
+        }
     }
 
 
@@ -314,9 +318,13 @@ public class LocalPlayerPose implements VRPlayerPoseClient {
         trackers.copyFrom(other.trackers);
         hands.copyFrom(other.hands);
 
-        if(body.getType() != other.body.getType()) {
+        if (other.body == null) {
+            // source pose predates body type resolution - nothing to copy yet
+            return;
+        }
+        if (body == null || body.getType() != other.body.getType()) {
             bodyTypeChanged(other.body.getType());
-        }else {
+        } else {
             body.copyFrom(other.body);
         }
     }

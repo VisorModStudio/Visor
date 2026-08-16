@@ -66,7 +66,7 @@ public class EndermanMixins {
             super(entityType, level);
         }
 
-        @Inject(at = @At("HEAD"), method = "isLookingAtMe(Lnet/minecraft/world/entity/player/Player;)Z", cancellable = true)
+        @Inject(at = @At("HEAD"), method = "isBeingStaredBy(Lnet/minecraft/world/entity/player/Player;)Z", cancellable = true)
         public void visor$vrPlayerLookingAtMe(Player player, CallbackInfoReturnable<Boolean> cir) {
             if (!(player instanceof ServerPlayer serverPlayer)) return;
             var vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);

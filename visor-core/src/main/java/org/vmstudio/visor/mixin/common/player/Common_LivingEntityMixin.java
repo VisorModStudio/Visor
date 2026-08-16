@@ -37,13 +37,16 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                               int count,
                                               CallbackInfo ci){}
 
+    // 1.21.2: isDamageSourceBlocked no longer calls isBlocking(). Blocking moved behind
+    // getItemBlockingWith(), which returns the blocking stack (null when not blocking),
+    // so the expression this modifies is an ItemStack now rather than a boolean.
     @ModifyExpressionValue(method = "isDamageSourceBlocked",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;isBlocking()Z"))
-    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
-                                                    @Local(argsOnly = true) DamageSource damageSource,
-                                                    @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
-        return isBlocking;
+                    target = "Lnet/minecraft/world/entity/LivingEntity;getItemBlockingWith()Lnet/minecraft/world/item/ItemStack;"))
+    protected ItemStack visor$roomscaleShieldBlocking(ItemStack blockingWith,
+                                                      @Local(argsOnly = true) DamageSource damageSource,
+                                                      @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
+        return blockingWith;
     }
 
     @ModifyReturnValue(method = "isDamageSourceBlocked", at = @At("RETURN"))
@@ -52,7 +55,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
         return blocked || roomscaleBlocked.get();
     }
 
-    @WrapOperation(method = "hurt", at = @At(value = "INVOKE",
+    @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
     private void visor$vrHurtKnockbackDirection(LivingEntity instance, double strength, double x, double z,
                                                 Operation<Void> original,

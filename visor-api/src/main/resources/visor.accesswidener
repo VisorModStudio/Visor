@@ -7,7 +7,8 @@ accessible method net/minecraft/client/multiplayer/ClientLevel getBlockStatePred
 accessible field net/minecraft/client/gui/components/AbstractWidget height I
 
 
-accessible field net/minecraft/client/gui/components/AbstractSelectionList scrolling Z
+# 1.21.2 split the scroll state out of AbstractSelectionList into AbstractScrollArea
+accessible field net/minecraft/client/gui/components/AbstractScrollArea scrolling Z
 accessible field net/minecraft/client/gui/components/AbstractSelectionList hovered Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 
@@ -33,7 +34,8 @@ accessible method net/minecraft/world/entity/Entity collide (Lnet/minecraft/worl
 accessible class net/minecraft/client/renderer/block/model/ItemModelGenerator$Span
 accessible class net/minecraft/client/renderer/block/model/ItemModelGenerator$SpanFacing
 accessible method net/minecraft/client/renderer/block/model/ItemModelGenerator$SpanFacing isHorizontal ()Z
-accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadList (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Ljava/util/List;Lnet/minecraft/world/item/ItemStack;II)V
+# 1.21.4 resolves the tints up front, so the ItemStack argument became an int[] of colors
+accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadList (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Ljava/util/List;[III)V
 
 #Vertex
 accessible class net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator
@@ -53,7 +55,11 @@ accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/m
 
 # custom player model rendering
 accessible field net/minecraft/client/model/PlayerModel slim Z
-extendable method net/minecraft/client/renderer/entity/player/PlayerRenderer setModelProperties (Lnet/minecraft/client/player/AbstractClientPlayer;)V
+# PORT-1.21.4: PlayerRenderer#setModelProperties is gone -- 1.21.2 moved entity rendering onto
+# the render-state system, so the per-player model flags are now filled in during
+# PlayerRenderer#extractRenderState(AbstractClientPlayer, PlayerRenderState, float).
+# Re-target this when visor-core's custom player model rendering is ported.
+#extendable method net/minecraft/client/renderer/entity/player/PlayerRenderer setModelProperties (Lnet/minecraft/client/player/AbstractClientPlayer;)V
 
 # modded layer supports
 accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer addLayer (Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z
@@ -120,7 +126,12 @@ accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStat
 accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
 
 # tohave differnt postEffects per pass
-accessible field net/minecraft/client/renderer/GameRenderer postEffect Lnet/minecraft/client/renderer/PostChain;
+# PORT-1.21.4: GameRenderer no longer holds the PostChain itself -- it keeps a ResourceLocation
+# (postEffectId) and resolves the chain through the shader manager each frame. Public API is
+# currentPostEffect()/setPostEffect(ResourceLocation)/clearPostEffect().
+# Re-target this when visor-core's per-pass post effects are ported.
+accessible field net/minecraft/client/renderer/GameRenderer postEffectId Lnet/minecraft/resources/ResourceLocation;
+accessible method net/minecraft/client/renderer/GameRenderer setPostEffect (Lnet/minecraft/resources/ResourceLocation;)V
 
 # to disable destroy delay, on roomscale hitting
 accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyDelay I

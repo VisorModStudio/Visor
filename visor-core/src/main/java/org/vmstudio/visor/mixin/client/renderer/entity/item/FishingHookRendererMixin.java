@@ -1,65 +1,64 @@
 package org.vmstudio.visor.mixin.client.renderer.entity.item;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.llamalad7.mixinextras.sugar.Local;
+import net.minecraft.client.renderer.entity.state.FishingHookRenderState;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.FishingHookRenderer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.item.FishingRodItem;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 @Mixin(FishingHookRenderer.class)
-public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHook> {
+public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHook, FishingHookRenderState> {
 
     protected FishingHookRendererMixin(EntityRendererProvider.Context context) {
         super(context);
     }
 
-    @Unique
-    private Vec3 visor$savedHandPos;
-
-    @Inject(at = @At(value = "HEAD"), method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    // 1.21.2: render takes the FishingHookRenderState snapshot instead of the entity
+    @Inject(at = @At(value = "HEAD"), method = "render(Lnet/minecraft/client/renderer/entity/state/FishingHookRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
     cancellable = true)
-    private void visor$noRenderOnGameScreen(FishingHook fishingHook,
-                                           float f, float g,
-                                           PoseStack poseStack,
-                                           MultiBufferSource multiBufferSource,
-                                           int i,
-                                           CallbackInfo ci
-    ){
+    private void visor$noRenderOnGameScreen(CallbackInfo ci) {
         if(MC.screen != null){
             ci.cancel();
         }
     }
 
-    @ModifyVariable(at = @At(value = "LOAD"),
-            method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 25)
-    private double visor$fishingLineStartX(double value, FishingHook fishingHook) {
+    /**
+     * 1.21.2: the line origin is resolved once into
+     * {@code FishingHookRenderState#lineOriginOffset} during extractRenderState, via the new
+     * getPlayerHandPos funnel. Overriding that is both simpler and far more robust than the old
+     * approach of rewriting three local variables inside render by index.
+     */
+    @Inject(method = "getPlayerHandPos", at = @At("HEAD"), cancellable = true)
+    private void visor$fishingLineStart(CallbackInfoReturnable<Vec3> cir,
+                                        @Local(argsOnly = true) Player player)
+    {
         if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
-                || fishingHook.getPlayerOwner() != MC.player){
-            return value;
+                || player != MC.player){
+            return;
         }
         var renderPose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER);
 
         HandType handType = HandType.OFFHAND;
-        if (fishingHook.getPlayerOwner().getMainHandItem().getItem() instanceof FishingRodItem) {
+        if (player.getMainHandItem().getItem() instanceof FishingRodItem) {
             handType = HandType.MAIN;
         }
         Vector3f handPos = new Vector3f(
@@ -78,33 +77,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
                         )
                 );
 
-        visor$savedHandPos = new Vec3(finalPos);
-
-        return visor$savedHandPos.x;
-    }
-
-    @ModifyVariable(at = @At(value = "LOAD"),
-            method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 27)
-    private double visor$fishingLineStartY(double value, FishingHook fishingHook) {
-        if(VRRenderState.getPhase().isVanilla()
-                || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
-                || fishingHook.getPlayerOwner() != MC.player){
-            return value;
-        }
-
-        return visor$savedHandPos.y;
-    }
-
-    @ModifyVariable(at = @At(value = "LOAD"),
-            method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 29)
-    private double visor$fishingLineStartZ(double value, FishingHook fishingHook) {
-        if(VRRenderState.getPhase().isVanilla()
-                || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
-                || fishingHook.getPlayerOwner() != MC.player){
-            return value;
-        }
-
-        return visor$savedHandPos.z;
+        cir.setReturnValue(new Vec3(finalPos));
     }
 
 }

@@ -121,9 +121,9 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
         // Lazily create/resize the region target
         if (regionTarget == null) {
             regionTarget = new RegionRenderTarget(false);
-            regionTarget.resize(rw, rh, true);
+            regionTarget.resize(rw, rh);
         } else if (regionTarget.width != rw || regionTarget.height != rh) {
-            regionTarget.resize(rw, rh, true);
+            regionTarget.resize(rw, rh);
         }
 
 

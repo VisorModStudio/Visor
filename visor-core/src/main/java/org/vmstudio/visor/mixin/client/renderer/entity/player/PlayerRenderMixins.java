@@ -49,7 +49,7 @@ public class PlayerRenderMixins {
 
         @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
         private void visor$getVRPlayerRenderer(
-                Entity entity, CallbackInfoReturnable<EntityRenderer<AbstractClientPlayer>> cir)
+                Entity entity, CallbackInfoReturnable cir)
         {
             if(ClientContext.visor == null) {
                 return;

@@ -442,6 +442,15 @@ public class TaskSwing extends VisorTask {
         return null;
     }
 
+    /**
+     * 1.21.2 replaced the InteractionResult enum with a sealed hierarchy;
+     * shouldSwing() became the swing source carried by a successful result.
+     */
+    private static boolean shouldSwingAfterUse(net.minecraft.world.InteractionResult result) {
+        return result instanceof net.minecraft.world.InteractionResult.Success success
+                && success.swingSource() == net.minecraft.world.InteractionResult.SwingSource.CLIENT;
+    }
+
     private static boolean canSwordBreak(final LocalPlayer player,
                                          final ItemStack itemStack,
                                          final BlockState state,
@@ -466,7 +475,8 @@ public class TaskSwing extends VisorTask {
         final boolean isFarmItem = ItemClassifier.FARMING_TOOL.is(handItem);
         final boolean isFarmableBlock = isFarmItem &&
                 (BlockClassifier.FARMABLE_BLOCK.is(blockState.getBlock()) ||
-                        handItem.useOn(new UseOnContext(player, interactionHand, blockHit)).shouldSwing());
+                        shouldSwingAfterUse(
+                                handItem.useOn(new UseOnContext(player, interactionHand, blockHit))));
         if (isFarmableBlock) {
             MC.gameMode.useItemOn(player, interactionHand, blockHit);
         } else {

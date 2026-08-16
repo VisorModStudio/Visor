@@ -16,6 +16,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
+// 1.21.2 moved the whole body of ItemPickupParticle#render into renderCustom; the
+// render(VertexConsumer, Camera, float) override is now an empty stub, so redirects
+// aimed at it resolve to a method with no Mth.lerp calls at all.
 @Mixin(ItemPickupParticle.class)
 public class ItemPickupParticleMixin {
 
@@ -29,7 +32,7 @@ public class ItemPickupParticleMixin {
     @Unique
     private Vector3fc visor$playerPos;
 
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 0), method = "render")
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 0), method = "renderCustom")
     public double visor$vrPosX(double partialTick,
                               double oldValue,
                               double newValue) {
@@ -44,7 +47,7 @@ public class ItemPickupParticleMixin {
         return Mth.lerp(partialTick, oldValue, newValue);
     }
 
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 1), method = "render")
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 1), method = "renderCustom")
     public double visor$vrPosY(double partialTick,
                               double oldValue,
                               double newValue) {
@@ -57,7 +60,7 @@ public class ItemPickupParticleMixin {
         return Mth.lerp(partialTick, oldValue, newValue);
     }
 
-    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 2), method = "render")
+    @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 2), method = "renderCustom")
     public double visor$vrPosZ(double partialTick,
                               double oldValue,
                               double newValue) {

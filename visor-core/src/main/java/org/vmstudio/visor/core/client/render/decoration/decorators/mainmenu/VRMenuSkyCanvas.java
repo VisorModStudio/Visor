@@ -11,7 +11,7 @@ import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import net.minecraft.Util;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -42,6 +42,7 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MainMenuSceneMode;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 
 //@TODO IT IS PROTOTYPE! REWORK FROM SCRATCH AFTER 0.7.0
 public final class VRMenuSkyCanvas implements VREventListener {
@@ -242,11 +243,11 @@ public final class VRMenuSkyCanvas implements VREventListener {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         if (MC.getOverlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
-            MC.getTextureManager().bindForSetup(whiteTex);
+            McVersionUtilsClient.bindTexture(whiteTex);
             RenderSystem.setShaderTexture(0, whiteTex);
         }
 
@@ -270,7 +271,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
         // eraser ring marker
         var glowSprite = VRMenuSky.glowSprite();
         if (erase && glowSprite != null) {
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
             RenderSystem.setShaderTexture(0, glowSprite);
 
             int[] colorInt = color.asIntArray(false);

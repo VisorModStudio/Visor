@@ -50,6 +50,33 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         return this.getBottom();
     }
 
+    //---------- stable scroll state (moved to AbstractScrollArea in 1.21.2) ----------
+
+    /** Current vertical scroll offset, in pixels. */
+    protected final double scrollOffset() {
+        return this.scrollAmount();
+    }
+
+    /** Sets the vertical scroll offset; vanilla clamps it to the content. */
+    protected final void scrollOffset(double offset) {
+        this.setScrollAmount(offset);
+    }
+
+    /** Largest scroll offset the content allows; 0 when everything fits. */
+    protected final int maxScrollOffset() {
+        return this.maxScrollAmount();
+    }
+
+    /** Whether the scrollbar thumb is currently being dragged. */
+    protected final boolean isScrolling() {
+        return this.scrolling;
+    }
+
+    /** Forces the scrollbar drag state; used to cancel a drag that went stale. */
+    protected final void setScrolling(boolean scrolling) {
+        this.scrolling = scrolling;
+    }
+
     //---------- stable render hooks ----------
 
     /** Stable render entry point; replaces the whole vanilla render pass of the list. */
@@ -62,7 +89,19 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
     /** Stable hook for the scrollbar x position; default is vanilla placement. */
     protected int scrollbarX() {
-        return super.getScrollbarPosition();
+        return super.scrollBarX();
+    }
+
+    //---------- stable row geometry hooks ----------
+
+    /** Stable hook for the top edge of a row; default is vanilla placement. */
+    protected int rowTop(int index) {
+        return super.getRowTop(index);
+    }
+
+    /** Stable hook for the bottom edge of a row; default is vanilla placement. */
+    protected int rowBottom(int index) {
+        return super.getRowBottom(index);
     }
 
     //---------- stable input hooks ----------
@@ -72,6 +111,10 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         return super.mouseScrolled(mouseX, mouseY, 0, verticalAmount);
     }
 
+    /** Stable hook fired right after vanilla refreshes the scrollbar drag state on a click. */
+    protected void onUpdateScrolling(double mouseX, double mouseY, int button) {
+    }
+
     //---------- stable narration hook ----------
 
     /** Stable narration hook; default narrates nothing. */
@@ -79,7 +122,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
     }
 
     //====================================================================
-    // 1.21.1 wiring — everything below maps the stable hooks above onto
+    // 1.21.4 wiring — everything below maps the stable hooks above onto
     // the version-specific vanilla API and is expected to change on ports.
     //====================================================================
 
@@ -95,15 +138,37 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         renderRows(guiGraphics, mouseX, mouseY, partialTick);
     }
 
+    // 1.21.2: getScrollbarPosition became scrollBarX, on the new AbstractScrollArea parent.
     @Override
-    protected final int getScrollbarPosition() {
+    protected final int scrollBarX() {
         return scrollbarX();
+    }
+
+    // 1.21.2: getRowTop/getRowBottom widened from protected to public.
+    @Override
+    public final int getRowTop(int index) {
+        return rowTop(index);
+    }
+
+    @Override
+    public final int getRowBottom(int index) {
+        return rowBottom(index);
     }
 
     // 1.21.1: mouseScrolled gained a horizontal-amount parameter.
     @Override
     public final boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         return onMouseScrolled(mouseX, mouseY, scrollY);
+    }
+
+    // 1.21.2: updateScrollingState became updateScrolling and now reports whether the
+    // scrollbar was grabbed. AbstractContainerWidget#mouseClicked is what drives it -
+    // AbstractSelectionList no longer overrides mouseClicked at all.
+    @Override
+    public final boolean updateScrolling(double mouseX, double mouseY, int button) {
+        boolean grabbed = super.updateScrolling(mouseX, mouseY, button);
+        onUpdateScrolling(mouseX, mouseY, button);
+        return grabbed;
     }
 
     // 1.21.1: updateNarration is final in AbstractWidget; hook is updateWidgetNarration.

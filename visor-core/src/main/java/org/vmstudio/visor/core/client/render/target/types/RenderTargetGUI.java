@@ -68,17 +68,13 @@ public class RenderTargetGUI implements RenderTargetHolder {
     @Override
     public void resize(int width, int height) throws Exception {
         target.resize(
-                width, height,
-                Minecraft.ON_OSX
-        );
+                width, height);
         for(var entry : overlayTargets.entrySet()) {
             if(target==null) continue;
             var overlay = entry.getKey();
             entry.getValue().resize(
                     overlay.getRequestedWidth(),
-                    overlay.getRequestedHeight(),
-                    Minecraft.ON_OSX
-            );
+                    overlay.getRequestedHeight());
             overlay.updateSize();
         }
         savedWidth = width;
@@ -125,9 +121,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
                 renderTarget.destroyBuffers();
                 renderTarget.resize(
                         neededWidth,
-                        neededHeight,
-                        Minecraft.ON_OSX
-                );
+                        neededHeight);
                 overlayScreen.updateSize();
             }
         }

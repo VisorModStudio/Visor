@@ -53,12 +53,11 @@ public class RenderTargetMain implements RenderTargetHolder {
         ((RenderTargetExtension) target).visor$setUseStencil(
                 true
         );
-        target.resize(width, height, Minecraft.ON_OSX);
+        target.resize(width, height);
         var mcWindow = (WindowExtension) (Object) MC.getWindow();
         this.mirrorTarget.resize(
                 Math.max(1, mcWindow.visor$getActualScreenWidth()),
-                Math.max(1, mcWindow.visor$getActualScreenHeight()),
-                Minecraft.ON_OSX
+                Math.max(1, mcWindow.visor$getActualScreenHeight())
         );
 
     }

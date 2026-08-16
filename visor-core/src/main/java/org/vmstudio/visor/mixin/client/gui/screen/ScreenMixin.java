@@ -26,7 +26,7 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
     }
 
     @Inject(at = @At("HEAD"), method = "renderBlurredBackground", cancellable = true)
-    private void visor$noBlurredBackground(float partialTick, CallbackInfo ci) {
+    private void visor$noBlurredBackground(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
         }

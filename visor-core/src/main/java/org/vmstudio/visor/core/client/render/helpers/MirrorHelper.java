@@ -21,6 +21,8 @@ import org.lwjgl.opengl.GL30C;
 import static com.mojang.blaze3d.platform.GlStateManager._glBindFramebuffer;
 import static com.mojang.blaze3d.platform.GlStateManager._glBlitFrameBuffer;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import com.mojang.blaze3d.ProjectionType;
+import net.minecraft.client.renderer.FogParameters;
 
 public class MirrorHelper {
     private MirrorHelper() {
@@ -166,7 +168,7 @@ public class MirrorHelper {
         RenderSystem.backupProjectionMatrix();
         RenderSystem.viewport(0, 0, vrWidth, vrHeight);
         var proj = new Matrix4f().setOrtho(0, vrWidth, vrHeight, 0, NEAR_PLANE, FAR_PLANE);
-        RenderSystem.setProjectionMatrix(proj, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(proj, ProjectionType.ORTHOGRAPHIC);
 
         // 3) push / configure model-view
         var mv = RenderSystem.getModelViewStack();
@@ -174,12 +176,11 @@ public class MirrorHelper {
         try {
             mv.identity();
             mv.translate(0, 0, -CAMERA_Z);
-            RenderSystem.applyModelViewMatrix();
 
             // 4) disable fog + clear
-            RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+            RenderSystem.setShaderFog(FogParameters.NO_FOG);
             int flags = CLEAR_DEPTH_FLAG | (clearBackground ? CLEAR_COLOR_FLAG : 0);
-            RenderSystem.clear(flags, Minecraft.ON_OSX);
+            RenderSystem.clear(flags);
             if (clearBackground) {
                 RenderSystem.clearColor(0, 0, 0, 0);
             }
@@ -203,7 +204,6 @@ public class MirrorHelper {
             gui.flush();
         } finally {
             mv.popMatrix();
-            RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
             RenderStateHelper.restoreAfterExternalRender();
         }

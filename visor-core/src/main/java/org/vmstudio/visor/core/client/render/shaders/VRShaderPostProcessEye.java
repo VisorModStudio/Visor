@@ -12,9 +12,11 @@ import net.minecraft.world.item.component.CustomModelData;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CompiledShaderProgram;
+import net.minecraft.client.renderer.ShaderDefines;
+import net.minecraft.client.renderer.ShaderProgram;
 import net.minecraft.util.Mth;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 
@@ -26,8 +28,14 @@ public class VRShaderPostProcessEye implements VRShader{
     private static final AtumColor PUMPKIN_VIGNETTE_COLOR
             = AtumColor.ORANGE.blend(AtumColor.BLACK, 0.5f);
 
+    public static final ShaderProgram PROGRAM = new ShaderProgram(
+            McVersionUtils.newResourceLoc("core/vr_post_process_eye"),
+            DefaultVertexFormat.POSITION_TEX,
+            ShaderDefines.EMPTY
+    );
+
     @Getter
-    private ShaderInstance handle;
+    private CompiledShaderProgram handle;
 
     private AbstractUniform uniformEye;
 
@@ -44,7 +52,7 @@ public class VRShaderPostProcessEye implements VRShader{
 
     @Override
     public void init() throws Exception {
-        handle = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "vr_post_process_eye", DefaultVertexFormat.POSITION_TEX);
+        handle = VRShader.link(PROGRAM);
 
         uniformEye = handle.safeGetUniform("uEye");
 
@@ -72,7 +80,7 @@ public class VRShaderPostProcessEye implements VRShader{
         uniformEye.set(eye == EyeType.LEFT ? 1 : -1);
 
 
-        RenderShaderHelper.renderFullscreenQuad(handle, source);
+        RenderShaderHelper.renderFullscreenQuad(handle, PROGRAM.vertexFormat(), source);
 
         GLUtils.checkGLError("post process eye: "+ eye.name());
     }
@@ -140,9 +148,11 @@ public class VRShaderPostProcessEye implements VRShader{
             ItemStack headItem = MC.player.getInventory().getArmor(3);
 
             if(VRClientSettings.isPumpkinEffectEnabled()) {
+                // 1.21.2 turned CustomModelData into a multi-list record with no single
+                // value() and no DEFAULT; "unmodified vanilla pumpkin" is now just the
+                // absence of the component.
                 boolean hasPumpkin = headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
-                        && headItem.getOrDefault(DataComponents.CUSTOM_MODEL_DATA,
-                        CustomModelData.DEFAULT).value() == 0;
+                        && !headItem.has(DataComponents.CUSTOM_MODEL_DATA);
                 if (hasPumpkin) {
                     vignetteColor = PUMPKIN_VIGNETTE_COLOR;
                     vignetteRadius = 0.3f;

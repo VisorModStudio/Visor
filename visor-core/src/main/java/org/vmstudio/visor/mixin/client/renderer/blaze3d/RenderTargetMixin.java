@@ -36,10 +36,6 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     private boolean visor$useStencil = false;
 
 
-    @Shadow
-    public abstract void clear(boolean onMacIn);
-
-
     /* ************************* *\
   //--------STENCIL SUPPORT--------\\
     \* ************************* */

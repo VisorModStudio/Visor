@@ -6,8 +6,8 @@ import com.mojang.math.Axis;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
@@ -42,6 +42,10 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 @RegisterVRItemPose
 public class VRItemPoseDefault extends VRHandItemPose {
     private static final String ID = "default";
+
+    // 1.21.4: ItemRenderer no longer resolves a BakedModel - item models are baked into an
+    // ItemStackRenderState. Reused scratch instance, updateForTopItem clears it before filling.
+    private static final ItemStackRenderState ITEM_RENDER_STATE = new ItemStackRenderState();
 
     public VRItemPoseDefault(@NotNull VisorAddon owner) {
         super(owner);
@@ -100,7 +104,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
         float roll = 0;
 
 
-        var transformType = getTransformType(itemStack, player, MC.getItemRenderer());
+        var transformType = getTransformType(itemStack, player, MC.getItemModelResolver());
         switch (transformType) {
             case BLOCK_ITEM, DEFAULT -> {
                 scale = 1.0f;
@@ -274,12 +278,12 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
     public static TransformType getTransformType(ItemStack itemStack,
                                                  AbstractClientPlayer player,
-                                                 ItemRenderer itemRenderer) {
+                                                 ItemModelResolver itemModelResolver) {
         TransformType transformType = TransformType.DEFAULT;
         Item item = itemStack.getItem();
 
-        if (itemStack.getUseAnimation() == UseAnim.EAT
-                || itemStack.getUseAnimation() == UseAnim.DRINK) {
+        if (itemStack.getUseAnimation() == ItemUseAnimation.EAT
+                || itemStack.getUseAnimation() == ItemUseAnimation.DRINK) {
             return TransformType.CONSUMABLE;
         }
 
@@ -307,11 +311,12 @@ public class VRItemPoseDefault extends VRHandItemPose {
             if (block instanceof TorchBlock) {
                 transformType = TransformType.BLOCK_STICK;
             } else {
-                BakedModel model = itemRenderer.getModel(
-                        itemStack, MC.level, MC.player, 0
+                itemModelResolver.updateForTopItem(
+                        ITEM_RENDER_STATE, itemStack, ItemDisplayContext.GROUND,
+                        false, MC.level, MC.player, 0
                 );
 
-                if (model.isGui3d()) {
+                if (ITEM_RENDER_STATE.isGui3d()) {
                     transformType = TransformType.BLOCK_3D;
                 } else {
                     transformType = TransformType.BLOCK_ITEM;
@@ -322,7 +327,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
         } else if (item instanceof BowItem) {
             transformType = TransformType.BOW;
 
-        } else if (itemStack.getUseAnimation() == UseAnim.TOOT_HORN) {
+        } else if (itemStack.getUseAnimation() == ItemUseAnimation.TOOT_HORN) {
             transformType = TransformType.HORN;
         } else if (ItemClassifier.SWORD.is(item)) {
             transformType = TransformType.SWORD;

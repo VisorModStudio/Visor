@@ -2,9 +2,10 @@ package org.vmstudio.visor.api.client.gui.helpers;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
+import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import net.minecraft.client.Minecraft;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -73,16 +74,14 @@ public class TexturesHelper {
 
         NativeImage img = new NativeImage(NativeImage.Format.RGBA, 1, 1, true);
 
-        img.setPixelRGBA(0, 0,
-                (alpha << 24) | (blue << 16) | (green << 8) | red
-        );
+        McVersionUtilsClient.setPixel(img, 0, 0, alpha, red, green, blue);
 
         DynamicTexture tex = new DynamicTexture(img);
 
         String name = String.format("visor_%02x%02x%02x%02x",
                 red, green, blue, alpha);
 
-        return Minecraft.getInstance().getTextureManager().register(name, tex);
+        return McVersionUtilsClient.registerDynamicTexture(VisorAPI.MOD_ID, name, tex);
     }
 
     private static void warnIfCacheTooLarge() {

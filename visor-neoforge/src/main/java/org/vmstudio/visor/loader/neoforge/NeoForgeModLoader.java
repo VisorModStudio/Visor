@@ -101,10 +101,15 @@ public class NeoForgeModLoader implements ModLoader {
     }
 
 
+    /**
+     * 1.21.4: NeoForge dropped {@code RenderTarget#enableStencil()} - stencil is now a final
+     * flag taken by the {@code RenderTarget(useDepth, useStencil)} constructor, which
+     * visor-core cannot call because it compiles against unpatched vanilla. Report no loader
+     * support so visor-core falls back to its own RenderTargetMixin, same as on Fabric.
+     */
     @Override
     public boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget) {
-        renderTarget.enableStencil();
-        return true;
+        return false;
     }
 
 

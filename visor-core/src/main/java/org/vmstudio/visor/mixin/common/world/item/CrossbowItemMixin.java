@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class CrossbowItemMixin {
 
     @WrapOperation(method = "shootProjectile", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getViewVector(F)Lnet/minecraft/world/phys/Vec3;"))
-    private static Vec3 visor$vrAim(LivingEntity instance, float partialTicks, Operation<Vec3> original) {
+    private Vec3 visor$vrAim(LivingEntity instance, float partialTicks, Operation<Vec3> original) {
         if (instance instanceof ServerPlayer player) {
             VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
             if (vrPlayer == null) {

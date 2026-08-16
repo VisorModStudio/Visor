@@ -36,7 +36,7 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -54,6 +54,10 @@ import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 import java.util.*;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
+import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.lighting.LightEngine;
 
 
 public class VRHandRenderer {
@@ -224,7 +228,12 @@ public class VRHandRenderer {
                                      float partialTicks) {
         var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        Vec3 offset = renderer.getRenderOffset(player, partialTicks);
+        // 1.21.2: getRenderOffset takes a PlayerRenderState we do not have here.
+        // PlayerRenderer only adds a crouch offset on top of EntityRenderer's passenger
+        // offset, so compute it from the entity directly.
+        Vec3 offset = player.isCrouching()
+                ? new Vec3(0.0, player.getScale() * -2.0F / 16.0, 0.0)
+                : Vec3.ZERO;
         Vector3f referenceOrigin = new Vector3f(
                 (float) (Mth.lerp(partialTicks, player.xOld, player.getX()) + offset.x),
                 (float) (Mth.lerp(partialTicks, player.yOld, player.getY()) + offset.y),
@@ -323,7 +332,7 @@ public class VRHandRenderer {
             );
 
             float light = Math.max(rawLight, ShadersHelper.shaderLight());
-            float lightPercent = light / MC.level.getMaxLightLevel();
+            float lightPercent = light / LightEngine.MAX_LEVEL;
             color = new AtumColorImmutable(
                     Mth.floor(CURSOR_DEFAULT_COLOR.getRedInt() * lightPercent),
                     Mth.floor(CURSOR_DEFAULT_COLOR.getGreenInt() * lightPercent),
@@ -338,11 +347,11 @@ public class VRHandRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         if (MC.getOverlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
-            MC.getTextureManager().bindForSetup(whiteTex);
+            McVersionUtilsClient.bindTexture(whiteTex);
             RenderSystem.setShaderTexture(0, whiteTex);
         }
 
@@ -392,7 +401,7 @@ public class VRHandRenderer {
 
     private void renderGuiHand(PoseStack poseStack) {
 
-        MC.getTextureManager().bindForSetup(TexturesHelper.getWhiteTexture());
+        McVersionUtilsClient.bindTexture(TexturesHelper.getWhiteTexture());
         RenderSystem.setShaderTexture(
                 0,
                 TexturesHelper.getWhiteTexture()
@@ -424,7 +433,7 @@ public class VRHandRenderer {
             );
 
             light = Math.max(light, ShadersHelper.shaderLight());
-            float lightPercent = light / (float) MC.level.getMaxLightLevel();
+            float lightPercent = light / (float) LightEngine.MAX_LEVEL;
 
             color = new AtumColorImmutable(
                     Mth.floor(GUI_HANDS_COLOR.getRedInt() * lightPercent),
@@ -436,7 +445,7 @@ public class VRHandRenderer {
             color = GUI_HANDS_COLOR;
         }
 
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         RenderHelper.renderCuboid(
                 poseStack.last().pose(),
@@ -624,10 +633,15 @@ public class VRHandRenderer {
                         vrPlayer,
                         slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
                 );
+        // 1.21.2: the hand renderers take the resolved skin and sleeve flag
+        // instead of the player, matching vanilla's ItemInHandRenderer.
+        ResourceLocation skinTexture = player.getSkin().texture();
         if (mainHand) {
-            bodyRenderer.renderRightHand(poseStack, multiBufferSource, i, player);
+            bodyRenderer.renderRightHand(poseStack, multiBufferSource, i, skinTexture,
+                    player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
         } else {
-            bodyRenderer.renderLeftHand(poseStack, multiBufferSource, i, player);
+            bodyRenderer.renderLeftHand(poseStack, multiBufferSource, i, skinTexture,
+                    player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         }
         poseStack.popPose();
     }

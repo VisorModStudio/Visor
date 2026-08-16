@@ -126,8 +126,9 @@ public class VRSettingsAddonsScreen extends Screen {
             super(MC, width, bottom - top, top, itemHeight);
         }
 
+        // 1.21.2: getScrollbarPosition moved to AbstractScrollArea and was renamed scrollBarX
         @Override
-        protected int getScrollbarPosition() {
+        protected int scrollBarX() {
             return this.width - 6;
         }
 

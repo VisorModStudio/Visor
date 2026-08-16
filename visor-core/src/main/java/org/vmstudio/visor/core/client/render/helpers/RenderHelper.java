@@ -7,8 +7,9 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.mixin.client.accessors.RenderSystemAccessor;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.ShaderProgram;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.AABB;
@@ -32,7 +33,7 @@ public class RenderHelper {
             return false;
         } else {
             BlockPos blockpos = BlockPos.containing(new Vec3((Vector3f) in));
-            return MC.level.getBlockState(blockpos).isSolidRender(MC.level, blockpos);
+            return MC.level.getBlockState(blockpos).isSolidRender();
         }
     }
 
@@ -159,7 +160,7 @@ public class RenderHelper {
         };
 
         // --- Setup ---
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderColor(r, g, b, a);
 
         // --- Render ---
@@ -187,14 +188,14 @@ public class RenderHelper {
                                                   float size,
                                                   int light,
                                                   boolean flipY) {
-        renderDisplayQuadWithLight(poseMatrix, color, GameRenderer::getRendertypeEntityCutoutNoCullShader, displayWidth, displayHeight, size, light, flipY);
+        renderDisplayQuadWithLight(poseMatrix, color, CoreShaders.RENDERTYPE_ENTITY_CUTOUT_NO_CULL, displayWidth, displayHeight, size, light, flipY);
     }
 
 
 
     public static void renderDisplayQuadWithLight(Matrix4f poseMatrix,
                                                   AtumColor color,
-                                                  Supplier<ShaderInstance> shader,
+                                                  ShaderProgram shader,
                                                   float displayWidth,
                                                   float displayHeight,
                                                   float size,
@@ -290,7 +291,7 @@ public class RenderHelper {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     mPos.set(x, y, z);
-                    if (!level.getBlockState(mPos).isSolidRender(level, mPos)) {
+                    if (!level.getBlockState(mPos).isSolidRender()) {
                         continue;
                     }
                     double dx = Math.max(0.0, Math.max(x - origin.x, origin.x - (x + 1.0)));
@@ -332,7 +333,7 @@ public class RenderHelper {
 
         return BlockPos
                 .betweenClosedStream(box)
-                .filter(pos -> level.getBlockState(pos).isSolidRender(level, pos))
+                .filter(pos -> level.getBlockState(pos).isSolidRender())
                 .findFirst()
                 .map(pos -> new VREffectsHelper.NearestOpaqueBlock(
                         1.0F,

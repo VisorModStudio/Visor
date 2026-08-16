@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 
 @Getter
 public class GuiTexture {
@@ -95,8 +96,8 @@ public class GuiTexture {
                      int targetWidth, int targetHeight) {
 
         if (drawMode == DrawMode.STRETCH) {
-            gui.blit(
-                    resourceLocation,
+            McVersionUtilsClient.blitStretched(
+                    gui, resourceLocation,
                     xPos, yPos,
                     targetWidth, targetHeight,
                     x, y,
@@ -104,11 +105,11 @@ public class GuiTexture {
                     textureWidth, textureHeight
             );
         } else {
-            gui.blit(
-                    resourceLocation,
+            McVersionUtilsClient.blitTiled(
+                    gui, resourceLocation,
                     xPos, yPos,
-                    x, y,
                     targetWidth, targetHeight,
+                    x, y,
                     width, height
             );
         }

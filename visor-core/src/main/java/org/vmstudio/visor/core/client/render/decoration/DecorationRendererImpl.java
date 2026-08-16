@@ -105,14 +105,12 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         Matrix4fStack modelView = RenderSystem.getModelViewStack();
         modelView.pushMatrix();
         modelView.identity();
-        RenderSystem.applyModelViewMatrix();
         RenderPoseHelper.setupEyeSpaceLevelLights(VRRenderState.getRenderPass());
         try {
             stageRenderer.run();
         } finally {
             RenderPoseHelper.restoreLevelLights();
             modelView.popMatrix();
-            RenderSystem.applyModelViewMatrix();
         }
     }
 

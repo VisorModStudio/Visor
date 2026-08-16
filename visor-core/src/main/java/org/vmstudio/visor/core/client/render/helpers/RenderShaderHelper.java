@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.render.helpers;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CompiledShaderProgram;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
@@ -13,7 +13,13 @@ public class RenderShaderHelper {
     }
 
 
-    public static void renderFullscreenQuad(@NotNull ShaderInstance shader,
+    /**
+     * @param format the vertex format the shader was linked with; 1.21.2 dropped
+     *               ShaderInstance#getVertexFormat, so it has to be passed in from
+     *               the caller's ShaderProgram
+     */
+    public static void renderFullscreenQuad(@NotNull CompiledShaderProgram shader,
+                                            @NotNull VertexFormat format,
                                             @NotNull RenderTarget source
     ) {
         // --- Setup ---
@@ -21,11 +27,11 @@ public class RenderShaderHelper {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.disableBlend();
-        shader.setSampler("Sampler0", source.getColorTextureId());
+        shader.bindSampler("Sampler0", source.getColorTextureId());
         shader.apply();
 
         // --- Render ---
-        renderFullscreenQuad(shader.getVertexFormat());
+        renderFullscreenQuad(format);
 
 
         // --- Restore ---

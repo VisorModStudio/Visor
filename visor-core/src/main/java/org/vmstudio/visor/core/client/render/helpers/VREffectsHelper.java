@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CompiledShaderProgram;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.compatibility.ShadersHelper;
@@ -13,7 +13,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Matrix4f;
@@ -21,6 +21,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.shaders.VRShaderInBlockVignette;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
+import com.mojang.blaze3d.ProjectionType;
 
 public class VREffectsHelper {
     private VREffectsHelper() {
@@ -43,7 +45,7 @@ public class VREffectsHelper {
         mat.m32(-1.0F);
 
         // --- Setup ---
-        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
@@ -73,7 +75,7 @@ public class VREffectsHelper {
         VRShaderInBlockVignette wrap = VRShaders.getInBlockVignette();
         if (wrap == null) return;
         wrap.prepare(proximity);
-        ShaderInstance shader = wrap.getHandle();
+        CompiledShaderProgram shader = wrap.getHandle();
 
         // --- Prepare variables ---
         Tesselator tesselator = Tesselator.getInstance();
@@ -85,7 +87,7 @@ public class VREffectsHelper {
         mat.m32(-1.0F);
 
         // --- Setup ---
-        RenderSystem.setShader(() -> shader);
+        RenderSystem.setShader(shader);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
@@ -154,7 +156,6 @@ public class VREffectsHelper {
         } finally {
             // 2) restore matrices
             RenderSystem.getModelViewStack().popMatrix();
-            RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
 
             // 3) restore GL state for regular rendering
@@ -185,10 +186,7 @@ public class VREffectsHelper {
     }
 
     private static void clearStencilAndDepth() {
-        RenderSystem.clear(
-                GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT,
-                false
-        );
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
     }
 
     private static void setupMaskDrawState() {
@@ -203,12 +201,11 @@ public class VREffectsHelper {
 
         Matrix4f ortho = new Matrix4f()
                 .setOrtho(0, rt.viewWidth, 0, rt.viewHeight, 0, 20f);
-        RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(ortho, ProjectionType.ORTHOGRAPHIC);
 
         if (inverse) {
             RenderSystem.getModelViewStack().translate(0, 0, -20);
         }
-        RenderSystem.applyModelViewMatrix();
     }
 
     private static float[] getStencilMask(VRRenderPass eye) {
@@ -228,9 +225,7 @@ public class VREffectsHelper {
         buf = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
 
         // bind a simple 1×1 black texture so shader has "something"
-        Minecraft.getInstance()
-                .getTextureManager()
-                .bindForSetup(TexturesHelper.getBlackTexture());
+        McVersionUtilsClient.bindTexture(TexturesHelper.getBlackTexture());
 
         float scale = ClientContext.renderer.renderScale;
         for (int i = 0; i < verts.length; i += 2) {
@@ -239,7 +234,7 @@ public class VREffectsHelper {
             ;
         }
 
-        RenderSystem.setShader(GameRenderer::getPositionShader);
+        RenderSystem.setShader(CoreShaders.POSITION);
         BufferUploader.drawWithShader(buf.buildOrThrow());
     }
 

@@ -33,7 +33,7 @@ public class VRRenderTarget extends RenderTarget {
 
         ((RenderTargetExtension) this).visor$setTextureId(textureSupplier.get());
         ((RenderTargetExtension) this).visor$isLinearFilter(linearFilter);
-        this.resize(width, height, Minecraft.ON_OSX);
+        this.resize(width, height);
         if (useStencil) {
             if(!ModLoader.get().enableRenderTargetStencil(this)){
                 ((RenderTargetExtension) this).visor$setUseStencil(true);

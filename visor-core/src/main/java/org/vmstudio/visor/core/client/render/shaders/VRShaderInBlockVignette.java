@@ -3,24 +3,29 @@ package org.vmstudio.visor.core.client.render.shaders;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CompiledShaderProgram;
+import net.minecraft.client.renderer.ShaderDefines;
+import net.minecraft.client.renderer.ShaderProgram;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public class VRShaderInBlockVignette implements VRShader {
 
+    public static final ShaderProgram PROGRAM = new ShaderProgram(
+            McVersionUtils.newResourceLoc("core/vr_in_block_vignette"),
+            DefaultVertexFormat.POSITION_TEX,
+            ShaderDefines.EMPTY
+    );
+
     @Getter
-    private ShaderInstance handle;
+    private CompiledShaderProgram handle;
 
 
     private AbstractUniform uInBlockProximity;
 
     @Override
     public void init() throws Exception {
-        handle = new ShaderInstance(
-                Minecraft.getInstance().getResourceManager(),
-                "vr_in_block_vignette",
-                DefaultVertexFormat.POSITION_TEX
-        );
+        handle = VRShader.link(PROGRAM);
+
         uInBlockProximity = handle.safeGetUniform("uInBlockProximity");
     }
 

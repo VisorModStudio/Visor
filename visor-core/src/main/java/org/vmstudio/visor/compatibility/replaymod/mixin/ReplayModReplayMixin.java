@@ -25,7 +25,7 @@ public class ReplayModReplayMixin {
         cir.setReturnValue(null);
 
         // todo: Component.translatable instead Component.literal
-        Minecraft.getInstance().tell(() -> {
+        Minecraft.getInstance().execute(() -> {
             Minecraft.getInstance().setScreen(new AlertScreen(
                     () -> Minecraft.getInstance().setScreen(null),
                     Component.literal("§cReplay editor is disabled in VR mode or WORLD_ONLY playMode"),

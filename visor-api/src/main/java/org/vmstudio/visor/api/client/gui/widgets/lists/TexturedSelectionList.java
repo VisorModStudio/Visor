@@ -171,9 +171,9 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         this.hovered = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
 
         if (VisorAPI.clientState().stateMode().isActive()
-                && scrolling
+                && isScrolling()
                 && lastDragCall + 200 < System.currentTimeMillis()) {
-            scrolling = false;
+            setScrolling(false);
             lastDragCall = -1;
         }
 
@@ -182,7 +182,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         guiGraphics.disableScissor();
 
         int scrollX = this.scrollbarX();
-        int maxScroll = this.getMaxScroll();
+        int maxScroll = this.maxScrollOffset();
         if (maxScroll > 0) {
             int trackTop = this.listTop() + this.paddingTop;
             int trackBottom = this.listBottom() - this.paddingTop;
@@ -192,9 +192,9 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
             thumbH = Mth.clamp(thumbH, 32, viewH - 8);
 
             int thumbY = trackTop
-                    + (int) (this.getScrollAmount() * (viewH - thumbH) / (float) maxScroll);
+                    + (int) (this.scrollOffset() * (viewH - thumbH) / (float) maxScroll);
 
-            var scrollBarTex = scrolling
+            var scrollBarTex = isScrolling()
                     ? widgetInfo.getTextureScrollBarActive()
                     : widgetInfo.getTextureScrollBar();
             scrollBarTex.blit(
@@ -320,7 +320,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     }
 
     public void scrollTo(@NotNull TexturedEntry entry) {
-        int maxScroll = this.getMaxScroll();
+        int maxScroll = this.maxScrollOffset();
         if (maxScroll <= 0) return;
 
         // Find which row contains this entry
@@ -389,16 +389,15 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     //Scrolling
 
     @Override
-    protected void updateScrollingState(double mouseX, double mouseY, int button) {
-        super.updateScrollingState(mouseX, mouseY, button);
-        if (scrolling) {
+    protected void onUpdateScrolling(double mouseX, double mouseY, int button) {
+        if (isScrolling()) {
             lastDragCall = System.currentTimeMillis();
         }
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (scrolling) {
+        if (isScrolling()) {
             lastDragCall = System.currentTimeMillis();
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
@@ -407,7 +406,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            this.scrolling = false;
+            setScrolling(false);
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -430,13 +429,13 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     }
 
     @Override
-    protected int getRowTop(int index) {
-        return this.listTop() + paddingTop - (int) this.getScrollAmount() + index * this.itemHeight + this.headerHeight;
+    protected int rowTop(int index) {
+        return this.listTop() + paddingTop - (int) this.scrollOffset() + index * this.itemHeight + this.headerHeight;
     }
 
     @Override
-    protected int getRowBottom(int index) {
-        return super.getRowBottom(index) - paddingTop;
+    protected int rowBottom(int index) {
+        return super.rowBottom(index) - paddingTop;
     }
 
     // ══════════════════════════════════════════════════════════════════

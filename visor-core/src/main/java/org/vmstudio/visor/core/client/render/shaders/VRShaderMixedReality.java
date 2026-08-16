@@ -13,16 +13,25 @@ import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.CompiledShaderProgram;
+import net.minecraft.client.renderer.ShaderDefines;
+import net.minecraft.client.renderer.ShaderProgram;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VRShaderMixedReality implements VRShader{
+
+    public static final ShaderProgram PROGRAM = new ShaderProgram(
+            McVersionUtils.newResourceLoc("core/vr_mixed_reality"),
+            DefaultVertexFormat.POSITION_TEX,
+            ShaderDefines.EMPTY
+    );
+
     @Getter
-    private ShaderInstance handle;
+    private CompiledShaderProgram handle;
 
 
     private AbstractUniform uHmdViewPosition;
@@ -36,7 +45,7 @@ public class VRShaderMixedReality implements VRShader{
 
     @Override
     public void init() throws Exception {
-        handle = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "vr_mixed_reality", DefaultVertexFormat.POSITION_TEX);
+        handle = VRShader.link(PROGRAM);
 
         uAsGrid2x2 = handle.safeGetUniform("uAsGrid2x2");
         uAlphaMode = handle.safeGetUniform("uAlphaMode");
@@ -101,14 +110,21 @@ public class VRShaderMixedReality implements VRShader{
 
         // --- Textures ---
         var target = ClientContext.renderer.thirdPersonTarget.getTarget();
-        handle.setSampler("SamplerColor", target.getColorTextureId());
-        handle.setSampler("SamplerDepth", target.getDepthTextureId());
+        // 1.21.2: ShaderInstance#setSampler became CompiledShaderProgram#bindSampler
+        handle.bindSampler("SamplerColor", target.getColorTextureId());
+        handle.bindSampler("SamplerDepth", target.getDepthTextureId());
 
 
         // --- Render ---
+        // 1.21.2 dropped the "blend" block from the shader json, and CompiledShaderProgram#apply
+        // no longer touches blend state, so the alpha blending this shader relies on for its
+        // key-color/alpha-mask output has to be set here instead.
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         handle.apply();
-        RenderShaderHelper.renderFullscreenQuad(handle.getVertexFormat());
+        RenderShaderHelper.renderFullscreenQuad(PROGRAM.vertexFormat());
         handle.clear();
+        RenderSystem.disableBlend();
 
         if (asGrid2x2) {
             RenderTarget source;

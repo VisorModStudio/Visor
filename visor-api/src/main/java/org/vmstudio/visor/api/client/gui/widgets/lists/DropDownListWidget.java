@@ -12,6 +12,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtilsClient;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -257,7 +258,7 @@ public class DropDownListWidget extends AbstractButton {
             }
         }
 
-        boolean buttonClicked = this.clicked(mouseX, mouseY);
+        boolean buttonClicked = McVersionUtilsClient.isWithinWidget(this, mouseX, mouseY);
         boolean dropdownClicked = expanded &&
                 (mouseX >= dropdownX && mouseX <= dropdownX + dropdownWidth &&
                         mouseY >= dropdownY && mouseY <= dropdownY + dropdownHeight);

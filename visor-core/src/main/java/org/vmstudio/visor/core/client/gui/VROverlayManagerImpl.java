@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import com.mojang.blaze3d.ProjectionType;
 
 @Getter
 public class VROverlayManagerImpl implements VROverlayManager {
@@ -112,7 +113,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
         posestack.pushMatrix();
         posestack.identity();
         posestack.translate(0.0f, 0.0f, -11000.0f);
-        RenderSystem.applyModelViewMatrix();
         RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -132,7 +132,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
             if(overlay instanceof VROverlayScreen overlayScreen) {
                 //apply clean render target
                 MC.mainRenderTarget = target;
-                target.clear(Minecraft.ON_OSX);
+                target.clear();
                 target.bindWrite(true);
 
                 //setup projection if changed
@@ -144,7 +144,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                             0,
                             1000.0F, 21000.0F
                     );
-                    RenderSystem.setProjectionMatrix(projection, VertexSorting.ORTHOGRAPHIC_Z);
+                    RenderSystem.setProjectionMatrix(projection, ProjectionType.ORTHOGRAPHIC);
                     prevOverlayWidth = overlayScreen.width;
                     prevOverlayHeight = overlayScreen.height;
                 }

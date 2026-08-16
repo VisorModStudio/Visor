@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 
 public class LoggerUtils {
 
@@ -24,16 +27,29 @@ public class LoggerUtils {
         }
     }
     public static void printError(Logger logger, Throwable throwable){
+        printError(logger, throwable,
+                Collections.newSetFromMap(new IdentityHashMap<>())
+        );
+    }
+
+    private static void printError(Logger logger, Throwable throwable, Set<Throwable> seen){
+        if(!seen.add(throwable)){
+            logger.error("[CIRCULAR REFERENCE: {}]", throwable);
+            return;
+        }
         logger.error(throwable);
         for (StackTraceElement s : throwable.getStackTrace()) {
             logger.error(s.toString());
         }
+        for(Throwable err : throwable.getSuppressed()){
+            logger.error("Suppressed:");
+            printError(logger, err, seen);
+        }
+        // the cause's own frames are the only thing that says where it came from -
+        // printing just its toString() hides the actual origin
         if(throwable.getCause() != null) {
             logger.error("Caused by:");
-            logger.error(throwable.getCause().toString());
-        }
-        for(Throwable err : throwable.getSuppressed()){
-            printError(logger, err);
+            printError(logger, throwable.getCause(), seen);
         }
     }
     public static void printError(Throwable throwable){
@@ -45,13 +61,13 @@ public class LoggerUtils {
                 (throwable.getMessage() == null ? "" : ": " + throwable.getMessage());
 
         MutableComponent result = Component.literal(title);
-        if(throwable.getCause() != null) {
-            result.append("Caused by:");
-            result.append(throwable.getCause().toString());
-        }else{
-            for (StackTraceElement element : throwable.getStackTrace()) {
-                result.append(Component.literal("\n" + element.toString()));
-            }
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            result.append(Component.literal("\n" + element.toString()));
+        }
+        Throwable cause = throwable.getCause();
+        if (cause != null && cause != throwable) {
+            result.append(Component.literal("\nCaused by: "));
+            result.append(throwableToComponent(cause));
         }
         return result;
     }

@@ -1,12 +1,6 @@
 {
-  "blend": {
-    "func": "add",
-    "srcrgb": "srcalpha",
-    "dstrgb": "1-srcalpha"
-  },
-  "vertex": "vr_mixed_reality",
-  "fragment": "vr_mixed_reality",
-  "attributes": ["Position", "UV0"],
+  "vertex": "minecraft:core/vr_mixed_reality",
+  "fragment": "minecraft:core/vr_mixed_reality",
   "samplers": [
     {
       "name": "SamplerColor"

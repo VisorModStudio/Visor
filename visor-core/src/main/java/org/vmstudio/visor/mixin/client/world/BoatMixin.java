@@ -8,7 +8,7 @@ import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskBoat;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.vehicle.Boat;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
-@Mixin(Boat.class)
+// 1.21.2: the rowing state and controlBoat moved from Boat up into AbstractBoat
+@Mixin(AbstractBoat.class)
 public abstract class BoatMixin extends Entity {
 
     @Shadow
@@ -54,7 +55,7 @@ public abstract class BoatMixin extends Entity {
     /**
      * Applying values received in TrackerBoat
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", shift = At.Shift.BEFORE), method = "controlBoat", locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/AbstractBoat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", shift = At.Shift.BEFORE), method = "controlBoat", locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void visor$rowingInVR(CallbackInfo ci, float forward) {
         if (VisorState.get().isNotActive()) {
             return;

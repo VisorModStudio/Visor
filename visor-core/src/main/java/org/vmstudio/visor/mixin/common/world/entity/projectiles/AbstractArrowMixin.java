@@ -85,7 +85,9 @@ public abstract class AbstractArrowMixin extends Entity {
         ((ServerLevel) this.level()).sendParticles(
                 owner,
                 ParticleTypes.CRIT,
+                // 1.21.2 split this into (force, alwaysRender)
                 true, // always render the hit particles on the client
+                false,
                 hitPosHead.x,
                 hitPosHead.y,
                 hitPosHead.z,

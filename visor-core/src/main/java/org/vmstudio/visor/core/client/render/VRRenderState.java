@@ -3,8 +3,10 @@ package org.vmstudio.visor.core.client.render;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import lombok.Getter;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.events.render.RenderPhaseStartedVREvent;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
@@ -155,6 +157,21 @@ public class VRRenderState {
         }
         return entity == MC.player
                 && entity == MC.getCameraEntity();
+    }
+
+    /**
+     * Render-state form of {@code isSelfModelRender(entity) || isSpectatedVRView(entity)}.
+     * <p>
+     * 1.21.2 moved entity rendering onto render states, so layers that used to test the entity
+     * directly have to go through the data parked on the state during extractRenderState.
+     */
+    public static boolean isSelfOrSpectatedVRView(EntityRenderState renderState) {
+        EntityRenderStateExtension ext = (EntityRenderStateExtension) renderState;
+        if (ext.visor$isSelfModelRender()) {
+            return true;
+        }
+        var vrPlayer = ext.visor$getVRPlayer();
+        return vrPlayer != null && isSpectatedVRView(vrPlayer.getMcPlayer());
     }
 
     public static boolean isSpectatedVRView(Entity entity) {

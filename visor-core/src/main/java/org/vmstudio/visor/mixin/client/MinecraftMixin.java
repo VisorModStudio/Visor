@@ -34,7 +34,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.util.profiling.Profiler;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -63,17 +63,13 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     @Shadow
     public Screen screen;
 
-    @Shadow
-    private ProfilerFiller profiler;
-
-
     @Final
     @Shadow
     public static boolean ON_OSX;
 
     @Final
     @Shadow
-    private DeltaTracker.Timer timer;
+    private DeltaTracker.Timer deltaTracker;
 
     @Final
     @Shadow
@@ -196,7 +192,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
             ClientContext.visor
                     .preRenderVR(
                             new PreRenderContext(
-                                    profiler, tick,
+                                    Profiler.get(), tick,
                                     visor$getPartialTicks()
                             )
                     );
@@ -243,7 +239,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
             ClientContext.visor
                     .renderVR(
                             new RenderContext(
-                                    profiler,
+                                    Profiler.get(),
                                     renderLevel,
                                     nanoTime,
                                     visor$getPartialTicks()
@@ -605,6 +601,6 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         // 1.21.1: DeltaTracker.Timer handles the pause freeze internally;
         // (false) = pause-respecting partial tick, same as the old
         // "pause ? pausePartialTick : timer.partialTick"
-        return this.timer.getGameTimeDeltaPartialTick(false);
+        return this.deltaTracker.getGameTimeDeltaPartialTick(false);
     }
 }

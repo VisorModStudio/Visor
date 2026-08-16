@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
@@ -24,6 +24,7 @@ import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+import net.minecraft.client.renderer.FogParameters;
 
 public class RenderGuiHelper {
     private RenderGuiHelper() {
@@ -54,7 +55,7 @@ public class RenderGuiHelper {
         );
         scale = scale * renderPose.getWorldScale();
 
-        float fogStartCache = RenderSystem.getShaderFogStart();
+        FogParameters fogCache = RenderSystem.getShaderFog();
         var color = AtumColor.WHITE.asMutable();
 
         boolean dragging = overlay.isBeingDragged();
@@ -73,7 +74,7 @@ public class RenderGuiHelper {
         RenderSystem.setShaderTexture(0, renderTarget.getColorTextureId());
 
         if (VRRenderState.getSceneType().isWorld()) {
-            RenderSystem.setShaderFogStart(Float.MAX_VALUE);
+            RenderSystem.setShaderFog(FogParameters.NO_FOG);
 
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(
@@ -156,7 +157,7 @@ public class RenderGuiHelper {
         }
 
         // --- Restore ---
-        RenderSystem.setShaderFogStart(fogStartCache);
+        RenderSystem.setShaderFog(fogCache);
         RenderSystem.depthFunc(GL11C.GL_LEQUAL);
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
@@ -170,7 +171,7 @@ public class RenderGuiHelper {
                                           PoseStack poseStack,
                                           AtumColor barColor,
                                           float brightness) {
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         float aspect = overlay.getAspectRatio();
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
@@ -226,7 +227,7 @@ public class RenderGuiHelper {
                                          PoseStack poseStack,
                                          AtumColor color,
                                          float brightness) {
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         float aspect = overlay.getAspectRatio();
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;
@@ -285,7 +286,7 @@ public class RenderGuiHelper {
                                           PoseStack poseStack,
                                           AtumColor color,
                                           float brightness) {
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         float aspect = overlay.getAspectRatio();
         float halfWidth  = VROverlayPose.QUAD_SCALE * 0.5f;

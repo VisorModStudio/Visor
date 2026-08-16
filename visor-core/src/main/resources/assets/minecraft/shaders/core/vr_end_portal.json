@@ -1,12 +1,6 @@
 {
-  "blend": {
-    "func": "add",
-    "srcrgb": "srcalpha",
-    "dstrgb": "1-srcalpha"
-  },
-  "vertex": "vr_end_portal",
-  "fragment": "vr_end_portal",
-  "attributes": [],
+  "vertex": "minecraft:core/vr_end_portal",
+  "fragment": "minecraft:core/vr_end_portal",
   "samplers": [
     {
       "name": "Sampler0"
