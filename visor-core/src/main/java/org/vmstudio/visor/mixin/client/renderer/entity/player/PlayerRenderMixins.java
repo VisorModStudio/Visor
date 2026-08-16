@@ -114,9 +114,24 @@ public class PlayerRenderMixins {
                         .add(0.0D, entity.getBbHeight() * scale + offset, 0.0D)
                         .subtract(source).normalize();
 
+                // Vec3.normalize() returns ZERO below 1e-5, which would make the asin below
+                // NaN and poison the whole quaternion - every billboard using it disappears.
+                if (direction.lengthSqr() < 1.0E-6D) {
+                    return this.camera.rotation();
+                }
+
+                // Must match Camera#setRotation's convention: rotationYXZ(PI - yaw, -pitch, 0),
+                // with FORWARDS = (0,0,-1). A billboard's front is +Z in model space, so the
+                // quaternion has to map -Z onto the view direction. Without the PI term this
+                // look-at is exactly camera.rotation() * rotY(180) - it turns every
+                // cameraOrientation() billboard away from the eye, and the culling render types
+                // (entityCutout for the fishing bobber, itemEntityTranslucentCull for xp orbs,
+                // text for name tags) then discard it entirely.
+                // MC 1.20.5 flipped this convention: 1.20.1 had FORWARDS = (0,0,+1) and
+                // rotationYXZ(-yaw, +pitch, 0), which is what the old form was written against.
                 return new Quaternionf()
-                        .rotateY((float) -Math.atan2(-direction.x, direction.z))
-                        .rotateX((float) -Math.asin(direction.y / direction.length()));
+                        .rotateY((float) (Math.PI - Math.atan2(-direction.x, direction.z)))
+                        .rotateX((float) Math.asin(direction.y));
             }
         }
 
