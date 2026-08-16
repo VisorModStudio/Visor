@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.phys.Vec3;
 import org.vmstudio.visor.core.client.utils.ScaleHelper;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
+import org.vmstudio.visor.extensions.client.entity.PlayerRendererExtension;
 
 
 public class VRPlayerRendererFull extends PlayerRenderer {
@@ -104,7 +105,9 @@ public class VRPlayerRendererFull extends PlayerRenderer {
             poseStack.scale(scale, scale, scale);
         }
 
-        super.render(renderState, poseStack, buffer, packedLight);
+        // Not super.render(...): on Forge/NeoForge that binds to a synthetic bridge in
+        // PlayerRenderer and recurses back into this method. See PlayerRenderMixins.
+        ((PlayerRendererExtension) this).visor$renderVanilla(renderState, poseStack, buffer, packedLight);
 
         poseStack.popPose();
 

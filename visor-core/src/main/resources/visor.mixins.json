@@ -48,6 +48,7 @@
     "client.renderer.entity.monsters.GuardianRendererMixin",
     "client.renderer.entity.player.ItemInHandRendererMixin",
     "client.renderer.entity.player.PlayerRenderMixins$EntityRenderDispatcherMixin",
+    "client.renderer.entity.player.PlayerRenderMixins$PlayerRendererMixin",
     "client.renderer.entity.player.layers.CapeLayerMixin",
     "client.renderer.entity.player.layers.CustomHeadLayerMixin",
     "client.renderer.entity.player.layers.HumanoidArmorLayerMixin",
