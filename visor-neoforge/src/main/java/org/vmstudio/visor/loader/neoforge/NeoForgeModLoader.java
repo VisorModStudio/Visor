@@ -279,8 +279,12 @@ public class NeoForgeModLoader implements ModLoader {
         List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
         if (callbacks == null || callbacks.isEmpty()) return;
 
+        // Identity basis on purpose: the decoration renderers build their own camera transform
+        // (see DecorationRendererImpl#runStageWithVRContract, which resets the model-view stack),
+        // so seeding the view matrix here double-transforms them. Fabric has always handed over
+        // LevelRenderer's fresh PoseStack, and the 1.21.4 Forge port does the same now that
+        // RenderLevelStageEvent is gone - this keeps all three loaders on one contract.
         PoseStack poseStack = new PoseStack();
-        poseStack.mulPose(event.getModelViewMatrix());
         float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
 
         for (RenderPipelineCallback callback : callbacks) {

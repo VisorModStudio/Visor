@@ -2,10 +2,12 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,34 +15,69 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
+/**
+ * 1.21.2 rewrote this layer around render states: {@code renderArmWithItem} takes
+ * {@code (PlayerRenderState, ItemStackRenderState, HumanoidArm, PoseStack, MultiBufferSource, int)},
+ * so the entity and the {@code ItemStack} are gone and the VR checks read the data parked on the
+ * state during {@code extractRenderState}.
+ * <p>
+ * 1.21.4 also dropped the {@code itemStack.is(Items.SPYGLASS)} test the spyglass suppression used
+ * to hook. The "held up to the eye" branch is now gated on
+ * {@code !playerRenderState.heldOnHead.isEmpty()}, so reporting that state as empty is the
+ * equivalent way to force the normal in-hand render.
+ * <p>
+ * Both selectors are fully qualified on purpose: because {@code S} erases to
+ * {@code PlayerRenderState} here but to {@code ArmedEntityRenderState} in {@code ItemInHandLayer},
+ * javac emits a synthetic bridge of the same name, and a bare {@code "renderArmWithItem"} would
+ * also match it - where the first argument has the wrong type and the {@code isEmpty} call does
+ * not exist.
+ */
 @Mixin(value = PlayerItemInHandLayer.class, priority = 900)
 public class PlayerItemInHandLayerMixin {
 
-    @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
-    private void visor$noItemInGui(
-            CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) HumanoidArm arm,
-            @Local(argsOnly = true) ItemStack itemStack)
+    private static final String RENDER_ARM_WITH_ITEM =
+            "renderArmWithItem(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;"
+                    + "Lnet/minecraft/client/renderer/item/ItemStackRenderState;"
+                    + "Lnet/minecraft/world/entity/HumanoidArm;"
+                    + "Lcom/mojang/blaze3d/vertex/PoseStack;"
+                    + "Lnet/minecraft/client/renderer/MultiBufferSource;I)V";
+
+    @Inject(method = RENDER_ARM_WITH_ITEM, at = @At("HEAD"), cancellable = true)
+    private void visor$noItemInGui(PlayerRenderState renderState, ItemStackRenderState itemState,
+                                   HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer,
+                                   int packedLight, CallbackInfo ci)
     {
-        if (VRRenderState.isSpectatedVRView(entity)) {
+        EntityRenderStateExtension ext = (EntityRenderStateExtension) renderState;
+        var vrPlayer = ext.visor$getVRPlayer();
+        if (vrPlayer != null && VRRenderState.isSpectatedVRView(vrPlayer.getMcPlayer())) {
             ci.cancel();
             return;
         }
-        if (VRRenderState.isSelfModelRender(entity)) {
-            if(!VRRenderState.isSelfModelHandsRender(entity)){
+        if (ext.visor$isSelfModelRender()) {
+            if (!ext.visor$isSelfModelHandsRender()) {
                 ci.cancel();
             }
             boolean leftHanded = ClientContext.localPlayer.isLeftHanded();
-            if(!ClientContext.decorationRenderer
-                    .getHandState(HandType.fromMcArm(arm, leftHanded)).isWithItem()){
+            if (!ClientContext.decorationRenderer
+                    .getHandState(HandType.fromMcArm(arm, leftHanded)).isWithItem()) {
                 ci.cancel();
             }
         }
     }
-    @ModifyExpressionValue(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
-    private boolean visor$noSpyglass(
-        boolean isSpyglass, @Local(argsOnly = true) LivingEntity livingEntity)
+
+    // ordinal 1 is the heldOnHead check that selects the held-to-eye branch; ordinal 0 is the
+    // "is there an item at all" early-out and must be left alone.
+    @ModifyExpressionValue(
+            method = RENDER_ARM_WITH_ITEM,
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;isEmpty()Z",
+                    ordinal = 1))
+    private boolean visor$noHeldToEye(
+            boolean isEmpty, @Local(argsOnly = true) PlayerRenderState renderState)
     {
-        return isSpyglass && !VRRenderState.isSelfModelHandsRender(livingEntity);
+        return isEmpty
+                || ((EntityRenderStateExtension) renderState).visor$isSelfModelHandsRender();
     }
 }

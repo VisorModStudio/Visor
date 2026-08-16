@@ -40,8 +40,8 @@ public class VRPlayerModelSimple extends PlayerModel {
 
         if (VRRenderState.getPhase().isVRGui()) {
             if (renderState.isFallFlying || renderState.isVisuallySwimming) {
+                // 1.21.2 reparented the hat under the head, so it follows on its own
                 this.head.xRot = renderState.xRot * Mth.DEG_TO_RAD;
-                this.hat.copyFrom(this.head);
             }
             return;
         }
@@ -91,8 +91,8 @@ public class VRPlayerModelSimple extends PlayerModel {
         applyHmdHead(model, poseRender.getHmd(), bodyYaw);
         applyVanillaSwingPose(model, renderState);
 
-        model.leftSleeve.copyFrom(model.leftArm);
-        model.rightSleeve.copyFrom(model.rightArm);
+        // 1.21.2 reparented the sleeves under the arms at PartPose.ZERO, so they already
+        // inherit the arm transform - copying it onto them would apply it twice.
 
         model.vrPlayer = vrPlayer;
         model.mainArm = mainArm;
@@ -160,6 +160,6 @@ public class VRPlayerModelSimple extends PlayerModel {
         model.head.xRot = -hmd.getPitch();
         model.head.yRot = hmd.getYaw() - bodyYaw;
         model.head.zRot = 0.0F;
-        model.hat.copyFrom(model.head);
+        // hat is a child of head since 1.21.2 - no copyFrom, that would double the rotation
     }
 }

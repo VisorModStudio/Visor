@@ -65,6 +65,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         ext.visor$setVRPlayer(VRClientPlayers.getPlayer(player.getUUID()));
         ext.visor$setSelfModelRender(VRRenderState.isSelfModelRender(player));
         ext.visor$setSelfModelPlayer(VRRenderState.isSelfModelPlayer(player));
+        ext.visor$setSelfModelHandsRender(VRRenderState.isSelfModelHandsRender(player));
     }
 
     @Override
@@ -104,7 +105,8 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
 
         if (vrPlayer != null && VRRenderState.isSpectatedVRView(vrPlayer.getMcPlayer())) {
            ClientContext.handRenderer.renderSpectatedHands(
-                    this, (AbstractClientPlayer) vrPlayer.getMcPlayer(), vrPlayer, poseStack, buffer, packedLight,
+                    this, renderState, (AbstractClientPlayer) vrPlayer.getMcPlayer(), vrPlayer, poseStack,
+                    buffer, packedLight,
                     ClientContext.visor != null ? ClientContext.visor.getPartialTicks() : 1.0F);
         }
     }
@@ -178,15 +180,14 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
         rendererArm.visible = true;
 
-        rendererArmwear.copyFrom(rendererArm);
+        // 1.21.2: the sleeve is a child of the arm at PartPose.ZERO, so it inherits the arm
+        // transform and is drawn by rendererArm.render - posing or rendering it separately
+        // would apply the arm transform twice and draw it twice.
+        rendererArmwear.resetPose();
         rendererArmwear.visible = isSleeveVisible;
 
-        // render hand
+        // render hand (and, as its child, the sleeve)
         rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY);
-
-        // render armor
-        rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
 
         RenderSystem.disableBlend();

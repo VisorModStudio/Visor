@@ -1,10 +1,13 @@
 package org.vmstudio.visor.core.client.render.decoration;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.joml.Matrix4fStack;
+import org.lwjgl.opengl.GL11C;
+import org.lwjgl.opengl.GL30C;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -97,11 +100,25 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
 
+    /**
+     * 1.21.2 moved level rendering into a frame graph, so these stages now run inside
+     * LevelRenderer's main pass rather than between separate top-level steps. Anything the
+     * VR content binds therefore leaks onto the draws that follow it in that same pass -
+     * the block outline, and translucent terrain unless Fabulous moved it to its own target.
+     * <p>
+     * {@link org.vmstudio.visor.core.client.render.helpers.RenderStateHelper#restoreAfterExternalRender}
+     * rebinds {@code MC.mainRenderTarget}, which is not necessarily the target the pass was
+     * drawing to, so the bound framebuffer and viewport are saved and restored here.
+     */
     private void runStageWithVRContract(Runnable stageRenderer) {
         if (VRRenderState.getPhase().isVanilla()) {
             stageRenderer.run();
             return;
         }
+        int boundFramebuffer = GL11C.glGetInteger(GL30C.GL_DRAW_FRAMEBUFFER_BINDING);
+        int[] viewport = new int[4];
+        GL11C.glGetIntegerv(GL11C.GL_VIEWPORT, viewport);
+
         Matrix4fStack modelView = RenderSystem.getModelViewStack();
         modelView.pushMatrix();
         modelView.identity();
@@ -111,6 +128,8 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         } finally {
             RenderPoseHelper.restoreLevelLights();
             modelView.popMatrix();
+            GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, boundFramebuffer);
+            RenderSystem.viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
         }
     }
 

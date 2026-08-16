@@ -5,7 +5,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.client.render.VRRenderPass;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
@@ -64,8 +67,16 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Unique
     private Entity visor$renderedEntity;
 
+    @Shadow
+    @Nullable
+    private RenderTarget entityOutlineTarget;
+
     @Unique
-    private RenderTarget visor$savedRenderTarget;
+    private final Map<VRRenderPass, RenderTarget> visor$vrOutlineTargets
+            = new EnumMap<>(VRRenderPass.class);
+
+    @Unique
+    private RenderTarget visor$vanillaOutlineTarget;
 
     @Final
     @Shadow
@@ -154,25 +165,88 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     }
 
 
+    /* ************************ *\
+  //--------ENTITY OUTLINE--------\\
+    \* ************************ */
+
     /**
-     * That fixes issue with incorrect resolution
-     * for post chain effects in some cases
-     * (like for FIRST_PERSON, THIRD_PERSON VR cameras
-     * that use different resolution from initial)
+     * Hands the vanilla target back before {@code initOutline}/{@code close} destroys it, and
+     * drops the per-pass cache so it is rebuilt at the new resolution.
+     * <p>
+     * Both methods start with {@code entityOutlineTarget.destroyBuffers()}; without this they
+     * would free whichever VR pass target happens to be installed, leak the vanilla one, and
+     * leave a destroyed target in the cache.
+     * <p>
+     * The pre-1.21.2 {@code MC.mainRenderTarget} swap that used to live here is gone: 1.21.4
+     * {@code initOutline} sizes the target from the {@code Window} and never reads
+     * {@code getMainRenderTarget()}, and {@code initTransparency} no longer exists at all.
      */
-    @Inject(method = "initOutline", at = @At("HEAD"))
-    private void visor$ensureVanillaPhase(CallbackInfo ci) {
-        if (VisorState.get().isActive() && VRRenderState.getPhase().isNotVanilla()) {
-            this.visor$savedRenderTarget = MC.mainRenderTarget;
-            MC.mainRenderTarget = VRRenderState.getVanillaTarget();
+    @Inject(method = {"initOutline", "close"}, at = @At("HEAD"))
+    private void visor$releaseVROutlineTargets(CallbackInfo ci) {
+        if (this.visor$vanillaOutlineTarget != null) {
+            this.entityOutlineTarget = this.visor$vanillaOutlineTarget;
+            this.visor$vanillaOutlineTarget = null;
         }
+        visor$discardVROutlineTargets();
     }
-    @Inject(method = "initOutline", at = @At("TAIL"))
-    private void visor$restoreAfterInit(CallbackInfo ci) {
-        if (this.visor$savedRenderTarget != null) {
-            MC.mainRenderTarget = this.visor$savedRenderTarget;
-            this.visor$savedRenderTarget = null;
+
+    /**
+     * Gives every VR pass its own glow-outline target, sized to that pass's render target.
+     * <p>
+     * 1.21.2 replaced the per-{@code PostChain} temp targets Visor used to clone (see the
+     * deleted {@code PostChainMixin}) with a single {@code entityOutlineTarget} that
+     * {@code initOutline} sizes from the window and {@code renderLevel} imports into the frame
+     * graph unchanged - while driving the outline post chain at
+     * {@code getMainRenderTarget()}'s size. With one target shared by passes of different
+     * resolutions that costs two things:
+     * <ul>
+     *     <li>{@code addMainPass} clears the outline target and then rebinds the main target
+     *         with {@code bindWrite(false)}, which does not restore the viewport - so every
+     *         entity, block entity, block outline and debug draw after that point in the pass
+     *         is rasterised with the outline target's viewport;</li>
+     *     <li>the outline is rendered at one resolution and composited at another.</li>
+     * </ul>
+     * Keeping one correctly sized target per pass removes both, and matches what 1.21.1 got
+     * from the per-pass post chains. Targets are cached, so a pass only reallocates when its
+     * resolution actually changes.
+     */
+    @Inject(method = "renderLevel(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V",
+            at = @At("HEAD"))
+    private void visor$useVROutlineTarget(CallbackInfo ci) {
+        if (VisorState.get().isNotActive() || VRRenderState.getPhase().isVanilla()) {
+            if (this.visor$vanillaOutlineTarget != null) {
+                this.entityOutlineTarget = this.visor$vanillaOutlineTarget;
+            }
+            return;
         }
+        RenderTarget passTarget = MC.mainRenderTarget;
+        if (passTarget == null) {
+            return;
+        }
+        if (this.visor$vanillaOutlineTarget == null) {
+            this.visor$vanillaOutlineTarget = this.entityOutlineTarget;
+        }
+
+        VRRenderPass renderPass = VRRenderState.getRenderPass();
+        RenderTarget outline = this.visor$vrOutlineTargets.get(renderPass);
+        if (outline == null) {
+            outline = new TextureTarget(passTarget.viewWidth, passTarget.viewHeight, true);
+            outline.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
+            this.visor$vrOutlineTargets.put(renderPass, outline);
+        } else if (outline.viewWidth != passTarget.viewWidth
+                || outline.viewHeight != passTarget.viewHeight) {
+            outline.resize(passTarget.viewWidth, passTarget.viewHeight);
+        }
+        this.entityOutlineTarget = outline;
+    }
+
+    @Unique
+    private void visor$discardVROutlineTargets() {
+        if (this.visor$vrOutlineTargets.isEmpty()) {
+            return;
+        }
+        this.visor$vrOutlineTargets.values().forEach(RenderTarget::destroyBuffers);
+        this.visor$vrOutlineTargets.clear();
     }
 
     /* **************** *\

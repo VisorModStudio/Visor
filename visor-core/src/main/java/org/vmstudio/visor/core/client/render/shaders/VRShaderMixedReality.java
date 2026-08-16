@@ -116,15 +116,12 @@ public class VRShaderMixedReality implements VRShader{
 
 
         // --- Render ---
-        // 1.21.2 dropped the "blend" block from the shader json, and CompiledShaderProgram#apply
-        // no longer touches blend state, so the alpha blending this shader relies on for its
-        // key-color/alpha-mask output has to be set here instead.
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        // No blend management here on purpose: the "blend" block the 1.21.1 json carried was
+        // only ever read by EffectInstance (post-chain effects), never by ShaderInstance, so
+        // core shaders like this one always drew with whatever blend state was already set.
         handle.apply();
         RenderShaderHelper.renderFullscreenQuad(PROGRAM.vertexFormat());
         handle.clear();
-        RenderSystem.disableBlend();
 
         if (asGrid2x2) {
             RenderTarget source;

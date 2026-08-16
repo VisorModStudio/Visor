@@ -23,19 +23,19 @@ public interface VRShader {
      * compiles on demand. Programs are discovered by scanning {@code assets/<ns>/shaders/}
      * for {@code .json} files, so no registration step is needed; only the programs in
      * {@code CoreShaders.getProgramsToPreload()} are compiled up front, everything else
-     * is compiled at the first lookup. The manager logs and returns null when compilation
-     * fails, which this turns back into an exception so setup fails loudly.
+     * is compiled at the first lookup.
+     * <p>
+     * Deliberately {@code getProgramForLoading} rather than {@code getProgram}: on a compile
+     * failure the latter runs Minecraft's resource-pack recovery - disabling the user's packs,
+     * or calling {@code emergencySaveAndCrash} when there is nothing left to disable - and
+     * caches the failure as {@code Optional.empty()}, so a later retry (renderer reinit,
+     * resolution change) can never succeed until the next full resource reload. Pre-1.21.2
+     * {@code new ShaderInstance(...)} simply threw, which is what Visor's own error handling
+     * expects.
      */
     @NotNull
     static CompiledShaderProgram link(@NotNull ShaderProgram program) throws Exception {
-        CompiledShaderProgram compiled = Minecraft.getInstance().getShaderManager().getProgram(program);
-        if (compiled == null) {
-            throw new IllegalStateException(
-                    "Failed to compile shader program '" + program.configId()
-                            + "'; the shader manager logged the compile error"
-            );
-        }
-        return compiled;
+        return Minecraft.getInstance().getShaderManager().getProgramForLoading(program);
     }
 
 }

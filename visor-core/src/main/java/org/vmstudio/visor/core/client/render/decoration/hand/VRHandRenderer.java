@@ -38,6 +38,7 @@ import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -220,6 +221,7 @@ public class VRHandRenderer {
         RenderSystem.restoreProjectionMatrix();
     }
     public void renderSpectatedHands(@NotNull PlayerRenderer renderer,
+                                     @NotNull PlayerRenderState renderState,
                                      @NotNull AbstractClientPlayer player,
                                      @NotNull VRClientPlayer vrPlayer,
                                      @NotNull PoseStack poseStack,
@@ -228,12 +230,10 @@ public class VRHandRenderer {
                                      float partialTicks) {
         var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        // 1.21.2: getRenderOffset takes a PlayerRenderState we do not have here.
-        // PlayerRenderer only adds a crouch offset on top of EntityRenderer's passenger
-        // offset, so compute it from the entity directly.
-        Vec3 offset = player.isCrouching()
-                ? new Vec3(0.0, player.getScale() * -2.0F / 16.0, 0.0)
-                : Vec3.ZERO;
+        // 1.21.2: getRenderOffset takes the render state instead of (entity, partialTick).
+        // It still has to go through the VR renderer, which overrides it to drop the vanilla
+        // crouch offset - recomputing it from the entity would reintroduce that offset.
+        Vec3 offset = renderer.getRenderOffset(renderState);
         Vector3f referenceOrigin = new Vector3f(
                 (float) (Mth.lerp(partialTicks, player.xOld, player.getX()) + offset.x),
                 (float) (Mth.lerp(partialTicks, player.yOld, player.getY()) + offset.y),

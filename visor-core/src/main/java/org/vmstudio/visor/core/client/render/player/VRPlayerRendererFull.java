@@ -68,6 +68,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         ext.visor$setVRPlayer(VRClientPlayers.getPlayer(player.getUUID()));
         ext.visor$setSelfModelRender(VRRenderState.isSelfModelRender(player));
         ext.visor$setSelfModelPlayer(VRRenderState.isSelfModelPlayer(player));
+        ext.visor$setSelfModelHandsRender(VRRenderState.isSelfModelHandsRender(player));
     }
 
     @Override
@@ -109,7 +110,8 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
         if (vrPlayer != null && VRRenderState.isSpectatedVRView(vrPlayer.getMcPlayer())) {
             ClientContext.handRenderer.renderSpectatedHands(
-                    this, (AbstractClientPlayer) vrPlayer.getMcPlayer(), vrPlayer, poseStack, buffer, packedLight,
+                    this, renderState, (AbstractClientPlayer) vrPlayer.getMcPlayer(), vrPlayer, poseStack,
+                    buffer, packedLight,
                     ClientContext.visor != null ? ClientContext.visor.getPartialTicks() : 1.0F);
         }
     }
@@ -165,12 +167,12 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         arm.setRotation(0F, 0F, 0F);
         arm.xScale = arm.yScale = arm.zScale = 1F;
         arm.visible = true;
-        sleeve.copyFrom(arm);
+        // 1.21.2: the sleeve is a child of the arm at PartPose.ZERO, so it is drawn by
+        // arm.render and must not be posed or rendered separately.
+        sleeve.resetPose();
         sleeve.visible = true;
 
         arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY);
-        sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
                 OverlayTexture.NO_OVERLAY);
 
         RenderSystem.disableBlend();

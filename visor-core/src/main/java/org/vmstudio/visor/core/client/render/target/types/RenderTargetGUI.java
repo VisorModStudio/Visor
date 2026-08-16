@@ -70,9 +70,12 @@ public class RenderTargetGUI implements RenderTargetHolder {
         target.resize(
                 width, height);
         for(var entry : overlayTargets.entrySet()) {
-            if(target==null) continue;
+            // hidden overlays are stored with a null target (see init/updateOverlayTarget),
+            // so it is the map value that has to be null-checked, not the GUI target
+            VRRenderTarget overlayTarget = entry.getValue();
+            if(overlayTarget == null) continue;
             var overlay = entry.getKey();
-            entry.getValue().resize(
+            overlayTarget.resize(
                     overlay.getRequestedWidth(),
                     overlay.getRequestedHeight());
             overlay.updateSize();

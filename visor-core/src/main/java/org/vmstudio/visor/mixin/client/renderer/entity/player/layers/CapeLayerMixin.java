@@ -96,20 +96,23 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
         float min = (renderState.isFallFlying ? 1F : renderState.swimAmount) * -Mth.HALF_PI;
         float flap = renderState.capeFlap + Mth.RAD_TO_DEG * Math.max(min, xRotation);
 
-        // limit the up rotation when walking forward, depending on body rotation
+        // limit the up rotation when walking forward, depending on body rotation.
+        // 1.21.4 dropped the vanilla "+25 while crouching" flap term (see
+        // PlayerRenderer#extractRenderState), so there is nothing left to cancel here.
         float lean = xRotation / Mth.HALF_PI;
         if (lean >= 0) {
-            lean = (renderState.isCrouching ? renderState.capeLean - Mth.HALF_PI * 0.5F : renderState.capeLean) *
-                (1F - Mth.clamp(lean, 0F, 1F));
+            lean = renderState.capeLean * (1F - Mth.clamp(lean, 0F, 1F));
         } else {
             lean = 0F;
         }
 
-        // manual rotation, PlayerCapeModel doesn't apply its own for VR players
+        // Manual rotation - PlayerCapeModelMixin suppresses PlayerCapeModel's own for VR players.
+        // The cape part's own pose still contributes the 180 that vanilla folds into
+        // Y(180 - capeLean2/2), so only the -capeLean2/2 half belongs here.
         poseStack.mulPose(new Quaternionf()
             .rotateX((6.0F + lean / 2.0F + flap) * Mth.DEG_TO_RAD)
             .rotateZ(renderState.capeLean2 / 2.0F * Mth.DEG_TO_RAD)
-            .rotateY(-(-renderState.capeLean2 / 2.0F) * Mth.DEG_TO_RAD + yRotation));
+            .rotateY(-renderState.capeLean2 / 2.0F * Mth.DEG_TO_RAD + yRotation));
 
         return false;
     }
