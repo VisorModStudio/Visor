@@ -138,13 +138,11 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         renderRows(guiGraphics, mouseX, mouseY, partialTick);
     }
 
-    // 1.21.2: getScrollbarPosition became scrollBarX, on the new AbstractScrollArea parent.
     @Override
     protected final int scrollBarX() {
         return scrollbarX();
     }
 
-    // 1.21.2: getRowTop/getRowBottom widened from protected to public.
     @Override
     public final int getRowTop(int index) {
         return rowTop(index);
@@ -161,9 +159,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         return onMouseScrolled(mouseX, mouseY, scrollY);
     }
 
-    // 1.21.2: updateScrollingState became updateScrolling and now reports whether the
-    // scrollbar was grabbed. AbstractContainerWidget#mouseClicked is what drives it -
-    // AbstractSelectionList no longer overrides mouseClicked at all.
+
     @Override
     public final boolean updateScrolling(double mouseX, double mouseY, int button) {
         boolean grabbed = super.updateScrolling(mouseX, mouseY, button);

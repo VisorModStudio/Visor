@@ -162,8 +162,6 @@ public class VRRenderState {
     /**
      * Render-state form of {@code isSelfModelRender(entity) || isSpectatedVRView(entity)}.
      * <p>
-     * 1.21.2 moved entity rendering onto render states, so layers that used to test the entity
-     * directly have to go through the data parked on the state during extractRenderState.
      */
     public static boolean isSelfOrSpectatedVRView(EntityRenderState renderState) {
         EntityRenderStateExtension ext = (EntityRenderStateExtension) renderState;

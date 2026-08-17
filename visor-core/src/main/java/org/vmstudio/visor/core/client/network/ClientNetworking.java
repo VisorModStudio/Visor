@@ -109,7 +109,6 @@ public class ClientNetworking {
         float yaw = (float) Math.toDegrees(Mth.atan2(-view.x, view.z));
 
         ((LocalPlayer) player).connection.send(
-                // 1.21.2 added horizontalCollision to the movement packets
                 new ServerboundMovePlayerPacket.Rot(
                         yaw, pitch, player.onGround(), player.horizontalCollision
                 )

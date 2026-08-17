@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
-// 1.21.2: the layer is handed a LivingEntityRenderState instead of the entity
 @Mixin(CustomHeadLayer.class)
 public class CustomHeadLayerMixin {
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", at = @At("HEAD"), cancellable = true)

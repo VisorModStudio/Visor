@@ -30,7 +30,6 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
         super(context);
     }
 
-    // 1.21.2: render takes the FishingHookRenderState snapshot instead of the entity
     @Inject(at = @At(value = "HEAD"), method = "render(Lnet/minecraft/client/renderer/entity/state/FishingHookRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
     cancellable = true)
     private void visor$noRenderOnGameScreen(CallbackInfo ci) {
@@ -39,12 +38,6 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
         }
     }
 
-    /**
-     * 1.21.2: the line origin is resolved once into
-     * {@code FishingHookRenderState#lineOriginOffset} during extractRenderState, via the new
-     * getPlayerHandPos funnel. Overriding that is both simpler and far more robust than the old
-     * approach of rewriting three local variables inside render by index.
-     */
     @Inject(method = "getPlayerHandPos", at = @At("HEAD"), cancellable = true)
     private void visor$fishingLineStart(CallbackInfoReturnable<Vec3> cir,
                                         @Local(argsOnly = true) Player player)

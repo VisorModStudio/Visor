@@ -193,8 +193,6 @@ public class VROverlaySettings extends VROverlayScreen
     @Override
     public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
         //MAIN BACKGROUND
-        // 1.21.2 gave GuiGraphics#blit a RenderType factory and reordered its parameters;
-        // the short overload that assumed a 256x256 texture is gone, so the size is explicit.
         McVersionUtilsClient.blitTiled(
                 guiGraphics, settingsTab.background(),
                 menuBoundsX, menuBoundsY,

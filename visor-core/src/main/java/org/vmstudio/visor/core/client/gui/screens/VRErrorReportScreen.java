@@ -102,7 +102,6 @@ public class VRErrorReportScreen extends Screen {
                 ? vx.getTitle()
                 : Component.translatable("visor.messages.error.generic");
 
-        // 1.21.2 dropped BlockableEventLoop#tell in favour of execute
         Minecraft.getInstance().execute(() ->
                 Minecraft.getInstance().setScreen(new VRErrorReportScreen(title, t))
         );

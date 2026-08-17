@@ -114,8 +114,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         return CullFrustumHelper.widenCullProjection(projection);
     }
 
-    // 1.21.2: renderLevel no longer does the entity visibility pass itself, the isDetached
-    // check moved into collectVisibleEntities
+
     @Redirect(
             method = "collectVisibleEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
@@ -169,18 +168,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
   //--------ENTITY OUTLINE--------\\
     \* ************************ */
 
-    /**
-     * Hands the vanilla target back before {@code initOutline}/{@code close} destroys it, and
-     * drops the per-pass cache so it is rebuilt at the new resolution.
-     * <p>
-     * Both methods start with {@code entityOutlineTarget.destroyBuffers()}; without this they
-     * would free whichever VR pass target happens to be installed, leak the vanilla one, and
-     * leave a destroyed target in the cache.
-     * <p>
-     * The pre-1.21.2 {@code MC.mainRenderTarget} swap that used to live here is gone: 1.21.4
-     * {@code initOutline} sizes the target from the {@code Window} and never reads
-     * {@code getMainRenderTarget()}, and {@code initTransparency} no longer exists at all.
-     */
+
     @Inject(method = {"initOutline", "close"}, at = @At("HEAD"))
     private void visor$releaseVROutlineTargets(CallbackInfo ci) {
         if (this.visor$vanillaOutlineTarget != null) {
@@ -190,26 +178,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
         visor$discardVROutlineTargets();
     }
 
-    /**
-     * Gives every VR pass its own glow-outline target, sized to that pass's render target.
-     * <p>
-     * 1.21.2 replaced the per-{@code PostChain} temp targets Visor used to clone (see the
-     * deleted {@code PostChainMixin}) with a single {@code entityOutlineTarget} that
-     * {@code initOutline} sizes from the window and {@code renderLevel} imports into the frame
-     * graph unchanged - while driving the outline post chain at
-     * {@code getMainRenderTarget()}'s size. With one target shared by passes of different
-     * resolutions that costs two things:
-     * <ul>
-     *     <li>{@code addMainPass} clears the outline target and then rebinds the main target
-     *         with {@code bindWrite(false)}, which does not restore the viewport - so every
-     *         entity, block entity, block outline and debug draw after that point in the pass
-     *         is rasterised with the outline target's viewport;</li>
-     *     <li>the outline is rendered at one resolution and composited at another.</li>
-     * </ul>
-     * Keeping one correctly sized target per pass removes both, and matches what 1.21.1 got
-     * from the per-pass post chains. Targets are cached, so a pass only reallocates when its
-     * resolution actually changes.
-     */
+
     @Inject(method = "renderLevel(Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;Lnet/minecraft/client/DeltaTracker;ZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;)V",
             at = @At("HEAD"))
     private void visor$useVROutlineTarget(CallbackInfo ci) {

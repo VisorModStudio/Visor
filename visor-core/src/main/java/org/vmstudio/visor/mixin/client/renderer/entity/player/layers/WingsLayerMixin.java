@@ -44,8 +44,6 @@ public abstract class WingsLayerMixin<S extends HumanoidRenderState, M extends E
     {
         // entity-derived VR data is resolved during extractRenderState and parked on the state
         var vrPlayer = ((EntityRenderStateExtension) renderState).visor$getVRPlayer();
-        // only do this if it's a player model and a vr player
-        // 1.21.2: PlayerModel is no longer generic, so M can't be matched against it directly
         if (((Object) getParentModel()) instanceof PlayerModel model && vrPlayer != null) {
             this.visor$bodyRot.rotationZYX(model.body.zRot, -model.body.yRot, -model.body.xRot);
 

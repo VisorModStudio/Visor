@@ -7,7 +7,6 @@ accessible method net/minecraft/client/multiplayer/ClientLevel getBlockStatePred
 accessible field net/minecraft/client/gui/components/AbstractWidget height I
 
 
-# 1.21.2 split the scroll state out of AbstractSelectionList into AbstractScrollArea
 accessible field net/minecraft/client/gui/components/AbstractScrollArea scrolling Z
 accessible field net/minecraft/client/gui/components/AbstractSelectionList hovered Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
@@ -55,11 +54,6 @@ accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/m
 
 # custom player model rendering
 accessible field net/minecraft/client/model/PlayerModel slim Z
-# PORT-1.21.4: PlayerRenderer#setModelProperties is gone -- 1.21.2 moved entity rendering onto
-# the render-state system, so the per-player model flags are now filled in during
-# PlayerRenderer#extractRenderState(AbstractClientPlayer, PlayerRenderState, float).
-# Re-target this when visor-core's custom player model rendering is ported.
-#extendable method net/minecraft/client/renderer/entity/player/PlayerRenderer setModelProperties (Lnet/minecraft/client/player/AbstractClientPlayer;)V
 
 # modded layer supports
 accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer addLayer (Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z

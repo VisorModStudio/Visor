@@ -17,8 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-// 1.21.2: ThrowableProjectile lost its (EntityType, LivingEntity, Level) constructor - the
-// shooter-aware one now lives on ThrowableItemProjectile and carries the ItemStack.
+
 @Mixin(ThrowableItemProjectile.class)
 public abstract class ThrowableItemProjectileMixin extends Entity {
 

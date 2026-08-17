@@ -37,9 +37,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                               int count,
                                               CallbackInfo ci){}
 
-    // 1.21.2: isDamageSourceBlocked no longer calls isBlocking(). Blocking moved behind
-    // getItemBlockingWith(), which returns the blocking stack (null when not blocking),
-    // so the expression this modifies is an ItemStack now rather than a boolean.
+
     @ModifyExpressionValue(method = "isDamageSourceBlocked",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;getItemBlockingWith()Lnet/minecraft/world/item/ItemStack;"))

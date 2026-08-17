@@ -49,8 +49,7 @@ public class ModelUtils {
         }
     }
 
-    // 1.21.2 turned Polygon/Vertex into records: the fields are package-private now,
-    // but the generated accessors are public and the vertex array is still mutable.
+
     private static void copyUV(ModelPart.Polygon source, ModelPart.Polygon target) {
         for (int i = 0; i < source.vertices().length; i++) {
             ModelPart.Vertex newVertex = new ModelPart.Vertex(target.vertices()[i].pos(), source.vertices()[i].u(),

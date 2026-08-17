@@ -16,9 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-// 1.21.2 moved the whole body of ItemPickupParticle#render into renderCustom; the
-// render(VertexConsumer, Camera, float) override is now an empty stub, so redirects
-// aimed at it resolve to a method with no Mth.lerp calls at all.
+
 @Mixin(ItemPickupParticle.class)
 public class ItemPickupParticleMixin {
 

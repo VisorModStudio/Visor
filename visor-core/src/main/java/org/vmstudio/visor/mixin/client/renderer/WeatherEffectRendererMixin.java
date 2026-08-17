@@ -9,15 +9,7 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
-/**
- * 1.21.4: rain and snow moved out of {@code LevelRenderer#renderSnowAndRain} into this class,
- * and the camera position it iterates around is a single Vec3 argument instead of three
- * doubles fed through {@code Mth.floor}.
- * <p>
- * Only the column collection is recentred on the HMD - the render pass keeps the vanilla
- * camera position, so the precipitation volume follows the head while the geometry stays put,
- * which is what the pre-1.21.2 per-argument version did.
- */
+
 @Mixin(WeatherEffectRenderer.class)
 public class WeatherEffectRendererMixin {
 

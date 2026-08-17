@@ -22,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
-// 1.21.2: the rowing state and controlBoat moved from Boat up into AbstractBoat
 @Mixin(AbstractBoat.class)
 public abstract class BoatMixin extends Entity {
 

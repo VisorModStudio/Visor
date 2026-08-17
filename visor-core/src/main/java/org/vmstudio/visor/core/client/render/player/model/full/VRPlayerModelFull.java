@@ -18,7 +18,6 @@ import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
 import java.util.UUID;
 
-// 1.21.2: PlayerModel is no longer generic - it is fixed to PlayerRenderState
 public class VRPlayerModelFull extends PlayerModel {
 
     protected VRClientPlayer vrPlayer;
@@ -30,7 +29,6 @@ public class VRPlayerModelFull extends PlayerModel {
         super(root, isSlim);
     }
 
-    // 1.21.2: the model is handed a render-state snapshot instead of the entity
     @Override
     public void setupAnim(PlayerRenderState renderState) {
         // no crouch hip movement when roomscale crawling.
@@ -39,13 +37,11 @@ public class VRPlayerModelFull extends PlayerModel {
 
         super.setupAnim(renderState);
 
-        // 1.21.2 removed PlayerRenderer#setModelProperties, so the part visibility it
-        // used to apply belongs here - super.setupAnim resets these every frame.
+
         applyVRVisibility((EntityRenderStateExtension) renderState);
 
         if (VRRenderState.getPhase().isVRGui()) {
             if (renderState.isFallFlying || renderState.isVisuallySwimming) {
-                // 1.21.2 reparented the hat under the head, so it follows on its own
                 this.head.xRot = renderState.xRot * Mth.DEG_TO_RAD;
             }
             return;
@@ -86,8 +82,6 @@ public class VRPlayerModelFull extends PlayerModel {
         applyHmdHead(model, poseRender.getHmd(), bodyYaw);
         applyVanillaSwingPose(model, renderState);
 
-        // 1.21.2 reparented the sleeves under the arms at PartPose.ZERO, so they already
-        // inherit the arm transform - copying it onto them would apply it twice.
 
         model.vrPlayer = vrPlayer;
         model.mainArm = mainArm;
@@ -111,7 +105,6 @@ public class VRPlayerModelFull extends PlayerModel {
         armPart.setRotation(-Mth.HALF_PI - frame.armPitch, frame.armYawDelta, 0.0F);
     }
 
-    // 1.21.2: swingingArm/getAttackAnim/getMainArm are pre-resolved into the render state
     private static void applyVanillaSwingPose(VRPlayerModelFull model,
                                               PlayerRenderState renderState) {
         float attackTime = renderState.attackTime;
@@ -180,6 +173,5 @@ public class VRPlayerModelFull extends PlayerModel {
         model.head.xRot = -hmd.getPitch();
         model.head.yRot = hmd.getYaw() - bodyYaw;
         model.head.zRot = 0.0F;
-        // hat is a child of head since 1.21.2 - no copyFrom, that would double the rotation
     }
 }

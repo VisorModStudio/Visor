@@ -232,8 +232,7 @@ public abstract class ServerPlayerMixin
 
 
 
-    // 1.21.2: the hook is on getItemBlockingWith() rather than isBlocking(), so this deals in
-    // the blocking stack (null when not blocking) instead of a boolean
+
     @Override
     protected ItemStack visor$roomscaleShieldBlocking(ItemStack blockingWith,
                                                       DamageSource damageSource,

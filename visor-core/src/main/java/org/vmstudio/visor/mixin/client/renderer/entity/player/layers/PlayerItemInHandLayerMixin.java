@@ -17,23 +17,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
-/**
- * 1.21.2 rewrote this layer around render states: {@code renderArmWithItem} takes
- * {@code (PlayerRenderState, ItemStackRenderState, HumanoidArm, PoseStack, MultiBufferSource, int)},
- * so the entity and the {@code ItemStack} are gone and the VR checks read the data parked on the
- * state during {@code extractRenderState}.
- * <p>
- * 1.21.4 also dropped the {@code itemStack.is(Items.SPYGLASS)} test the spyglass suppression used
- * to hook. The "held up to the eye" branch is now gated on
- * {@code !playerRenderState.heldOnHead.isEmpty()}, so reporting that state as empty is the
- * equivalent way to force the normal in-hand render.
- * <p>
- * Both selectors are fully qualified on purpose: because {@code S} erases to
- * {@code PlayerRenderState} here but to {@code ArmedEntityRenderState} in {@code ItemInHandLayer},
- * javac emits a synthetic bridge of the same name, and a bare {@code "renderArmWithItem"} would
- * also match it - where the first argument has the wrong type and the {@code isEmpty} call does
- * not exist.
- */
+
 @Mixin(value = PlayerItemInHandLayer.class, priority = 900)
 public class PlayerItemInHandLayerMixin {
 

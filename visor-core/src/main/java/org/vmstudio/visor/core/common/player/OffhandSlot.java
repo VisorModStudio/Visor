@@ -22,17 +22,12 @@ public class OffhandSlot extends Slot {
         this.owner = owner;
     }
 
-    //-----COPY FROM VANILLA
-    // 1.21.2 made setByPlayer(new, old) the override point; the single-arg form now
-    // delegates to it, and vanilla calls the two-arg form directly in places the
-    // single-arg override never saw (InventoryMenu#quickMoveStack).
+
+
     @Override
     public void setByPlayer(ItemStack newStack, ItemStack oldStack) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(owner);
         if (vrPlayer == null || !VRServerSettings.isTwoHandedVR()){
-            // 1.21.2 turned Equipable into the EQUIPPABLE data component.
-            // Vanilla's own offhand slot dropped this check and always notifies;
-            // kept here to preserve Visor's behaviour.
             Equippable equippable = newStack.get(DataComponents.EQUIPPABLE);
             if (equippable != null) {
                 owner.onEquipItem(EquipmentSlot.OFFHAND, oldStack, newStack);
@@ -42,7 +37,6 @@ public class OffhandSlot extends Slot {
 
     }
 
-    // 1.21.2: no longer a Pair - the atlas is implied
     @Override
     public ResourceLocation getNoItemIcon() {
         return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;

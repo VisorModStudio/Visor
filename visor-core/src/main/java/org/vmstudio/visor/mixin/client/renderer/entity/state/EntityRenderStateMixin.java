@@ -7,8 +7,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
-// 1.21.2: renderers hand models a render-state snapshot instead of the entity, so the VR data
-// resolved during extractRenderState is parked here.
 @Mixin(EntityRenderState.class)
 public class EntityRenderStateMixin implements EntityRenderStateExtension {
 

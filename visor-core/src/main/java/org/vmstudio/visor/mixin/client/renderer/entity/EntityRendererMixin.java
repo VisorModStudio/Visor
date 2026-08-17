@@ -34,13 +34,7 @@ public class EntityRendererMixin {
     @Final
     protected EntityRenderDispatcher entityRenderDispatcher;
 
-    /**
-     * 1.21.2: renderNameTag is handed a render state instead of the entity, so the VR player
-     * both name tag hooks below need is resolved here and parked on the state.
-     * <p>
-     * Set unconditionally - render states are pooled per renderer, so skipping the write on a
-     * non-VR entity would leave the previous entity's player behind.
-     */
+
     @Inject(method = "extractRenderState", at = @At("RETURN"))
     private void visor$extractVRPlayer(Entity entity, EntityRenderState renderState,
                                        float partialTick, CallbackInfo ci) {
@@ -73,13 +67,7 @@ public class EntityRendererMixin {
         }
     }
 
-    /**
-     * 1.21.1: leash rendering moved from MobRenderer to EntityRenderer
-     * (Leashable rework), so the hand-held leash end is redirected here
-     * <p>
-     * 1.21.2: renderLeash only sees the LeashState snapshot - the rope hold position is
-     * resolved during extractRenderState now, so the redirect moved with it
-     */
+
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getRopeHoldPosition(F)Lnet/minecraft/world/phys/Vec3;"), method = "extractRenderState")
     public Vec3 visor$vrRenderLeash(Entity instance, float partialTick) {
         if (VRRenderState.getPhase().isNotVRWorld()) {

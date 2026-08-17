@@ -19,10 +19,7 @@ import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.utils.ModelUtils;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderStateExtension;
 
-// 1.21.2: CapeLayer is keyed on PlayerRenderState and PlayerModel is no longer generic.
-// 1.21.4: the layer no longer orients the cape itself - the flap/lean values are baked into the
-// render state and applied by PlayerCapeModel, so the VR orientation is applied to the pose stack
-// here and the vanilla one is suppressed in PlayerCapeModelMixin.
+
 @Mixin(CapeLayer.class)
 public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, PlayerModel> {
 

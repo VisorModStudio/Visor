@@ -13,11 +13,7 @@ public class RenderShaderHelper {
     }
 
 
-    /**
-     * @param format the vertex format the shader was linked with; 1.21.2 dropped
-     *               ShaderInstance#getVertexFormat, so it has to be passed in from
-     *               the caller's ShaderProgram
-     */
+
     public static void renderFullscreenQuad(@NotNull CompiledShaderProgram shader,
                                             @NotNull VertexFormat format,
                                             @NotNull RenderTarget source

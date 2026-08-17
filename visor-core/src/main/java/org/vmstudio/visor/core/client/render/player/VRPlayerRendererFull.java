@@ -57,8 +57,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         );
     }
 
-    // 1.21.2: everything entity-derived has to be resolved here, because render() and the
-    // model only ever see the PlayerRenderState snapshot.
     @Override
     public void extractRenderState(AbstractClientPlayer player,
                                    PlayerRenderState renderState,
@@ -129,11 +127,8 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         }
     }
 
-    // 1.21.2 removed setModelProperties; the part visibility it applied now lives in
-    // VRPlayerModelFull#setupAnim, which is the only hook that runs after the model resets.
 
 
-    // 1.21.2: the hand renderers take a resolved skin and sleeve flag, not the player
     @Override
     public void renderRightHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin,
@@ -170,8 +165,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         arm.setRotation(0F, 0F, 0F);
         arm.xScale = arm.yScale = arm.zScale = 1F;
         arm.visible = true;
-        // 1.21.2: the sleeve is a child of the arm at PartPose.ZERO, so it is drawn by
-        // arm.render and must not be posed or rendered separately.
         sleeve.resetPose();
         sleeve.visible = true;
 
@@ -182,7 +175,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    // 1.21.2: setupRotations lost ageInTicks and partialTick - both are baked into the state
     @Override
     protected void setupRotations(
             PlayerRenderState renderState, PoseStack poseStack, float bodyRot, float scale)

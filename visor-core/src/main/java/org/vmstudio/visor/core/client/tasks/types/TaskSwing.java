@@ -442,10 +442,7 @@ public class TaskSwing extends VisorTask {
         return null;
     }
 
-    /**
-     * 1.21.2 replaced the InteractionResult enum with a sealed hierarchy;
-     * shouldSwing() became the swing source carried by a successful result.
-     */
+
     private static boolean shouldSwingAfterUse(net.minecraft.world.InteractionResult result) {
         return result instanceof net.minecraft.world.InteractionResult.Success success
                 && success.swingSource() == net.minecraft.world.InteractionResult.SwingSource.CLIENT;

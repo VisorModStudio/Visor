@@ -38,9 +38,6 @@ public class McVersionUtilsClient {
     /**
      * Bounds test against a widget, honouring active/visible.
      * <p>
-     * Replaces the protected AbstractWidget#clicked, removed in 1.21.2. Do not swap this
-     * for isMouseOver - subclasses override that to mean "over an interactive part of me",
-     * which is not the same question.
      *
      * @param widget the widget to test against
      * @param mouseX mouse X in screen space
@@ -126,9 +123,6 @@ public class McVersionUtilsClient {
     /**
      * Writes a single pixel of a RGBA image.
      * <p>
-     * 1.21.2 replaced NativeImage#setPixelRGBA, which took an ABGR-packed int, with
-     * NativeImage#setPixel, which takes an ARGB-packed one. Callers pass components
-     * so the packing order stays an implementation detail.
      *
      * @param image the image to write to; must be RGBA
      * @param x     pixel X
@@ -147,9 +141,7 @@ public class McVersionUtilsClient {
     /**
      * Binds a texture to the active GL texture unit.
      * <p>
-     * Replaces TextureManager#bindForSetup, removed in 1.21.2; it was a thin
-     * {@code getTexture(id).bind()} with a render-thread hop, and the lookup and bind
-     * are both still public.
+
      *
      * @param texture id of the texture to bind
      */
@@ -160,9 +152,6 @@ public class McVersionUtilsClient {
     /**
      * Registers a runtime-built texture under the given id and returns it.
      * <p>
-     * 1.21.2 dropped TextureManager#register(String, DynamicTexture), which used to mint
-     * the id itself, so the id is now the caller's to choose - and must be unique.
-     *
      * @param namespace namespace of the generated id
      * @param path      path of the generated id, below {@code dynamic/}
      * @param texture   the texture to register

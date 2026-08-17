@@ -148,9 +148,6 @@ public class VRShaderPostProcessEye implements VRShader{
             ItemStack headItem = MC.player.getInventory().getArmor(3);
 
             if(VRClientSettings.isPumpkinEffectEnabled()) {
-                // 1.21.2 turned CustomModelData into a multi-list record with no single
-                // value() and no DEFAULT; "unmodified vanilla pumpkin" is now just the
-                // absence of the component.
                 boolean hasPumpkin = headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
                         && !headItem.has(DataComponents.CUSTOM_MODEL_DATA);
                 if (hasPumpkin) {

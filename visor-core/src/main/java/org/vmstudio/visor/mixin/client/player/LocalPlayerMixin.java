@@ -379,19 +379,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     }
 
 
-    /**
-     * On the tick a VR teleport happened, sends Visor's own authoritative position packet and
-     * forces the "rotation changed" flag so vanilla still emits a rotation update.
-     * <p>
-     * 1.21.2 deleted the {@code if (this.isPassenger())} vehicle branch from
-     * {@code sendPosition} (vehicle movement is sent from {@code sendVehicleMovement} now), so
-     * the old {@code INVOKE isPassenger} anchor no longer exists, and the shift-key block moved
-     * out to {@code sendShiftKeyState}, which removes the first boolean local and shifts the
-     * ordinals - the rotation flag is boolean ordinal 1 now, not 2.
-     * <p>
-     * Anchoring on its STORE lands at the same point in the flow the {@code isPassenger} call
-     * used to: right after the flag is computed, before the first branch reads it.
-     */
+
     @ModifyVariable(method = "sendPosition", at = @At("STORE"), ordinal = 1)
     private boolean visor$directTeleport(boolean updateRotation) {
         if (this.visor$teleported) {
@@ -407,19 +395,6 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         return updateRotation;
     }
 
-    /**
-     * Helps to avoid server spamming
-     * 'moved too quickly', 'moved wrongly'
-     * <p>
-     * 1.21.2 moved the shift-key packet out of {@code sendPosition} into
-     * {@code sendShiftKeyState}, so all four remaining {@code connection.send} calls in the
-     * method are movement packets. The slice that used to exclude the shift-key one is
-     * therefore unnecessary - and unusable, because it was anchored on the {@code isPassenger}
-     * call that went away with the vehicle branch.
-     *
-     * @param instance s
-     * @param packet s
-     */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"), method = "sendPosition")
     public void visor$noPosPacketOnTeleport(ClientPacketListener instance, Packet<?> packet) {
         if (!this.visor$teleported) {

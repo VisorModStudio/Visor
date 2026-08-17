@@ -9,26 +9,12 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 
 public final class CenteredArmsPlayerMesh {
 
-    /**
-     * 1.21.2 moved the slim arm pivot from 2.5 up to 2.0, so slim and classic arms now
-     * share the vanilla pivot - keeping the old 2.5 leaves slim arms half a unit low.
-     */
+
     private static final float ARM_PIVOT_Y = 2.0F;
 
     private CenteredArmsPlayerMesh() {}
 
-    /**
-     * Rebuilds the player mesh with the arm boxes centred on their pivot, so a VR arm can be
-     * aimed straight down the controller direction without the vanilla shoulder offset.
-     * <p>
-     * 1.21.2 reparented the overlay parts: {@code left_sleeve}/{@code right_sleeve} are children
-     * of the arms at {@link PartPose#ZERO} (pants under the legs, jacket under the body, hat
-     * under the head), and {@code Model#renderToBuffer} now renders the whole root tree instead
-     * of the explicit {@code headParts()}/{@code bodyParts()} lists. Registering the centred
-     * sleeves on the root - as the pre-1.21.2 mesh did - therefore both leaves
-     * {@code PlayerModel#leftSleeve} pointing at vanilla's off-centre child cube and draws the
-     * centred cube a second time as an unparented part floating at the shoulder.
-     */
+
     public static MeshDefinition create(CubeDeformation cubeDeformation, boolean slim) {
         MeshDefinition mesh = PlayerModel.createMesh(cubeDeformation, slim);
         PartDefinition root = mesh.getRoot();

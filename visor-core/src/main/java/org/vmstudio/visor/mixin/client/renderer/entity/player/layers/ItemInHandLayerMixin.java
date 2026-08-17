@@ -26,19 +26,6 @@ import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-/**
- * Poses items held by entity-rendered players (remote VR players, the local player's own body
- * model, and the third-person / mirror passes) with the VR controller instead of the vanilla
- * arm socket.
- * <p>
- * 1.21.2 rewrote the layer around render states: {@code renderArmWithItem} now takes
- * {@code (ArmedEntityRenderState, ItemStackRenderState, HumanoidArm, PoseStack, MultiBufferSource, int)}
- * and draws through {@code ItemStackRenderState#render} instead of {@code ItemInHandRenderer}, so
- * the entity is resolved from the VR player parked on the state and the item stack is read back
- * off that player. The left-handed item/arm swap that used to live here moved to
- * {@link org.vmstudio.visor.mixin.client.renderer.entity.state.ArmedEntityRenderStateMixin},
- * because 1.21.2 resolves handedness during {@code extractRenderState}.
- */
 @Mixin(ItemInHandLayer.class)
 public abstract class ItemInHandLayerMixin {
 

@@ -100,16 +100,6 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
     }
 
 
-    /**
-     * 1.21.2 moved level rendering into a frame graph, so these stages now run inside
-     * LevelRenderer's main pass rather than between separate top-level steps. Anything the
-     * VR content binds therefore leaks onto the draws that follow it in that same pass -
-     * the block outline, and translucent terrain unless Fabulous moved it to its own target.
-     * <p>
-     * {@link org.vmstudio.visor.core.client.render.helpers.RenderStateHelper#restoreAfterExternalRender}
-     * rebinds {@code MC.mainRenderTarget}, which is not necessarily the target the pass was
-     * drawing to, so the bound framebuffer and viewport are saved and restored here.
-     */
     private void runStageWithVRContract(Runnable stageRenderer) {
         if (VRRenderState.getPhase().isVanilla()) {
             stageRenderer.run();

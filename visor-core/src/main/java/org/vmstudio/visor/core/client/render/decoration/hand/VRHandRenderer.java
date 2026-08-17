@@ -230,9 +230,6 @@ public class VRHandRenderer {
                                      float partialTicks) {
         var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
-        // 1.21.2: getRenderOffset takes the render state instead of (entity, partialTick).
-        // It still has to go through the VR renderer, which overrides it to drop the vanilla
-        // crouch offset - recomputing it from the entity would reintroduce that offset.
         Vec3 offset = renderer.getRenderOffset(renderState);
         Vector3f referenceOrigin = new Vector3f(
                 (float) (Mth.lerp(partialTicks, player.xOld, player.getX()) + offset.x),
@@ -633,8 +630,6 @@ public class VRHandRenderer {
                         vrPlayer,
                         slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
                 );
-        // 1.21.2: the hand renderers take the resolved skin and sleeve flag
-        // instead of the player, matching vanilla's ItemInHandRenderer.
         ResourceLocation skinTexture = player.getSkin().texture();
         if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, multiBufferSource, i, skinTexture,

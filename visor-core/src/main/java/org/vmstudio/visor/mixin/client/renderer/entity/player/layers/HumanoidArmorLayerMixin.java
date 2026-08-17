@@ -14,8 +14,6 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 @Mixin(HumanoidArmorLayer.class)
 public class HumanoidArmorLayerMixin {
 
-    // 1.21.2: renderArmorPiece lost its LivingEntity parameter and gets no render state
-    // either, so the state has to be captured from the enclosing render call.
     @Unique
     private HumanoidRenderState visor$currentRenderState;
 

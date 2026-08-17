@@ -42,7 +42,6 @@ public class VRShaderEndPortal implements VRShader{
                         false,
                         false,
                         RenderType.CompositeState.builder()
-                                // 1.21.2: the shard takes the program handle, not a live supplier
                                 .setShaderState(new RenderStateShard.ShaderStateShard(PROGRAM))
                                 .setTextureState(
                                         RenderStateShard

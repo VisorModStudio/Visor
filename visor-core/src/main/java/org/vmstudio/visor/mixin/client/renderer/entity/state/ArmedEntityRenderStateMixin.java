@@ -13,15 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 
-/**
- * Applies Visor's own left-handed setting to which arm holds which item.
- * <p>
- * VR handedness is a Visor setting synced per player, independent of the vanilla main-arm
- * option, so a right-handed vanilla profile playing left-handed in VR must still show the
- * main-hand item in the left hand. Pre-1.21.2 this was done in {@code ItemInHandLayer#render},
- * which picked the two stacks itself; 1.21.2 resolves them during
- * {@code extractArmedEntityRenderState} instead, so the override has to happen here.
- */
+
 @Mixin(ArmedEntityRenderState.class)
 public class ArmedEntityRenderStateMixin {
 

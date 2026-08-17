@@ -19,8 +19,6 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 @Mixin(GuardianRenderer.class)
 public abstract class GuardianRendererMixin {
 
-    // 1.21.2: the beam endpoints are resolved in extractRenderState, not in render, so the
-    // hook moved onto getPosition itself rather than the (now non-existent) call site.
     @Inject(method = "getPosition", at = @At("HEAD"), cancellable = true)
     public void visor$vrRenderBeam(CallbackInfoReturnable<Vec3> cir,
                                    @Local(argsOnly = true) LivingEntity livingEntity) {
