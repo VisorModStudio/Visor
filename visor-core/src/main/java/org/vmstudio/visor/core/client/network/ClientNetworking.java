@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.network;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -58,6 +59,9 @@ public class ClientNetworking {
     private static boolean handshakeReceived = false;
     private static boolean recording;
 
+    /** handshake held back until the loader lets us send on the core channel, see {@link #sendHandShake} */
+    private static @Nullable HandshakePayloadToServer pendingHandshake = null;
+
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
         CHANNEL =  VisorChannel.builder(
                 coreAddon,
@@ -89,13 +93,43 @@ public class ClientNetworking {
         MC.getConnection().send(createVRPacket(payload));
     }
 
+    /**
+     * Sent from the tail of {@code ClientPacketListener#handleLogin}.
+     *
+     * <p>
+     *     NeoForge refuses to send a custom payload on a channel the server has not declared
+     *     for this connection, and a Paper (VisorPlugin), Fabric or Forge server declares its
+     *     channels with {@code minecraft:register} right <em>after</em> the login packet - so
+     *     at this point the loader may still say no. The handshake is then kept and retried
+     *     from {@link #tick()} until the channel is known; Fabric always allows sending and
+     *     takes the direct path. Dedicated-server defaults apply either way: they describe the
+     *     server we joined, not whether the handshake went out yet.
+     * </p>
+     */
     public static void sendHandShake(HandshakePayloadToServer payload) {
         if (MC.getConnection() == null) return;
-        if (!ModLoader.get().canSendToServer(VisorNetwork.CORE_CHANNEL_ID)) return;
-        MC.getConnection().send(createVRPacket(payload));
         if(!Minecraft.getInstance().isLocalServer()) {
             VRServerSettings.joinedDedicatedServer();
         }
+        pendingHandshake = payload;
+        trySendPendingHandshake();
+    }
+
+    /**
+     * Ticked every client tick (VR and non-VR) while a connection exists
+     */
+    public static void tick() {
+        if (pendingHandshake != null) {
+            trySendPendingHandshake();
+        }
+    }
+
+    private static void trySendPendingHandshake() {
+        HandshakePayloadToServer payload = pendingHandshake;
+        if (payload == null || MC.getConnection() == null) return;
+        if (!ModLoader.get().canSendToServer(VisorNetwork.CORE_CHANNEL_ID)) return;
+        pendingHandshake = null;
+        MC.getConnection().send(createVRPacket(payload));
     }
 
     public static Packet<?> createVRPacket(VisorPayloadToServer payload) {
@@ -262,6 +296,7 @@ public class ClientNetworking {
         overlayFocusedLastSent = false;
         recording = false;
         handshakeReceived = false;
+        pendingHandshake = null;
         VRClientPlayers.dispose();
     }
 

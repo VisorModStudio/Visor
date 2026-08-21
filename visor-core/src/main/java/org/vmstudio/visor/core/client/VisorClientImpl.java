@@ -267,6 +267,7 @@ public class VisorClientImpl implements VisorClient {
         try {
             //NON-VR + VR
             ++VisorState.TICK_COUNT;
+            ClientNetworking.tick();
 
             if(VisorState.get().isNotActive()){
                 //NON-VR ONLY

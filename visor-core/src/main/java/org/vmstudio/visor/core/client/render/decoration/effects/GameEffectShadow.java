@@ -57,6 +57,8 @@ public class GameEffectShadow extends VRGameEffect {
 
 
         // --- Prepare variables ---
+        if(MC.player == null) return;
+
         AABB box = MC.player.getBoundingBox();
         float playerWidth  = (float) box.getXsize();
         float playerLength = (float) box.getZsize();
@@ -142,6 +144,7 @@ public class GameEffectShadow extends VRGameEffect {
         if(VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON){
             return false;
         }
+        if(MC.player == null) return false;
         if (!MC.player.isAlive()) {
             return false;
         }

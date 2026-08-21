@@ -16,8 +16,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import org.vmstudio.visor.loader.fabric.network.VisorRawPayload;
+import org.vmstudio.visor.loader.fabric.network.VisorChannelPayload;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.network.FriendlyByteBuf;
@@ -46,10 +47,6 @@ public class FabricModLoader implements ModLoader {
 
     private final Map<RenderPipelineStage, List<RenderPipelineCallback>> pipelineCallbacks
             = new EnumMap<>(RenderPipelineStage.class);
-
-    private final Map<ResourceLocation, VisorChannel> networkChannels = new HashMap<>();
-    private boolean serverReceiverRegistered = false;
-    private boolean clientReceiverRegistered = false;
 
     private boolean worldEventsRegistered = false;
 
@@ -204,53 +201,54 @@ public class FabricModLoader implements ModLoader {
 
 
     /**
-     * 1.21.1: Fabric networking is payload-typed. All Visor channels share
-     * the single VisorRawPayload tunnel (registered at mod init) and are
-     * dispatched here by the channel id carried in the payload — receivers
-     * are registered once, so channels may register at any time.
+     * 1.20.5+: Fabric networking is payload-typed, so every Visor channel is registered as
+     * its own payload type whose id is the channel id and whose codec is the channel's raw
+     * bytes ({@link VisorChannelPayload}). That keeps the wire format identical to 1.20.1,
+     * which VisorPlugin, ViaVersion and the other loaders rely on.
+     *
+     * <p>
+     *     Fabric's payload registries are plain maps consulted at encode/decode time, so
+     *     registering here (addon registration, after mod init) is fine; only a duplicate
+     *     id throws, and {@code VisorNetwork.registerChannel} already rejects those.
+     *     Both directions' types are registered wherever the channel declares them - the
+     *     dedicated server still has to <em>encode</em> clientbound payloads - while the
+     *     client receiver is client-only.
+     * </p>
      */
     @Override
     public void registerNetworkChannel(@NotNull VisorChannel channel) {
-        networkChannels.put(channel.getChannelId(), channel);
+        ResourceLocation channelId = channel.getChannelId();
+        var type = VisorChannelPayload.typeOf(channelId);
+        var codec = VisorChannelPayload.codecOf(type);
 
-        if (channel.hasPacketsToServer() && !serverReceiverRegistered) {
-            ServerPlayNetworking.registerGlobalReceiver(VisorRawPayload.TYPE, (payload, context) -> {
-                VisorChannel registeredChannel = networkChannels.get(payload.channelId());
-                if (registeredChannel == null || !registeredChannel.hasPacketsToServer()) {
-                    return;
-                }
-                context.server().execute(() -> {
-                    FriendlyByteBuf buffer = payload.toBuffer();
-                    try {
-                        registeredChannel.handleToServer(buffer, context.player(),
-                                p -> context.responseSender().sendPacket(
-                                        ModLoader.get().createPacketToClient(registeredChannel.getChannelId(), p)
-                                ));
-                    } finally {
-                        buffer.release();
-                    }
-                });
-            });
-            serverReceiverRegistered = true;
+        if (channel.hasPacketsToServer()) {
+            PayloadTypeRegistry.playC2S().register(type, codec);
+            ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) ->
+                    context.server().execute(() -> {
+                        FriendlyByteBuf buffer = payload.toBuffer();
+                        try {
+                            channel.handleToServer(buffer, context.player(),
+                                    p -> context.responseSender().sendPacket(
+                                            createPacketToClient(channelId, p)
+                                    ));
+                        } finally {
+                            buffer.release();
+                        }
+                    }));
         }
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT
-                && channel.hasPacketsToClient()
-                && !clientReceiverRegistered) {
-            ClientPlayNetworking.registerGlobalReceiver(VisorRawPayload.TYPE, (payload, context) -> {
-                VisorChannel registeredChannel = networkChannels.get(payload.channelId());
-                if (registeredChannel == null || !registeredChannel.hasPacketsToClient()) {
-                    return;
-                }
-                context.client().execute(() -> {
-                    FriendlyByteBuf buffer = payload.toBuffer();
-                    try {
-                        registeredChannel.handleToClient(buffer);
-                    } finally {
-                        buffer.release();
-                    }
-                });
-            });
-            clientReceiverRegistered = true;
+        if (channel.hasPacketsToClient()) {
+            PayloadTypeRegistry.playS2C().register(type, codec);
+            if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+                ClientPlayNetworking.registerGlobalReceiver(type, (payload, context) ->
+                        context.client().execute(() -> {
+                            FriendlyByteBuf buffer = payload.toBuffer();
+                            try {
+                                channel.handleToClient(buffer);
+                            } finally {
+                                buffer.release();
+                            }
+                        }));
+            }
         }
     }
 
@@ -259,7 +257,7 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return ServerPlayNetworking.createS2CPacket(VisorRawPayload.of(channelId, buffer));
+        return ServerPlayNetworking.createS2CPacket(VisorChannelPayload.of(channelId, buffer));
     }
 
     @Override
@@ -267,7 +265,7 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        return ClientPlayNetworking.createC2SPacket(VisorRawPayload.of(channelId, buffer));
+        return ClientPlayNetworking.createC2SPacket(VisorChannelPayload.of(channelId, buffer));
     }
 
 

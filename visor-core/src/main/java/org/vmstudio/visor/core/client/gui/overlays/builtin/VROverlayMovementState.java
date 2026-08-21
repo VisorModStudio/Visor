@@ -93,6 +93,7 @@ public class VROverlayMovementState extends VROverlayScreen {
                             float partialTicks) {
 
         var player = MC.player;
+        if(player == null) return;
 
         GuiTexture stateTexture = null;
 
