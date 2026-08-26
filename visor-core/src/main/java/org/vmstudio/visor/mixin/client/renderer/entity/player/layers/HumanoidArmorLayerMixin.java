@@ -17,7 +17,7 @@ public class HumanoidArmorLayerMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    private void visor$noHelmetInFirstPerson(
+    private void visor$hideHeadArmorOnVRSelf(
             CallbackInfo ci,
             @Local(argsOnly = true) LivingEntity entity,
             @Local(argsOnly = true) EquipmentSlot slot)

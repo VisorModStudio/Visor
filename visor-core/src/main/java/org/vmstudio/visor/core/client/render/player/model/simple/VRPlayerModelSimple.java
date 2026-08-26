@@ -140,7 +140,8 @@ public class VRPlayerModelSimple<T extends LivingEntity> extends PlayerModel<T> 
     public void translateToHand(HumanoidArm side, PoseStack poseStack) {
         this.getArm(side).translateAndRotate(poseStack);
         if (this.slim) {
-            poseStack.translate(side == HumanoidArm.LEFT ? -0.0625F : 0.0625F, 0.0F, 0.0F);
+            float outward = side == HumanoidArm.LEFT ? -1F : 1F;
+            poseStack.translate(outward / 16F, 0F, 0F);
         }
     }
 

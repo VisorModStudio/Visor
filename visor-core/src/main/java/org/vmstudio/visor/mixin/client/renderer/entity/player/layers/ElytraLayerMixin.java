@@ -31,7 +31,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
     }
 
     @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
-    private void visor$elytraPosition(PoseStack instance, float x, float y, float z, Operation<Void> original, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true, ordinal = 2) float partialTick) {
+    private void visor$attachElytraToBack(PoseStack instance, float x, float y, float z, Operation<Void> original, @Local(argsOnly = true) LivingEntity entity) {
         var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
         if (!(getParentModel() instanceof PlayerModel<?> model) || vrPlayer == null) {
             original.call(instance, x, y, z);

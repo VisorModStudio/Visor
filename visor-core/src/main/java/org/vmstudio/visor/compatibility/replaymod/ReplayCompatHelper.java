@@ -36,7 +36,7 @@ public class ReplayCompatHelper {
             acceptPacket.invoke(handler, packet);
         } catch (ReflectiveOperationException e) {
             SETUP.disable();
-            LoggerUtils.getLogger().error("Failed to store replaymod player data", e);
+            LoggerUtils.getLogger().error("Visor: could not send the VR packet to ReplayMod's recorder", e);
         }
     }
 

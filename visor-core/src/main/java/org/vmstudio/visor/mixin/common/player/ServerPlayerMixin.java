@@ -288,7 +288,7 @@ public abstract class ServerPlayerMixin
             var handPose = vrPlayer.getPoseData().getHand(hand);
             Vec3 shieldDir = handPose.getCustomVector3(sideDir);
 
-            //0.5 = 120 degree blocking cone
+            // threshold is cos(60 deg): the shield face covers a 120-degree arc
             double angle;
             if (projectile) {
                 Vec3 dmgDir = dmgPos.subtract(handPose.getPositionVec3()).normalize();

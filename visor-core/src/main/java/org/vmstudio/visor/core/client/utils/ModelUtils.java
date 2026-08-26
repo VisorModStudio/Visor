@@ -84,7 +84,7 @@ public class ModelUtils {
 
         out.div(useWorldScale
                 ? vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale()
-                : ScaleHelper.getEntityEyeHeightScale(
+                : EntityScaleHelper.getEntityEyeHeightScale(
                 vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
 
         float scale = 0.9375F * vrPlayer.getFullHeightScale();
@@ -127,7 +127,7 @@ public class ModelUtils {
         if (applyScale) {
             out.mul(useWorldScale
                     ? clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale()
-                    : ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
+                    : EntityScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
         }
 
         return out;

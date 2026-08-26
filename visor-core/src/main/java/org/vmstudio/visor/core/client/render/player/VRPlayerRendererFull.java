@@ -26,7 +26,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.phys.Vec3;
-import org.vmstudio.visor.core.client.utils.ScaleHelper;
+import org.vmstudio.visor.core.client.utils.EntityScaleHelper;
 
 
 public class VRPlayerRendererFull extends PlayerRenderer {
@@ -67,7 +67,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
             float scale = vrPlayer.getFullHeightScale();
             if ((VisorState.get().isActive() && player == Minecraft.getInstance().player)) {
-                scale *= pose.getWorldScale() / ScaleHelper.getEntityEyeHeightScale(player, partialTick);
+                scale *= pose.getWorldScale() / EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
             }
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {

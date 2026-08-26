@@ -15,22 +15,13 @@ uniform float uVignetteBorder;
 uniform vec4 uVignetteColor;
 
 
-const vec4 BLACK = vec4(0.0, 0.0, 0.0, 1.0);
-const float PI = 3.14159265;
-
 in vec2 texCoordinates;
 out vec4 fragColor;
 
 vec4 applyTints(vec4 col) {
-    if(uTintRed > 0){
-        col = mix(col, vec4(col.r, 0.0, 0.0, 1.0), uTintRed);
-    }
-    if(uTintBlue > 0){
-        col = mix(col, vec4(0.0, col.g * 0.5, col.b, 1.0), uTintBlue);
-    }
-    if(uTintBlack > 0){
-        col = mix(col, BLACK, uTintBlack);
-    }
+    col.gb *= 1.0 - uTintRed;
+    col.rg *= vec2(1.0 - uTintBlue, 1.0 - 0.5 * uTintBlue);
+    col.rgb *= 1.0 - uTintBlack;
     return col;
 }
 

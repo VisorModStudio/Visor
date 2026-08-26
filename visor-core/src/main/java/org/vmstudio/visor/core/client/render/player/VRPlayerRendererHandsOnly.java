@@ -25,7 +25,7 @@ import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
-import org.vmstudio.visor.core.client.utils.ScaleHelper;
+import org.vmstudio.visor.core.client.utils.EntityScaleHelper;
 
 public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     private static LayerDefinition VR_LAYER_DEFAULT;
@@ -66,7 +66,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
             if ((VisorState.get().isActive()
                     && player == Minecraft.getInstance().player))
             {
-                scale *= pose.getWorldScale() / ScaleHelper.getEntityEyeHeightScale(player, partialTick);
+                scale *= pose.getWorldScale() / EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
             }
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {

@@ -6,6 +6,9 @@ import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Utils for client cross--mc-version methods
+ */
 public class McVersionClientUtils {
     private McVersionClientUtils() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");

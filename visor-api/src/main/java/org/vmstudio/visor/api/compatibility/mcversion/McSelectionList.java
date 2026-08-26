@@ -8,7 +8,7 @@ import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 
 /**
- * McVersion adapter for AbstractSelectionList
+ * Cross-mc-version adapter for AbstractSelectionList
  */
 @Environment(EnvType.CLIENT)
 public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extends AbstractSelectionList<E> {
@@ -75,7 +75,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
 
 
-    // ------- IMPLEMENTATION -------
+    // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
 
     @Override
     public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {

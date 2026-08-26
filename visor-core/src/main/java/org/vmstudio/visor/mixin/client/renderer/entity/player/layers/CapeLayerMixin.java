@@ -69,8 +69,6 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
             if (player.isCrouching()) {
                 xRot -= 25F;
             }
-            // rotate with body
-            // max of 0 to keep it down when the body bends backwards
             float min = (player.isFallFlying() ? 1F : player.getSwimAmount(partialTick)) * -Mth.HALF_PI;
             xRot += Mth.RAD_TO_DEG * Math.max(min, xRotation.get());
         }

@@ -36,7 +36,7 @@ public class FlashbackCompatHelper {
             writePacket.invoke(recorder, packet, ConnectionProtocol.PLAY);
         } catch (ReflectiveOperationException e) {
             SETUP.disable();
-            LoggerUtils.getLogger().error("Failed to store flashback player data", e);
+            LoggerUtils.getLogger().error("Visor: could not send the VR packet to Flashback's recorder", e);
         }
     }
 

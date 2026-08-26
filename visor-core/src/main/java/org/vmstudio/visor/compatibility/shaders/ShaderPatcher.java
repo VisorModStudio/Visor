@@ -226,20 +226,24 @@ public final class ShaderPatcher {
                             .same("clip").glsl("/-").same("view").glsl(".z)*0.5+0.5;"));
 
     private static final List<ShaderPatch> PATCHES = List.of(
+            // macro definitions first, then grouped by direction
             PROJMAD_MACRO,
+            // view -> clip
+            FORWARD_DIAG3,
+            FORWARD_DIAG4,
             FORWARD_DIAG4_Z,
             FORWARD_MAT3_SCALE,
-            FORWARD_DIAG4,
             FORWARD_PROJMAD,
+            // screen -> view
             INVERSE_DIAG_DIVIDE,
             INVERSE_NDC_DIAG,
             INVERSE_PROJMAD,
             INVERSE_TEXCOORD_DIAG,
+            // view -> screen uv
             SCREEN_XY_DIAG,
-            SCREEN_LINE_XY_DIAG,
-            SCREEN_XYZ_DIAG,
             SCREEN_XY_DIAG2,
-            FORWARD_DIAG3,
+            SCREEN_XYZ_DIAG,
+            SCREEN_LINE_XY_DIAG,
             SCREEN_PREVIOUS_FRAME);
 
     private ShaderPatcher() {

@@ -14,7 +14,7 @@ import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.sodium.FaceUv;
 import org.vmstudio.visor.compatibility.sodium.extensions.ModelCuboidExtension;
 
-// sodium 0.5.6 to 0.6.13
+// Sodium 0.5.6 - 0.6.13
 @Pseudo
 @MixinGate(methods = "buildVertexTexCoord")
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.render.immediate.model.EntityRenderer")

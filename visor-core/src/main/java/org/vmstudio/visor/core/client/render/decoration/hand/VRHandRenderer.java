@@ -636,7 +636,7 @@ public class VRHandRenderer {
         poseStack.popPose();
     }
 
-    @Unique
+
     private void applySwingPose(HandAction handAction,
                                 PoseStack matrixStackIn,
                                 HumanoidArm hand,

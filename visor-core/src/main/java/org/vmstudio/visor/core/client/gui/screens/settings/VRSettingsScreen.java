@@ -5,7 +5,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
-import org.vmstudio.visor.api.client.gui.helpers.ScaleHelper;
+import org.vmstudio.visor.api.client.gui.helpers.GuiScaleHelper;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
@@ -193,7 +193,7 @@ public class VRSettingsScreen extends Screen {
 
 
     @Getter
-    private final ScaleHelper scaleHelper = new ScaleHelper(
+    private final GuiScaleHelper scaleHelper = new GuiScaleHelper(
             BACKGROUND.getWidth(),
             BACKGROUND.getHeight()
     );

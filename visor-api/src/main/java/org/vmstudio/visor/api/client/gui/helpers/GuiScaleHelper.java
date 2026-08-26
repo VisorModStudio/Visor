@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.client.gui.helpers;
 
 import lombok.Getter;
 @Getter
-public class ScaleHelper {
+public class GuiScaleHelper {
 
     private final float originWidth;
     private final float originHeight;
@@ -11,8 +11,8 @@ public class ScaleHelper {
     private int startX;
     private int startY;
 
-    public ScaleHelper(float originWidth,
-                       float originHeight){
+    public GuiScaleHelper(float originWidth,
+                          float originHeight){
         this.originWidth = originWidth;
         this.originHeight = originHeight;
     }
@@ -27,17 +27,17 @@ public class ScaleHelper {
         startY = (int) ((screenHeight - originHeight * scale) / 2f);
     }
 
-    /** Origin-space X → screen-space X */
+    /** Origin-space X -> screen-space X */
     public int scaledX(float originX) {
         return startX + Math.round(originX * scale);
     }
 
-    /** Origin-space Y → screen-space Y */
+    /** Origin-space Y -> screen-space Y */
     public int scaledY(float originY) {
         return startY + Math.round(originY * scale);
     }
 
-    /** Scale a Origin-space size (width or height) → screen-space */
+    /** Scale a Origin-space size (width or height) -> screen-space */
     public int scaledSize(float originSize) {
         return Math.round(originSize * scale);
     }

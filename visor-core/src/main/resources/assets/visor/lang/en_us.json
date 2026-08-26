@@ -541,7 +541,7 @@
   "visor.messages.vr_init_failed": "VR failed to start — playing in non-VR mode.",
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Server supports Visor!",
-  "visor.messages.calibrate_height": "Please calibrate your height in the pause menu.",
+  "visor.messages.calibrate_height": "To calibrate height - open the pause menu",
   "visor.messages.height_set": "User height set to %d%%",
   "visor.messages.height_calibration_failed": "Height calibration failed: headset pose unavailable. Make sure your headset is on and tracking, then try again.",
   "visor.messages.vr_auto_switch": "Put on your headset to play VR",

@@ -131,7 +131,7 @@ public abstract class VRRendererBase implements VRRenderer {
         //Window context changed
         if (MC.getWindow().getWindow() != this.lastWindow) {
             this.lastWindow = MC.getWindow().getWindow();
-            this.prepareReinit("Window Handle Changed");
+            this.prepareReinit("window recreated");
         }
 
         //-----------------
@@ -240,10 +240,10 @@ public abstract class VRRendererBase implements VRRenderer {
 
         VisorClientImpl.LOGGER.info(
                 "[Visor] render targets created:" +
-                "\nEye target width: " + eyeWidth + ", height: " + eyeHeight + " [" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP]" +
-                "\nRender target width: " + eyeRenderWidth + ", height: " + eyeRenderHeight + " [Render scale: " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "%, " + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP]" +
-                "\nMain window width: " + windowModif.visor$getActualScreenWidth() + ", height: " + windowModif.visor$getActualScreenHeight() + " [" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP]" +
-                "\nTotal shaded pixels per frame: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP (eye stencil not accounted for)"
+                "\nEye target: " + eyeWidth + "x" + eyeHeight + " (" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP)" +
+                "\nRender target: " + eyeRenderWidth + "x" + eyeRenderHeight + " at " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "% scale (" + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP)" +
+                "\nMain window: " + windowModif.visor$getActualScreenWidth() + "x" + windowModif.visor$getActualScreenHeight() + " (" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP)" +
+                "\nPer-frame fill: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP, stencil mask not subtracted"
         );
 
         minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());

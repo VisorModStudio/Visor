@@ -12,8 +12,8 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 @Mixin(CustomHeadLayer.class)
 public class CustomHeadLayerMixin {
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At("HEAD"), cancellable = true)
-    private void visor$noHelmetInFirstPerson(CallbackInfo ci,
-                                             @Local(argsOnly = true) LivingEntity entity)
+    private void visor$hideHeadDecorationOnVRSelf(CallbackInfo ci,
+                                                  @Local(argsOnly = true) LivingEntity entity)
     {
         if (VRRenderState.isSelfModelRender(entity)
                 || VRRenderState.isSpectatedVRView(entity)) {

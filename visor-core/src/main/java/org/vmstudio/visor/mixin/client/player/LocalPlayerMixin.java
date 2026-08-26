@@ -368,10 +368,8 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     }
 
     /**
-     * Helps to avoid server spamming
-     * 'moved too quickly', 'moved wrongly'
-     * @param instance s
-     * @param packet s
+     * Skips the outgoing position packet on the tick a VR teleport happened,
+     * so the server does not flag the jump as illegal movement.
      */
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"), method = "sendPosition", slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isPassenger()Z")))
     public void visor$noPosPacketOnTeleport(ClientPacketListener instance, Packet<?> packet) {

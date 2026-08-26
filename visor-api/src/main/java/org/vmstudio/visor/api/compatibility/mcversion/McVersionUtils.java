@@ -4,6 +4,9 @@ import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringUtil;
 
+/**
+ * Utils for common cross-mc-version methods
+ */
 public class McVersionUtils {
     private McVersionUtils() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");

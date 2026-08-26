@@ -19,7 +19,7 @@ in vec2 texCoordinates;
 out vec4 fragColor;
 
 
-vec3 avoidKeyColor(in vec3 color) {
+vec3 nudgeOffKeyColor(in vec3 color) {
     // mask = 1.0 if all |color−keyColor| < ε
     const float eps = 0.004;
     bvec3 close = lessThanEqual(abs(color - uKeyColor), vec3(eps));
@@ -32,7 +32,7 @@ vec3 avoidKeyColor(in vec3 color) {
     return color + mask * adjust;
 }
 
-vec3 getFragmentPosition(in vec2 uv) {
+vec3 worldPosAt(in vec2 uv) {
     float z = texture(SamplerDepth, uv).r * 2.0 - 1.0;
     vec4 clip = vec4(uv * 2.0 - 1.0, z, 1.0);
     vec4 world = uInverseProjectionView * clip;
@@ -55,13 +55,13 @@ void main(void) {
 
         } else if (texCoordinates.y >= 0.5) {
             // top half = front-view pass
-            vec3 fragPos = getFragmentPosition(sampleUV);
+            vec3 fragPos = worldPosAt(sampleUV);
 
             if (dot(fragPos - uHmdViewPosition, uHmdPlaneNormal) >= 0.0) {
                 // left-top = color (+ possible key-avoid)
                 if (texCoordinates.x < 0.5) {
                     vec3 col = texture(SamplerColor, sampleUV).rgb;
-                    if (!uAlphaMode) col = avoidKeyColor(col);
+                    if (!uAlphaMode) col = nudgeOffKeyColor(col);
                     fragColor.rgb = col;
 
                 } else if (uAlphaMode) {
@@ -82,10 +82,10 @@ void main(void) {
 
         } else {
             // left half = front-view + key-avoid
-            vec3 fragPos = getFragmentPosition(sampleUV);
+            vec3 fragPos = worldPosAt(sampleUV);
             if (dot(fragPos - uHmdViewPosition, uHmdPlaneNormal) >= 0.0) {
                 vec3 col = texture(SamplerColor, sampleUV).rgb;
-                fragColor.rgb = avoidKeyColor(col);
+                fragColor.rgb = nudgeOffKeyColor(col);
             }
         }
     }

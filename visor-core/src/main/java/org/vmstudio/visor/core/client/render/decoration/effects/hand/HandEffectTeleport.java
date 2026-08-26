@@ -282,7 +282,7 @@ public class HandEffectTeleport extends VRHandEffect {
         addVertex(bufferbuilder, mat, backLeftTop, color, alpha, forward);
         addVertex(bufferbuilder, mat, backRightTop, color, alpha, forward);
 
-        forward.reverse();
+        forward = forward.reverse();
         addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, forward);
         addVertex(bufferbuilder, mat, frontRightBottom, color, alpha, forward);
         addVertex(bufferbuilder, mat, frontRightTop, color, alpha, forward);
@@ -293,7 +293,7 @@ public class HandEffectTeleport extends VRHandEffect {
         addVertex(bufferbuilder, mat, backRightTop, color, alpha, rightNormal);
         addVertex(bufferbuilder, mat, frontRightTop, color, alpha, rightNormal);
 
-        rightNormal.reverse();
+        rightNormal = rightNormal.reverse();
         addVertex(bufferbuilder, mat, backLeftBottom, color, alpha, rightNormal);
         addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, rightNormal);
         addVertex(bufferbuilder, mat, frontLeftTop, color, alpha, rightNormal);
@@ -304,7 +304,7 @@ public class HandEffectTeleport extends VRHandEffect {
         addVertex(bufferbuilder, mat, frontRightTop, color, alpha, upNormal);
         addVertex(bufferbuilder, mat, backRightTop, color, alpha, upNormal);
 
-        upNormal.reverse();
+        upNormal = upNormal.reverse();
         addVertex(bufferbuilder, mat, frontLeftBottom, color, alpha, upNormal);
         addVertex(bufferbuilder, mat, backLeftBottom, color, alpha, upNormal);
         addVertex(bufferbuilder, mat, backRightBottom, color, alpha, upNormal);

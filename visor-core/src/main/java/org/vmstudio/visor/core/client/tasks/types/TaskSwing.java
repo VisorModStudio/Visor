@@ -337,7 +337,6 @@ public class TaskSwing extends VisorTask {
                     ClipContext.Fluid.NONE,
                     MC.player
             ));
-            // Prevent hitting around corners (avoids triggering anticheat)
             if (blockHitResult.getType() != HitResult.Type.MISS) {
                 canAttack = false;
             }
@@ -423,7 +422,7 @@ public class TaskSwing extends VisorTask {
             final Vec3 start = points.get(p - 1);
             Vec3 end = points.get(p);
             if (start.subtract(end).lengthSqr() < 1.0E-7D) {
-                // mc short circuits to a miss if start and end are too close
+                // pad degenerate segments, clip() reports a miss for near-zero spans
                 end = end.add(0.001D, 0.001D, 0.001D);
             }
             final BlockHitResult hit = MC.level.clip(new ClipContext(

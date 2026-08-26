@@ -124,7 +124,7 @@ public class Vector3fHistory {
         for (Iterator<Entry> it = history.descendingIterator(); it.hasNext(); ) {
             Entry e = it.next();
             if (e.timestamp < cutoff) break;
-            out.add(0, e);  // prepend so result is oldest→newest
+            out.add(0, e);
         }
         return out;
     }
