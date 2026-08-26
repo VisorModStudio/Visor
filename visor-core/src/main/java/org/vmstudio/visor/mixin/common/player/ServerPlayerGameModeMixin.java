@@ -135,11 +135,13 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     private void visor$tickCleanupForVanillaMining(CallbackInfo ci) {
         if (visor$isBetterSwingingNotActive()) return;
         if (this.hasDelayedDestroy) {
-            visor$forgetBlockDamage(this.delayedDestroyPos.asLong());
-            visor$sendSwingDamageCleanUp(this.delayedDestroyPos, true);
+            if (visor$forgetBlockDamage(this.delayedDestroyPos.asLong())) {
+                visor$sendSwingDamageCleanUp(this.delayedDestroyPos, true);
+            }
         } else if (this.isDestroyingBlock) {
-            visor$forgetBlockDamage(this.destroyPos.asLong());
-            visor$sendSwingDamageCleanUp(this.destroyPos, true);
+            if (visor$forgetBlockDamage(this.destroyPos.asLong())) {
+                visor$sendSwingDamageCleanUp(this.destroyPos, true);
+            }
         }
     }
 
@@ -165,9 +167,9 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     }
 
     @Unique
-    private void visor$forgetBlockDamage(long key) {
-        visor$blockDamage.remove(key);
-        visor$blockDamageStart.remove(key);
+    private boolean visor$forgetBlockDamage(long key) {
+        boolean removed = visor$blockDamage.remove(key) != null;
+        return visor$blockDamageStart.remove(key) != null || removed;
     }
 
     @Unique

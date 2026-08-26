@@ -10,6 +10,7 @@ import net.minecraft.client.particle.TerrainParticle;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -49,6 +50,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.compatibility.BlockClassifier;
 import org.vmstudio.visor.api.compatibility.ItemClassifier;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
@@ -100,6 +102,10 @@ public class TaskSwing extends VisorTask {
     private static final float FIST_REACH = 0.3F;
     private static final float TIP_OFFSET = 0.3F;
     private static final int MAX_ARC_SUBDIVISIONS = 8;
+    private static final int VANILLA_MINING_KEEP_TICKS = 20;
+
+    private BlockPos vanillaMiningPos = null;
+    private long vanillaMiningLastTick;
 
 
     private final EnumMap<HandType, HandSwingData> handData = new EnumMap<>(HandType.class);
@@ -247,6 +253,7 @@ public class TaskSwing extends VisorTask {
             data.resetSwingState();
             data.handHistory.clear();
         }
+        vanillaMiningPos = null;
     }
 
     @Override
@@ -466,7 +473,10 @@ public class TaskSwing extends VisorTask {
         final boolean isFarmItem = ItemClassifier.FARMING_TOOL.is(handItem);
         final boolean isFarmableBlock = isFarmItem &&
                 (BlockClassifier.FARMABLE_BLOCK.is(blockState.getBlock()) ||
-                        handItem.useOn(new UseOnContext(player, interactionHand, blockHit)).shouldSwing());
+                        handItem.useOn(new UseOnContext(
+                                player.level(), null, interactionHand,
+                                player.getItemInHand(interactionHand).copy(), blockHit
+                        )).shouldSwing());
         if (isFarmableBlock) {
             MC.gameMode.useItemOn(player, interactionHand, blockHit);
         } else {
@@ -481,7 +491,7 @@ public class TaskSwing extends VisorTask {
         if (VRServerSettings.isBetterSwinging()) {
             attackBetter(player, entity, handType);
         } else {
-            attackVanilla(player, entity);
+            attackVanilla(player, entity, handType);
         }
         ClientContext.inputManager.triggerHapticPulseMicroSec(handType, 1000);
     }
@@ -494,8 +504,16 @@ public class TaskSwing extends VisorTask {
         }
     }
 
-    private void attackVanilla(final Player player, final Entity entity) {
+    private void attackVanilla(final Player player, final Entity entity, final HandType handType) {
+        switchActiveHand(handType);
         MC.gameMode.attack(player, entity);
+    }
+
+
+    private void switchActiveHand(final HandType handType) {
+        if (VRServerSettings.isTwoHandedVR()) {
+            ClientContext.localPlayer.setActiveHand(handType);
+        }
     }
 
     private void swingMining(final BlockHitResult blockHit,
@@ -505,7 +523,7 @@ public class TaskSwing extends VisorTask {
         if (VRServerSettings.isBetterSwinging()) {
             mineBetter(blockHit, blockState, totalHits, handType);
         } else {
-            mineVanilla(blockHit, totalHits);
+            mineVanilla(blockHit, totalHits, handType);
         }
         blockDust(
                 blockHit.getLocation().x,
@@ -541,18 +559,41 @@ public class TaskSwing extends VisorTask {
         ));
     }
 
-    private void mineVanilla(final BlockHitResult blockHit, final int totalHits) {
+    private void mineVanilla(final BlockHitResult blockHit, final int totalHits, final HandType handType) {
+        switchActiveHand(handType);
         MC.gameMode.startDestroyBlock(blockHit.getBlockPos(), blockHit.getDirection());
-        if (!isHittingBlock()) return;
-        for (int hit = 0; hit < totalHits; ++hit) {
-            if (MC.gameMode.continueDestroyBlock(blockHit.getBlockPos(), blockHit.getDirection())) {
-                MC.particleEngine.crack(blockHit.getBlockPos(), blockHit.getDirection());
+        if (isHittingBlock()) {
+            for (int hit = 0; hit < totalHits; ++hit) {
+                if (MC.gameMode.continueDestroyBlock(blockHit.getBlockPos(), blockHit.getDirection())) {
+                    MC.particleEngine.crack(blockHit.getBlockPos(), blockHit.getDirection());
+                }
+                if (!isHittingBlock()) {
+                    break;
+                }
             }
-            if (!isHittingBlock()) {
-                break;
-            }
+            MC.gameMode.destroyDelay = 0;
         }
-        Minecraft.getInstance().gameMode.destroyDelay = 0;
+        if (isHittingBlock()) {
+            vanillaMiningPos = MC.gameMode.destroyBlockPos;
+            vanillaMiningLastTick = VisorState.TICK_COUNT;
+        } else {
+            vanillaMiningPos = null;
+        }
+    }
+
+
+    public boolean isKeepingVanillaMining() {
+        if (vanillaMiningPos == null) {
+            return false;
+        }
+        if (MC.gameMode == null
+                || !MC.gameMode.isDestroying()
+                || !vanillaMiningPos.equals(MC.gameMode.destroyBlockPos)
+                || VisorState.TICK_COUNT - vanillaMiningLastTick > VANILLA_MINING_KEEP_TICKS) {
+            vanillaMiningPos = null;
+            return false;
+        }
+        return true;
     }
 
     private void startPrediction(final ClientLevel clientLevel, final PredictiveVrAction predictiveAction) {

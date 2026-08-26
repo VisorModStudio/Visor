@@ -124,6 +124,10 @@ accessible field net/minecraft/client/renderer/GameRenderer postEffect Lnet/mine
 
 # to disable destroy delay, on roomscale hitting
 accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyDelay I
+# to validate the kept swing-mining target against the actual destroy target
+accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyBlockPos Lnet/minecraft/core/BlockPos;
+# to build a side-effect-free useOn probe context (null player, copied stack)
+accessible method net/minecraft/world/item/context/UseOnContext <init> (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V
 
 # for correct vr rendering
 accessible field net/minecraft/world/entity/Entity eyeHeight F

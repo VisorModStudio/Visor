@@ -19,6 +19,7 @@ import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.vmstudio.visor.core.client.tasks.types.TaskRoomConsume;
+import org.vmstudio.visor.core.client.tasks.types.TaskSwing;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
@@ -92,6 +93,9 @@ public abstract class MinecraftMixin implements MinecraftExtension {
 
     @Shadow
     public LocalPlayer player;
+
+    @Shadow
+    public MultiPlayerGameMode gameMode;
 
     @Shadow
     public abstract Entity getCameraEntity();
@@ -446,21 +450,27 @@ public abstract class MinecraftMixin implements MinecraftExtension {
         original.call(instance, hand);
     }
 
-    @Unique
-    private boolean visor$attackKeyDown;
-
-    @Inject(method = "handleKeybinds", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/Minecraft;startAttack()Z"))
-    private void visor$markAttackKeyDown(CallbackInfo ci) {
-        visor$attackKeyDown = true;
-    }
 
     @WrapWithCondition(method = "continueAttack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;stopDestroyBlock()V"))
     private boolean visor$keepSwingMining(MultiPlayerGameMode instance) {
-        boolean allowStop = VisorState.get().isNotActive() || visor$attackKeyDown;
-        visor$attackKeyDown = false;
-        return allowStop;
+        if (VisorState.get().isNotActive()) {
+            return true;
+        }
+        TaskSwing swing = TaskSwing.getInstance();
+        return swing == null || !swing.isKeepingVanillaMining();
+    }
+
+
+    @Inject(method = "startUseItem", at = @At("HEAD"))
+    private void visor$releaseSwingMiningOnUse(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            return;
+        }
+        TaskSwing swing = TaskSwing.getInstance();
+        if (swing != null && swing.isKeepingVanillaMining()) {
+            this.gameMode.stopDestroyBlock();
+        }
     }
 
 
