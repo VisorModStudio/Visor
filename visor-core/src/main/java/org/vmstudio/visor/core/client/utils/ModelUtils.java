@@ -16,36 +16,41 @@ import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 
 public class ModelUtils {
-
     public static void copyTextures(ModelPart source, ModelPart target) {
-        // some mods remove the base parts
-        if (source.cubes.isEmpty()) return;
+        if (source.cubes.isEmpty()) {
+            return;
+        }
 
-        copyUV(source.cubes.get(0).polygons[1], target.cubes.get(0).polygons[1]);
-        copyUV(source.cubes.get(0).polygons[1], target.cubes.get(0).polygons[0]);
+        ModelPart.Cube from = source.cubes.get(0);
+        ModelPart.Cube to = target.cubes.get(0);
 
-        // sodium has custom internal ModelPart geometry which also needs to be modified
+        copyUV(from.polygons[1], to.polygons[1]);
+        copyUV(from.polygons[1], to.polygons[0]);
+
         if (SodiumHelper.isLoaded()) {
-            SodiumHelper.copyModelCuboidUV(source, target, 3, 3);
-            SodiumHelper.copyModelCuboidUV(source, target, 3, 2);
+            SodiumHelper.copyFaceUv(source, target, 3, 3);
+            SodiumHelper.copyFaceUv(source, target, 3, 2);
         }
     }
 
+    /**
+     * same as {@link #copyTextures}, but takes the source's top face rather than its bottom
+     */
     public static void copyTexturesUpper(ModelPart source, ModelPart target) {
-        // some mods remove the base parts
-        if (source.cubes.isEmpty()) return;
+        if (source.cubes.isEmpty()) {
+            return;
+        }
+        ModelPart.Cube from = source.cubes.get(0);
+        ModelPart.Cube to = target.cubes.get(0);
 
-        // set bottom of target
-        copyUV(source.cubes.get(0).polygons[1], target.cubes.get(0).polygons[1]);
-        // set those to the top of the source
-        copyUV(source.cubes.get(0).polygons[0], target.cubes.get(0).polygons[0]);
-        copyUV(source.cubes.get(0).polygons[0], source.cubes.get(0).polygons[1]);
+        copyUV(from.polygons[1], to.polygons[1]);
+        copyUV(from.polygons[0], to.polygons[0]);
+        copyUV(from.polygons[0], from.polygons[1]);
 
-        // sodium has custom internal ModelPart geometry which also needs to be modified
         if (SodiumHelper.isLoaded()) {
-            SodiumHelper.copyModelCuboidUV(source, target, 3, 3);
-            SodiumHelper.copyModelCuboidUV(source, target, 2, 2);
-            SodiumHelper.copyModelCuboidUV(source, source, 2, 3);
+            SodiumHelper.copyFaceUv(source, target, 3, 3);
+            SodiumHelper.copyFaceUv(source, target, 2, 2);
+            SodiumHelper.copyFaceUv(source, source, 2, 3);
         }
     }
 
@@ -58,8 +63,6 @@ public class ModelUtils {
         }
     }
 
-
-
     public static Vector3f getModelOrigin(@NotNull LivingEntity entity){
         float partialTicks = ClientContext.visor.getPartialTicks();
         return new Vector3f(
@@ -69,30 +72,26 @@ public class ModelUtils {
         );
     }
 
-
     public static void worldToModel(
             VRClientPlayer vrPlayer,
             Vector3fc position, float bodyYaw,
             boolean useWorldScale, Vector3f out)
     {
         out.set(position);
-
         if (vrPlayer.getMcPlayer().isAutoSpinAttack()) {
             out.y += 1F;
         }
 
-        if (useWorldScale) {
-            out.div(vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
-        } else {
-            out.div(ScaleHelper.getEntityEyeHeightScale(vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
-        }
+        out.div(useWorldScale
+                ? vrPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale()
+                : ScaleHelper.getEntityEyeHeightScale(
+                vrPlayer.getMcPlayer(), ClientContext.visor.getPartialTicks()));
 
-
-        final float scale = 0.9375F * vrPlayer.getFullHeightScale();
-        out.sub(0.0F, 1.501F * scale, 0.0F) // move to player center
-                .rotateY(-Mth.PI + bodyYaw) // apply player rotation
+        float scale = 0.9375F * vrPlayer.getFullHeightScale();
+        out.sub(0.0F, 1.501F * scale, 0.0F)
+                .rotateY(-Mth.PI + bodyYaw)
                 .mul(16.0F / scale)
-                .mul(-1, -1, 1); // scale to player space
+                .mul(-1, -1, 1);
     }
 
 
@@ -106,7 +105,6 @@ public class ModelUtils {
                 .rotateY(Mth.PI - bodyYaw);
     }
 
-
     public static Vector3f modelToWorld(
             LivingEntity player, Vector3fc modelPosition, VRClientPlayer clientPlayer, float bodyYaw,
             boolean applyScale, boolean useWorldScale, Vector3f out)
@@ -118,9 +116,8 @@ public class ModelUtils {
 
     public static Vector3f modelToWorld(
             LivingEntity player, float x, float y, float z, VRClientPlayer clientPlayer, float bodyYaw,
-            boolean applyScale, boolean useWorldScale, Vector3f out)
-    {
-        final float scale = 0.9375F * clientPlayer.getFullHeightScale();
+            boolean applyScale, boolean useWorldScale, Vector3f out) {
+        float scale = 0.9375F * clientPlayer.getFullHeightScale();
         out.set(-x, -y, z)
                 .mul(scale / 16.0F)
                 .rotateY(Mth.PI - bodyYaw)
@@ -128,27 +125,20 @@ public class ModelUtils {
 
 
         if (applyScale) {
-            if (useWorldScale) {
-                out.mul(clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale());
-            } else {
-                out.mul(ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
-            }
+            out.mul(useWorldScale
+                    ? clientPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale()
+                    : ScaleHelper.getEntityEyeHeightScale(player, ClientContext.visor.getPartialTicks()));
         }
 
         return out;
     }
-
-
-
 
     public static void pointModelAtModelForward(
             ModelPart part, float targetX, float targetY, float targetZ, Vector3f tempVDir,
             Vector3f tempVUp, Matrix3f tempM)
     {
         tempVDir.set(targetX - part.x, targetY - part.y, targetZ - part.z);
-
         tempVDir.cross(VRMathUtils.RIGHT_VECTOR, tempVUp);
-
         pointAtModel(tempVDir, tempVUp, tempM);
     }
 
@@ -156,10 +146,8 @@ public class ModelUtils {
             ModelPart part, float targetX, float targetY, float targetZ, Vector3fc up, Vector3f tempVDir, Matrix3f tempM)
     {
         tempVDir.set(targetX - part.x, targetY - part.y, targetZ - part.z);
-
         pointAtModel(tempVDir, up, tempM);
     }
-
 
     public static void pointAtModel(Vector3fc dir, Vector3fc upDir, Matrix3f tempM) {
         tempM.setLookAlong(
@@ -168,20 +156,16 @@ public class ModelUtils {
         tempM.rotateX(Mth.HALF_PI);
     }
 
-
     public static void toModelDir(float bodyYaw, Quaternionfc direction, Matrix3f tempM) {
         tempM.set(direction);
         tempM.rotateLocalY(bodyYaw + Mth.PI);
         tempM.rotateX(Mth.HALF_PI);
     }
 
-
     public static void setRotation(ModelPart part, Matrix3fc rotation, Vector3f tempV) {
         rotation.getEulerAnglesZYX(tempV);
-       part.setRotation(-tempV.x, Float.isNaN(tempV.y) ? 0F : -tempV.y, tempV.z);
+        part.setRotation(-tempV.x, Float.isNaN(tempV.y) ? 0F : -tempV.y, tempV.z);
     }
-
-
 
     public static void swingAnimation(
             HumanoidArm arm, float attackTime, boolean isMainPlayer,
@@ -252,6 +236,7 @@ public class ModelUtils {
             part.z -= tempV2.z() - tempV.z();
         }
     }
+
     public static void controllerToModelOrientation(PoseStack poseStack) {
         poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));

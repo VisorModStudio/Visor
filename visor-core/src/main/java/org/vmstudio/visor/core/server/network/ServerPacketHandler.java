@@ -243,9 +243,7 @@ public class ServerPacketHandler {
             );
         }
 
-        // check if client supports a supported version
-        if (networkVersion == VisorNetwork.CORE_NETWORK_VERSION)
-        {
+        if (networkVersion == VisorNetwork.CORE_NETWORK_VERSION) {
             if (VRServerSettings.isServerDebug()) {
                 logger.info("Player {} has supported Visor network version",
                         player.getName().getString(),
@@ -253,7 +251,6 @@ public class ServerPacketHandler {
                 );
             }
         } else {
-            // unsupported version, send notification, and disregard
             player.connection.disconnect(
                     Component.translatable("visor.messages.network_mismatch", networkVersion, VisorNetwork.CORE_NETWORK_VERSION)
             );

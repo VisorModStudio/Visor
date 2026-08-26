@@ -10,12 +10,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.compatibility.MethodDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
+import org.vmstudio.visor.compatibility.sodium.FaceUv;
 import org.vmstudio.visor.compatibility.sodium.extensions.ModelCuboidExtension;
 
 // sodium 0.5.6 to 0.6.13
 @Pseudo
-@MethodDependentMixin("buildVertexTexCoord")
+@MixinGate(methods = "buildVertexTexCoord")
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.render.immediate.model.EntityRenderer")
 public class EntityRendererMixin {
     @Shadow(remap = false)
@@ -25,18 +26,15 @@ public class EntityRendererMixin {
     @Final
     private static Vector2f[][] VERTEX_TEXTURES;
 
-    /**
-     * 3rd person vr hand fix, we have non-standard vertex layouts, so need to do this override
-     */
     @Inject(method = "prepareVertices", at = @At("TAIL"), remap = false)
-    private static void visor$overrideVrHands(PoseStack.Pose matrices, ModelCuboid cuboid, CallbackInfo ci) {
-        float[][] overrides = ((ModelCuboidExtension) cuboid).visor$getOverrides();
-        if (overrides != null) {
-            for (int i = 0; i < overrides.length; i++) {
-                if (overrides[i][0] > 0F) {
-                    buildVertexTexCoord(VERTEX_TEXTURES[i], overrides[i][1], overrides[i][2], overrides[i][3],
-                            overrides[i][4]);
-                }
+    private static void visor$applyFaceUvOverrides(PoseStack.Pose matrices, ModelCuboid cuboid, CallbackInfo ci) {
+        FaceUv[] overrides = ((ModelCuboidExtension) cuboid).visor$faceOverrides();
+        if (overrides == null) return;
+
+        for (int face = 0; face < overrides.length; face++) {
+            FaceUv uv = overrides[face];
+            if (uv != null) {
+                buildVertexTexCoord(VERTEX_TEXTURES[face], uv.u1(), uv.v1(), uv.u2(), uv.v2());
             }
         }
     }

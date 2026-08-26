@@ -6,11 +6,11 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
 @Pseudo
-@ClassDependentMixin("net.irisshaders.iris.uniforms.custom.CustomUniforms")
+@MixinGate(classes = "net.irisshaders.iris.uniforms.custom.CustomUniforms")
 @Mixin(targets = "net.irisshaders.iris.uniforms.custom.CustomUniforms", remap = false)
 public class CustomUniformsMixin {
     @Redirect(

@@ -205,7 +205,6 @@ public class VisorState implements VisorClientState {
         return true;
     }
 
-
     private static void activate() {
         setState(VRStateMode.ACTIVE);
 
@@ -214,8 +213,6 @@ public class VisorState implements VisorClientState {
                     MC.player, false
             );
         }
-        // release mouse when switching to standing
-
         InputConstants.grabOrReleaseMouse(
                 MC.getWindow().getWindow(),
                 GLFW.GLFW_CURSOR_NORMAL,
@@ -234,7 +231,6 @@ public class VisorState implements VisorClientState {
                             ? MC.getCameraEntity() : null
             );
         }
-        // grab/release mouse
         if (MC.screen != null || MC.level == null) {
             MC.mouseHandler.releaseMouse();
             InputConstants.grabOrReleaseMouse(
@@ -256,9 +252,7 @@ public class VisorState implements VisorClientState {
 
     public static void destroyVRWithErrorScreen(Throwable throwable) {
         LoggerUtils.printError(throwable);
-
         destroyVR();
-
         setVrPlayMode(VRPlayMode.DISABLED);
 
         if(MC.level != null) {
@@ -266,6 +260,7 @@ public class VisorState implements VisorClientState {
         }
         delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
     }
+
     private static void initFailed(Throwable throwable){
         destroyVR();
 
@@ -277,8 +272,6 @@ public class VisorState implements VisorClientState {
     }
 
     public static void destroyVR() {
-
-
         if (ClientContext.visor != null) {
             updateActive(false);
             setState(VRStateMode.OFF);

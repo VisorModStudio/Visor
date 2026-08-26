@@ -265,8 +265,6 @@ public abstract class VRRendererBase implements VRRenderer {
         int eyeRenderHeight = (int) Math.ceil(getResolutionHeight() * this.renderScale);
 
         updateMirrorSize(eyeRenderWidth, eyeRenderHeight);
-
-        // main render target
         mainTarget.resize(eyeRenderWidth, eyeRenderHeight);
 
         // mirror
@@ -277,8 +275,6 @@ public abstract class VRRendererBase implements VRRenderer {
             thirdPersonTarget.resize(mirrorWidth, mirrorHeight);
         }
 
-
-        // resize gui, if changed
         VRGuiManagerImpl guiManager = ClientContext.visor.getGuiManager();
         if (guiManager.updateResolution()) {
             guiTarget.resize(
@@ -294,7 +290,6 @@ public abstract class VRRendererBase implements VRRenderer {
     @Override
     public void prepareReinit(@NotNull String cause) {
         if (!reinitTargets) {
-            // only print the initial cause
             VisorClientImpl.LOGGER.info("Reinit Render Buffers: {}", cause);
         }
         this.reinitTargets = true;
@@ -303,7 +298,6 @@ public abstract class VRRendererBase implements VRRenderer {
     @Override
     public void prepareResize(@NotNull String cause) {
         if (!this.resizeTargets) {
-            // only print the initial cause
             VisorClientImpl.LOGGER.info("Resizing Render Buffers: {}", cause);
         }
         this.resizeTargets = true;
@@ -328,11 +322,10 @@ public abstract class VRRendererBase implements VRRenderer {
                 nearClipPlane,
                 farClipPlane
         );
-
     }
 
     private void updateMirrorSize(int eyeWidth, int eyeHeight) {
-        var windowModif =  ((WindowExtension) (Object)
+        var windowModif = ((WindowExtension) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
                 windowModif.visor$getActualScreenWidth()

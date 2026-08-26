@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.core.client.VisorState;
 
 @Pseudo
-@ClassDependentMixin("com.moulberry.flashback.screen.select_replay.SelectReplayScreen")
+@MixinGate(classes = "com.moulberry.flashback.screen.select_replay.SelectReplayScreen")
 @Mixin(targets = {
         "com.moulberry.flashback.screen.select_replay.SelectReplayScreen",
         "com.moulberry.flashback.screen.EditReplayScreen",

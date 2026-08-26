@@ -3,44 +3,41 @@ package org.vmstudio.visor.compatibility.sodium;
 import net.minecraft.client.model.geom.ModelPart;
 import org.joml.Vector2f;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.common.utils.LoggerUtils;
+import org.vmstudio.visor.compatibility.CompatClasses;
 import org.vmstudio.visor.compatibility.sodium.extensions.ModelCuboidExtension;
-import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.utils.ClassUtils;
 
 import java.lang.reflect.Field;
 
-public class SodiumHelper {
+//SODIUM COMPATIBILITY
+public final class SodiumHelper {
+    private static final String CUBOID_JELLYSQUID =
+            "me.jellysquid.mods.sodium.client.render.immediate.model.ModelCuboid";
+    private static final String CUBOID_CAFFEINEMC =
+            "net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid";
 
-    private SodiumHelper() {
-        throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
+    enum Layout {
+        UNKNOWN,
+        QUAD_VECTORS,
+        UV_SCALARS,
+        PACKED_LONGS
     }
 
-    private static boolean INITIALIZED = false;
+    private static Layout layout;
 
-    private static boolean HAS_MODELCUBOID_QUADS;
-    private static boolean HAS_MODELCUBOID_FLOATS;
-    private static boolean HAS_MODELCUBOID_CUBES;
-    private static boolean HAS_MODELCUBOID_LONGS;
-    private static Field ModelPart_sodium$cuboids;
-    private static Field ModelCuboid_quads;
+    private static Field cuboidsOnPart;
+    private static Field cuboidOnCube;
 
-    private static Field Cube_sodium$cuboid;
+    private static Field quadsOnCuboid;
+    private static Field cornersOnQuad;
+    private static Field packedTexturesOnCuboid;
 
-    // quad uvs
-    private static Field ModelCuboid_u0;
-    private static Field ModelCuboid_u1;
-    private static Field ModelCuboid_u2;
-    private static Field ModelCuboid_u3;
-    private static Field ModelCuboid_u4;
-    private static Field ModelCuboid_u5;
-    private static Field ModelCuboid_v0;
-    private static Field ModelCuboid_v1;
-    private static Field ModelCuboid_v2;
+    private static final Field[] U_CUTS = new Field[6];
+    private static final Field[] V_CUTS = new Field[3];
 
-    private static Field ModelCuboid_textures;
-
-    private static Field ModelCuboid$Quad_textures;
-
+    private SodiumHelper() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     public static boolean isLoaded() {
         return ModLoader.get().isModLoaded("sodium")
@@ -48,145 +45,151 @@ public class SodiumHelper {
                 || ModLoader.get().isModLoaded("embeddium");
     }
 
-
-    public static void copyModelCuboidUV(ModelPart source, ModelPart dest, int sourcePoly, int destPoly) {
-        if (init()) {
-            try {
-                if (HAS_MODELCUBOID_QUADS) {
-                    // sodium 0.4.9-0.5.3
-                    Object sourceQuad = ((Object[]) ModelCuboid_quads.get(
-                            ((Object[]) ModelPart_sodium$cuboids.get(source))[0])
-                    )[sourcePoly];
-                    Object destQuad = ((Object[]) ModelCuboid_quads.get(
-                            ((Object[]) ModelPart_sodium$cuboids.get(dest))[0])
-                    )[destPoly];
-
-                    Vector2f[] sourceTextures = (Vector2f[]) ModelCuboid$Quad_textures.get(sourceQuad);
-                    Vector2f[] destTextures = (Vector2f[]) ModelCuboid$Quad_textures.get(destQuad);
-
-                    for (int i = 0; i < sourceTextures.length; i++) {
-                        destTextures[i].x = sourceTextures[i].x;
-                        destTextures[i].y = sourceTextures[i].y;
-                    }
-                } else if (HAS_MODELCUBOID_FLOATS || HAS_MODELCUBOID_LONGS) {
-                    // sodium 0.5.4+
-                    Object sourceCuboid = HAS_MODELCUBOID_CUBES ? Cube_sodium$cuboid.get(source.cubes.get(0)) :
-                            ((Object[]) ModelPart_sodium$cuboids.get(source))[0];
-                    Object destCuboid = HAS_MODELCUBOID_CUBES ? Cube_sodium$cuboid.get(dest.cubes.get(0)) :
-                            ((Object[]) ModelPart_sodium$cuboids.get(dest))[0];
-
-                    if (HAS_MODELCUBOID_FLOATS) {
-                        // sodium 0.5.4-0.6.13
-                        float[][] UVs = new float[][]{{
-                                (float) ModelCuboid_u0.get(sourceCuboid),
-                                (float) ModelCuboid_u1.get(sourceCuboid),
-                                (float) ModelCuboid_u2.get(sourceCuboid),
-                                (float) ModelCuboid_u3.get(sourceCuboid),
-                                (float) ModelCuboid_u4.get(sourceCuboid),
-                                (float) ModelCuboid_u5.get(sourceCuboid)
-                        }, {
-                                (float) ModelCuboid_v0.get(sourceCuboid),
-                                (float) ModelCuboid_v1.get(sourceCuboid),
-                                (float) ModelCuboid_v2.get(sourceCuboid)
-                        }};
-                        ((ModelCuboidExtension) destCuboid).visor$addOverrides(
-                                mapDirection(destPoly),
-                                mapDirection(sourcePoly),
-                                UVs
-                        );
-                    } else {
-                        // sodium 0.7+
-                        long[] sourceUVs = (long[]) ModelCuboid_textures.get(sourceCuboid);
-                        long[] destUVs = (long[]) ModelCuboid_textures.get(destCuboid);
-                        destUVs[mapDirection(destPoly) * 4] = sourceUVs[mapDirection(sourcePoly) * 4];
-                        destUVs[mapDirection(destPoly) * 4 + 1] = sourceUVs[mapDirection(sourcePoly) * 4 + 1];
-                        destUVs[mapDirection(destPoly) * 4 + 2] = sourceUVs[mapDirection(sourcePoly) * 4 + 2];
-                        destUVs[mapDirection(destPoly) * 4 + 3] = sourceUVs[mapDirection(sourcePoly) * 4 + 3];
-                    }
-                }
-            } catch (IllegalAccessException | ClassCastException e) {
-                ClientContext.visor.getLogger().error(
-                        "Visor: sodium version has ModelCuboids, but fields are an unexpected type.",
-                        e
-                );
-                HAS_MODELCUBOID_FLOATS = false;
-                HAS_MODELCUBOID_QUADS = false;
-            }
+    public static void copyFaceUv(ModelPart source, ModelPart dest, int sourcePolygon, int destPolygon) {
+        switch (resolveLayout()) {
+            case QUAD_VECTORS -> copyQuadCorners(source, dest, sourcePolygon, destPolygon);
+            case UV_SCALARS -> overrideFromScalars(source, dest, sourcePolygon, destPolygon);
+            case PACKED_LONGS -> copyPackedFace(source, dest, sourcePolygon, destPolygon);
+            case UNKNOWN -> {}
         }
     }
 
-
-    private static int mapDirection(int old) {
-        return switch (old) {
-            case 1 -> 2;
-            case 2 -> 0;
-            case 3 -> 1;
-            case 4 -> 3;
-            case 5 -> 5;
-            default -> 4; // 0 case
-        };
+    private static void copyQuadCorners(ModelPart source, ModelPart dest, int sourcePolygon, int destPolygon) {
+        try {
+            Vector2f[] from = (Vector2f[]) cornersOnQuad.get(quadAt(source, sourcePolygon));
+            Vector2f[] to = (Vector2f[]) cornersOnQuad.get(quadAt(dest, destPolygon));
+            for (int i = 0; i < from.length && i < to.length; i++) {
+                to[i].set(from[i]);
+            }
+        } catch (IllegalAccessException | ClassCastException e) {
+            logGiveUp(e);
+        }
     }
 
-    private static boolean init() {
-        if (INITIALIZED) {
+    private static void overrideFromScalars(ModelPart source, ModelPart dest, int sourcePolygon, int destPolygon) {
+        try {
+            CuboidUv sourceUv = readScalars(cuboidOf(source));
+            FaceUv face = sourceUv.face(SodiumFaces.fromVanilla(sourcePolygon));
+            ((ModelCuboidExtension) cuboidOf(dest)).visor$overrideFace(SodiumFaces.fromVanilla(destPolygon), face);
+        } catch (IllegalAccessException | ClassCastException e) {
+            logGiveUp(e);
+        }
+    }
+
+    private static void copyPackedFace(ModelPart source, ModelPart dest, int sourcePolygon, int destPolygon) {
+        try {
+            long[] from = (long[]) packedTexturesOnCuboid.get(cuboidOf(source));
+            long[] to = (long[]) packedTexturesOnCuboid.get(cuboidOf(dest));
+            int fromBase = SodiumFaces.fromVanilla(sourcePolygon) * 4;
+            int toBase = SodiumFaces.fromVanilla(destPolygon) * 4;
+            System.arraycopy(from, fromBase, to, toBase, 4);
+        } catch (IllegalAccessException | ClassCastException e) {
+            logGiveUp(e);
+        }
+    }
+
+    private static CuboidUv readScalars(Object cuboid) throws IllegalAccessException {
+        float[] u = new float[U_CUTS.length];
+        for (int i = 0; i < U_CUTS.length; i++) {
+            u[i] = (float) U_CUTS[i].get(cuboid);
+        }
+        float[] v = new float[V_CUTS.length];
+        for (int i = 0; i < V_CUTS.length; i++) {
+            v[i] = (float) V_CUTS[i].get(cuboid);
+        }
+        return new CuboidUv(u[0], u[1], u[2], u[3], u[4], u[5], v[0], v[1], v[2]);
+    }
+
+    private static Object cuboidOf(ModelPart part) throws IllegalAccessException {
+        if (cuboidOnCube != null) {
+            return cuboidOnCube.get(part.cubes.get(0));
+        }
+        return ((Object[]) cuboidsOnPart.get(part))[0];
+    }
+
+    private static Object quadAt(ModelPart part, int polygon) throws IllegalAccessException {
+        return ((Object[]) quadsOnCuboid.get(cuboidOf(part)))[polygon];
+    }
+
+    private static void logGiveUp(Throwable t) {
+        layout = Layout.UNKNOWN;
+        LoggerUtils.getLogger().error("sodium's cuboid fields are not shape we resolved them as", t);
+    }
+
+    private static Layout resolveLayout() {
+        Layout known = layout;
+        if (known != null) {
+            return known;
+        }
+        synchronized (SodiumHelper.class) {
+            if (layout == null) {
+                layout = detectLayout();
+            }
+            return layout;
+        }
+    }
+
+    private static Layout detectLayout() {
+        Class<?> cuboid = CompatClasses.find(CUBOID_JELLYSQUID, CUBOID_CAFFEINEMC);
+        if (cuboid == null) {
+            return Layout.UNKNOWN;
+        }
+        if (!linkCuboidToModelPart()) {
+            return Layout.UNKNOWN;
+        }
+
+        Class<?> quad = CompatClasses.find(CUBOID_JELLYSQUID + "$Quad", CUBOID_CAFFEINEMC + "$Quad");
+        if (quad != null) {
+            quadsOnCuboid = openField(cuboid, "quads");
+            cornersOnQuad = openField(quad, "textures");
+            return quadsOnCuboid != null && cornersOnQuad != null ? Layout.QUAD_VECTORS : Layout.UNKNOWN;
+        }
+
+        if (linkUvScalarrs(cuboid)) {
+            return Layout.UV_SCALARS;
+        }
+
+        packedTexturesOnCuboid = openField(cuboid, "textures");
+        if (packedTexturesOnCuboid != null) {
+            return Layout.PACKED_LONGS;
+        }
+
+        LoggerUtils.getLogger().warn("Sodium is installed, but its ModelCuboid doesn't have texture layout that we checked");
+        return Layout.UNKNOWN;
+    }
+
+    private static boolean linkCuboidToModelPart() {
+        cuboidsOnPart = openField(ModelPart.class, "sodium$cuboids");
+        if (cuboidsOnPart != null) {
             return true;
         }
+        cuboidOnCube = openField(ModelPart.Cube.class, "sodium$cuboid");
+        return cuboidOnCube != null;
+    }
 
-        try {
-            // model
-            Class<?> ModelCuboid = ClassUtils.getClassWithAlternative(
-                    "me.jellysquid.mods.sodium.client.render.immediate.model.ModelCuboid",
-                    "net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid"
-            );
-
-            try {
-                // sodium 0.4.9-0.5.11
-                ModelPart_sodium$cuboids = ModelPart.class.getDeclaredField("sodium$cuboids");
-                ModelPart_sodium$cuboids.setAccessible(true);
-            } catch (NoSuchFieldException ignored) {
-                // sodium 0.6+
-                Cube_sodium$cuboid = ModelPart.Cube.class.getDeclaredField("sodium$cuboid");
-                Cube_sodium$cuboid.setAccessible(true);
-                HAS_MODELCUBOID_CUBES = true;
+    private static boolean linkUvScalarrs(Class<?> cuboid) {
+        for (int i = 0; i < U_CUTS.length; i++) {
+            U_CUTS[i] = openField(cuboid, "u" + i);
+            if (U_CUTS[i] == null) {
+                return false;
             }
-            try {
-                Class<?> ModelCuboid$Quad = ClassUtils.getClassWithAlternative(
-                        "me.jellysquid.mods.sodium.client.render.immediate.model.ModelCuboid$Quad",
-                        "net.caffeinemc.mods.sodium.client.render.immediate.model.ModelCuboid$Quad"
-                );
-                // sodium 0.4.9-0.5.3
-                ModelCuboid_quads = ModelCuboid.getDeclaredField("quads");
-                ModelCuboid$Quad_textures = ModelCuboid$Quad.getDeclaredField("textures");
-                HAS_MODELCUBOID_QUADS = true;
-            } catch (ClassNotFoundException noQuads) {
-                try {
-                    // sodium 0.5.4-0.6.13
-                    ModelCuboid_u0 = ModelCuboid.getDeclaredField("u0");
-                    ModelCuboid_u1 = ModelCuboid.getDeclaredField("u1");
-                    ModelCuboid_u2 = ModelCuboid.getDeclaredField("u2");
-                    ModelCuboid_u3 = ModelCuboid.getDeclaredField("u3");
-                    ModelCuboid_u4 = ModelCuboid.getDeclaredField("u4");
-                    ModelCuboid_u5 = ModelCuboid.getDeclaredField("u5");
-                    ModelCuboid_v0 = ModelCuboid.getDeclaredField("v0");
-                    ModelCuboid_v1 = ModelCuboid.getDeclaredField("v1");
-                    ModelCuboid_v2 = ModelCuboid.getDeclaredField("v2");
-                    HAS_MODELCUBOID_FLOATS = true;
-                } catch (NoSuchFieldException array) {
-                    // sodium 0.7+
-                    ModelCuboid_textures = ModelCuboid.getDeclaredField("textures");
-                    HAS_MODELCUBOID_LONGS = true;
-                }
-            }
-        } catch (ClassNotFoundException ignored) {
-            // ignore, old versions
-        } catch (NoSuchFieldException e) {
-            ClientContext.visor.getLogger().error(
-                    "Visor: sodium version has ModelCuboids, but some fields are not found.",
-                    e
-            );
         }
-        INITIALIZED = true;
+        for (int i = 0; i < V_CUTS.length; i++) {
+            V_CUTS[i] = openField(cuboid, "v" + i);
+            if (V_CUTS[i] == null) {
+                return false;
+            }
+        }
         return true;
     }
 
+    private static Field openField(Class<?> owner, String name) {
+        try {
+            Field field = owner.getDeclaredField(name);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException | RuntimeException e) {
+            return null;
+        }
+    }
 }

@@ -1,25 +1,21 @@
 package org.vmstudio.visor;
 
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.tree.AnnotationNode;
-
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
-import org.vmstudio.visor.compatibility.FieldDependentMixin;
-import org.vmstudio.visor.compatibility.MethodDependentMixin;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
-import org.spongepowered.asm.service.MixinService;
+import org.vmstudio.visor.compatibility.MixinGates;
 
-import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MixinConfig implements IMixinConfigPlugin {
     private static final Logger LOGGER = LogManager.getLogger(MixinModLoader.MOD_NAME);
+    private static final String COMPAT_PACKAGE = "org.vmstudio.visor.compatibility.";
+    private static final String SODIUM_EXCLUSIVE_MARKER = "NoSodium";
+    private final Set<String> loggedCompatTargets = Sets.newConcurrentHashSet();
 
     @Override
     public String getRefMapperConfig() {
@@ -27,9 +23,7 @@ public class MixinConfig implements IMixinConfigPlugin {
     }
 
     @Override
-    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {
-
-    }
+    public void acceptTargets(Set<String> myTargets, Set<String> otherTargets) {}
 
     @Override
     public List<String> getMixins() {
@@ -37,27 +31,13 @@ public class MixinConfig implements IMixinConfigPlugin {
     }
 
     @Override
-    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
-    }
+    public void preApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
 
     @Override
-    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {
-
-    }
+    public void postApply(String targetClassName, ClassNode targetClass, String mixinClassName, IMixinInfo mixinInfo) {}
 
     @Override
-    public void onLoad(String mixinPackage) {
-    }
-
-    private final Set<String> appliedModFixes = Collections.newSetFromMap(new ConcurrentHashMap<>());
-
-    private static final String CLASS_DEPENDENT_MIXIN =
-            "L" + ClassDependentMixin.class.getName().replace(".", "/") + ";";
-    private static final String METHOD_DEPENDENT_MIXIN =
-            "L" + MethodDependentMixin.class.getName().replace(".", "/") + ";";
-    private static final String FIELD_DEPENDENT_MIXIN =
-            "L" + FieldDependentMixin.class.getName().replace(".", "/") + ";";
+    public void onLoad(String mixinPackage) {}
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
@@ -66,59 +46,32 @@ public class MixinConfig implements IMixinConfigPlugin {
             return false;
         }
 
-        try {
-            ClassNode mixinClass = MixinService.getService().getBytecodeProvider().getClassNode(mixinClassName);
-            if (mixinClass.visibleAnnotations != null) {
-                for (AnnotationNode annotation : mixinClass.visibleAnnotations) {
-                    if (annotation.desc.equals(CLASS_DEPENDENT_MIXIN)) {
-                        String neededClass = (String) annotation.values.get(1);
-                        MixinService.getService().getBytecodeProvider().getClassNode(neededClass);
-                    } else if (annotation.desc.equals(METHOD_DEPENDENT_MIXIN)) {
-                        String neededMethod = (String) annotation.values.get(1);
-                        if (MixinService.getService().getBytecodeProvider()
-                                .getClassNode(targetClassName).methods.stream()
-                                .noneMatch(m -> neededMethod.equals(m.name)))
-                        {
-                            return false;
-                        }
-                    } else if (annotation.desc.equals(FIELD_DEPENDENT_MIXIN)) {
-                        String neededField = (String) annotation.values.get(1);
-                        if (MixinService.getService().getBytecodeProvider()
-                                .getClassNode(targetClassName).fields.stream()
-                                .noneMatch(f -> neededField.equals(f.name)))
-                        {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            }
-        } catch (ClassNotFoundException | IOException e) {
-            LOGGER.info("Visor: skipping mixin '{}'", mixinClassName);
+        if (mixinClassName.contains(SODIUM_EXCLUSIVE_MARKER) && MixinModLoader.get().isSodiumLoaded()) {
             return false;
         }
 
-        // only try to apply mod mixins if the target class was found
-        if (mixinClassName.startsWith("org.vmstudio.visor.compatibility")) {
-            try {
-                MixinService.getService().getBytecodeProvider().getClassNode(targetClassName);
-            } catch (ClassNotFoundException | IOException e) {
+        if (!MixinGates.isOpen(mixinClassName, targetClassName)) {
+            LOGGER.debug("Visor: gate closed for mixin '{}', skipping", mixinClassName);
+            return false;
+        }
+
+        if (mixinClassName.startsWith(COMPAT_PACKAGE)) {
+            if (!MixinGates.classExists(targetClassName)) {
                 return false;
             }
-            String mod = mixinClassName.split("\\.")[4];
-            if (appliedModFixes.add(mod)) {
-                LOGGER.info("Visor: applying '{}' compatibility patch", mod);
-            }
+            logCompatTarget(mixinClassName);
         }
-
-
-
-        if(mixinClassName.contains("NoSodium")
-                && MixinModLoader.get().isSodiumLoaded()){
-            return false;
-        }
-
 
         return true;
+    }
+
+    // instead of adding loggers for every compatibility
+    private void logCompatTarget(String mixinClassName) {
+        String tail = mixinClassName.substring(COMPAT_PACKAGE.length());
+        int dot = tail.indexOf('.');
+        String mod = dot < 0 ? tail : tail.substring(0, dot);
+        if (loggedCompatTargets.add(mod)) {
+            LOGGER.info("Visor: applying '{}' compatibility patch", mod);
+        }
     }
 }

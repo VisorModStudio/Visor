@@ -5,11 +5,11 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.dh.DhCompatHelper;
 
 @Pseudo
-@ClassDependentMixin("com.seibel.distanthorizons.core.api.internal.ClientApi")
+@MixinGate(classes = "com.seibel.distanthorizons.core.api.internal.ClientApi")
 @Mixin(targets = "com.seibel.distanthorizons.core.api.internal.ClientApi", remap = false)
 public class DhClientApiVRMixin {
     @Inject(method = "renderLods", at = @At("HEAD"), cancellable = true, require = 0, remap = false)

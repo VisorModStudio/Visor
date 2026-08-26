@@ -56,11 +56,9 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
             AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
             int packedLight)
     {
-
         poseStack.pushPose();
 
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-
         if (vrPlayer != null) {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
@@ -129,7 +127,6 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
             rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
         }
 
-        // vanilla below here
         super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.compatibility.ShadersHelper;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisDhOverrideHelper;
 import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineExtension;
@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Pseudo
-@ClassDependentMixin("net.irisshaders.iris.pipeline.PipelineManager")
+@MixinGate(classes = "net.irisshaders.iris.pipeline.PipelineManager")
 @Mixin(targets = "net.irisshaders.iris.pipeline.PipelineManager", remap = false)
 public class PipelineManagerMixin implements IrisPipelineManagerExtension {
     @Shadow

@@ -570,16 +570,14 @@ public abstract class MinecraftMixin implements MinecraftExtension {
                 && this.player != null
                 && this.player.isSpectator()
                 && entity != this.player) {
-            ci.cancel(); //cancel spectate entity in VR
+            ci.cancel(); // cancel spectate entity in VR
             return;
         }
 
         if (entity != this.getCameraEntity()) {
-            // snap to entity, if it changed
             ClientContext.localPlayer.recenterOrigin(entity, true);
         }
         if (entity != this.player) {
-            // ride the new camera entity
             TaskVehicle.getInstance().onStartRiding(entity);
         } else {
             TaskVehicle.getInstance().onStopRiding();

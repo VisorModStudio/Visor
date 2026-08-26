@@ -25,9 +25,6 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class GameActionMovement extends VRActionVec2 {
     public static final String ID = "movement";
 
-
-
-
     private boolean wasMovement;
     private boolean wasAutoSprinting;
 
@@ -42,7 +39,6 @@ public class GameActionMovement extends VRActionVec2 {
     @Override
     public void preTick() {
         super.preTick();
-
 
         if(ClientContext.cursorHandler.isHandFocused(handType)
                 || ClientContext.visor.isFeatureDisabled(ClientFeature.INPUT_MOVEMENT)){
@@ -91,18 +87,10 @@ public class GameActionMovement extends VRActionVec2 {
 
 
             if (moving) {
-                ClientUtils.updateKeyMappingState(
-                        MC.options.keyUp, digital.y > 0
-                );
-                ClientUtils.updateKeyMappingState(
-                        MC.options.keyDown, digital.y < 0
-                );
-                ClientUtils.updateKeyMappingState(
-                        MC.options.keyRight, digital.x > 0
-                );
-                ClientUtils.updateKeyMappingState(
-                        MC.options.keyLeft, digital.x < 0
-                );
+                ClientUtils.updateKeyMappingState(MC.options.keyUp, digital.y > 0);
+                ClientUtils.updateKeyMappingState(MC.options.keyDown, digital.y < 0);
+                ClientUtils.updateKeyMappingState(MC.options.keyRight, digital.x > 0);
+                ClientUtils.updateKeyMappingState(MC.options.keyLeft, digital.x < 0);
 
                 if (!MC.player.isMovingSlowly()) {
                     if (forward >= VRClientSettings.getSprintThreshold()) {
@@ -239,7 +227,6 @@ public class GameActionMovement extends VRActionVec2 {
     private Vector2f toDigital(Vector2f value, float deadzone) {
         Vector2f digital = new Vector2f();
         if (value.length() > deadzone) {
-            // get pointing angle, forward 0, back +-PI
             float angle = (float) Math.atan2(value.x, value.y);
             float angleAbs = Math.abs(angle);
             final float PI_8TH = Mth.PI / 8F;
