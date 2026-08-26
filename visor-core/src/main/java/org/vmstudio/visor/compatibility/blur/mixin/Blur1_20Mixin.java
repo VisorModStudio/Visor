@@ -8,12 +8,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.core.client.VisorState;
 
 // Works for 1.20.x (tterrag version, Blur)
 @Pseudo
-@ClassDependentMixin("com.tterrag.blur.Blur")
+@MixinGate(classes = "com.tterrag.blur.Blur")
 @Mixin(targets = "com.tterrag.blur.Blur", remap = false)
 public class Blur1_20Mixin {
     @Shadow(remap = false)

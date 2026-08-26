@@ -54,17 +54,14 @@ public class VisorServerImpl implements VisorServer {
                 new VRLogger(LOGGER),
                 true
         );
-        // init server config
         ServerConfig serverConfig = new ServerConfig();
         try {
             serverConfig.onServerInit();
-        }catch (Throwable e){
+        } catch (Throwable e){
             LoggerUtils.printError(e);
         }
 
-        //init common stuff if on dedicated server
         if (ModLoader.get().isDedicatedServer()) {
-
             AddonManagerImpl addonManager = (AddonManagerImpl) VisorAPI.addonManager();
             addonManager.initialize(
                     List.of()
@@ -75,8 +72,8 @@ public class VisorServerImpl implements VisorServer {
     }
 
     public void tickVR() {
-
     }
+
     public void onServerStop(){
         visorPlayers.clear();
 
@@ -101,7 +98,6 @@ public class VisorServerImpl implements VisorServer {
         return visorPlayers.get(playerUuid);
     }
 
-
     public @NotNull Collection<? extends VisorServerPlayer> getAllVisorPlayers(){
         return visorPlayers.values();
     }
@@ -117,8 +113,6 @@ public class VisorServerImpl implements VisorServer {
         VisorAPI.eventBus().callEvent(new VisorPlayerJoinedVREvent(visorPlayer));
     }
 
-
-
     public void removePlayer(ServerPlayer player) {
         UUID uuid = player.getUUID();
         var existing = visorPlayers.get(uuid);
@@ -127,8 +121,8 @@ public class VisorServerImpl implements VisorServer {
         }
         visorPlayers.remove(uuid);
     }
-    public void updateMcPlayer(ServerPlayer player) {
 
+    public void updateMcPlayer(ServerPlayer player) {
         var visorPlayer = visorPlayers.get(player.getUUID());
         if (visorPlayer != null) {
             visorPlayer.setMcPlayer(player);
@@ -140,6 +134,4 @@ public class VisorServerImpl implements VisorServer {
     public @NotNull Logger getLogger() {
         return LOGGER;
     }
-
-
 }

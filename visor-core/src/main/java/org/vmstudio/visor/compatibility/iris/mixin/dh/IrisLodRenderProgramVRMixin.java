@@ -10,11 +10,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.dh.DhCompatHelper;
 
 @Pseudo
-@ClassDependentMixin("net.irisshaders.iris.compat.dh.IrisLodRenderProgram")
+@MixinGate(classes = "net.irisshaders.iris.compat.dh.IrisLodRenderProgram")
 @Mixin(value = IrisLodRenderProgram.class, remap = false)
 public class IrisLodRenderProgramVRMixin {
     @Inject(method = "fillUniformData", at = @At("HEAD"), require = 0, expect = 0, remap = false)

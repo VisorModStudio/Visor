@@ -146,9 +146,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
 
     @Override
-    protected void visor$wrapMove(MoverType type,
-                                  Vec3 pos,
-                                  Operation<Void> original) {
+    protected void visor$wrapMove(MoverType type, Vec3 pos, Operation<Void> original) {
         if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)
                 || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
@@ -159,7 +157,6 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             original.call(type, pos);
             return;
         }
-        // stuckSpeedMultiplier gets zeroed in the super call.
         this.visor$moveMulIn = this.stuckSpeedMultiplier;
 
         if (pos.length() == 0 || this.isPassenger()) {
@@ -242,25 +239,18 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         );
     }
     @Override
-    protected void visor$wrapMoveRelative(float amount,
-                                          Vec3 relative,
-                                          Operation<Void> original){
-        if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+    protected void visor$wrapMoveRelative(float amount, Vec3 relative, Operation<Void> original){
+        if (VisorState.get().isNotActive() || !visor$isLocalPlayer(this)) {
             original.call(amount, relative);
             return;
         }
 
         double speed = (relative.x * relative.x) + (relative.z * relative.z);
-
         if (speed < 0.0005) {
             return;
         }
 
-        speed = Math.max(
-                1,
-                Math.sqrt(speed)
-        );
+        speed = Math.max(1, Math.sqrt(speed));
 
         speed = (double) amount / speed;
         Vec3 move = new Vec3(
@@ -270,8 +260,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         );
 
 
-        var rotationElement = ClientContext.localPlayer
-                .getRotationElement(PlayerPoseType.TICK);
+        var rotationElement = ClientContext.localPlayer.getRotationElement(PlayerPoseType.TICK);
         if (this.isSwimming()) {
             rotationElement = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.TICK)
@@ -279,16 +268,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         }
 
         //SWIMMING OR FLYING
-        if (!this.isPassenger()
-                && (this.isSwimming() || this.getAbilities().flying)) {
-
-            move = move.xRot(
-                    rotationElement.getPitch()
-            );
+        if (!this.isPassenger() && (this.isSwimming() || this.getAbilities().flying)) {
+            move = move.xRot(rotationElement.getPitch());
         }
-        move = move.yRot(
-                rotationElement.getYaw() * -1
-        );
+        move = move.yRot(rotationElement.getYaw() * -1);
 
 
         float yFactor = this.getAbilities().flying
@@ -303,14 +286,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     }
 
     @Override
-    protected void visor$injectSetPos(double x,
-                                      double y,
-                                      double z,
-                                      CallbackInfo ci) {
-
+    protected void visor$injectSetPos(double x, double y, double z, CallbackInfo ci) {
         boolean shouldReset = (x + y + z) == 0;
-
         var thisPlayer = ((LocalPlayer) (Object) this);
+
         // moveTo()/absMoveTo() snap xOld/yOld/zOld to the destination before
         // calling setPos(); regular movement leaves them at the start-of-tick
         // coords. Without resetting the room origin too, the entity body
@@ -323,6 +302,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 && thisPlayer.zOld == z) {
             shouldReset = true;
         }
+
         if (this.isPassenger()) {
             Vec3 premountPos = TaskVehicle.getInstance().premountPosRoom;
             premountPos = premountPos
@@ -333,18 +313,11 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                     );
             x = x - premountPos.x;
             z = z - premountPos.z;
-            ClientContext.localPlayer.setOrigin(
-                    (float) x, (float) y, (float) z,
-                    shouldReset
-            );
+            ClientContext.localPlayer.setOrigin((float) x, (float) y, (float) z, shouldReset);
             return;
         }
 
-        ClientContext.localPlayer.recenterOrigin(
-                thisPlayer,
-                shouldReset
-        );
-
+        ClientContext.localPlayer.recenterOrigin(thisPlayer, shouldReset);
     }
 
 
@@ -425,15 +398,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Inject(method = "getRopeHoldPosition", at = @At("HEAD"), cancellable = true)
     private void visor$vrRopePosition(CallbackInfoReturnable<Vec3> cir) {
-        if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+        if (VisorState.get().isNotActive() || !visor$isLocalPlayer(this)) {
             return;
         }
-        cir.setReturnValue(
-                new Vec3(
-                        (Vector3f) RenderPoseHelper.getHandPosition(HandType.MAIN)
-                )
-        );
+        cir.setReturnValue(new Vec3((Vector3f) RenderPoseHelper.getHandPosition(HandType.MAIN)));
     }
 
     /* ************************ *\
@@ -444,20 +412,13 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     @Unique
     public void visor$stepSound(BlockPos blockforNoise, Vec3 soundPos) {
-
-        BlockState blockNoise = this.level().getBlockState(
-                blockforNoise
-        );
+        BlockState blockNoise = this.level().getBlockState(blockforNoise);
         Block block = blockNoise.getBlock();
-        if (this.isSilent()
-                || block.defaultBlockState().liquid()) {
+        if (this.isSilent() || block.defaultBlockState().liquid()) {
             return;
         }
 
-        BlockState blockAboveNoise = this.level().getBlockState(
-                blockforNoise.above()
-        );
-
+        BlockState blockAboveNoise = this.level().getBlockState(blockforNoise.above());
         SoundType soundType = block.getSoundType(blockNoise);
         if (blockAboveNoise.getBlock() == Blocks.SNOW) {
             soundType = Blocks.SNOW.getSoundType(blockAboveNoise);
@@ -542,6 +503,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         return player.getClass().equals(LocalPlayer.class)
                 || Minecraft.getInstance().player == player;
     }
+
     private LocalPlayer visor$getPlayer(){
         return (LocalPlayer) (Object) this;
     }

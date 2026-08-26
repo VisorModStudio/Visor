@@ -63,20 +63,14 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         poseStack.pushPose();
 
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
-
         if (vrPlayer != null) {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
-
             float scale = vrPlayer.getFullHeightScale();
-            if ((VisorState.get().isActive()
-                    && player == Minecraft.getInstance().player))
-            {
-                // remove entity scale, since the entity is already scaled by that before
+            if ((VisorState.get().isActive() && player == Minecraft.getInstance().player)) {
                 scale *= pose.getWorldScale() / ScaleHelper.getEntityEyeHeightScale(player, partialTick);
             }
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
-                // offset player to head
                 float offset = player.getViewXRot(partialTick) / 90F * 0.2F;
                 poseStack.translate(0, pose.getHmd().getPosition().y() + offset, 0);
             }
@@ -108,9 +102,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
     public void setModelProperties(AbstractClientPlayer player) {
         super.setModelProperties(player);
 
-        // no crouch hip movement when roomscale crawling
         this.getModel().crouching &= !player.isVisuallySwimming();
-
         if (VRRenderState.isSelfModelRender(player)) {
             this.model.head.visible = false;
             this.model.hat.visible = false;
@@ -130,28 +122,22 @@ public class VRPlayerRendererFull extends PlayerRenderer {
                 vrModel.hideRightArm();
             }
         }
-
     }
 
 
     @Override
-    public void renderRightHand(
-            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
-    {
+    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
         renderVRHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player);
     }
 
     @Override
-    public void renderLeftHand(
-            PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
-    {
+    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
         renderVRHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player);
     }
 
     private void renderVRHand(
             ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            AbstractClientPlayer player)
-    {
+            AbstractClientPlayer player) {
         this.setModelProperties(player);
 
         boolean left = side == ControllerType.LEFT;
@@ -202,8 +188,6 @@ public class VRPlayerRendererFull extends PlayerRenderer {
             rotationYaw = vrPlayer.getPoseData(PlayerPoseType.RENDER).getBodyYaw() * Mth.RAD_TO_DEG;
         }
 
-        // vanilla below here
         super.setupRotations(player, poseStack, ageInTicks, rotationYaw, partialTick);
     }
-
 }

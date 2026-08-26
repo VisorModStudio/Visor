@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.core.client.VisorState;
 
 @Pseudo
-@ClassDependentMixin("com.replaymod.replay.ReplayModReplay")
+@MixinGate(classes = "com.replaymod.replay.ReplayModReplay")
 @Mixin(targets = "com.replaymod.replay.ReplayModReplay", remap = false)
 public class ReplayModReplayMixin {
     @Inject(method = "startReplay(Lcom/replaymod/replaystudio/replay/ReplayFile;ZZ)Lcom/replaymod/replay/ReplayHandler;",

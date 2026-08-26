@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineManagerExtension;
 import org.vmstudio.visor.core.client.VisorClientImpl;
@@ -28,7 +28,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import java.util.EnumMap;
 
 @Pseudo
-@ClassDependentMixin("net.coderbot.iris.compat.sodium.impl.shader_overrides.IrisChunkProgramOverrides")
+@MixinGate(classes = "net.coderbot.iris.compat.sodium.impl.shader_overrides.IrisChunkProgramOverrides")
 @Mixin(value = IrisChunkProgramOverrides.class, remap = false)
 public class IrisChunkProgramOverridesMixin {
     @Shadow

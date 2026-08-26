@@ -13,15 +13,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PoseHistoryImpl implements VRPoseHistory {
-
     private final LinkedList<VRPlayerPose> history = new LinkedList<>();
-
     private final VRPlayerPose relevantPose;
+
     public PoseHistoryImpl(VRPlayerPose relevantPose){
         this.relevantPose = relevantPose;
         history.addFirst(relevantPose);
     }
-
 
     @Override
     public Vector3f netMovement(VRBodyPartType bodyPart, int maxTicksBack) {
@@ -31,10 +29,8 @@ public class PoseHistoryImpl implements VRPoseHistory {
         }
 
         maxTicksBack = clampTicksBack(maxTicksBack);
-
         var last = safePosition(history.getFirst(), bodyPart);
         var old = safePosition(history.get(maxTicksBack), bodyPart);
-
         if (last == null || old == null) {
             return (Vector3f) VRMathUtils.ZERO_VECTOR;
         }
@@ -50,9 +46,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
         }
 
         maxTicksBack = clampTicksBack(maxTicksBack);
-
         var last = history.getFirst().getHeadPivot();
-
         var old = history.get(maxTicksBack).getHeadPivot();
 
         return last.sub(old, new Vector3f());
@@ -75,6 +69,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
             deltas.add(newer.distance(older));
         }
+
         return deltas.stream()
                 .mapToDouble(Double::valueOf)
                 .average()
@@ -160,7 +155,6 @@ public class PoseHistoryImpl implements VRPoseHistory {
         }
     }
 
-
     @Override
     public VRPlayerPose getEntry(int ticksBack) {
         return history.get(ticksBack);
@@ -176,12 +170,9 @@ public class PoseHistoryImpl implements VRPoseHistory {
         return history.size();
     }
 
-
-
-
     private void checkTicksBack(int ticksBack) {
         if (ticksBack < 0 || ticksBack > HISTORY_LIMIT) {
-            throw new IllegalArgumentException("Value must be between 0 and " + HISTORY_LIMIT);
+            throw new IllegalArgumentException("ticksBack must be within 0.." + HISTORY_LIMIT + ", got " + ticksBack);
         }
     }
 
@@ -194,8 +185,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
         return bodyPartPose == null ? null : bodyPartPose.getPosition();
     }
 
-
-    public void clear(){
+    public void clear() {
         history.clear();
         history.addFirst(relevantPose);
     }

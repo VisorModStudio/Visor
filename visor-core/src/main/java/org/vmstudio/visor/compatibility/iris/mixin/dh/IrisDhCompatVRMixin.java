@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.dh.DhCompatHelper;
 
 @Pseudo
-@ClassDependentMixin("net.irisshaders.iris.compat.dh.DHCompat")
+@MixinGate(classes = "net.irisshaders.iris.compat.dh.DHCompat")
 @Mixin(value = DHCompat.class, remap = false)
 public class IrisDhCompatVRMixin {
     @Inject(method = "getProjection", at = @At("RETURN"), cancellable = true, require = 0, expect = 0, remap = false)

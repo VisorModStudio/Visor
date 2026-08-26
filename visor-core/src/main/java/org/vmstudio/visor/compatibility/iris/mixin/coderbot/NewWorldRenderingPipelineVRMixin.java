@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.compatibility.ClassDependentMixin;
+import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineExtension;
 import org.vmstudio.visor.core.client.VisorClientImpl;
@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 @Pseudo
-@ClassDependentMixin("net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline")
+@MixinGate(classes = "net.coderbot.iris.pipeline.newshader.NewWorldRenderingPipeline")
 @Mixin(value = NewWorldRenderingPipeline.class, remap = false)
 public class NewWorldRenderingPipelineVRMixin implements IrisPipelineExtension {
     @Shadow

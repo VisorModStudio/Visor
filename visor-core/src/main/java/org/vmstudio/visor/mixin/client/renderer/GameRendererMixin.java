@@ -322,14 +322,10 @@ public abstract class GameRendererMixin
             original.call(partialTick);
             return;
         }
-        // don't update the hitresult when chat is open
         if (this.minecraft.screen != null && this.minecraft.hitResult != null) {
             return;
         }
-        // skip when data not available yet
-        else if (this.minecraft.getCameraEntity() == null)
-        {
-            // some mods don't like it when the hitresult is null, so set it to a miss
+        else if (this.minecraft.getCameraEntity() == null) {
             if (this.minecraft.player != null) {
                 this.minecraft.hitResult = BlockHitResult.miss(this.minecraft.player.position(),
                         this.minecraft.player.getDirection(), this.minecraft.player.blockPosition());
@@ -365,20 +361,17 @@ public abstract class GameRendererMixin
         visor$pickingHand = hand;
 
         AABB originalBB = this.minecraft.getCameraEntity().getBoundingBox();
-        // set the entity position and view to the controller
         this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
         this.visor$setupCameraEntity(
                 ClientContext.localPlayer
                         .getPoseData(PlayerPoseType.RENDER)
                         .getHand(hand)
         );
-        // move the bounding box as well, this is used for entity hits
         this.minecraft.getCameraEntity().setBoundingBox(originalBB.move(
                 this.minecraft.getCameraEntity().getX() - visor$cameraEntityCache.getX(),
                 this.minecraft.getCameraEntity().getY() - visor$cameraEntityCache.getY(),
                 this.minecraft.getCameraEntity().getZ() - visor$cameraEntityCache.getZ()));
 
-        // call the vanilla method
         original.call(partialTick);
 
         // restore entity

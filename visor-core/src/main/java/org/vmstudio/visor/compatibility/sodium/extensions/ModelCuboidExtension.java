@@ -1,10 +1,9 @@
 package org.vmstudio.visor.compatibility.sodium.extensions;
 
+import org.vmstudio.visor.compatibility.sodium.FaceUv;
+
 public interface ModelCuboidExtension {
+    FaceUv[] visor$faceOverrides();
 
-    float[][] visor$getOverrides();
-
-    void visor$addOverrides(int overrideFaceIndex,
-                            int sourceFaceIndex,
-                            float[][] source);
+    void visor$overrideFace(int sodiumFace, FaceUv uv);
 }
