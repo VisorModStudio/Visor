@@ -20,6 +20,6 @@ Join our community: [Discord](https://discord.gg/wJX8sTDEdx)
 
 - - - - - - -
 
-Licensed under the [Mozilla Public License 2.0](LICENCE.md). Releases published before the [2026 relicensing](RELICENSING.md) remain under LGPL-3.0.
+Licensed under the [Mozilla Public License 2.0](LICENSE.md). Releases published before the [2026 relicensing](RELICENSING.md) remain under LGPL-3.0.
 
 Copyright (c) 2025-2026 Phoenix-Ra and Visor contributors
