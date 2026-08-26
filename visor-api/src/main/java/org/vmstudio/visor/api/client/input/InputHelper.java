@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.client.input;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.VisorAPI;
+import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
@@ -164,18 +165,18 @@ public class InputHelper {
                 .getOverlayManager()
                 .getKeyboardAccessor();
         Screen screen = keyboardAccessor.getAttachedTo();
-        if(screen != null){
+        if(screen instanceof VROverlayScreen){
             //overlays
             screen.charTyped(character,modifiers);
             return true;
         }
         Minecraft mc = Minecraft.getInstance();
         if(mc.screen != null) {
-            Minecraft.getInstance().keyboardHandler.charTyped(
-                    Minecraft.getInstance().getWindow().getWindow(),
+            mc.keyboardHandler.charTyped(
+                    mc.getWindow().getWindow(),
                     character, modifiers
             );
-
+            return true;
         }
         return false;
     }

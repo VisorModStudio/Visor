@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.gui.VROverlayManager;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayCursorData;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayHelper;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayFrameBuffer;
+import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
@@ -107,6 +108,15 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             if(!keyboardAccessor.isVisible()
                     || keyboardAccessor.getAttachedTo() != null){
                 keyboardAccessor.showKeyboard( newScreen);
+            }
+        } else {
+            Screen attachedTo = keyboardAccessor.getAttachedTo();
+            if (keyboardAccessor.isVisible()
+                    && attachedTo != null
+                    && !(attachedTo instanceof VROverlayScreen)
+                    && attachedTo != newScreen) {
+                //swap keyboard attachment to make sure its valid
+                keyboardAccessor.showKeyboard(newScreen);
             }
         }
 
