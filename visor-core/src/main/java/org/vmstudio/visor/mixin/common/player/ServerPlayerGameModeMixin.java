@@ -3,29 +3,18 @@ package org.vmstudio.visor.mixin.common.player;
 import me.phoenixra.atumconfig.api.tuples.PairRecord;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.effect.MobEffectUtil;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.GameMasterBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,6 +29,7 @@ import org.vmstudio.visor.api.common.network.toclient.BlockDamagePayloadToClient
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.core.server.network.ServerNetworking;
 import org.vmstudio.visor.extensions.common.ServerPlayerGameModeExtension;
 
@@ -115,6 +105,8 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
     @Redirect(method = "destroyBlock", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/server/level/ServerPlayer;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     public ItemStack visor$destroyBlock(ServerPlayer player) {
+        ItemStack forced = CommonUtils.FORCED_HAND_ITEM.get();
+        if (forced != null) return forced;
         if(!VRServerSettings.isTwoHandedVR()) return player.getMainHandItem();
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(player);
         if (vrPlayer == null) {
@@ -214,7 +206,7 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return;
         }
 
-        if (visor$blockActionRestricted(this.level, blockPos, this.gameModeForPlayer, usedItem)) {
+        if (visor$blockActionRestricted(blockPos, usedItem)) {
             this.player.connection.send(new ClientboundBlockUpdatePacket(blockPos, this.level.getBlockState(blockPos)));
             this.debugLogging(blockPos, false, j, "block action restricted");
             return;
@@ -295,74 +287,14 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
         visor$forgetBlockDamage(blockPos.asLong());
         visor$sendSwingDamageCleanUp(blockPos, false);
 
-        if (this.visor$destroyBlock(blockPos, usedItem)) {
-            this.debugLogging(blockPos, true, i, string);
-        } else {
-            this.player.connection.send(new ClientboundBlockUpdatePacket(blockPos, this.level.getBlockState(blockPos)));
-            this.debugLogging(blockPos, false, i, string);
-        }
-    }
-
-
-    @Unique
-    public boolean visor$destroyBlock(BlockPos blockPos, ItemStack usedItem) {
-        BlockState blockState = this.level.getBlockState(blockPos);
-        if (!usedItem.getItem().canAttackBlock(blockState, this.level, blockPos, this.player)) {
-            return false;
-        } else {
-            BlockEntity blockEntity = this.level.getBlockEntity(blockPos);
-            Block block = blockState.getBlock();
-            if (block instanceof GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
-                this.level.sendBlockUpdated(blockPos, blockState, blockState, 3);
-                return false;
-            } else if (visor$blockActionRestricted(this.level, blockPos, this.gameModeForPlayer, usedItem)) {
-                return false;
-            } else {
-                block.playerWillDestroy(this.level, blockPos, blockState, this.player);
-                boolean bl = this.level.removeBlock(blockPos, false);
-                if (bl) {
-                    block.destroy(this.level, blockPos, blockState);
-                }
-
-                if (this.isCreative()) {
-                    return true;
-                } else {
-                    ItemStack itemStack2 = usedItem.copy();
-                    boolean bl2 = !blockState.requiresCorrectToolForDrops()
-                            || visor$hasCorrectToolForDrops(blockState, usedItem);
-                    usedItem.mineBlock(this.level, blockState, blockPos, this.player);
-                    if (bl && bl2) {
-                        block.playerDestroy(this.level, this.player, blockPos, blockState, blockEntity, itemStack2);
-                    }
-
-                    return true;
-                }
-            }
-        }
+        CommonUtils.withForcedHand(usedItem,
+                () -> this.destroyAndAck(blockPos, i, string));
     }
 
     @Unique
-    private boolean visor$hasCorrectToolForDrops(BlockState blockState, ItemStack usedItem) {
-        return !blockState.requiresCorrectToolForDrops()
-                || usedItem.isCorrectToolForDrops(blockState);
-    }
-
-    @Unique
-    public boolean visor$blockActionRestricted(Level level,
-                                               BlockPos blockPos,
-                                               GameType gameType,
-                                               ItemStack itemUsed
-    ) {
-        if (!gameType.isBlockPlacingRestricted()) {
-            return false;
-        } else if (gameType == GameType.SPECTATOR) {
-            return true;
-        } else if (player.mayBuild()) {
-            return false;
-        } else {
-            return itemUsed.isEmpty()
-                    || !itemUsed.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), new BlockInWorld(level, blockPos, false));
-        }
+    public boolean visor$blockActionRestricted(BlockPos blockPos, ItemStack itemUsed) {
+        return CommonUtils.withForcedHand(itemUsed,
+                () -> this.player.blockActionRestricted(this.level, blockPos, this.gameModeForPlayer));
     }
 
     @Unique
@@ -372,57 +304,8 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
                                            BlockPos blockPos,
                                            ItemStack itemUsed
     ) {
-        float blockDestroySpeed = blockState.getDestroySpeed(blockGetter, blockPos);
-        if (blockDestroySpeed == -1.0F) {
-            return 0.0F;
-        } else {
-            int i = !blockState.requiresCorrectToolForDrops()
-                    || visor$hasCorrectToolForDrops(blockState, itemUsed) ? 30 : 100;
-            return visor$getDamageStep(player, itemUsed, blockState)
-                    / blockDestroySpeed
-                    / (float) i;
-        }
-    }
-
-    @Unique
-    private float visor$getDamageStep(@NotNull Player player,
-                                      @NotNull ItemStack itemUsed,
-                                      BlockState blockState
-    ) {
-        float f = itemUsed.getDestroySpeed(blockState);
-        if (f > 1.0F) {
-            int i = EnchantmentHelper.getBlockEfficiency(player);
-            if (i > 0 && !itemUsed.isEmpty()) {
-                f += (float) (i * i + 1);
-            }
-        }
-
-        if (MobEffectUtil.hasDigSpeed(player)) {
-            f *= 1.0F + (float) (MobEffectUtil.getDigSpeedAmplification(player) + 1) * 0.2F;
-        }
-
-        if (player.hasEffect(MobEffects.DIG_SLOWDOWN)) {
-            float g = switch (player.getEffect(MobEffects.DIG_SLOWDOWN)
-                    .getAmplifier()) {
-                case 0 -> 0.3F;
-                case 1 -> 0.09F;
-                case 2 -> 0.0027F;
-                default -> 8.1E-4F;
-            };
-
-            f *= g;
-        }
-
-        if (player.isEyeInFluid(FluidTags.WATER)
-                && !EnchantmentHelper.hasAquaAffinity(player)) {
-            f /= 5.0F;
-        }
-
-        if (!player.onGround()) {
-            f /= 5.0F;
-        }
-
-        return f;
+        return CommonUtils.withForcedHand(itemUsed,
+                () -> blockState.getDestroyProgress(player, blockGetter, blockPos));
     }
 
 

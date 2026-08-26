@@ -19,6 +19,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.core.common.player.OffhandNonNullList;
 
 import java.util.Arrays;
@@ -95,6 +96,11 @@ public abstract class InventoryMixin implements Container, Nameable {
     public void visor$offhandDestroySpeed(BlockState blockState,
                                           CallbackInfoReturnable<Float> ci
     ) {
+        ItemStack forced = CommonUtils.FORCED_HAND_ITEM.get();
+        if (forced != null) {
+            ci.setReturnValue(forced.getDestroySpeed(blockState));
+            return;
+        }
         if (!VRServerSettings.isTwoHandedVR()) {
             return;
         }

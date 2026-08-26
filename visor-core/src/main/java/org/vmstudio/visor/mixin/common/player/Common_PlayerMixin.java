@@ -12,7 +12,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.player.Abilities;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -96,23 +95,18 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         return forced != null ? forced : original.call(self);
     }
 
-    // getDestroySpeed → inventory.getDestroySpeed: route the inventory lookup to the forced item
-    @WrapOperation(method = "getDestroySpeed",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/player/Inventory;getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F"))
-    private float visor$forceInventoryDestroySpeed(Inventory inv, BlockState state, Operation<Float> original) {
-        ItemStack forced = CommonUtils.FORCED_HAND_ITEM.get();
-        if (forced != null && !forced.isEmpty()) {
-            return forced.getDestroySpeed(state);
-        }
-        return original.call(inv, state);
-    }
 
     @Inject(at = @At("HEAD"), method = "hasCorrectToolForDrops",
             cancellable = true)
     public void visor$hasCorrectToolForDrops(BlockState blockState,
                                              CallbackInfoReturnable<Boolean> ci
     ) {
+        ItemStack forced = CommonUtils.FORCED_HAND_ITEM.get();
+        if (forced != null) {
+            ci.setReturnValue(!blockState.requiresCorrectToolForDrops()
+                    || forced.isCorrectToolForDrops(blockState));
+            return;
+        }
         if (!VRServerSettings.isTwoHandedVR()) {
             return;
         }
