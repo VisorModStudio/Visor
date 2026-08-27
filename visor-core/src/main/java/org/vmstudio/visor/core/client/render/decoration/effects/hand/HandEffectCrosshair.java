@@ -183,7 +183,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         float rawLight = MC.level.getMaxLocalRawBrightness(
                 BlockPos.containing(new Vec3(crossPos))
         );
-        float light =Math.max(rawLight, ShadersHelper.shaderLight());
+        float light =Math.max(rawLight, ShadersHelper.minShaderLight());
         return light / (float) MC.level.getMaxLightLevel();
     }
 

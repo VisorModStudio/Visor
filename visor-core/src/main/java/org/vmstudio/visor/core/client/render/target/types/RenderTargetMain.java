@@ -35,8 +35,8 @@ public class RenderTargetMain implements RenderTargetHolder {
         var mcWindow = (WindowExtension) (Object) MC.getWindow();
         this.mirrorTarget = new VRRenderTarget(
                 "Mirror",
-                mcWindow.visor$getActualScreenWidth(),
-                mcWindow.visor$getActualScreenHeight(),
+                mcWindow.visor$mcScreenWidth(),
+                mcWindow.visor$mcScreenHeight(),
                 true, () -> -1,
                 false, false
         );
@@ -56,8 +56,8 @@ public class RenderTargetMain implements RenderTargetHolder {
         target.resize(width, height, Minecraft.ON_OSX);
         var mcWindow = (WindowExtension) (Object) MC.getWindow();
         this.mirrorTarget.resize(
-                Math.max(1, mcWindow.visor$getActualScreenWidth()),
-                Math.max(1, mcWindow.visor$getActualScreenHeight()),
+                Math.max(1, mcWindow.visor$mcScreenWidth()),
+                Math.max(1, mcWindow.visor$mcScreenHeight()),
                 Minecraft.ON_OSX
         );
 

@@ -16,14 +16,10 @@ import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.compatibility.shaders.IrisVRBridge;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
-import net.minecraft.client.gui.screens.ProgressScreen;
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -226,8 +222,8 @@ public class VRRenderState {
         var windowModif =  ((WindowExtension) (Object)
                 Minecraft.getInstance().getWindow());
 
-        if (windowModif.visor$getActualScreenWidth() > 0
-                && windowModif.visor$getActualScreenHeight() > 0) {
+        if (windowModif.visor$mcScreenWidth() > 0
+                && windowModif.visor$mcScreenHeight() > 0) {
             MirrorMode mirrorMode = VRClientSettings.getMirrorMode();
             if (mirrorMode == MirrorMode.FIRST_PERSON) {
                 list.add(VRRenderPass.CENTER);

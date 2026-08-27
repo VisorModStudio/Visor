@@ -237,9 +237,9 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
 
         int screenWidth = ((WindowExtension) (Object) mcWindow)
-                .visor$getActualScreenWidth();
+                .visor$mcScreenWidth();
         int screenHeight = ((WindowExtension) (Object) mcWindow)
-                .visor$getActualScreenHeight();
+                .visor$mcScreenHeight();
 
         int guiScaledWidth = guiManager.getGuiScaledWidth();
         int guiScaledHeight = guiManager.getGuiScaledHeight();

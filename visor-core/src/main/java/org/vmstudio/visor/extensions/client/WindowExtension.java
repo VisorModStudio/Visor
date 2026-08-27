@@ -1,7 +1,14 @@
 package org.vmstudio.visor.extensions.client;
 
 public interface WindowExtension {
-    int visor$getActualScreenHeight();
 
-    int visor$getActualScreenWidth();
+    /**
+     * Get actual screen height of the game window
+     */
+    int visor$mcScreenHeight();
+
+    /**
+     * Get actual screen width of the game window
+     */
+    int visor$mcScreenWidth();
 }

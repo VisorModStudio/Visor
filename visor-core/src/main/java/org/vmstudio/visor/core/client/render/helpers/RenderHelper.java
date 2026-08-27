@@ -11,13 +11,12 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -30,10 +29,9 @@ public class RenderHelper {
     public static boolean isInSolidBlock(Vector3fc in) {
         if (MC.level == null) {
             return false;
-        } else {
-            BlockPos blockpos = BlockPos.containing(new Vec3((Vector3f) in));
-            return MC.level.getBlockState(blockpos).isSolidRender(MC.level, blockpos);
         }
+        BlockPos pos = BlockPos.containing(in.x(), in.y(), in.z());
+        return MC.level.getBlockState(pos).isSolidRender(MC.level, pos);
     }
 
     public static void renderCuboid(BufferBuilder bufferBuilder,
@@ -74,9 +72,9 @@ public class RenderHelper {
                 {0, 1, 5, 4}
         };
         var faceNormals = new Vector3f[] {
-                forward, forward.mul(-1, new Vector3f()).normalize(),
-                right, right.mul(-1, new Vector3f()).normalize(),
-                up, up.mul(-1, new Vector3f()).normalize()
+                forward, forward.negate(new Vector3f()),
+                right, right.negate(new Vector3f()),
+                up, up.negate(new Vector3f())
         };
 
 
@@ -110,7 +108,7 @@ public class RenderHelper {
         float halfW = width  * 0.5f;
         float halfH = height * 0.5f;
         Vector3f off = new Vector3f(halfW, 0, halfH)
-                .rotateY((float)Math.toRadians(-yaw));
+                .rotateY(-yaw * Mth.DEG_TO_RAD);
         Vector3fc normal = VRMathUtils.UP_VECTOR;
         float xOff = off.x, zOff = off.z;
         float r = color.getRed(), g = color.getGreen(),
@@ -118,10 +116,10 @@ public class RenderHelper {
 
 
         float[][] vertices = {
+                { pos.x() - xOff, pos.y(), pos.z() + zOff },
                 { pos.x() + xOff, pos.y(), pos.z() + zOff },
                 { pos.x() + xOff, pos.y(), pos.z() - zOff },
-                { pos.x() - xOff, pos.y(), pos.z() - zOff },
-                { pos.x() - xOff, pos.y(), pos.z() + zOff }
+                { pos.x() - xOff, pos.y(), pos.z() - zOff }
         };
 
 
@@ -234,12 +232,10 @@ public class RenderHelper {
         MC.gameRenderer.lightTexture().turnOnLightLayer();
         MC.gameRenderer.overlayTexture().setupOverlayColor();
 
-        // cache old light directions
-        Vector3f[] oldLights = RenderSystemAccessor.getShaderLightDirections();
-        Vector3f old0 = oldLights[0];
-        Vector3f old1 = oldLights[1];
+        Vector3f[] lightDirs = RenderSystemAccessor.getShaderLightDirections();
+        Vector3f savedLight0 = lightDirs[0];
+        Vector3f savedLight1 = lightDirs[1];
 
-        // force lighting to face back
         Vector3f back = (Vector3f) VRMathUtils.BACK_VECTOR;
         RenderSystem.setShaderLights(back, back);
         RenderSystem.setupShaderLights(RenderSystem.getShader());
@@ -265,8 +261,8 @@ public class RenderHelper {
 
         // --- Restore ---
         MC.gameRenderer.lightTexture().turnOffLightLayer();
-        if (old0 != null && old1 != null) {
-            RenderSystem.setShaderLights(old0, old1);
+        if (savedLight0 != null && savedLight1 != null) {
+            RenderSystem.setShaderLights(savedLight0, savedLight1);
             RenderSystem.setupShaderLights(RenderSystem.getShader());
         }
     }
@@ -311,39 +307,6 @@ public class RenderHelper {
 
         return (float) Math.sqrt(minDistSq);
     }
-
-
-    /**
-     * Searches within a sphere of radius {@code radius} around {@code origin}
-     * for any block whose {@code isSolidRender} is true.
-     *
-     * @param origin the center of the search in world coordinates
-     * @param radius the search radius
-     * @return an Optional containing found opaque block info, or empty if none found
-     */
-    public static Optional<VREffectsHelper.NearestOpaqueBlock> findAnySolidBlock(Vec3 origin, double radius) {
-        ClientLevel level = MC.level;
-        if (level == null) {
-            return Optional.empty();
-        }
-
-        AABB box = new AABB(
-                origin.subtract(radius, radius, radius),
-                origin.add(radius, radius, radius)
-        );
-
-        return BlockPos
-                .betweenClosedStream(box)
-                .filter(pos -> level.getBlockState(pos).isSolidRender(level, pos))
-                .findFirst()
-                .map(pos -> new VREffectsHelper.NearestOpaqueBlock(
-                        1.0F,
-                        level.getBlockState(pos),
-                        pos
-                ));
-    }
-
-
 
 
     private static void addVertex(BufferBuilder buff,

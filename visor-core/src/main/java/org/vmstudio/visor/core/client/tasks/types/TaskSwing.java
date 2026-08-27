@@ -60,6 +60,7 @@ import org.vmstudio.visor.extensions.common.PlayerExtension;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -290,25 +291,29 @@ public class TaskSwing extends VisorTask {
     // Computes the effective item length and damage range based on the item type.
     private ItemProperties getItemProperties(final ItemStack itemStack, final EquipmentSlot slot) {
         final boolean isSword = ItemClassifier.SWORD.is(itemStack.getItem()) || ItemClassifier.SPEAR.is(itemStack.getItem());
-        final boolean itemRecognized = isSword || isTool(itemStack.getItem());
+
         float itemLength;
         float damageRange;
-
-        float damageRangeBase = (float) ModLoader.get().getItemEntityReach(3.0, itemStack, slot);
-        damageRangeBase = Math.min(damageRangeBase, 6) - 0.5f;
-
-        if (isSword) {
-            itemLength = SWORD_LENGTH;
-            damageRange = damageRangeBase - itemLength;
-        } else if (itemRecognized) {
-            itemLength = TOOL_LENGTH;
-            damageRange = damageRangeBase * 0.62F - itemLength;
-        } else if (!itemStack.isEmpty()) {
-            itemLength = DEFAULT_ITEM_LENGTH;
-            damageRange = damageRangeBase * 0.16F - itemLength;
-        } else {
+        if (itemStack.isEmpty()) {
             itemLength = 0F;
             damageRange = FIST_REACH;
+        } else {
+            float reach = (float) ModLoader.get().getItemEntityReach(3.0, itemStack, slot);
+            reach = Math.min(reach, 6) - 0.5f;
+
+            // longer items get more of the base reach
+            float reachShare;
+            if (isSword) {
+                itemLength = SWORD_LENGTH;
+                reachShare = 1F;
+            } else if (isTool(itemStack.getItem())) {
+                itemLength = TOOL_LENGTH;
+                reachShare = 0.62F;
+            } else {
+                itemLength = DEFAULT_ITEM_LENGTH;
+                reachShare = 0.16F;
+            }
+            damageRange = reach * reachShare - itemLength;
         }
 
         itemLength *= ClientContext.localPlayer
@@ -361,20 +366,22 @@ public class TaskSwing extends VisorTask {
         data.lastAttackPoint = attackPointPlayers;
 
         // Shorter reach against players, to avoid accidental pvp hits
-        final List<Entity> targets = MC.level.getEntities(MC.player, damageAreaMobs);
-        targets.removeIf(entity -> entity instanceof Player);
-        final List<Entity> players = MC.level.getEntities(MC.player, damageAreaPlayers);
-        players.removeIf(entity -> !(entity instanceof Player));
-        targets.addAll(players);
+        final List<Entity> targets = MC.level.getEntities(
+                MC.player, damageAreaMobs,
+                entity -> !entity.isSpectator() && !(entity instanceof Player));
+        targets.addAll(MC.level.getEntities(
+                MC.player, damageAreaPlayers,
+                entity -> !entity.isSpectator() && entity instanceof Player));
 
         boolean attacked = false;
-        for (final Entity entity : targets) {
-            if (!entity.isPickable() || entity == MC.getCameraEntity().getVehicle()
-                    || data.lastHitEntities.contains(entity)) {
-                continue;
-            }
-            if (canAttack) {
-                swingAttack(player, entity, hand);
+        if (canAttack) {
+            final Entity vehicle = MC.getCameraEntity().getVehicle();
+            for (final Entity target : targets) {
+                if (!target.isPickable() || target == vehicle
+                        || data.lastHitEntities.contains(target)) {
+                    continue;
+                }
+                swingAttack(player, target, hand);
                 attacked = true;
             }
         }
@@ -396,22 +403,20 @@ public class TaskSwing extends VisorTask {
                                                 final float itemLength) {
         final List<Vec3> points = new ArrayList<>();
         if (prevHandPos != null && prevHandRot != null && prevSwingPoint != null) {
-            final float dot = Math.min(1.0F, Math.abs(handRot.dot(prevHandRot)));
-            final float angle = 2.0F * (float) Math.acos(dot);
-            final int subdivisions = Mth.floor(angle / Mth.PI * MAX_ARC_SUBDIVISIONS);
+            // subdivide proportionally to how far the hand rotated since last tick
+            final float cosHalfTurn = Math.min(1.0F, Math.abs(handRot.dot(prevHandRot)));
+            final float turnAngle = 2.0F * (float) Math.acos(cosHalfTurn);
+            final int steps = Mth.floor(turnAngle / Mth.PI * MAX_ARC_SUBDIVISIONS);
 
             points.add(prevSwingPoint);
-            final Quaternionf lerpRot = new Quaternionf();
-            final Vector3f lerpTip = new Vector3f();
-            for (int s = 1; s < subdivisions; s++) {
-                final float lerp = s / (float) subdivisions;
-                prevHandRot.slerp(handRot, lerp, lerpRot);
-                lerpRot.transform(0.0F, 0.0F, -itemLength, lerpTip);
-                points.add(new Vec3(
-                        Mth.lerp(lerp, prevHandPos.x, handPos.x) + lerpTip.x,
-                        Mth.lerp(lerp, prevHandPos.y, handPos.y) + lerpTip.y,
-                        Mth.lerp(lerp, prevHandPos.z, handPos.z) + lerpTip.z
-                ));
+            final Quaternionf stepRot = new Quaternionf();
+            final Vector3f stepTip = new Vector3f();
+            for (int s = 1; s < steps; s++) {
+                final float t = s / (float) steps;
+                prevHandRot.slerp(handRot, t, stepRot);
+                stepRot.transform(0.0F, 0.0F, -itemLength, stepTip);
+                final Vec3 base = prevHandPos.lerp(handPos, t);
+                points.add(base.add(stepTip.x, stepTip.y, stepTip.z));
             }
         } else {
             points.add(swingPoint);
@@ -480,7 +485,8 @@ public class TaskSwing extends VisorTask {
             MC.gameMode.useItemOn(player, interactionHand, blockHit);
         } else {
             // Swing faster = more damage.
-            totalHits = (int) (totalHits + Math.min(speed - effectiveSpeedThreshold(), 4.0D));
+            float overSpeed = Math.min(speed - effectiveSpeedThreshold(), 4.0F);
+            totalHits += (int) overSpeed;
             swingMining(blockHit, blockState, totalHits, hand);
         }
         ClientContext.inputManager.triggerHapticPulseMicroSec(hand, 250 * totalHits);
@@ -524,15 +530,7 @@ public class TaskSwing extends VisorTask {
         } else {
             mineVanilla(blockHit, totalHits, handType);
         }
-        blockDust(
-                blockHit.getLocation().x,
-                blockHit.getLocation().y,
-                blockHit.getLocation().z,
-                3 * totalHits,
-                blockState,
-                0.6F,
-                1.0F
-        );
+        blockDust(blockHit.getLocation(), 3 * totalHits, blockState, 0.6F, 1.0F);
     }
 
     private void mineBetter(final BlockHitResult blockHit,
@@ -620,44 +618,35 @@ public class TaskSwing extends VisorTask {
         return hitResult.getType() == HitResult.Type.BLOCK ? hitResult.getLocation() : end;
     }
 
-    private void blockDust(double x, double y, double z,
-                           int count,
-                           BlockState bs, float scale,
-                          float velscale
-    ) {
-
+    private void blockDust(Vec3 at, int count, BlockState state,
+                           float sizeScale, float speedScale) {
         for (int i = 0; i < count; ++i) {
             TerrainParticle particle = new TerrainParticle(
                     MC.level,
-                    x, y, z,
+                    at.x, at.y, at.z,
                     0.0D, 0.0D, 0.0D,
-                    bs
+                    state
             );
-            particle.setPower(velscale);
-
-            MC.particleEngine.add(particle.scale(scale));
+            particle.setPower(speedScale);
+            MC.particleEngine.add(particle.scale(sizeScale));
         }
     }
 
+    private static final Set<Item> HANDHELD_MISC = Set.of(
+            Items.STICK, Items.BONE, Items.BAMBOO, Items.BLAZE_ROD,
+            Items.TORCH, Items.REDSTONE_TORCH
+    );
+
     public static boolean isTool(final Item item) {
-        return item instanceof DiggerItem
-                || item instanceof ArrowItem
-                || item instanceof FishingRodItem
-                || item instanceof FoodOnAStickItem
+        return HANDHELD_MISC.contains(item)
+                || item instanceof DiggerItem
                 || item instanceof ShearsItem
-                || item == Items.BONE
-                || item == Items.BLAZE_ROD
-                || item == Items.BAMBOO
-                || item == Items.TORCH
-                || item == Items.REDSTONE_TORCH
-                || item == Items.STICK
-                || item instanceof DebugStickItem
                 || item instanceof FlintAndSteelItem
                 || item instanceof BrushItem
-                || item instanceof HoeItem
-                || item instanceof AxeItem
-                || item instanceof PickaxeItem
-                || item instanceof ShovelItem;
+                || item instanceof FishingRodItem
+                || item instanceof FoodOnAStickItem
+                || item instanceof ArrowItem
+                || item instanceof DebugStickItem;
     }
 
 

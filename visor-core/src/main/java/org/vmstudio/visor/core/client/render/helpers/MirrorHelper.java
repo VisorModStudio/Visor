@@ -45,8 +45,8 @@ public class MirrorHelper {
     private static void drawGuiMirror(){
         RenderTarget source = ClientContext.renderer.guiTarget.getTarget();
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
         blit(
                 source,
                 0,0,
@@ -66,8 +66,8 @@ public class MirrorHelper {
         float xCrop = VRClientSettings.getMirrorCrop();
         float yCrop = VRClientSettings.getMirrorCrop();
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
 
         blitCropped(
                 source,
@@ -85,8 +85,8 @@ public class MirrorHelper {
             source = ClientContext.renderer.getTextureRightEye().getRenderTarget();
         }
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
         blit(
                 source,
                 0,0,
@@ -101,8 +101,8 @@ public class MirrorHelper {
     private static void drawFirstPersonMirror(){
         RenderTarget source = ClientContext.renderer.firstPersonTarget.getTarget();
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
         blit(
                 source,
                 0,0,
@@ -112,8 +112,8 @@ public class MirrorHelper {
     private static void drawThirdPersonMirror(){
         RenderTarget source = ClientContext.renderer.thirdPersonTarget.getTarget();
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth();
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth();
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
         blit(
                 source,
                 0,0,
@@ -126,8 +126,8 @@ public class MirrorHelper {
         RenderTarget rightEye = ClientContext.renderer
                 .getTextureRightEye().getRenderTarget();
 
-        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenWidth() / 2;
-        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$getActualScreenHeight();
+        int screenWidth = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenWidth() / 2;
+        int screenHeight = ((WindowExtension) (Object) MC.getWindow()).visor$mcScreenHeight();
 
         blit(
                 leftEye,
@@ -159,8 +159,8 @@ public class MirrorHelper {
 
         // 1) get the VR mirror dimensions
         var window  = (WindowExtension)(Object)MC.getWindow();
-        int vrWidth = window.visor$getActualScreenWidth();
-        int vrHeight= window.visor$getActualScreenHeight();
+        int vrWidth = window.visor$mcScreenWidth();
+        int vrHeight= window.visor$mcScreenHeight();
 
         // 2) viewport + projection
         RenderSystem.backupProjectionMatrix();
@@ -225,28 +225,28 @@ public class MirrorHelper {
     public static void blitCropped(RenderTarget source,
                                    int left, int top,
                                    int right, int bottom,
-                                   float xCropFactor, float yCropFactor,
+                                   float cropX, float cropY,
                                    boolean keepAspect) {
         if (keepAspect) {
-            float targetAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
-            float sourceAspect = (float) source.viewWidth / (float) source.viewHeight;
-            if (targetAspect > sourceAspect) {
-                yCropFactor = 0.5F
-                        - (sourceAspect / targetAspect) * (0.5F - yCropFactor);
+            float dstAspect = (float) MC.mainRenderTarget.width / (float) MC.mainRenderTarget.height;
+            float srcAspect = (float) source.viewWidth / (float) source.viewHeight;
+            if (dstAspect > srcAspect) {
+                float ratio = srcAspect / dstAspect;
+                cropY = 0.5F * (1F - ratio) + ratio * cropY;
             } else {
-                xCropFactor = 0.5F
-                        - (targetAspect / sourceAspect) * (0.5F - xCropFactor);
+                float ratio = dstAspect / srcAspect;
+                cropX = 0.5F * (1F - ratio) + ratio * cropX;
             }
         }
 
-        int xMin = (int) (xCropFactor * source.width);
-        int yMin = (int) (yCropFactor * source.height);
-        int xMax = source.width - xMin;
-        int yMax = source.height - yMin;
+        int srcX0 = (int) (cropX * source.width);
+        int srcY0 = (int) (cropY * source.height);
+        int srcX1 = source.width - srcX0;
+        int srcY1 = source.height - srcY0;
 
         _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, source.frameBufferId);
         _glBlitFrameBuffer(
-                xMin, yMin, xMax, yMax,
+                srcX0, srcY0, srcX1, srcY1,
                 left, top, right, bottom,
                 GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_LINEAR);
         _glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, 0);

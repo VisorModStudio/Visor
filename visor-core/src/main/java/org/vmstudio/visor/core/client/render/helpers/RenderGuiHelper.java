@@ -14,12 +14,10 @@ import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 
 import org.vmstudio.visor.core.client.ClientContext;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 
@@ -72,27 +70,20 @@ public class RenderGuiHelper {
         RenderSystem.disableCull();
         RenderSystem.setShaderTexture(0, renderTarget.getColorTextureId());
 
+        RenderSystem.enableBlend();
         if (VRRenderState.getSceneType().isWorld()) {
+            // keep fog away from the overlay, and let its alpha accumulate
             RenderSystem.setShaderFogStart(Float.MAX_VALUE);
-
-            RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(
                     GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ONE_MINUS_DST_ALPHA,
                     GlStateManager.DestFactor.ONE
             );
-        } else {
-            RenderSystem.enableBlend();
         }
 
-        if (depthAlways) {
-            RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-            RenderSystem.depthMask(false);
-        } else {
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-            RenderSystem.depthMask(true);
-        }
+        RenderSystem.depthFunc(depthAlways ? GL11C.GL_ALWAYS : GL11C.GL_LEQUAL);
+        RenderSystem.depthMask(!depthAlways);
         RenderSystem.enableDepthTest();
 
         // --- Pose ---
@@ -105,19 +96,16 @@ public class RenderGuiHelper {
         int packedLight = -1;
         boolean useLitPath = MC.level != null && useLight && !ShadersHelper.isShaderActive();
         if (useLitPath) {
-            Vector3fc lightPos = position;
-            if (RenderHelper.isInSolidBlock(position)
-                    || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
-                lightPos = ClientContext.localPlayer
-                        .getPoseData(PlayerPoseType.RENDER)
-                        .getHmd()
-                        .getPosition();
-            }
-            int minLight = ShadersHelper.shaderLight();
-            packedLight = ClientUtils.getCombinedLightWithMin(
+
+            boolean overlayInBlock = RenderHelper.isInSolidBlock(position)
+                    || ((GameRendererExtension) MC.gameRenderer).visor$isInBlock();
+            Vector3fc light = overlayInBlock
+                    ? renderPose.getHmd().getPosition()
+                    : position;
+            packedLight = ClientUtils.packedLightWithFloor(
                     MC.level,
-                    BlockPos.containing(new Vec3((Vector3f) lightPos)),
-                    minLight
+                    BlockPos.containing(light.x(), light.y(), light.z()),
+                    ShadersHelper.minShaderLight()
             );
             RenderHelper.renderDisplayQuadWithLight(
                     poseStack.last().pose(),

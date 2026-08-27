@@ -27,16 +27,13 @@ public class ClientUtils {
         return new Vector2f(2, 2);
     }
 
-    public static int getCombinedLightWithMin(BlockAndTintGetter lightReader, BlockPos pos, int minLight) {
-        int i = LevelRenderer.getLightColor(lightReader, pos);
-        int j = i >> 4 & 15;
-
-        if (j < minLight) {
-            i = i & -256;
-            i = i | minLight << 4;
+    public static int packedLightWithFloor(BlockAndTintGetter level, BlockPos pos, int minBlockLight) {
+        int packed = LevelRenderer.getLightColor(level, pos);
+        int blockLight = (packed >> 4) & 0xF;
+        if (blockLight >= minBlockLight) {
+            return packed;
         }
-
-        return i;
+        return (packed & ~0xFF) | (minBlockLight << 4);
     }
 
     public static void updateKeyMappingState(KeyMapping keyMapping,
@@ -102,20 +99,6 @@ public class ClientUtils {
         }
 
         return wrappedLines;
-    }
-
-    public static int getCombinedLight(BlockAndTintGetter lightReader,
-                                       BlockPos pos,
-                                       int minLight) {
-        int i = LevelRenderer.getLightColor(lightReader, pos);
-        int j = i >> 4 & 15;
-
-        if (j < minLight) {
-            i = i & -256;
-            i = i | minLight << 4;
-        }
-
-        return i;
     }
 
     public static void takeScreenshot(RenderTarget fb) {

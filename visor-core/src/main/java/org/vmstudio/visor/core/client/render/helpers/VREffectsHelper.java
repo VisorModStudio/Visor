@@ -14,8 +14,6 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRRendererBase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
@@ -27,39 +25,36 @@ public class VREffectsHelper {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
-    public record NearestOpaqueBlock(float distance, BlockState state, BlockPos position) {}
+    private static final float SCREEN_QUAD_EXTENT = 1.5F;
+    private static final float[][] SCREEN_QUAD_CORNERS = {
+            {-SCREEN_QUAD_EXTENT, -SCREEN_QUAD_EXTENT},
+            { SCREEN_QUAD_EXTENT, -SCREEN_QUAD_EXTENT},
+            { SCREEN_QUAD_EXTENT,  SCREEN_QUAD_EXTENT},
+            {-SCREEN_QUAD_EXTENT,  SCREEN_QUAD_EXTENT}
+    };
 
-
+    private static Matrix4f fullscreenMatrix() {
+        return new Matrix4f().m22(-1.0F).m32(-1.0F);
+    }
 
     public static void renderInBlockEffect() {
-        // --- Prepare variables ---
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
-        // orthographic matrix
-        Matrix4f mat = new Matrix4f();
-        mat.m00(1.0F);
-        mat.m11(1.0F);
-        mat.m22(-1.0F);
-        mat.m33(1.0F);
-        mat.m32(-1.0F);
+        Matrix4f mat = fullscreenMatrix();
 
-        // --- Setup ---
         RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0f);
+        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
 
-        // --- Render ---
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, -1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, 1.5F, 1.5F, 0.0F).endVertex();
-        bufferbuilder.vertex(mat, -1.5F, 1.5F, 0.0F).endVertex();
+        for (float[] corner : SCREEN_QUAD_CORNERS) {
+            bufferbuilder.vertex(mat, corner[0], corner[1], 0.0F).endVertex();
+        }
         tesselator.end();
 
-        // --- Restore ---
         RenderStateHelper.restoreAfterExternalRender();
     }
 
@@ -68,25 +63,15 @@ public class VREffectsHelper {
     public static void renderInBlockVignette(float proximity) {
         if (proximity <= 0.0f) return;
 
-        VRRenderPass pass = VRRenderState.getRenderPass();
-        EyeType eye = (pass == VRRenderPass.EYE_LEFT) ? EyeType.LEFT : EyeType.RIGHT;
-
         VRShaderInBlockVignette wrap = VRShaders.getInBlockVignette();
         if (wrap == null) return;
         wrap.prepare(proximity);
         ShaderInstance shader = wrap.getHandle();
 
-        // --- Prepare variables ---
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
-        Matrix4f mat = new Matrix4f();
-        mat.m00(1.0F);
-        mat.m11(1.0F);
-        mat.m22(-1.0F);
-        mat.m33(1.0F);
-        mat.m32(-1.0F);
+        Matrix4f mat = fullscreenMatrix();
 
-        // --- Setup ---
         RenderSystem.setShader(() -> shader);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
@@ -94,27 +79,28 @@ public class VREffectsHelper {
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
 
-        // --- Render ---
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferbuilder.vertex(mat, -1.5F, -1.5F, 0.0F).uv(-0.25F, -0.25F).endVertex();
-        bufferbuilder.vertex(mat,  1.5F, -1.5F, 0.0F).uv( 1.25F, -0.25F).endVertex();
-        bufferbuilder.vertex(mat,  1.5F,  1.5F, 0.0F).uv( 1.25F,  1.25F).endVertex();
-        bufferbuilder.vertex(mat, -1.5F,  1.5F, 0.0F).uv(-0.25F,  1.25F).endVertex();
+        for (float[] corner : SCREEN_QUAD_CORNERS) {
+            bufferbuilder.vertex(mat, corner[0], corner[1], 0.0F)
+                    .uv(corner[0] * 0.5F + 0.5F, corner[1] * 0.5F + 0.5F)
+                    .endVertex();
+        }
         tesselator.end();
 
-        // --- Restore ---
         RenderStateHelper.restoreAfterExternalRender();
     }
 
 
-    private static boolean stencilEnabledByVisor;
+    private static final float MASK_DEPTH = 20F;
+
+    private static boolean stencilWasAlreadyOn;
 
 
     public static void drawEyeStencil() {
         if (ShadersHelper.isShaderActive()) {
             return;
         }
-        stencilEnabledByVisor = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
+        stencilWasAlreadyOn = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         if (renderPass.isEye()
                 && !ImmPortalsCompatHelper.isRenderingPortalWorld()
@@ -124,7 +110,7 @@ public class VREffectsHelper {
     }
 
     public static void disableStencilTest() {
-        if (!stencilEnabledByVisor) {
+        if (!stencilWasAlreadyOn) {
             GL11C.glDisable(GL11C.GL_STENCIL_TEST);
         }
     }
@@ -136,7 +122,6 @@ public class VREffectsHelper {
         Minecraft mc = Minecraft.getInstance();
         RenderTarget rt = mc.getMainRenderTarget();
 
-        // 1) backup shader + matrices
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getModelViewStack().pushPose();
 
@@ -146,20 +131,16 @@ public class VREffectsHelper {
             clearStencilAndDepth();
 
             setupMaskDrawState();
-            applyOrthoProjection(rt, inverse);
+            applyOrthoProjection(rt);
 
-            // draw hidden‐area triangles into the stencil
-            VRRenderPass eye = VRRenderState.getRenderPass();
-            float[] maskVerts = getStencilMask(eye);
-            drawStencilMask(maskVerts);
+            float[] maskVerts = getStencilMask(VRRenderState.getRenderPass());
+            drawStencilMask(maskVerts, inverse ? -MASK_DEPTH : 0F);
 
         } finally {
-            // 2) restore matrices
             RenderSystem.getModelViewStack().popPose();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
 
-            // 3) restore GL state for regular rendering
             restorePostStencilState();
         }
     }
@@ -171,19 +152,14 @@ public class VREffectsHelper {
     }
 
     private static void configureStencilWrite(boolean inverse) {
-        if (inverse) {
-            // clear stencil to 0xFF then write zero inside mask
-            RenderSystem.clearStencil(0xFF);
-            RenderSystem.clearDepth(0);
-            RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF);
-            RenderSystem.colorMask(false, false, false, true);
-        } else {
-            // clear stencil to 0 then write one inside mask
-            RenderSystem.clearStencil(0);
-            RenderSystem.clearDepth(1);
-            RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF);
-            RenderSystem.colorMask(true, true, true, true);
-        }
+        int clearValue = inverse ? 0xFF : 0;
+        int stampValue = inverse ? 0 : 0xFF;
+        boolean writeColor = !inverse;
+
+        RenderSystem.clearStencil(clearValue);
+        RenderSystem.clearDepth(inverse ? 0 : 1);
+        RenderSystem.stencilFunc(GL11.GL_ALWAYS, stampValue, 0xFF);
+        RenderSystem.colorMask(writeColor, writeColor, writeColor, true);
     }
 
     private static void clearStencilAndDepth() {
@@ -201,55 +177,47 @@ public class VREffectsHelper {
         RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
     }
 
-    private static void applyOrthoProjection(RenderTarget rt, boolean inverse) {
-
+    private static void applyOrthoProjection(RenderTarget rt) {
         Matrix4f ortho = new Matrix4f()
-                .setOrtho(0, rt.viewWidth, 0, rt.viewHeight, 0, 20f);
+                .setOrtho(0, rt.viewWidth, 0, rt.viewHeight, 0, MASK_DEPTH);
         RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
-
-        if (inverse) {
-            RenderSystem.getModelViewStack().translate(0, 0, -20);
-        }
         RenderSystem.applyModelViewMatrix();
     }
 
-    private static float[] getStencilMask(VRRenderPass eye) {
-        if (eye != VRRenderPass.EYE_LEFT && eye != VRRenderPass.EYE_RIGHT) {
-            return null;
-        }
+    private static float[] getStencilMask(VRRenderPass pass) {
         VRRendererBase renderer = ClientContext.renderer;
-        return (eye == VRRenderPass.EYE_LEFT)
-                ? renderer.getHiddenAreaVertices(EyeType.LEFT)
-                : renderer.getHiddenAreaVertices(EyeType.RIGHT);
+        if (pass == VRRenderPass.EYE_LEFT) {
+            return renderer.getHiddenAreaVertices(EyeType.LEFT);
+        }
+        if (pass == VRRenderPass.EYE_RIGHT) {
+            return renderer.getHiddenAreaVertices(EyeType.RIGHT);
+        }
+        return null;
     }
 
-    private static void drawStencilMask(float[] verts) {
+    private static void drawStencilMask(float[] verts, float depth) {
         if (verts == null || verts.length < 2) return;
+
+        Minecraft.getInstance()
+                .getTextureManager()
+                .bindForSetup(TexturesHelper.getBlackTexture());
+        RenderSystem.setShader(GameRenderer::getPositionShader);
 
         BufferBuilder buf = Tesselator.getInstance().getBuilder();
         buf.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
 
-        // bind a simple 1×1 black texture so shader has "something"
-        Minecraft.getInstance()
-                .getTextureManager()
-                .bindForSetup(TexturesHelper.getBlackTexture());
-
         float scale = ClientContext.renderer.renderScale;
-        for (int i = 0; i < verts.length; i += 2) {
-            buf
-                    .vertex(verts[i] * scale, verts[i+1] * scale, 0f)
-                    .endVertex();
+        for (int i = 0; i + 1 < verts.length; i += 2) {
+            buf.vertex(verts[i] * scale, verts[i + 1] * scale, depth).endVertex();
         }
 
-        RenderSystem.setShader(GameRenderer::getPositionShader);
         BufferUploader.drawWithShader(buf.end());
     }
 
     private static void restorePostStencilState() {
-        // stencil: only pass where stencil != 255
-        RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 255, 0xFF);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderSystem.stencilMask(0);
+        RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
+        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderStateHelper.restoreAfterExternalRender(true);
     }
 }

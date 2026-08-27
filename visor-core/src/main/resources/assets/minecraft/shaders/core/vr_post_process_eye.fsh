@@ -19,9 +19,12 @@ in vec2 texCoordinates;
 out vec4 fragColor;
 
 vec4 applyTints(vec4 col) {
-    col.gb *= 1.0 - uTintRed;
-    col.rg *= vec2(1.0 - uTintBlue, 1.0 - 0.5 * uTintBlue);
-    col.rgb *= 1.0 - uTintBlack;
+    float red = clamp(uTintRed, 0.0, 1.0);
+    float blue = clamp(uTintBlue, 0.0, 1.0);
+    float black = clamp(uTintBlack, 0.0, 1.0);
+    col.gb *= 1.0 - red;
+    col.rg *= vec2(1.0 - blue, 1.0 - 0.5 * blue);
+    col.rgb *= 1.0 - black;
     return col;
 }
 

@@ -6,7 +6,6 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
-import org.vmstudio.visor.api.client.player.body.VRBody;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
@@ -29,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +228,7 @@ public abstract class VRRendererBase implements VRRenderer {
         }
 
         var windowModif = (WindowExtension) (Object) minecraft.getWindow();
-        long windowPixels = (long) windowModif.visor$getActualScreenWidth() * windowModif.visor$getActualScreenHeight();
+        long windowPixels = (long) windowModif.visor$mcScreenWidth() * windowModif.visor$mcScreenHeight();
         long vrPixels = eyeRenderWidth * eyeRenderHeight * 2L;
 
         if (list.contains(VRRenderPass.CENTER)) {
@@ -242,7 +240,7 @@ public abstract class VRRendererBase implements VRRenderer {
                 "[Visor] render targets created:" +
                 "\nEye target: " + eyeWidth + "x" + eyeHeight + " (" + String.format("%.1f", (float) (eyeWidth * eyeHeight) / 1000000.0F) + " MP)" +
                 "\nRender target: " + eyeRenderWidth + "x" + eyeRenderHeight + " at " + Math.round(VRClientSettings.getRenderScaleFactor() * 100.0F) + "% scale (" + String.format("%.1f", (float) (eyeRenderWidth * eyeRenderHeight) / 1000000.0F) + " MP)" +
-                "\nMain window: " + windowModif.visor$getActualScreenWidth() + "x" + windowModif.visor$getActualScreenHeight() + " (" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP)" +
+                "\nMain window: " + windowModif.visor$mcScreenWidth() + "x" + windowModif.visor$mcScreenHeight() + " (" + String.format("%.1f", (float) windowPixels / 1000000.0F) + " MP)" +
                 "\nPer-frame fill: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP, stencil mask not subtracted"
         );
 
@@ -328,10 +326,10 @@ public abstract class VRRendererBase implements VRRenderer {
         var windowModif = ((WindowExtension) (Object)
                 Minecraft.getInstance().getWindow());
         mirrorWidth = Math.max(1,
-                windowModif.visor$getActualScreenWidth()
+                windowModif.visor$mcScreenWidth()
         );
         mirrorHeight = Math.max(1,
-                windowModif.visor$getActualScreenHeight()
+                windowModif.visor$mcScreenHeight()
         );
         if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
             mirrorWidth = mirrorWidth / 2;

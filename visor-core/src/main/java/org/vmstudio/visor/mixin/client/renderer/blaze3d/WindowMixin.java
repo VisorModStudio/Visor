@@ -152,13 +152,13 @@ public abstract class WindowMixin implements WindowExtension {
     \* ************************ */
     @Override
     @Unique
-    public int visor$getActualScreenHeight() {
+    public int visor$mcScreenHeight() {
         return height;
     }
 
     @Override
     @Unique
-    public int visor$getActualScreenWidth() {
+    public int visor$mcScreenWidth() {
         return width;
     }
 }

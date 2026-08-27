@@ -19,7 +19,7 @@ public final class ShadersHelper {
         return bridge;
     }
 
-    public static int shaderLight() {
+    public static int minShaderLight() {
         return bridge.getShaderLightValue();
     }
 
