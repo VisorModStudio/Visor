@@ -56,12 +56,21 @@ public enum VisorCorePayloadID {
     public static VisorCorePayloadID fromOrdinal(byte ordinalByte){
         // -127...127 to 0..255
         int unsignedByte = ordinalByte & 0xFF;
+        if (unsignedByte >= values().length) {
+            return null;
+        }
         return values()[unsignedByte];
     }
 
     @Environment(EnvType.CLIENT)
     public static VisorPayloadToClient readToClient(VisorCorePayloadID payloadID,
                                              FriendlyByteBuf buffer) {
+        if (payloadID == null) {
+            VisorAPI.client().getLogger().error(
+                    "Visor: Got unexpected payload identifier on client: null"
+            );
+            return UnknownPayloadToClient.read(buffer);
+        }
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToClient.read(buffer);
             case SERVER_SETTINGS -> SettingsPayloadToClient.read(buffer);
@@ -88,6 +97,12 @@ public enum VisorCorePayloadID {
 
     public static VisorPayloadToServer readToServer(VisorCorePayloadID payloadID,
                                              FriendlyByteBuf buffer) {
+        if (payloadID == null) {
+            VisorAPI.server().getLogger().error(
+                    "Visor: Got unexpected payload identifier on server: null"
+            );
+            return UnknownPayloadToServer.read(buffer);
+        }
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToServer.read(buffer);
             case ACTIVE_HAND -> ActiveHandPayloadToServer.read(buffer);
