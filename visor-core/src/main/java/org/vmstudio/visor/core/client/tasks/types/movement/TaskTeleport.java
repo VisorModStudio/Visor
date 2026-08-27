@@ -255,7 +255,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
         Vector3f gravity = hand
                 .getRotation()
-                .rotateZ(hand.getRoll(), new Matrix4f())
+                .rotateZ(-hand.getRoll(), new Matrix4f())
                 .transformDirection(VRMathUtils.DOWN_VECTOR, new Vector3f())
                 .mul(0.098f);
 

@@ -114,14 +114,9 @@ public class VRPoseImpl implements VRPose {
 
         float qz = q.z, qw = q.w;
         float twistMagSq = qz * qz + qw * qw;
-        if (twistMagSq > 1e-8f) {
-            float r = -2.0f * (float) Math.atan2(qz, qw);
-            if (r >  Mth.PI) r -= Mth.TWO_PI;
-            if (r < -Mth.PI) r += Mth.TWO_PI;
-            this.roll = r;
-        } else {
-            this.roll = 0f;
-        }
+
+
+        this.roll = (float) Math.atan2(rotMatrix.m01(), rotMatrix.m11());
 
         float horizLenSq = dx * dx + dz * dz;
         if (horizLenSq > 0.05f) {
