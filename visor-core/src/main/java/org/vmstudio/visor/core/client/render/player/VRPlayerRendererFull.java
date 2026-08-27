@@ -66,13 +66,14 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         if (vrPlayer != null) {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
             float scale = vrPlayer.getFullHeightScale();
-            if ((VisorState.get().isActive() && player == Minecraft.getInstance().player)) {
-                scale *= pose.getWorldScale() / EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
+            if (VisorState.get().isActive() && player == Minecraft.getInstance().player) {
+                float entityScale = EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
+                scale *= pose.getWorldScale() / entityScale;
             }
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
-                float offset = player.getViewXRot(partialTick) / 90F * 0.2F;
-                poseStack.translate(0, pose.getHmd().getPosition().y() + offset, 0);
+                float pitchOffset = 0.2F * (player.getViewXRot(partialTick) / 90F);
+                poseStack.translate(0, pose.getHmd().getPosition().y() + pitchOffset, 0);
             }
 
             poseStack.scale(scale, scale, scale);
@@ -90,19 +91,23 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     @Override
     public Vec3 getRenderOffset(AbstractClientPlayer player, float partialTick) {
-        if (VRRenderState.isSelfModelPlayer(player)) {
-            return player.isVisuallySwimming() ?
-                    new Vec3(0.0F, -0.125F * ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale(), 0.0F) : Vec3.ZERO;
-        } else {
-            return player.isVisuallySwimming() ? new Vec3(0.0D, -0.125D, 0.0D) : Vec3.ZERO;
+        if (!player.isVisuallySwimming()) {
+            return Vec3.ZERO;
         }
+        double dip = -0.125D;
+        if (VRRenderState.isSelfModelPlayer(player)) {
+            dip *= ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale();
+        }
+        return new Vec3(0.0D, dip, 0.0D);
     }
 
     @Override
     public void setModelProperties(AbstractClientPlayer player) {
         super.setModelProperties(player);
 
-        this.getModel().crouching &= !player.isVisuallySwimming();
+        if (player.isVisuallySwimming()) {
+            this.getModel().crouching = false;
+        }
         if (VRRenderState.isSelfModelRender(player)) {
             this.model.head.visible = false;
             this.model.hat.visible = false;
@@ -127,17 +132,17 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
     @Override
     public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        renderVRHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player);
+        renderVRHand(poseStack, buffer, combinedLight, player, ControllerType.RIGHT);
     }
 
     @Override
     public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        renderVRHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player);
+        renderVRHand(poseStack, buffer, combinedLight, player, ControllerType.LEFT);
     }
 
     private void renderVRHand(
-            ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            AbstractClientPlayer player) {
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+            AbstractClientPlayer player, ControllerType side) {
         this.setModelProperties(player);
 
         boolean left = side == ControllerType.LEFT;
@@ -146,25 +151,30 @@ public class VRPlayerRendererFull extends PlayerRenderer {
 
         RenderSystem.enableBlend();
         RenderSystem.enableCull();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        );
 
         boolean slim = this.getModel().slim;
         arm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
                 CenteredArmsPlayerMesh.armPivotY(slim), 0F);
         arm.setRotation(0F, 0F, 0F);
-        arm.xScale = arm.yScale = arm.zScale = 1F;
+        arm.xScale = 1F;
+        arm.yScale = 1F;
+        arm.zScale = 1F;
         arm.visible = true;
         sleeve.copyFrom(arm);
         sleeve.visible = true;
 
         ResourceLocation skin = this.getTextureLocation(player);
-
-        arm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
-        sleeve.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(skin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+        var consumer = buffer.getBuffer(RenderType.entityTranslucent(skin));
+        arm.render(poseStack, consumer, combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        sleeve.render(poseStack, consumer, combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

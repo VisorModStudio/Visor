@@ -63,15 +63,14 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
             float scale = vrPlayer.getFullHeightScale();
-            if ((VisorState.get().isActive()
-                    && player == Minecraft.getInstance().player))
-            {
-                scale *= pose.getWorldScale() / EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
+            if (VisorState.get().isActive() && player == Minecraft.getInstance().player) {
+                float entityScale = EntityScaleHelper.getEntityEyeHeightScale(player, partialTick);
+                scale *= pose.getWorldScale() / entityScale;
             }
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
-                float offset = player.getViewXRot(partialTick) / 90F * 0.2F;
-                poseStack.translate(0, pose.getHmd().getPosition().y() + offset, 0);
+                float pitchOffset = 0.2F * (player.getViewXRot(partialTick) / 90F);
+                poseStack.translate(0, pose.getHmd().getPosition().y() + pitchOffset, 0);
             }
 
             poseStack.scale(scale, scale, scale);
@@ -136,52 +135,55 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     public void renderRightHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
     {
-        this.renderHand(ControllerType.RIGHT, poseStack, buffer, combinedLight, player, this.model.rightArm,
-                this.model.rightSleeve);
+        renderVRHand(poseStack, buffer, combinedLight, player, ControllerType.RIGHT);
     }
 
     @Override
     public void renderLeftHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)
     {
-        this.renderHand(ControllerType.LEFT, poseStack, buffer, combinedLight, player, this.model.leftArm,
-                this.model.leftSleeve);
+        renderVRHand(poseStack, buffer, combinedLight, player, ControllerType.LEFT);
     }
 
 
-    private void renderHand(
-            ControllerType side, PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            AbstractClientPlayer player, ModelPart rendererArm, ModelPart rendererArmwear)
+    private void renderVRHand(
+            PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+            AbstractClientPlayer player, ControllerType side)
     {
         this.setModelProperties(player);
 
+        boolean left = side == ControllerType.LEFT;
+        ModelPart arm = left ? this.model.leftArm : this.model.rightArm;
+        ModelPart sleeve = left ? this.model.leftSleeve : this.model.rightSleeve;
+
         RenderSystem.enableBlend();
         RenderSystem.enableCull();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.blendFuncSeparate(
+                GlStateManager.SourceFactor.SRC_ALPHA,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        );
 
         boolean slim = this.getModel().slim;
-        boolean left = side == ControllerType.LEFT;
-        rendererArm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
+        arm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
                 CenteredArmsPlayerMesh.armPivotY(slim), 0F);
-        rendererArm.setRotation(0F, 0F, 0F);
-        rendererArm.xScale = rendererArm.yScale = rendererArm.zScale = 1F;
-        rendererArm.visible = true;
+        arm.setRotation(0F, 0F, 0F);
+        arm.xScale = 1F;
+        arm.yScale = 1F;
+        arm.zScale = 1F;
+        arm.visible = true;
 
-        rendererArmwear.copyFrom(rendererArm);
+        sleeve.copyFrom(arm);
         PlayerModelPart sleevePart = left ? PlayerModelPart.LEFT_SLEEVE : PlayerModelPart.RIGHT_SLEEVE;
-        rendererArmwear.visible = player.isModelPartShown(sleevePart);
+        sleeve.visible = player.isModelPartShown(sleevePart);
 
-        ResourceLocation playerSkin = this.getTextureLocation(player);
-
-        // render hand
-        rendererArm.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
-
-        // render armor
-        rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(playerSkin)), combinedLight,
-                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0f);
+        ResourceLocation skin = this.getTextureLocation(player);
+        var consumer = buffer.getBuffer(RenderType.entityTranslucent(skin));
+        arm.render(poseStack, consumer, combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+        sleeve.render(poseStack, consumer, combinedLight,
+                OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
 
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

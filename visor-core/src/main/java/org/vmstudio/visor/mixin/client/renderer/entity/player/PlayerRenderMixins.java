@@ -34,21 +34,23 @@ public class PlayerRenderMixins {
         public Camera camera;
 
         @Inject(method = "cameraOrientation", at = @At("HEAD"), cancellable = true)
-        private void visor$cameraOrientation(CallbackInfoReturnable<Quaternionf> cir) {
+        private void visor$vrCameraOrientation(CallbackInfoReturnable<Quaternionf> cir) {
             if (VRRenderState.getPhase().isVRWorld()) {
-                cir.setReturnValue(this.visor$getCameraOrientationOffset(0.5F, 0.0F));
+                cir.setReturnValue(this.visor$lookAtCameraOrientation(0.5F, 0.0F));
             }
         }
 
-        @Inject(method = "distanceToSqr*", at = @At("HEAD"), cancellable = true)
-        private void visor$checkCameraNull(CallbackInfoReturnable<Double> cir) {
+        @Inject(
+                method = {"distanceToSqr(Lnet/minecraft/world/entity/Entity;)D", "distanceToSqr(DDD)D"},
+                at = @At("HEAD"), cancellable = true)
+        private void visor$zeroDistanceWithoutCamera(CallbackInfoReturnable<Double> cir) {
             if (this.camera == null) {
                 cir.setReturnValue(0.0D);
             }
         }
 
         @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
-        private void visor$getVRPlayerRenderer(
+        private void visor$swapInVRBodyRenderer(
                 Entity entity, CallbackInfoReturnable<EntityRenderer<AbstractClientPlayer>> cir)
         {
             if(ClientContext.visor == null) {
@@ -73,7 +75,7 @@ public class PlayerRenderMixins {
 
 
         @Inject(method = "onResourceManagerReload", at = @At(value = "HEAD"))
-        private void visor$clearVRPlayerRenderer(CallbackInfo ci) {
+        private void visor$dropVRBodyModels(CallbackInfo ci) {
             if(ClientContext.visor == null) {
                 return;
             }
@@ -84,7 +86,7 @@ public class PlayerRenderMixins {
         }
 
         @Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
-        private void visor$reloadVRPlayerRenderer(CallbackInfo ci, @Local EntityRendererProvider.Context context) {
+        private void visor$rebuildVRBodyModels(CallbackInfo ci, @Local EntityRendererProvider.Context context) {
             if(ClientContext.visor == null) {
                 VisorState.setDelayedVrBodyInit(context);
                 return;
@@ -98,25 +100,22 @@ public class PlayerRenderMixins {
 
         @Override
         @Unique
-        public Quaternionf visor$getCameraOrientationOffset(float scale, float offset) {
+        public Quaternionf visor$lookAtCameraOrientation(float heightFraction, float yOffset) {
             Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer).visor$getRenderedEntity();
             if (entity == null) {
                 return this.camera.rotation();
-            } else {
-                Vec3 source;
-                if (VRRenderState.getRenderPass().isThirdPerson()) {
-                    source = this.camera.getPosition();
-                } else {
-                    source = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getHmd().getPositionVec3();
-                }
-                Vec3 direction = entity.position()
-                        .add(0.0D, entity.getBbHeight() * scale + offset, 0.0D)
-                        .subtract(source).normalize();
-
-                return new Quaternionf()
-                        .rotateY((float) -Math.atan2(-direction.x, direction.z))
-                        .rotateX((float) -Math.asin(direction.y / direction.length()));
             }
+            Vec3 source = VRRenderState.getRenderPass().isThirdPerson()
+                    ? this.camera.getPosition()
+                    : ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getHmd().getPositionVec3();
+
+            Vec3 target = entity.position()
+                    .add(0.0D, entity.getBbHeight() * heightFraction + yOffset, 0.0D);
+            Vec3 dir = target.subtract(source).normalize();
+
+            float yaw = (float) Math.atan2(dir.x, dir.z);
+            float pitch = (float) -Math.asin(dir.y);
+            return new Quaternionf().rotationYXZ(yaw, pitch, 0F);
         }
 
 

@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -18,7 +19,6 @@ import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -39,29 +39,28 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         super(renderer);
     }
 
-    @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At("STORE"), ordinal = 0)
-    private boolean visor$isRightMainHand(boolean isRightMainHand, @Local(argsOnly = true) LivingEntity entity) {
-        if (this.getParentModel() instanceof PlayerModel<?>) {
-            var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
-            if (vrPlayer != null) {
-                return !vrPlayer.isLeftHanded();
-            }
-            return true;
-        } else {
-            return isRightMainHand;
+    @ModifyExpressionValue(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getMainArm()Lnet/minecraft/world/entity/HumanoidArm;"))
+    private HumanoidArm visor$vrMainArm(HumanoidArm vanillaArm, @Local(argsOnly = true) LivingEntity entity) {
+        if (!(this.getParentModel() instanceof PlayerModel<?>)) {
+            return vanillaArm;
         }
+        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
+        boolean leftHanded = vrPlayer != null && vrPlayer.isLeftHanded();
+        return leftHanded ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
     }
 
     @Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
-    private void visor$firstPersonItemScale(
+    private void visor$scaleItemWithModelArms(
             CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) PoseStack poseStack)
     {
-        if (VRRenderState.isSelfModelRender(entity)) {
-            var itemScale = ClientContext.localPlayer.getBodyType().getRenderer().getModelItemScale();
-            poseStack.translate(0.0F, 0.65F, 0.0F);
-            poseStack.scale(itemScale.x(), itemScale.y(), itemScale.z());
-            poseStack.translate(0.0F, -0.65F, 0.0F);
+        if (!VRRenderState.isSelfModelRender(entity)) {
+            return;
         }
+        var itemScale = ClientContext.localPlayer.getBodyType().getRenderer().getModelItemScale();
+        final float gripY = 0.65F;
+        poseStack.translate(0.0F, gripY, 0.0F);
+        poseStack.scale(itemScale.x(), itemScale.y(), itemScale.z());
+        poseStack.translate(0.0F, -gripY, 0.0F);
     }
 
 

@@ -40,16 +40,16 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
     @ModifyExpressionValue(method = "isDamageSourceBlocked",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/LivingEntity;isBlocking()Z"))
-    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
+    protected boolean visor$checkPoseBlocking(boolean isBlocking,
                                                     @Local(argsOnly = true) DamageSource damageSource,
-                                                    @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
+                                                    @Share("poseBlocked") LocalBooleanRef poseBlocked) {
         return isBlocking;
     }
 
     @ModifyReturnValue(method = "isDamageSourceBlocked", at = @At("RETURN"))
-    private boolean visor$roomscaleShieldBlocked(boolean blocked,
-                                                 @Share("roomscaleBlocked") LocalBooleanRef roomscaleBlocked) {
-        return blocked || roomscaleBlocked.get();
+    private boolean visor$applyPoseBlocking(boolean blocked,
+                                                 @Share("poseBlocked") LocalBooleanRef poseBlocked) {
+        return blocked || poseBlocked.get();
     }
 
     @WrapOperation(method = "hurt", at = @At(value = "INVOKE",

@@ -72,14 +72,14 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     }
 
     @WrapMethod(method = "hurtCurrentlyUsedShield")
-    protected void visor$roomscaleShieldItemDamage(float damageAmount, Operation<Void> original) {
+    protected void visor$poseBlockShieldDamage(float damageAmount, Operation<Void> original) {
         original.call(damageAmount);
     }
 
     @ModifyExpressionValue(method = "hurtCurrentlyUsedShield",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;getUsedItemHand()Lnet/minecraft/world/InteractionHand;"))
-    protected InteractionHand visor$roomscaleShieldHand(InteractionHand original) {
+    protected InteractionHand visor$poseBlockShieldHand(InteractionHand original) {
         return original;
     }
 

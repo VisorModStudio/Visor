@@ -35,10 +35,10 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
     }
 
     @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
-    private void visor$modifyOffset(
+    private void visor$capeAnchor(
         PoseStack poseStack, float x, float y, float z, Operation<Void> original,
         @Local(argsOnly = true) AbstractClientPlayer player, @Local(argsOnly = true, ordinal = 2) float partialTick,
-        @Share("xRot") LocalFloatRef xRotation, @Share("yRot") LocalFloatRef yRotation)
+        @Share("capeBodyPitch") LocalFloatRef bodyPitchRef, @Share("capeBodyYaw") LocalFloatRef bodyYawRef)
     {
         var vrPlayer = VRClientPlayers.getPlayer(player.getUUID());
         if (vrPlayer == null) {
@@ -48,55 +48,56 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
 
         PlayerModel<AbstractClientPlayer> model = getParentModel();
         visor$placement.aim(model.body, true);
-        xRotation.set(visor$placement.pitch());
-        yRotation.set(visor$placement.yaw());
+        bodyPitchRef.set(visor$placement.pitch());
+        bodyYawRef.set(visor$placement.yaw());
 
         visor$offset.set(0F, 0F, BackLayerPlacement.restingDepth(model.body));
         if (!player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
             visor$offset.add(0F, -0.85F, 1.1F);
         }
 
-        visor$placement.place(player, vrPlayer, model.body, visor$offset, visor$offset);
+        visor$placement.place(vrPlayer, model.body, visor$offset, visor$offset);
         original.call(poseStack, visor$offset.x, -visor$offset.y, -visor$offset.z);
     }
 
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z"), ordinal = 7)
-    private float visor$modifyXRot(
+    private float visor$capePitchWithBody(
         float xRot, @Local(argsOnly = true) AbstractClientPlayer player,
-        @Local(ordinal = 2, argsOnly = true) float partialTick, @Share("xRot") LocalFloatRef xRotation)
+        @Local(ordinal = 2, argsOnly = true) float partialTick, @Share("capeBodyPitch") LocalFloatRef bodyPitchRef)
     {
-        if (VRClientPlayers.isTracked(player)) {
-            if (player.isCrouching()) {
-                xRot -= 25F;
-            }
-            float min = (player.isFallFlying() ? 1F : player.getSwimAmount(partialTick)) * -Mth.HALF_PI;
-            xRot += Mth.RAD_TO_DEG * Math.max(min, xRotation.get());
+        if (!VRClientPlayers.isTracked(player)) {
+            return xRot;
         }
-        return xRot;
+        if (player.isCrouching()) {
+            xRot -= 25F;
+        }
+        float flatten = player.isFallFlying() ? 1F : player.getSwimAmount(partialTick);
+        float lowestPitch = -Mth.HALF_PI * flatten;
+        return xRot + Math.max(bodyPitchRef.get(), lowestPitch) * Mth.RAD_TO_DEG;
     }
 
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z"), ordinal = 8)
-    private float visor$limitSpeedRot(
+    private float visor$capeWalkLift(
         float speedRot, @Local(argsOnly = true) AbstractClientPlayer player,
-        @Share("xRot") LocalFloatRef xRotation)
+        @Share("capeBodyPitch") LocalFloatRef bodyPitchRef)
     {
-        if (VRClientPlayers.isTracked(player)) {
-            float leanFraction = xRotation.get() / Mth.HALF_PI;
-            if (leanFraction < 0F) {
-                return 0F;
-            }
-            return speedRot * (1F - Mth.clamp(leanFraction, 0F, 1F));
+        if (!VRClientPlayers.isTracked(player)) {
+            return speedRot;
         }
-        return speedRot;
+        float leanFraction = bodyPitchRef.get() / Mth.HALF_PI;
+        if (leanFraction < 0F) {
+            return 0F;
+        }
+        return speedRot * (1F - Math.min(leanFraction, 1F));
     }
 
     @ModifyArg(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/math/Axis;rotationDegrees(F)Lorg/joml/Quaternionf;", ordinal = 2))
-    private float visor$modifyYRotation(
+    private float visor$capeYawWithBody(
         float yRot, @Local(argsOnly = true) AbstractClientPlayer player,
-        @Share("yRot") LocalFloatRef yRotation)
+        @Share("capeBodyYaw") LocalFloatRef bodyYawRef)
     {
         if (VRClientPlayers.isTracked(player)) {
-            yRot += Mth.RAD_TO_DEG * yRotation.get();
+            yRot += Mth.RAD_TO_DEG * bodyYawRef.get();
         }
         return yRot;
     }

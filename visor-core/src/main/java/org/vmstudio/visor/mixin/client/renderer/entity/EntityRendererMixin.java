@@ -34,7 +34,7 @@ public class EntityRendererMixin {
             heightScale = vrPlayer.getFullHeightScale();
         }
         return ((EntityRenderDispatcherExtension) this.entityRenderDispatcher)
-                .visor$getCameraOrientationOffset(heightScale, 0.5f * heightScale);
+                .visor$lookAtCameraOrientation(heightScale, 0.5f * heightScale);
     }
 
     @Inject(method = "renderNameTag", at = @At("HEAD"), cancellable = true)

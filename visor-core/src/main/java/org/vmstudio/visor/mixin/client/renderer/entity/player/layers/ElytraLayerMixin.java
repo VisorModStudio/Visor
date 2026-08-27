@@ -47,7 +47,7 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
         }
 
         visor$offset.set(0F, verticalNudge, BackLayerPlacement.restingDepth(model.body));
-        visor$placement.place(entity, vrPlayer, model.body, visor$offset, visor$offset);
+        visor$placement.place(vrPlayer, model.body, visor$offset, visor$offset);
         original.call(instance, visor$offset.x, -visor$offset.y, -visor$offset.z);
 
         instance.mulPose(Axis.XP.rotation(visor$placement.pitch()));

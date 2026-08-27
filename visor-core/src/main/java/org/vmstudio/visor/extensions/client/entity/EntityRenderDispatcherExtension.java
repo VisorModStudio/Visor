@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface EntityRenderDispatcherExtension {
 
-    Quaternionf visor$getCameraOrientationOffset(float scale, float offset);
+    Quaternionf visor$lookAtCameraOrientation(float heightFraction, float yOffset);
 
 }

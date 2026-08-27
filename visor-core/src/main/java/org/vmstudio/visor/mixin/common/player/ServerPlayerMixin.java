@@ -59,10 +59,10 @@ public abstract class ServerPlayerMixin
     private int visor$offhandSlotCached;
 
     @Unique
-    private ItemStack visor$roomscaleShieldItem;
+    private ItemStack visor$poseBlockItem;
 
     @Unique
-    private InteractionHand visor$roomscaleShieldHand;
+    private InteractionHand visor$poseBlockHand;
 
 
 
@@ -232,11 +232,11 @@ public abstract class ServerPlayerMixin
 
 
     @Override
-    protected boolean visor$roomscaleShieldBlocking(boolean isBlocking,
+    protected boolean visor$checkPoseBlocking(boolean isBlocking,
                                                     DamageSource damageSource,
-                                                    LocalBooleanRef roomscaleBlocked) {
-        visor$roomscaleShieldItem = null;
-        visor$roomscaleShieldHand = null;
+                                                    LocalBooleanRef poseBlocked) {
+        visor$poseBlockItem = null;
+        visor$poseBlockHand = null;
 
         if (isBlocking || !VRServerSettings.isRoomscaleShieldBlocking()) {
             return isBlocking;
@@ -301,9 +301,9 @@ public abstract class ServerPlayerMixin
             }
 
             if (angle > 0.5) {
-                roomscaleBlocked.set(true);
-                visor$roomscaleShieldItem = stack;
-                visor$roomscaleShieldHand = hand.asInteractionHand();
+                poseBlocked.set(true);
+                visor$poseBlockItem = stack;
+                visor$poseBlockHand = hand.asInteractionHand();
                 return true;
             }
         }
@@ -311,25 +311,25 @@ public abstract class ServerPlayerMixin
     }
 
     @Override
-    protected void visor$roomscaleShieldItemDamage(float damageAmount, Operation<Void> original) {
-        if (visor$roomscaleShieldItem == null) {
+    protected void visor$poseBlockShieldDamage(float damageAmount, Operation<Void> original) {
+        if (visor$poseBlockItem == null) {
             original.call(damageAmount);
             return;
         }
         ItemStack backup = this.useItem;
-        this.useItem = visor$roomscaleShieldItem;
+        this.useItem = visor$poseBlockItem;
         try {
             original.call(damageAmount);
         } finally {
             this.useItem = backup;
-            visor$roomscaleShieldItem = null;
-            visor$roomscaleShieldHand = null;
+            visor$poseBlockItem = null;
+            visor$poseBlockHand = null;
         }
     }
 
     @Override
-    protected InteractionHand visor$roomscaleShieldHand(InteractionHand original) {
-        return visor$roomscaleShieldHand != null ? visor$roomscaleShieldHand : original;
+    protected InteractionHand visor$poseBlockShieldHand(InteractionHand original) {
+        return visor$poseBlockHand != null ? visor$poseBlockHand : original;
     }
 
     @Unique
@@ -340,7 +340,7 @@ public abstract class ServerPlayerMixin
     }
 
     @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
-    private void visor$noAttackWhileBlocking(Entity target, CallbackInfo ci) {
+    private void visor$noAttackWhileShieldUp(Entity target, CallbackInfo ci) {
         if (VRServerSettings.isAttacksWhileBlocking()) {
             return;
         }

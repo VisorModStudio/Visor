@@ -197,7 +197,7 @@ public abstract class GameRendererMixin
      * Draw GUI only after first level render
      */
     @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render(FJZ)V", ordinal = 0, argsOnly = true)
-    private boolean visor$renderGui(boolean doRender) {
+    private boolean visor$vrGuiVisibility(boolean doRender) {
         if (VRRenderState.getPhase().isVanilla()) {
             return doRender;
         }
@@ -265,7 +265,7 @@ public abstract class GameRendererMixin
             if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
                 posestack.mulPoseMatrix(
                         new Matrix4f().setPerspective(
-                                VRClientSettings.getMixedRealityFov() * 0.01745329238474369F,
+                                VRClientSettings.getMixedRealityFov() * Mth.DEG_TO_RAD,
                                 VRClientSettings.getMixedRealityAspectRatio(), this.visor$nearClipPlane,
                                 this.visor$farClipPlane
                         )
@@ -273,7 +273,7 @@ public abstract class GameRendererMixin
             }else {
                 posestack.mulPoseMatrix(
                         new Matrix4f().setPerspective(
-                                VRClientSettings.getThirdPersonFov() * 0.01745329238474369F,
+                                VRClientSettings.getThirdPersonFov() * Mth.DEG_TO_RAD,
                                 (float) this.minecraft.getWindow().getScreenWidth()
                                         / (float) this.minecraft.getWindow().getScreenHeight(),
                                 this.visor$nearClipPlane, this.visor$farClipPlane
@@ -317,7 +317,7 @@ public abstract class GameRendererMixin
 
 
     @WrapMethod(method = "pick")
-    private void visor$vrPick(float partialTick, Operation<Void> original) {
+    private void visor$pickWithVRHands(float partialTick, Operation<Void> original) {
         if(VisorState.get().isNotActive()){
             original.call(partialTick);
             return;
@@ -325,13 +325,8 @@ public abstract class GameRendererMixin
         if (this.minecraft.screen != null && this.minecraft.hitResult != null) {
             return;
         }
-        else if (this.minecraft.getCameraEntity() == null) {
-            if (this.minecraft.player != null) {
-                this.minecraft.hitResult = BlockHitResult.miss(this.minecraft.player.position(),
-                        this.minecraft.player.getDirection(), this.minecraft.player.blockPosition());
-            } else {
-                this.minecraft.hitResult = BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO);
-            }
+        if (this.minecraft.getCameraEntity() == null) {
+            this.minecraft.hitResult = visor$fallbackMiss();
             return;
         }
 
@@ -357,26 +352,36 @@ public abstract class GameRendererMixin
     }
 
     @Unique
+    private BlockHitResult visor$fallbackMiss() {
+        var player = this.minecraft.player;
+        if (player == null) {
+            return BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO);
+        }
+        return BlockHitResult.miss(player.position(), player.getDirection(), player.blockPosition());
+    }
+
+    @Unique
     private void visor$pickWithHand(HandType hand, float partialTick, Operation<Void> original) {
         visor$pickingHand = hand;
 
-        AABB originalBB = this.minecraft.getCameraEntity().getBoundingBox();
-        this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
+        Entity cameraEntity = this.minecraft.getCameraEntity();
+        AABB originalBB = cameraEntity.getBoundingBox();
+        this.visor$cacheCameraEntity(cameraEntity);
         this.visor$setupCameraEntity(
                 ClientContext.localPlayer
                         .getPoseData(PlayerPoseType.RENDER)
                         .getHand(hand)
         );
-        this.minecraft.getCameraEntity().setBoundingBox(originalBB.move(
-                this.minecraft.getCameraEntity().getX() - visor$cameraEntityCache.getX(),
-                this.minecraft.getCameraEntity().getY() - visor$cameraEntityCache.getY(),
-                this.minecraft.getCameraEntity().getZ() - visor$cameraEntityCache.getZ()));
+        double shiftX = cameraEntity.getX() - visor$cameraEntityCache.getX();
+        double shiftY = cameraEntity.getY() - visor$cameraEntityCache.getY();
+        double shiftZ = cameraEntity.getZ() - visor$cameraEntityCache.getZ();
+        cameraEntity.setBoundingBox(originalBB.move(shiftX, shiftY, shiftZ));
 
         original.call(partialTick);
 
         // restore entity
-        this.visor$restoreCameraEntity(this.minecraft.getCameraEntity());
-        this.minecraft.getCameraEntity().setBoundingBox(originalBB);
+        this.visor$restoreCameraEntity(cameraEntity);
+        cameraEntity.setBoundingBox(originalBB);
 
         HitResult hitResult = this.minecraft.hitResult;
         if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
@@ -405,7 +410,7 @@ public abstract class GameRendererMixin
 
         this.visor$cacheCameraEntity(this.minecraft.getCameraEntity());
         this.visor$setupCameraEntityAsVRCamera();
-        this.visor$setupOverlayStatus(pPartialTicks);
+        this.visor$updateCameraOverlaps(pPartialTicks);
     }
 
     @Inject(at = @At(value = "TAIL"), method = "renderLevel")
@@ -439,7 +444,7 @@ public abstract class GameRendererMixin
                 false
         );
         this.minecraft.hitResult = hitResult;
-        Vec3 fallbackCrossVec = visor$aimedPointAtDistance(
+        Vec3 fallbackCrossVec = visor$pointAlongAim(
                 renderPose.getHand(hand),
                 this.minecraft.gameMode.getPickRange()
         );
@@ -482,7 +487,7 @@ public abstract class GameRendererMixin
 
 
     @Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
-    public void visor$noFOVchangeInVR(CallbackInfo ci) {
+    public void visor$freezeFovInVR(CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             this.oldFov = this.fov = 1.0f;
             ci.cancel();
@@ -490,7 +495,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
-    public void visor$noScreenshotInMenu(Path path, CallbackInfo ci) {
+    public void visor$skipAutoScreenshotInMenu(Path path, CallbackInfo ci) {
         if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
             ci.cancel();
         }
@@ -532,7 +537,7 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At("TAIL"), method = "renderLevel")
-    public void visor$disableStencil(float f, long l, PoseStack poseStack, CallbackInfo ci) {
+    public void visor$endEyeStencil(float f, long l, PoseStack poseStack, CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             VREffectsHelper.disableStencilTest();
         }
@@ -554,26 +559,22 @@ public abstract class GameRendererMixin
         }
         VRRenderPass currentCamera = VRRenderState.getRenderPass();
         var cameraPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getCameraPose(currentCamera);
-        // need to do stuff twice, because redirects have no access to locals
-        int i = 40 - this.itemActivationTicks;
-        float g = ((float) i + partialTicks) / 40.0f;
-        float h = g * g;
-        float l = g * h;
-        float m = 10.25f * l * h - 24.95f * h * h + 25.5f * l - 13.8f * h + 4.0f * g;
-        float n = m * (float) Math.PI;
-        float sinN = Mth.sin(n) * 0.5F;
-        poseStack.translate(0, 0, sinN - 1.0);
+
+        float time = (40 - this.itemActivationTicks + partialTicks) / 40.0f;
+        float t2 = time * time;
+        float t3 = time * t2;
+        float curve = 10.25f * t3 * t2 - 24.95f * t2 * t2 + 25.5f * t3 - 13.8f * t2 + 4.0f * time;
+        float popScale = 0.5F * Mth.sin(curve * Mth.PI);
+
+        poseStack.translate(0, 0, popScale - 1.0F);
         if (currentCamera == VRRenderPass.THIRD_PERSON) {
-            float fov;
-            if(VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY){
-                fov = VRClientSettings.getMixedRealityFov();
-            }else{
-                fov = VRClientSettings.getThirdPersonFov();
-            }
-            sinN *= (float) (fov / 70.0);
+            float fov = VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
+                    ? VRClientSettings.getMixedRealityFov()
+                    : VRClientSettings.getThirdPersonFov();
+            popScale *= fov / 70.0F;
         }
         RenderPoseHelper.applyCameraPose(currentCamera, poseStack);
-        poseStack.scale(sinN, sinN, sinN);
+        poseStack.scale(popScale, popScale, popScale);
         poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
         poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
     }
@@ -625,24 +626,28 @@ public abstract class GameRendererMixin
     @Override
     @Unique
     public void visor$setupCameraEntity(VRPose vrPose) {
-        if (this.visor$cameraEntityCached) {
-
-            var position = vrPose.getPosition();
-            LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
-            cameraEntity.setPosRaw(position.x(), position.y(), position.z());
-            cameraEntity.xOld = position.x();
-            cameraEntity.yOld = position.y();
-            cameraEntity.zOld = position.z();
-            cameraEntity.xo = position.x();
-            cameraEntity.yo = position.y();
-            cameraEntity.zo = position.z();
-            cameraEntity.setXRot(-vrPose.getPitchDegrees());
-            cameraEntity.xRotO = cameraEntity.getXRot();
-            cameraEntity.setYRot(vrPose.getYawDegrees());
-            cameraEntity.yHeadRot = cameraEntity.getYRot();
-            cameraEntity.yHeadRotO = cameraEntity.getYRot();
-            cameraEntity.eyeHeight = 0.0001F;
+        if (!this.visor$cameraEntityCached) {
+            return;
         }
+        var position = vrPose.getPosition();
+        float x = position.x();
+        float y = position.y();
+        float z = position.z();
+
+        LivingEntity cameraEntity = (LivingEntity) this.minecraft.getCameraEntity();
+        cameraEntity.setPosRaw(x, y, z);
+        cameraEntity.xo = cameraEntity.xOld = x;
+        cameraEntity.yo = cameraEntity.yOld = y;
+        cameraEntity.zo = cameraEntity.zOld = z;
+
+        cameraEntity.setXRot(-vrPose.getPitchDegrees());
+        cameraEntity.setYRot(vrPose.getYawDegrees());
+        cameraEntity.xRotO = cameraEntity.getXRot();
+        cameraEntity.yHeadRot = cameraEntity.getYRot();
+        cameraEntity.yHeadRotO = cameraEntity.getYRot();
+
+        // collapse the eye offset so the entity position is the pose position
+        cameraEntity.eyeHeight = 0.0001F;
     }
 
     @Override
@@ -798,7 +803,7 @@ public abstract class GameRendererMixin
       //--------UTILITY METHODS--------\\
         \* ************************* */
     @Unique
-    private void visor$setupOverlayStatus(float partialTicks) {
+    private void visor$updateCameraOverlaps(float partialTicks) {
         //@TODO add post process for these effects
         this.visor$inBlock = false;
         this.visor$blockProximity = 0.0f;
@@ -844,7 +849,7 @@ public abstract class GameRendererMixin
     }
 
     @Unique
-    public Vec3 visor$aimedPointAtDistance(VRPose vrPose,
+    public Vec3 visor$pointAlongAim(VRPose vrPose,
                                            double distance) {
         var dir = vrPose.getDirection();
         return new Vec3(vrPose
