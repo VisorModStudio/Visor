@@ -4,142 +4,72 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardRow.bottom;
+import static org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardRow.home;
+import static org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardRow.numbers;
+import static org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardRow.top;
+
 
 @Getter
 public enum KeyboardLayout {
     ENGLISH("EN", "English",
-            new String[]{
-                    "`1234567890-=",
-                    "qwertyuiop[]\\",
-                    "asdfghjkl;'",
-                    "zxcvbnm,./"
-            },
-            new String[]{
-                    "~!@#$%^&*()_+",
-                    "QWERTYUIOP{}|",
-                    "ASDFGHJKL:\"",
-                    "ZXCVBNM<>?"
-            }),
+            numbers("`1234567890-=", "~!@#$%^&*()_+"),
+            top("qwertyuiop[]\\", "QWERTYUIOP{}|"),
+            home("asdfghjkl;'", "ASDFGHJKL:\""),
+            bottom("zxcvbnm,./", "ZXCVBNM<>?")),
     RUSSIAN("RU", "Russian",
-            new String[]{
-                    "ё1234567890-=",
-                    "йцукенгшщзхъ\\",
-                    "фывапролджэ",
-                    "ячсмитьбю."
-            },
-            new String[]{
-                    "Ё!\"№;%:?*()_+",
-                    "ЙЦУКЕНГШЩЗХЪ/",
-                    "ФЫВАПРОЛДЖЭ",
-                    "ЯЧСМИТЬБЮ,"
-            }),
+            numbers("ё1234567890-=", "Ё!\"№;%:?*()_+"),
+            top("йцукенгшщзхъ\\", "ЙЦУКЕНГШЩЗХЪ/"),
+            home("фывапролджэ", "ФЫВАПРОЛДЖЭ"),
+            bottom("ячсмитьбю.", "ЯЧСМИТЬБЮ,")),
     UKRAINIAN("UA", "Ukrainian",
-            new String[]{
-                    "'1234567890-=",
-                    "йцукенгшщзхїґ",
-                    "фівапролджє",
-                    "ячсмитьбю."
-            },
-            new String[]{
-                    "₴!\"№;%:?*()_+",
-                    "ЙЦУКЕНГШЩЗХЇҐ",
-                    "ФІВАПРОЛДЖЄ",
-                    "ЯЧСМИТЬБЮ,"
-            }),
+            numbers("'1234567890-=", "₴!\"№;%:?*()_+"),
+            top("йцукенгшщзхїґ", "ЙЦУКЕНГШЩЗХЇҐ"),
+            home("фівапролджє", "ФІВАПРОЛДЖЄ"),
+            bottom("ячсмитьбю.", "ЯЧСМИТЬБЮ,")),
     GERMAN("DE", "German",
-            new String[]{
-                    "^1234567890ß´",
-                    "qwertzuiopü+#",
-                    "asdfghjklöä",
-                    "yxcvbnm,.-"
-            },
-            new String[]{
-                    "°!\"§$%&/()=?`",
-                    "QWERTZUIOPÜ*'",
-                    "ASDFGHJKLÖÄ",
-                    "YXCVBNM;:_"
-            }),
+            numbers("^1234567890ß´", "°!\"§$%&/()=?`"),
+            top("qwertzuiopü+#", "QWERTZUIOPÜ*'"),
+            home("asdfghjklöä", "ASDFGHJKLÖÄ"),
+            bottom("yxcvbnm,.-", "YXCVBNM;:_")),
     FRENCH("FR", "French",
-            new String[]{
-                    "²&é\"'(-è_çà)=",
-                    "azertyuiop^$*",
-                    "qsdfghjklmù",
-                    "wxcvbn,;:!"
-            },
-            new String[]{
-                    "³1234567890°+",
-                    "AZERTYUIOP¨£µ",
-                    "QSDFGHJKLM%",
-                    "WXCVBN?./§"
-            }),
+            numbers("²&é\"'(-è_çà)=", "³1234567890°+"),
+            top("azertyuiop^$*", "AZERTYUIOP¨£µ"),
+            home("qsdfghjklmù", "QSDFGHJKLM%"),
+            bottom("wxcvbn,;:!", "WXCVBN?./§")),
     SPANISH("ES", "Spanish",
-            new String[]{
-                    "º1234567890'¡",
-                    "qwertyuiop`+ç",
-                    "asdfghjklñ´",
-                    "zxcvbnm,.-"
-            },
-            new String[]{
-                    "ª!\"·$%&/()=?¿",
-                    "QWERTYUIOP^*Ç",
-                    "ASDFGHJKLÑ¨",
-                    "ZXCVBNM;:_"
-            }),
+            numbers("º1234567890'¡", "ª!\"·$%&/()=?¿"),
+            top("qwertyuiop`+ç", "QWERTYUIOP^*Ç"),
+            home("asdfghjklñ´", "ASDFGHJKLÑ¨"),
+            bottom("zxcvbnm,.-", "ZXCVBNM;:_")),
     ITALIAN("IT", "Italian",
-            new String[]{
-                    "\\1234567890'ì",
-                    "qwertyuiopè+ù",
-                    "asdfghjklòà",
-                    "zxcvbnm,.-"
-            },
-            new String[]{
-                    "|!\"£$%&/()=?^",
-                    "QWERTYUIOPé*§",
-                    "ASDFGHJKLç°",
-                    "ZXCVBNM;:_"
-            }),
+            numbers("\\1234567890'ì", "|!\"£$%&/()=?^"),
+            top("qwertyuiopè+ù", "QWERTYUIOPé*§"),
+            home("asdfghjklòà", "ASDFGHJKLç°"),
+            bottom("zxcvbnm,.-", "ZXCVBNM;:_")),
     PORTUGUESE("PT", "Portuguese",
-            new String[]{
-                    "\\1234567890'«",
-                    "qwertyuiop+´~",
-                    "asdfghjklçº",
-                    "zxcvbnm,.-"
-            },
-            new String[]{
-                    "|!\"#$%&/()=?»",
-                    "QWERTYUIOP*`^",
-                    "ASDFGHJKLÇª",
-                    "ZXCVBNM;:_"
-            }),
+            numbers("\\1234567890'«", "|!\"#$%&/()=?»"),
+            top("qwertyuiop+´~", "QWERTYUIOP*`^"),
+            home("asdfghjklçº", "ASDFGHJKLÇª"),
+            bottom("zxcvbnm,.-", "ZXCVBNM;:_")),
     HUNGARIAN("HU", "Hungarian",
-            new String[]{
-                    "0123456789öüó",
-                    "qwertzuiopőúű",
-                    "asdfghjkléá",
-                    "yxcvbnm,.-í"
-            },
-            new String[]{
-                    "§'\"+!%/=()ÖÜÓ",
-                    "QWERTZUIOPŐÚŰ",
-                    "ASDFGHJKLÉÁ",
-                    "YXCVBNM?:_Í"
-            });
+            numbers("0123456789öüó", "§'\"+!%/=()ÖÜÓ"),
+            top("qwertzuiopőúű", "QWERTZUIOPŐÚŰ"),
+            home("asdfghjkléá", "ASDFGHJKLÉÁ"),
+            // the trailing key is the ISO one next to the left shift
+            bottom("yxcvbnm,.-í", "YXCVBNM?:_Í"));
 
     private final String label;
     private final String displayName;
 
-    private final String[] normalRows;
-    private final String[] shiftRows;
+    private final KeyboardRow[] rows;
 
     KeyboardLayout(@NotNull String label,
                    @NotNull String displayName,
-                   @NotNull String[] normalRows,
-                   @NotNull String[] shiftRows) {
+                   @NotNull KeyboardRow @NotNull ... rows) {
         this.label = label;
         this.displayName = displayName;
-        this.normalRows = normalRows;
-        this.shiftRows  = shiftRows;
-
+        this.rows = rows;
     }
 
     public @NotNull KeyboardLayout next() {
