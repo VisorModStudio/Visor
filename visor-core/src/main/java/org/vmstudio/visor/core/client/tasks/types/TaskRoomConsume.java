@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -32,7 +33,7 @@ public class TaskRoomConsume extends VisorTask {
     @Getter
     private static TaskRoomConsume instance;
 
-    private static final int DURATION = 2100;
+    private static final long MILLIS_PER_TICK = 1000L / SharedConstants.TICKS_PER_SECOND;
     private static final float MOUTH_DISTANCE = 0.25F;
     private static final float HAPTIC_PULSE_DURATION = 0.007f; //in seconds
     private static final int HAPTIC_DELAY_EAT_DRINK = 2;
@@ -105,8 +106,9 @@ public class TaskRoomConsume extends VisorTask {
                 }
             }
 
-            // Reset consumption state per hand after the duration has passed
-            if (Util.getMillis() - eatStartMap.getOrDefault(hand, 0L) > DURATION) {
+            // Reset consumption state per hand once the item's own use time has passed
+            long useTimeMs = (long) foodItem.getUseDuration() * MILLIS_PER_TICK;
+            if (Util.getMillis() - eatStartMap.getOrDefault(hand, 0L) > useTimeMs) {
                 consuming.put(hand, false);
             }
         }
