@@ -69,7 +69,7 @@ public enum PoseAnchor {
         }
 
         return anchor
-                .getCustomVector(offset)
+                .transformDirection(offset)
                 .add(anchor.getPosition());
 
     }
@@ -160,16 +160,4 @@ public enum PoseAnchor {
         return new Matrix4f().rotationZYX(0, rotationY, rotationX)
                 .rotate(offset);
     }
-    private static @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec,
-                                                     @NotNull Matrix4fc rotationMatrix) {
-        return rotationMatrix
-                .transformDirection(
-                        new Vector3f(
-                                vec.x(),
-                                vec.y(),
-                                vec.z()
-                        )
-                );
-    }
-
 }

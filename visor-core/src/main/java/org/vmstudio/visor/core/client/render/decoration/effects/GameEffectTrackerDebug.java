@@ -136,9 +136,9 @@ public class GameEffectTrackerDebug extends VRGameEffect {
 
         for (VRPose tracker : active.values()) {
             Vec3 center = project(tracker.getPosition(), hmdPos, cos, sin, camPos);
-            addAxis(builder, pose, center, projectDir(tracker.getCustomVector(AXIS_X), cos, sin), 235, 64, 52);  // X red
-            addAxis(builder, pose, center, projectDir(tracker.getCustomVector(AXIS_Y), cos, sin), 64, 235, 90);  // Y green
-            addAxis(builder, pose, center, projectDir(tracker.getCustomVector(AXIS_Z), cos, sin), 66, 135, 245); // Z blue
+            addAxis(builder, pose, center, projectDir(tracker.transformDirection(AXIS_X), cos, sin), 235, 64, 52);  // X red
+            addAxis(builder, pose, center, projectDir(tracker.transformDirection(AXIS_Y), cos, sin), 64, 235, 90);  // Y green
+            addAxis(builder, pose, center, projectDir(tracker.transformDirection(AXIS_Z), cos, sin), 66, 135, 245); // Z blue
         }
         tesselator.end();
 

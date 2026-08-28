@@ -237,7 +237,7 @@ public class VROverlayDemo extends VROverlayScreen {
         var anchorPosition = posAnchorPose.getPosition();
 
         Vector3f offsetPos = posAnchorPose
-                .reverseCustomVector(
+                .inverseTransformDirection(
                         getPose().getPosition().sub(anchorPosition, new Vector3f())
                 ).div(
                         renderPose.getWorldScale()

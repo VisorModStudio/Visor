@@ -284,7 +284,7 @@ public abstract class ServerPlayerMixin
                 : VRMathUtils.RIGHT_VECTOR;
 
         var handPose = vrPlayer.getPoseData().getHand(hand);
-        Vec3 shieldFacing = handPose.getCustomVector3(palmAxis);
+        Vec3 shieldFacing = handPose.transformDirectionVec3(palmAxis);
 
         double coverage;
         if (fromProjectile) {

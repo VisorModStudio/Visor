@@ -384,7 +384,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
         VRPlayerPoseClient renderPose = vrClient.getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
         VRPose anchorPose = dragAnchor.getSupplier().apply(renderPose);
 
-        Vector3f dragPositionOffset = anchorPose.reverseCustomVector(
+        Vector3f dragPositionOffset = anchorPose.inverseTransformDirection(
                 getPose().getPosition().sub(anchorPose.getPosition(), new Vector3f())
         ).div(renderPose.getWorldScale());
         Matrix4f dragRotation = anchorPose.getRotation()
@@ -407,7 +407,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
             PoseAnchor posAnchor = poseOptions.getPositionAnchor();
             VRPose posAnchorPose = posAnchor.getSupplier().apply(renderPose);
-            Vector3f offsetPos = posAnchorPose.reverseCustomVector(
+            Vector3f offsetPos = posAnchorPose.inverseTransformDirection(
                     getPose().getPosition().sub(posAnchorPose.getPosition(), new Vector3f())
             ).div(renderPose.getWorldScale());
 
@@ -437,7 +437,7 @@ public abstract class VROverlayScreen extends Screen implements VROverlay {
 
         Vector3f positionOffset = new Vector3f(dragPositionOffset)
                 .mul(renderPose.getWorldScale());
-        Vector3f newPosition = anchorPose.getCustomVector(positionOffset)
+        Vector3f newPosition = anchorPose.transformDirection(positionOffset)
                 .add(anchorPose.getPosition());
         Matrix4f newRotation = new Matrix4f(anchorPose.getRotation())
                 .mul(dragRotationMatrix, new Matrix4f());

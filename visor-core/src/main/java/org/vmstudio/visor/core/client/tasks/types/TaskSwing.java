@@ -151,14 +151,14 @@ public class TaskSwing extends VisorTask {
 
             // Cache frequently accessed values
             final Vec3 handPos = tickPose.getHand(hand).getPositionVec3();
-            final Vec3 handDir = tickPose.getHand(hand).getCustomVector3(VRMathUtils.FORWARD_VECTOR);
+            final Vec3 handDir = tickPose.getHand(hand).transformDirectionVec3(VRMathUtils.FORWARD_VECTOR);
             final Quaternionf handRot = new Quaternionf()
                     .setFromNormalized(tickPose.getHand(hand).getRotation());
 
             // Update hand history for average speed calculation
             final Vec3 controllerPos = relativePose.getHand(hand).getPositionVec3();
             final Vec3 handCustomVector = relativePose.getHand(hand)
-                    .getCustomVector3(VRMathUtils.FORWARD_VECTOR)
+                    .transformDirectionVec3(VRMathUtils.FORWARD_VECTOR)
                     .scale(TIP_OFFSET);
             data.handHistory.add(controllerPos.add(handCustomVector).toVector3f());
             final float speed = data.handHistory.averageSpeed(0.31f);

@@ -159,13 +159,13 @@ public class VRPoseImpl implements VRPose {
     }
 
     @Override
-    public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {
-        return this.rotation.transformDirection(vec.x(), vec.y(), vec.z(), new Vector3f());
+    public @NotNull Vector3f transformDirection(@NotNull Vector3fc direction) {
+        return this.rotation.transformDirection(direction.x(), direction.y(), direction.z(), new Vector3f());
     }
 
     @Override
-    public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc vec) {
-        return this.invertedRotation.transformDirection(vec.x(), vec.y(), vec.z(), new Vector3f());
+    public @NotNull Vector3f inverseTransformDirection(@NotNull Vector3fc direction) {
+        return this.invertedRotation.transformDirection(direction.x(), direction.y(), direction.z(), new Vector3f());
     }
 
     public Vector3f getScaledPosDelta(float rotationY, float oldWorldScale, float newWorldScale) {

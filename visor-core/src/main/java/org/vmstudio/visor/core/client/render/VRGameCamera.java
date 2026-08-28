@@ -78,8 +78,8 @@ public class VRGameCamera extends Camera {
 
         // Look, Up, Left vectors
         var dir = cameraElement.getDirection();
-        var upVec = cameraElement.getCustomVector(VRMathUtils.UP_VECTOR);
-        var leftVec = cameraElement.getCustomVector(VRMathUtils.LEFT_VECTOR);
+        var upVec = cameraElement.transformDirection(VRMathUtils.UP_VECTOR);
+        var leftVec = cameraElement.transformDirection(VRMathUtils.LEFT_VECTOR);
 
         this.getLookVector().set(dir.x(), dir.y(), dir.z());
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);
@@ -105,8 +105,8 @@ public class VRGameCamera extends Camera {
         this.yRot =  hmd.getYawDegrees();
 
         var dir = hmd.getDirection();
-        var upVec = hmd.getCustomVector(VRMathUtils.UP_VECTOR);
-        var leftVec = hmd.getCustomVector(VRMathUtils.LEFT_VECTOR);
+        var upVec = hmd.transformDirection(VRMathUtils.UP_VECTOR);
+        var leftVec = hmd.transformDirection(VRMathUtils.LEFT_VECTOR);
 
         this.getLookVector().set(dir.x(), dir.y(), dir.z());
         this.getUpVector().set(upVec.x, upVec.y, upVec.z);

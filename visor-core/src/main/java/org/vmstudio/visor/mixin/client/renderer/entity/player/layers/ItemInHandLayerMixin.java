@@ -104,7 +104,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
                     refUp.normalize();
 
                     // Controller's actual up, projected perpendicular to aim.
-                    Vector3f ctrlUp = handPose.getCustomVector(VRMathUtils.UP_VECTOR);
+                    Vector3f ctrlUp = handPose.transformDirection(VRMathUtils.UP_VECTOR);
                     ctrlUp.sub(new Vector3f(aim).mul(ctrlUp.dot(aim)));
 
                     if (ctrlUp.lengthSquared() > 1.0e-8f) {

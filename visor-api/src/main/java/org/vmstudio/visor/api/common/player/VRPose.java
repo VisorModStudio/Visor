@@ -27,8 +27,8 @@ public interface VRPose {
         @Override public @NotNull Vector3fc getPosition() {return VRMathUtils.ZERO_VECTOR;}
         @Override public @NotNull Vector3fc getRelativePosition() {return VRMathUtils.ZERO_VECTOR;}
         @Override public @NotNull Vector3fc getDirection() {return VRMathUtils.ZERO_VECTOR;}
-        @Override public @NotNull Vector3f getCustomVector(@NotNull Vector3fc vec) {return new Vector3f(vec);}
-        @Override public @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc customVec) {return new Vector3f(customVec);}
+        @Override public @NotNull Vector3f transformDirection(@NotNull Vector3fc direction) {return new Vector3f(direction);}
+        @Override public @NotNull Vector3f inverseTransformDirection(@NotNull Vector3fc direction) {return new Vector3f(direction);}
         @Override public @NotNull Matrix4fc getRotation() {return VRMathUtils.EMPTY_MATRIX;}
         @Override public @NotNull Matrix4fc getInvertedRotation() {return VRMathUtils.EMPTY_MATRIX;}
         @Override public float getYaw() {return 0;}
@@ -117,35 +117,73 @@ public interface VRPose {
 
 
     /**
-     * Get custom vector
-     * @return vector
+     * Rotate a direction into this pose's frame. Position is not applied.
+     * @param direction direction in pose-local space
+     * @return the rotated direction
      */
     @NotNull
-    Vector3f getCustomVector(@NotNull Vector3fc vec);
+    Vector3f transformDirection(@NotNull Vector3fc direction);
 
     /**
-     * Get custom vector
-     * @return vector as vec3
+     * {@link VRPose#transformDirection(Vector3fc)} as a {@link Vec3}
+     * @param direction direction in pose-local space
+     * @return the rotated direction
      */
     @NotNull
-    default Vec3 getCustomVector3(@NotNull Vector3fc vec){
-        return new Vec3(getCustomVector(vec));
+    default Vec3 transformDirectionVec3(@NotNull Vector3fc direction){
+        return new Vec3(transformDirection(direction));
     }
 
     /**
-     * Reverse {@link VRPose#getCustomVector(Vector3fc)}
-     * @param customVec vec
-     * @return original vector
+     * Rotate a direction out of this pose's frame, inverting
+     * {@link VRPose#transformDirection(Vector3fc)}. Position is not applied.
+     * @param direction direction in world space
+     * @return the direction in pose-local space
      */
-    @NotNull Vector3f reverseCustomVector(@NotNull Vector3fc customVec);
+    @NotNull Vector3f inverseTransformDirection(@NotNull Vector3fc direction);
 
     /**
-     * Reverse {@link VRPose#getCustomVector(Vector3fc)}
-     * @param customVec vec
-     * @return original vector as vec3
+     * {@link VRPose#inverseTransformDirection(Vector3fc)} as a {@link Vec3}
+     * @param direction direction in world space
+     * @return the direction in pose-local space
      */
+    default @NotNull Vec3 inverseTransformDirectionVec3(@NotNull Vector3fc direction){
+        return new Vec3(inverseTransformDirection(direction));
+    }
+
+    /**
+     * @deprecated renamed to {@link VRPose#transformDirection(Vector3fc)}
+     */
+    @Deprecated
+    @NotNull
+    default Vector3f getCustomVector(@NotNull Vector3fc vec){
+        return transformDirection(vec);
+    }
+
+    /**
+     * @deprecated renamed to {@link VRPose#transformDirectionVec3(Vector3fc)}
+     */
+    @Deprecated
+    @NotNull
+    default Vec3 getCustomVector3(@NotNull Vector3fc vec){
+        return transformDirectionVec3(vec);
+    }
+
+    /**
+     * @deprecated renamed to {@link VRPose#inverseTransformDirection(Vector3fc)}
+     */
+    @Deprecated
+    @NotNull
+    default Vector3f reverseCustomVector(@NotNull Vector3fc customVec){
+        return inverseTransformDirection(customVec);
+    }
+
+    /**
+     * @deprecated renamed to {@link VRPose#inverseTransformDirectionVec3(Vector3fc)}
+     */
+    @Deprecated
     default @NotNull Vec3 reverseCustomVector3(@NotNull Vector3fc customVec){
-        return new Vec3(reverseCustomVector(customVec));
+        return inverseTransformDirectionVec3(customVec);
     }
 
 

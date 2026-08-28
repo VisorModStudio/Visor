@@ -67,7 +67,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
         );
 
         Vector3f handDir = renderPose
-                .getGripHand(handType).getCustomVector(
+                .getGripHand(handType).transformDirection(
                         new Vector3f(-0.05f,-0.06f,-1.0f)
                 );
 

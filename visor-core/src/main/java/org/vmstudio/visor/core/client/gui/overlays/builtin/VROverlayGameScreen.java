@@ -153,7 +153,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             }
 
             var hmdPos = hmd.getPosition();
-            var offset = hmd.getCustomVector(forwardVec);
+            var offset = hmd.transformDirection(forwardVec);
             relativePosition = new Vector3f(
                     offset.x / 2.0f + hmdPos.x(),
                     offset.y / 2.0f + hmdPos.y(),

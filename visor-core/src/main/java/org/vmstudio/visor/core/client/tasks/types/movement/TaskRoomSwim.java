@@ -75,8 +75,8 @@ public class TaskRoomSwim extends VisorTask {
                 .add(preTickPose.getHmd().getDirection())
                 .mul(0.5f);
 
-        var handsAim = mainHand.getCustomVector(VRMathUtils.FORWARD_VECTOR)
-                .add(offhand.getCustomVector(VRMathUtils.FORWARD_VECTOR))
+        var handsAim = mainHand.transformDirection(VRMathUtils.FORWARD_VECTOR)
+                .add(offhand.transformDirection(VRMathUtils.FORWARD_VECTOR))
                 .mul(0.5f);
 
         float swimPower = handsAim.add(betweenHandsDir).length() / 2.0f;
