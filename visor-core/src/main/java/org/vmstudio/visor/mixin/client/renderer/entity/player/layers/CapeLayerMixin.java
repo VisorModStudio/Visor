@@ -27,6 +27,11 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
 
     @Unique
     private static final float VANILLA_CROUCH_CAPE_LIFT = 25.0F;
+
+    @Unique
+    private static final float ARMOR_CLEARANCE_Y = -0.85F;
+    @Unique
+    private static final float ARMOR_CLEARANCE_Z = 1.1F;
     @Unique
     private final BackLayerPlacement visor$placement = new BackLayerPlacement();
 
@@ -56,7 +61,7 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
 
         visor$offset.set(0F, 0F, BackLayerPlacement.restingDepth(model.body));
         if (!player.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
-            visor$offset.add(0F, -0.85F, 1.1F);
+            visor$offset.add(0F, ARMOR_CLEARANCE_Y, ARMOR_CLEARANCE_Z);
         }
 
         visor$placement.place(vrPlayer, model.body, visor$offset, visor$offset);
@@ -65,44 +70,44 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
 
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z"), ordinal = 7)
     private float visor$capePitchWithBody(
-        float xRot, @Local(argsOnly = true) AbstractClientPlayer player,
+        float capePitch, @Local(argsOnly = true) AbstractClientPlayer player,
         @Local(ordinal = 2, argsOnly = true) float partialTick, @Share("capeBodyPitch") LocalFloatRef bodyPitchRef)
     {
         if (!VRClientPlayers.isTracked(player)) {
-            return xRot;
+            return capePitch;
         }
         if (player.isCrouching()) {
             // undo the lift vanilla CapeLayer adds while crouching, the VR body pitch replaces it
-            xRot -= VANILLA_CROUCH_CAPE_LIFT;
+            capePitch -= VANILLA_CROUCH_CAPE_LIFT;
         }
         float flatten = player.isFallFlying() ? 1F : player.getSwimAmount(partialTick);
         float lowestPitch = -Mth.HALF_PI * flatten;
-        return xRot + Math.max(bodyPitchRef.get(), lowestPitch) * Mth.RAD_TO_DEG;
+        return capePitch + Math.max(bodyPitchRef.get(), lowestPitch) * Mth.RAD_TO_DEG;
     }
 
     @ModifyVariable(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;isCrouching()Z"), ordinal = 8)
     private float visor$capeWalkLift(
-        float speedRot, @Local(argsOnly = true) AbstractClientPlayer player,
+        float walkLift, @Local(argsOnly = true) AbstractClientPlayer player,
         @Share("capeBodyPitch") LocalFloatRef bodyPitchRef)
     {
         if (!VRClientPlayers.isTracked(player)) {
-            return speedRot;
+            return walkLift;
         }
         float leanFraction = bodyPitchRef.get() / Mth.HALF_PI;
         if (leanFraction < 0F) {
             return 0F;
         }
-        return speedRot * (1F - Math.min(leanFraction, 1F));
+        return walkLift * (1F - Math.min(leanFraction, 1F));
     }
 
     @ModifyArg(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/math/Axis;rotationDegrees(F)Lorg/joml/Quaternionf;", ordinal = 2))
     private float visor$capeYawWithBody(
-        float yRot, @Local(argsOnly = true) AbstractClientPlayer player,
+        float capeYaw, @Local(argsOnly = true) AbstractClientPlayer player,
         @Share("capeBodyYaw") LocalFloatRef bodyYawRef)
     {
         if (VRClientPlayers.isTracked(player)) {
-            yRot += Mth.RAD_TO_DEG * bodyYawRef.get();
+            capeYaw += Mth.RAD_TO_DEG * bodyYawRef.get();
         }
-        return yRot;
+        return capeYaw;
     }
 }

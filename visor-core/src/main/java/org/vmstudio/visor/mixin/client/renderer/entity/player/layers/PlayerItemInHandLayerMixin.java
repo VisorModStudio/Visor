@@ -37,8 +37,8 @@ public class PlayerItemInHandLayerMixin {
     }
     @ModifyExpressionValue(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
     private boolean visor$noSpyglass(
-        boolean isSpyglass, @Local(argsOnly = true) LivingEntity livingEntity)
+        boolean isSpyglass, @Local(argsOnly = true) LivingEntity entity)
     {
-        return isSpyglass && !VRRenderState.isSelfModelHandsRender(livingEntity);
+        return isSpyglass && !VRRenderState.isSelfModelHandsRender(entity);
     }
 }

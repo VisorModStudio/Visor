@@ -29,19 +29,14 @@ import net.minecraft.world.phys.Vec3;
 
 
 public class VRPlayerRendererFull extends PlayerRenderer {
-    private static LayerDefinition VR_LAYER_DEFAULT;
-    private static LayerDefinition VR_LAYER_SLIM;
+    // vanilla offset PlayerRenderer.getRenderOffset
+    // applies while crouching, used here for swimming pose
+    private static final double VANILLA_CROUCH_DIP = -0.125D;
 
-    static {
-        createLayers();
-    }
-
-    public static void createLayers() {
-        VR_LAYER_DEFAULT = LayerDefinition.create(
-                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
-        VR_LAYER_SLIM = LayerDefinition.create(
-                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
-    }
+    private static final LayerDefinition VR_LAYER_DEFAULT = LayerDefinition.create(
+            CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
+    private static final LayerDefinition VR_LAYER_SLIM = LayerDefinition.create(
+            CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
 
 
     public VRPlayerRendererFull(EntityRendererProvider.Context context, boolean slim) {
@@ -92,7 +87,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         if (!player.isVisuallySwimming()) {
             return Vec3.ZERO;
         }
-        double dip = -0.125D;
+        double dip = VANILLA_CROUCH_DIP;
         if (VRRenderState.isSelfModelPlayer(player)) {
             dip *= ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER).getWorldScale();
         }

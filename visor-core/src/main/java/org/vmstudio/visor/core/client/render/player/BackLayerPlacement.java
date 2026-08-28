@@ -9,8 +9,11 @@ import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.utils.PlayerModelUtils;
 
 public final class BackLayerPlacement {
-    // model's default back attachment sits this far up from the part origin
+    // LivingEntityRenderer translates -1.501 after flipping the model,
+    // so the feet is 1.5 blocks = 24 model units below the part origin
     private static final float ATTACH_HEIGHT = 24F;
+    // vanilla CapeLayer and ElytraLayer both open with translate(0, 0, 0.125)
+    private static final float VANILLA_BACK_OFFSET = 2F;
 
     private final Matrix3f torsoRotation = new Matrix3f();
     private final Vector3f probe = new Vector3f();
@@ -36,7 +39,7 @@ public final class BackLayerPlacement {
     public float yaw() { return yaw; }
 
     public static float restingDepth(ModelPart body) {
-        return 2F - body.xRot / Mth.PI;
+        return VANILLA_BACK_OFFSET - body.xRot / Mth.PI;
     }
 
     public Vector3f place(VRClientPlayer vrPlayer, ModelPart body, Vector3f localOffset, Vector3f dest) {

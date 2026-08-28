@@ -20,6 +20,14 @@ import org.vmstudio.visor.core.client.render.player.BackLayerPlacement;
 
 @Mixin(ElytraLayer.class)
 public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+    // ElytraModel.setupAnim drops the wings by this while crouching,
+    //VR don't need that, so, cancelled
+    @Unique
+    private static final float VANILLA_CROUCH_WING_DROP = 3F;
+    // keeps the wings out of the player's view while flying
+    @Unique
+    private static final float FALL_FLYING_DROP = 2F;
+
     @Unique
     private final BackLayerPlacement visor$placement = new BackLayerPlacement();
 
@@ -41,9 +49,9 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
         visor$placement.aim(model.body, false);
         float verticalNudge = 0F;
         if (entity.isFallFlying()) {
-            verticalNudge = 2F;
+            verticalNudge = FALL_FLYING_DROP;
         } else if (entity.isCrouching()) {
-            verticalNudge = -3F;
+            verticalNudge = -VANILLA_CROUCH_WING_DROP;
         }
 
         visor$offset.set(0F, verticalNudge, BackLayerPlacement.restingDepth(model.body));

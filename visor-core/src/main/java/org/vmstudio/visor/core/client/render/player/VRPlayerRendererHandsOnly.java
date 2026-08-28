@@ -27,18 +27,10 @@ import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
 
 public class VRPlayerRendererHandsOnly extends PlayerRenderer {
-    private static LayerDefinition VR_LAYER_DEFAULT;
-    private static LayerDefinition VR_LAYER_SLIM;
-    static {
-        createLayers();
-    }
-
-    public static void createLayers() {
-        VR_LAYER_DEFAULT = LayerDefinition.create(
-                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
-        VR_LAYER_SLIM = LayerDefinition.create(
-                CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
-    }
+    private static final LayerDefinition VR_LAYER_DEFAULT = LayerDefinition.create(
+            CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
+    private static final LayerDefinition VR_LAYER_SLIM = LayerDefinition.create(
+            CenteredArmsPlayerMesh.create(CubeDeformation.NONE, true), 64, 64);
 
 
     public VRPlayerRendererHandsOnly(EntityRendererProvider.Context context, boolean slim) {
