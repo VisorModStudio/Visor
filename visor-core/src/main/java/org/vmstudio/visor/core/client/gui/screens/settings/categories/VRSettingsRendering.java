@@ -142,7 +142,7 @@ public class VRSettingsRendering extends VROptionsSet {
         super.loadDefaults();
         MC.options.fov().set(70);
         if(VisorState.get().isActive()) {
-            ClientContext.renderer.prepareReinit("Defaults Loaded");
+            ClientContext.renderer.prepareReinit("settings restored to defaults");
         }
     }
 

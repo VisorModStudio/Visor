@@ -243,7 +243,7 @@ public enum VROptionWidgetType {
                                 if (VisorState.get().isActive()
                                         && !ShadersHelper.isShaderActive()) {
                                     ClientContext.renderer.prepareReinit(
-                                            "Mirror Setting Changed"
+                                            "mirror mode changed"
                                     );
                                 }
                             }).build()

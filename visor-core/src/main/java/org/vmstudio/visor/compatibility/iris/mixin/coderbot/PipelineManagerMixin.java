@@ -147,7 +147,7 @@ public class PipelineManagerMixin implements IrisPipelineManagerExtension {
     }
 
     @Inject(method = "destroyPipeline", at = @At("HEAD"))
-    private void visor$destroyPassPipelines(CallbackInfo ci) {
+    private void visor$onPipelineDestroyed(CallbackInfo ci) {
         ShadersHelper.bridge().onPackChanged();
         IrisCompatHelper.resetPackState();
         visor$lastSsboPass = null;

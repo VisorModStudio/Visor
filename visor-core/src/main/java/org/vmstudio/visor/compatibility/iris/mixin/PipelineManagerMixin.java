@@ -49,7 +49,7 @@ public class PipelineManagerMixin implements IrisPipelineManagerExtension {
     private int versionCounterForSodiumShaderReload;
 
     @Unique
-    private final Map<Object, Map<VRRenderPass, WorldRenderingPipeline>> visor$passPipelines = new HashMap<>();
+    private final Map<NamespacedId, Map<VRRenderPass, WorldRenderingPipeline>> visor$passPipelines = new HashMap<>();
 
     @Unique
     private NamespacedId visor$currentDimension;
@@ -157,7 +157,7 @@ public class PipelineManagerMixin implements IrisPipelineManagerExtension {
     }
 
     @Inject(method = "destroyPipeline", at = @At("HEAD"))
-    private void visor$destroyPassPipelines(CallbackInfo ci) {
+    private void visor$onPipelineDestroyed(CallbackInfo ci) {
         ShadersHelper.bridge().onPackChanged();
         IrisCompatHelper.resetPackState();
         visor$lastSsboPass = null;

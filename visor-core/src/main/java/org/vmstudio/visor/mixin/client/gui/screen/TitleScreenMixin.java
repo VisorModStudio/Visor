@@ -84,11 +84,18 @@ public abstract class TitleScreenMixin extends Screen {
         if (VisorState.get() == VRStateMode.INITIALIZED
                 && VRClientSettings.getVrPlayMode().canPlayVR()) {
             Component text = Component.translatable("visor.messages.vr_auto_switch");
+
+            final int minGuiWidth = 320;
+            final int sideMargin = 20;
+            final int wrapWidth = minGuiWidth - 2 * sideMargin;
+            final int boxOffset = 12;
+            final int topMargin = 5;
+
             guiGraphics.renderTooltip(
                     font,
-                    font.split(text, 280),
-                    width / 2 - 140 - 12,
-                    17
+                    font.split(text, wrapWidth),
+                    this.width / 2 - wrapWidth / 2 - boxOffset,
+                    topMargin + boxOffset
             );
         }
     }
@@ -113,9 +120,16 @@ public abstract class TitleScreenMixin extends Screen {
 
         VRPlayMode currentMode = VRClientSettings.getVrPlayMode();
 
+        final int menuButtonWidth = 200;
+        final int menuButtonHeight = 20;
+        final int firstRowY = 48;
+        final int rowSpacing = 24;
+        final int gap = 4;
+
         visor$vrModeButton = DropDownListWidget.builder(items)
-                .pos(this.width / 2 + 104, this.height / 4 + 72)
-                .size(76, 20)
+                .pos(this.width / 2 + menuButtonWidth / 2 + gap,
+                        this.height / 4 + firstRowY + rowSpacing)
+                .size(76, menuButtonHeight)
                 .setVisibleItems(modes.length)
                 .setStartIndex(currentMode.ordinal())
                 .setMessage(Component.translatable("visor.options.common.vr_play_mode.tooltip"))

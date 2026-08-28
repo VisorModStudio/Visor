@@ -82,7 +82,7 @@ public class RenderShaderHelper {
                     .color(255, 255, 255, 255)
                     .endVertex();
         } else {
-            throw new IllegalArgumentException("Unexpected vertex format " + format);
+            throw new IllegalArgumentException("fullscreen quad: unsupported vertex format " + format);
         }
     }
 
@@ -104,7 +104,7 @@ public class RenderShaderHelper {
                     .color(255, 255, 255, 255)
                     .endVertex();
         } else {
-            throw new IllegalArgumentException("Unexpected vertex format " + format);
+            throw new IllegalArgumentException("textured quad: unsupported vertex format " + format);
         }
     }
 }

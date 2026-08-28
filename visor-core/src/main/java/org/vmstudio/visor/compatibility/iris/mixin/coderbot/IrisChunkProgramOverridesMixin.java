@@ -102,7 +102,7 @@ public class IrisChunkProgramOverridesMixin {
     }
 
     @Inject(method = "deleteShaders", at = @At("HEAD"))
-    private void visor$deletePassPrograms(CallbackInfo ci) {
+    private void visor$onDeleteShaders(CallbackInfo ci) {
         visor$deletePassPrograms();
     }
 

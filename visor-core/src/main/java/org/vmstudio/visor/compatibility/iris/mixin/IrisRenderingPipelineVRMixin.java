@@ -28,7 +28,6 @@ import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineExtension;
 import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineManagerExtension;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -132,10 +131,11 @@ public class IrisRenderingPipelineVRMixin implements IrisPipelineExtension {
                     target = "Ljava/util/Objects;requireNonNull(Ljava/lang/Object;)Ljava/lang/Object;"),
             expect = 0, require = 0)
     private Object visor$rerouteSharedShadowTargets(Object obj) {
-        if (visor$shadowSharer && (obj == null || obj instanceof ShadowRenderTargets)) {
-            return Objects.requireNonNullElse(IrisCompatHelper.sharedShadowTargets, obj);
+        if (!visor$shadowSharer || (obj != null && !(obj instanceof ShadowRenderTargets))) {
+            return obj;
         }
-        return obj;
+        Object shared = IrisCompatHelper.sharedShadowTargets;
+        return shared != null ? shared : obj;
     }
 
     @ModifyReturnValue(method = "shouldDisableVanillaEntityShadows", at = @At("RETURN"))

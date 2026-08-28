@@ -208,7 +208,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     public void visor$onResourceManagerReload(ResourceManager resourceManager, CallbackInfo ci) {
         if (VisorState.get().isInitialized()) {
             ClientContext.renderer.prepareReinit(
-                    "Resources Reload"
+                    "resource manager reloaded"
             );
         }
     }

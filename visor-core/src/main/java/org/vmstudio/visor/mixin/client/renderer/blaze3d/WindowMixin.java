@@ -128,7 +128,7 @@ public abstract class WindowMixin implements WindowExtension {
     private void visor$onResize(long l, int i, int j, CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ClientContext.renderer.prepareResize(
-                    "Main Window Resized"
+                    "window resized"
             );
         }
     }
