@@ -1,8 +1,6 @@
 package org.vmstudio.visor.mixin.client.input;
 
 
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomSneak;
@@ -23,22 +21,21 @@ public class MovementInputMixin extends Input {
   //--------MOVEMENT--------\\
     \* ****************** */
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/KeyboardInput;shiftKeyDown:Z", shift = At.Shift.AFTER))
-    public void visor$movement(boolean isSneaking,
-                               float sneakSpeed,
-                               CallbackInfo ci,
-                               @Share("climbing") LocalBooleanRef climbing) {
+    public void visor$applyVrInput(boolean isSneaking,
+                                   float sneakSpeed,
+                                   CallbackInfo ci) {
         if (VisorState.get().isNotActive()) {
             return;
         }
 
-        this.jumping = this.jumping
-                && Minecraft.getInstance().screen == null
-                && !climbing.get();
+        boolean screenOpen = Minecraft.getInstance().screen != null;
+        if (screenOpen) {
+            this.jumping = false;
+        }
 
-        this.shiftKeyDown = Minecraft.getInstance().screen == null
-                && (TaskRoomSneak.getInstance().getSneakTimer() > 0
-                || TaskRoomSneak.getInstance().isSneaking()
-                || this.shiftKeyDown);
+        TaskRoomSneak sneak = TaskRoomSneak.getInstance();
+        this.shiftKeyDown = !screenOpen
+                && (this.shiftKeyDown || sneak.isSneaking() || sneak.getSneakTimer() > 0);
 
         if (ClientContext.localPlayer.isMoving()) {
             var movement = ClientContext.localPlayer.getMovement();
