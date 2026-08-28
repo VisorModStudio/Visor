@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.render.decoration.hand;
 
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.Util;
@@ -234,7 +235,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
                             if (isSelf && VisorState.TICK_COUNT % 2 == 0) {
                                 ClientContext.inputManager.triggerHapticPulseMicroSec(
-                                        handType, 200
+                                        handType, HapticFeedback.RIPTIDE_SPIN
                                 );
                             }
 

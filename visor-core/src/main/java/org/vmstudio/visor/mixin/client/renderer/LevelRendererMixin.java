@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import com.google.common.collect.Sets;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
@@ -358,18 +359,18 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
                      1021    // ZOMBIE_BREAK_WOODEN_DOOR
                         -> {
                     ClientContext.inputManager
-                            .triggerHapticPulse(HandType.MAIN, 0.0075f);
+                            .triggerHapticPulseMicroSec(HandType.MAIN, HapticFeedback.WORLD_DOOR_HIT);
                     ClientContext.inputManager
-                            .triggerHapticPulse(HandType.OFFHAND, 0.0075f);
+                            .triggerHapticPulseMicroSec(HandType.OFFHAND, HapticFeedback.WORLD_DOOR_HIT);
                 }
                 case 1030 ->    // ANVIL_USE
                         ClientContext.inputManager
-                                .triggerHapticPulse(HandType.MAIN, 0.005f);
+                                .triggerHapticPulseMicroSec(HandType.MAIN, HapticFeedback.WORLD_ANVIL_USE);
                 case 1031 -> {  // ANVIL_LAND
                     ClientContext.inputManager
-                            .triggerHapticPulse(HandType.MAIN, 0.0125f);
+                            .triggerHapticPulseMicroSec(HandType.MAIN, HapticFeedback.WORLD_ANVIL_LAND);
                     ClientContext.inputManager
-                            .triggerHapticPulse(HandType.OFFHAND, 0.0125f);
+                            .triggerHapticPulseMicroSec(HandType.OFFHAND, HapticFeedback.WORLD_ANVIL_LAND);
                 }
             }
         }

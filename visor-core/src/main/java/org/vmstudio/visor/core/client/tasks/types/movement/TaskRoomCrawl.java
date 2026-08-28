@@ -26,8 +26,6 @@ public class TaskRoomCrawl extends VisorTask {
 
     @Getter
     private boolean crawling;
-    @Getter
-    private boolean swimPose;
 
     public TaskRoomCrawl(@NotNull VisorAddon owner) {
         super(owner);
@@ -45,7 +43,6 @@ public class TaskRoomCrawl extends VisorTask {
 
     @Override
     public void onClear(LocalPlayer player) {
-        this.swimPose = false;
         applyState(player, false);
     }
 
@@ -69,13 +66,9 @@ public class TaskRoomCrawl extends VisorTask {
         if (this.crawling != newCrawling) {
             if (newCrawling) {
                 player.setPose(Pose.SWIMMING);
-                this.swimPose = true;
             }
             this.crawling = newCrawling;
             ClientNetworking.sendVRPacket(new CrawlingPayloadToServer(this.crawling));
-        }
-        if (!this.crawling && player.getPose() != Pose.SWIMMING) {
-            this.swimPose = false;
         }
     }
 

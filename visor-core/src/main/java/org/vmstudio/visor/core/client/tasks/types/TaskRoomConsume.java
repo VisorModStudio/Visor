@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.tasks.types;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.tasks.RegisterVisorTask;
@@ -35,7 +36,6 @@ public class TaskRoomConsume extends VisorTask {
 
     private static final long MILLIS_PER_TICK = 1000L / SharedConstants.TICKS_PER_SECOND;
     private static final float MOUTH_DISTANCE = 0.25F;
-    private static final float HAPTIC_PULSE_DURATION = 0.007f; //in seconds
     private static final int HAPTIC_DELAY_EAT_DRINK = 2;
     private static final int HAPTIC_DELAY_TOOT_HORN = 1;
 
@@ -102,7 +102,7 @@ public class TaskRoomConsume extends VisorTask {
             if (consuming.getOrDefault(hand, false)) {
                 long ticksLeft = player.getUseItemRemainingTicks();
                 if (ticksLeft > 0L && ticksLeft % 5L <= hapticDelay) {
-                    ClientContext.inputManager.triggerHapticPulse(hand, HAPTIC_PULSE_DURATION);
+                    ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HapticFeedback.CONSUME_BITE);
                 }
             }
 

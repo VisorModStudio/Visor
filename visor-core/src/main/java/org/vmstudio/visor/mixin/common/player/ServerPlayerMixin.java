@@ -156,8 +156,8 @@ public abstract class ServerPlayerMixin
 
         if (entity instanceof ServerPlayer) {
             damager = (ServerPlayer) entity;
-        } else if ((entity instanceof AbstractArrow && (((AbstractArrow) entity).getOwner() instanceof ServerPlayer))) {
-            damager = (ServerPlayer) ((AbstractArrow) entity).getOwner();
+        } else if (entity instanceof AbstractArrow arrow && arrow.getOwner() instanceof ServerPlayer shooter) {
+            damager = shooter;
         }
         if(damager == null){
             return;
@@ -171,24 +171,19 @@ public abstract class ServerPlayerMixin
         damagerHasVR = damagerPlayer != null;
         victimHasVR = thisPlayer != null;
 
-        boolean blockedDamage = false;
-        String blockedDamageCase = "";
+        boolean bothInVR = damagerHasVR && victimHasVR;
+        boolean oneInVR = damagerHasVR != victimHasVR;
 
-        if (!VRServerSettings.isPvpVRvsVR()
-                && damagerHasVR && victimHasVR) {
-            blockedDamage = true;
-            blockedDamageCase = "Server: cancelled VR vs VR player damage";
-
-        } else if (!VRServerSettings.isPvpVRvsVanilla()
-                && ((!damagerHasVR && victimHasVR) || (damagerHasVR && !victimHasVR))) {
-            blockedDamage = true;
-            blockedDamageCase = "Server: cancelled NonVR vs VR player damage";
+        boolean blocked = (bothInVR && !VRServerSettings.isPvpVRvsVR())
+                || (oneInVR && !VRServerSettings.isPvpVRvsVanilla());
+        if (!blocked) {
+            return;
         }
 
-        if(!blockedDamage) return;
-
-        if(VRServerSettings.isNotifyPvpBlocked()) {
-            damager.sendSystemMessage(Component.literal(blockedDamageCase));
+        if (VRServerSettings.isNotifyPvpBlocked()) {
+            damager.sendSystemMessage(Component.literal(bothInVR
+                    ? "Server: cancelled VR vs VR player damage"
+                    : "Server: cancelled NonVR vs VR player damage"));
         }
         cir.setReturnValue(false);
     }

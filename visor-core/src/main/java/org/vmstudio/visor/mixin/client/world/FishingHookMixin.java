@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.world;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -50,11 +51,8 @@ public abstract class FishingHookMixin extends Projectile {
                 ? HandType.MAIN : HandType.OFFHAND;
         if (biting && !visor$biteHandled) {
             // bite
-            ClientContext.inputManager.triggerHapticPulse(
-                    hand,
-                    0.005F,
-                    160.0F,
-                    0.5f
+            ClientContext.inputManager.triggerHapticPulseMicroSec(
+                    hand, HapticFeedback.FISHING_BITE
             );
         }
         visor$biteHandled = biting;

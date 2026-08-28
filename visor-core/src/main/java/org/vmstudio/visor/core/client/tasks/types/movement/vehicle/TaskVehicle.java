@@ -39,6 +39,10 @@ public class TaskVehicle extends VisorTask {
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
 
 
+    private static final double MINECART_MOVEMENT_FLOOR = 0.001D;
+    // seat the rider facing against the direction of travel
+    private static final float MINECART_RIDER_YAW_OFFSET_DEG = 180.0F;
+
     public float vehicleRotationDeg = 0.0F;
 
     public int rotationCooldown = 0;
@@ -192,22 +196,25 @@ public class TaskVehicle extends VisorTask {
     }
 
     private float getMinecartRenderYawDeg(Minecart minecart) {
-        final Vec3 delta = new Vec3(
-                minecart.getX() - minecart.xOld,
-                minecart.getY() - minecart.yOld,
-                minecart.getZ() - minecart.zOld
-        );
-        final float yawDeg = (float) Math.toDegrees(Mth.atan2(-delta.x, delta.z));
-        return shouldMinecartTurnView(minecart) ? -180.0F + yawDeg : vehicleRotationDeg;
+        final Vec3 delta = minecartDelta(minecart);
+        if (delta.length() <= MINECART_MOVEMENT_FLOOR) {
+            return vehicleRotationDeg;
+        }
+        // Minecraft yaw of the travel direction: yaw 0 looks down +Z, and grows toward -X
+        final float travelYawDeg = (float) Math.toDegrees(Mth.atan2(-delta.x, delta.z));
+        return travelYawDeg - MINECART_RIDER_YAW_OFFSET_DEG;
     }
 
     private boolean shouldMinecartTurnView(Minecart minecart) {
-        final Vec3 delta = new Vec3(
+        return minecartDelta(minecart).length() > MINECART_MOVEMENT_FLOOR;
+    }
+
+    private Vec3 minecartDelta(Minecart minecart) {
+        return new Vec3(
                 minecart.getX() - minecart.xOld,
                 minecart.getY() - minecart.yOld,
                 minecart.getZ() - minecart.zOld
         );
-        return delta.length() > 0.001D;
     }
 
     private float rotationDeltaDeg(float targetDeg, float currentDeg) {

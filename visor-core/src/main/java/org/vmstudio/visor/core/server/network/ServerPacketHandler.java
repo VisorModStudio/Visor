@@ -237,15 +237,16 @@ public class ServerPacketHandler {
 
         if (VRServerSettings.isServerDebug()) {
             logger.info(
-                    "Visor: player '{}' joined with {}",
+                    "Visor: player '{}' joined with {} ({})",
                     player.getName().getString(),
-                    visorVersion
+                    visorVersion,
+                    vrActive ? "VR" : "non-VR"
             );
         }
 
         if (networkVersion == VisorNetwork.CORE_NETWORK_VERSION) {
             if (VRServerSettings.isServerDebug()) {
-                logger.info("Player {} has supported Visor network version",
+                logger.info("Player {} has supported Visor network version {}",
                         player.getName().getString(),
                         networkVersion
                 );
@@ -272,13 +273,6 @@ public class ServerPacketHandler {
         VisorServerPlayerImpl packetReceiver;
         if(vrActive){
             vrPlayer = new VRServerPlayerImpl(player);
-            if (VRServerSettings.isServerDebug()) {
-                VisorServerImpl.LOGGER.info(
-                        "VR: player '{}' joined with {}",
-                        vrPlayer.getMcPlayer().getName().getString(),
-                        visorVersion
-                );
-            }
             VisorServerImpl.INSTANCE.addVisorPlayer(vrPlayer);
 
             packetConsumer.accept(
@@ -305,13 +299,6 @@ public class ServerPacketHandler {
             }
         }else{
             packetReceiver = new VisorServerPlayerImpl(player);
-            if (VRServerSettings.isServerDebug()) {
-                VisorServerImpl.LOGGER.info(
-                        "NonVR: player '{}' joined with {}",
-                        packetReceiver.getMcPlayer().getName().getString(),
-                        visorVersion
-                );
-            }
             VisorServerImpl.INSTANCE.addVisorPlayer(packetReceiver);
 
             packetConsumer.accept(

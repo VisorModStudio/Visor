@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.tasks.types;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -489,7 +490,7 @@ public class TaskSwing extends VisorTask {
             totalHits += (int) overSpeed;
             swingMining(blockHit, blockState, totalHits, hand);
         }
-        ClientContext.inputManager.triggerHapticPulseMicroSec(hand, 250 * totalHits);
+        ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HapticFeedback.SWING_BLOCK_PER_HIT * totalHits);
     }
 
     private void swingAttack(final Player player, final Entity entity, final HandType handType) {
@@ -498,7 +499,7 @@ public class TaskSwing extends VisorTask {
         } else {
             attackVanilla(player, entity, handType);
         }
-        ClientContext.inputManager.triggerHapticPulseMicroSec(handType, 1000);
+        ClientContext.inputManager.triggerHapticPulseMicroSec(handType, HapticFeedback.SWING_ATTACK);
     }
 
     public static void attackBetter(final Player player, final Entity entity, HandType handType) {

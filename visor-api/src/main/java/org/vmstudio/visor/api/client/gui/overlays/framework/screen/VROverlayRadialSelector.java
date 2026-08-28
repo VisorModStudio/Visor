@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.gui.overlays.framework.screen;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
@@ -106,8 +107,8 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
             if (selectedSliceNew != -1
                     && selectedSliceNew != selectedSlice) {
                 VisorAPI.client().getInputManager()
-                        .triggerHapticPulse(usedHand,
-                                0.0005f
+                        .triggerHapticPulseMicroSec(usedHand,
+                                HapticFeedback.UI_SLICE_CHANGE
                         );
                 selectedSlice = selectedSliceNew;
             }

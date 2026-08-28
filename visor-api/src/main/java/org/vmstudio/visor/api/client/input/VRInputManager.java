@@ -92,7 +92,7 @@ public interface VRInputManager {
                 hand,
                 160f,
                 0.1f,
-                (long) (0.0001f * 1_000_000_000)
+                HapticFeedback.UI_CLICK * 1000L
         );
     }
 

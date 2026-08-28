@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.player;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.common.HandType;
@@ -390,7 +391,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             return;
         }
         ClientContext.inputManager
-                .triggerHapticPulseBoth(2f);
+                .triggerHapticPulseBothMicroSec(HapticFeedback.DEATH);
     }
 
 

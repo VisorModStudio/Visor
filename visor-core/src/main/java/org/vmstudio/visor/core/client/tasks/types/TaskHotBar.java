@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.tasks.types;
 
+import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
@@ -97,8 +98,8 @@ public class TaskHotBar extends VisorTask {
             } else {
                 if (inputPressedOffhand && !pressedOffhand) {
                     ClientContext.inputManager
-                            .triggerHapticPulse(
-                                    HandType.OFFHAND, 0.002f
+                            .triggerHapticPulseMicroSec(
+                                    HandType.OFFHAND, HapticFeedback.HOTBAR_SHOW
                             );
                     hotBarOffhand.setEnabled(
                             true
@@ -125,8 +126,8 @@ public class TaskHotBar extends VisorTask {
                     }
                     if (!inputPressedOffhand) {
                         ClientContext.inputManager
-                                .triggerHapticPulse(
-                                        HandType.OFFHAND, 0.003f
+                                .triggerHapticPulseMicroSec(
+                                        HandType.OFFHAND, HapticFeedback.HOTBAR_HIDE
                                 );
                         hotBarOffhand.setEnabled(
                                 false
@@ -148,8 +149,8 @@ public class TaskHotBar extends VisorTask {
         } else {
             if (inputPressedMain && !pressedMain) {
                 ClientContext.inputManager
-                        .triggerHapticPulse(
-                                HandType.MAIN, 0.002f
+                        .triggerHapticPulseMicroSec(
+                                HandType.MAIN, HapticFeedback.HOTBAR_SHOW
                         );
                 hotBarMainHand.setEnabled(
                         true
@@ -177,8 +178,8 @@ public class TaskHotBar extends VisorTask {
                 }
                 if (!inputPressedMain) {
                     ClientContext.inputManager
-                            .triggerHapticPulse(
-                                    HandType.MAIN, 0.003f
+                            .triggerHapticPulseMicroSec(
+                                    HandType.MAIN, HapticFeedback.HOTBAR_HIDE
                             );
                     hotBarMainHand.setEnabled(
                             false

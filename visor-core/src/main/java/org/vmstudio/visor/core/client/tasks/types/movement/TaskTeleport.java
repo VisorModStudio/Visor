@@ -24,7 +24,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -46,6 +45,10 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
     private static final int MAX_ARC_STEPS = 50;
     private static final float MAX_ENERGY = 100f;
+
+    // vanilla Player.checkMovementStatistics spends this much exhaustion per block sprinted
+    private static final double SPRINT_EXHAUSTION_PER_BLOCK = 0.1D;
+    private static final double SUB_BLOCK_LANDING_SLACK = 0.05D;
 
     @Getter
     private static TaskTeleport instance;
@@ -236,7 +239,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
         // @TODO server?
         minecraft.player.causeFoodExhaustion(
-                (float) (distance / 16.0 * 1.2f)
+                (float) (distance * SPRINT_EXHAUSTION_PER_BLOCK)
         );
     }
 
@@ -257,7 +260,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
                 .getRotation()
                 .rotateZ(-hand.getRoll(), new Matrix4f())
                 .transformDirection(VRMathUtils.DOWN_VECTOR, new Vector3f())
-                .mul(0.098f);
+                .mul(0.0975f);
 
         final float speed = 0.5F;
         Vector3f velocity = hand.getDirection().mul(speed, new Vector3f());
@@ -426,11 +429,9 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
             AABB playerShape = player.getBoundingBox().move(offset.x, offset.y, offset.z);
 
-            double extraY = 0;
-            Block block = blockState.getBlock();
-            if (block == Blocks.SOUL_SAND || block == Blocks.HONEY_BLOCK) {
-                extraY = 0.05;
-            }
+            // soul sand (0.875), honey (0.9375), farmland and slabs stop short of a full block,
+            // so the player settles below the landing height - give the fit check that much slack
+            double extraY = maxY < 1.0D ? SUB_BLOCK_LANDING_SLACK : 0.0D;
 
             boolean hasSpaceForPlayer = hasSpaceForPlayer(player, playerShape, extraY);
             if (!hasSpaceForPlayer) {
