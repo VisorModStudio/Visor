@@ -63,7 +63,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 
     @Unique
-    private Entity visor$renderedEntity;
+    private Entity visor$currentRenderEntity;
 
     @Unique
     private RenderTarget visor$savedRenderTarget;
@@ -118,27 +118,27 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
     @Inject(at = @At("HEAD"), method = "renderEntity")
     public void visor$captureEntityRestore(CallbackInfo ci,
                                               @Local(argsOnly = true) Entity entity,
-                                              @Share("capturedEntity") LocalRef<Entity> capturedEntity
+                                              @Share("vrCameraEntity") LocalRef<Entity> vrCameraEntity
     ) {
         if (VRRenderState.getPhase().isNotVanilla()
                 && entity == minecraft.getCameraEntity()) {
-            capturedEntity.set(entity);
+            vrCameraEntity.set(entity);
             ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$applyCachedCameraEntityPosition(entity);
         }
-        this.visor$renderedEntity = entity;
+        this.visor$currentRenderEntity = entity;
     }
 
     @Inject(at = @At("TAIL"), method = "renderEntity")
     public void visor$captureEntitySetup(CallbackInfo ci,
                                   @Local(argsOnly = true) Entity entity,
-                                  @Share("capturedEntity") LocalRef<Entity> capturedEntity
+                                  @Share("vrCameraEntity") LocalRef<Entity> vrCameraEntity
     ) {
-        if (capturedEntity.get() != null) {
+        if (vrCameraEntity.get() != null) {
             ((GameRendererExtension) minecraft.gameRenderer)
                     .visor$setupCameraEntityAsVRCamera();
         }
-        this.visor$renderedEntity = null;
+        this.visor$currentRenderEntity = null;
     }
 
 
@@ -383,8 +383,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Override
     @Unique
-    public Entity visor$getRenderedEntity() {
-        return this.visor$renderedEntity;
+    public Entity visor$getCurrentRenderEntity() {
+        return this.visor$currentRenderEntity;
     }
 
 

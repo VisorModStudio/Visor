@@ -430,7 +430,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     \* ***************************************** */
 
     @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$swingArmAttack(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+    private void visor$markAttackSwing(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
         if (VisorState.get().isActive()) {
             ClientContext.handRenderer.setSwingType(HandAction.ATTACK);
             original.call(instance,
@@ -502,7 +502,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
     }
 
     @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$swingArmUse(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+    private void visor$markUseSwing(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
         if (VisorState.get().isActive()) {
             ClientContext.handRenderer.setSwingType(HandAction.USE);
         }

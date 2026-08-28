@@ -60,12 +60,12 @@ public class HandEffectCrosshair extends VRHandEffect {
         // --- Prepare variables ---
         VRPlayerPoseClient pose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
         var renderer = (GameRendererExtension) MC.gameRenderer;
-        var crossVec = renderer.visor$getCrossVec(hand);
-        if (crossVec == null) {
+        var aimHitPos = renderer.visor$getAimHitPos(hand);
+        if (aimHitPos == null) {
             return;
         }
         HitResult handHit = renderer.visor$getHandHitResult(hand);
-        var rawCross = crossVec.toVector3f();
+        var rawCross = aimHitPos.toVector3f();
         var aim = rawCross.sub(pose.getHand(hand).getPosition(), new Vector3f());
         float worldScale = (float)Math.sqrt(pose.getWorldScale());
         float scale = BASE_SCALE * worldScale;
@@ -198,7 +198,7 @@ public class HandEffectCrosshair extends VRHandEffect {
             if(!VRServerSettings.isTwoHandedVR()){
                 return false;
             }
-            if(((GameRendererExtension) MC.gameRenderer).visor$getCrossVec(hand) == null){
+            if(((GameRendererExtension) MC.gameRenderer).visor$getAimHitPos(hand) == null){
                 return false;
             }
         }

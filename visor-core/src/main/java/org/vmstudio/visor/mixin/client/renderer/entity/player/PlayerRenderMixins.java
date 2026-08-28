@@ -4,8 +4,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.entity.*;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
@@ -101,7 +99,7 @@ public class PlayerRenderMixins {
         @Override
         @Unique
         public Quaternionf visor$lookAtCameraOrientation(float heightFraction, float yOffset) {
-            Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer).visor$getRenderedEntity();
+            Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer).visor$getCurrentRenderEntity();
             if (entity == null) {
                 return this.camera.rotation();
             }

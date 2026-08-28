@@ -58,9 +58,9 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     private InteractionHand usingItemHand;
 
     @Unique
-    private Vec3 visor$moveMulIn = Vec3.ZERO;
+    private Vec3 visor$stuckSpeedMul = Vec3.ZERO;
     @Unique
-    private boolean visor$walkUpBlocksActive = false;
+    private boolean visor$stepUpRaised = false;
 
     @Unique
     private boolean visor$teleported;
@@ -77,14 +77,14 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
       //--------VEHICLE--------\\
         \* ****************** */
     @Inject(at = @At("TAIL"), method = "startRiding")
-    public void visor$onStartRiding(Entity entity, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+    public void visor$onStartRiding(Entity vehicle, boolean bl, CallbackInfoReturnable<Boolean> cir) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         TaskVehicle.getInstance()
                 .onStartRiding(
-                        entity
+                        vehicle
                 );
 
     }
@@ -92,7 +92,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Inject(at = @At("TAIL"), method = "removeVehicle")
     public void visor$onStopRiding(CallbackInfo ci) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         TaskVehicle.getInstance()
@@ -108,7 +108,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.BEFORE), method = "tick")
     public void visor$preTick(CallbackInfo ci) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         ClientContext.localPlayer.updatePlayerLook(
@@ -120,7 +120,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;tick()V", shift = At.Shift.AFTER), method = "tick")
     public void visor$postTick(CallbackInfo ci) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         var player = visor$getPlayer();
@@ -136,7 +136,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/AbstractClientPlayer;aiStep()V"), method = "aiStep")
     public void visor$tickPlayer(CallbackInfo ci) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         ClientContext.localPlayer.tickPlayer(
@@ -149,13 +149,13 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     protected void visor$wrapMove(MoverType type, Vec3 pos, Operation<Void> original) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)
+                || !visor$isThisPlayerLocal(this)
                 || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
             visor$releaseWalkUp();
             original.call(type, pos);
             return;
         }
-        this.visor$moveMulIn = this.stuckSpeedMultiplier;
+        this.visor$stuckSpeedMul = this.stuckSpeedMultiplier;
 
         if (pos.length() == 0 || this.isPassenger()) {
             original.call(type, pos);
@@ -184,7 +184,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         double prevZ = this.getZ();
 
         if (VRClientSettings.isWalkUpEnabled()
-                && this.visor$walkUpBlocksActive
+                && this.visor$stepUpRaised
                 && visor$isApproachingInteractable(pos)) {
             visor$releaseWalkUp();
         }
@@ -193,10 +193,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
         if (VRClientSettings.isWalkUpEnabled()) {
             boolean smartBlocked = visor$isApproachingInteractable(this.getDeltaMovement());
-            this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F
+            this.visor$stepUpRaised = this.getBlockJumpFactor() == 1.0F
                     && !smartBlocked;
             this.setMaxUpStep(
-                    this.visor$walkUpBlocksActive
+                    this.visor$stepUpRaised
                             ? 1.0F : 0.6F
             );
         } else {
@@ -217,10 +217,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
     @Unique
     private void visor$releaseWalkUp() {
-        if (this.visor$walkUpBlocksActive) {
+        if (this.visor$stepUpRaised) {
             // 0.6F is from LivingEntity's constructor
             this.setMaxUpStep(0.6F);
-            this.visor$walkUpBlocksActive = false;
+            this.visor$stepUpRaised = false;
         }
     }
 
@@ -245,7 +245,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     }
     @Override
     protected void visor$wrapMoveRelative(float amount, Vec3 relative, Operation<Void> original){
-        if (VisorState.get().isNotActive() || !visor$isLocalPlayer(this)) {
+        if (VisorState.get().isNotActive() || !visor$isThisPlayerLocal(this)) {
             original.call(amount, relative);
             return;
         }
@@ -291,12 +291,6 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         boolean shouldReset = (x + y + z) == 0;
         var thisPlayer = ((LocalPlayer) (Object) this);
 
-        // moveTo()/absMoveTo() snap xOld/yOld/zOld to the destination before
-        // calling setPos(); regular movement leaves them at the start-of-tick
-        // coords. Without resetting the room origin too, the entity body
-        // renders at the destination while the VR camera is still lerping
-        // from the old origin, showing the player's self-model "in the
-        // future" for 1-2 frames after a teleport.
         if (!shouldReset
                 && thisPlayer.xOld == x
                 && thisPlayer.yOld == y
@@ -387,7 +381,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     protected void visor$afterDie(DamageSource damageSource, CallbackInfo ci) {
         if (VisorState.get().isNotActive()
-                || !visor$isLocalPlayer(this)) {
+                || !visor$isThisPlayerLocal(this)) {
             return;
         }
         ClientContext.inputManager
@@ -396,8 +390,8 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
 
     @Inject(method = "getRopeHoldPosition", at = @At("HEAD"), cancellable = true)
-    private void visor$vrRopePosition(CallbackInfoReturnable<Vec3> cir) {
-        if (VisorState.get().isNotActive() || !visor$isLocalPlayer(this)) {
+    private void visor$ropeFromHand(CallbackInfoReturnable<Vec3> cir) {
+        if (VisorState.get().isNotActive() || !visor$isThisPlayerLocal(this)) {
             return;
         }
         cir.setReturnValue(new Vec3((Vector3f) RenderPoseHelper.getHandPosition(HandType.MAIN)));
@@ -466,17 +460,17 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     @Unique
     public float visor$getSpeedFactor() {
-        return this.visor$moveMulIn.lengthSqr() > 0.0D
+        return this.visor$stuckSpeedMul.lengthSqr() > 0.0D
                 ? (float) ((double) getBlockSpeedFactor()
-                * (this.visor$moveMulIn.x + this.visor$moveMulIn.z) / 2.0D)
+                * (this.visor$stuckSpeedMul.x + this.visor$stuckSpeedMul.z) / 2.0D)
                 : this.getBlockSpeedFactor();
     }
 
     @Override
     @Unique
     public float visor$getJumpFactor() {
-        return this.visor$moveMulIn.lengthSqr() > 0.0D
-                ? (float) ((double) this.getBlockJumpFactor() * this.visor$moveMulIn.y) :
+        return this.visor$stuckSpeedMul.lengthSqr() > 0.0D
+                ? (float) ((double) this.getBlockJumpFactor() * this.visor$stuckSpeedMul.y) :
                 this.getBlockJumpFactor();
     }
 
@@ -498,9 +492,11 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
   //--------UTILITY METHODS--------\\
     \* ************************* */
     @Unique
-    private boolean visor$isLocalPlayer(Object player) {
-        return player.getClass().equals(LocalPlayer.class)
-                || Minecraft.getInstance().player == player;
+    private boolean visor$isThisPlayerLocal(Object player) {
+        if (LocalPlayer.class == player.getClass()) {
+            return true;
+        }
+        return player == Minecraft.getInstance().player;
     }
 
     private LocalPlayer visor$getPlayer(){

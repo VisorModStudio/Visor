@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.vmstudio.visor.api.common.HandType;
+import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.utils.EnchantmentVisitor;
 
 @Mixin(Player.class)
@@ -35,20 +36,18 @@ public abstract class PlayerMixin extends LivingEntity {
         super(entityType, level);
     }
 
-    /**
-     * Fixes issue with maxStepUp size of 1
-     * @param instance s
-     * @param x s
-     * @param y s
-     * @param z s
-     * @return s
-     */
+    // the probe box keeps its original top, so a raised step height cannot make it
+    // catch on whatever sits above the ledge
     @Redirect( method = "maybeBackOffFromEdge",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"))
-    private AABB visor$moveSidewaysExtendDown(AABB instance,
-                                             double x,
-                                             double y,
-                                             double z) {
+    private AABB visor$keepEdgeProbeTop(AABB instance,
+                                        double x,
+                                        double y,
+                                        double z) {
+        if(!VisorState.get().isActive()){
+            return instance;
+        }
+
         return new AABB(
                 instance.minX + x,
                 instance.minY + y,

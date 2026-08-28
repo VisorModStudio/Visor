@@ -409,12 +409,12 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             return;
         }
 
-        Vec3 crossVec = ((GameRendererExtension) MC.gameRenderer).visor$getCrossVec();
+        Vec3 aimHitPos = ((GameRendererExtension) MC.gameRenderer).visor$getAimHitPos();
         if (!VRClientSettings.isCompatibleLookDirection()
-                && crossVec != null) {
+                && aimHitPos != null) {
             visor$applyVectorLook(
                     player,
-                    crossVec.subtract(player.getEyePosition(1.0F)).normalize()
+                    aimHitPos.subtract(player.getEyePosition(1.0F)).normalize()
             );
             return;
         }

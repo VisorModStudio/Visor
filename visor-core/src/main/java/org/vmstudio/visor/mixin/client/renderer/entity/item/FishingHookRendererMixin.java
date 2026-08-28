@@ -49,7 +49,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
 
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 25)
-    private double visor$fishingLineStartX(double value, FishingHook fishingHook) {
+    private double visor$lineAnchorX(double value, FishingHook fishingHook) {
         if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){
@@ -85,7 +85,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
 
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 27)
-    private double visor$fishingLineStartY(double value, FishingHook fishingHook) {
+    private double visor$lineAnchorY(double value, FishingHook fishingHook) {
         if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){
@@ -97,7 +97,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
 
     @ModifyVariable(at = @At(value = "LOAD"),
             method = "render(Lnet/minecraft/world/entity/projectile/FishingHook;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", index = 29)
-    private double visor$fishingLineStartZ(double value, FishingHook fishingHook) {
+    private double visor$lineAnchorZ(double value, FishingHook fishingHook) {
         if(VRRenderState.getPhase().isVanilla()
                 || !this.entityRenderDispatcher.options.getCameraType().isFirstPerson()
                 || fishingHook.getPlayerOwner() != MC.player){

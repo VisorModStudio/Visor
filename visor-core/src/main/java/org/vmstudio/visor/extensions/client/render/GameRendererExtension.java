@@ -63,9 +63,9 @@ public interface GameRendererExtension {
 
     void visor$resetProjectionMatrix(float partialTicks);
 
-    Vec3 visor$getCrossVec();
+    Vec3 visor$getAimHitPos();
 
-    @Nullable Vec3 visor$getCrossVec(HandType hand);
+    @Nullable Vec3 visor$getAimHitPos(HandType hand);
 
     @Nullable HitResult visor$getHandHitResult(HandType hand);
 

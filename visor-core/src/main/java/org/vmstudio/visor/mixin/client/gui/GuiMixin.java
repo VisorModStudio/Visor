@@ -135,7 +135,7 @@ public abstract class GuiMixin implements GuiExtension {
     }
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getSleepTimer()I"), method = "render")
-    public int visor$noSleepOverlay(LocalPlayer instance) {
+    public int visor$suppressSleepFade(LocalPlayer instance) {
         return VisorState.get().isActive()
                 ? 0
                 : instance.getSleepTimer();

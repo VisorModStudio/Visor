@@ -163,10 +163,10 @@ public abstract class MultiPlayerGameModeMixin {
 
         // If a custom cross vector is available, adjust the look direction accordingly.
         GameRendererExtension renderer = (GameRendererExtension) MC.gameRenderer;
-        Vec3 crossVector = renderer.visor$getCrossVec();
-        if (crossVector != null) {
+        Vec3 aimHitPos = renderer.visor$getAimHitPos();
+        if (aimHitPos != null) {
             lookDirection = player.getEyePosition(1.0F)
-                    .subtract(crossVector)
+                    .subtract(aimHitPos)
                     .normalize()
                     .reverse();
         }
