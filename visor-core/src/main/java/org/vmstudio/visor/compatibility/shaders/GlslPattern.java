@@ -93,6 +93,19 @@ public class GlslPattern {
         return token(alt.append(')').toString());
     }
 
+    GlslPattern capturing(String name, Consumer<GlslPattern> body) {
+        gap(false);
+        regex.append("(?<").append(name).append('>');
+        glueNext = true;
+        boolean outerWasIdent = prevWasIdent;
+        prevWasIdent = false;
+        body.accept(this);
+        regex.append(')');
+        glueNext = false;
+        prevWasIdent = true;
+        return this;
+    }
+
     GlslPattern optional(Consumer<GlslPattern> body) {
         gap(false);
         regex.append("(?:");

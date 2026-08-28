@@ -7,6 +7,13 @@ import java.util.regex.Pattern;
 
 public final class ShaderPatch {
     private final List<Rewrite> rewrites = new ArrayList<>();
+    private String hint;
+
+
+    public ShaderPatch hint(String lowercaseLiteral) {
+        this.hint = lowercaseLiteral;
+        return this;
+    }
 
     public ShaderPatch rewrite(String replacement, Consumer<GlslPattern> shape) {
         GlslPattern shaped = new GlslPattern();
@@ -15,7 +22,10 @@ public final class ShaderPatch {
         return this;
     }
 
-    public String applyTo(String source) {
+    public String applyTo(String source, String lowercaseSource) {
+        if (hint != null && !lowercaseSource.contains(hint)) {
+            return source;
+        }
         for (Rewrite rewrite : rewrites) {
             source = rewrite.match().matcher(source).replaceAll(rewrite.replacement());
         }

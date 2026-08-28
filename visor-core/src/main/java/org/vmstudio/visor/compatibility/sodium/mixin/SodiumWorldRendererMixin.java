@@ -9,10 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Group;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/**
- * Sodium re-traverses its chunk graph only when the camera moved since the last frame;
- * every VR pass has its own camera, so a graph cached by the previous pass leaves chunks missing.
- */
 @Pseudo
 @Mixin(targets = {
     "me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer",
