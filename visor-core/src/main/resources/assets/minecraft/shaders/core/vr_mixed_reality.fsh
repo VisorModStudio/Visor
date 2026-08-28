@@ -15,7 +15,7 @@ uniform vec3 uHmdPlaneNormal;
 uniform vec3 uKeyColor;
 
 
-in vec2 texCoordinates;
+in vec2 texCoord0;
 out vec4 fragColor;
 
 
@@ -47,19 +47,19 @@ void main(void) {
 
     if (uAsGrid2x2) {
         // --- 2×2 GRID ---
-        vec2 sampleUV = fract(texCoordinates * 2.0);
+        vec2 sampleUV = fract(texCoord0 * 2.0);
 
-        if (texCoordinates.x < 0.5 && texCoordinates.y < 0.5) {
+        if (texCoord0.x < 0.5 && texCoord0.y < 0.5) {
             // bottom-left quadrant = full third-person
             fragColor.rgb = texture(SamplerColor, sampleUV).rgb;
 
-        } else if (texCoordinates.y >= 0.5) {
+        } else if (texCoord0.y >= 0.5) {
             // top half = front-view pass
             vec3 fragPos = worldPosAt(sampleUV);
 
             if (dot(fragPos - uHmdViewPosition, uHmdPlaneNormal) >= 0.0) {
                 // left-top = color (+ possible key-avoid)
-                if (texCoordinates.x < 0.5) {
+                if (texCoord0.x < 0.5) {
                     vec3 col = texture(SamplerColor, sampleUV).rgb;
                     if (!uAlphaMode) col = nudgeOffKeyColor(col);
                     fragColor.rgb = col;
@@ -73,10 +73,10 @@ void main(void) {
 
     } else {
         // --- SIDE-BY-SIDE LAYOUT ---
-        vec2 sampleUV = fract(texCoordinates * vec2(2.0, 1.0));
+        vec2 sampleUV = fract(texCoord0 * vec2(2.0, 1.0));
 
 
-        if (texCoordinates.x >= 0.5) {
+        if (texCoord0.x >= 0.5) {
             // right half = full third-person
             fragColor.rgb = texture(SamplerColor, sampleUV).rgb;
 

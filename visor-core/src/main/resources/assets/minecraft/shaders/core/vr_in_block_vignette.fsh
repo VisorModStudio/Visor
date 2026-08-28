@@ -2,11 +2,11 @@
 
 uniform float uInBlockProximity;
 
-in vec2 texCoordinates;
+in vec2 texCoord0;
 out vec4 fragColor;
 
 void main() {
-    vec2 center = texCoordinates - vec2(0.5, 0.5);
+    vec2 center = texCoord0 - vec2(0.5, 0.5);
     float d = length(center);
 
     float visibleRadius = mix(1.2, -0.5, uInBlockProximity);

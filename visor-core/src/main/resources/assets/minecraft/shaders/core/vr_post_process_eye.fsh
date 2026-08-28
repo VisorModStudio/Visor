@@ -15,7 +15,7 @@ uniform float uVignetteBorder;
 uniform vec4 uVignetteColor;
 
 
-in vec2 texCoordinates;
+in vec2 texCoord0;
 out vec4 fragColor;
 
 vec4 applyTints(vec4 col) {
@@ -38,13 +38,13 @@ float vignetteMask(vec2 uv) {
 
 void main(){
 
-    vec4 color = texture(Sampler0, texCoordinates.st);
+    vec4 color = texture(Sampler0, texCoord0.st);
 
     // --- Apply all tints
     color = applyTints(color);
 
     // --- Apply vignette
-    float mask = vignetteMask(texCoordinates);
+    float mask = vignetteMask(texCoord0);
     color = mix(color, uVignetteColor, mask);
 
     // --- Finalize
