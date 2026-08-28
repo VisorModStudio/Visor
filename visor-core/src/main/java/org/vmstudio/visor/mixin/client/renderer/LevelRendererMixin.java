@@ -51,7 +51,7 @@ import java.util.*;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-
+//priority to inject before Iris
 @Mixin(value = LevelRenderer.class, priority = 999)
 public abstract class LevelRendererMixin implements ResourceManagerReloadListener, AutoCloseable, LevelRendererExtension {
 
