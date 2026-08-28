@@ -1,152 +1,98 @@
 accessWidener	v1	named
 
 
-accessible method net/minecraft/client/multiplayer/ClientLevel getBlockStatePredictionHandler ()Lnet/minecraft/client/multiplayer/prediction/BlockStatePredictionHandler;
+# ------ OVERLAY WIDGETS ------------------
 
-
+# Used in: overlay widget framework
 accessible field net/minecraft/client/gui/components/AbstractWidget height I
 
-
+# Used in: CheckboxList, TexturedSelectionList
 accessible field net/minecraft/client/gui/components/AbstractSelectionList scrolling Z
 accessible field net/minecraft/client/gui/components/AbstractSelectionList hovered Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 extendable method net/minecraft/client/gui/components/AbstractSelectionList getEntryAtPosition (DD)Lnet/minecraft/client/gui/components/AbstractSelectionList$Entry;
 
+# Used in: EditBoxImaged
 extendable method net/minecraft/client/gui/components/EditBox isBordered ()Z
 
+# Used in: overlay option and value widgets
 accessible field net/minecraft/client/gui/components/EditBox responder Ljava/util/function/Consumer;
 
-
-accessible method net/minecraft/world/entity/LivingEntity spawnItemParticles (Lnet/minecraft/world/item/ItemStack;I)V
-
-
-
+# Used in: VROverlayChat
 accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessages Ljava/util/List;
 
-
-accessible method net/minecraft/world/entity/Entity collide (Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;
-
-#crosshair
+# Used in: HandEffectCrosshair
 accessible field net/minecraft/client/gui/Gui GUI_ICONS_LOCATION Lnet/minecraft/resources/ResourceLocation;
 
+# ------ INPUT ------------------
 
-#Fix Item Model
-accessible class net/minecraft/client/renderer/block/model/ItemModelGenerator$Span
-accessible class net/minecraft/client/renderer/block/model/ItemModelGenerator$SpanFacing
-accessible method net/minecraft/client/renderer/block/model/ItemModelGenerator$SpanFacing isHorizontal ()Z
-accessible method net/minecraft/client/renderer/entity/ItemRenderer renderQuadList (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Ljava/util/List;Lnet/minecraft/world/item/ItemStack;II)V
-
-#Vertex
-accessible class net/minecraft/client/renderer/OutlineBufferSource$EntityOutlineGenerator
-accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Double
-accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Multiple
-
-mutable field com/mojang/blaze3d/vertex/SheetedDecalTextureGenerator cameraInversePose Lorg/joml/Matrix4f;
-mutable field com/mojang/blaze3d/vertex/SheetedDecalTextureGenerator normalInversePose Lorg/joml/Matrix3f;
-
-
-
-# custom player model
-accessible class net/minecraft/client/model/geom/ModelPart$Polygon
-accessible class net/minecraft/client/model/geom/ModelPart$Vertex
-accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
-accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/minecraft/client/model/geom/ModelPart$Polygon;
-
-# custom player model rendering
-accessible field net/minecraft/client/model/PlayerModel slim Z
-extendable method net/minecraft/client/renderer/entity/player/PlayerRenderer setModelProperties (Lnet/minecraft/client/player/AbstractClientPlayer;)V
-
-# modded layer supports
-accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer addLayer (Lnet/minecraft/client/renderer/entity/layers/RenderLayer;)Z
-mutable field net/minecraft/client/renderer/entity/layers/RenderLayer renderer Lnet/minecraft/client/renderer/entity/RenderLayerParent;
-accessible field net/minecraft/client/renderer/entity/layers/RenderLayer renderer Lnet/minecraft/client/renderer/entity/RenderLayerParent;
-
-# gui handling
+# Used in: InputHelper
 accessible method net/minecraft/client/MouseHandler onPress (JIII)V
 accessible method net/minecraft/client/MouseHandler onMove (JDD)V
 accessible method net/minecraft/client/MouseHandler onScroll (JDD)V
 accessible method net/minecraft/client/KeyboardHandler charTyped (JII)V
 
-# for block damage custom (swinging)
-accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode startPrediction (Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V
+# Used in: ClientUtils
+accessible field net/minecraft/client/KeyMapping clickCount I
 
-# for aim fix
-accessible field net/minecraft/network/Connection channel Lio/netty/channel/Channel;
+# ------ CAMERA AND RENDER TARGETS ------------------
 
-# for quicktorch
-accessible method net/minecraft/client/Minecraft startUseItem ()V
-
-# to switch rendertargets for VR cameras
-mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
-accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
-
-
-# XR Camera
+# Used in: VRGameCamera
 accessible field net/minecraft/client/Camera initialized Z
 accessible field net/minecraft/client/Camera level Lnet/minecraft/world/level/BlockGetter;
 accessible field net/minecraft/client/Camera entity Lnet/minecraft/world/entity/Entity;
 accessible field net/minecraft/client/Camera xRot F
 accessible field net/minecraft/client/Camera yRot F
-
-# to set reset camera before tick
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
 
-# for pausemenu buttons
-accessible method net/minecraft/client/Minecraft isMultiplayerServer ()Z
+# Used in: VR render target switching, mirror and shader passes
+mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
 
-# to add custom key mappings
-mutable field net/minecraft/client/Options keyMappings [Lnet/minecraft/client/KeyMapping;
-# to add custom controls categories
-accessible field net/minecraft/client/KeyMapping CATEGORY_SORT_ORDER Ljava/util/Map;
-mutable field net/minecraft/client/KeyMapping CATEGORY_SORT_ORDER Ljava/util/Map;
-# to check key inputs
-accessible field net/minecraft/client/KeyMapping clickCount I
-accessible method net/minecraft/client/KeyMapping release ()V
-accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
-
-# to get the current blend state
+# Used in: GameEffectShadow
 accessible field com/mojang/blaze3d/platform/GlStateManager BLEND Lcom/mojang/blaze3d/platform/GlStateManager$BlendState;
 accessible class com/mojang/blaze3d/platform/GlStateManager$BlendState
 
-# to render vr hands
-accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
+# ------ RENDERING ------------------
 
-# to create custom END shader
+# Used in: VRShaderEndPortal
 accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible class net/minecraft/client/renderer/RenderType$CompositeState
 accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
 accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 
-# to render item activation outside of gamerenderer
+# Used in: ItemInHandLayerMixin, PlayerItemInHandLayerMixin
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
+
+# Used in: GameEffectVanilla, GameRendererMixin
 accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
 
-# tohave differnt postEffects per pass
-accessible field net/minecraft/client/renderer/GameRenderer postEffect Lnet/minecraft/client/renderer/PostChain;
+# Used in: VRPlayerModelFull, VRPlayerModelSimple, VRPlayerRendererFull, VRPlayerRendererHandsOnly
+accessible field net/minecraft/client/model/PlayerModel slim Z
 
-# to disable destroy delay, on roomscale hitting
-accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyDelay I
-# to validate the kept swing-mining target against the actual destroy target
-accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyBlockPos Lnet/minecraft/core/BlockPos;
-# to build a side-effect-free useOn probe context (null player, copied stack)
-accessible method net/minecraft/world/item/context/UseOnContext <init> (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V
+# Used in: VRPlayerRendererFull, VRPlayerRendererHandsOnly
+extendable method net/minecraft/client/renderer/entity/player/PlayerRenderer setModelProperties (Lnet/minecraft/client/player/AbstractClientPlayer;)V
 
-# for correct vr rendering
+# Used in: GameRendererMixin, VRCameraEntityCache, VRRendererBase
 accessible field net/minecraft/world/entity/Entity eyeHeight F
 
-# to add visor items in the creative menus
-accessible field net/minecraft/world/item/CreativeModeTabs TOOLS_AND_UTILITIES Lnet/minecraft/resources/ResourceKey;
-accessible field net/minecraft/world/item/CreativeModeTabs FOOD_AND_DRINKS Lnet/minecraft/resources/ResourceKey;
+# Used in: Common_LivingEntityMixin
+accessible method net/minecraft/world/entity/LivingEntity spawnItemParticles (Lnet/minecraft/world/item/ItemStack;I)V
 
+# ------ SWINGING ------------------
 
+# Used in: TaskSwing
+accessible method net/minecraft/client/multiplayer/ClientLevel getBlockStatePredictionHandler ()Lnet/minecraft/client/multiplayer/prediction/BlockStatePredictionHandler;
+accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyDelay I
+accessible field net/minecraft/client/multiplayer/MultiPlayerGameMode destroyBlockPos Lnet/minecraft/core/BlockPos;
+accessible method net/minecraft/world/item/context/UseOnContext <init> (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V
 
-# to init VR
-accessible class net/minecraft/client/ResourceLoadStateTracker$ReloadState
-accessible field net/minecraft/client/ResourceLoadStateTracker$ReloadState reloadReason Lnet/minecraft/client/ResourceLoadStateTracker$ReloadReason;
+# Used in: MultiPlayerGameModeMixin, TaskSwing
+accessible method net/minecraft/client/multiplayer/MultiPlayerGameMode startPrediction (Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V
 
-# to spawn brush particles
-accessible method net/minecraft/world/item/BrushItem spawnDustParticles (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/BlockHitResult;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/entity/HumanoidArm;)V
+# Used in: MinecraftMixin
+accessible method net/minecraft/client/Minecraft startUseItem ()V
 
-# do not kick climbing players
-accessible field net/minecraft/server/network/ServerGamePacketListenerImpl aboveGroundTickCount I
+# ------ OTHER ------------------
 
-# for fishinghook mixin superclass ctor
+# Used in: FishingHookMixin
 accessible method net/minecraft/world/entity/projectile/Projectile <init> (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V
