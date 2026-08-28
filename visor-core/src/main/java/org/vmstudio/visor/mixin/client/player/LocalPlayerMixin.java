@@ -151,10 +151,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
         if (VisorState.get().isNotActive()
                 || !visor$isLocalPlayer(this)
                 || Minecraft.getInstance().getCameraEntity() != visor$getPlayer()) {
-            if (this.visor$walkUpBlocksActive) {
-                setMaxUpStep(0.6F);
-                this.visor$walkUpBlocksActive = false;
-            }
+            visor$releaseWalkUp();
             original.call(type, pos);
             return;
         }
@@ -165,57 +162,12 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             return;
         }
 
-        boolean canMoveY = true;
-
         Vector3fc origin = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.TICK)
                 .getOrigin();
 
-        if ((this.zza != 0.0F
-                || this.isFallFlying()
-                || Math.abs(this.getDeltaMovement().x) > 0.0095
-                || Math.abs(this.getDeltaMovement().z) > 0.0095
-        )) {
-            double xOffset = origin.x() - this.getX();
-            double zOffset = origin.z() - this.getZ();
-            double prevX = this.getX();
-            double prevZ = this.getZ();
-
-            if (VRClientSettings.isWalkUpEnabled()
-                    && this.visor$walkUpBlocksActive
-                    && visor$isApproachingInteractable(pos)) {
-                this.setMaxUpStep(0.6F);
-                this.visor$walkUpBlocksActive = false;
-            }
-
-            original.call(type, pos);
-
-            if (VRClientSettings.isWalkUpEnabled()) {
-                boolean smartBlocked = visor$isApproachingInteractable(this.getDeltaMovement());
-                this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F
-                        && !smartBlocked;
-                this.setMaxUpStep(
-                        this.visor$walkUpBlocksActive
-                                ? 1.0F : 0.6F
-                );
-            } else {
-                if (this.visor$walkUpBlocksActive) {
-                    this.setMaxUpStep(0.6F);
-                    this.visor$walkUpBlocksActive = false;
-                }
-                this.updateAutoJump(
-                        (float) (this.getX() - prevX),
-                        (float) (this.getZ() - prevZ)
-                );
-            }
-
-            ClientContext.localPlayer.setOrigin(
-                    (float) (this.getX() + xOffset),
-                    (float) (this.getY() + this.visor$getRoomYOffset()),
-                    (float) (this.getZ() + zOffset),
-                    false
-            );
-        } else if (canMoveY) {
+        if (!visor$isDrivenExternally()) {
+            // roomscale walking. only y is minecraft driven
             original.call(type, new Vec3(0.0D, pos.y, 0.0D));
             ClientContext.localPlayer.setOrigin(
                     origin.x(),
@@ -223,10 +175,62 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                     origin.z(),
                     false
             );
-        }else {
-            this.setOnGround(true);
+            return;
         }
 
+        double xOffset = origin.x() - this.getX();
+        double zOffset = origin.z() - this.getZ();
+        double prevX = this.getX();
+        double prevZ = this.getZ();
+
+        if (VRClientSettings.isWalkUpEnabled()
+                && this.visor$walkUpBlocksActive
+                && visor$isApproachingInteractable(pos)) {
+            visor$releaseWalkUp();
+        }
+
+        original.call(type, pos);
+
+        if (VRClientSettings.isWalkUpEnabled()) {
+            boolean smartBlocked = visor$isApproachingInteractable(this.getDeltaMovement());
+            this.visor$walkUpBlocksActive = this.getBlockJumpFactor() == 1.0F
+                    && !smartBlocked;
+            this.setMaxUpStep(
+                    this.visor$walkUpBlocksActive
+                            ? 1.0F : 0.6F
+            );
+        } else {
+            visor$releaseWalkUp();
+            this.updateAutoJump(
+                    (float) (this.getX() - prevX),
+                    (float) (this.getZ() - prevZ)
+            );
+        }
+
+        ClientContext.localPlayer.setOrigin(
+                (float) (this.getX() + xOffset),
+                (float) (this.getY() + this.visor$getRoomYOffset()),
+                (float) (this.getZ() + zOffset),
+                false
+        );
+    }
+
+    @Unique
+    private void visor$releaseWalkUp() {
+        if (this.visor$walkUpBlocksActive) {
+            // 0.6F is from LivingEntity's constructor
+            this.setMaxUpStep(0.6F);
+            this.visor$walkUpBlocksActive = false;
+        }
+    }
+
+    @Unique
+    private boolean visor$isDrivenExternally() {
+        final double minDriftSpeed = 0.0095D;
+        return this.zza != 0.0F
+                || this.isFallFlying()
+                || Math.abs(this.getDeltaMovement().x) > minDriftSpeed
+                || Math.abs(this.getDeltaMovement().z) > minDriftSpeed;
     }
 
     @Unique
@@ -246,19 +250,15 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             return;
         }
 
-        double speed = (relative.x * relative.x) + (relative.z * relative.z);
-        if (speed < 0.0005) {
+        final double minInputLengthSq = 0.0005D;
+
+        Vec3 horizontal = new Vec3(relative.x, 0.0D, relative.z);
+        double lengthSq = horizontal.lengthSqr();
+        if (lengthSq < minInputLengthSq) {
             return;
         }
-
-        speed = Math.max(1, Math.sqrt(speed));
-
-        speed = (double) amount / speed;
-        Vec3 move = new Vec3(
-                relative.x * speed,
-                0.0D,
-                relative.z * speed
-        );
+        // same as vanilla Entity.getInputVector
+        Vec3 move = (lengthSq > 1.0D ? horizontal.normalize() : horizontal).scale(amount);
 
 
         var rotationElement = ClientContext.localPlayer.getRotationElement(PlayerPoseType.TICK);
