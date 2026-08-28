@@ -11,7 +11,7 @@ import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRHan
 import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRShaders;
@@ -136,7 +136,7 @@ public class HandEffectTeleport extends VRHandEffect {
                     .getHmd()
                     .getPosition());
             float light = MC.level.getMaxLocalRawBrightness(BlockPos.containing(lightProbe));
-            light = Math.max(light, ShadersHelper.minShaderLight());
+            light = Math.max(light, ShaderCompatHelper.minShaderLight());
 
             float lightPercent = Math.min(1.0f, light / MC.level.getMaxLightLevel());
             color = AtumColor.immutable(

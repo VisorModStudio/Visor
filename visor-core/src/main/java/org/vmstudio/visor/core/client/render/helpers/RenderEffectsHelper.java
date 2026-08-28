@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -20,8 +20,8 @@ import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.shaders.VRShaderInBlockVignette;
 
-public class VREffectsHelper {
-    private VREffectsHelper() {
+public class RenderEffectsHelper {
+    private RenderEffectsHelper() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
@@ -91,85 +91,71 @@ public class VREffectsHelper {
     }
 
 
-    private static final float MASK_DEPTH = 20F;
+    private static final float MASK_FAR_PLANE = 20F;
 
-    private static boolean stencilWasAlreadyOn;
+    private static boolean maskEnabledStencil;
 
 
-    public static void drawEyeStencil() {
-        if (ShadersHelper.isShaderActive()) {
+    public static void maskHiddenArea() {
+        maskEnabledStencil = false;
+        if (ShaderCompatHelper.isShaderActive()) {
             return;
         }
-        stencilWasAlreadyOn = GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
-        VRRenderPass renderPass = VRRenderState.getRenderPass();
-        if (renderPass.isEye()
-                && !ImmPortalsCompatHelper.isRenderingPortalWorld()
-                && !ImmPortalsCompatHelper.dropEyeMask()) {
-            doStencil(false);
+        if (!VRRenderState.getRenderPass().isEye()
+                || ImmPortalsCompatHelper.isRenderingPortalWorld()
+                || ImmPortalsCompatHelper.dropEyeMask()) {
+            return;
         }
+        float[] mask = hiddenAreaFor(VRRenderState.getRenderPass());
+        if (mask == null || mask.length < 2) {
+            return;
+        }
+        writeHiddenAreaStencil(mask);
     }
 
-    public static void disableStencilTest() {
-        if (!stencilWasAlreadyOn) {
+    public static void releaseHiddenAreaMask() {
+        if (maskEnabledStencil) {
             GL11C.glDisable(GL11C.GL_STENCIL_TEST);
+            maskEnabledStencil = false;
         }
     }
 
 
-
-
-    public static void doStencil(boolean inverse) {
-        Minecraft mc = Minecraft.getInstance();
-        RenderTarget rt = mc.getMainRenderTarget();
+    private static void writeHiddenAreaStencil(float[] mask) {
+        RenderTarget target = Minecraft.getInstance().getMainRenderTarget();
 
         RenderSystem.backupProjectionMatrix();
         RenderSystem.getModelViewStack().pushPose();
 
         try {
-            enableStencilTest();
-            configureStencilWrite(inverse);
-            clearStencilAndDepth();
+            beginStencilWrite();
+            Matrix4f ortho = new Matrix4f()
+                    .setOrtho(0, target.viewWidth, 0, target.viewHeight, 0, MASK_FAR_PLANE);
+            RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
+            RenderSystem.applyModelViewMatrix();
 
-            setupMaskDrawState();
-            applyOrthoProjection(rt);
-
-            float[] maskVerts = getStencilMask(VRRenderState.getRenderPass());
-            drawStencilMask(maskVerts, inverse ? -MASK_DEPTH : 0F);
-
+            drawMaskTriangles(mask);
         } finally {
             RenderSystem.getModelViewStack().popPose();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.restoreProjectionMatrix();
 
-            restorePostStencilState();
+            endStencilWrite();
         }
     }
 
-    private static void enableStencilTest() {
+    private static void beginStencilWrite() {
+        maskEnabledStencil = !GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         GL11.glEnable(GL11.GL_STENCIL_TEST);
+
         RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
         RenderSystem.stencilMask(0xFF);
-    }
+        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF);
+        RenderSystem.clearStencil(0);
+        RenderSystem.clearDepth(1);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT, false);
 
-    private static void configureStencilWrite(boolean inverse) {
-        int clearValue = inverse ? 0xFF : 0;
-        int stampValue = inverse ? 0 : 0xFF;
-        boolean writeColor = !inverse;
-
-        RenderSystem.clearStencil(clearValue);
-        RenderSystem.clearDepth(inverse ? 0 : 1);
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, stampValue, 0xFF);
-        RenderSystem.colorMask(writeColor, writeColor, writeColor, true);
-    }
-
-    private static void clearStencilAndDepth() {
-        RenderSystem.clear(
-                GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT,
-                false
-        );
-    }
-
-    private static void setupMaskDrawState() {
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
         RenderSystem.depthFunc(GL11.GL_ALWAYS);
@@ -177,14 +163,14 @@ public class VREffectsHelper {
         RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
     }
 
-    private static void applyOrthoProjection(RenderTarget rt) {
-        Matrix4f ortho = new Matrix4f()
-                .setOrtho(0, rt.viewWidth, 0, rt.viewHeight, 0, MASK_DEPTH);
-        RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
-        RenderSystem.applyModelViewMatrix();
+    private static void endStencilWrite() {
+        RenderSystem.stencilMask(0);
+        RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
+        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        RenderStateHelper.restoreAfterExternalRender(true);
     }
 
-    private static float[] getStencilMask(VRRenderPass pass) {
+    private static float[] hiddenAreaFor(VRRenderPass pass) {
         VRRendererBase renderer = ClientContext.renderer;
         if (pass == VRRenderPass.EYE_LEFT) {
             return renderer.getHiddenAreaVertices(EyeType.LEFT);
@@ -195,9 +181,7 @@ public class VREffectsHelper {
         return null;
     }
 
-    private static void drawStencilMask(float[] verts, float depth) {
-        if (verts == null || verts.length < 2) return;
-
+    private static void drawMaskTriangles(float[] verts) {
         Minecraft.getInstance()
                 .getTextureManager()
                 .bindForSetup(TexturesHelper.getBlackTexture());
@@ -208,16 +192,9 @@ public class VREffectsHelper {
 
         float scale = ClientContext.renderer.renderScale;
         for (int i = 0; i + 1 < verts.length; i += 2) {
-            buf.vertex(verts[i] * scale, verts[i + 1] * scale, depth).endVertex();
+            buf.vertex(verts[i] * scale, verts[i + 1] * scale, 0F).endVertex();
         }
 
         BufferUploader.drawWithShader(buf.end());
-    }
-
-    private static void restorePostStencilState() {
-        RenderSystem.stencilMask(0);
-        RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
-        RenderStateHelper.restoreAfterExternalRender(true);
     }
 }

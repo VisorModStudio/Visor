@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.compatibility.MixinGate;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.compatibility.iris.extensions.IrisPipelineExtension;
@@ -59,7 +59,7 @@ public class PipelineManagerMixin implements IrisPipelineManagerExtension {
         visor$basePipeline = cir.getReturnValue();
 
         if (!IrisCompatHelper.perEyePipelines() || !VisorState.get().isActive()
-                || !ShadersHelper.isShaderActive()) {
+                || !ShaderCompatHelper.isShaderActive()) {
             return;
         }
         try {
@@ -148,7 +148,7 @@ public class PipelineManagerMixin implements IrisPipelineManagerExtension {
 
     @Inject(method = "destroyPipeline", at = @At("HEAD"))
     private void visor$onPipelineDestroyed(CallbackInfo ci) {
-        ShadersHelper.bridge().onPackChanged();
+        ShaderCompatHelper.bridge().onPackChanged();
         IrisCompatHelper.resetPackState();
         visor$lastSsboPass = null;
         visor$basePipeline = null;

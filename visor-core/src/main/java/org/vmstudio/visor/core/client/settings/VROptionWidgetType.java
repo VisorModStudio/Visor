@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.settings;
 import lombok.Getter;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.VROptionCategory;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.settings.options.OptionBehaviour;
@@ -241,7 +241,7 @@ public enum VROptionWidgetType {
                             .simple(it)
                             .setOnChanged(() -> {
                                 if (VisorState.get().isActive()
-                                        && !ShadersHelper.isShaderActive()) {
+                                        && !ShaderCompatHelper.isShaderActive()) {
                                     ClientContext.renderer.prepareReinit(
                                             "mirror mode changed"
                                     );

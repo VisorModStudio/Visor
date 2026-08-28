@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayPose;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -94,7 +94,7 @@ public class RenderGuiHelper {
 
         // --- Quad + light ---
         int packedLight = -1;
-        boolean useLitPath = MC.level != null && useLight && !ShadersHelper.isShaderActive();
+        boolean useLitPath = MC.level != null && useLight && !ShaderCompatHelper.isShaderActive();
         if (useLitPath) {
 
             boolean overlayInBlock = RenderHelper.isInSolidBlock(position)
@@ -105,7 +105,7 @@ public class RenderGuiHelper {
             packedLight = ClientUtils.packedLightWithFloor(
                     MC.level,
                     BlockPos.containing(light.x(), light.y(), light.z()),
-                    ShadersHelper.minShaderLight()
+                    ShaderCompatHelper.minShaderLight()
             );
             RenderHelper.renderDisplayQuadWithLight(
                     poseStack.last().pose(),

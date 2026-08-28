@@ -25,9 +25,9 @@ import org.vmstudio.visor.core.client.render.decoration.registry.VRGameEffectReg
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
+import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
@@ -227,7 +227,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         currentDecorator.setupRendering(poseStack, partialTicks);
 
         MC.gameRenderer.lightTexture().turnOffLightLayer();
-        if (!ShadersHelper.isShaderActive()) {
+        if (!ShaderCompatHelper.isShaderActive()) {
             ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         }
         //VR BODY
@@ -274,16 +274,16 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 float proximity = ((GameRendererExtension) MC.gameRenderer)
                         .visor$getBlockProximity();
                 if (proximity > 0.0f) {
-                    VREffectsHelper.renderInBlockVignette(proximity);
+                    RenderEffectsHelper.renderInBlockVignette(proximity);
                 }
             } else if (((GameRendererExtension) MC.gameRenderer).visor$isInBlock()) {
                 // Third person passes
-                VREffectsHelper.renderInBlockEffect();
+                RenderEffectsHelper.renderInBlockEffect();
             }
         }
 
         renderGameEffects(currentDecorator, poseStack, partialTicks);
-        if (!ShadersHelper.isShaderActive()) {
+        if (!ShaderCompatHelper.isShaderActive()) {
             ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
             ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
             ClientContext.handRenderer.renderGuiHands(

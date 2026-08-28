@@ -4,7 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import org.vmstudio.visor.api.ModLoader;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
 import net.minecraft.client.Minecraft;
 
@@ -41,7 +41,7 @@ public class VRRenderTarget extends RenderTarget {
         }
         this.setClearColor(0, 0, 0, 0);
 
-        ShadersHelper.bridge().onRenderTargetCreated(this);
+        ShaderCompatHelper.bridge().onRenderTargetCreated(this);
     }
 
 

@@ -23,7 +23,7 @@ import org.vmstudio.visor.core.client.render.VRCameraEntityCache;
 import org.vmstudio.visor.core.client.render.VRGameCamera;
 import org.vmstudio.visor.core.client.render.helpers.RenderHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
+import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -520,7 +520,10 @@ public abstract class GameRendererMixin
     @Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
     public void visor$freezeFovInVR(CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
-            this.oldFov = this.fov = 1.0f;
+            // vanilla tickFov starts from when the view is not modified
+            final float neutralFovModifier = 1.0F;
+            this.fov = neutralFovModifier;
+            this.oldFov = neutralFovModifier;
             ci.cancel();
         }
     }
@@ -568,9 +571,9 @@ public abstract class GameRendererMixin
     }
 
     @Inject(at = @At("TAIL"), method = "renderLevel")
-    public void visor$endEyeStencil(float f, long l, PoseStack poseStack, CallbackInfo ci) {
+    public void visor$releaseHiddenAreaMask(float f, long l, PoseStack poseStack, CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
-            VREffectsHelper.disableStencilTest();
+            RenderEffectsHelper.releaseHiddenAreaMask();
         }
     }
 

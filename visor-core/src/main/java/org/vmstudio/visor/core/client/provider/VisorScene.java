@@ -14,7 +14,7 @@ import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -70,7 +70,7 @@ public class VisorScene implements AtumVRScene {
         profiler.pop();
         GLUtils.checkGLError("post VR Overlays texturing");
 
-        ShadersHelper.bridge().beginFrame(
+        ShaderCompatHelper.bridge().beginFrame(
                 renderContext.partialTicks(),
                 renderContext.nanoTime()
         );
@@ -92,7 +92,7 @@ public class VisorScene implements AtumVRScene {
         }
 
 
-        ShadersHelper.bridge().endFrame();
+        ShaderCompatHelper.bridge().endFrame();
 
         profiler.push("VR mirror");
         VRRenderState.startVRMirrorPhase();
@@ -147,9 +147,9 @@ public class VisorScene implements AtumVRScene {
         RenderSystem.clear(16384, Minecraft.ON_OSX);
         RenderSystem.enableDepthTest();
 
-        ShadersHelper.bridge().beginEye(renderPass.getEyeOrLeft());
+        ShaderCompatHelper.bridge().beginEye(renderPass.getEyeOrLeft());
 
-        if (ShadersHelper.isShaderActive()) {
+        if (ShaderCompatHelper.isShaderActive()) {
             RenderSystem.setShaderTexture(0, 0);
             RenderSystem.setShaderTexture(1, 0);
             RenderSystem.setShaderTexture(2, 0);
@@ -161,7 +161,7 @@ public class VisorScene implements AtumVRScene {
                 context.renderLevel()
         );
 
-        if (ShadersHelper.isShaderActive()) {
+        if (ShaderCompatHelper.isShaderActive()) {
             MC.mainRenderTarget.bindWrite(true);
             PoseStack modelView = RenderSystem.getModelViewStack();
             modelView.pushPose();
@@ -191,7 +191,7 @@ public class VisorScene implements AtumVRScene {
 
         }
 
-        ShadersHelper.bridge().endEye();
+        ShaderCompatHelper.bridge().endEye();
     }
 
 

@@ -23,7 +23,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
-import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
+import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -52,7 +52,8 @@ import java.util.*;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
-//priority to inject before Iris
+// below the default 1000 so these injectors are applied before higher priority
+// mixins, like Iris
 @Mixin(value = LevelRenderer.class, priority = 999)
 public abstract class LevelRendererMixin implements ResourceManagerReloadListener, AutoCloseable, LevelRendererExtension {
 
@@ -144,12 +145,11 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;getRenderDistance()F", shift = Shift.BEFORE),
             method = "renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V")
-    public void visor$stencil(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer,
+    public void visor$maskHiddenArea(PoseStack poseStack, float f, long l, boolean bl, Camera camera, GameRenderer gameRenderer,
                              LightTexture lightTexture, Matrix4f matrix4f, CallbackInfo info
     ) {
         if (VRRenderState.getPhase().isNotVanilla()) {
-            //@TODO rework to fix Quest 3 issue
-            //VREffectsHelper.drawEyeStencil();
+            RenderEffectsHelper.maskHiddenArea();
         }
     }
 

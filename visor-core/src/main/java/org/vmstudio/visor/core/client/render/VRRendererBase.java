@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.gui.VRGuiManagerImpl;
@@ -184,7 +184,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
         firstPersonTarget = new RenderTargetFirst();
         if(list.contains(VRRenderPass.CENTER)
-                || ShadersHelper.isShaderActive()
+                || ShaderCompatHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             firstPersonTarget.init(
                     mirrorWidth, mirrorHeight
@@ -193,7 +193,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
         thirdPersonTarget = new RenderTargetThird();
         if(list.contains(VRRenderPass.THIRD_PERSON)
-                || ShadersHelper.isShaderActive()
+                || ShaderCompatHelper.isShaderActive()
                 && (mirrorWidth > 0 && mirrorHeight > 0)) {
             thirdPersonTarget.init(
                     mirrorWidth, mirrorHeight
@@ -246,7 +246,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
         minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
 
-        ShadersHelper.bridge().onVisorTargetsRecreated(eyeRenderWidth, eyeRenderHeight);
+        ShaderCompatHelper.bridge().onVisorTargetsRecreated(eyeRenderWidth, eyeRenderHeight);
 
         this.reinitTargets = false;
 
@@ -337,7 +337,7 @@ public abstract class VRRendererBase implements VRRenderer {
             }
         }
 
-        if (ShadersHelper.sameSizedBuffers()) {
+        if (ShaderCompatHelper.sameSizedBuffers()) {
             mirrorWidth = eyeWidth;
             mirrorHeight = eyeHeight;
         }

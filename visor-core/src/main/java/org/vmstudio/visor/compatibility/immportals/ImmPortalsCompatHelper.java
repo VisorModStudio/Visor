@@ -21,7 +21,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.player.VRPose;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
 import java.lang.reflect.Field;
@@ -69,7 +69,7 @@ public final class ImmPortalsCompatHelper {
     }
 
     private static boolean wantsCompatibilityMode() {
-        if (ShadersHelper.isShaderActive()) {
+        if (ShaderCompatHelper.isShaderActive()) {
             return true;
         }
         return !isStencilMode();

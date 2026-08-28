@@ -8,7 +8,7 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.compatibility.shaders.IrisVRBridge;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -183,7 +183,7 @@ public final class IrisCompatHelper {
             return;
         }
         try {
-            ShadersHelper.setBridge(new ReflectiveIrisBridge());
+            ShaderCompatHelper.setBridge(new ReflectiveIrisBridge());
             LoggerUtils.getLogger().info("Visor: Iris VR bridge bound ({}).",
                     ModLoader.get().isModLoaded(OCULUS_MOD_ID) ? "Oculus" : "Iris");
         } catch (Throwable t) {

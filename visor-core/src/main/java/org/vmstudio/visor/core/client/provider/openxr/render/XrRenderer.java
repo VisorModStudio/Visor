@@ -20,6 +20,8 @@ import org.lwjgl.openxr.*;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.EnumMap;
+import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 
@@ -48,6 +50,9 @@ public class XrRenderer extends VRRendererBase {
     /** SteamVR + Linux workaround on GL issue */
     private boolean steamVRLinuxWorkaround;
     private int lastSceneGLError;
+
+    private final Map<EyeType, float[]> hiddenAreaTangents = new EnumMap<>(EyeType.class);
+    private final Map<EyeType, float[]> hiddenAreaFrustum = new EnumMap<>(EyeType.class);
 
     public XrRenderer(XrProvider provider) {
         vrProvider = provider;
@@ -307,6 +312,50 @@ public class XrRenderer extends VRRendererBase {
                 );
     }
 
+
+    @Override
+    public float[] getHiddenAreaVertices(EyeType eyeType) {
+        float[] tangents = hiddenAreaTangents.get(eyeType);
+        if (tangents != null) {
+            projectHiddenArea(eyeType, tangents);
+        }
+        return super.getHiddenAreaVertices(eyeType);
+    }
+
+    private void projectHiddenArea(EyeType eyeType, float[] tangents) {
+        XrFovf fov = vrProvider.getInputHandler()
+                .getDevice(AtumVRDeviceHMD.ID, XRDeviceHMD.class)
+                .getXrView(eyeType).fov();
+
+        float left = (float) Math.tan(fov.angleLeft());
+        float right = (float) Math.tan(fov.angleRight());
+        float down = (float) Math.tan(fov.angleDown());
+        float up = (float) Math.tan(fov.angleUp());
+
+        float width = right - left;
+        float height = up - down;
+        if (width <= 0.0F || height <= 0.0F) {
+            // xrLocateViews has not filled the view yet
+            return;
+        }
+
+        float[] frustum = hiddenAreaFrustum.get(eyeType);
+        if (frustum != null
+                && frustum[0] == left && frustum[1] == right
+                && frustum[2] == down && frustum[3] == up) {
+            return;
+        }
+        hiddenAreaFrustum.put(eyeType, new float[]{left, right, down, up});
+
+        float[] pixels = hiddenArea.get(eyeType);
+        float pixelsPerUnitX = getResolutionWidth() / width;
+        float pixelsPerUnitY = getResolutionHeight() / height;
+        for (int i = 0; i < tangents.length; i += 2) {
+            pixels[i] = (tangents[i] - left) * pixelsPerUnitX;
+            pixels[i + 1] = (tangents[i + 1] - down) * pixelsPerUnitY;
+        }
+    }
+
     @Override
     protected void setupResolution(MemoryStack stack) {
         resolutionWidth = vrProvider.getSession().getSwapChain().getEyeWidth();
@@ -411,10 +460,14 @@ public class XrRenderer extends VRRendererBase {
             );
             return;
         }
+        hiddenAreaTangents.clear();
+        hiddenAreaFrustum.clear();
         try {
             loadHiddenAreaMesh(stack);
         } catch (Throwable e) {
             hiddenArea.clear();
+            hiddenAreaTangents.clear();
+            hiddenAreaFrustum.clear();
             getVrProvider().getLogger().logError(
                     "Failed to load hidden-area mesh, continuing without it: "
                             + e.getClass().getSimpleName() + ": " + e.getMessage()
@@ -474,20 +527,19 @@ public class XrRenderer extends VRRendererBase {
                     "retrieve mesh"
             );
 
-            // 5) Flatten into your float[] format (tri-list: x,y,x,y,…)
-            float[] area = new float[indexCount * 2];
+            // 5) Flatten into a tri-list (x,y,x,y,…).
+            float[] tangents = new float[indexCount * 2];
             for (int i = 0; i < indexCount; i++) {
                 XrVector2f v = verts.get(idxBuf.get(i));
-                // If your runtime gives coords in [-1..1], map them to [0..1]:
-                float ux = (v.x() * 0.5f) + 0.5f;
-                float uy = (v.y() * 0.5f) + 0.5f;
-                // then to pixels:
-                area[i*2    ] = ux * getResolutionWidth();
-                area[i*2 + 1] = uy * getResolutionHeight();
+                tangents[i * 2] = v.x();
+                tangents[i * 2 + 1] = v.y();
             }
 
-            hiddenArea.put(EyeType.fromIndex(eye), area);
-            System.out.println("Hidden-area mesh loaded for eye " + eye);
+            hiddenAreaTangents.put(EyeType.fromIndex(eye), tangents);
+            hiddenArea.put(EyeType.fromIndex(eye), new float[tangents.length]);
+            getVrProvider().getLogger().logInfo(
+                    "Hidden-area mesh loaded for eye " + eye + " (" + (indexCount / 3) + " triangles)"
+            );
         }
     }
 

@@ -4,10 +4,10 @@ package org.vmstudio.visor.compatibility;
 import org.vmstudio.visor.compatibility.shaders.IrisVRBridge;
 import org.vmstudio.visor.compatibility.shaders.NoOpIrisVRBridge;
 
-public final class ShadersHelper {
+public final class ShaderCompatHelper {
     private static volatile IrisVRBridge bridge = new NoOpIrisVRBridge();
 
-    private ShadersHelper() {
+    private ShaderCompatHelper() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 

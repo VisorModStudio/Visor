@@ -22,7 +22,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.utils.PlayerModelUtils;
@@ -400,7 +400,7 @@ public class VRHandRenderer {
         Vec3 headPos = new Vec3((Vector3f) ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.RENDER).getHmd().getPosition());
         float light = MC.level.getMaxLocalRawBrightness(BlockPos.containing(headPos));
-        light = Math.max(light, ShadersHelper.minShaderLight());
+        light = Math.max(light, ShaderCompatHelper.minShaderLight());
         float fraction = light / MC.level.getMaxLightLevel();
         return new AtumColorImmutable(
                 Mth.floor(base.getRedInt() * fraction),

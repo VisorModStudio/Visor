@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.core.client.render.helpers.VREffectsHelper;
+import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,7 @@ public class DecoratorWinScreen extends VRDecorator {
 
     @Override
     public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
-        VREffectsHelper.renderInBlockEffect();
+        RenderEffectsHelper.renderInBlockEffect();
     }
 
 

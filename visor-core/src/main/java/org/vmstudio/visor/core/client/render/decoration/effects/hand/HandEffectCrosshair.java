@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.render.decoration.effects.VRHandEffect;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.server.VRServerSettings;
-import org.vmstudio.visor.compatibility.ShadersHelper;
+import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
@@ -183,7 +183,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         float rawLight = MC.level.getMaxLocalRawBrightness(
                 BlockPos.containing(new Vec3(crossPos))
         );
-        float light =Math.max(rawLight, ShadersHelper.minShaderLight());
+        float light =Math.max(rawLight, ShaderCompatHelper.minShaderLight());
         return light / (float) MC.level.getMaxLightLevel();
     }
 
