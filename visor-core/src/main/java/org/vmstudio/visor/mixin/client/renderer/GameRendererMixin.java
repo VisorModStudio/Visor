@@ -379,7 +379,6 @@ public abstract class GameRendererMixin
 
         original.call(partialTick);
 
-        // restore entity
         this.visor$restoreCameraEntity(cameraEntity);
         cameraEntity.setBoundingBox(originalBB);
 

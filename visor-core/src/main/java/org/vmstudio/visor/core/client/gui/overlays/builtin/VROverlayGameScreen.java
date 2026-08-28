@@ -160,7 +160,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
                     offset.z / 2.0f + hmdPos.z()
             );
 
-            // orient screen
+
             Vector3f look = new Vector3f(
                     relativePosition.x() - hmdPos.x(),
                     relativePosition.y() - hmdPos.y(),
