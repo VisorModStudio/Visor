@@ -68,14 +68,14 @@ public final class VisorChannel {
             payloadId = buffer.readByte();
         }catch (IndexOutOfBoundsException e){
             VisorAPI.client().getLogger().error(
-                    "VisorChannel '"+channelId+"': Unidentified payload received on client"
+                    "VisorChannel '"+channelId+"': Received unidentified payload from server"
             );
             return;
         }
         VisorPayloadToClient payload = toClientReader.read(payloadId, buffer);
         if (payload == null) {
             VisorAPI.client().getLogger().error(
-                    "VisorChannel '"+channelId+"': Got unexpected payload identifier on client: {}", payloadId
+                    "VisorChannel '"+channelId+"': Received unexpected payloadID from server: {}", payloadId
             );
             return;
         }
@@ -91,14 +91,14 @@ public final class VisorChannel {
             payloadId = buffer.readByte();
         }catch (IndexOutOfBoundsException e){
             VisorAPI.server().getLogger().error(
-                    "VisorChannel '"+channelId+"': Unidentified payload received on server"
+                    "VisorChannel '"+channelId+"': Received unidentified payload from client. Sender UUID: {}  Sender name: {}", sender.getStringUUID(), sender.getName()
             );
             return;
         }
         VisorPayloadToServer payload = toServerReader.read(payloadId, buffer);
         if (payload == null) {
             VisorAPI.server().getLogger().error(
-                    "VisorChannel '"+channelId+"': Got unexpected payload identifier on server: {}", payloadId
+                    "VisorChannel '"+channelId+"': Received unexpected payloadID from client: '{}' Sender UUID: {}  Sender name: {}", payloadId, sender.getStringUUID(), sender.getName()
             );
             return;
         }
@@ -207,7 +207,7 @@ public final class VisorChannel {
         public @NotNull VisorChannel build() {
             if (toServerReader == null && toClientReader == null) {
                 throw new IllegalStateException(
-                        "VisorAddonChannel " + channelId + " must declare at least one direction");
+                        "VisorAddonChannel " + channelId + " haven't declared any packet readers!");
             }
             return new VisorChannel(this);
         }

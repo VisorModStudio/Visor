@@ -61,7 +61,7 @@ public enum VisorCorePayloadID {
 
     @Environment(EnvType.CLIENT)
     public static VisorPayloadToClient readToClient(VisorCorePayloadID payloadID,
-                                             FriendlyByteBuf buffer) {
+                                                    FriendlyByteBuf buffer) {
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToClient.read(buffer);
             case SERVER_SETTINGS -> SettingsPayloadToClient.read(buffer);
@@ -79,7 +79,7 @@ public enum VisorCorePayloadID {
             case OTHER_GUN_ANGLE -> VROtherGunAnglePayloadToClient.read(buffer);
             default -> {
                 VisorAPI.client().getLogger().error(
-                        "Visor: Got unexpected payload identifier on client: {}", payloadID
+                        "Visor: Received unexpected payloadID from server: {}", payloadID
                 );
                 yield UnknownPayloadToClient.read(buffer);
             }
@@ -87,7 +87,7 @@ public enum VisorCorePayloadID {
     }
 
     public static VisorPayloadToServer readToServer(VisorCorePayloadID payloadID,
-                                             FriendlyByteBuf buffer) {
+                                                    FriendlyByteBuf buffer) {
         return switch (payloadID) {
             case HANDSHAKE -> HandshakePayloadToServer.read(buffer);
             case ACTIVE_HAND -> ActiveHandPayloadToServer.read(buffer);
@@ -107,7 +107,7 @@ public enum VisorCorePayloadID {
             case TELEPORT -> TeleportMovePayloadToServer.read(buffer);
             default -> {
                 VisorAPI.server().getLogger().error(
-                        "Visor: Got unexpected payload identifier on server: {}", payloadID
+                        "Visor: Received unexpected payloadID from client: {}", payloadID
                 );
                 yield UnknownPayloadToServer.read(buffer);
             }
