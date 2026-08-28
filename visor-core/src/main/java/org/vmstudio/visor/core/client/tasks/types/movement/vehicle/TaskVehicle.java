@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.tasks.types.movement.vehicle;
 
+import org.vmstudio.visor.core.common.CommonUtils;
 import lombok.Getter;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -36,12 +37,12 @@ public class TaskVehicle extends VisorTask {
     @Getter
     private static TaskVehicle instance;
 
+    private static final double MINECART_MOVEMENT_FLOOR = 0.001d;
+    private static final float TURN_RATE_GAIN = 200f;
+    private static final float MIN_TURN_RATE_DEG = 10f;
+
+
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
-
-
-    private static final double MINECART_MOVEMENT_FLOOR = 0.001D;
-    // seat the rider facing against the direction of travel
-    private static final float MINECART_RIDER_YAW_OFFSET_DEG = 180.0F;
 
     public float vehicleRotationDeg = 0.0F;
 
@@ -179,8 +180,8 @@ public class TaskVehicle extends VisorTask {
         final Vec3 deltaMovement = vehicle.getDeltaMovement();
         final double horizontalSpeed = new Vec3(deltaMovement.x, 0.0, deltaMovement.z).length();
 
-        float maxStepDeg = 200.0F * (float) (horizontalSpeed * horizontalSpeed);
-        maxStepDeg = Math.max(maxStepDeg, 10.0F);
+        float maxStepDeg = TURN_RATE_GAIN * (float) (horizontalSpeed * horizontalSpeed);
+        maxStepDeg = Math.max(maxStepDeg, MIN_TURN_RATE_DEG);
 
         deltaDeg = Mth.clamp(deltaDeg, -maxStepDeg, maxStepDeg);
 
@@ -200,9 +201,7 @@ public class TaskVehicle extends VisorTask {
         if (delta.length() <= MINECART_MOVEMENT_FLOOR) {
             return vehicleRotationDeg;
         }
-        // Minecraft yaw of the travel direction: yaw 0 looks down +Z, and grows toward -X
-        final float travelYawDeg = (float) Math.toDegrees(Mth.atan2(-delta.x, delta.z));
-        return travelYawDeg - MINECART_RIDER_YAW_OFFSET_DEG;
+        return CommonUtils.yawFromDirection(delta) - 180;
     }
 
     private boolean shouldMinecartTurnView(Minecart minecart) {

@@ -24,6 +24,9 @@ import org.vmstudio.visor.core.client.render.player.BackLayerPlacement;
 
 @Mixin(CapeLayer.class)
 public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
+
+    @Unique
+    private static final float VANILLA_CROUCH_CAPE_LIFT = 25.0F;
     @Unique
     private final BackLayerPlacement visor$placement = new BackLayerPlacement();
 
@@ -69,7 +72,8 @@ public abstract class CapeLayerMixin extends RenderLayer<AbstractClientPlayer, P
             return xRot;
         }
         if (player.isCrouching()) {
-            xRot -= 25F;
+            // undo the lift vanilla CapeLayer adds while crouching, the VR body pitch replaces it
+            xRot -= VANILLA_CROUCH_CAPE_LIFT;
         }
         float flatten = player.isFallFlying() ? 1F : player.getSwimAmount(partialTick);
         float lowestPitch = -Mth.HALF_PI * flatten;

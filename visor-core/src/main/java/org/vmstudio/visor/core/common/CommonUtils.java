@@ -71,6 +71,16 @@ public class CommonUtils {
     }
 
 
+    // Mc rotation from direction.:
+    // yaw 0 faces +Z and grows toward -X,
+    // pitch is negative looking up
+    public static float yawFromDirection(Vec3 direction) {
+        return (float) Math.toDegrees(Mth.atan2(-direction.x, direction.z));
+    }
+    public static float pitchFromDirection(Vec3 direction) {
+        return (float) -Math.toDegrees(Math.asin(direction.y / direction.length()));
+    }
+
     public static boolean hasInteractableBlock(Level level, AABB box, int blockY) {
         int minX = Mth.floor(box.minX);
         int maxX = Mth.floor(box.maxX - 1.0E-7D);

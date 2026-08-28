@@ -42,6 +42,7 @@ public class TaskRoomSwim extends VisorTask {
     private static final float LAVA_SWIMMING_SPEED_CAP = 0.03f;
     private static final float MIN_SWIM_THRESHOLD = 0.075f;
     private static final float SPRINTING_THRESHOLD = 0.115f;
+    private static final float CHEST_DROP = 0.3f;
 
     private Vector3fc motion = new Vector3f();
     private float lastDist;
@@ -66,7 +67,7 @@ public class TaskRoomSwim extends VisorTask {
                 .sub(mainHandPos, new Vector3f()).mul(0.5f)
                 .add(mainHandPos);
         var headPivotPos = preTickPose.getHeadPivot()
-                .sub(0.0f, 0.3f, 0.0f, new Vector3f());
+                .sub(0.0f, CHEST_DROP, 0.0f, new Vector3f());
 
         final Vector3fc betweenHandsDir = betweenHandsPos
                 .sub(headPivotPos, new Vector3f())

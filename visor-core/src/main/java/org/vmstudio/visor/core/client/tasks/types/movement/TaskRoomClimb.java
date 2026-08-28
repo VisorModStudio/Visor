@@ -52,6 +52,7 @@ public class TaskRoomClimb extends VisorTask
     private static final double HAND_DIRECTION_OFFSET = 0.2D;
     private static final double HAND_DISTANCE_THRESHOLD = 0.5D;
     private static final double COLLISION_BOX_OFFSET = 0.1D;
+    private static final double TOP_OF_BLOCK_FRACTION = 0.82;
 
     private static final int AXIS_X = 1;
     private static final int AXIS_Y = 2;
@@ -265,7 +266,8 @@ public class TaskRoomClimb extends VisorTask
         // If the hand is low relative to the head, try to push the player out of collision
         if (state.anchoredShape != null
                 && anchorHandRoomY <= headPivotRoomY / 2.0
-                && state.anchoredPos.y > state.anchoredShape.maxY * 0.8 + anchoredBlockPos.getY()) {
+                && state.anchoredPos.y > state.anchoredShape.maxY * TOP_OF_BLOCK_FRACTION
+                        + anchoredBlockPos.getY()) {
             Vec3 hmdDirXZ = new Vec3((Vector3f) tickPose.getHmd()
                     .getDirection())
                     .scale(0.1f)

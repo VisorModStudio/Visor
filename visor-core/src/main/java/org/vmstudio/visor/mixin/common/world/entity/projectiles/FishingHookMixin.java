@@ -1,9 +1,9 @@
 package org.vmstudio.visor.mixin.common.world.entity.projectiles;
 
+import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -33,9 +33,12 @@ public abstract class FishingHookMixin extends Entity {
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 0)
     private float visor$vrRotationX(float xRot, Player player) {
-        visor$vrPlayer = VisorAPI.server().getVRPlayer(
-                (ServerPlayer) player
-        );
+        visor$vrPlayer = null;
+        // some mods mess with this
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            return xRot;
+        }
+        visor$vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);
         if (visor$vrPlayer == null) {
             return xRot;
         }
@@ -44,9 +47,7 @@ public abstract class FishingHookMixin extends Entity {
         visor$savedHandPos = activeHand.getPositionVec3();
         visor$savedHandDir = activeHand.getDirectionVec3();
 
-        return (float) Math.toDegrees(
-                Math.asin(visor$savedHandDir.y / visor$savedHandDir.length())
-        ) * -1;
+        return CommonUtils.pitchFromDirection(visor$savedHandDir);
     }
 
     @ModifyVariable(at = @At(value = "STORE"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V", ordinal = 1)
@@ -54,29 +55,21 @@ public abstract class FishingHookMixin extends Entity {
         if (visor$vrPlayer == null) {
             return yRot;
         }
-        return (float) Math.toDegrees(
-                Mth.atan2(
-                        -visor$savedHandDir.x,
-                        visor$savedHandDir.z
-                )
-        );
+        return CommonUtils.yawFromDirection(visor$savedHandDir);
     }
 
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/FishingHook;moveTo(DDDFF)V"), method = "<init>(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;II)V")
     private void visor$vrMoveTo(FishingHook instance, double x, double y, double z, float yRot, float xRot) {
         if (visor$vrPlayer == null) {
-            this.moveTo(x, y, z, yRot, xRot);
-            visor$vrPlayer = null;
+            instance.moveTo(x, y, z, yRot, xRot);
             return;
         }
 
+        final double rodTipOffset = 0.6D;
         instance.moveTo(
-                visor$savedHandPos.x + visor$savedHandDir.x
-                        * (double) 0.6F,
-                visor$savedHandPos.y + visor$savedHandDir.y
-                        * (double) 0.6F,
-                visor$savedHandPos.z + visor$savedHandDir.z
-                        * (double) 0.6F,
+                visor$savedHandPos.x + visor$savedHandDir.x * rodTipOffset,
+                visor$savedHandPos.y + visor$savedHandDir.y * rodTipOffset,
+                visor$savedHandPos.z + visor$savedHandDir.z * rodTipOffset,
                 yRot, xRot
         );
         visor$savedHandDir = null;

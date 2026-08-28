@@ -151,7 +151,7 @@ public class TaskRoomConsume extends VisorTask {
                                             HandType hand) {
         Vector3fc basePos = ClientContext.rawPoseHandler.getControllerData(hand)
                 .getPositionHistory()
-                .averagePosition(0.333f);
+                .averagePosition(0.31f);
         Vector3fc customOffset = roomPose.getHand(hand)
                 .getCustomVector(new Vector3f(0.0f, 0.0f, -0.1f));
         Vector3fc directionOffset = roomPose.getHand(hand)

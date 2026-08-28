@@ -104,6 +104,14 @@ public class TaskSwing extends VisorTask {
     private static final float FIST_REACH = 0.3F;
     private static final float TIP_OFFSET = 0.3F;
     private static final int MAX_ARC_SUBDIVISIONS = 8;
+    // vanilla GameRenderer.pick treats 3.0 as the entity interaction distance
+    private static final double VANILLA_ENTITY_REACH = 3.0D;
+    // vanilla Entity.getInputVector rejects a direction below this squared length
+    private static final double DEGENERATE_SEGMENT_SQ = 1.0E-7D;
+    private static final double DEGENERATE_NUDGE = 0.001D;
+    private static final float MAX_OVERSPEED_BONUS = 4.0F;
+    private static final int DUST_PER_HIT = 3;
+    private static final float DUST_SPEED = 0.6F;
     private static final int VANILLA_MINING_KEEP_TICKS = 20;
 
     private BlockPos vanillaMiningPos = null;
@@ -153,7 +161,7 @@ public class TaskSwing extends VisorTask {
                     .getCustomVector3(VRMathUtils.FORWARD_VECTOR)
                     .scale(TIP_OFFSET);
             data.handHistory.add(controllerPos.add(handCustomVector).toVector3f());
-            final float speed = data.handHistory.averageSpeed(0.33f);
+            final float speed = data.handHistory.averageSpeed(0.31f);
 
             // Don't swing with a hand that is busy using an item
             if (player.isUsingItem()
@@ -299,7 +307,8 @@ public class TaskSwing extends VisorTask {
             itemLength = 0F;
             damageRange = FIST_REACH;
         } else {
-            float reach = (float) ModLoader.get().getItemEntityReach(3.0, itemStack, slot);
+            float reach = (float) ModLoader.get()
+                    .getItemEntityReach(VANILLA_ENTITY_REACH, itemStack, slot);
             reach = Math.min(reach, 6) - 0.5f;
 
             // longer items get more of the base reach
@@ -427,9 +436,9 @@ public class TaskSwing extends VisorTask {
         for (int p = 1; p < points.size(); p++) {
             final Vec3 start = points.get(p - 1);
             Vec3 end = points.get(p);
-            if (start.subtract(end).lengthSqr() < 1.0E-7D) {
+            if (start.subtract(end).lengthSqr() < DEGENERATE_SEGMENT_SQ) {
                 // pad degenerate segments, clip() reports a miss for near-zero spans
-                end = end.add(0.001D, 0.001D, 0.001D);
+                end = end.add(DEGENERATE_NUDGE, DEGENERATE_NUDGE, DEGENERATE_NUDGE);
             }
             final BlockHitResult hit = MC.level.clip(new ClipContext(
                     start, end,
@@ -486,7 +495,7 @@ public class TaskSwing extends VisorTask {
             MC.gameMode.useItemOn(player, interactionHand, blockHit);
         } else {
             // Swing faster = more damage.
-            float overSpeed = Math.min(speed - effectiveSpeedThreshold(), 4.0F);
+            float overSpeed = Math.min(speed - effectiveSpeedThreshold(), MAX_OVERSPEED_BONUS);
             totalHits += (int) overSpeed;
             swingMining(blockHit, blockState, totalHits, hand);
         }
@@ -531,7 +540,7 @@ public class TaskSwing extends VisorTask {
         } else {
             mineVanilla(blockHit, totalHits, handType);
         }
-        blockDust(blockHit.getLocation(), 3 * totalHits, blockState, 0.6F, 1.0F);
+        blockDust(blockHit.getLocation(), DUST_PER_HIT * totalHits, blockState, DUST_SPEED, 1.0F);
     }
 
     private void mineBetter(final BlockHitResult blockHit,

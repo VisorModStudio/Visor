@@ -43,17 +43,23 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
     private static final String ID = "movement_teleport";
 
-    private static final int MAX_ARC_STEPS = 50;
     private static final float MAX_ENERGY = 100f;
+    private static final int MAX_TELEPORT_BLOCKS = 25;
+    private static final float ENERGY_PER_BLOCK = MAX_ENERGY / MAX_TELEPORT_BLOCKS;
 
-    // vanilla Player.checkMovementStatistics spends this much exhaustion per block sprinted
+    private static final int ARC_POINT_CAPACITY = MAX_TELEPORT_BLOCKS + 1;
+
+    private static final double LIMIT_TOLERANCE = 0.2D;
+    private static final double SNEAK_DROP_TOLERANCE = 0.2D;
+    private static final double LANDING_HEADROOM = 0.125D;
+
     private static final double SPRINT_EXHAUSTION_PER_BLOCK = 0.1D;
     private static final double SUB_BLOCK_LANDING_SLACK = 0.05D;
 
     @Getter
     private static TaskTeleport instance;
 
-    private final Vec3[] arcPoints = new Vec3[MAX_ARC_STEPS];
+    private final Vec3[] arcPoints = new Vec3[ARC_POINT_CAPACITY];
 
     private Vec3 destination;
 
@@ -234,7 +240,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
         if (minecraft.gameMode.hasMissTime()) {
             // cost increases with distance
-            energy -= (float) (distance * 4.0);
+            energy -= (float) (distance * ENERGY_PER_BLOCK);
         }
 
         // @TODO server?
@@ -262,13 +268,13 @@ public class TaskTeleport extends VisorTask implements VREventListener {
                 .transformDirection(VRMathUtils.DOWN_VECTOR, new Vector3f())
                 .mul(0.0975f);
 
-        final float speed = 0.5F;
-        Vector3f velocity = hand.getDirection().mul(speed, new Vector3f());
+        final float launchSpeed = 0.5F;
+        Vector3f velocity = hand.getDirection().mul(launchSpeed, new Vector3f());
 
         Vec3 startPos = new Vec3(handPos.x(), handPos.y(), handPos.z());
 
         // Generate arc points
-        for (int step = arcSteps; step < MAX_ARC_STEPS && (step * 4.0f) <= energy; ++step) {
+        for (int step = arcSteps; step < ARC_POINT_CAPACITY && (step * ENERGY_PER_BLOCK) <= energy; ++step) {
             Vec3 newPosition = startPos.add(velocity.x, velocity.y, velocity.z);
 
             BlockHitResult hitResult = MC.level.clip(new ClipContext(
@@ -322,7 +328,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
         double verticalDelta = destVector.y;
         double horizDistance = Math.sqrt(destVector.x * destVector.x + destVector.z * destVector.z);
 
-        boolean isAllowed = !MC.player.isShiftKeyDown() || verticalDelta < 0.2;
+        boolean isAllowed = !MC.player.isShiftKeyDown() || verticalDelta < SNEAK_DROP_TOLERANCE;
 
         if (!MC.player.getAbilities().mayfly && VRClientSettings.isLimitedSurvivalTeleport()) {
             double downLimit = VRServerSettings.getTeleportDownLimit();
@@ -332,11 +338,11 @@ public class TaskTeleport extends VisorTask implements VREventListener {
             LocalPlayerExtension modified = (LocalPlayerExtension) player;
 
             boolean exceedsDownLimit = downLimit > 0
-                    && verticalDelta > downLimit + 0.2;
+                    && verticalDelta > downLimit + LIMIT_TOLERANCE;
             boolean exceedsUpLimit = upLimit > 0
-                    && -verticalDelta > upLimit * modified.visor$getJumpFactor() + 0.2;
+                    && -verticalDelta > upLimit * modified.visor$getJumpFactor() + LIMIT_TOLERANCE;
             boolean exceedsForwardLimit = forwardLimit > 0
-                    && horizDistance > forwardLimit * modified.visor$getSpeedFactor() + 0.2;
+                    && horizDistance > forwardLimit * modified.visor$getSpeedFactor() + LIMIT_TOLERANCE;
 
             if (exceedsDownLimit || exceedsUpLimit || exceedsForwardLimit) {
                 isAllowed = false;
@@ -429,8 +435,6 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
             AABB playerShape = player.getBoundingBox().move(offset.x, offset.y, offset.z);
 
-            // soul sand (0.875), honey (0.9375), farmland and slabs stop short of a full block,
-            // so the player settles below the landing height - give the fit check that much slack
             double extraY = maxY < 1.0D ? SUB_BLOCK_LANDING_SLACK : 0.0D;
 
             boolean hasSpaceForPlayer = hasSpaceForPlayer(player, playerShape, extraY);
@@ -460,7 +464,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
     private boolean hasSpaceForPlayer(LocalPlayer player, AABB playerShape, double extraY) {
         return MC.level.noCollision(player, playerShape)
-                && !MC.level.noCollision(player, playerShape.inflate(0, 0.125 + extraY, 0));
+                && !MC.level.noCollision(player, playerShape.inflate(0, LANDING_HEADROOM + extraY, 0));
     }
 
     private void updateClimbableDestination(BlockPos blockPos, BlockState blockState) {
