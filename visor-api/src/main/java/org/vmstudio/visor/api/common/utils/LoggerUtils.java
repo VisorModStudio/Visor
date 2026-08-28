@@ -4,11 +4,11 @@ import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryManagerMXBean;
+import java.util.stream.Collectors;
 
 public class LoggerUtils {
 
@@ -40,66 +40,39 @@ public class LoggerUtils {
         printError(getLogger(), throwable);
     }
 
-    public static Component throwableToComponent(Throwable throwable) {
-        String title = throwable.getClass().getName() +
-                (throwable.getMessage() == null ? "" : ": " + throwable.getMessage());
-
-        MutableComponent result = Component.literal(title);
-        if(throwable.getCause() != null) {
-            result.append("Caused by:");
-            result.append(throwable.getCause().toString());
-        }else{
-            for (StackTraceElement element : throwable.getStackTrace()) {
-                result.append(Component.literal("\n" + element.toString()));
-            }
+    public static Component describeThrowable(Throwable throwable) {
+        MutableComponent text = Component.literal(String.valueOf(throwable));
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+            text.append("\nCaused by: " + cause);
+            return text;
         }
-        return result;
+        for (StackTraceElement frame : throwable.getStackTrace()) {
+            text.append("\n\tat " + frame);
+        }
+        return text;
     }
 
     public static void sendPcInfo(){
         try {
             Logger logger = getLogger();
-            String garbageCollector = StringUtils.getCommonPrefix(
-                    ManagementFactory
-                            .getGarbageCollectorMXBeans()
-                            .stream()
-                            .map(MemoryManagerMXBean::getName)
-                            .toArray(String[]::new)
-            ).trim();
-            if (garbageCollector.isEmpty()) {
-                garbageCollector = ManagementFactory
-                        .getGarbageCollectorMXBeans()
-                        .get(0)
-                        .getName();
+            Runtime runtime = Runtime.getRuntime();
+
+            String collectors = ManagementFactory.getGarbageCollectorMXBeans().stream()
+                    .map(MemoryManagerMXBean::getName)
+                    .collect(Collectors.joining(", "));
+            logger.info("GC in use: {}", collectors.isEmpty() ? "unknown" : collectors);
+            logger.info("CPU threads: {}", runtime.availableProcessors());
+            logger.info("JVM max heap: {} MiB", runtime.maxMemory() >> 20);
+
+            if (ManagementFactory.getOperatingSystemMXBean()
+                    instanceof com.sun.management.OperatingSystemMXBean hostOs) {
+                logger.info("Physical memory: {} MiB free of {} MiB",
+                        hostOs.getFreeMemorySize() >> 20,
+                        hostOs.getTotalMemorySize() >> 20);
             }
-            logger.info(
-                    "Garbage collector: {}",
-                    garbageCollector
-            );
-
-            com.sun.management.OperatingSystemMXBean os = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-
-            logger.info(
-                    "Available CPU threads: {}",
-                    Runtime.getRuntime().availableProcessors()
-            );
-            logger.info(
-                    "Total physical memory: {} GB",
-                    String.format(
-                            "%.01f",
-                            os.getTotalMemorySize() /  1_000_000_000.0F
-                    )
-            );
-            logger.info(
-                    "Free physical memory: {} GB",
-                    String.format(
-                            "%.01f",
-                            os.getFreeMemorySize() /  1_000_000_000.0F
-                    )
-            );
-
         } catch (Throwable e) {
-            LoggerUtils.printError(e);
+            printError(e);
         }
     }
 }

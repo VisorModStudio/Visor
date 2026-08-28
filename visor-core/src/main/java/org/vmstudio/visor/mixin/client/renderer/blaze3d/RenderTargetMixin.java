@@ -121,7 +121,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
 
     @Override
     @Unique
-    public void visor$isLinearFilter(boolean linearFilter) {
+    public void visor$setLinearFilter(boolean linearFilter) {
         this.visor$useLinearFilter = linearFilter;
     }
 

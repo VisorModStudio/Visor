@@ -63,12 +63,12 @@ public interface VRGuiManager {
     /**
      * Calculate gui scale from given parameters and return the result.
      *
-     * @param scaleIn the initial scale
+     * @param rawScale the raw scale
      * @param guiWidth the gui width
      * @param guiHeight the gui height
      * @return gui scale
      */
-    int calculateScale(int scaleIn,
+    int calculateScale(int rawScale,
                        int guiWidth,
                        int guiHeight);
 }

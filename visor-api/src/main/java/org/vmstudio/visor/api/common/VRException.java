@@ -27,7 +27,7 @@ public class VRException extends RuntimeException{
         }else {
             this.title = Component.literal("VRError: " + cause.getClass().getName());
         }
-        this.error =  LoggerUtils.throwableToComponent(cause);
+        this.error =  LoggerUtils.describeThrowable(cause);
     }
 
     public String toString() {

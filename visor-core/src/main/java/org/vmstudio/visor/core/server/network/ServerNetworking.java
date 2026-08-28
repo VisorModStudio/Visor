@@ -11,7 +11,6 @@ import org.vmstudio.visor.api.common.network.buffer.PoseDataBuffer;
 import org.vmstudio.visor.api.common.network.buffer.PoseHandsBuffer;
 import org.vmstudio.visor.api.common.network.buffer.PoseTrackersBuffer;
 import org.vmstudio.visor.api.common.network.toclient.vrstate.other.*;
-import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
@@ -297,12 +296,12 @@ public class ServerNetworking {
         ChunkMap chunkMap = trackedBy.serverLevel().getChunkSource().chunkMap;
         var vrServer = VisorServerImpl.INSTANCE;
 
-        TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getTrackedEntities()
+        TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getEntityMap()
                 .get(trackedBy.getId());
         if(entityAccessor == null){
             return Collections.emptySet();
         }
-        return entityAccessor.getPlayersTracking().stream()
+        return entityAccessor.getSeenBy().stream()
                 .filter(it->
                         vrServer.getVisorPlayer(it.getPlayer().getUUID()) != null
                 )

@@ -25,6 +25,10 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class GameActionMovement extends VRActionVec2 {
     public static final String ID = "movement";
 
+    private static final float MIN_JOYSTICK_THRESHOLD = 0.5f;
+
+    private static final float ANGLE_THRESHOLD = Mth.PI / 8F;
+
     private boolean wasMovement;
     private boolean wasAutoSprinting;
 
@@ -64,10 +68,9 @@ public class GameActionMovement extends VRActionVec2 {
         Vector2f treadmillMove = TreadmillInput.pollMovement(cachedTreadmillMove);
 
         boolean climbing = ClientContext.localPlayer.isClimbing();
-        boolean moving = ClientContext.localPlayer.isMoving();
+        boolean moving;
         float forward = 0F;
-        if (/*!KeyboardHandler.SHOWING
-                && */!climbing) {
+        if (!climbing) {
             movement.zero();
 
             if (treadmillMove != null) {
@@ -83,7 +86,7 @@ public class GameActionMovement extends VRActionVec2 {
 
             forward = movement.y;
 
-            var digital = toDigital(movement, 0.5f);
+            var digital = toDigital(movement);
 
 
             if (moving) {
@@ -201,12 +204,8 @@ public class GameActionMovement extends VRActionVec2 {
 
 
     private float applyDeadzone(float axis, float deadzone) {
-        if (Math.abs(axis) > deadzone) {
-            float scalar = 1.0F / (1.0F - deadzone);
-            return (Math.abs(axis) - deadzone) * scalar * Math.signum(axis);
-        } else {
-            return 0F;
-        }
+        float strength = Math.max(Math.abs(axis) - deadzone, 0F) / (1F - deadzone);
+        return Math.copySign(strength, axis);
     }
 
     private void resetMovementState() {
@@ -224,21 +223,22 @@ public class GameActionMovement extends VRActionVec2 {
         ClientContext.localPlayer.setMoving(false);
     }
 
-    private Vector2f toDigital(Vector2f value, float deadzone) {
+    private Vector2f toDigital(Vector2f value) {
         Vector2f digital = new Vector2f();
-        if (value.length() > deadzone) {
+        if (value.length() > MIN_JOYSTICK_THRESHOLD) {
+            //joystick forward: angle 0 | joystick right: angle -PI
             float angle = (float) Math.atan2(value.x, value.y);
             float angleAbs = Math.abs(angle);
-            final float PI_8TH = Mth.PI / 8F;
-            // left/right
-            if (angleAbs >= PI_8TH && angleAbs <= Mth.PI - PI_8TH) {
+
+            // LEFT || RIGHT
+            if (angleAbs >= ANGLE_THRESHOLD && angleAbs <= Mth.PI - ANGLE_THRESHOLD) {
                 digital.x = Math.signum(angle);
             }
-            // forward/back
-            if (angleAbs < Mth.HALF_PI - PI_8TH) {
-                digital.y = 1F;
-            } else if (angleAbs > Mth.HALF_PI + PI_8TH) {
-                digital.y = -1F;
+
+            if (angleAbs < Mth.HALF_PI - ANGLE_THRESHOLD) {
+                digital.y = 1F; //forward
+            } else if (angleAbs > Mth.HALF_PI + ANGLE_THRESHOLD) {
+                digital.y = -1F; //back
             }
         }
         return digital;

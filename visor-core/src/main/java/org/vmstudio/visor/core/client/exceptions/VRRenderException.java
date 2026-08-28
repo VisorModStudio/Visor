@@ -24,6 +24,6 @@ public class VRRenderException extends VRException {
         }else {
             this.title = Component.literal("VRRenderError: " + cause.getClass().getName());
         }
-        this.error =  LoggerUtils.throwableToComponent(cause);
+        this.error =  LoggerUtils.describeThrowable(cause);
     }
 }

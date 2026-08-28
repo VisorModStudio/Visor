@@ -2,7 +2,6 @@ package org.vmstudio.visor.mixin.common.player;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -59,10 +58,7 @@ public abstract class ServerPlayerMixin
     private int visor$offhandSlotCached;
 
     @Unique
-    private ItemStack visor$poseBlockItem;
-
-    @Unique
-    private InteractionHand visor$poseBlockHand;
+    private static final double SHIELD_COVER_DOT = 0.5;
 
 
 
@@ -232,36 +228,36 @@ public abstract class ServerPlayerMixin
 
 
     @Override
-    protected boolean visor$checkPoseBlocking(boolean isBlocking,
-                                                    DamageSource damageSource,
-                                                    LocalBooleanRef poseBlocked) {
+    @Unique
+    public boolean visor$poseBlocks(DamageSource damageSource, boolean alreadyBlocked) {
         visor$poseBlockItem = null;
         visor$poseBlockHand = null;
 
-        if (isBlocking || !VRServerSettings.isRoomscaleShieldBlocking()) {
-            return isBlocking;
+        ServerPlayer player = visor$getPlayer();
+        if (alreadyBlocked
+                || player.isBlocking()
+                || !VRServerSettings.isRoomscaleShieldBlocking()) {
+            return false;
         }
-
-        Vec3 dmgPos = damageSource.getSourcePosition();
-        if (dmgPos == null) {
+        Vec3 threatPos = damageSource.getSourcePosition();
+        if (threatPos == null) {
             return false;
         }
         if (damageSource.getDirectEntity() instanceof AbstractArrow arrow
                 && arrow.getPierceLevel() > 0) {
             return false;
         }
-
         VRServerPlayer vrPlayer = visor$getVrPlayer();
         if (vrPlayer == null || !vrPlayer.hasPoseData()) {
             return false;
         }
 
-        ServerPlayer player = visor$getPlayer();
-        boolean projectile = false;
+        boolean fromProjectile = false;
         Entity direct = damageSource.getDirectEntity();
-        if (direct != null && dmgPos == direct.position()) {
-            projectile = direct instanceof Projectile;
-            dmgPos = direct.getBoundingBox().getCenter()
+        if (direct != null && threatPos == direct.position()) {
+            // the reported source pos aliases the attacker's live position, use its hull instead
+            fromProjectile = direct instanceof Projectile;
+            threatPos = direct.getBoundingBox().getCenter()
                     .subtract(direct.getDeltaMovement().normalize());
         }
 
@@ -275,33 +271,7 @@ public abstract class ServerPlayerMixin
                     || player.getCooldowns().isOnCooldown(stack.getItem())) {
                 continue;
             }
-
-            Vector3fc sideDir;
-            if (vrPlayer.isLeftHanded()) {
-                sideDir = hand == HandType.MAIN
-                        ? VRMathUtils.LEFT_VECTOR : VRMathUtils.RIGHT_VECTOR;
-            } else {
-                sideDir = hand == HandType.MAIN
-                        ? VRMathUtils.RIGHT_VECTOR : VRMathUtils.LEFT_VECTOR;
-            }
-
-            var handPose = vrPlayer.getPoseData().getHand(hand);
-            Vec3 shieldDir = handPose.getCustomVector3(sideDir);
-
-            // threshold is cos(60 deg): the shield face covers a 120-degree arc
-            double angle;
-            if (projectile) {
-                Vec3 dmgDir = dmgPos.subtract(handPose.getPositionVec3()).normalize();
-                angle = shieldDir.dot(dmgDir);
-            } else {
-                Vec3 dmgDir = dmgPos.subtract(player.position());
-                dmgDir = new Vec3(dmgDir.x, 0, dmgDir.z).normalize();
-                Vec3 shieldHor = new Vec3(shieldDir.x, 0, shieldDir.z).normalize();
-                angle = shieldHor.dot(dmgDir);
-            }
-
-            if (angle > 0.5) {
-                poseBlocked.set(true);
+            if (visor$shieldCovers(vrPlayer, hand, threatPos, fromProjectile)) {
                 visor$poseBlockItem = stack;
                 visor$poseBlockHand = hand.asInteractionHand();
                 return true;
@@ -310,26 +280,28 @@ public abstract class ServerPlayerMixin
         return false;
     }
 
-    @Override
-    protected void visor$poseBlockShieldDamage(float damageAmount, Operation<Void> original) {
-        if (visor$poseBlockItem == null) {
-            original.call(damageAmount);
-            return;
-        }
-        ItemStack backup = this.useItem;
-        this.useItem = visor$poseBlockItem;
-        try {
-            original.call(damageAmount);
-        } finally {
-            this.useItem = backup;
-            visor$poseBlockItem = null;
-            visor$poseBlockHand = null;
-        }
-    }
+    @Unique
+    private boolean visor$shieldCovers(VRServerPlayer vrPlayer, HandType hand,
+                                       Vec3 threatPos, boolean fromProjectile) {
+        boolean palmFacesLeft = (hand == HandType.MAIN) == vrPlayer.isLeftHanded();
+        Vector3fc palmAxis = palmFacesLeft
+                ? VRMathUtils.LEFT_VECTOR
+                : VRMathUtils.RIGHT_VECTOR;
 
-    @Override
-    protected InteractionHand visor$poseBlockShieldHand(InteractionHand original) {
-        return visor$poseBlockHand != null ? visor$poseBlockHand : original;
+        var handPose = vrPlayer.getPoseData().getHand(hand);
+        Vec3 shieldFacing = handPose.getCustomVector3(palmAxis);
+
+        double coverage;
+        if (fromProjectile) {
+            coverage = shieldFacing.dot(
+                    threatPos.subtract(handPose.getPositionVec3()).normalize()
+            );
+        } else {
+            Vec3 towardThreat = threatPos.subtract(visor$getPlayer().position())
+                    .multiply(1, 0, 1).normalize();
+            coverage = shieldFacing.multiply(1, 0, 1).normalize().dot(towardThreat);
+        }
+        return coverage > SHIELD_COVER_DOT;
     }
 
     @Unique

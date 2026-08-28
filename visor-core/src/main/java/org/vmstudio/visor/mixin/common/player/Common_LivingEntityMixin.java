@@ -1,11 +1,7 @@
 package org.vmstudio.visor.mixin.common.player;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +12,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.core.common.CommonUtils;
+import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 
 @Mixin(LivingEntity.class)
 public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
@@ -37,19 +35,13 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                               int count,
                                               CallbackInfo ci){}
 
-    @ModifyExpressionValue(method = "isDamageSourceBlocked",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/LivingEntity;isBlocking()Z"))
-    protected boolean visor$checkPoseBlocking(boolean isBlocking,
-                                                    @Local(argsOnly = true) DamageSource damageSource,
-                                                    @Share("poseBlocked") LocalBooleanRef poseBlocked) {
-        return isBlocking;
-    }
-
-    @ModifyReturnValue(method = "isDamageSourceBlocked", at = @At("RETURN"))
-    private boolean visor$applyPoseBlocking(boolean blocked,
-                                                 @Share("poseBlocked") LocalBooleanRef poseBlocked) {
-        return blocked || poseBlocked.get();
+    @Inject(method = "isDamageSourceBlocked", at = @At("RETURN"), cancellable = true)
+    private void visor$poseShieldBlock(DamageSource damageSource,
+                                       CallbackInfoReturnable<Boolean> cir) {
+        if ((Object) this instanceof ServerPlayerExtension serverPlayer
+                && serverPlayer.visor$poseBlocks(damageSource, cir.getReturnValueZ())) {
+            cir.setReturnValue(true);
+        }
     }
 
     @WrapOperation(method = "hurt", at = @At(value = "INVOKE",

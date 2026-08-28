@@ -25,6 +25,6 @@ public class VisorException extends VRException {
         }else {
             this.title = Component.literal("VisorException: " + cause.getClass().getName());
         }
-        this.error =  LoggerUtils.throwableToComponent(cause);
+        this.error =  LoggerUtils.describeThrowable(cause);
     }
 }

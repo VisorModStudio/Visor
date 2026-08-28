@@ -40,9 +40,10 @@ public final class SodiumHelper {
     }
 
     public static boolean isLoaded() {
-        return ModLoader.get().isModLoaded("sodium")
-                || ModLoader.get().isModLoaded("rubidium")
-                || ModLoader.get().isModLoaded("embeddium");
+        var modLoader = ModLoader.get();
+        return modLoader.isModLoaded("sodium")
+                || modLoader.isModLoaded("rubidium")
+                || modLoader.isModLoaded("embeddium");
     }
 
     public static void copyFaceUv(ModelPart source, ModelPart dest, int sourcePolygon, int destPolygon) {

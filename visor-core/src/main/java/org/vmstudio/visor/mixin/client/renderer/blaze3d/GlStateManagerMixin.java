@@ -13,15 +13,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(GlStateManager.class)
 public class GlStateManagerMixin {
 
-    //Change the limit of textures to 32
+    //game needs vanilla textures + VR, default limit is too short.
     @ModifyArg(at = @At(value = "INVOKE", target = "Ljava/util/stream/IntStream;range(II)Ljava/util/stream/IntStream;"), index = 1, method = "<clinit>")
-    private static int visor$moreTextures(int i) {
-        return 32;
+    private static int visor$moreTextureUnitStates(int original) {
+        return Math.max(original, 32);
     }
 
     // vanilla GUI blend zeroes dst alpha; keep it accumulating so the GUI layer composites correctly in VR
     @ModifyVariable(method = "_blendFuncSeparate", at = @At("HEAD"), remap = false, index = 3, argsOnly = true)
-    private static int visor$guiAlphaBlending(int dstAlpha, int srcRgb, int dstRgb, int srcAlpha) {
+    private static int visor$keepGuiCoverage(int dstAlpha, int srcRgb, int dstRgb, int srcAlpha) {
         boolean vanillaGuiBlend = dstAlpha == GlStateManager.DestFactor.ZERO.value
                 && srcAlpha == GlStateManager.SourceFactor.ONE.value
                 && srcRgb == GlStateManager.SourceFactor.SRC_ALPHA.value

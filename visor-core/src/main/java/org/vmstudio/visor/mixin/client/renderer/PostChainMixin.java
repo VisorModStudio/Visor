@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer;
 
+import com.google.gson.JsonSyntaxException;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.VisorState;
@@ -15,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -38,7 +38,7 @@ public class PostChainMixin {
                               ResourceManager resourceManager,
                               RenderTarget screenTarget,
                               ResourceLocation name,
-                              CallbackInfo ci) throws IOException {
+                              CallbackInfo ci) throws IOException, JsonSyntaxException {
 
         if (VisorState.get().isNotInitialized()
                 || this.screenTarget != VRRenderState.getVanillaTarget()){
@@ -61,7 +61,7 @@ public class PostChainMixin {
     }
 
     @Inject(method = "process", at = @At(value = "HEAD"), cancellable = true)
-    private void visor$processVRChains(float partialTick, CallbackInfo ci) {
+    private void visor$processVRChains(float partialTicks, CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVRWorld()){
             return;
         }
@@ -69,7 +69,7 @@ public class PostChainMixin {
         if(vrChain == null){
             return;
         }
-        vrChain.process(partialTick);
+        vrChain.process(partialTicks);
         ci.cancel();
     }
 
@@ -91,11 +91,6 @@ public class PostChainMixin {
         );
     }
 
-    @ModifyVariable(method = "addTempTarget", at = @At(value = "STORE"), ordinal = 0)
-    private RenderTarget visor$tempTargetStencil(RenderTarget renderTarget) {
-
-        return renderTarget;
-    }
 
     @Inject(method = "close", at = @At("TAIL"))
     private void visor$onClose(CallbackInfo ci) {

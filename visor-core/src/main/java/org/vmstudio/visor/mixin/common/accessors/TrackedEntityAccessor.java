@@ -10,5 +10,5 @@ import java.util.Set;
 public interface TrackedEntityAccessor {
 
     @Accessor("seenBy")
-    Set<ServerPlayerConnection> getPlayersTracking();
+    Set<ServerPlayerConnection> getSeenBy();
 }

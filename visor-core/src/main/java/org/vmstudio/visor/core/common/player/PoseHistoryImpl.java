@@ -1,38 +1,38 @@
 package org.vmstudio.visor.core.common.player;
 
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.common.player.VRPlayerPose;
 import org.vmstudio.visor.api.common.player.VRPoseHistory;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
-import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class PoseHistoryImpl implements VRPoseHistory {
-    private final LinkedList<VRPlayerPose> history = new LinkedList<>();
+    private final List<VRPlayerPose> history = new ArrayList<>();
     private final VRPlayerPose relevantPose;
 
     public PoseHistoryImpl(VRPlayerPose relevantPose){
         this.relevantPose = relevantPose;
-        history.addFirst(relevantPose);
+        history.add(relevantPose);
     }
 
     @Override
     public Vector3f netMovement(VRBodyPartType bodyPart, int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.size() <= 1) {
-            return (Vector3f) VRMathUtils.ZERO_VECTOR;
+            return new Vector3f();
         }
 
         maxTicksBack = clampTicksBack(maxTicksBack);
-        var last = safePosition(history.getFirst(), bodyPart);
+        var last = safePosition(history.get(0), bodyPart);
         var old = safePosition(history.get(maxTicksBack), bodyPart);
         if (last == null || old == null) {
-            return (Vector3f) VRMathUtils.ZERO_VECTOR;
+            return new Vector3f();
         }
 
         return last.sub(old, new Vector3f());
@@ -40,13 +40,13 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
     @Override
     public Vector3f headPivotNetMovement(int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.size() <= 1) {
-            return (Vector3f) VRMathUtils.ZERO_VECTOR;
+            return new Vector3f();
         }
 
         maxTicksBack = clampTicksBack(maxTicksBack);
-        var last = history.getFirst().getHeadPivot();
+        var last = history.get(0).getHeadPivot();
         var old = history.get(maxTicksBack).getHeadPivot();
 
         return last.sub(old, new Vector3f());
@@ -54,109 +54,118 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
     @Override
     public double averageSpeed(VRBodyPartType bodyPart, int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.size() <= 1) {
             return 0;
         }
         maxTicksBack = clampTicksBack(maxTicksBack);
-        List<Float> deltas = new ArrayList<>(maxTicksBack);
+
+        var deltaValues = DoubleStream.builder();
         for (int i = 0; i < maxTicksBack; i++) {
-            var newer = safePosition(history.get(i), bodyPart);
-            var older = safePosition(history.get(i + 1), bodyPart);
-            if (newer == null || older == null) {
+            var current = safePosition(history.get(i), bodyPart);
+            var previous = safePosition(history.get(i + 1), bodyPart);
+            if (current == null || previous == null) {
                 continue;
             }
-
-            deltas.add(newer.distance(older));
+            deltaValues.add(current.distance(previous));
         }
 
-        return deltas.stream()
-                .mapToDouble(Double::valueOf)
+        return deltaValues.build()
                 .average()
                 .orElse(0);
     }
 
     @Override
     public double headPivotAverageSpeed(int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.size() <= 1) {
             return 0;
         }
         maxTicksBack = clampTicksBack(maxTicksBack);
-        List<Float> deltas = new ArrayList<>(maxTicksBack);
-        for (int i = 0; i < maxTicksBack; i++) {
-            var newer = history.get(i).getHeadPivot();
-            var older = history.get(i + 1).getHeadPivot();
 
-            deltas.add(newer.distance(older));
+        var deltaValues = DoubleStream.builder();
+        for (int i = 0; i < maxTicksBack; i++) {
+            var current = history.get(i).getHeadPivot();
+            var previous = history.get(i + 1).getHeadPivot();
+            deltaValues.add(current.distance(previous));
         }
-        return deltas.stream()
-                .mapToDouble(Double::valueOf)
+
+        return deltaValues.build()
                 .average()
                 .orElse(0);
     }
 
     @Override
     public Vector3f averagePosition(VRBodyPartType bodyPart, int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.isEmpty()) {
             return null;
         }
         maxTicksBack = clampTicksBack(maxTicksBack);
-        List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
-        int i = 0;
-        for (var pose : this.history) {
-            var pos = safePosition(pose, bodyPart);
+
+        var xCoordinates = DoubleStream.builder();
+        var yCoordinates = DoubleStream.builder();
+        var zCoordinates = DoubleStream.builder();
+        boolean empty = true;
+        for (int i = 0; i < maxTicksBack; i++) {
+            var pos = safePosition(history.get(i), bodyPart);
             if (pos != null) {
-                positions.add(pos);
+                xCoordinates.add(pos.x());
+                yCoordinates.add(pos.y());
+                zCoordinates.add(pos.z());
+                empty = false;
             }
-            if (++i >= maxTicksBack) break;
         }
-        if (positions.isEmpty()) {
+        if (empty) {
             return null;
         }
         return new Vector3f(
-                (float) positions.stream().mapToDouble(Vector3fc::x).average().orElse(0),
-                (float) positions.stream().mapToDouble(Vector3fc::y).average().orElse(0),
-                (float) positions.stream().mapToDouble(Vector3fc::z).average().orElse(0)
+                (float) xCoordinates.build().average().orElse(0),
+                (float) yCoordinates.build().average().orElse(0),
+                (float) zCoordinates.build().average().orElse(0)
         );
     }
 
     @Override
     public Vector3f headPivotAveragePosition(int maxTicksBack) {
-        checkTicksBack(maxTicksBack);
+        requireValidTicks(maxTicksBack);
         if (history.isEmpty()) {
             return null;
         }
         maxTicksBack = clampTicksBack(maxTicksBack);
-        List<Vector3fc> positions = new ArrayList<>(maxTicksBack);
-        int i = 0;
-        for (var pose : this.history) {
-            var pos = pose.getHeadPivot();
-            positions.add(pos);
-            if (i++ >= maxTicksBack) break;
-        }
-        if (positions.isEmpty()) {
+        if (maxTicksBack == 0) {
             return null;
         }
+
+        var xCoordinates = DoubleStream.builder();
+        var yCoordinates = DoubleStream.builder();
+        var zCoordinates = DoubleStream.builder();
+        for (int i = 0; i < maxTicksBack; i++) {
+            var pos = history.get(i).getHeadPivot();
+            xCoordinates.add(pos.x());
+            yCoordinates.add(pos.y());
+            zCoordinates.add(pos.z());
+        }
         return new Vector3f(
-                (float) positions.stream().mapToDouble(Vector3fc::x).average().orElse(0),
-                (float) positions.stream().mapToDouble(Vector3fc::y).average().orElse(0),
-                (float) positions.stream().mapToDouble(Vector3fc::z).average().orElse(0)
+                (float) xCoordinates.build().average().orElse(0),
+                (float) yCoordinates.build().average().orElse(0),
+                (float) zCoordinates.build().average().orElse(0)
         );
     }
 
     public void addEntry(VRPlayerPose entry){
-        history.removeFirst();
-        history.addFirst(entry);
-        history.addFirst(relevantPose);
+        history.set(0, entry);
+        history.add(0, relevantPose);
         if (history.size() > HISTORY_LIMIT) {
-            history.removeLast();
+            history.remove(history.size() - 1);
         }
     }
 
     @Override
-    public VRPlayerPose getEntry(int ticksBack) {
+    public @Nullable VRPlayerPose getEntry(int ticksBack) {
+        if(ticksBack >= history.size()){
+            return null;
+        }
         return history.get(ticksBack);
     }
 
@@ -170,7 +179,7 @@ public class PoseHistoryImpl implements VRPoseHistory {
         return history.size();
     }
 
-    private void checkTicksBack(int ticksBack) {
+    private void requireValidTicks(int ticksBack) {
         if (ticksBack < 0 || ticksBack > HISTORY_LIMIT) {
             throw new IllegalArgumentException("ticksBack must be within 0.." + HISTORY_LIMIT + ", got " + ticksBack);
         }
@@ -187,6 +196,6 @@ public class PoseHistoryImpl implements VRPoseHistory {
 
     public void clear() {
         history.clear();
-        history.addFirst(relevantPose);
+        history.add(relevantPose);
     }
 }

@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.common.player;
 
 
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Represents a bounded history of player poses sampled each tick.
  * <p>
- * Implementations treat index {@code 0} as the most recent pose,
+ * Index {@code 0} is the most recent pose,
  * with increasing indices going further back in time.
  */
 public interface VRPoseHistory {
@@ -27,12 +28,13 @@ public interface VRPoseHistory {
     List<VRPlayerPose> getAllHistory();
 
     /**
-     * Returns a pose from the history by its age in ticks.
+     * Returns a pose from the history by its age in ticks,
+     * or null if no data for specified ticksBack
      *
      * @param ticksBack how many ticks back to look, where {@code 0} is the newest pose
-     * @return the pose at the given offset
-     * @throws IndexOutOfBoundsException if {@code ticksBack} is outside the stored range
+     * @return the pose at the given offset or null
      */
+    @Nullable
     VRPlayerPose getEntry(int ticksBack);
 
     /**
@@ -97,7 +99,7 @@ public interface VRPoseHistory {
      *
      * @param bodyPart    body part to sample
      * @param maxTicksBack maximum number of most recent poses to include
-     * @return average position of the body part, or {@code null} if history is empty
+     * @return average position of the body part, or {@code null} if no samples fall in the window
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */
@@ -108,7 +110,7 @@ public interface VRPoseHistory {
      * Computes the average head pivot position over the specified time window.
      *
      * @param maxTicksBack maximum number of most recent poses to include
-     * @return average head pivot position, or {@code null} if history is empty
+     * @return average head pivot position, or {@code null} if no samples fall in the window
      * @throws IllegalArgumentException if {@code maxTicksBack} is negative
      *                                  or greater than {@link #HISTORY_LIMIT}
      */

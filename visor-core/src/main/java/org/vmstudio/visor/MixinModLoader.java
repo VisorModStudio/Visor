@@ -2,7 +2,6 @@ package org.vmstudio.visor;
 
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.api.ModLoader;
 
 
 /**
@@ -15,12 +14,6 @@ public interface MixinModLoader {
 
 
     boolean isModLoaded(@NotNull String id);
-
-    default boolean isSodiumLoaded() {
-        return ModLoader.get().isModLoaded("sodium")
-                || ModLoader.get().isModLoaded("rubidium")
-                || ModLoader.get().isModLoaded("embeddium");
-    }
 
     @NotNull
     LoaderType getType();

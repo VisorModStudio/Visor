@@ -6,14 +6,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.api.server.VRServerSettings;
-import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.input.HandAction;
@@ -22,7 +16,6 @@ import org.vmstudio.visor.core.client.tasks.types.TaskRoomConsume;
 import org.vmstudio.visor.core.client.tasks.types.TaskSwing;
 import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
-import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import net.minecraft.client.*;
@@ -41,7 +34,6 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -278,7 +270,7 @@ public abstract class MinecraftMixin implements MinecraftExtension {
      * FPS has to be handled only by VR related features
      */
     @WrapOperation(at = @At(value = "INVOKE", target = "Ljava/lang/Thread;sleep(J)V"), method = "doWorldLoad", expect = 0)
-    private void visor$noFPSLimitOnWorldLoad(long l, Operation<Void> original) {
+    private void visor$cancelFPSLimitOnWorldLoad(long l, Operation<Void> original) {
         if (VisorState.get().isActive()) {
             return;
         }

@@ -11,6 +11,6 @@ public interface RenderTargetExtension {
 
     boolean visor$isUsingStencil();
 
-    void visor$isLinearFilter(boolean linearFilter);
+    void visor$setLinearFilter(boolean linearFilter);
 
 }

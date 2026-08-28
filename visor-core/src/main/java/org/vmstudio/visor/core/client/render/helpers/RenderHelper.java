@@ -236,7 +236,7 @@ public class RenderHelper {
         Vector3f savedLight0 = lightDirs[0];
         Vector3f savedLight1 = lightDirs[1];
 
-        Vector3f back = (Vector3f) VRMathUtils.BACK_VECTOR;
+        Vector3f back = new Vector3f(VRMathUtils.BACK_VECTOR);
         RenderSystem.setShaderLights(back, back);
         RenderSystem.setupShaderLights(RenderSystem.getShader());
 

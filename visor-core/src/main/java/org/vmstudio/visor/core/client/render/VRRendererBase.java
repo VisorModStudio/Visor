@@ -256,9 +256,7 @@ public abstract class VRRendererBase implements VRRenderer {
     private void resizeTargets() throws Exception {
         resizeTargets = false;
 
-        float resolutionScale = 1.0F;
-
-        this.renderScale = (float) Math.sqrt(VRClientSettings.getRenderScaleFactor()) * resolutionScale;
+        this.renderScale = (float) Math.sqrt(VRClientSettings.getRenderScaleFactor());
         int eyeRenderWidth = (int) Math.ceil(getResolutionWidth() * this.renderScale);
         int eyeRenderHeight = (int) Math.ceil(getResolutionHeight() * this.renderScale);
 

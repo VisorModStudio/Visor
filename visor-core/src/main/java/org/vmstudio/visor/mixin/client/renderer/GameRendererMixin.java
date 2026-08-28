@@ -394,6 +394,37 @@ public abstract class GameRendererMixin
         visor$pickingHand = null;
     }
 
+    @Redirect(at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/Camera;getXRot()F"),
+            method = "renderLevel")
+    public float visor$noVanillaCameraPitch(Camera camera) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            return camera.getXRot();
+        }
+        return 0F;
+    }
+
+    @Redirect(at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/Camera;getYRot()F"),
+            method = "renderLevel")
+    public float visor$noVanillaCameraYaw(Camera camera) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            return camera.getYRot();
+        }
+        // -180 cancels the +180 vanilla
+        return -180F;
+    }
+
+    @Inject(at = @At(value = "NEW", target = "org/joml/Matrix3f", remap = false),
+            method = "renderLevel")
+    public void visor$orientCameraToPass(float partialTicks, long nanos, PoseStack poseStack, CallbackInfo ci) {
+        if (VRRenderState.getPhase().isNotVanilla()) {
+            RenderPoseHelper.applyCameraOrientation(
+                    VRRenderState.getRenderPass(), poseStack
+            );
+        }
+    }
+
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel")
     public void visor$pickAndSetupCamera(GameRenderer g, float pPartialTicks) {
         if (VRRenderState.getPhase().isVanilla()) {

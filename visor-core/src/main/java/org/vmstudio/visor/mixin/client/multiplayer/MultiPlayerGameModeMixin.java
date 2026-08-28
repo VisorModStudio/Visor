@@ -96,17 +96,15 @@ public abstract class MultiPlayerGameModeMixin {
     \* ************************** */
     @Inject(at = @At("HEAD"), method = "useItem")
     public void visor$ensureUseDirection1(Player player,
-                                            InteractionHand interactionHand,
-                                            CallbackInfoReturnable<InteractionResult> cir
+                                          InteractionHand hand,
+                                          CallbackInfoReturnable<InteractionResult> cir
     ) {
         if (VisorState.get().isActive()) {
             ClientNetworking.sendLookPacket(player,
                     visor$getRightClickLook(
                                     player,
-                                    interactionHand == InteractionHand
-                                            .MAIN_HAND ?
-                                            HandType.MAIN
-                                            : HandType.OFFHAND
+                                    hand == InteractionHand.MAIN_HAND ?
+                                            HandType.MAIN : HandType.OFFHAND
                             )
             );
         }
@@ -128,15 +126,15 @@ public abstract class MultiPlayerGameModeMixin {
     }
 
     @Inject(at = @At("HEAD"), method = "useItemOn")
-    public void visor$ensureUseDirection3(LocalPlayer localPlayer, InteractionHand interactionHand,
-                                   BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir
+    public void visor$ensureUseDirection3(LocalPlayer player, InteractionHand interactionHand,
+                                          BlockHitResult result, CallbackInfoReturnable<InteractionResult> cir
     ) {
         if (VisorState.get().isActive()) {
             ClientNetworking.sendLookPacket(
-                    localPlayer,
-                    blockHitResult.getLocation()
+                    player,
+                    result.getLocation()
                             .subtract(
-                                    localPlayer.getEyePosition(1.0F)
+                                    player.getEyePosition(1.0F)
                             ).normalize()
             );
         }

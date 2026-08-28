@@ -1,6 +1,5 @@
 package org.vmstudio.visor.mixin.common.player;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -24,6 +23,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.api.VisorAPI;
@@ -71,16 +71,33 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
+
+    @Unique
+    protected ItemStack visor$poseBlockItem;
+    @Unique
+    protected InteractionHand visor$poseBlockHand;
+
     @WrapMethod(method = "hurtCurrentlyUsedShield")
-    protected void visor$poseBlockShieldDamage(float damageAmount, Operation<Void> original) {
-        original.call(damageAmount);
+    private void visor$damagePoseBlockShield(float damageAmount, Operation<Void> original) {
+        if (visor$poseBlockItem == null) {
+            original.call(damageAmount);
+            return;
+        }
+        ItemStack held = this.useItem;
+        this.useItem = visor$poseBlockItem;
+        try {
+            original.call(damageAmount);
+        } finally {
+            this.useItem = held;
+            visor$poseBlockItem = null;
+            visor$poseBlockHand = null;
+        }
     }
 
-    @ModifyExpressionValue(method = "hurtCurrentlyUsedShield",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/player/Player;getUsedItemHand()Lnet/minecraft/world/InteractionHand;"))
-    protected InteractionHand visor$poseBlockShieldHand(InteractionHand original) {
-        return original;
+    @Redirect(method = "hurtCurrentlyUsedShield", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Player;getUsedItemHand()Lnet/minecraft/world/InteractionHand;"))
+    private InteractionHand visor$poseBlockShieldArm(Player self) {
+        return visor$poseBlockHand != null ? visor$poseBlockHand : self.getUsedItemHand();
     }
 
 

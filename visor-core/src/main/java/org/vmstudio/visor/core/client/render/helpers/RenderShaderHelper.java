@@ -13,8 +13,8 @@ public class RenderShaderHelper {
     }
 
 
-    public static void renderFullscreenQuad(@NotNull ShaderInstance shader,
-                                            @NotNull RenderTarget source
+    public static void renderFullscreenQuad(ShaderInstance shader,
+                                            RenderTarget source
     ) {
         // --- Setup ---
         RenderSystem.colorMask(true, true, true, false);
@@ -82,7 +82,7 @@ public class RenderShaderHelper {
                     .color(255, 255, 255, 255)
                     .endVertex();
         } else {
-            throw new IllegalArgumentException("Unexpected vertexx format " + format);
+            throw new IllegalArgumentException("Unexpected vertex format " + format);
         }
     }
 
@@ -104,7 +104,7 @@ public class RenderShaderHelper {
                     .color(255, 255, 255, 255)
                     .endVertex();
         } else {
-            throw new IllegalArgumentException("Unexpected vertexx format " + format);
+            throw new IllegalArgumentException("Unexpected vertex format " + format);
         }
     }
 }

@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.client.gui.VRGuiManager;
 import org.vmstudio.visor.api.common.addon.component.ComponentRegistry;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,29 +62,19 @@ public class VRGuiManagerImpl implements VRGuiManager {
         );
     }
 
-    public int calculateScale(int scaleIn,
+    public int calculateScale(int rawScale,
                               int guiWidth,
                               int guiHeight) {
         int scale = 1;
-        for (int i = 1;
-             i < guiWidth
-                     && i < guiHeight
-                     && guiWidth / (i + 1) >= 320
-                     && guiHeight / (i + 1) >= 240;
-             i++) {
-
-            if (scale < scaleIn || scaleIn == 0) {
-                scale++;
-            }
+        while (scale != rawScale
+                && guiWidth / (scale + 1) >= 320
+                && guiHeight / (scale + 1) >= 240) {
+            scale++;
         }
-
-        //TODO needed?
-        /*if (forceUnicode) {
-            if (scale % 2 != 0) {
-                scale++;
-            }
-        }*/
-
+        // Unicode glyphs land on half-pixels at odd scales
+        if (Minecraft.getInstance().isEnforceUnicode() && scale % 2 != 0) {
+            scale++;
+        }
         return scale;
     }
 

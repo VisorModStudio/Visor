@@ -14,7 +14,6 @@ import java.util.Set;
 public class MixinConfig implements IMixinConfigPlugin {
     private static final Logger LOGGER = LogManager.getLogger(MixinModLoader.MOD_NAME);
     private static final String COMPAT_PACKAGE = "org.vmstudio.visor.compatibility.";
-    private static final String SODIUM_EXCLUSIVE_MARKER = "NoSodium";
     private final Set<String> loggedCompatTargets = Sets.newConcurrentHashSet();
 
     @Override
@@ -43,10 +42,6 @@ public class MixinConfig implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
         if (!MixinModLoader.get().isModLoaded(MixinModLoader.MOD_ID)) {
             LOGGER.info("Visor failed to load, canceled applying mixin '{}'", mixinClassName);
-            return false;
-        }
-
-        if (mixinClassName.contains(SODIUM_EXCLUSIVE_MARKER) && MixinModLoader.get().isSodiumLoaded()) {
             return false;
         }
 
