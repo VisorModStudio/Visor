@@ -55,15 +55,17 @@ public class TaskRoomSneak extends VisorTask {
         if(ClientContext.visor
                 .isFeatureDisabled(ClientFeature.MOVEMENT_MODIFIERS)){
             return false;
-        } else if (MC.gameMode == null) {
-            return false;
-        } else if (player == null
-                || !player.isAlive()
-                || !player.onGround()) {
-            return false;
-        } else {
-            return !player.isPassenger();
         }
+        if (MC.gameMode == null || player == null) {
+            return false;
+        }
+        if (!player.isAlive()
+                || !player.onGround()
+                || player.isPassenger()) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
