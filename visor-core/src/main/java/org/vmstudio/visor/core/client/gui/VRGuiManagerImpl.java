@@ -62,6 +62,17 @@ public class VRGuiManagerImpl implements VRGuiManager {
         );
     }
 
+    /**
+     * Render overlays that skip the eye post process.
+     * Should be called AFTER the eye is finished.
+     */
+    public void renderSkipPostProcessingOverlays(PoseStack poseStack, float partialTicks) {
+        ClientContext.overlayManager.renderSkipPostProcessingOverlays(
+                partialTicks,
+                poseStack
+        );
+    }
+
     public int calculateScale(int rawScale,
                               int guiWidth,
                               int guiHeight) {

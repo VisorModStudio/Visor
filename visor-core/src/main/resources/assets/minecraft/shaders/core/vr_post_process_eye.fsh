@@ -14,6 +14,8 @@ uniform float uVignetteOffset = 0.1;
 uniform float uVignetteBorder;
 uniform vec4 uVignetteColor;
 
+uniform float uDesaturate;
+
 
 in vec2 texCoord0;
 out vec4 fragColor;
@@ -25,6 +27,13 @@ vec4 applyTints(vec4 col) {
     col.gb *= 1.0 - red;
     col.rg *= vec2(1.0 - blue, 1.0 - 0.5 * blue);
     col.rgb *= 1.0 - black;
+    return col;
+}
+
+vec4 applyDesaturation(vec4 col) {
+    float amount = clamp(uDesaturate, 0.0, 1.0);
+    float luma = dot(col.rgb, vec3(0.2126, 0.7152, 0.0722));
+    col.rgb = mix(col.rgb, vec3(luma), amount);
     return col;
 }
 
@@ -46,6 +55,9 @@ void main(){
     // --- Apply vignette
     float mask = vignetteMask(texCoord0);
     color = mix(color, uVignetteColor, mask);
+
+    // --- Drain the colors
+    color = applyDesaturation(color);
 
     // --- Finalize
     fragColor = color;

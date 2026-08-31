@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayFullscreenWarning;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayGameScreen;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayMovementState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
@@ -80,6 +81,10 @@ public class CoreAddonClient implements VisorAddon {
                                 new VROverlayItemPoseTest(
                                         this,
                                         VROverlayItemPoseTest.ID
+                                ),
+                                new VROverlayFullscreenWarning(
+                                        this,
+                                        VROverlayFullscreenWarning.ID
                                 )
                         )
                 );

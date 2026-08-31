@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.provider;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderContext;
@@ -20,6 +21,7 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import org.joml.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.*;
@@ -104,6 +106,36 @@ public class VisorScene implements AtumVRScene {
 
     }
 
+    private void renderOverlaysAfterPostProcessing(RenderContext context) {
+        if (!ClientContext.overlayManager.hasSkipPostProcessingOverlays()) {
+            return;
+        }
+
+        PoseStack modelView = RenderSystem.getModelViewStack();
+        modelView.pushPose();
+        modelView.setIdentity();
+        RenderSystem.applyModelViewMatrix();
+
+        Matrix4f projection = RenderSystem.getProjectionMatrix();
+        VertexSorting vertexSorting = RenderSystem.getVertexSorting();
+        try{
+            ClientContext.guiManager.renderSkipPostProcessingOverlays(
+                    new PoseStack(),
+                    context.partialTicks()
+            );
+            ClientContext.handRenderer.renderCursor(
+                    new PoseStack(),
+                    context.partialTicks()
+            );
+        } finally {
+            RenderSystem.setProjectionMatrix(projection, vertexSorting);
+            modelView.popPose();
+            RenderSystem.applyModelViewMatrix();
+        }
+
+        GLUtils.checkGLError("post VROverlays skipping post processing");
+    }
+
     private void takeScreenshot(VRRenderPass currentStage) {
 
         boolean flag;
@@ -173,7 +205,6 @@ public class VisorScene implements AtumVRScene {
         }
 
         if (renderPass.isEye()) {
-
             if (renderPass == VRRenderPass.EYE_LEFT) {
                 ClientContext.renderer.getTextureLeftEye()
                         .getRenderTarget().bindWrite(true);
@@ -189,6 +220,7 @@ public class VisorScene implements AtumVRScene {
                     context.partialTicks()
             );
 
+            renderOverlaysAfterPostProcessing(context);
         }
 
         ShaderCompatHelper.bridge().endEye();

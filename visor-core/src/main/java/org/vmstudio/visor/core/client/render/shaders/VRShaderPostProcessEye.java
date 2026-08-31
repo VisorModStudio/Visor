@@ -8,6 +8,7 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
+import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -20,7 +21,6 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
 public class VRShaderPostProcessEye implements VRShader{
-
     private static final AtumColor PUMPKIN_VIGNETTE_COLOR
             = AtumColor.ORANGE.blend(AtumColor.BLACK, 0.5f);
 
@@ -38,7 +38,10 @@ public class VRShaderPostProcessEye implements VRShader{
     private AbstractUniform uTintBlue;
     private AbstractUniform uTintBlack;
 
+    private AbstractUniform uDesaturate;
 
+    private float desaturateProgress;
+    private long desaturateLastMillis;
 
     @Override
     public void init() throws Exception {
@@ -49,6 +52,8 @@ public class VRShaderPostProcessEye implements VRShader{
         uTintRed = handle.safeGetUniform("uTintRed");
         uTintBlue = handle.safeGetUniform("uTintBlue");
         uTintBlack = handle.safeGetUniform("uTintBlack");
+
+        uDesaturate = handle.safeGetUniform("uDesaturate");
 
         uVignetteRadius = handle.safeGetUniform("uVignetteRadius");
         uVignetteOffset = handle.safeGetUniform("uVignetteOffset");
@@ -157,6 +162,9 @@ public class VRShaderPostProcessEye implements VRShader{
         uTintBlue.set(blueTint);
         uTintBlack.set(blackTint);
 
+        //drain the colors while the client in fullscreen
+        uDesaturate.set(updateDesaturation());
+
         //vignette
         uVignetteRadius.set(vignetteRadius);
         uVignetteBorder.set(vignetteBorder);
@@ -169,4 +177,22 @@ public class VRShaderPostProcessEye implements VRShader{
         );
     }
 
+    private float updateDesaturation() {
+        long now = Util.getMillis();
+        float frameDelta = desaturateLastMillis == 0L
+                ? 0.0f
+                : Mth.clamp(
+                        (now - desaturateLastMillis) / 1000.0f,
+                        0.0f,
+                        0.1f
+                );
+
+        desaturateLastMillis = now;
+        desaturateProgress = Mth.approach(
+                desaturateProgress,
+                ClientUtils.isFullscreenInVr() ? 1.0f : 0.0f,
+                frameDelta / 0.6f
+        );
+        return desaturateProgress * desaturateProgress * (3.0f - 2.0f * desaturateProgress);
+    }
 }
