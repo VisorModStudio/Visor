@@ -57,10 +57,13 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.PlayerExtension;
+import org.vmstudio.visor.mixin.client.accessors.BlockAccessor;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -113,9 +116,12 @@ public class TaskSwing extends VisorTask {
     private static final int DUST_PER_HIT = 3;
     private static final float DUST_SPEED = 0.6F;
     private static final int VANILLA_MINING_KEEP_TICKS = 20;
+    private static final int BREAK_CONFIRM_TICKS = 40;
 
     private BlockPos vanillaMiningPos = null;
     private long vanillaMiningLastTick;
+    //wait for server decision to break block
+    private final Map<BlockPos, PendingBreak> pendingBreaks = new HashMap<>();
 
 
     private final EnumMap<HandType, HandSwingData> handData = new EnumMap<>(HandType.class);
@@ -135,6 +141,7 @@ public class TaskSwing extends VisorTask {
     @Override
     public void onRun(@Nullable LocalPlayer player) {
         if (player == null) return;
+        confirmPendingBreaks();
 
         var relativePose = ClientContext.localPlayer
                 .getPoseData(PlayerPoseType.ROOM);
@@ -555,6 +562,7 @@ public class TaskSwing extends VisorTask {
                     sequence
             ));
         }
+        pendingBreaks.put(blockHit.getBlockPos(), new PendingBreak(blockState, VisorState.TICK_COUNT));
         final SoundType soundType = blockState.getSoundType();
         MC.getSoundManager().play(new SimpleSoundInstance(
                 soundType.getHitSound(),
@@ -564,6 +572,30 @@ public class TaskSwing extends VisorTask {
                 SoundInstance.createUnseededRandom(),
                 blockHit.getBlockPos()
         ));
+    }
+
+    // vanilla plays the break sound effect from destroyBlock local call,
+    //swinging do not use that, so, we need this replacement
+    private void confirmPendingBreaks() {
+        if (pendingBreaks.isEmpty()) {
+            return;
+        }
+        var iterator = pendingBreaks.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            PendingBreak pending = entry.getValue();
+            if (VisorState.TICK_COUNT - pending.tick() > BREAK_CONFIRM_TICKS) {
+                iterator.remove();
+                continue;
+            }
+            if (MC.level.getBlockState(entry.getKey()).is(pending.state().getBlock())) {
+                continue;
+            }
+            ((BlockAccessor) pending.state().getBlock()).visor$spawnDestroyParticles(
+                    MC.level, MC.player, entry.getKey(), pending.state()
+            );
+            iterator.remove();
+        }
     }
 
     private void mineVanilla(final BlockHitResult blockHit, final int totalHits, final HandType handType) {
@@ -684,4 +716,6 @@ public class TaskSwing extends VisorTask {
     private record ItemProperties(float itemLength,
                                   float damageRange,
                                   boolean isSword) { }
+
+    private record PendingBreak(BlockState state, int tick) { }
 }

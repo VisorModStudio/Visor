@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "client.MinecraftMixin",
+    "client.accessors.BlockAccessor",
     "client.accessors.RenderStateShardAccessor",
     "client.accessors.RenderSystemAccessor",
     "client.audio.LibraryMixin",
