@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
+import net.minecraft.world.entity.Pose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
@@ -155,7 +156,10 @@ public class GameEffectShadow extends VRGameEffect {
         if (MC.player.getVehicle() != null) {
             return false;
         }
-        if ((((LocalPlayerExtension) MC.player).visor$getRoomYOffset() < 0.0D)) {
+        Pose pose = MC.player.getPose();
+        if (pose == Pose.SWIMMING
+                || pose == Pose.FALL_FLYING
+                || pose == Pose.SPIN_ATTACK) {
             return false;
         }
 
