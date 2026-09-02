@@ -16,7 +16,6 @@ import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.compatibility.RecorderModHelper;
-import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -29,7 +28,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.core.common.addon.CoreAddonClient;
 import org.vmstudio.visor.core.server.network.ServerPacketHandler;
 
@@ -55,7 +53,6 @@ public class ClientNetworking {
     private static boolean overlayFocusedLastSent = false;
 
 
-    private static boolean handshakeReceived = false;
     private static boolean recording;
 
     public static void createClientChannel(@NotNull CoreAddonClient coreAddon){
@@ -124,14 +121,8 @@ public class ClientNetworking {
             return;
         }
 
-        if(handshakeReceived){
-            if(ClientUtils.tryCalibrateHeight()){
-                handshakeReceived = false;
-            }
-        }
-
         var localPlayer = ClientContext.localPlayer;
-        float height = localPlayer.getFullHeight();
+        float height = Math.round(localPlayer.getModelHeight() * 100f) / 100f;
         if (height != heightLastSent) {
             sendVRPacket(
                     new FullHeightPayloadToServer(
@@ -239,14 +230,7 @@ public class ClientNetworking {
                     )
             );
         }
-        if (VisorState.get().isActive()
-                && ClientContext.localPlayer.getFullHeight() == -1.0F) {
-            MC.gui.getChat().addMessage(
-                    Component.translatable("visor.messages.calibrate_height")
-            );
-        }
         serverSupportsVisor = true;
-        handshakeReceived = true;
     }
 
     public static void dispose(){
@@ -260,7 +244,6 @@ public class ClientNetworking {
         rotationYLastSent = 0;
         overlayFocusedLastSent = false;
         recording = false;
-        handshakeReceived = false;
         VRClientPlayers.dispose();
     }
 

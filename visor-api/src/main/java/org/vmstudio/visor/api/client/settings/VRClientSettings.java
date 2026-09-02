@@ -341,13 +341,25 @@ public class VRClientSettings {
     @VROptionField(key = "swing.in_creative", category = VROptionCategory.IMMERSION_ADVANCED)
     protected static boolean swingInCreative = true;
 
-    // ---- OTHER
+    // ---- PLAYER HEIGHT
 
+    @Getter @Setter
+    @VROptionField(key = "height_mode", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    protected static HeightMode heightMode = HeightMode.MATCH_MODEL;
 
+    @Getter @Setter
+    @VROptionField(key = "height_auto", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    protected static boolean heightAuto = true;
 
     @Setter
-    @VROptionField(key = "player.full_height", excludeForcedChange = true)
-    protected static float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
+    @VROptionField(key = "height", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    protected static float fullHeight = -1.0f;
+
+    @Getter @Setter
+    protected static float fullHeightApplied = VRPlayer.DEFAULT_FULL_HEIGHT;
+
+    //----OTHER
+    public static final float MIN_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
 
 
     public static MovementMode getMoveMode(Player player) {
@@ -392,14 +404,20 @@ public class VRClientSettings {
 
 
 
-    public static final float MIN_CALIBRATION_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
+
+    public static boolean isFullHeightMeasured() {
+        return fullHeight >= MIN_HEIGHT;
+    }
 
     public static float getFullHeight() {
-        if (fullHeight < 0) {
-            return VRPlayer.DEFAULT_FULL_HEIGHT;
-        }
+        return isFullHeightMeasured() ? fullHeight : VRPlayer.DEFAULT_FULL_HEIGHT;
+    }
 
-        return fullHeight;
+    public static float getHeightFactor() {
+        if (heightMode != HeightMode.MATCH_MODEL) {
+            return 1.0f;
+        }
+        return VRPlayer.DEFAULT_FULL_HEIGHT / fullHeightApplied;
     }
 
     public static boolean isLimitedSurvivalTeleport() {

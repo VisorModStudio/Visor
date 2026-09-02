@@ -144,6 +144,12 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     public void receivedFullHeightPacket(float fullHeight){
         this.fullHeight = fullHeight;
     }
+
+    @Override
+    public float getModelScale(@NotNull PlayerPoseType poseType) {
+        return getFullHeightScale();
+    }
+
     public void receivedGunAngle(float gunAngle){
         this.gunAngle = gunAngle;
     }

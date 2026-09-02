@@ -16,10 +16,12 @@ import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.ActiveHandPayloadToServer;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
+import org.vmstudio.visor.core.client.player.height.PlayerHeightTracker;
 import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomClimb;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomCrawl;
@@ -81,6 +83,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
     @Getter @Setter
     private boolean overlayFocused;
 
+    @Getter
+    private final PlayerHeightTracker heightTracker = new PlayerHeightTracker();
+
     public VRLocalPlayerImpl() {
         this.roomPose = new LocalPlayerPose(this, PlayerPoseType.ROOM);
         this.prevPose = new LocalPlayerPose(this, PlayerPoseType.PREV_TICK);
@@ -141,9 +146,10 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         );
 
         //WORLD SCALE
+        heightTracker.tick();
         float preWorldScale = VRRenderState.getSceneType().isMainMenu()
                 ? 1.0f
-                : VRClientSettings.getWorldScale();
+                : VRClientSettings.getWorldScale() * VRClientSettings.getHeightFactor();
 
         this.pose.updateTracking(
                 pose.getOrigin(),
@@ -566,6 +572,18 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         return VRClientSettings.getFullHeight();
     }
 
+    @Override
+    public float getModelScale(@NotNull PlayerPoseType poseType) {
+        float scale = getFullHeightScale();
+        if (VisorState.get().isActive()) {
+            scale *= getPoseData(poseType).getWorldScale();
+        }
+        return scale;
+    }
+
+    public float getModelHeight() {
+        return VRPlayer.DEFAULT_FULL_HEIGHT * getModelScale(PlayerPoseType.TICK);
+    }
 
 
     @Override

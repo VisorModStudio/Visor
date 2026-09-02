@@ -30,6 +30,19 @@ public interface VRClientPlayer extends VRPlayer {
     @NotNull
     VRPlayerPoseClient getPoseData(@NotNull PlayerPoseType type);
 
+    /**
+     * Scale of the player model relative to vanilla
+     *
+     * @param poseType the pose to get world scale from
+     *
+     * @return model scale
+     */
+    float getModelScale(@NotNull PlayerPoseType poseType);
+
+    default float getModelScale() {
+        return getModelScale(PlayerPoseType.RENDER);
+    }
+
     @Override
     default @NotNull VRPlayerPoseClient getPoseDataPrevious() {
         return getPoseData(PlayerPoseType.PREV_TICK);

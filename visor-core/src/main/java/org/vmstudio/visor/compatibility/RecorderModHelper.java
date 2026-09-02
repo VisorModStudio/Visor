@@ -42,7 +42,7 @@ public class RecorderModHelper {
                         new VROtherLeftHandedPayloadToClient(uuid, localPlayer.isLeftHanded()),
                         new VROtherRotationYPayloadToClient(uuid, localPlayer.getRotationY()),
                         new VROtherWorldScalePayloadToClient(uuid, localPlayer.getPoseData().getWorldScale()),
-                        new VROtherFullHeightPayloadToClient(uuid, localPlayer.getFullHeight()),
+                        new VROtherFullHeightPayloadToClient(uuid, localPlayer.getModelHeight()),
                         new VROtherGunAnglePayloadToClient(uuid, localPlayer.getGunAngle()),
                         new VROtherOverlayFocusedPayloadToClient(uuid, localPlayer.isOverlayFocused())
                 )

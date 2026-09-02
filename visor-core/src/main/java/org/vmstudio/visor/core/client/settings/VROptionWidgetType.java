@@ -16,7 +16,9 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.player.height.PlayerHeightTracker;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -262,6 +264,38 @@ public enum VROptionWidgetType {
             VROptionCategory.RENDERING,
             "graphics_api",
             (it) -> null
+    ),
+    HEIGHT_MODE(
+            VROptionCategory.VR_BODY,
+            "height_mode",
+            (it) -> null
+    ),
+    HEIGHT_AUTO(
+            VROptionCategory.VR_BODY,
+            "height_auto",
+            (it) -> null
+    ),
+    HEIGHT(
+            VROptionCategory.VR_BODY,
+            "height",
+            (it) -> {
+                List<Float> entries = new ArrayList<>();
+                for (int cm = 140; cm <= 210; cm++) {
+                    entries.add(PlayerHeightTracker.actualHeightToPivot(cm));
+                }
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> Mth.clamp(
+                                PlayerHeightTracker.pivotToActualHeight(VRClientSettings.getFullHeight()) - 140,
+                                0, entries.size() - 1
+                        )
+                ).setActiveWhen(() -> !VRClientSettings.isHeightAuto())
+                .setOnUpdateName(
+                        (pair) -> pair.first()
+                                + PlayerHeightTracker.pivotToActualHeight(VRClientSettings.getFullHeight())
+                                + " cm"
+                ).build();
+            }
     ),
     FBT(
             VROptionCategory.VR_BODY,

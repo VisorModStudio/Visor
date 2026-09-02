@@ -75,7 +75,10 @@ public interface VRPlayer extends VisorPlayer{
     HandType getActiveHand();
 
     /**
-     * Get full height
+     * Standing head pivot height in meters.
+     * <p>
+     *     For Remote players it is the height their model is rendered at instead.
+     * </p>
      *
      * @return full height
      */
