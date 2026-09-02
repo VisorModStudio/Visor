@@ -14,6 +14,7 @@ public enum VROptionCategory {
     RENDERING_THIRD_PERSON("rendering.third_person"),
     RENDERING_MIXED_REALITY("rendering.mixed_reality"),
     VR_BODY("vr_body"),
+    VR_BODY_HEIGHT("vr_body.height"),
     MOVEMENT("movement"),
     CONTROLS("controls"),
     IMMERSION("immersion"),

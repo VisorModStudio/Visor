@@ -20,8 +20,8 @@ import org.vmstudio.visor.core.common.CommonUtils;
 @Mixin(Item.class)
 public abstract class ItemMixin {
 
-    // buckets, boats, spawn eggs
-    // and ender eye pick their target here
+    // buckets, boats
+    // pick their target here
     @WrapOperation(method = "getPlayerPOVHitResult", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/level/Level;clip(Lnet/minecraft/world/level/ClipContext;)Lnet/minecraft/world/phys/BlockHitResult;"))
     private static BlockHitResult visor$clipFromActiveHand(Level level, ClipContext context,

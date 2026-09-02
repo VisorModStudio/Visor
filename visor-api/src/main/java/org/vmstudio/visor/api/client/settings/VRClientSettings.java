@@ -344,15 +344,23 @@ public class VRClientSettings {
     // ---- PLAYER HEIGHT
 
     @Getter @Setter
-    @VROptionField(key = "height_mode", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    @VROptionField(key = "mode", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
     protected static HeightMode heightMode = HeightMode.MATCH_MODEL;
 
     @Getter @Setter
-    @VROptionField(key = "height_auto", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    @VROptionField(key = "adjustment", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static HeightAdjustment heightAdjustment = HeightAdjustment.CAMERA_OFFSET;
+
+    @Getter @Setter
+    @VROptionField(key = "units", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static HeightUnits heightUnits = HeightUnits.METRIC;
+
+    @Getter @Setter
+    @VROptionField(key = "auto", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
     protected static boolean heightAuto = true;
 
     @Setter
-    @VROptionField(key = "height", category = VROptionCategory.VR_BODY, excludeForcedChange = true)
+    @VROptionField(key = "standing", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
     protected static float fullHeight = -1.0f;
 
     @Getter @Setter
@@ -413,11 +421,30 @@ public class VRClientSettings {
         return isFullHeightMeasured() ? fullHeight : VRPlayer.DEFAULT_FULL_HEIGHT;
     }
 
+
     public static float getHeightFactor() {
-        if (heightMode != HeightMode.MATCH_MODEL) {
+        if (heightMode == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.WORLD_SCALE) {
             return 1.0f;
         }
         return VRPlayer.DEFAULT_FULL_HEIGHT / fullHeightApplied;
+    }
+
+    public static float getCameraOffset() {
+        if (heightMode == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
+            return 0.0f;
+        }
+        return VRPlayer.DEFAULT_FULL_HEIGHT - fullHeightApplied;
+    }
+
+    public static float getModelHeightRatio() {
+        float measured = getFullHeight();
+        if (heightMode == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
+            return measured / VRPlayer.DEFAULT_FULL_HEIGHT;
+        }
+        return (VRPlayer.DEFAULT_FULL_HEIGHT - fullHeightApplied + measured) / VRPlayer.DEFAULT_FULL_HEIGHT;
     }
 
     public static boolean isLimitedSurvivalTeleport() {

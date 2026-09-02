@@ -16,9 +16,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.player.height.PlayerHeightTracker;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -266,36 +264,29 @@ public enum VROptionWidgetType {
             (it) -> null
     ),
     HEIGHT_MODE(
-            VROptionCategory.VR_BODY,
-            "height_mode",
+            VROptionCategory.VR_BODY_HEIGHT,
+            "mode",
+            (it) -> null
+    ),
+    HEIGHT_ADJUSTMENT(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "adjustment",
             (it) -> null
     ),
     HEIGHT_AUTO(
-            VROptionCategory.VR_BODY,
-            "height_auto",
+            VROptionCategory.VR_BODY_HEIGHT,
+            "auto",
             (it) -> null
     ),
-    HEIGHT(
-            VROptionCategory.VR_BODY,
-            "height",
-            (it) -> {
-                List<Float> entries = new ArrayList<>();
-                for (int cm = 140; cm <= 210; cm++) {
-                    entries.add(PlayerHeightTracker.actualHeightToPivot(cm));
-                }
-                return OptionBehaviourFactory.discreteSlider(
-                        it, entries,
-                        () -> Mth.clamp(
-                                PlayerHeightTracker.pivotToActualHeight(VRClientSettings.getFullHeight()) - 140,
-                                0, entries.size() - 1
-                        )
-                ).setActiveWhen(() -> !VRClientSettings.isHeightAuto())
-                .setOnUpdateName(
-                        (pair) -> pair.first()
-                                + PlayerHeightTracker.pivotToActualHeight(VRClientSettings.getFullHeight())
-                                + " cm"
-                ).build();
-            }
+    HEIGHT_STANDING(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "standing",
+            (it) -> null
+    ),
+    HEIGHT_UNITS(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "units",
+            (it) -> null
     ),
     FBT(
             VROptionCategory.VR_BODY,

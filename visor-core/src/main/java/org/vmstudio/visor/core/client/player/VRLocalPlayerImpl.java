@@ -440,7 +440,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         // we sub it to compensate initial room position of pose data
         float x = (float) (cameraEntity.getX() - headPivot.x());
         float z = (float) (cameraEntity.getZ() - headPivot.z());
-        float y = (float) (cameraEntity.getY());
+        float y = (float) (cameraEntity.getY() + getCameraOffsetWorld());
         if (cameraEntity instanceof LocalPlayerExtension p) {
             y += (float) p.visor$getRoomYOffset();
         }
@@ -585,6 +585,14 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         return VRPlayer.DEFAULT_FULL_HEIGHT * getModelScale(PlayerPoseType.TICK);
     }
 
+    @Override
+    public float getFullHeightScale() {
+        return VRClientSettings.getModelHeightRatio();
+    }
+
+    public float getCameraOffsetWorld() {
+        return VRClientSettings.getCameraOffset() * pose.getWorldScale();
+    }
 
     @Override
     public boolean isLeftHanded() {

@@ -105,7 +105,7 @@ public final class PlayerHeightTracker {
         store(height);
         estimator.reset();
         lastSaveMs = 0L;
-        chat.addMessage(Component.translatable("visor.messages.height_measured", pivotToActualHeight(height)));
+        chat.addMessage(Component.translatable("visor.messages.height_measured", HeightFormat.format(height)));
     }
 
     private void store(float height) {
@@ -135,7 +135,7 @@ public final class PlayerHeightTracker {
             announceAutoSet = false;
             chat.addMessage(Component.translatable(
                     "visor.messages.height_auto_set",
-                    pivotToActualHeight(VRClientSettings.getFullHeight())
+                    HeightFormat.format(VRClientSettings.getFullHeight())
             ));
         } else if (!hintShown
                 && VRClientSettings.isHeightAuto()
@@ -148,15 +148,5 @@ public final class PlayerHeightTracker {
 
     private static boolean isSafeMoment() {
         return MC.screen != null || VRRenderState.getSceneType().isMainMenu();
-    }
-
-
-
-    public static int pivotToActualHeight(float pivotHeight) {
-        return Math.round((pivotHeight + 0.21f) * 100f);
-    }
-
-    public static float actualHeightToPivot(int statureCm) {
-        return statureCm / 100f - 0.21f;
     }
 }

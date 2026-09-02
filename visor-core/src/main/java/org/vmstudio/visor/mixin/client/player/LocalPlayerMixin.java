@@ -224,6 +224,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Unique
     private float visor$originY() {
         return (float) (this.getY()
+                + ClientContext.localPlayer.getCameraOffsetWorld()
                 + this.visor$getRoomYOffset());
     }
 
@@ -320,6 +321,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                     );
             x = x - premountPos.x;
             z = z - premountPos.z;
+            y += ClientContext.localPlayer.getCameraOffsetWorld();
             ClientContext.localPlayer.setOrigin((float) x, (float) y, (float) z, shouldReset);
             return;
         }
@@ -468,7 +470,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             final double modifiedEyeHeight = 0.4D;
             var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
             double eyeAboveOrigin = tickPose.getHmd().getPosition().y() - tickPose.getOrigin().y();
-            target = modifiedEyeHeight - eyeAboveOrigin;
+            target = modifiedEyeHeight - eyeAboveOrigin - ClientContext.localPlayer.getCameraOffsetWorld();
         }
         final double yStep = 0.06D;
         visor$roomYOffsetApplied += Mth.clamp(target - visor$roomYOffsetApplied, -yStep, yStep);
