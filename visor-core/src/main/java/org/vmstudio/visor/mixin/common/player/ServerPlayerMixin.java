@@ -2,6 +2,7 @@ package org.vmstudio.visor.mixin.common.player;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import net.minecraft.tags.DamageTypeTags;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -231,6 +232,7 @@ public abstract class ServerPlayerMixin
         ServerPlayer player = visor$getPlayer();
         if (alreadyBlocked
                 || player.isBlocking()
+                || damageSource.is(DamageTypeTags.BYPASSES_SHIELD)
                 || !VRServerSettings.isRoomscaleShieldBlocking()) {
             return false;
         }
