@@ -38,15 +38,24 @@ public class RenderEffectsHelper {
     }
 
     public static void renderInBlockEffect() {
+        renderInBlockEffect(1.0F);
+    }
+
+
+    public static void renderInBlockEffect(float alpha) {
+        if (alpha <= 0.0F) {
+            return;
+        }
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.getBuilder();
         Matrix4f mat = fullscreenMatrix();
 
         RenderSystem.setShader(GameRenderer::getPositionShader);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
+        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha);
         RenderSystem.depthFunc(GL11C.GL_ALWAYS);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.disableCull();
 
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);

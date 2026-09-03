@@ -34,6 +34,9 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class VROverlayGameScreen extends VROverlayFrameBuffer {
     public static final String ID = "game_screen";
 
+    private static final float WIN_SCREEN_SCALE = 2.0f;
+    private static final float WIN_SCREEN_DISTANCE = 2.5f;
+
     private Vector3fc relativePosition = null;
     private Matrix4f relativeRotation = null;
 
@@ -130,6 +133,10 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
             orientMainMenu();
             return;
         }
+        if (newScreen instanceof WinScreen) {
+            orientWinScreen();
+            return;
+        }
         overlayScale = optionsResizing.getResizingScale();
         if(overlayScale == -1){
             overlayScale = 1.0f;
@@ -175,6 +182,32 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
         }
 
+    }
+
+    private void orientWinScreen(){
+        ClientContext.localPlayer.setRotationY(0);
+        overlayScale = WIN_SCREEN_SCALE;
+
+        VRPose hmd = ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.ROOM)
+                .getHmd();
+        var hmdPos = hmd.getPosition();
+
+        Vector3f forward = hmd.transformDirection(new Vector3f(0.0f, 0.0f, -1.0f));
+        forward.y = 0.0f;
+        if (forward.lengthSquared() < 1.0e-4f) {
+            forward.set(0.0f, 0.0f, -1.0f);
+        }
+        forward.normalize().mul(WIN_SCREEN_DISTANCE);
+
+        relativePosition = new Vector3f(
+                hmdPos.x() + forward.x,
+                hmdPos.y(),
+                hmdPos.z() + forward.z
+        );
+        relativeRotation = new Matrix4f().rotationY(
+                (float) (Math.PI + Mth.atan2(forward.x, forward.z))
+        );
     }
 
     private void orientMainMenu(){
@@ -351,12 +384,17 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
     @Override
     public boolean supportsDragging() {
-        return VisorAPI.clientState().sceneType().isWorld();
+        return !willBeInMenuRoom(MC.screen);
     }
 
     @Override
     public boolean supportsResizing() {
-        return VisorAPI.clientState().sceneType().isWorld();
+        return !willBeInMenuRoom(MC.screen);
+    }
+
+    @Override
+    public boolean supportsLight() {
+        return !willBeInMenuRoom(MC.screen);
     }
 
 

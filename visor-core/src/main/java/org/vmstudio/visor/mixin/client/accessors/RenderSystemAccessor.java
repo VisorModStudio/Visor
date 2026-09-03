@@ -17,4 +17,8 @@ public interface RenderSystemAccessor {
     static Vector3f[] getShaderLightDirections() {
         return null;
     }
+
+    @Accessor
+    static void setShaderGameTime(float shaderGameTime) {
+    }
 }

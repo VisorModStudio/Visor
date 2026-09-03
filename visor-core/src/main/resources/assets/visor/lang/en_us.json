@@ -542,6 +542,8 @@
   "visor.screen.pause_menu.section.time": "TIME",
   "visor.screen.pause_menu.section.weather": "WEATHER",
 
+  "visor.screen.win_screen.button.leave": "Leave",
+
   "_comment19": "*--------WIDGETS--------*",
   "visor.widgets.color_picker.hex": "Hex",
   "visor.widgets.color_picker.transparent": "Transparent: %s",

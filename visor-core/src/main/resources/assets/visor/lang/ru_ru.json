@@ -462,6 +462,8 @@
   "visor.screen.pause_menu.section.time": "ВРЕМЯ",
   "visor.screen.pause_menu.section.weather": "ПОГОДА",
 
+  "visor.screen.win_screen.button.leave": "Выйти",
+
   "_comment19": "*--------ОБЩИЕ КНОПКИ--------*",
   "visor.button.load_defaults": "Загрузить по умолчанию",
   "visor.button.overlay": "Оверлей",
