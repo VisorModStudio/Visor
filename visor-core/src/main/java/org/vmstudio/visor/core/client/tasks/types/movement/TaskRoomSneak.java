@@ -60,8 +60,8 @@ public class TaskRoomSneak extends VisorTask {
             return false;
         }
         if (!player.isAlive()
-                || !player.onGround()
-                || player.isPassenger()) {
+                || player.isPassenger()
+                || player.getAbilities().flying) {
             return false;
         }
 
