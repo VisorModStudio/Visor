@@ -130,6 +130,15 @@ public abstract class VRDecorator implements VisorComponent, PrioritySupporter {
     public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
     }
 
+    /**
+     * Called at the end of a render pass, after the eye post process
+     *
+     * @param poseStack    current pose stack
+     * @param partialTicks partial tick time
+     */
+    public void renderAfterPostProcessing(@NotNull PoseStack poseStack, float partialTicks) {
+    }
+
 
 
 

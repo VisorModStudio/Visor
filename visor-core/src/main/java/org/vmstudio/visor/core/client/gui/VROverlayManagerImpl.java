@@ -52,7 +52,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
     private final List<VROverlay> preparedDepthOverlays = new ArrayList<>();
     private final List<VROverlay> preparedHudOverlays = new ArrayList<>();
-    private final List<VROverlay> preparedSkipPostProcessingOverlays = new ArrayList<>();
 
     public void tick(){
         for(VROverlay overlay : overlaysRegistry.getSortedComponents()){
@@ -65,7 +64,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
         preparedOverlays.clear();
         preparedDepthOverlays.clear();
         preparedHudOverlays.clear();
-        preparedSkipPostProcessingOverlays.clear();
 
         for (VROverlay overlay : overlaysRegistry.getSortedComponents()) {
             if(!overlay.isVisible()) continue;
@@ -84,9 +82,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
             //ready to be rendered
             preparedOverlays.add(overlay);
 
-            if (overlay.skipPostProcessing()) {
-                preparedSkipPostProcessingOverlays.add(overlay);
-            } else if (overlay.isHudLayer()) {
+            if (overlay.isHudLayer()) {
                 preparedHudOverlays.add(overlay);
             } else {
                 preparedDepthOverlays.add(overlay);
@@ -206,27 +202,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 true,
                 "hud"
         );
-
-        if (!VRRenderState.getRenderPass().isEye()) {
-            renderSkipPostProcessingOverlays(partialTicks, poseStack);
-        }
-    }
-
-    /**
-     * Render overlays that skip the eye post process.
-     * Called after the post process ran
-     */
-    public void renderSkipPostProcessingOverlays(float partialTicks, PoseStack poseStack) {
-        renderOverlayQuads(
-                preparedSkipPostProcessingOverlays,
-                partialTicks, poseStack,
-                true,
-                "skip post processing"
-        );
-    }
-
-    public boolean hasSkipPostProcessingOverlays() {
-        return !preparedSkipPostProcessingOverlays.isEmpty();
     }
 
     private void renderOverlayQuads(List<VROverlay> overlays, float partialTicks, PoseStack poseStack,

@@ -438,14 +438,6 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     }
 
     /**
-     * If overlay skips the eye post process (tints, vignette, desaturation etc.)
-     * @return true/false
-     */
-    default boolean skipPostProcessing(){
-        return false;
-    }
-
-    /**
      * If overlay is affected by world light level
      *
      *

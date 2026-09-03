@@ -107,10 +107,6 @@ public class VisorScene implements AtumVRScene {
     }
 
     private void renderOverlaysAfterPostProcessing(RenderContext context) {
-        if (!ClientContext.overlayManager.hasSkipPostProcessingOverlays()) {
-            return;
-        }
-
         PoseStack modelView = RenderSystem.getModelViewStack();
         modelView.pushPose();
         modelView.setIdentity();
@@ -119,14 +115,7 @@ public class VisorScene implements AtumVRScene {
         Matrix4f projection = RenderSystem.getProjectionMatrix();
         VertexSorting vertexSorting = RenderSystem.getVertexSorting();
         try{
-            ClientContext.guiManager.renderSkipPostProcessingOverlays(
-                    new PoseStack(),
-                    context.partialTicks()
-            );
-            ClientContext.handRenderer.renderCursor(
-                    new PoseStack(),
-                    context.partialTicks()
-            );
+            ClientContext.decorationRenderer.renderAfterPostProcessing(new PoseStack(), context.partialTicks());
         } finally {
             RenderSystem.setProjectionMatrix(projection, vertexSorting);
             modelView.popPose();
@@ -219,9 +208,9 @@ public class VisorScene implements AtumVRScene {
                     MC.mainRenderTarget,
                     context.partialTicks()
             );
-
-            renderOverlaysAfterPostProcessing(context);
         }
+
+        renderOverlaysAfterPostProcessing(context);
 
         ShaderCompatHelper.bridge().endEye();
     }
