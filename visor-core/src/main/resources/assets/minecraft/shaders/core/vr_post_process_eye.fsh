@@ -6,6 +6,7 @@ uniform float uTintRed;
 uniform float uTintBlue;
 uniform float uTintBlack;
 
+uniform float uDesaturate;
 
 in vec2 texCoord0;
 out vec4 fragColor;
@@ -20,12 +21,21 @@ vec4 applyTints(vec4 col) {
     return col;
 }
 
-void main(){
+vec4 applyDesaturation(vec4 col) {
+    float amount = clamp(uDesaturate, 0.0, 1.0);
+    float luma = dot(col.rgb, vec3(0.2126, 0.7152, 0.0722));
+    col.rgb = mix(col.rgb, vec3(luma), amount);
+    return col;
+}
 
+void main(){
     vec4 color = texture(Sampler0, texCoord0.st);
 
     // --- Apply all tints
     color = applyTints(color);
+
+    // --- Drain the colors
+    color = applyDesaturation(color);
 
     // --- Finalize
     fragColor = color;

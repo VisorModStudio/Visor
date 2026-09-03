@@ -13,12 +13,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.BlockAndTintGetter;
 import org.joml.Vector2f;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorState;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class ClientUtils {
+    public static boolean isFullscreenInVr() {
+        return VisorState.get().isActive()
+                && Minecraft.getInstance().getWindow().isFullscreen();
+    }
+
     public static Vector2f getPlayAreaSize() {
 
         return new Vector2f(2, 2);

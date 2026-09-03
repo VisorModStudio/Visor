@@ -283,34 +283,17 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
         }
 
         renderGameEffects(currentDecorator, poseStack, partialTicks);
-        if (!ShaderCompatHelper.isShaderActive()) {
-            ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
-            ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
-            ClientContext.handRenderer.renderGuiHands(
-                    poseStack,
-                    handStateMain, handStateOffhand,
-                    partialTicks
-            );
-            ClientContext.handRenderer.renderHandEffectsOnly(
-                    currentDecorator,
-                    poseStack,
-                    handStateMain, handStateOffhand,
-                    true,
-                    partialTicks
-            );
-        }
-
         currentDecorator.renderAfterWorld(poseStack, partialTicks);
 
         GLUtils.checkGLError("post AFTER_WORLD stage");
     }
 
-
-    public void renderShaderUi(PoseStack poseStack, float partialTicks) {
-        if (currentDecorator == null || currentDecorator.isFullControl()) {
+    public void renderAfterPostProcessing(PoseStack poseStack, float partialTicks) {
+        if (currentDecorator == null) return;
+        if (currentDecorator.isFullControl()) {
+            currentDecorator.renderAfterPostProcessing(poseStack, partialTicks);
             return;
         }
-        ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         ClientContext.guiManager.renderHudOverlays(poseStack, partialTicks);
         ClientContext.handRenderer.renderCursor(poseStack, partialTicks);
         ClientContext.handRenderer.renderGuiHands(
@@ -325,6 +308,16 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
                 true,
                 partialTicks
         );
+
+        currentDecorator.renderAfterPostProcessing(poseStack, partialTicks);
+        GLUtils.checkGLError("post AFTER_POST_PROCESSING stage");
+    }
+
+    public void renderShaderUi(PoseStack poseStack, float partialTicks) {
+        if (currentDecorator == null || currentDecorator.isFullControl()) {
+            return;
+        }
+        ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         GLUtils.checkGLError("post shader UI stage");
     }
 

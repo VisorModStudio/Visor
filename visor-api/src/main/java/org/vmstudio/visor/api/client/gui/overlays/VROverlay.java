@@ -12,8 +12,6 @@ import org.vmstudio.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import java.util.Collection;
 

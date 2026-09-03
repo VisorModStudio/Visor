@@ -42,6 +42,13 @@
       "type": "float",
       "count": 1,
       "values": [1.0]
+    },
+    {
+      "name": "uDesaturate",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    }
     }
   ]
 }
