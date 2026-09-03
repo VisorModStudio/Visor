@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector4i;
 
 import java.util.function.Function;
+import java.util.function.BooleanSupplier;
 
 public class OptionBehaviourBuilder {
 
@@ -19,6 +20,8 @@ public class OptionBehaviourBuilder {
     private Runnable onChanged = ()->{};
     @Setter @Accessors(chain = true)
     private Function<PairRecord<String, Object>, String> onUpdateName = (entry)->null;
+    @Setter @Accessors(chain = true)
+    private BooleanSupplier activeWhen = () -> true;
 
     /**
      *
@@ -48,7 +51,9 @@ public class OptionBehaviourBuilder {
 
             @Override
             public AbstractWidget getWidget(int x, int y, int width, int height) {
-                return widgetSupplier.apply(new Vector4i(x,y,width,height));
+                AbstractWidget widget = widgetSupplier.apply(new Vector4i(x,y,width,height));
+                widget.active = activeWhen.getAsBoolean();
+                return widget;
             }
         };
     }

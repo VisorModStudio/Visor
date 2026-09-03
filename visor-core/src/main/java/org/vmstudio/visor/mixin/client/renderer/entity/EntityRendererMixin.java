@@ -31,7 +31,7 @@ public class EntityRendererMixin {
         float heightScale = 1.0f;
         VRClientPlayer vrPlayer = VRClientPlayers.getPlayer(entity);
         if (vrPlayer != null) {
-            heightScale = vrPlayer.getFullHeightScale();
+            heightScale = vrPlayer.getModelScale();
         }
         return ((EntityRenderDispatcherExtension) this.entityRenderDispatcher)
                 .visor$lookAtCameraOrientation(heightScale, 0.5f * heightScale);

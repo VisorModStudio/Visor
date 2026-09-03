@@ -23,7 +23,7 @@ public class PlayerModelUtils {
 
     public static Vector3f toWorldSpace(VRClientPlayer vrPlayer, Vector3fc modelPos,
                                         float bodyYaw, Vector3f dest) {
-        float modelScale = VANILLA_MODEL_SCALE * vrPlayer.getFullHeightScale();
+        float modelScale = VANILLA_MODEL_SCALE * vrPlayer.getModelScale();
         float blocksPerUnit = modelScale / 16.0F;
         dest.set(modelPos)
                 .mul(-blocksPerUnit, -blocksPerUnit, blocksPerUnit)

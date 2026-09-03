@@ -5,7 +5,6 @@ import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
-import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -14,25 +13,13 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
 public class VRShaderPostProcessEye implements VRShader{
-    private static final AtumColor PUMPKIN_VIGNETTE_COLOR
-            = AtumColor.ORANGE.blend(AtumColor.BLACK, 0.5f);
-
     @Getter
     private ShaderInstance handle;
-
-    private AbstractUniform uniformEye;
-
-    private AbstractUniform uVignetteRadius;
-    private AbstractUniform uVignetteOffset;
-    private AbstractUniform uVignetteBorder;
-    private AbstractUniform uVignetteColor;
 
     private AbstractUniform uTintRed;
     private AbstractUniform uTintBlue;
@@ -47,19 +34,11 @@ public class VRShaderPostProcessEye implements VRShader{
     public void init() throws Exception {
         handle = new ShaderInstance(Minecraft.getInstance().getResourceManager(), "vr_post_process_eye", DefaultVertexFormat.POSITION_TEX);
 
-        uniformEye = handle.safeGetUniform("uEye");
-
         uTintRed = handle.safeGetUniform("uTintRed");
         uTintBlue = handle.safeGetUniform("uTintBlue");
         uTintBlack = handle.safeGetUniform("uTintBlack");
 
         uDesaturate = handle.safeGetUniform("uDesaturate");
-
-        uVignetteRadius = handle.safeGetUniform("uVignetteRadius");
-        uVignetteOffset = handle.safeGetUniform("uVignetteOffset");
-        uVignetteBorder = handle.safeGetUniform("uVignetteBorder");
-        uVignetteColor = handle.safeGetUniform("uVignetteColor");
-
     }
 
 
@@ -71,9 +50,6 @@ public class VRShaderPostProcessEye implements VRShader{
             // to have synchronized effects for both
             updateUniforms(partialTicks);
         }
-
-        uniformEye.set(eye == EyeType.LEFT ? 1 : -1);
-
 
         RenderShaderHelper.renderFullscreenQuad(handle, source);
 
@@ -93,11 +69,6 @@ public class VRShaderPostProcessEye implements VRShader{
         float redTint = 0.0F;
         float blueTint = 0.0F;
         float blackTint = 0.0F;
-
-        float vignetteRadius = 1.0f;
-        float vignetteBorder = 0.06f;
-
-        AtumColor vignetteColor = AtumColor.BLACK;
 
         if (canApplyEffects) {
 
@@ -138,21 +109,6 @@ public class VRShaderPostProcessEye implements VRShader{
                 blackTint = 0.5F + 0.3F * MC.player.getSleepTimer() * 0.01F;
             }
 
-
-            // --- Vignette ---
-            ItemStack headItem = MC.player.getInventory().getArmor(3);
-
-            if(VRClientSettings.isPumpkinEffectEnabled()) {
-                boolean hasPumpkin = headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
-                        && (!headItem.hasTag() || headItem.getTag().getInt("CustomModelData") == 0);
-                if (hasPumpkin) {
-                    vignetteColor = PUMPKIN_VIGNETTE_COLOR;
-                    vignetteRadius = 0.3f;
-                    vignetteBorder = 0f;
-
-                }
-            }
-
         }
 
         // --- Finalize ---
@@ -161,20 +117,9 @@ public class VRShaderPostProcessEye implements VRShader{
         uTintRed.set(redTint);
         uTintBlue.set(blueTint);
         uTintBlack.set(blackTint);
-
+      
         //drain the colors while the client in fullscreen
         uDesaturate.set(updateDesaturation());
-
-        //vignette
-        uVignetteRadius.set(vignetteRadius);
-        uVignetteBorder.set(vignetteBorder);
-        uVignetteOffset.set(0.1f);
-        uVignetteColor.set(
-                vignetteColor.getRed(),
-                vignetteColor.getGreen(),
-                vignetteColor.getBlue(),
-                vignetteColor.getAlpha()
-        );
     }
 
     private float updateDesaturation() {

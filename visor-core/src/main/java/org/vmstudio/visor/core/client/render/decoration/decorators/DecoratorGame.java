@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.render.decoration.effects.hand.HandEffectTeleport;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectOnFire;
+import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectPumpkin;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectShadow;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectTrackerDebug;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectVanilla;
@@ -44,6 +45,7 @@ public class DecoratorGame extends VRDecorator {
     public List<String> gameEffects() {
         return List.of(
                 GameEffectOnFire.ID,
+                GameEffectPumpkin.ID,
                 GameEffectShadow.ID,
                 GameEffectVanilla.ID,
                 GameEffectTrackerDebug.ID

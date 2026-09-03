@@ -5,11 +5,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
+import net.minecraft.world.entity.Pose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRGameEffect;
 import org.vmstudio.visor.api.client.render.decoration.effects.VRGameEffect;
+import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -142,6 +144,10 @@ public class GameEffectShadow extends VRGameEffect {
 
     @Override
     public boolean isVisible(@NotNull VRDecorator currentDecorator) {
+        if(!VRClientSettings.isSelfShadowEnabled()){
+            return false;
+        }
+
         if(VRRenderState.getRenderPass() == VRRenderPass.THIRD_PERSON){
             return false;
         }
@@ -155,7 +161,10 @@ public class GameEffectShadow extends VRGameEffect {
         if (MC.player.getVehicle() != null) {
             return false;
         }
-        if ((((LocalPlayerExtension) MC.player).visor$getRoomYOffset() < 0.0D)) {
+        Pose pose = MC.player.getPose();
+        if (pose == Pose.SWIMMING
+                || pose == Pose.FALL_FLYING
+                || pose == Pose.SPIN_ATTACK) {
             return false;
         }
 

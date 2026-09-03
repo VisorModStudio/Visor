@@ -1,10 +1,10 @@
 package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 
+import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetPosition;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
-import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +32,13 @@ public class VRSettingsBody extends VROptionsSet {
                         OptionWidgetPosition.LEFT,
                         0,
                         "visor.options.vr_body.select.button"
+                ),
+                new OptionWidgetEntry(
+                        this,
+                        new VRSettingsBodyHeight(getScreen(), this, onWidgetsChanged),
+                        OptionWidgetPosition.RIGHT,
+                        0,
+                        "visor.options.vr_body.height.button"
                 )
         };
     }

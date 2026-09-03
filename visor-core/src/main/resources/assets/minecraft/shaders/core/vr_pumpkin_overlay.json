@@ -4,8 +4,8 @@
     "srcrgb": "srcalpha",
     "dstrgb": "1-srcalpha"
   },
-  "vertex": "vr_post_process_eye",
-  "fragment": "vr_post_process_eye",
+  "vertex": "vr_pumpkin_overlay",
+  "fragment": "vr_pumpkin_overlay",
   "attributes": ["Position", "UV0"],
   "samplers": [
     {
@@ -26,29 +26,10 @@
       "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
     },
     {
-      "name": "uTintRed",
+      "name": "uOpacity",
       "type": "float",
       "count": 1,
       "values": [1.0]
-    },
-    {
-      "name": "uTintBlue",
-      "type": "float",
-      "count": 1,
-      "values": [1.0]
-    },
-    {
-      "name": "uTintBlack",
-      "type": "float",
-      "count": 1,
-      "values": [1.0]
-    },
-    {
-      "name": "uDesaturate",
-      "type": "float",
-      "count": 1,
-      "values": [0.0]
-    }
     }
   ]
 }

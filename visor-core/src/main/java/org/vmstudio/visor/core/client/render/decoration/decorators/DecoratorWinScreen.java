@@ -1,11 +1,11 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
-import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
+import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectEndCredits;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,14 +22,19 @@ public class DecoratorWinScreen extends VRDecorator {
     }
 
     @Override
-    public void tick() {
+    public void init() {
+        super.init();
+        if (ClientContext.decorationRenderer
+                .getEffectsRegistry()
+                .getComponent(GameEffectEndCredits.ID)
+                instanceof GameEffectEndCredits effect) {
+            effect.reset();
+        }
     }
 
     @Override
-    public void renderAfterWorld(@NotNull PoseStack poseStack, float partialTicks) {
-        RenderEffectsHelper.renderInBlockEffect();
+    public void tick() {
     }
-
 
     @Override
     public boolean canActivate() {
@@ -39,7 +44,9 @@ public class DecoratorWinScreen extends VRDecorator {
 
     @Override
     public List<String> gameEffects() {
-        return List.of();
+        return List.of(
+                GameEffectEndCredits.ID
+        );
     }
 
     @Override

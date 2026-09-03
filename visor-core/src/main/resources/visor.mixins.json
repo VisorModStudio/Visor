@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "client.MinecraftMixin",
+    "client.accessors.BlockAccessor",
     "client.accessors.RenderStateShardAccessor",
     "client.accessors.RenderSystemAccessor",
     "client.audio.LibraryMixin",
@@ -83,6 +84,7 @@
     "common.world.entity.projectiles.ThrowableProjectileMixin",
     "common.world.entity.projectiles.ThrownTridentMixin",
     "common.world.item.BowItemMixin",
-    "common.world.item.CrossbowItemMixin"
+    "common.world.item.CrossbowItemMixin",
+    "common.world.item.ItemMixin"
   ]
 }

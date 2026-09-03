@@ -117,49 +117,6 @@ public class ClientUtils {
         });
     }
 
-    public static boolean tryCalibrateHeight() {
-        var hmdData = ClientContext.rawPoseHandler.getHmdData();
-        if (!hmdData.isTracking()) {
-            return false;
-        }
-
-        float height = hmdData.getPivotHistory().averagePosition(0.2f).y;
-        if (!Float.isFinite(height) || height < VRClientSettings.MIN_CALIBRATION_HEIGHT) {
-            return false;
-        }
-
-        VRClientSettings.setFullHeight(height);
-        ClientContext.settingsManager.saveOptions();
-
-        int i = (int) (Math.round(100.0D
-                * VRClientSettings.getFullHeight()
-                / VRPlayer.DEFAULT_FULL_HEIGHT
-        ));
-        Minecraft.getInstance().gui.getChat()
-                .addMessage(
-                        Component.literal(
-                                LangHelper.getText(
-                                        "visor.messages.height_set",
-                                        i
-                                )
-                        )
-                );
-        return true;
-    }
-
-    public static void calibrateHeight() {
-        if (!tryCalibrateHeight()) {
-            Minecraft.getInstance().gui.getChat()
-                    .addMessage(
-                            Component.literal(
-                                    LangHelper.getText(
-                                            "visor.messages.height_calibration_failed"
-                                    )
-                            )
-                    );
-        }
-    }
-
     public static void disconnect(String message) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;

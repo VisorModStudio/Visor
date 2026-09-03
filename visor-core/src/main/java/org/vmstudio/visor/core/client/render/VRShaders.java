@@ -23,6 +23,9 @@ public class VRShaders {
     @Getter
     private static VRShaderInBlockVignette inBlockVignette;
 
+    @Getter
+    private static VRShaderPumpkinOverlay pumpkinOverlay;
+
 
     private VRShaders() {
 
@@ -48,6 +51,10 @@ public class VRShaders {
         inBlockVignette = new VRShaderInBlockVignette();
         inBlockVignette.init();
         GLUtils.checkGLError("init InBlockVignette shader");
+
+        pumpkinOverlay = new VRShaderPumpkinOverlay();
+        pumpkinOverlay.init();
+        GLUtils.checkGLError("init PumpkinOverlay shader");
     }
 
 

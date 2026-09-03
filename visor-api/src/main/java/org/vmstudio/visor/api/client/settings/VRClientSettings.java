@@ -14,6 +14,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.settings.enums.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.api.server.SupportedHeightMode;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 
@@ -135,21 +136,26 @@ public class VRClientSettings {
     @VROptionField(key = "shared_ssbo", category = VROptionCategory.RENDERING_SHADERS)
     protected static boolean shaderSharedSsbo = true;
 
+    //----Effects
+    @Getter
+    @VROptionField(key = "self_shadow", category = VROptionCategory.RENDERING_EFFECTS)
+    protected static boolean selfShadowEnabled = true;
+
     //----Eye Effects
     @Getter
-    @VROptionField(key = "low_health_indicator", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "low_health_indicator", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean lowHealthIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(key = "hit_indicator", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "hit_indicator", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean hitIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(key = "freeze", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "freeze", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean freezeEffectEnabled = true;
 
     @Getter
-    @VROptionField(key = "pumpkin", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "pumpkin", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean pumpkinEffectEnabled = true;
 
     // ---- VR Body rendering
@@ -341,13 +347,33 @@ public class VRClientSettings {
     @VROptionField(key = "swing.in_creative", category = VROptionCategory.IMMERSION_ADVANCED)
     protected static boolean swingInCreative = true;
 
-    // ---- OTHER
-
-
+    // ---- PLAYER HEIGHT
 
     @Setter
-    @VROptionField(key = "player.full_height", excludeForcedChange = true)
-    protected static float fullHeight = VRPlayer.DEFAULT_FULL_HEIGHT;
+    @VROptionField(key = "mode", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static HeightMode heightMode = HeightMode.MATCH_MODEL;
+
+    @Getter @Setter
+    @VROptionField(key = "adjustment", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static HeightAdjustment heightAdjustment = HeightAdjustment.CAMERA_OFFSET;
+
+    @Getter @Setter
+    @VROptionField(key = "units", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static HeightUnits heightUnits = HeightUnits.METRIC;
+
+    @Getter @Setter
+    @VROptionField(key = "auto", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static boolean heightAuto = true;
+
+    @Setter
+    @VROptionField(key = "standing", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
+    protected static float fullHeight = -1.0f;
+
+    @Getter @Setter
+    protected static float fullHeightApplied = VRPlayer.DEFAULT_FULL_HEIGHT;
+
+    //----OTHER
+    public static final float MIN_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
 
 
     public static MovementMode getMoveMode(Player player) {
@@ -392,14 +418,49 @@ public class VRClientSettings {
 
 
 
-    public static final float MIN_CALIBRATION_HEIGHT = VRPlayer.DEFAULT_FULL_HEIGHT / 4;
+
+    public static boolean isFullHeightMeasured() {
+        return fullHeight >= MIN_HEIGHT;
+    }
 
     public static float getFullHeight() {
-        if (fullHeight < 0) {
-            return VRPlayer.DEFAULT_FULL_HEIGHT;
-        }
+        return isFullHeightMeasured() ? fullHeight : VRPlayer.DEFAULT_FULL_HEIGHT;
+    }
 
-        return fullHeight;
+
+    public static HeightMode getHeightMode() {
+        var supported = VRServerSettings.getSupportedHeightMode();
+        if (supported != SupportedHeightMode.BOTH) {
+            return supported == SupportedHeightMode.MATCH_MODEL
+                    ? HeightMode.MATCH_MODEL
+                    : HeightMode.REAL_SIZE;
+        }
+        return heightMode;
+    }
+
+    public static float getHeightFactor() {
+        if (getHeightMode() == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.WORLD_SCALE) {
+            return 1.0f;
+        }
+        return VRPlayer.DEFAULT_FULL_HEIGHT / fullHeightApplied;
+    }
+
+    public static float getCameraOffset() {
+        if (getHeightMode() == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
+            return 0.0f;
+        }
+        return VRPlayer.DEFAULT_FULL_HEIGHT - fullHeightApplied;
+    }
+
+    public static float getModelHeightRatio() {
+        float measured = getFullHeight();
+        if (getHeightMode() == HeightMode.REAL_SIZE
+                || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
+            return measured / VRPlayer.DEFAULT_FULL_HEIGHT;
+        }
+        return (VRPlayer.DEFAULT_FULL_HEIGHT - fullHeightApplied + measured) / VRPlayer.DEFAULT_FULL_HEIGHT;
     }
 
     public static boolean isLimitedSurvivalTeleport() {

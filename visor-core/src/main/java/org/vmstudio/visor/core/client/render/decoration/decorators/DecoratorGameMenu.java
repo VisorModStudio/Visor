@@ -4,6 +4,7 @@ import org.vmstudio.visor.api.client.render.decoration.VRDecorator;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRDecorator;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectPumpkin;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectVanilla;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,6 +34,7 @@ public class DecoratorGameMenu extends VRDecorator {
     @Override
     public List<String> gameEffects() {
         return List.of(
+                GameEffectPumpkin.ID,
                 GameEffectVanilla.ID
         );
     }

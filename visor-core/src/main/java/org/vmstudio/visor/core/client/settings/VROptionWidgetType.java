@@ -183,23 +183,28 @@ public enum VROptionWidgetType {
             (it) -> null
     ),
 
+    SELF_SHADOW(
+            VROptionCategory.RENDERING_EFFECTS,
+            "self_shadow",
+            (it) -> null
+    ),
     LOW_HEALTH_INDICATOR(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "low_health_indicator",
             (it) -> null
     ),
     HIT_INDICATOR(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "hit_indicator",
             (it) -> null
     ),
     FREEZE_EFFECT(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "freeze",
             (it) -> null
     ),
     PUMPKIN_EFFECT(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "pumpkin",
             (it) -> null
     ),
@@ -261,6 +266,31 @@ public enum VROptionWidgetType {
     GRAPHICS_API(
             VROptionCategory.RENDERING,
             "graphics_api",
+            (it) -> null
+    ),
+    HEIGHT_MODE(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "mode",
+            (it) -> null
+    ),
+    HEIGHT_ADJUSTMENT(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "adjustment",
+            (it) -> null
+    ),
+    HEIGHT_AUTO(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "auto",
+            (it) -> null
+    ),
+    HEIGHT_STANDING(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "standing",
+            (it) -> null
+    ),
+    HEIGHT_UNITS(
+            VROptionCategory.VR_BODY_HEIGHT,
+            "units",
             (it) -> null
     ),
     FBT(
@@ -534,6 +564,11 @@ public enum VROptionWidgetType {
     WORLD_SUPPORTED_MOVEMENT(
             VROptionCategory.WORLD,
             "supported_movement",
+            (it) -> null
+    ),
+    WORLD_SUPPORTED_HEIGHT_MODE(
+            VROptionCategory.WORLD,
+            "supported_height_mode",
             (it) -> null
     );
 

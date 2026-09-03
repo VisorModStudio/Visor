@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.player;
 
+import net.minecraft.util.Mth;
 import org.vmstudio.visor.api.client.input.HapticFeedback;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -65,6 +66,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Unique
     private boolean visor$teleported;
 
+    @Unique
+    private double visor$roomYOffsetApplied;
+
+
     @Shadow
     protected abstract void updateAutoJump(float f, float g);
 
@@ -111,6 +116,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 || !visor$isThisPlayerLocal(this)) {
             return;
         }
+        visor$tickRoomYOffset();
         ClientContext.localPlayer.updatePlayerLook(
                 (LocalPlayer) (Object) this,
                 PlayerPoseType.TICK
@@ -171,7 +177,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
             original.call(type, new Vec3(0.0D, pos.y, 0.0D));
             ClientContext.localPlayer.setOrigin(
                     origin.x(),
-                    (float) (this.getY() + this.visor$getRoomYOffset()),
+                    visor$originY(),
                     origin.z(),
                     false
             );
@@ -209,10 +215,17 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
         ClientContext.localPlayer.setOrigin(
                 (float) (this.getX() + xOffset),
-                (float) (this.getY() + this.visor$getRoomYOffset()),
+                visor$originY(),
                 (float) (this.getZ() + zOffset),
                 false
         );
+    }
+
+    @Unique
+    private float visor$originY() {
+        return (float) (this.getY()
+                + ClientContext.localPlayer.getCameraOffsetWorld()
+                + this.visor$getRoomYOffset());
     }
 
     @Unique
@@ -308,6 +321,7 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                     );
             x = x - premountPos.x;
             z = z - premountPos.z;
+            y += ClientContext.localPlayer.getCameraOffsetWorld();
             ClientContext.localPlayer.setOrigin((float) x, (float) y, (float) z, shouldReset);
             return;
         }
@@ -446,15 +460,28 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Override
     @Unique
     public double visor$getRoomYOffset() {
-        double out = 0.0D;
+        return visor$roomYOffsetApplied;
+    }
 
-        if (this.getPose() == Pose.SPIN_ATTACK
-                || this.getPose() == Pose.FALL_FLYING
-                || this.getPose() == Pose.SWIMMING) {
-            out = -0.01;
+    @Unique
+    private void visor$tickRoomYOffset() {
+        double target = 0.0D;
+        if (visor$isPoseModifyCamera()) {
+            final double modifiedEyeHeight = 0.4D;
+            var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
+            double eyeAboveOrigin = tickPose.getHmd().getPosition().y() - tickPose.getOrigin().y();
+            target = modifiedEyeHeight - eyeAboveOrigin - ClientContext.localPlayer.getCameraOffsetWorld();
         }
+        final double yStep = 0.06D;
+        visor$roomYOffsetApplied += Mth.clamp(target - visor$roomYOffsetApplied, -yStep, yStep);
+    }
 
-        return out;
+    @Unique
+    private boolean visor$isPoseModifyCamera() {
+        Pose pose = this.getPose();
+        return pose == Pose.SPIN_ATTACK
+                || pose == Pose.FALL_FLYING
+                || pose == Pose.SWIMMING && !ClientContext.localPlayer.isCrawling();
     }
 
     @Override

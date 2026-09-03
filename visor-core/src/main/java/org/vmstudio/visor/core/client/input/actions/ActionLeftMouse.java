@@ -84,7 +84,7 @@ public class ActionLeftMouse extends VRActionButton {
 
     @Override
     public boolean isRequired() {
-        return true;
+        return handType == HandType.MAIN;
     }
 
     @Override

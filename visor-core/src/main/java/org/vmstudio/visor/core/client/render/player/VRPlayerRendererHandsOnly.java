@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.ControllerType;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
@@ -20,7 +19,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelPart;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
@@ -53,10 +51,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         if (vrPlayer != null) {
             var pose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
 
-            float scale = vrPlayer.getFullHeightScale();
-            if (VisorState.get().isActive() && player == Minecraft.getInstance().player) {
-                scale *= pose.getWorldScale();
-            }
+            float scale = vrPlayer.getModelScale(PlayerPoseType.RENDER);
 
             if (player.isAutoSpinAttack() && !VRRenderState.getPhase().isVRGui()) {
                 float pitchOffset = 0.2F * (player.getViewXRot(partialTick) / 90F);

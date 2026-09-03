@@ -43,6 +43,7 @@ public class VRPauseMenuScreen extends Screen {
     }
 
     private Tab currentTab = Tab.MAIN;
+    private Button measureHeightButton;
 
     private final List<int[]> sectionHeaderPos = new ArrayList<>(); // {x, y}
     private final List<String> sectionHeaderTexts = new ArrayList<>();
@@ -55,6 +56,7 @@ public class VRPauseMenuScreen extends Screen {
     @Override
     protected void init() {
         TaskHotBar.setResetData(true);
+        measureHeightButton = null;
         boolean hasPerms = this.minecraft.player != null && this.minecraft.player.hasPermissions(2);
 
         if (this.currentTab == Tab.COMMANDS && !hasPerms) {
@@ -105,10 +107,8 @@ public class VRPauseMenuScreen extends Screen {
             case MAIN -> {
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.inventory").getString(), left, y,
                         b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.calibrate_height").getString(), right, y, b -> {
-                    ClientUtils.calibrateHeight();
-                    ClientContext.settingsManager.saveOptions();
-                }));
+                measureHeightButton = addRenderableWidget(makeHalfBtn(measureHeightLabel(), right, y,
+                        b -> ClientContext.localPlayer.getHeightTracker().startMeasure()));
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.keyboard").getString(), left, y, b ->{
@@ -251,6 +251,24 @@ public class VRPauseMenuScreen extends Screen {
     private void registerSection(int x, int y, String text) {
         sectionHeaderPos.add(new int[]{x, y});
         sectionHeaderTexts.add(text);
+    }
+
+    @Override
+    public void tick() {
+        if (measureHeightButton != null) {
+            measureHeightButton.setMessage(Component.literal(measureHeightLabel()));
+        }
+    }
+
+    private static String measureHeightLabel() {
+        var tracker = ClientContext.localPlayer.getHeightTracker();
+        if (tracker.isMeasuring()) {
+            return Component.translatable(
+                    "visor.messages.height_measure_countdown",
+                    tracker.getMeasureSecondsLeft()
+            ).getString();
+        }
+        return Component.translatable("visor.screen.pause_menu.button.measure_height").getString();
     }
 
     private Button makeHalfBtn(String label, int x, int y, Button.OnPress action) {
