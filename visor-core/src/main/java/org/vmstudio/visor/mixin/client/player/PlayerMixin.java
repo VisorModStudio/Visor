@@ -45,7 +45,7 @@ public abstract class PlayerMixin extends LivingEntity {
                                         double y,
                                         double z) {
         if(!VisorState.get().isActive()){
-            return instance;
+            return instance.move(x, y, z);
         }
 
         return new AABB(
