@@ -23,6 +23,7 @@ import org.vmstudio.visor.core.client.settings.presets.VRPresetSettingsTypeImpl;
 import org.vmstudio.visor.core.client.settings.presets.VRSettingsPresetRegistry;
 import org.vmstudio.visor.core.client.utils.LangHelper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 import java.lang.reflect.Field;
@@ -330,6 +331,12 @@ public class VRClientSettingsManager {
 
     public String getOptionButtonName(VROptionWidgetType optionWidget,
                                       boolean valueOnly) {
+        return getOptionButtonName(optionWidget, valueOnly, null);
+    }
+
+    public String getOptionButtonName(VROptionWidgetType optionWidget,
+                                      boolean valueOnly,
+                                      @Nullable Object valueOverride) {
         String lang = LangHelper.getText(
                 "visor.options." + optionWidget.getKey()
         );
@@ -346,7 +353,8 @@ public class VRClientSettingsManager {
             Field field = optionRecord.field();
             Class<?> fieldType = field.getType();
 
-            Object currentValue = field.get(null);
+            Object currentValue = valueOverride != null
+                    ? valueOverride : field.get(null);
 
             String optionString = optionWidget.getBehaviour().getDisplayString(text, currentValue);
             if (optionString != null) {

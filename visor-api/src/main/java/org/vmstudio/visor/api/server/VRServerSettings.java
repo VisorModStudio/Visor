@@ -68,6 +68,11 @@ public class VRServerSettings {
     protected static int teleportForwardLimit;
 
     @Getter @SendSettingToClient
+    @VRServerOptionField(key = "supported_height_mode")
+    @ConfigComment("Height mode allowed for VR players: MATCH_MODEL (player model scale not modified), REAL_SIZE (player model scale modified) or BOTH")
+    private static SupportedHeightMode supportedHeightMode;
+
+    @Getter @SendSettingToClient
     @ConfigComment({"[TRACKERS] - Potentially, more network consumption when enabled",})
     private static boolean bodyTrackersSupported;
 
@@ -105,6 +110,7 @@ public class VRServerSettings {
         teleportUpLimit = 1;
         teleportDownLimit = 4;
         teleportForwardLimit = 16;
+        supportedHeightMode = SupportedHeightMode.BOTH;
         bodyTrackersSupported = true;
         handTrackersSupported = true;
         bodyTrackersSendToOthers = true;
@@ -136,9 +142,8 @@ public class VRServerSettings {
         attacksWhileBlocking = true;
         creeperSwellDistance = 1.75;
         supportedMovement = SupportedMovement.CONTROLLER;
+        supportedHeightMode = SupportedHeightMode.MATCH_MODEL;
         bodyTrackersSupported = false;
         handTrackersSupported = false;
-
-
     }
 }

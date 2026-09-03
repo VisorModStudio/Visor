@@ -14,6 +14,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.VRPlayMode;
 import org.vmstudio.visor.api.client.settings.enums.*;
 import org.vmstudio.visor.api.common.player.VRPlayer;
+import org.vmstudio.visor.api.server.SupportedHeightMode;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 
@@ -348,7 +349,7 @@ public class VRClientSettings {
 
     // ---- PLAYER HEIGHT
 
-    @Getter @Setter
+    @Setter
     @VROptionField(key = "mode", category = VROptionCategory.VR_BODY_HEIGHT, excludeForcedChange = true)
     protected static HeightMode heightMode = HeightMode.MATCH_MODEL;
 
@@ -427,8 +428,18 @@ public class VRClientSettings {
     }
 
 
+    public static HeightMode getHeightMode() {
+        var supported = VRServerSettings.getSupportedHeightMode();
+        if (supported != SupportedHeightMode.BOTH) {
+            return supported == SupportedHeightMode.MATCH_MODEL
+                    ? HeightMode.MATCH_MODEL
+                    : HeightMode.REAL_SIZE;
+        }
+        return heightMode;
+    }
+
     public static float getHeightFactor() {
-        if (heightMode == HeightMode.REAL_SIZE
+        if (getHeightMode() == HeightMode.REAL_SIZE
                 || heightAdjustment != HeightAdjustment.WORLD_SCALE) {
             return 1.0f;
         }
@@ -436,7 +447,7 @@ public class VRClientSettings {
     }
 
     public static float getCameraOffset() {
-        if (heightMode == HeightMode.REAL_SIZE
+        if (getHeightMode() == HeightMode.REAL_SIZE
                 || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
             return 0.0f;
         }
@@ -445,7 +456,7 @@ public class VRClientSettings {
 
     public static float getModelHeightRatio() {
         float measured = getFullHeight();
-        if (heightMode == HeightMode.REAL_SIZE
+        if (getHeightMode() == HeightMode.REAL_SIZE
                 || heightAdjustment != HeightAdjustment.CAMERA_OFFSET) {
             return measured / VRPlayer.DEFAULT_FULL_HEIGHT;
         }

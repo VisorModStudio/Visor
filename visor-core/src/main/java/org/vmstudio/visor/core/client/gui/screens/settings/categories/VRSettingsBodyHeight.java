@@ -18,6 +18,8 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.HeightMode;
+import org.vmstudio.visor.api.server.SupportedHeightMode;
+import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
@@ -74,6 +76,8 @@ public class VRSettingsBodyHeight extends VROptionsSet {
             & NarratableEntry> List<T> initWidgets() {
         widgets.clear();
         HeightMode mode = VRClientSettings.getHeightMode();
+        boolean modeAllowed = VRServerSettings.getSupportedHeightMode()
+                == SupportedHeightMode.BOTH;
         boolean auto = VRClientSettings.isHeightAuto();
         standingEntries = HeightFormat.heightEntries(120, 220);
 
@@ -83,7 +87,8 @@ public class VRSettingsBodyHeight extends VROptionsSet {
                         VROptionWidgetType.HEIGHT_MODE,
                         buttonStartX, 32,
                         PANEL_W/2,
-                        true, false
+                        modeAllowed, false,
+                        modeAllowed ? null : mode
                 )
         );
         widgets.add(
@@ -157,12 +162,20 @@ public class VRSettingsBodyHeight extends VROptionsSet {
 
     private ButtonImaged optionButton(VROptionWidgetType type, int x, int y, int width,
                                       boolean active, boolean valueOnly) {
+        return optionButton(type, x, y, width, active, valueOnly, null);
+    }
+
+    private ButtonImaged optionButton(VROptionWidgetType type, int x, int y, int width,
+                                      boolean active, boolean valueOnly,
+                                      @Nullable Object valueOverride) {
         var manager = ClientContext.settingsManager;
         ButtonImaged button = new ButtonImaged(
                 styledButton(x, y, width)
                         .setTextColor(active ? AtumColor.WHITE : INACTIVE_TEXT)
                         .setTooltip(tooltip(type.getKey()))
-                        .setText(Component.literal(manager.getOptionButtonName(type, valueOnly))),
+                        .setText(Component.literal(
+                                manager.getOptionButtonName(type, valueOnly, valueOverride)
+                        )),
                 (it) -> {
                     manager.nextOptionValue(type.getKey());
                     reinit();

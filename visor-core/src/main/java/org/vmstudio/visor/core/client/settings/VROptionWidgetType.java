@@ -565,6 +565,11 @@ public enum VROptionWidgetType {
             VROptionCategory.WORLD,
             "supported_movement",
             (it) -> null
+    ),
+    WORLD_SUPPORTED_HEIGHT_MODE(
+            VROptionCategory.WORLD,
+            "supported_height_mode",
+            (it) -> null
     );
 
     @Getter

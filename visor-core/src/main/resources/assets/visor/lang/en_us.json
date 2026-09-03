@@ -132,7 +132,7 @@
   "visor.options.vr_body.select.button": "Select VR Body...",
   "visor.options.vr_body.height.button": "Height Settings...",
   "visor.options.vr_body.height.mode": "Height Mode",
-  "visor.options.vr_body.height.mode.tooltip": "§bHeight Mode§r\n\n§e•§r §eMatch Model§r - you see from the eye level of the player model, vanilla way\n§e•§r §eReal Size§r - no adjustment, instead your player model is scaled to your real height",
+  "visor.options.vr_body.height.mode.tooltip": "§bHeight Mode§r\n\n§e•§r §eMatch Model§r - you see from the eye level of the player model, vanilla way\n§e•§r §eReal Size§r - no adjustment, instead your player model is scaled to your real height\n\n§cWarning:§r VR servers may override your preferred mode. If the server uses a different mode, your choice will be ignored.",
   "visor.options.vr_body.height.adjustment": "Adjustment",
   "visor.options.vr_body.height.adjustment.tooltip": "§bAdjustment§r\n\nHow the player model height is reached.\n§e•§r §eWorld Scale§r - scales the world\n§e•§r §eCamera Offset§r - offsets your viewpoint",
   "visor.options.vr_body.height.units": "Units",
@@ -211,7 +211,9 @@
   "visor.options.world.room_climbing": "Climbing",
   "visor.options.world.room_climbing.tooltip": "§bClimbing Support§r\n\nAllows climbing with hands in this world §7(players still toggle it in Immersion settings)§r.\n\n§7Server setting — applies to worlds you host. On a server, the server decides.§r",
   "visor.options.world.supported_movement": "Allowed Movement",
-  "visor.options.world.supported_movement.tooltip": "§bAllowed Movement§r\n\n§e•§r §eController§r — joystick locomotion only\n§e•§r §eTeleport§r — teleportation only\n§e•§r §eBoth§r — players choose in Movement settings\n\n§7Server setting — applies to worlds you host. On a server, the server decides.§r",
+  "visor.options.world.supported_movement.tooltip": "§bAllowed Movement§r\n\n§e•§r §eController§r - joystick locomotion only\n§e•§r §eTeleport§r - teleportation only\n§e•§r §eBoth§r - players choose in Movement settings\n\n§7Server setting - applies to worlds you host. On a server, the server decides.§r",
+  "visor.options.world.supported_height_mode": "Allowed Height Mode",
+  "visor.options.world.supported_height_mode.tooltip": "§bAllowed Height Mode§r\n\n§e•§r §eMatch Model§r - player model stays vanilla scale, player viewpoint is modified instead\n§e•§r §eReal Size§r - player model is scaled to align player's fullHeight in room\n§e•§r §eBoth§r - players choose in VR Body settings\n\n§7Server setting - applies to worlds you host. On a server, the server decides.§r",
 
 
   "_comment18": "*--------OPTION ENUMS--------*",
@@ -250,6 +252,9 @@
   "visor.options.enums.SupportedMovement.CONTROLLER": "Controller",
   "visor.options.enums.SupportedMovement.TELEPORT": "Teleport",
   "visor.options.enums.SupportedMovement.BOTH": "Both",
+  "visor.options.enums.SupportedHeightMode.MATCH_MODEL": "Match Model",
+  "visor.options.enums.SupportedHeightMode.REAL_SIZE": "Real Size",
+  "visor.options.enums.SupportedHeightMode.BOTH": "Both",
 
   "_comment14": "*--------ACTIONS--------*",
   "visor.action_sets.menu": "Menu actions",
@@ -562,7 +567,7 @@
   "_comment999": "*--------MESSAGES--------*",
   "visor.messages.error.generic": "An unexpected VR error occurred!",
   "visor.messages.error.summary": "It can be due to:\n\n1) VR not found. Have you launched VR runtime? (SteamVR or other).\nIf you use linux, join our discord community for more info\n\n2) You have updated Visor version, that significantly changed configs. Try to remove config/Visor folder\n\n3) Issue that wasn't fixed\n\n\n§rYou can report this issue in our Visor Discord community.\n\nOpen your Logs folder (using the button below) and upload the 'latest.log' file, along with details of what you were doing and where the error occurred, to the appropriate discord channel for assistance.",
-  "visor.messages.vr_init_failed": "VR failed to start — playing in non-VR mode.",
+  "visor.messages.vr_init_failed": "VR failed to start - playing in non-VR mode.",
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Server supports Visor!",
   "visor.messages.height_auto_hint": "Stand up straight for a moment so Visor can measure your height.",
