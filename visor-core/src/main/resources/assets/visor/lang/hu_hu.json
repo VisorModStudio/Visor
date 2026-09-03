@@ -113,7 +113,7 @@
   "visor.options.rendering.effects.eye_effects.freeze": "Fagyás effekt",
   "visor.options.rendering.effects.eye_effects.freeze.tooltip": "§bFagyás effekt§r\n\n§9Kékre§r színezi a képernyőt, amikor a\nkaraktered fagyoskodik.\n§7(pl. porhóban állva)§r",
   "visor.options.rendering.effects.eye_effects.pumpkin": "Tök effekt",
-  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bTök effekt§r\n\n§6Narancssárga vinyettát§r jelenít meg, amikor tök van a fejeden.",
+  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bTök effekt§r\n\nA §6kifaragott arc§r takarja el a látásodat, amikor tök van a fejeden.",
   "_comment.rendering.mixed_reality": "----Kevert valóság beállításai----",
   "visor.options.rendering.mixed_reality.button": "Kevert valóság...",
   "visor.options.rendering.mixed_reality.fov": "Látószög",

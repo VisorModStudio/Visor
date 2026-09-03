@@ -111,7 +111,7 @@
   "visor.options.rendering.effects.eye_effects.freeze": "Ефект замерзання",
   "visor.options.rendering.effects.eye_effects.freeze.tooltip": "§bЕфект замерзання§r\n\nЗабарвлює екран у §9синій§r, коли гравець мерзне\n§7(наприклад, у пухкому снігу)§r",
   "visor.options.rendering.effects.eye_effects.pumpkin": "Ефект гарбуза",
-  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bЕфект гарбуза§r\n\nПомаранчева віньєтка при носінні гарбуза на голові.",
+  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bЕфект гарбуза§r\n\nОгляд закривається §6вирізаним обличчям§r при носінні гарбуза на голові.",
   "_comment.rendering.mixed_reality": "----Налаштування Mixed Reality----",
   "visor.options.rendering.mixed_reality.button": "Змішана реальність...",
   "visor.options.rendering.mixed_reality.fov": "Кут огляду (FOV)",

@@ -113,7 +113,7 @@
   "visor.options.rendering.effects.eye_effects.freeze": "Freeze Effect",
   "visor.options.rendering.effects.eye_effects.freeze.tooltip": "§bFreeze Effect§r\n\nTints the screen §9blue§r when your\nplayer is freezing.\n§7(e.g. standing in powdered snow)§r",
   "visor.options.rendering.effects.eye_effects.pumpkin": "Pumpkin Effect",
-  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bPumpkin Effect§r\n\nShows an §6orange vignette§r overlay when wearing a pumpkin on your head.",
+  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bPumpkin Effect§r\n\nMasks your view with the §6carved face§r when wearing a pumpkin on your head.",
   "_comment.rendering.mixed_reality": "----Mixed Reality Settings----",
   "visor.options.rendering.mixed_reality.button": "Mixed Reality...",
   "visor.options.rendering.mixed_reality.fov": "FOV",

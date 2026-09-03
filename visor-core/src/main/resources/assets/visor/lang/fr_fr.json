@@ -98,7 +98,7 @@
   "visor.options.rendering.effects.eye_effects.freeze": "Effet de gel",
   "visor.options.rendering.effects.eye_effects.freeze.tooltip": "§bEffet de gel§r\n\nTeinte l'écran en §9bleu§r lorsque votre\npersonnage est en train de geler.\n§7(par ex. dans la neige poudreuse)§r",
   "visor.options.rendering.effects.eye_effects.pumpkin": "Effet de citrouille",
-  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bEffet de citrouille§r\n\nAffiche une §6vignette orange§r lorsque vous portez une citrouille sur la tête.",
+  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bEffet de citrouille§r\n\nMasque votre vue avec le §6visage sculpté§r lorsque vous portez une citrouille sur la tête.",
   "_comment.rendering.mixed_reality": "----Paramètres de Réalité Mixte----",
   "visor.options.rendering.mixed_reality.button": "Réalité mixte...",
   "visor.options.rendering.mixed_reality.fov": "Champ de vision",

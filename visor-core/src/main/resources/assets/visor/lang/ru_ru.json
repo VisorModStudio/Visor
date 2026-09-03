@@ -111,7 +111,7 @@
   "visor.options.rendering.effects.eye_effects.freeze": "Эффект замерзания",
   "visor.options.rendering.effects.eye_effects.freeze.tooltip": "§bЭффект замерзания§r\n\nОкрашивает экран в §9синий§r, когда игрок мерзнет\n§7(например, в рыхлом снегу)§r",
   "visor.options.rendering.effects.eye_effects.pumpkin": "Эффект тыквы",
-  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bЭффект тыквы§r\n\nОранжевая виньетка при ношении тыквы на голове.",
+  "visor.options.rendering.effects.eye_effects.pumpkin.tooltip": "§bЭффект тыквы§r\n\nОбзор закрывается §6вырезанным лицом§r при ношении тыквы на голове.",
   "_comment.rendering.mixed_reality": "----Настройки Mixed Reality----",
   "visor.options.rendering.mixed_reality.button": "Смешанная реальность...",
   "visor.options.rendering.mixed_reality.fov": "Угол обзора (FOV)",
