@@ -6,7 +6,7 @@ import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
 import org.vmstudio.visor.compatibility.dh.DhCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
-import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEyeEffects;
+import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsEffects;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsMixedReality;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsShaders;
 import org.vmstudio.visor.core.client.gui.screens.settings.categories.rendering.VRSettingsThirdPerson;
@@ -53,10 +53,10 @@ public class VRSettingsRendering extends VROptionsSet {
         options.add(
                 new OptionWidgetEntry(
                         this,
-                        new VRSettingsEyeEffects(getScreen(), this, onWidgetsChanged),
+                        new VRSettingsEffects(getScreen(), this, onWidgetsChanged),
                         OptionWidgetPosition.RIGHT,
                         0,
-                        "visor.options.rendering.eye_effects.button"
+                        "visor.options.rendering.effects.button"
                 )
         );
 

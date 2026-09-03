@@ -183,23 +183,28 @@ public enum VROptionWidgetType {
             (it) -> null
     ),
 
+    SELF_SHADOW(
+            VROptionCategory.RENDERING_EFFECTS,
+            "self_shadow",
+            (it) -> null
+    ),
     LOW_HEALTH_INDICATOR(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "low_health_indicator",
             (it) -> null
     ),
     HIT_INDICATOR(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "hit_indicator",
             (it) -> null
     ),
     FREEZE_EFFECT(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "freeze",
             (it) -> null
     ),
     PUMPKIN_EFFECT(
-            VROptionCategory.RENDERING_EYE_EFFECTS,
+            VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS,
             "pumpkin",
             (it) -> null
     ),

@@ -135,21 +135,26 @@ public class VRClientSettings {
     @VROptionField(key = "shared_ssbo", category = VROptionCategory.RENDERING_SHADERS)
     protected static boolean shaderSharedSsbo = true;
 
+    //----Effects
+    @Getter
+    @VROptionField(key = "self_shadow", category = VROptionCategory.RENDERING_EFFECTS)
+    protected static boolean selfShadowEnabled = true;
+
     //----Eye Effects
     @Getter
-    @VROptionField(key = "low_health_indicator", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "low_health_indicator", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean lowHealthIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(key = "hit_indicator", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "hit_indicator", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean hitIndicatorEnabled = true;
 
     @Getter
-    @VROptionField(key = "freeze", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "freeze", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean freezeEffectEnabled = true;
 
     @Getter
-    @VROptionField(key = "pumpkin", category = VROptionCategory.RENDERING_EYE_EFFECTS)
+    @VROptionField(key = "pumpkin", category = VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
     protected static boolean pumpkinEffectEnabled = true;
 
     // ---- VR Body rendering

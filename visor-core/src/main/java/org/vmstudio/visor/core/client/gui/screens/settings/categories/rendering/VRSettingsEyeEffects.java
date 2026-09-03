@@ -21,7 +21,7 @@ public class VRSettingsEyeEffects extends VROptionsSet {
     @Override
     protected VROptionWidgetType[] getOptionTypes() {
 
-        return VROptionWidgetType.byCategory(VROptionCategory.RENDERING_EYE_EFFECTS)
+        return VROptionWidgetType.byCategory(VROptionCategory.RENDERING_EFFECTS_EYE_EFFECTS)
                 .toArray(new VROptionWidgetType[0]);
     }
 
