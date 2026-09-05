@@ -4,6 +4,7 @@ package org.vmstudio.visor.api.client.player.pose;
 import org.vmstudio.visor.api.common.utils.Vector3fHistory;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4fc;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 
 /**
@@ -31,6 +32,7 @@ public interface RawController {
     @NotNull Vector3f getGripVector();
 
 
+    @NotNull Quaternionfc getAimToGripRotation();
 
     @NotNull Vector3f getAimPosition();
 

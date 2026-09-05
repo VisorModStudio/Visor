@@ -6,6 +6,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyBool;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.PropertyFloat;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
@@ -13,6 +14,7 @@ import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.VROverlayItemPoseTest;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
@@ -36,7 +38,7 @@ public class VRItemPoseTest extends VRHandItemPose {
         var vrPlayer = VRClientPlayers.getPlayer(player);
         if(vrPlayer == null) return;
 
-        PoseParams params = computeParams();
+        PoseParams params = computeParams(getAimToGripRotation(vrPlayer, hand));
 
         stack.mulPose(params.preRotation);
         stack.translate(params.offsetX, params.offsetY, params.offsetZ);
@@ -45,7 +47,7 @@ public class VRItemPoseTest extends VRHandItemPose {
     }
 
 
-    private PoseParams computeParams() {
+    private PoseParams computeParams(Quaternionfc aimToGrip) {
 
         Quaternionf preRotation = new Quaternionf();
 
@@ -99,12 +101,15 @@ public class VRItemPoseTest extends VRHandItemPose {
         pitch = properties.getProperty("pitch", PropertyFloat.class).getValue();
         roll = properties.getProperty("roll", PropertyFloat.class).getValue();
 
+        yaw -= VRPlayer.DEFAULT_GUN_ANGLE;
+
         preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
         preRotation.mul(Axis.YP.rotationDegrees(prePitch));
         preRotation.mul(Axis.XP.rotationDegrees(preYaw));
         rotation.mul(Axis.ZP.rotationDegrees(roll));
         rotation.mul(Axis.YP.rotationDegrees(pitch));
         rotation.mul(Axis.XP.rotationDegrees(yaw));
+        rotation.mul(aimToGrip);
         return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
 
     }

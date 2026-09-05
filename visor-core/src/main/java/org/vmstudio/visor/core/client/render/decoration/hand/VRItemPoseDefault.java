@@ -17,7 +17,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.client.render.decoration.annotations.RegisterVRItemPose;
 import org.vmstudio.visor.api.client.render.decoration.hand.VRHandItemPose;
 import org.vmstudio.visor.api.common.HandType;
@@ -36,8 +38,9 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
  * Default items positioning in VR.
  * <p>
  *     Made with {@link VROverlayItemPoseTest} tool,
- *     and based on Meta Quest 3s controllers
- *     (should be compatible with others, because gunAngle is used)
+ *     and based on Meta Quest 3s controllers. The values are authored
+ *     in the aim frame, {@link VRHandItemPose#getAimToGripRotation}
+ *     re-anchors them onto the grip frame so other controllers match.
  * </p>
  */
 @RegisterVRItemPose
@@ -79,8 +82,8 @@ public class VRItemPoseDefault extends VRHandItemPose {
                                      float partialTicks) {
         boolean isSelf = player instanceof LocalPlayer;
 
-        float gunAngle = vrPlayer.getGunAngle();
         HandType handType = HandType.fromMc(mcHand);
+        Quaternionfc aimToGrip = getAimToGripRotation(vrPlayer, handType);
 
         Quaternionf preRotation = new Quaternionf();
 
@@ -262,7 +265,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
             }
         }
 
-        yaw += gunAngle - 60;
+        yaw -= VRPlayer.DEFAULT_GUN_ANGLE;
 
         preRotation.mul(Axis.ZP.rotationDegrees(preRoll));
         preRotation.mul(Axis.YP.rotationDegrees(prePitch));
@@ -270,6 +273,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
         rotation.mul(Axis.ZP.rotationDegrees(roll));
         rotation.mul(Axis.YP.rotationDegrees(pitch));
         rotation.mul(Axis.XP.rotationDegrees(yaw));
+        rotation.mul(aimToGrip);
         return new PoseParams(preRotation, rotation, translateX, translateY, translateZ, scale);
     }
     public static TransformType getTransformType(ItemStack itemStack,

@@ -14,19 +14,29 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRBodyPartType;
 import org.vmstudio.visor.api.common.player.VRHandDataSource;
 import org.vmstudio.visor.api.common.player.VRHandJointType;
+import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.core.client.player.pose.raw.RawControllerImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawPoseHandler;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawHandImpl;
 import org.vmstudio.visor.core.client.player.pose.raw.RawTrackerImpl;
 
 public class XrRawPoseHandler extends RawPoseHandler {
 
     private static final VRBodyPartType[] BODY_PARTS = VRBodyPartType.values();
+
+    // fallback when the runtime gives no usable grip pose
+    private static final Quaternionfc DEFAULT_AIM_TO_GRIP = new Quaternionf().rotateX((float) Math.toRadians(VRPlayer.DEFAULT_GUN_ANGLE));
+    private static final float MIN_GRIP_DELTA = (float) Math.toRadians(10.0);
+
+    private float gunAngleLogged = Float.NaN;
 
     private final XrProvider provider;
     public XrRawPoseHandler(XrProvider provider){
@@ -141,16 +151,11 @@ public class XrRawPoseHandler extends RawPoseHandler {
         controllerRightData.getUpHistory().add(upVec);
 
 
-        var aimVector = controllerLeftData.getAimVector().normalize(new Vector3f());
-        var gripVector = controllerLeftData.getGripVector().normalize(new Vector3f());
+        updateAimToGrip(controllerLeftData, controllerLeftDevice);
+        updateAimToGrip(controllerRightData, controllerRightDevice);
 
-        this.gunAngle = (float) Math.toDegrees(
-                Math.acos(
-                        Math.abs(
-                                aimVector.dot(gripVector)
-                        )
-                )
-        );
+        this.gunAngle = extractGunAngle(controllerLeftData.getAimToGripRotation());
+        logAimToGrip();
 
 
         //TRACKERS
@@ -185,6 +190,53 @@ public class XrRawPoseHandler extends RawPoseHandler {
                 clearHand(handsData.getRightHand());
             }
         }
+    }
+
+    private static void updateAimToGrip(RawControllerImpl controllerData,
+                                        XRDeviceController device){
+        Quaternionf delta = controllerData.getAimToGripRotationMutable();
+        if(!device.isActive() || !device.isGripActive()){
+            delta.set(DEFAULT_AIM_TO_GRIP);
+            return;
+        }
+        delta.set(device.getPose().orientation())
+                .conjugate()
+                .mul(device.getGripPose().orientation())
+                .normalize();
+
+        // some runtimes return the aim pose as grip too
+        float angle = 2.0f * (float) Math.acos(Math.min(1.0f, Math.abs(delta.w)));
+        if(angle < MIN_GRIP_DELTA){
+            delta.set(DEFAULT_AIM_TO_GRIP);
+        }
+    }
+
+    private static float extractGunAngle(Quaternionfc aimToGrip){
+        Vector3f gripForward = aimToGrip.transform(
+                new Vector3f(VRMathUtils.FORWARD_VECTOR)
+        );
+        return (float) Math.toDegrees(
+                Math.atan2(gripForward.y, -gripForward.z)
+        );
+    }
+
+    private void logAimToGrip(){
+        if(Math.abs(gunAngle - gunAngleLogged) < 1.0f){
+            return;
+        }
+        gunAngleLogged = gunAngle;
+        var profile = provider.getInputHandler().getProfileSetHolder().getActiveProfile();
+        var delta = controllerLeftData.getAimToGripRotation()
+                .getEulerAnglesXYZ(new Vector3f());
+        //logging this just in case of issue reports from players
+        VisorClientImpl.LOGGER.info(
+                "Controller aim->grip delta: pitch={} yaw={} roll={} (runtime='{}', profile={})",
+                (float) Math.toDegrees(delta.x),
+                (float) Math.toDegrees(delta.y),
+                (float) Math.toDegrees(delta.z),
+                provider.getSession().getInstance().getRuntimeName(),
+                profile == null ? "none" : profile.getType().getXrPath()
+        );
     }
 
     private static AtumVRBodyJoint toBodyJoint(VRBodyPartType part){
