@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.player;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.compatibility.mcversion.McPlayerInput;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
@@ -300,7 +301,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
             //avoid using player.setPos() since it is overridden by Visor
             player.setPosRaw(newPos.x, newPos.y, newPos.z);
             player.setBoundingBox(collisionBox);
-            player.fallDistance = 0.0F;
+            player.resetFallDistance();
             return;
         }
 
@@ -314,7 +315,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 && ((LocalPlayerExtension) player).visor$getJumpFactor() == 1.0F
                 && !smartBlocked);
 
-        if (canAutoClimb && player.fallDistance == 0.0F) {
+        if (canAutoClimb && McEntity.fallDistance(player) == 0.0) {
             // Reduce the collision box width for climbing checks.
             float climbShrink = McVersionUtils.dimensionsWidth(
                     player.getDimensions(player.getPose())) * 0.45F;
@@ -357,7 +358,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                             false
                     );
 
-                    player.fallDistance = 0.0F;
+                    player.resetFallDistance();
                     ((LocalPlayerExtension) MC.player).visor$stepSound(
                             BlockPos.containing(player.position()),
                             player.position()

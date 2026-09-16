@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.tasks.types.movement.vehicle;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.common.CommonUtils;
 import lombok.Getter;
@@ -241,7 +242,7 @@ public class TaskVehicle extends VisorTask {
                     .getRotationElement(PlayerPoseType.TICK)
                     .getDirection();
         }
-        if (entity instanceof Mob mob && mob.isControlledByLocalInstance()) {
+        if (entity instanceof Mob mob && McEntity.isLocallyControlled(mob)) {
             final HandType handWithFood = ItemClassifier.FOOD_STICK
                     .is(player.getMainHandItem().getItem())
                     ? HandType.MAIN

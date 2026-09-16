@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
@@ -143,7 +144,7 @@ public class GameEffectPumpkin extends VRGameEffect {
                 || MC.player.isSpectator()) {
             return false;
         }
-        ItemStack headItem = MC.player.getInventory().getArmor(3);
+        ItemStack headItem = MC.player.getItemBySlot(EquipmentSlot.HEAD);
         return headItem.getItem() == Blocks.CARVED_PUMPKIN.asItem()
                 && McVersionUtils.customModelData(headItem) == 0;
     }

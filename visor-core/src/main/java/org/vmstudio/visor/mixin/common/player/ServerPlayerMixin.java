@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.common.player;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McNbt;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McUseAnim;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -73,18 +74,14 @@ public abstract class ServerPlayerMixin
     @WrapMethod(method = "readAdditionalSaveData")
     protected void visor$wrapReadData(CompoundTag compound, Operation<Void> original) {
         original.call(compound);
-        visor$rotationYCached = compound.getFloat("visor$rotation_y");
-        if(compound.contains("visor$offhand_slot")){
-            visor$offhandSlotCached = compound.getInt("visor$offhand_slot");
-        }else{
-            visor$offhandSlotCached = -1;
-        }
+        visor$rotationYCached = McNbt.getFloat(compound, "visor$rotation_y", 0.0F);
+        visor$offhandSlotCached = McNbt.getInt(compound, "visor$offhand_slot", -1);
     }
     @WrapMethod(method = "addAdditionalSaveData")
     protected void visor$wrapSaveData(CompoundTag compound, Operation<Void> original) {
         original.call(compound);
         compound.putFloat("visor$rotation_y", visor$rotationYCached);
-        compound.putFloat("visor$offhand_slot", visor$offhandSlotCached);
+        compound.putInt("visor$offhand_slot", visor$offhandSlotCached);
     }
 
     /* *************** *\

@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.client.tasks.TaskType;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.compatibility.mcversion.McInventory;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
@@ -72,7 +73,7 @@ public class TaskHotBar extends VisorTask {
     @Override
     public void onRun(@Nullable LocalPlayer player) {
         var inventory = player.getInventory();
-        int slotMainNew = inventory.selected;
+        int slotMainNew = McInventory.selectedSlot(inventory);
         if (resetData || slotMainNew != slotMain) {
             slotMain = slotMainNew;
             resetData = false;
@@ -116,7 +117,7 @@ public class TaskHotBar extends VisorTask {
                                 && slotOffhand != slotMainBack) {
                             //switching back
                             slotMain = slotMainBack;
-                            inventory.selected = slotMain;
+                            McInventory.setSelectedSlot(inventory, slotMain);
                             slotMainBack = NULL;
                         } else if (slotOffhand == slotMain) {
                             //switching if collide
@@ -163,7 +164,7 @@ public class TaskHotBar extends VisorTask {
                 slotMain = hotBarMainHand.getSelectedSlice();
 
                 if (slotMain != NOT_SELECTED) {
-                    inventory.selected = slotMain;
+                    McInventory.setSelectedSlot(inventory, slotMain);
 
                     //if selected item in offhand
                     if (slotOffhandBack != NULL
@@ -201,10 +202,10 @@ public class TaskHotBar extends VisorTask {
             if(switchableBack){
                 slotMainBack = slotMain;
             }
-            inventory.selected = slotOffhand == 8
+            McInventory.setSelectedSlot(inventory, slotOffhand == 8
                     ? 0
-                    : slotOffhand + 1;
-            slotMain = inventory.selected;
+                    : slotOffhand + 1);
+            slotMain = McInventory.selectedSlot(inventory);
         }else{
             if(switchableBack) {
                 slotOffhandBack = slotOffhand;

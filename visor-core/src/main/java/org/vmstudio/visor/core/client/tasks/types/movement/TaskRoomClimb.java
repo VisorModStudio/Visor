@@ -233,7 +233,7 @@ public class TaskRoomClimb extends VisorTask
                 0.0D,
                 anchoredThisTick ? player.getDeltaMovement().z : 0
         );
-        player.fallDistance = 0;
+        player.resetFallDistance();
 
         double playerX = player.getX();
         double playerY = player.getY();
@@ -307,7 +307,7 @@ public class TaskRoomClimb extends VisorTask
         // Reset fall distance for the server-side player
         for (ServerPlayer serverplayer : MC.getSingleplayerServer().getPlayerList().getPlayers()) {
             if (serverplayer.getUUID().equals(MC.player.getUUID())) {
-                serverplayer.fallDistance = 0;
+                serverplayer.resetFallDistance();
                 break;
             }
         }

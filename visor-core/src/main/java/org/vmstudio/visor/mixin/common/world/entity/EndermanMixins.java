@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.common.world.entity;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
@@ -97,7 +98,7 @@ public class EndermanMixins {
         private static boolean visor$canAttackVrPlayer(EnderMan enderman,
                                                        ServerPlayer player,
                                                        VRServerPlayer vrPlayer) {
-            ItemStack itemstack = player.getInventory().armor.get(3);
+            ItemStack itemstack = player.getItemBySlot(EquipmentSlot.HEAD);
             if (!itemstack.is(Items.CARVED_PUMPKIN)) { //no ender item
                 if (player.level() != enderman.level()) return false;
 

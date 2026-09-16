@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.common.network.toclient.vrstate.OffhandSlotPayload
 import org.vmstudio.visor.api.common.network.toclient.vrstate.RotationYPayloadToClient;
 import org.vmstudio.visor.api.common.network.toserver.*;
 import org.vmstudio.visor.api.common.network.toserver.vrstate.*;
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.server.SupportedMovement;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.common.ServerConfig;
@@ -135,7 +136,7 @@ public class ServerPacketHandler {
                 if(!VRServerSettings.isRoomClimbingSupported()){
                     return;
                 }
-                vrPlayer.getMcPlayer().fallDistance = 0.0F;
+                vrPlayer.getMcPlayer().resetFallDistance();
             }
             case TELEPORT -> {
                 if(VRServerSettings.getSupportedMovement() == SupportedMovement.CONTROLLER){
@@ -143,7 +144,8 @@ public class ServerPacketHandler {
                 }
                 var payload = (TeleportMovePayloadToServer) payloadToServer;
                 ServerPlayer player = vrPlayer.getMcPlayer();
-                player.absMoveTo(
+                McEntity.absSnapTo(
+                        player,
                         payload.x(), payload.y(), payload.z(),
                         player.getYRot(),
                         player.getXRot()

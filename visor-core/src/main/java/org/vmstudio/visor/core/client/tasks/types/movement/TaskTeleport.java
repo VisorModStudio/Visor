@@ -13,6 +13,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.input.redirect.VRInputRedirectHandler;
@@ -225,7 +226,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
         LocalPlayerExtension modified = (LocalPlayerExtension) player;
         modified.visor$setTeleported(true);
 
-        player.moveTo(destination);
+        McEntity.snapTo(player, destination);
         onTeleportEffects(player);
 
         ((LocalPlayerExtension) MC.player)
@@ -234,7 +235,7 @@ public class TaskTeleport extends VisorTask implements VREventListener {
 
     private void onTeleportEffects(LocalPlayer player) {
         Minecraft minecraft = Minecraft.getInstance();
-        minecraft.player.fallDistance = 0;
+        minecraft.player.resetFallDistance();
 
         if (!VRClientSettings.isLimitedSurvivalTeleport()) {
             return;
