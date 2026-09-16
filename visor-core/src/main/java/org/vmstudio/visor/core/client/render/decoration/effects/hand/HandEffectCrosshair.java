@@ -1,11 +1,10 @@
 package org.vmstudio.visor.core.client.render.decoration.effects.hand;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.joml.*;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
@@ -91,21 +90,21 @@ public class HandEffectCrosshair extends VRHandEffect {
         McVertexBuilder buf = McVertexBuilder.get();
 
         // --- GL setup ---
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        McGlState.setShaderColor(1f, 1f, 1f, 1f);
 
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.enableDepthTest();
+        McGlState.depthMask(true);
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
 
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO
+        McGlState.enableBlend();
+        McGlState.blendFuncSeparate(
+                McGlState.Blend.ONE_MINUS_DST_COLOR,
+                McGlState.Blend.ONE_MINUS_SRC_COLOR,
+                McGlState.Blend.ONE,
+                McGlState.Blend.ZERO
         );
 
-        RenderSystem.setShaderTexture(0, ICONS_LOC);
+        McGlState.setShaderTexture(0, ICONS_LOC);
         McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
         MC.gameRenderer.lightTexture().turnOnLightLayer();
 
@@ -151,11 +150,11 @@ public class HandEffectCrosshair extends VRHandEffect {
 
         // --- Restore GL & pose ---
         MC.gameRenderer.lightTexture().turnOffLightLayer();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.setShaderColor(1f, 1f, 1f, 1f);
+        McGlState.defaultBlendFunc();
+        McGlState.disableBlend();
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
         poseStack.popPose();
     }
 

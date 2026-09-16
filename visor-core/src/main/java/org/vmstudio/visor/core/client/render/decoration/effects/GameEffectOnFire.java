@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
@@ -64,17 +64,17 @@ public class GameEffectOnFire extends VRGameEffect {
         float v1 = Mth.lerp(shrink, vMax, midV);
 
         // --- GL setup ---
-        RenderSystem.depthFunc(
+        McGlState.depthFunc(
                 renderPass == VRRenderPass.THIRD_PERSON
                         ? GL11C.GL_LEQUAL
                         : GL11C.GL_ALWAYS
         );
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.enableDepthTest();
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, atlas);
+        McGlState.setShaderTexture(0, atlas);
 
         // --- Pose setup ---
         stack.pushPose();
@@ -107,8 +107,8 @@ public class GameEffectOnFire extends VRGameEffect {
         }
 
         // --- Restore GL & pose ---
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.disableBlend();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.disableBlend();
         stack.popPose();
     }
 

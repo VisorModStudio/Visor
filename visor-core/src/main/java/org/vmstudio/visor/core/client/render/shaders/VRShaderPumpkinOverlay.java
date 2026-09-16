@@ -15,6 +15,6 @@ public class VRShaderPumpkinOverlay implements VRShader {
     }
 
     public void prepare(float opacity) {
-        handle.uniform("uOpacity").set(opacity);
+        handle.setUniform("uOpacity", opacity);
     }
 }

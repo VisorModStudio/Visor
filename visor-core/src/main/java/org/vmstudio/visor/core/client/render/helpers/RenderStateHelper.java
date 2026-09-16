@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.lwjgl.opengl.GL11C;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
@@ -34,14 +34,14 @@ public class RenderStateHelper {
             McRenderTarget.bindWrite(McRenderTarget.mainTarget());
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableCull();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
+        McGlState.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        McGlState.colorMask(true, true, true, true);
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
+        McGlState.enableCull();
+        McGlState.defaultBlendFunc();
+        McGlState.disableBlend();
 
         if (keepStencilTest) {
             GL11C.glEnable(GL11C.GL_STENCIL_TEST);

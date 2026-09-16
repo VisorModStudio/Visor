@@ -1,9 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 
-import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -235,17 +234,17 @@ public final class VRMenuSkyCanvas implements VREventListener {
         Matrix4f poseMatrix = poseStack.last().pose();
 
         // --- GL setup ---
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.disableCull();
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.setShaderColor(1, 1, 1, 1);
         if (MC.getOverlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
-            McRenderUtils.setShaderTexture(0, whiteTex);
+            McGlState.setShaderTexture(0, whiteTex);
         }
 
         McVertexBuilder builder = McVertexBuilder.get();
@@ -269,7 +268,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
         var glowSprite = VRMenuSky.glowSprite();
         if (erase && glowSprite != null) {
             McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-            RenderSystem.setShaderTexture(0, glowSprite);
+            McGlState.setShaderTexture(0, glowSprite);
 
             int[] colorInt = color.asIntArray(false);
 
@@ -290,10 +289,10 @@ public final class VRMenuSkyCanvas implements VREventListener {
         }
 
         // --- restore GL ---
-        RenderSystem.enableCull();
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.enableCull();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
+        McGlState.setShaderColor(1, 1, 1, 1);
         poseStack.popPose();
     }
 

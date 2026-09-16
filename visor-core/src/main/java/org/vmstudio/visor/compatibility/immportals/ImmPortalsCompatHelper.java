@@ -1,6 +1,5 @@
 package org.vmstudio.visor.compatibility.immportals;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
@@ -21,6 +20,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 
@@ -193,9 +193,9 @@ public final class ImmPortalsCompatHelper {
                 return false;
             }
 
-            RenderSystem.depthMask(false);
+            McGlState.depthMask(false);
             renderScreenTriangleMethod.invoke(null, fogColorSupplier.get());
-            RenderSystem.depthMask(true);
+            McGlState.depthMask(true);
             return true;
         } catch (Throwable throwable) {
             logReflectionFailure("Failed to fix IMMPortals mirror fog", throwable);

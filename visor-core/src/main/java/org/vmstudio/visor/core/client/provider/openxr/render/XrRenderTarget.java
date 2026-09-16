@@ -1,16 +1,15 @@
 package org.vmstudio.visor.core.client.provider.openxr.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.opengl.GL30;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
 public class XrRenderTarget extends RenderTarget {
 
     public XrRenderTarget(int width, int height, int colorId, int index) {
         super(false);
-        RenderSystem.assertOnRenderThreadOrInit();
+        McGlState.assertOnRenderThreadOrInit();
 
         this.colorTextureId = colorId;
 
@@ -35,17 +34,17 @@ public class XrRenderTarget extends RenderTarget {
     *///?}
 
     private void attachEyeTexture(int width, int height) {
-        RenderSystem.assertOnRenderThreadOrInit();
-        int maxSize = RenderSystem.maxSupportedTextureSize();
+        McGlState.assertOnRenderThreadOrInit();
+        int maxSize = McGlState.maxSupportedTextureSize();
         if (width > 0 && width <= maxSize && height > 0 && height <= maxSize) {
             this.viewWidth = width;
             this.viewHeight = height;
             this.width = width;
             this.height = height;
-            this.frameBufferId = GlStateManager.glGenFramebuffers();
+            this.frameBufferId = McGlState.genFramebuffer();
 
 
-            GlStateManager._glBindFramebuffer(36160, this.frameBufferId);
+            McGlState.bindFramebuffer(36160, this.frameBufferId);
             //Binding our eye texture here
             GL30.glFramebufferTexture2D(
                     GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0,

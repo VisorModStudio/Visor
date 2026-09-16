@@ -6,9 +6,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 //? if >=1.21.2 {
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.renderer.CompiledShaderProgram;
 import net.minecraft.client.renderer.ShaderDefines;
 import net.minecraft.client.renderer.ShaderProgram;
@@ -53,7 +55,31 @@ public final class McShaderProgram {
         return vertexFormat;
     }
 
-    public AbstractUniform uniform(String name) {
+    public void setUniform(String name, float value) {
+        uniform(name).set(value);
+    }
+
+    public void setUniform(String name, int value) {
+        uniform(name).set(value);
+    }
+
+    public void setUniform(String name, float x, float y, float z) {
+        uniform(name).set(x, y, z);
+    }
+
+    public void setUniform(String name, float[] values) {
+        uniform(name).set(values);
+    }
+
+    public void setUniform(String name, Matrix3f matrix) {
+        uniform(name).set(matrix);
+    }
+
+    public void setUniform(String name, Matrix4f matrix) {
+        uniform(name).set(matrix);
+    }
+
+    private AbstractUniform uniform(String name) {
         //? if >=1.21.2 {
         return compiled().safeGetUniform(name);
         //?} else {
@@ -117,7 +143,21 @@ public final class McShaderProgram {
         *///?}
     }
 
-    public RenderStateShard.ShaderStateShard shaderState() {
+    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
+        RenderStateShard.MultiTextureStateShard.Builder texture =
+                RenderStateShard.MultiTextureStateShard.builder();
+        for (ResourceLocation location : textures) {
+            texture.add(location, false, false);
+        }
+        return RenderType.create(name, vertexFormat, mode, bufferSize, false, false,
+                RenderType.CompositeState.builder()
+                        .setShaderState(shaderState())
+                        .setTextureState(texture.build())
+                        .createCompositeState(false));
+    }
+
+    private RenderStateShard.ShaderStateShard shaderState() {
         //? if >=1.21.2 {
         return new RenderStateShard.ShaderStateShard(program);
         //?} else {
@@ -129,9 +169,9 @@ public final class McShaderProgram {
         //? if >=1.21.2 {
         // the json "blend" block is not read since 1.21.2
         if (alphaBlend) {
-            RenderSystem.enableBlend();
-            RenderSystem.blendEquation(GL14.GL_FUNC_ADD);
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            McGlState.enableBlend();
+            McGlState.blendEquation(GL14.GL_FUNC_ADD);
+            McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE_MINUS_SRC_ALPHA);
         }
         //?}
     }

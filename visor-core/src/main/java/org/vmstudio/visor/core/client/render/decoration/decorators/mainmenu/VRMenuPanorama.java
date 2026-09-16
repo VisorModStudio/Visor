@@ -1,9 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
-import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
@@ -46,11 +45,11 @@ public class VRMenuPanorama {
         McVertexBuilder bufferbuilder = McVertexBuilder.get();
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        McRenderUtils.clear(GL11C.GL_COLOR_BUFFER_BIT | GL11C.GL_DEPTH_BUFFER_BIT);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.clear(GL11C.GL_COLOR_BUFFER_BIT | GL11C.GL_DEPTH_BUFFER_BIT);
+        McGlState.depthMask(true);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
 
         poseStack.pushPose();
         poseStack.translate(-HALF, -HALF, -HALF);
@@ -59,7 +58,7 @@ public class VRMenuPanorama {
         Vector3f corner = new Vector3f();
 
         for (Face face : FACES) {
-            RenderSystem.setShaderTexture(0, face.texture());
+            McGlState.setShaderTexture(0, face.texture());
             bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
             for (int i = 0; i < CORNER_U.length; i++) {

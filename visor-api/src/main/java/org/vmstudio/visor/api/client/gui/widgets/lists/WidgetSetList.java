@@ -2,7 +2,6 @@ package org.vmstudio.visor.api.client.gui.widgets.lists;
 
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
@@ -18,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 
 
 /**
@@ -128,7 +128,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
         }
 
         renderScrollbar(guiGraphics);
-        RenderSystem.disableBlend();
+        McGlState.disableBlend();
     }
 
     private void renderScrollbar(@NotNull GuiGraphics guiGraphics) {

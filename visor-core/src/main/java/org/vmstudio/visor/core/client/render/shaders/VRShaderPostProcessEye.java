@@ -100,12 +100,12 @@ public class VRShaderPostProcessEye implements VRShader{
         // --- Finalize ---
 
         //tints
-        handle.uniform("uTintRed").set(redTint);
-        handle.uniform("uTintBlue").set(blueTint);
-        handle.uniform("uTintBlack").set(blackTint);
+        handle.setUniform("uTintRed", redTint);
+        handle.setUniform("uTintBlue", blueTint);
+        handle.setUniform("uTintBlack", blackTint);
 
         //drain the colors while the client in fullscreen
-        handle.uniform("uDesaturate").set(updateDesaturation());
+        handle.setUniform("uDesaturate", updateDesaturation());
     }
 
     private float updateDesaturation() {

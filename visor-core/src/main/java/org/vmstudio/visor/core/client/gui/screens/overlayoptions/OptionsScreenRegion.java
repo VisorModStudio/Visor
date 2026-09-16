@@ -1,10 +1,10 @@
 package org.vmstudio.visor.core.client.gui.screens.overlayoptions;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
@@ -396,13 +396,13 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
         gui.flush();
 
-        RenderSystem.setShaderTexture(0, McRenderTarget.colorTextureId(target));
+        McGlState.setShaderTexture(0, McRenderTarget.colorTextureId(target));
 
-        RenderSystem.disableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        McGlState.disableDepthTest();
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
         McShaders.use(McShaders.Core.POSITION_TEX);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        McGlState.setShaderColor(1f, 1f, 1f, 1f);
 
         float uMax = (float) McRenderTarget.viewWidth(target) / (float) target.width;
         float vMax = (float) McRenderTarget.viewHeight(target) / (float) target.height;
@@ -420,8 +420,8 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         buf.vertex(pose, previewX, previewY, 0).uv(0.0f, vMax).endVertex();
         buf.draw();
 
-        RenderSystem.disableBlend();
-        RenderSystem.enableDepthTest();
+        McGlState.disableBlend();
+        McGlState.enableDepthTest();
 
         gui.renderOutline(previewX, previewY, previewW, previewH, 0x80FFFFFF);
     }

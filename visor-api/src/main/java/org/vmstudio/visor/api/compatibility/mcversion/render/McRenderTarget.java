@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL30;
 
@@ -87,14 +86,14 @@ public class McRenderTarget {
                             RenderTarget destination,
                             int dstX0, int dstY0, int dstX1, int dstY1,
                             boolean linear) {
-        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, source.frameBufferId);
-        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destination.frameBufferId);
-        GlStateManager._glBlitFrameBuffer(
+        McGlState.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, source.frameBufferId);
+        McGlState.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, destination.frameBufferId);
+        McGlState.blitFramebuffer(
                 srcX0, srcY0, srcX1, srcY1,
                 dstX0, dstY0, dstX1, dstY1,
                 GL30.GL_COLOR_BUFFER_BIT,
                 linear ? GL30.GL_LINEAR : GL30.GL_NEAREST
         );
-        GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+        McGlState.bindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
     }
 }

@@ -1,9 +1,9 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
@@ -32,7 +32,7 @@ public final class VRMenuFloor {
 
             poseStack.pushPose();
             McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-            RenderSystem.setShaderTexture(0, floorTexture);
+            McGlState.setShaderTexture(0, floorTexture);
 
             int r = 128, g = 128, b = 128;
 

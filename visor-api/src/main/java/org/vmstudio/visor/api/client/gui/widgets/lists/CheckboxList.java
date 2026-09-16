@@ -1,6 +1,5 @@
 package org.vmstudio.visor.api.client.gui.widgets.lists;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
@@ -24,6 +23,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.gui.McSelectionList;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 
 public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
@@ -113,7 +113,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
             );
         }
 
-        RenderSystem.disableBlend();
+        McGlState.disableBlend();
     }
 
     @Override

@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
-import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
@@ -54,12 +54,12 @@ public class RenderEffectsHelper {
         Matrix4f mat = fullscreenMatrix();
 
         McShaders.use(McShaders.Core.POSITION);
-        RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, alpha);
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
+        McGlState.setShaderColor(0.0F, 0.0F, 0.0F, alpha);
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.disableCull();
 
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
         for (float[] corner : SCREEN_QUAD_CORNERS) {
@@ -83,11 +83,11 @@ public class RenderEffectsHelper {
         Matrix4f mat = fullscreenMatrix();
 
         wrap.getHandle().use();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.disableCull();
 
         bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         for (float[] corner : SCREEN_QUAD_CORNERS) {
@@ -158,25 +158,25 @@ public class RenderEffectsHelper {
         maskEnabledStencil = !GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         GL11.glEnable(GL11.GL_STENCIL_TEST);
 
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
-        RenderSystem.stencilMask(0xFF);
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF);
-        RenderSystem.clearStencil(0);
-        RenderSystem.clearDepth(1);
-        RenderSystem.colorMask(true, true, true, true);
-        McRenderUtils.clear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
+        McGlState.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
+        McGlState.stencilMask(0xFF);
+        McGlState.stencilFunc(GL11.GL_ALWAYS, 0xFF, 0xFF);
+        McGlState.clearStencil(0);
+        McGlState.clearDepth(1);
+        McGlState.colorMask(true, true, true, true);
+        McGlState.clear(GL11.GL_DEPTH_BUFFER_BIT | GL11.GL_STENCIL_BUFFER_BIT);
 
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11.GL_ALWAYS);
-        RenderSystem.disableCull();
-        RenderSystem.setShaderColor(0f, 0f, 0f, 1f);
+        McGlState.depthMask(true);
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11.GL_ALWAYS);
+        McGlState.disableCull();
+        McGlState.setShaderColor(0f, 0f, 0f, 1f);
     }
 
     private static void endStencilWrite() {
-        RenderSystem.stencilMask(0);
-        RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
+        McGlState.stencilMask(0);
+        McGlState.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
+        McGlState.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderStateHelper.restoreAfterExternalRender(true);
     }
 
@@ -192,7 +192,7 @@ public class RenderEffectsHelper {
     }
 
     private static void drawMaskTriangles(float[] verts) {
-        McRenderUtils.setShaderTexture(0, TexturesHelper.getBlackTexture());
+        McGlState.setShaderTexture(0, TexturesHelper.getBlackTexture());
         McShaders.use(McShaders.Core.POSITION);
 
         McVertexBuilder buf = McVertexBuilder.get();

@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -109,10 +109,10 @@ public class GameEffectTrackerDebug extends VRGameEffect {
         Vec3 camPos = new Vec3((Vector3f) RenderPoseHelper.getCameraPosition(renderPass, renderPose));
 
         // --- GL setup ---
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
-        RenderSystem.disableDepthTest();
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.disableCull();
+        McGlState.disableDepthTest();
         McShaders.use(McShaders.Core.POSITION_COLOR);
 
         // --- Pose setup ---
@@ -144,8 +144,8 @@ public class GameEffectTrackerDebug extends VRGameEffect {
         poseStack.popPose();
 
         // --- Restore GL ---
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
+        McGlState.enableDepthTest();
+        McGlState.enableCull();
     }
 
     private void updateAnchor(Vec3 hmdPos, float yaw) {

@@ -1,11 +1,11 @@
 package org.vmstudio.visor.core.client.render.shaders;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -32,7 +32,7 @@ public class VRShaderMixedReality implements VRShader{
 
     public void drawMirror(){
         var mcWindow = ((WindowExtension) (Object) MC.getWindow());
-        RenderSystem.viewport(0, 0,
+        McGlState.viewport(0, 0,
                 mcWindow.visor$mcScreenWidth(),
                 mcWindow.visor$mcScreenHeight()
         );
@@ -60,23 +60,23 @@ public class VRShaderMixedReality implements VRShader{
         Matrix4f invProjView = new Matrix4f(proj)
                 .mul(cameraRotation)
                 .invert();
-        handle.uniform("uInverseProjectionView").set(invProjView);
+        handle.setUniform("uInverseProjectionView", invProjView);
 
-        handle.uniform("uAlphaMode").set(alphaMask ? 1 : 0);
-        handle.uniform("uAsGrid2x2").set(asGrid2x2 ? 1 : 0);
+        handle.setUniform("uAlphaMode", alphaMask ? 1 : 0);
+        handle.setUniform("uAsGrid2x2", asGrid2x2 ? 1 : 0);
 
-        handle.uniform("uHmdViewPosition").set(cameraPos.x, cameraPos.y, cameraPos.z);
-        handle.uniform("uHmdPlaneNormal").set(-cameraDir.x(), 0.0F, -cameraDir.z());
+        handle.setUniform("uHmdViewPosition", cameraPos.x, cameraPos.y, cameraPos.z);
+        handle.setUniform("uHmdPlaneNormal", -cameraDir.x(), 0.0F, -cameraDir.z());
 
         if (!alphaMask) {
             var color = VRClientSettings.getMixedRealityKeyColor();
-            handle.uniform("uKeyColor").set(
+            handle.setUniform("uKeyColor",
                     color.getRed(),
                     color.getGreen(),
                     color.getBlue()
             );
         } else {
-            handle.uniform("uKeyColor").set(0F, 0F, 0F);
+            handle.setUniform("uKeyColor", 0F, 0F, 0F);
         }
 
 

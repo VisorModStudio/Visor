@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.effects.hand;
 
 import net.minecraft.world.level.lighting.LightEngine;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
-import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
@@ -83,17 +83,17 @@ public class HandEffectTeleport extends VRHandEffect {
         poseStack.setIdentity();
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
 
         // Render the teleport arc and landing pad effect
-        RenderSystem.enableDepthTest();
+        McGlState.enableDepthTest();
 
-        RenderSystem.depthMask(false);
+        McGlState.depthMask(false);
 
         renderTeleportArc(renderPass, poseStack);
 
-        RenderSystem.depthMask(true);
+        McGlState.depthMask(true);
 
         poseStack.popPose();
     }
@@ -102,9 +102,9 @@ public class HandEffectTeleport extends VRHandEffect {
                                    PoseStack poseStack) {
         McVersionClientUtils.profiler().push("visorTeleportArc");
 
-        RenderSystem.enableCull();
+        McGlState.enableCull();
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        McRenderUtils.setShaderTexture(0, TexturesHelper.getWhiteTexture());
+        McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
         McVertexBuilder builder = McVertexBuilder.get();
         builder.begin(VertexFormat.Mode.QUADS,
@@ -189,7 +189,7 @@ public class HandEffectTeleport extends VRHandEffect {
         // Custom Shader Landing Pad Effect using our own shader
         if (validLocation && TaskTeleport.getInstance().isArcActive()) {
 
-            RenderSystem.disableCull();
+            McGlState.disableCull();
 
             VRShaders.getTeleportPoint().prepare(
                     RenderSystem.getModelViewMatrix(),
@@ -210,7 +210,7 @@ public class HandEffectTeleport extends VRHandEffect {
 
 
             shaderInstance.clear();
-            RenderSystem.enableCull();
+            McGlState.enableCull();
         }
 
         McVersionClientUtils.profiler().pop();

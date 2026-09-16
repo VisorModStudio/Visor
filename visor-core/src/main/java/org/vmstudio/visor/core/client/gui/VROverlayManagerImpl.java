@@ -1,11 +1,11 @@
 package org.vmstudio.visor.core.client.gui;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
@@ -111,11 +111,11 @@ public class VROverlayManagerImpl implements VROverlayManager {
         McModelViewStack.identity();
         McModelViewStack.translate(0.0F, 0.0F, -11000.0F);
         McModelViewStack.apply();
-        RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE
+        McGlState.blendFuncSeparate(
+                McGlState.Blend.SRC_ALPHA,
+                McGlState.Blend.ONE_MINUS_SRC_ALPHA,
+                McGlState.Blend.ONE,
+                McGlState.Blend.ONE
         );
 
         try {

@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.render.decoration.hand;
 
 import net.minecraft.world.level.lighting.LightEngine;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
@@ -133,8 +134,8 @@ public class VRHandRenderer {
             Collection<VRHandEffect> effects = effectsRegistry.getComponentsMap().values();
             var activeEffects = findActiveEffects(effects, decorator, hand, handState.isGuiHand());
 
-            RenderSystem.enableDepthTest();
-            RenderSystem.defaultBlendFunc();
+            McGlState.enableDepthTest();
+            McGlState.defaultBlendFunc();
 
             renderHandEffects(
                     activeEffects,
@@ -313,14 +314,14 @@ public class VRHandRenderer {
         AtumColorImmutable color = dimByLocalLight(CURSOR_DEFAULT_COLOR);
 
         // --- GL setup ---
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
         McShaders.use(McShaders.Core.POSITION_COLOR);
 
         if (MC.getOverlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
-            McRenderUtils.setShaderTexture(0, whiteTex);
+            McGlState.setShaderTexture(0, whiteTex);
         }
 
         // --- Render ---
@@ -335,8 +336,8 @@ public class VRHandRenderer {
         );
 
         // --- Restore GL ---
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
 
         poseStack.popPose();
     }
@@ -356,8 +357,8 @@ public class VRHandRenderer {
         RenderPoseHelper.applyHandPose(hand, poseStack);
 
 
-        RenderSystem.enableDepthTest();
-        RenderSystem.defaultBlendFunc();
+        McGlState.enableDepthTest();
+        McGlState.defaultBlendFunc();
 
         if (isGui) {
             renderGuiHand(poseStack);
@@ -371,10 +372,10 @@ public class VRHandRenderer {
 
     private void renderGuiHand(PoseStack poseStack) {
         var whiteTex = TexturesHelper.getWhiteTexture();
-        McRenderUtils.setShaderTexture(0, whiteTex);
+        McGlState.setShaderTexture(0, whiteTex);
 
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
 
         float handLength = 0.18F;
         Vector3f start = new Vector3f();
@@ -391,8 +392,8 @@ public class VRHandRenderer {
                 -0.0125F, 0.0125F,
                 color
         );
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
     }
 
     private AtumColorImmutable dimByLocalLight(AtumColorImmutable base) {
@@ -509,7 +510,7 @@ public class VRHandRenderer {
         applyItemHandPose(player, handType, itemStack, poseStack, equipProgress, partialTicks);
 
         if (itemStack.getItem() instanceof MapItem) {
-            RenderSystem.disableCull();
+            McGlState.disableCull();
             ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
                     .visor$renderMap(poseStack, buffer, packedLight, itemStack);
         } else {
@@ -534,7 +535,7 @@ public class VRHandRenderer {
     ) {
         boolean mainHand = arm != HumanoidArm.LEFT;
         float handFactor = mainHand ? 1.0F : -1.0F;
-        RenderSystem.setShaderTexture(0, McRenderUtils.getSkinTexture(player));
+        McGlState.setShaderTexture(0, McRenderUtils.getSkinTexture(player));
 
         poseStack.pushPose();
 

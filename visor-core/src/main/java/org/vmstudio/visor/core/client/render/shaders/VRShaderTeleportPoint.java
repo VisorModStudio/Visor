@@ -23,13 +23,13 @@ public class VRShaderTeleportPoint implements VRShader{
         handle.setModelViewMatrix(modelView);
         handle.setProjectionMatrix(projection);
 
-        handle.uniform("uTime").set(time);
+        handle.setUniform("uTime", time);
         float[] normColor = new float[] {
                 color.getRed(),
                 color.getGreen(),
                 color.getBlue()
         };
-        handle.uniform("uColor").set(normColor);
+        handle.setUniform("uColor", normColor);
 
         handle.apply();
         return handle;

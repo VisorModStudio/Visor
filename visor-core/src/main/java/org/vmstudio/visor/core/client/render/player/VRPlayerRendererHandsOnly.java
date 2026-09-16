@@ -1,8 +1,7 @@
 package org.vmstudio.visor.core.client.render.player;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.ControllerType;
@@ -212,13 +211,13 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         ModelPart arm = left ? this.model.leftArm : this.model.rightArm;
         ModelPart sleeve = left ? this.model.leftSleeve : this.model.rightSleeve;
 
-        RenderSystem.enableBlend();
-        RenderSystem.enableCull();
-        RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
+        McGlState.enableBlend();
+        McGlState.enableCull();
+        McGlState.blendFuncSeparate(
+                McGlState.Blend.SRC_ALPHA,
+                McGlState.Blend.ONE_MINUS_SRC_ALPHA,
+                McGlState.Blend.ONE,
+                McGlState.Blend.ONE_MINUS_SRC_ALPHA
         );
 
         boolean slim = this.getModel().slim;
@@ -246,7 +245,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                 OverlayTexture.NO_OVERLAY);
         *///?}
 
-        RenderSystem.disableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        McGlState.disableBlend();
+        McGlState.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

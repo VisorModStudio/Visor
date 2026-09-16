@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McFog;
-import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
@@ -165,7 +165,7 @@ public class MirrorHelper {
 
         // 2) viewport + projection
         RenderSystem.backupProjectionMatrix();
-        RenderSystem.viewport(0, 0, vrWidth, vrHeight);
+        McGlState.viewport(0, 0, vrWidth, vrHeight);
         var proj = new Matrix4f().setOrtho(0, vrWidth, vrHeight, 0, NEAR_PLANE, FAR_PLANE);
         McProjection.setOrthographic(proj);
 
@@ -179,9 +179,9 @@ public class MirrorHelper {
             // 4) disable fog + clear
             McFog.disable();
             int flags = CLEAR_DEPTH_FLAG | (clearBackground ? CLEAR_COLOR_FLAG : 0);
-            McRenderUtils.clear(flags);
+            McGlState.clear(flags);
             if (clearBackground) {
-                RenderSystem.clearColor(0, 0, 0, 0);
+                McGlState.clearColor(0, 0, 0, 0);
             }
 
             // 5) prepare GuiGraphics with scaled text

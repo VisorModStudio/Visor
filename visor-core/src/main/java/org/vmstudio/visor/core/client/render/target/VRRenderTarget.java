@@ -1,9 +1,9 @@
 package org.vmstudio.visor.core.client.render.target;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import org.vmstudio.visor.api.ModLoader;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
@@ -26,7 +26,7 @@ public class VRRenderTarget extends RenderTarget {
                           boolean linearFilter,
                           boolean useStencil) {
         super(usedepth);
-        RenderSystem.assertOnRenderThreadOrInit();
+        McGlState.assertOnRenderThreadOrInit();
 
         this.textureSupplier = textureSupplier;
         this.name = name;

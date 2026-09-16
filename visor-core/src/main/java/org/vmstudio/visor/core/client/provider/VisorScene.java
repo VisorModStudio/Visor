@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.provider;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
@@ -7,7 +8,6 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
@@ -53,7 +53,7 @@ public class VisorScene implements AtumVRScene {
         var renderContext = (RenderContext) context;
         var profiler =  renderContext.profiler();
 
-        RenderSystem.depthMask(true);
+        McGlState.depthMask(true);
         McModelViewStack.apply();
 
 
@@ -162,16 +162,16 @@ public class VisorScene implements AtumVRScene {
         }
 
         McRenderTarget.bindWrite(McRenderTarget.mainTarget());
-        RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
-        McRenderUtils.clear(16384);
-        RenderSystem.enableDepthTest();
+        McGlState.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
+        McGlState.clear(16384);
+        McGlState.enableDepthTest();
 
         ShaderCompatHelper.bridge().beginEye(renderPass.getEyeOrLeft());
 
         if (ShaderCompatHelper.isShaderActive()) {
-            RenderSystem.setShaderTexture(0, 0);
-            RenderSystem.setShaderTexture(1, 0);
-            RenderSystem.setShaderTexture(2, 0);
+            McGlState.setShaderTexture(0, 0);
+            McGlState.setShaderTexture(1, 0);
+            McGlState.setShaderTexture(2, 0);
         }
 
         McRenderUtils.renderGame(

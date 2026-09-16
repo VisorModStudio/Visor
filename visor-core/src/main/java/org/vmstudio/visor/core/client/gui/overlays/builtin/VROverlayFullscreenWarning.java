@@ -1,6 +1,5 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -17,6 +16,7 @@ import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 import java.util.List;
@@ -56,7 +56,7 @@ public class VROverlayFullscreenWarning extends VROverlayScreen {
         int iconSize = height - iconMargin * 2;
         float iconAlphaMin = 0.45f;
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, Mth.lerp(pulse, iconAlphaMin, 1.0f));
+        McGlState.setShaderColor(1.0f, 1.0f, 1.0f, Mth.lerp(pulse, iconAlphaMin, 1.0f));
         GuiTexture warningIcon = new GuiTexture(
                 RESOURCE,
                 0, 0,
@@ -68,7 +68,7 @@ public class VROverlayFullscreenWarning extends VROverlayScreen {
                 iconMargin, iconMargin,
                 iconSize, iconSize
         );
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        McGlState.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 
         int textColor = 0xFFF2E9D8;
         int descriptionColor = 0xFFB6AE9F;

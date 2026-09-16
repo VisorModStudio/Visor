@@ -1,10 +1,10 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -66,12 +66,12 @@ public class GameEffectPumpkin extends VRGameEffect {
 
         // --- GL setup ---
         VRShaders.getPumpkinOverlay().getHandle().use();
-        RenderSystem.setShaderTexture(0, PUMPKIN_BLUR_LOCATION);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(false);
-        RenderSystem.disableCull();
+        McGlState.setShaderTexture(0, PUMPKIN_BLUR_LOCATION);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(false);
+        McGlState.disableCull();
 
         // --- Render ---
         VRPlayerPoseClient renderPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.RENDER);
@@ -87,10 +87,10 @@ public class GameEffectPumpkin extends VRGameEffect {
         poseStack.popPose();
 
         // --- Restore GL ---
-        RenderSystem.enableCull();
-        RenderSystem.depthMask(true);
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.disableBlend();
+        McGlState.enableCull();
+        McGlState.depthMask(true);
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.disableBlend();
     }
 
     private Vector3f faceCenter(VRPlayerPoseClient renderPose,

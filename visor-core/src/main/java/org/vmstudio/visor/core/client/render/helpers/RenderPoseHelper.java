@@ -3,12 +3,12 @@ package org.vmstudio.visor.core.client.render.helpers;
 //? if >=1.20.5 {
 import com.mojang.blaze3d.platform.Lighting;
 //?}
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -60,7 +60,7 @@ public class RenderPoseHelper {
         Vector3fc light1 = isConstantAmbient() ? NETHER_LEVEL_LIGHT_1 : LEVEL_LIGHT_1;
 
         Matrix4f view = getViewRotation(renderPass);
-        RenderSystem.setShaderLights(
+        McGlState.setShaderLights(
                 view.transformDirection(LEVEL_LIGHT_0, new Vector3f()),
                 view.transformDirection(light1, new Vector3f())
         );

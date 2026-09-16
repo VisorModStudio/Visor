@@ -1,9 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import net.minecraft.world.entity.Pose;
@@ -74,13 +73,13 @@ public class GameEffectShadow extends VRGameEffect {
                 .add(0, 0.005, 0);
 
         // --- GL setup ---
-        RenderSystem.disableCull();
+        McGlState.disableCull();
         setupPolygonGlState(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
 
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
+        McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
 
         // --- Pose setup ---
@@ -103,9 +102,9 @@ public class GameEffectShadow extends VRGameEffect {
         );
 
         // --- Restore GL & pose ---
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
         setupPolygonGlState(false);
-        RenderSystem.enableCull();
+        McGlState.enableCull();
 
         poseStack.popPose();
     }
@@ -114,26 +113,26 @@ public class GameEffectShadow extends VRGameEffect {
     private void setupPolygonGlState(boolean enable) {
 
         if (enable) {
-            glCacheBlendSrcA = GlStateManager.BLEND.srcAlpha;
-            glCacheBlendDstA = GlStateManager.BLEND.dstAlpha;
-            glCacheBlendSrcRGB = GlStateManager.BLEND.srcRgb;
-            glCacheBlendDstRGB = GlStateManager.BLEND.dstRgb;
+            glCacheBlendSrcA = McGlState.blendSourceAlpha();
+            glCacheBlendDstA = McGlState.blendDestinationAlpha();
+            glCacheBlendSrcRGB = McGlState.blendSourceRgb();
+            glCacheBlendDstRGB = McGlState.blendDestinationRgb();
             glCacheBlend = GL43C.glIsEnabled(GL11.GL_BLEND);
             glCacheCull = true;
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            RenderSystem.disableCull();
+            McGlState.enableBlend();
+            McGlState.defaultBlendFunc();
+            McGlState.disableCull();
 
         } else {
-            RenderSystem.blendFuncSeparate(glCacheBlendSrcRGB, glCacheBlendDstRGB, glCacheBlendSrcA,
+            McGlState.blendFuncSeparate(glCacheBlendSrcRGB, glCacheBlendDstRGB, glCacheBlendSrcA,
                     glCacheBlendDstA);
 
             if (!glCacheBlend) {
-                RenderSystem.disableBlend();
+                McGlState.disableBlend();
             }
 
             if (glCacheCull) {
-                RenderSystem.enableCull();
+                McGlState.enableCull();
             }
 
 

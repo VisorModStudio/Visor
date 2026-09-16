@@ -1,11 +1,10 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
@@ -413,14 +412,14 @@ public final class VRMenuSky {
         currentScenePhase = sceneTimeToPhase(currentSceneTime);
 
         // --- Setup ---
-        McRenderUtils.clear(GL11C.GL_COLOR_BUFFER_BIT | GL11C.GL_DEPTH_BUFFER_BIT);
+        McGlState.clear(GL11C.GL_COLOR_BUFFER_BIT | GL11C.GL_DEPTH_BUFFER_BIT);
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.depthMask(false);
-        RenderSystem.disableDepthTest();
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
+        McGlState.depthMask(false);
+        McGlState.disableDepthTest();
+        McGlState.disableCull();
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
 
         // --- Render ---
         renderSkyBox(builder, pose);
@@ -436,9 +435,9 @@ public final class VRMenuSky {
         renderUserDots(builder, pose);
 
         // --- Restore ---
-        RenderSystem.enableCull();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
+        McGlState.enableCull();
+        McGlState.enableDepthTest();
+        McGlState.depthMask(true);
     }
 
     public static void renderLast(PoseStack poseStack) {
@@ -448,12 +447,12 @@ public final class VRMenuSky {
 
         // --- Setup ---
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthMask(true);
-        RenderSystem.enableCull();
+        McGlState.setShaderColor(1, 1, 1, 1);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.enableDepthTest();
+        McGlState.depthMask(true);
+        McGlState.enableCull();
 
         // --- Render ---
         renderClouds(builder, pose);
@@ -663,9 +662,9 @@ public final class VRMenuSky {
         billboardBasis(dir, scratchRight, scratchUp);
 
         McShaders.use(McShaders.Core.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), visible);
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        McGlState.setShaderTexture(0, texture);
+        McGlState.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), visible);
+        McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp, -size, -size, u0, v0);
@@ -674,8 +673,8 @@ public final class VRMenuSky {
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp, -size,  size, u0, v1);
         builder.draw();
 
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
     }
 
     // ====== STARS ======
@@ -687,8 +686,8 @@ public final class VRMenuSky {
         }
 
         McShaders.use(McShaders.Core.POSITION_COLOR);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        McGlState.setShaderColor(1, 1, 1, 1);
+        McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int star = 0; star < STAR_QUAD.length; star++) {
@@ -705,7 +704,7 @@ public final class VRMenuSky {
 
         builder.draw();
 
-        RenderSystem.defaultBlendFunc();
+        McGlState.defaultBlendFunc();
     }
 
     private static void emitShootingStar(McVertexBuilder builder, Matrix4f pose,
@@ -853,9 +852,9 @@ public final class VRMenuSky {
         int chaseStep = (int) (ageSec * UFO_LIGHT_STEP_HZ) % UFO_LIGHT_GROUPS;
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
+        McGlState.setShaderTexture(0, GLOW_SPRITE);
+        McGlState.setShaderColor(1, 1, 1, 1);
+        McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
         builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < UFO_DOTS_AMOUNT; i++) {
@@ -881,8 +880,8 @@ public final class VRMenuSky {
         }
         builder.draw();
 
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
     }
 
     private static void ufoParkingDir(int cycle, Vector3f out) {
@@ -911,12 +910,12 @@ public final class VRMenuSky {
         boolean asCloudDots = currentDay >= VISOR_DAY_THRESHOLD;
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.setShaderTexture(0, GLOW_SPRITE);
+        McGlState.setShaderColor(1, 1, 1, 1);
         if (asCloudDots) {
-            RenderSystem.defaultBlendFunc();
+            McGlState.defaultBlendFunc();
         } else {
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE); // additive
+            McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE); // additive
         }
 
         int[] cloudTint = {0, 0, 0};
@@ -943,8 +942,8 @@ public final class VRMenuSky {
         }
         builder.draw();
 
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
     }
 
     // ====== CLOUDS ======
@@ -1135,12 +1134,12 @@ public final class VRMenuSky {
         boolean showClouds = currentDay >= VISOR_DAY_THRESHOLD;
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, GLOW_SPRITE);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.setShaderTexture(0, GLOW_SPRITE);
+        McGlState.setShaderColor(1, 1, 1, 1);
         if (showClouds) {
-            RenderSystem.defaultBlendFunc();
+            McGlState.defaultBlendFunc();
         } else {
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE); // additive
+            McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE); // additive
         }
 
 
@@ -1166,8 +1165,8 @@ public final class VRMenuSky {
         }
         builder.draw();
 
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
+        McGlState.defaultBlendFunc();
+        McGlState.setShaderColor(1, 1, 1, 1);
     }
     static ResourceLocation glowSprite() {
         ensureGlowSprite();

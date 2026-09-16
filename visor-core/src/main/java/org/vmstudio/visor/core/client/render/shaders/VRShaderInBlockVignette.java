@@ -15,6 +15,6 @@ public class VRShaderInBlockVignette implements VRShader {
     }
 
     public void prepare(float proximity) {
-        handle.uniform("uInBlockProximity").set(proximity);
+        handle.setUniform("uInBlockProximity", proximity);
     }
 }

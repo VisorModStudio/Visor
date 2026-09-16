@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.winscreen;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -42,22 +43,22 @@ public final class VREndVoid {
         McShaderProgram shader = VRShaders.getEndPortal().getHandle();
 
         float previousGameTime = RenderSystem.getShaderGameTime();
-        RenderSystem.setShaderGameTime((long) portalTicks, portalTicks % 1.0f);
+        McGlState.setShaderGameTime((long) portalTicks, portalTicks % 1.0f);
 
         shader.use();
         //? if >=1.20.5 {
         // 1.20.5 deleted ShaderInstance's IViewRotMat
-        shader.uniform("IViewRotMat").set(new Matrix3f(
+        shader.setUniform("IViewRotMat", new Matrix3f(
                 RenderPoseHelper.getViewRotation(VRRenderState.getRenderPass())).invert());
         //?}
-        RenderSystem.setShaderTexture(0, TheEndPortalRenderer.END_SKY_LOCATION);
-        RenderSystem.setShaderTexture(1, TheEndPortalRenderer.END_PORTAL_LOCATION);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.disableBlend();
-        RenderSystem.disableCull();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_ALWAYS);
-        RenderSystem.depthMask(true);
+        McGlState.setShaderTexture(0, TheEndPortalRenderer.END_SKY_LOCATION);
+        McGlState.setShaderTexture(1, TheEndPortalRenderer.END_PORTAL_LOCATION);
+        McGlState.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        McGlState.disableBlend();
+        McGlState.disableCull();
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_ALWAYS);
+        McGlState.depthMask(true);
 
         poseStack.pushPose();
         try {
@@ -82,11 +83,11 @@ public final class VREndVoid {
             poseStack.popPose();
             //? if >=1.20.5 {
             // per-eye value on a shared shader, never leave it set
-            shader.uniform("IViewRotMat").set(new Matrix3f());
+            shader.setUniform("IViewRotMat", new Matrix3f());
             //?}
             RenderSystemAccessor.setShaderGameTime(previousGameTime);
-            RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-            RenderSystem.enableCull();
+            McGlState.depthFunc(GL11C.GL_LEQUAL);
+            McGlState.enableCull();
         }
     }
 }

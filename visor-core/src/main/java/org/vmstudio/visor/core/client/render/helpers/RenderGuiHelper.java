@@ -1,13 +1,12 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
 import org.vmstudio.visor.api.compatibility.mcversion.render.McFog;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
@@ -76,24 +75,24 @@ public class RenderGuiHelper {
         assert renderTarget != null;
         McRenderTarget.bindRead(renderTarget);
 
-        RenderSystem.disableCull();
-        RenderSystem.setShaderTexture(0, McRenderTarget.colorTextureId(renderTarget));
+        McGlState.disableCull();
+        McGlState.setShaderTexture(0, McRenderTarget.colorTextureId(renderTarget));
 
-        RenderSystem.enableBlend();
+        McGlState.enableBlend();
         if (VRRenderState.getSceneType().isWorld()) {
             // keep fog away from the overlay, and let its alpha accumulate
             McFog.disable();
-            RenderSystem.blendFuncSeparate(
-                    GlStateManager.SourceFactor.SRC_ALPHA,
-                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                    GlStateManager.SourceFactor.ONE_MINUS_DST_ALPHA,
-                    GlStateManager.DestFactor.ONE
+            McGlState.blendFuncSeparate(
+                    McGlState.Blend.SRC_ALPHA,
+                    McGlState.Blend.ONE_MINUS_SRC_ALPHA,
+                    McGlState.Blend.ONE_MINUS_DST_ALPHA,
+                    McGlState.Blend.ONE
             );
         }
 
-        RenderSystem.depthFunc(depthAlways ? GL11C.GL_ALWAYS : GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(!depthAlways);
-        RenderSystem.enableDepthTest();
+        McGlState.depthFunc(depthAlways ? GL11C.GL_ALWAYS : GL11C.GL_LEQUAL);
+        McGlState.depthMask(!depthAlways);
+        McGlState.enableDepthTest();
 
         // --- Pose ---
         poseStack.pushPose();
@@ -142,11 +141,11 @@ public class RenderGuiHelper {
 
         // --- Restore ---
         McFog.restore(fogState);
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableCull();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
+        McGlState.enableDepthTest();
+        McGlState.defaultBlendFunc();
+        McGlState.enableCull();
 
         poseStack.popPose();
     }
@@ -222,7 +221,7 @@ public class RenderGuiHelper {
     private static void beginFlatQuads(McVertexBuilder buf, int packedLight) {
         if (packedLight >= 0) {
             McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
-            RenderSystem.setShaderTexture(0, TexturesHelper.getWhiteTexture());
+            McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
             MC.gameRenderer.lightTexture().turnOnLightLayer();
             buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         } else {

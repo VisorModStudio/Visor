@@ -1,10 +1,10 @@
 package org.vmstudio.visor.core.client.render.helpers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -19,10 +19,10 @@ public class RenderShaderHelper {
                                             RenderTarget source
     ) {
         // --- Setup ---
-        RenderSystem.colorMask(true, true, true, false);
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
-        RenderSystem.disableBlend();
+        McGlState.colorMask(true, true, true, false);
+        McGlState.disableDepthTest();
+        McGlState.depthMask(false);
+        McGlState.disableBlend();
         shader.setSampler("Sampler0", McRenderTarget.colorTextureId(source));
         shader.apply();
 
@@ -32,10 +32,10 @@ public class RenderShaderHelper {
 
         // --- Restore ---
         shader.clear();
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.depthMask(true);
-        RenderSystem.colorMask(true, true, true, true);
+        McGlState.enableDepthTest();
+        McGlState.enableBlend();
+        McGlState.depthMask(true);
+        McGlState.colorMask(true, true, true, true);
     }
 
 

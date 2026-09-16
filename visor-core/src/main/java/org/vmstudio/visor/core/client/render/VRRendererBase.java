@@ -1,6 +1,5 @@
 package org.vmstudio.visor.core.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.enums.EyeType;
@@ -8,6 +7,7 @@ import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRRenderer;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
@@ -113,8 +113,8 @@ public abstract class VRRendererBase implements VRRenderer {
 
         VRRenderState.startVRGuiPhase();
 
-        RenderSystem.depthMask(true);
-        RenderSystem.colorMask(true, true, true, true);
+        McGlState.depthMask(true);
+        McGlState.colorMask(true, true, true, true);
 
         McRenderTarget.clear(McRenderTarget.mainTarget());
         McRenderTarget.bindWrite(McRenderTarget.mainTarget());

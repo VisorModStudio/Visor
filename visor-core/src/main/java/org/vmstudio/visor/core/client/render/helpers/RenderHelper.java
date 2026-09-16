@@ -2,9 +2,9 @@ package org.vmstudio.visor.core.client.render.helpers;
 
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
@@ -158,7 +158,7 @@ public class RenderHelper {
 
         // --- Setup ---
         McShaders.use(McShaders.Core.POSITION_TEX);
-        RenderSystem.setShaderColor(r, g, b, a);
+        McGlState.setShaderColor(r, g, b, a);
 
         // --- Render ---
         McVertexBuilder buf = McVertexBuilder.get();
@@ -173,7 +173,7 @@ public class RenderHelper {
         buf.draw();
 
         // --- Restore ---
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+        McGlState.setShaderColor(1f, 1f, 1f, 1f);
 
     }
 

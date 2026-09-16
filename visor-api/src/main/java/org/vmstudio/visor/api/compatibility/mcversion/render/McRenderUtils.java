@@ -2,7 +2,6 @@ package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -67,18 +66,11 @@ public class McRenderUtils {
     // ------- RENDER STATE -------
 
     public static void clear(int mask) {
-        //? if >=1.21.2 {
-        RenderSystem.clear(mask);
-        //?} else {
-        /*RenderSystem.clear(mask, Minecraft.ON_OSX);
-        *///?}
+        McGlState.clear(mask);
     }
 
     public static void setShaderTexture(int unit, ResourceLocation texture) {
-        //? if <1.21.2 {
-        /*Minecraft.getInstance().getTextureManager().bindForSetup(texture);
-        *///?}
-        RenderSystem.setShaderTexture(unit, texture);
+        McGlState.setShaderTexture(unit, texture);
     }
 
     public static void updateDisplay(Window window) {

@@ -23,23 +23,11 @@ public class VRShaderEndPortal implements VRShader{
 
 
     private RenderType createRenderType(){
-        return RenderType
-                .create(
-                        "end_portal",
-                        DefaultVertexFormat.POSITION,
-                        VertexFormat.Mode.QUADS,
-                        256,
-                        false,
-                        false,
-                        RenderType.CompositeState.builder()
-                                .setShaderState(handle.shaderState())
-                                .setTextureState(
-                                        RenderStateShard
-                                                .MultiTextureStateShard
-                                                .builder()
-                                                .add(TheEndPortalRenderer.END_SKY_LOCATION, false, false)
-                                                .add(TheEndPortalRenderer.END_PORTAL_LOCATION, false, false)
-                                                .build())
-                                .createCompositeState(false));
+        return handle.renderType(
+                "end_portal",
+                VertexFormat.Mode.QUADS,
+                256,
+                TheEndPortalRenderer.END_SKY_LOCATION,
+                TheEndPortalRenderer.END_PORTAL_LOCATION);
     }
 }

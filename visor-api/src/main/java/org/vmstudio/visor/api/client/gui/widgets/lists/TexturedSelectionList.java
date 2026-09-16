@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets.lists;
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
-import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
@@ -31,6 +30,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.gui.McSelectionList;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 
 
 public class TexturedSelectionList extends McSelectionList<TexturedSelectionList.TexturedRow> {
@@ -210,7 +210,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
             );
         }
         updateTooltip(guiGraphics, mouseX, mouseY);
-        RenderSystem.disableBlend();
+        McGlState.disableBlend();
     }
 
     @Override

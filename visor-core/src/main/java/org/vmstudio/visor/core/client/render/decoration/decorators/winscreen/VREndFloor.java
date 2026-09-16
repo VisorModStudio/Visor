@@ -1,8 +1,8 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.winscreen;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -43,14 +43,14 @@ public final class VREndFloor {
         var origin = renderPose.getOrigin();
 
         McShaders.use(McShaders.Core.POSITION_TEX_COLOR);
-        RenderSystem.setShaderTexture(0, TEXTURE);
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableCull();
-        RenderSystem.enableDepthTest();
-        RenderSystem.depthFunc(GL11C.GL_LEQUAL);
-        RenderSystem.depthMask(true);
+        McGlState.setShaderTexture(0, TEXTURE);
+        McGlState.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        McGlState.enableBlend();
+        McGlState.defaultBlendFunc();
+        McGlState.disableCull();
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11C.GL_LEQUAL);
+        McGlState.depthMask(true);
 
         poseStack.pushPose();
         try {
@@ -109,8 +109,8 @@ public final class VREndFloor {
             bufferBuilder.draw();
         } finally {
             poseStack.popPose();
-            RenderSystem.disableBlend();
-            RenderSystem.enableCull();
+            McGlState.disableBlend();
+            McGlState.enableCull();
         }
     }
 
