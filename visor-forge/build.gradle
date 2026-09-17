@@ -101,6 +101,7 @@ loom {
         mixinConfig "${mod_id}.dynamicfps.mixins.json"
         mixinConfig "${mod_id}.iris.mixins.json"
         mixinConfig "${mod_id}.blur.mixins.json"
+        mixinConfig "${mod_id}.create.mixins.json"
         mixinConfig "${mod_id}.mixins.forge.json"
     }
 }
