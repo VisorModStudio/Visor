@@ -169,9 +169,9 @@ public class VisorScene implements AtumVRScene {
         ShaderCompatHelper.bridge().beginEye(renderPass.getEyeOrLeft());
 
         if (ShaderCompatHelper.isShaderActive()) {
-            McGlState.setShaderTexture(0, 0);
-            McGlState.setShaderTexture(1, 0);
-            McGlState.setShaderTexture(2, 0);
+            McGlState.clearShaderTexture(0);
+            McGlState.clearShaderTexture(1);
+            McGlState.clearShaderTexture(2);
         }
 
         McRenderUtils.renderGame(

@@ -13,6 +13,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import net.minecraft.world.entity.player.Abilities;
+//? if >=1.21.5 {
+import net.minecraft.world.entity.EntityEquipment;
+import net.minecraft.world.entity.player.Inventory;
+import org.vmstudio.visor.core.common.player.VROffhandEquipment;
+//?}
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -83,7 +88,9 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     @Unique
     protected InteractionHand visor$poseBlockHand;
 
-    @WrapMethod(method = "hurtCurrentlyUsedShield")
+    // the shield item is damaged by the blocks_attacks component since 1.21.5
+    //? if <1.21.5 {
+    /*@WrapMethod(method = "hurtCurrentlyUsedShield")
     private void visor$damagePoseBlockShield(float damageAmount, Operation<Void> original) {
         if (visor$poseBlockItem == null) {
             original.call(damageAmount);
@@ -105,6 +112,39 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     private InteractionHand visor$poseBlockShieldArm(Player self, Operation<InteractionHand> original) {
         return visor$poseBlockHand != null ? visor$poseBlockHand : original.call(self);
     }
+    *///?}
+
+    // two-handed VR keeps the offhand in a hotbar slot: since 1.21.5 that is the equipment, not an inventory list
+    //? if >=1.21.5 {
+    @Inject(method = "createEquipment", at = @At("RETURN"), cancellable = true)
+    private void visor$offhandEquipment(CallbackInfoReturnable<EntityEquipment> cir) {
+        cir.setReturnValue(new VROffhandEquipment((Player) (Object) this));
+    }
+    //?}
+
+    // Inventory.getDestroySpeed was folded into Player.getDestroySpeed in 1.21.5: the modifiers follow the stack.
+    // Forge and NeoForge move that body into a (BlockState, BlockPos) overload and leave a delegating stub
+    //? if >=1.21.5 {
+    @WrapOperation(method = {
+            "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;)F",
+            "getDestroySpeed(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)F"
+    }, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Inventory;getSelectedItem()Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack visor$offhandDestroySpeedItem(Inventory inventory, Operation<ItemStack> original) {
+        ItemStack forced = CommonUtils.FORCED_HAND_ITEM.get();
+        if (forced != null) {
+            return forced;
+        }
+        if (VRServerSettings.isTwoHandedVR()) {
+            Player self = (Player) (Object) this;
+            VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+            if (vrPlayer != null && vrPlayer.getActiveHand() == HandType.OFFHAND) {
+                return self.getOffhandItem();
+            }
+        }
+        return original.call(inventory);
+    }
+    //?}
 
 
     /* ***************************************** *\

@@ -687,7 +687,7 @@ public class TaskSwing extends VisorTask {
 
     public static boolean isTool(final Item item) {
         return HANDHELD_MISC.contains(item)
-                || item instanceof DiggerItem
+                || ItemClassifier.isDiggerTool(item)
                 || item instanceof ShearsItem
                 || item instanceof FlintAndSteelItem
                 || item instanceof BrushItem

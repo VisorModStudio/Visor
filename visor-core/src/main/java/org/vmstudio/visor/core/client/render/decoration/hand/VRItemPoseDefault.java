@@ -326,13 +326,18 @@ public class VRItemPoseDefault extends VRHandItemPose {
             if (block instanceof TorchBlock) {
                 transformType = TransformType.BLOCK_STICK;
             } else {
-                //? if >=1.21.4 {
+                //? if >=1.21.5 {
                 // updateForTopItem clears the reused state before filling it
                 ItemModelResolver resolver = MC.getItemModelResolver();
                 resolver.updateForTopItem(ITEM_RENDER_STATE, itemStack, ItemDisplayContext.GROUND,
+                        MC.level, MC.player, 0);
+                boolean gui3d = ITEM_RENDER_STATE.usesBlockLight();
+                //?} elif >=1.21.4 {
+                /*ItemModelResolver resolver = MC.getItemModelResolver();
+                resolver.updateForTopItem(ITEM_RENDER_STATE, itemStack, ItemDisplayContext.GROUND,
                         false, MC.level, MC.player, 0);
                 boolean gui3d = ITEM_RENDER_STATE.isGui3d();
-                //?} else {
+                *///?} else {
                 /*BakedModel model = MC.getItemRenderer().getModel(
                         itemStack, MC.level, MC.player, 0
                 );
@@ -369,14 +374,14 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
 
     public static boolean isTool(final Item item) {
-        return item instanceof DiggerItem
+        return ItemClassifier.isDiggerTool(item)
                 || item instanceof FishingRodItem
                 || item instanceof FoodOnAStickItem
                 || item instanceof FlintAndSteelItem
                 || item instanceof BrushItem
                 || item instanceof HoeItem
                 || item instanceof AxeItem
-                || item instanceof PickaxeItem
+                || ItemClassifier.isPickaxe(item)
                 || item instanceof ShovelItem;
     }
     public static boolean isStick(final Item item){

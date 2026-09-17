@@ -11,10 +11,18 @@ public class McNbt {
     }
 
     public static float getFloat(CompoundTag tag, String key, float fallback) {
-        return tag.contains(key) ? tag.getFloat(key) : fallback;
+        //? if >=1.21.5 {
+        return tag.getFloatOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key) ? tag.getFloat(key) : fallback;
+        *///?}
     }
 
     public static int getInt(CompoundTag tag, String key, int fallback) {
-        return tag.contains(key) ? tag.getInt(key) : fallback;
+        //? if >=1.21.5 {
+        return tag.getIntOr(key, fallback);
+        //?} else {
+        /*return tag.contains(key) ? tag.getInt(key) : fallback;
+        *///?}
     }
 }

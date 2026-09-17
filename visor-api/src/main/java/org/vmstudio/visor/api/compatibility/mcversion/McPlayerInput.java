@@ -5,6 +5,9 @@ import net.minecraft.client.player.LocalPlayer;
 //? if >=1.21.2 {
 import net.minecraft.world.entity.player.Input;
 //?}
+//? if >=1.21.5 {
+import net.minecraft.world.phys.Vec2;
+//?}
 
 /**
  * Cross-mc-version access to the client movement input
@@ -17,11 +20,19 @@ public class McPlayerInput {
     // ------- READ -------
 
     public static float leftImpulse(LocalPlayer player) {
-        return player.input.leftImpulse;
+        //? if >=1.21.5 {
+        return player.input.getMoveVector().x;
+        //?} else {
+        /*return player.input.leftImpulse;
+        *///?}
     }
 
     public static float forwardImpulse(LocalPlayer player) {
-        return player.input.forwardImpulse;
+        //? if >=1.21.5 {
+        return player.input.getMoveVector().y;
+        //?} else {
+        /*return player.input.forwardImpulse;
+        *///?}
     }
 
     public static boolean isJumping(LocalPlayer player) {
@@ -43,8 +54,12 @@ public class McPlayerInput {
     // ------- WRITE -------
 
     public static void setImpulses(KeyboardInput input, float left, float forward) {
-        input.leftImpulse = left;
+        //? if >=1.21.5 {
+        input.moveVector = new Vec2(left, forward);
+        //?} else {
+        /*input.leftImpulse = left;
         input.forwardImpulse = forward;
+        *///?}
     }
 
     public static void setJumping(KeyboardInput input, boolean jumping) {

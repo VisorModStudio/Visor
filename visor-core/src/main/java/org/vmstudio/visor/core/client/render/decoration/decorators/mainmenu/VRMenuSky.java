@@ -1322,7 +1322,7 @@ public final class VRMenuSky {
                 McRenderUtils.setPixelArgb(img, x, y, (alphaByte << 24) | 0x00FFFFFF);
             }
         }
-        DynamicTexture tex = new DynamicTexture(img);
+        DynamicTexture tex = McRenderUtils.newDynamicTexture("visor_glow", img);
         GLOW_SPRITE = McRenderUtils.registerDynamicTexture("visor_glow", tex);
     }
 

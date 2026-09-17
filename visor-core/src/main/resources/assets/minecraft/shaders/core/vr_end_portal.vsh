@@ -29,12 +29,17 @@ in vec3 Position;
 
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
+// a 1.21.5 pipeline cannot declare a mat3 uniform, McShaderProgram widens it and sets the define
+#ifdef VISOR_MAT3_AS_MAT4
+uniform mat4 IViewRotMat;
+#else
 uniform mat3 IViewRotMat;
+#endif
 
 out vec3 pos;
 
 void main() {
 gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-pos = IViewRotMat * Position;
+pos = mat3(IViewRotMat) * Position;
 }

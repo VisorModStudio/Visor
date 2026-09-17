@@ -1,7 +1,9 @@
 package org.vmstudio.visor.mixin.client.gui;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+//? if <1.20.5 {
+/*import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+*///?}
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;

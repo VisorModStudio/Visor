@@ -30,10 +30,17 @@ public class VRPlayerRenderState extends PlayerRenderState {
             return;
         }
         ItemModelResolver resolver = Minecraft.getInstance().getItemModelResolver();
+        //? if >=1.21.5 {
         resolver.updateForLiving(state.rightHandItem, player.getItemHeldByArm(HumanoidArm.LEFT),
+                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, player);
+        resolver.updateForLiving(state.leftHandItem, player.getItemHeldByArm(HumanoidArm.RIGHT),
+                ItemDisplayContext.THIRD_PERSON_LEFT_HAND, player);
+        //?} else {
+        /*resolver.updateForLiving(state.rightHandItem, player.getItemHeldByArm(HumanoidArm.LEFT),
                 ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, player);
         resolver.updateForLiving(state.leftHandItem, player.getItemHeldByArm(HumanoidArm.RIGHT),
                 ItemDisplayContext.THIRD_PERSON_LEFT_HAND, true, player);
+        *///?}
     }
 
     public static ItemStack heldItemForArm(AbstractClientPlayer player, HumanoidArm arm) {

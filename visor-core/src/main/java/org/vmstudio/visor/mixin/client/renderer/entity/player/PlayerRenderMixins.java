@@ -49,7 +49,7 @@ public class PlayerRenderMixins {
             }
         }
 
-        @Inject(method = "getRenderer", at = @At("HEAD"), cancellable = true)
+        @Inject(method = "getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
         private void visor$swapInVRBodyRenderer(
                 Entity entity, CallbackInfoReturnable<? super PlayerRenderer> cir)
         {

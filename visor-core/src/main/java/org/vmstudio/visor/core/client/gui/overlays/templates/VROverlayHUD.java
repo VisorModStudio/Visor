@@ -205,7 +205,11 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
     // Minimal concrete RenderTarget for region copies
     private static final class RegionRenderTarget extends RenderTarget {
         public RegionRenderTarget(boolean useDepth) {
-            super(useDepth);
+            //? if >=1.21.5 {
+            super("visor_hud_region", useDepth);
+            //?} else {
+            /*super(useDepth);
+            *///?}
         }
     }
 }

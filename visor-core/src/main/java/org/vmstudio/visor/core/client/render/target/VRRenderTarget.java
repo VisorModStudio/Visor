@@ -25,13 +25,24 @@ public class VRRenderTarget extends RenderTarget {
                           Supplier<Integer> textureSupplier,
                           boolean linearFilter,
                           boolean useStencil) {
-        super(usedepth);
+        //? if >=1.21.5 {
+        super(name, usedepth);
+        //?} else {
+        /*super(usedepth);
+        *///?}
         McGlState.assertOnRenderThreadOrInit();
 
         this.textureSupplier = textureSupplier;
         this.name = name;
 
-        ((RenderTargetExtension) this).visor$setTextureId(textureSupplier.get());
+        //? if >=1.21.5 {
+        McRenderTarget.resize(this, width, height);
+        McRenderTarget.setFilterMode(this, linearFilter);
+        if (useStencil) {
+            ModLoader.get().enableRenderTargetStencil(this);
+        }
+        //?} else {
+        /*((RenderTargetExtension) this).visor$setTextureId(textureSupplier.get());
         ((RenderTargetExtension) this).visor$setLinearFilter(linearFilter);
         McRenderTarget.resize(this, width, height);
         if (useStencil) {
@@ -39,11 +50,24 @@ public class VRRenderTarget extends RenderTarget {
                 ((RenderTargetExtension) this).visor$setUseStencil(true);
             }
         }
+        *///?}
         McRenderTarget.setClearColor(this, 0, 0, 0, 0);
 
         ShaderCompatHelper.bridge().onRenderTargetCreated(this);
     }
 
+
+    //? if >=1.21.5 {
+    @Override
+    public void createBuffers(int width, int height) {
+        super.createBuffers(width, height);
+        Integer adopted = textureSupplier == null ? null : textureSupplier.get();
+        if (adopted != null && adopted > 0) {
+            this.colorTexture.close();
+            this.colorTexture = McRenderTarget.adoptForeignTexture(name, width, height, adopted);
+        }
+    }
+    //?}
 
     @Override
     public String toString() {
@@ -57,8 +81,12 @@ public class VRRenderTarget extends RenderTarget {
                         "Tex ID: %d",
                 displayName,
                 viewWidth, viewHeight,
-                frameBufferId,
-                colorTextureId
+                //? if >=1.21.5 {
+                0,
+                //?} else {
+                /*frameBufferId,
+                *///?}
+                McRenderTarget.colorTextureId(this)
         );
     }
 

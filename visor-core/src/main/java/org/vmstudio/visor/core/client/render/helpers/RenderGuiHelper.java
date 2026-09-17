@@ -76,7 +76,7 @@ public class RenderGuiHelper {
         McRenderTarget.bindRead(renderTarget);
 
         McGlState.disableCull();
-        McGlState.setShaderTexture(0, McRenderTarget.colorTextureId(renderTarget));
+        McGlState.setShaderTexture(0, renderTarget);
 
         McGlState.enableBlend();
         if (VRRenderState.getSceneType().isWorld()) {

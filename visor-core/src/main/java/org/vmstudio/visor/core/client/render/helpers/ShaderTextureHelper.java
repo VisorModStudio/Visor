@@ -5,7 +5,9 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import org.vmstudio.visor.mixin.client.accessors.RenderSystemAccessor;
+//? if <1.21.5 {
+/*import org.vmstudio.visor.mixin.client.accessors.RenderSystemAccessor;
+*///?}
 
 public class ShaderTextureHelper {
     private static final IntSet DELETED = new IntOpenHashSet();
@@ -20,7 +22,8 @@ public class ShaderTextureHelper {
         }
         DELETED.add(textureId);
 
-        int[] slots = RenderSystemAccessor.getShaderTextures();
+        //? if <1.21.5 {
+        /*int[] slots = RenderSystemAccessor.getShaderTextures();
         if (slots == null){
             return;
         }
@@ -29,6 +32,7 @@ public class ShaderTextureHelper {
                 slots[i] = 0;
             }
         }
+        *///?}
     }
 
     public static void onTextureCreated(int textureId) {

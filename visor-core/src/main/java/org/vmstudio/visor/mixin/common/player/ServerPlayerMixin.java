@@ -119,8 +119,10 @@ public abstract class ServerPlayerMixin
     }
 
 
-    //keep @Local without variable name, to search by type
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
+    //? if <1.21.5 {
+    /*
+     //keep @Local without variable name, to search by type
+     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
     public void visor$vrItemDrop(ItemStack itemStack,
                                 boolean dropAround,
                                 boolean includeName,
@@ -147,6 +149,7 @@ public abstract class ServerPlayerMixin
                 handPos.z() + itemEntity.getDeltaMovement().z()
         );
     }
+    *///?}
 
     //? if >=1.21.2 {
     @Inject(at = @At("HEAD"), method = "hurtServer", cancellable = true)
@@ -446,6 +449,17 @@ public abstract class ServerPlayerMixin
     @Override
     public int visor$getOffhandSlotCached() {
         return visor$offhandSlotCached;
+    }
+
+    @Unique
+    @Override
+    public ItemStack visor$getPoseBlockItem() {
+        return visor$poseBlockItem;
+    }
+    @Unique
+    @Override
+    public InteractionHand visor$getPoseBlockHand() {
+        return visor$poseBlockHand;
     }
 
 }

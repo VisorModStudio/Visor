@@ -78,10 +78,10 @@ public class TexturesHelper {
                 (alpha << 24) | (red << 16) | (green << 8) | blue
         );
 
-        DynamicTexture tex = new DynamicTexture(img);
-
         String name = String.format("visor_%02x%02x%02x%02x",
                 red, green, blue, alpha);
+
+        DynamicTexture tex = McRenderUtils.newDynamicTexture(name, img);
 
         return McRenderUtils.registerDynamicTexture(name, tex);
     }

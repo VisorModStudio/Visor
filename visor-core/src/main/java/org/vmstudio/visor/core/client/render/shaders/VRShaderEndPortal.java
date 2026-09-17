@@ -6,6 +6,7 @@ import lombok.Getter;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
+import org.joml.Matrix3f;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 
 public class VRShaderEndPortal implements VRShader{
@@ -17,6 +18,9 @@ public class VRShaderEndPortal implements VRShader{
     @Override
     public void init() throws Exception {
         handle = McShaderProgram.core("vr_end_portal", DefaultVertexFormat.POSITION, true);
+        // the json defaults, which 1.21.5 no longer reads
+        handle.setUniform("EndPortalLayers", 15);
+        handle.setUniform("IViewRotMat", new Matrix3f());
 
         renderType = createRenderType();
     }

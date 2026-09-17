@@ -517,10 +517,17 @@ public class VRHandRenderer {
             ItemDisplayContext displayCtx = isLeftHand
                     ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                     : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
+            //? if >=1.21.5 {
             MC.gameRenderer.itemInHandRenderer.renderItem(
+                    player, itemStack, displayCtx,
+                    poseStack, buffer, packedLight
+            );
+            //?} else {
+            /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx, isLeftHand,
                     poseStack, buffer, packedLight
             );
+            *///?}
         }
 
         poseStack.popPose();

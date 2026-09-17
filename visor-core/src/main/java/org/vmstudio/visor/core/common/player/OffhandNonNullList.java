@@ -54,7 +54,11 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
         if (slot < 0) {
             return ItemStack.EMPTY;
         }
-        return player.getInventory().items.set(slot, itemStack);
+        //? if >=1.21.5 {
+        return player.getInventory().getNonEquipmentItems().set(slot, itemStack);
+        //?} else {
+        /*return player.getInventory().items.set(slot, itemStack);
+        *///?}
     }
 
     @Override
@@ -80,7 +84,11 @@ public class OffhandNonNullList extends NonNullList<ItemStack> {
         if (slot < 0) {
             return ItemStack.EMPTY;
         }
-        return player.getInventory().items.set(slot, ItemStack.EMPTY);
+        //? if >=1.21.5 {
+        return player.getInventory().getNonEquipmentItems().set(slot, ItemStack.EMPTY);
+        //?} else {
+        /*return player.getInventory().items.set(slot, ItemStack.EMPTY);
+        *///?}
     }
 
     @Override

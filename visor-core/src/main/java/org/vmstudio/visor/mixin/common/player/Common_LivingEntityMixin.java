@@ -16,6 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
+//? if >=1.21.5 {
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.component.BlocksAttacks;
+import org.joml.Vector3f;
+//?}
 //? if >=1.21.4 {
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ClipContext;
@@ -43,7 +51,38 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                               int count,
                                               CallbackInfo ci){}
 
-    @Inject(method = "isDamageSourceBlocked", at = @At("RETURN"), cancellable = true)
+    // 1.21.5 replaced isDamageSourceBlocked with the blocks_attacks component and this hook
+    //? if >=1.21.5 {
+    @Shadow
+    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
+
+    @Inject(method = "applyItemBlocking", at = @At("RETURN"), cancellable = true)
+    private void visor$poseShieldBlock(ServerLevel level, DamageSource damageSource, float damageAmount,
+                                       CallbackInfoReturnable<Float> cir) {
+        if (!((Object) this instanceof ServerPlayerExtension serverPlayer)
+                || !serverPlayer.visor$poseBlocks(damageSource, cir.getReturnValueF() > 0.0F)) {
+            return;
+        }
+        // vanilla does all of this only for the item it is using, so the pose-held shield gets it here
+        LivingEntity self = (LivingEntity) (Object) this;
+        ItemStack shield = serverPlayer.visor$getPoseBlockItem();
+        BlocksAttacks blocksAttacks = shield.get(DataComponents.BLOCKS_ATTACKS);
+        if (blocksAttacks != null) {
+            blocksAttacks.hurtBlockingItem(level, shield, self, serverPlayer.visor$getPoseBlockHand(), damageAmount);
+            blocksAttacks.onBlocked(level, self);
+            if (!damageSource.is(DamageTypeTags.IS_PROJECTILE)
+                    && damageSource.getDirectEntity() instanceof LivingEntity attacker) {
+                blockUsingItem(level, attacker);
+                float disableSeconds = attacker.getSecondsToDisableBlocking();
+                if (disableSeconds > 0.0F) {
+                    blocksAttacks.disable(level, self, disableSeconds, shield);
+                }
+            }
+        }
+        cir.setReturnValue(damageAmount);
+    }
+    //?} else {
+    /*@Inject(method = "isDamageSourceBlocked", at = @At("RETURN"), cancellable = true)
     private void visor$poseShieldBlock(DamageSource damageSource,
                                        CallbackInfoReturnable<Boolean> cir) {
         if ((Object) this instanceof ServerPlayerExtension serverPlayer
@@ -51,6 +90,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
             cir.setReturnValue(true);
         }
     }
+    *///?}
 
     //? if >=1.21.2 {
     @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE",
@@ -115,6 +155,31 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
         return self.level()
                 .clip(new ClipContext(eye, target, block, ClipContext.Fluid.NONE, viewer))
                 .getType() == HitResult.Type.MISS;
+    }
+    //?}
+
+    //? if >=1.21.5 {
+    // keep @Local without a variable name, to search by type
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
+    private void visor$vrItemDrop(ItemStack itemStack, boolean dropAround, boolean includeName,
+                                  CallbackInfoReturnable<ItemEntity> cir,
+                                  @Local ItemEntity itemEntity) {
+        if (dropAround || !((Object) this instanceof ServerPlayer serverPlayer)) {
+            return;
+        }
+        VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);
+        if (vrPlayer == null) {
+            return;
+        }
+        var mainHand = vrPlayer.getPoseData().getMainHand();
+        var handDir = mainHand.getDirection().mul(0.3F, new Vector3f());
+        var handPos = mainHand.getPosition();
+        itemEntity.setDeltaMovement(handDir.x, handDir.y, handDir.z);
+        itemEntity.setPos(
+                handPos.x() + itemEntity.getDeltaMovement().x(),
+                handPos.y() + itemEntity.getDeltaMovement().y(),
+                handPos.z() + itemEntity.getDeltaMovement().z()
+        );
     }
     //?}
 

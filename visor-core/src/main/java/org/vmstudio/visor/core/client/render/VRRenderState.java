@@ -108,7 +108,15 @@ public class VRRenderState {
         RenderPhase previous = phase;
         phase = RenderPhase.VR_MIRROR;
         renderPass = VRRenderPass.NULL;
-        McRenderTarget.setMainTarget(ClientContext.renderer.mainTarget.getMirrorTarget());
+        //? if >=1.21.5 {
+        RenderTarget mirror = ClientContext.renderer.mainTarget.getMirrorTarget();
+        if (vanillaTarget.width != mirror.width || vanillaTarget.height != mirror.height) {
+            McRenderTarget.resize(vanillaTarget, mirror.width, mirror.height);
+        }
+        McRenderTarget.setMainTarget(vanillaTarget);
+        //?} else {
+        /*McRenderTarget.setMainTarget(ClientContext.renderer.mainTarget.getMirrorTarget());
+        *///?}
         if (previous != phase) {
             VisorAPI.eventBus().callEvent(new RenderPhaseStartedVREvent(previous, phase, renderPass));
         }

@@ -172,7 +172,11 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         RenderTarget outline = this.visor$passOutlineTargets.get(renderPass);
         if (outline == null) {
-            outline = new TextureTarget(width, height, true);
+            //? if >=1.21.5 {
+            outline = new TextureTarget("visor_vr_outline", width, height, true);
+            //?} else {
+            /*outline = new TextureTarget(width, height, true);
+            *///?}
             McRenderTarget.setClearColor(outline, 0.0F, 0.0F, 0.0F, 0.0F);
             this.visor$passOutlineTargets.put(renderPass, outline);
         } else if (McRenderTarget.viewWidth(outline) != width || McRenderTarget.viewHeight(outline) != height) {

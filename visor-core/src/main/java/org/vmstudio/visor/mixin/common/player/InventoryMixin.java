@@ -27,7 +27,10 @@ import java.util.List;
 
 @Mixin(Inventory.class)
 public abstract class InventoryMixin implements Container, Nameable {
-    @Final
+    //? if >=1.21.5 {
+    // since 1.21.5 the offhand redirect lives in VROffhandEquipment, installed by Common_PlayerMixin
+    //?} else {
+    /*@Final
     @Shadow
     public NonNullList<ItemStack> items;
     @Final
@@ -50,14 +53,9 @@ public abstract class InventoryMixin implements Container, Nameable {
     public Player player;
 
 
-    /* ***************************************** *\
-  //--------TWO HANDED VR (OFFHAND SUPPORT)--------\\
-    \* ***************************************** */
+    //--------TWO HANDED VR (OFFHAND SUPPORT)--------
 
-    /**
-     * Replaces vanilla offhand list with a custom one,
-     * that uses similar logic as main hand
-     */
+    // replaces the vanilla offhand list with one that mirrors the main-hand logic
     @Inject(at = @At("TAIL"), method = "<init>")
     public void visor$replaceOffhandList(Player player, CallbackInfo ci) {
         offhand = visor$createOffhandList(1, ItemStack.EMPTY);
@@ -131,4 +129,5 @@ public abstract class InventoryMixin implements Container, Nameable {
                 object
         );
     }
+    *///?}
 }

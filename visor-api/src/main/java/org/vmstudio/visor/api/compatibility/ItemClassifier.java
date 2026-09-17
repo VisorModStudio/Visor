@@ -56,13 +56,35 @@ public enum ItemClassifier {
     }
 
 
+    public static boolean isDiggerTool(Item item) {
+        //? if >=1.21.5 {
+        var holder = item.builtInRegistryHolder();
+        return holder.is(ItemTags.PICKAXES) || holder.is(ItemTags.AXES)
+                || holder.is(ItemTags.SHOVELS) || holder.is(ItemTags.HOES);
+        //?} else {
+        /*return item instanceof DiggerItem;
+        *///?}
+    }
+
+    public static boolean isPickaxe(Item item) {
+        //? if >=1.21.5 {
+        return item.builtInRegistryHolder().is(ItemTags.PICKAXES);
+        //?} else {
+        /*return item instanceof PickaxeItem;
+        *///?}
+    }
+
     private static boolean isSword(ItemStack itemStack) {
         //? if >=1.20.5 {
         if (itemStack.is(ItemTags.SWORD_ENCHANTABLE)) {
             return true;
         }
         //?}
-        return itemStack.getItem() instanceof SwordItem;
+        //? if >=1.21.5 {
+        return itemStack.is(ItemTags.SWORDS);
+        //?} else {
+        /*return itemStack.getItem() instanceof SwordItem;
+        *///?}
     }
 
     private static boolean isMace(ItemStack itemStack) {

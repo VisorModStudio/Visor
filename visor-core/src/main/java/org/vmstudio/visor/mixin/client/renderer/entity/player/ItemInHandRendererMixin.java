@@ -31,7 +31,16 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
     private float offHandHeight;
 
 
+    //? if >=1.21.5 {
     @Shadow
+    public abstract void renderItem(LivingEntity livingEntity,
+                                    ItemStack itemStack,
+                                    ItemDisplayContext itemDisplayContext,
+                                    PoseStack poseStack,
+                                    MultiBufferSource multiBufferSource,
+                                    int i);
+    //?} else {
+    /*@Shadow
     public abstract void renderItem(LivingEntity livingEntity,
                                     ItemStack itemStack,
                                     ItemDisplayContext itemDisplayContext,
@@ -39,6 +48,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
                                     PoseStack poseStack,
                                     MultiBufferSource multiBufferSource,
                                     int i);
+    *///?}
 
     @Shadow
     protected abstract void renderMap(PoseStack pMatrixStack,

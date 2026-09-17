@@ -1,6 +1,11 @@
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
-import com.mojang.blaze3d.platform.GlStateManager;
+//? if >=1.21.5 {
+import com.mojang.blaze3d.opengl.GlStateManager;
+//?} else {
+/*import com.mojang.blaze3d.platform.GlStateManager;
+*///?}
+import org.lwjgl.opengl.GL11;
 import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,12 +27,12 @@ public class GlStateManagerMixin {
     // vanilla GUI blend zeroes dst alpha; keep it accumulating so the GUI layer composites correctly in VR
     @ModifyVariable(method = "_blendFuncSeparate", at = @At("HEAD"), remap = false, index = 3, argsOnly = true)
     private static int visor$keepGuiCoverage(int dstAlpha, int srcRgb, int dstRgb, int srcAlpha) {
-        boolean vanillaGuiBlend = dstAlpha == GlStateManager.DestFactor.ZERO.value
-                && srcAlpha == GlStateManager.SourceFactor.ONE.value
-                && srcRgb == GlStateManager.SourceFactor.SRC_ALPHA.value
-                && dstRgb == GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value;
+        boolean vanillaGuiBlend = dstAlpha == GL11.GL_ZERO
+                && srcAlpha == GL11.GL_ONE
+                && srcRgb == GL11.GL_SRC_ALPHA
+                && dstRgb == GL11.GL_ONE_MINUS_SRC_ALPHA;
         return vanillaGuiBlend
-                ? GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.value
+                ? GL11.GL_ONE_MINUS_SRC_ALPHA
                 : dstAlpha;
     }
 
@@ -36,22 +41,26 @@ public class GlStateManagerMixin {
         ShaderTextureHelper.onTextureDeleted(texture);
     }
 
-    @Inject(method = "_deleteTextures", at = @At("RETURN"), remap = false)
+    //? if <1.21.5 {
+    /*@Inject(method = "_deleteTextures", at = @At("RETURN"), remap = false)
     private static void visor$forgetDeletedTextures(int[] textures, CallbackInfo ci) {
         for (int texture : textures) {
             ShaderTextureHelper.onTextureDeleted(texture);
         }
     }
+    *///?}
 
     @Inject(method = "_genTexture", at = @At("RETURN"), remap = false)
     private static void visor$trackCreatedTexture(CallbackInfoReturnable<Integer> cir) {
         ShaderTextureHelper.onTextureCreated(cir.getReturnValue());
     }
 
-    @Inject(method = "_genTextures", at = @At("RETURN"), remap = false)
+    //? if <1.21.5 {
+    /*@Inject(method = "_genTextures", at = @At("RETURN"), remap = false)
     private static void visor$trackCreatedTextures(int[] textures, CallbackInfo ci) {
         for (int texture : textures) {
             ShaderTextureHelper.onTextureCreated(texture);
         }
     }
+    *///?}
 }

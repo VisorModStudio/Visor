@@ -1,10 +1,23 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
+//? if >=1.21.5 {
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.MeshData;
+
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.function.Consumer;
+//?} else {
+/*import com.mojang.blaze3d.vertex.BufferUploader;
+*///?}
 
 /**
  * Cross-mc-version immediate-mode vertex building
@@ -120,20 +133,60 @@ public final class McVertexBuilder {
     }
 
     public void draw() {
-        //? if >=1.21 {
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        //?} else {
+        //? if >=1.21.5 {
+        drawActive(builder.buildOrThrow(), false);
+        //?} elif >=1.21 {
+        /*BufferUploader.drawWithShader(builder.buildOrThrow());
+        *///?} else {
         /*BufferUploader.drawWithShader(builder.end());
         *///?}
     }
 
     public void drawNoShader() {
-        //? if >=1.21 {
-        BufferUploader.draw(builder.buildOrThrow());
-        //?} else {
+        //? if >=1.21.5 {
+        drawActive(builder.buildOrThrow(), true);
+        //?} elif >=1.21 {
+        /*BufferUploader.draw(builder.buildOrThrow());
+        *///?} else {
         /*BufferUploader.draw(builder.end());
         *///?}
     }
+
+    //? if >=1.21.5 {
+    private static void drawActive(MeshData mesh, boolean ownMatrices) {
+        RenderTarget target = McRenderTarget.writeTarget();
+        McShaderProgram program = McShaderProgram.active();
+        if (program != null) {
+            program.draw(mesh, target, ownMatrices);
+        } else {
+            MeshData.DrawState state = mesh.drawState();
+            drawPass(mesh, target, McShaders.pipeline(state.format(), state.mode()), McShaders::applyUniforms);
+        }
+    }
+
+    static void drawPass(MeshData mesh, RenderTarget target, RenderPipeline pipeline,
+                         Consumer<RenderPass> uniforms) {
+        try (mesh) {
+            MeshData.DrawState state = mesh.drawState();
+            GpuBuffer vertices = state.format().uploadImmediateVertexBuffer(mesh.vertexBuffer());
+            RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.mode());
+            GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
+            try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                    target.getColorTexture(), OptionalInt.empty(),
+                    target.getDepthTexture(), OptionalDouble.empty())) {
+                pass.setPipeline(pipeline);
+                if (RenderSystem.SCISSOR_STATE.isEnabled()) {
+                    pass.enableScissor(RenderSystem.SCISSOR_STATE);
+                }
+                uniforms.accept(pass);
+                pass.setVertexBuffer(0, vertices);
+
+                pass.setIndexBuffer(indexBuffer, indices.type());
+                pass.drawIndexed(0, state.indexCount());
+            }
+        }
+    }
+    //?}
 
     public BufferBuilder handle() {
         return builder;

@@ -5,7 +5,7 @@ plugins {
 // Currently used version
 // Switch with `gradlew "Set active project to <version>"`,
 // go back with `gradlew "Reset active project"`.
-stonecutter.active "1.21.4" /* [SC] DO NOT EDIT */
+stonecutter.active "1.21.5" /* [SC] DO NOT EDIT */
 
 // ------ Versioning ------------------------------------------
 def versionPropsFile = rootProject.file("version.properties")

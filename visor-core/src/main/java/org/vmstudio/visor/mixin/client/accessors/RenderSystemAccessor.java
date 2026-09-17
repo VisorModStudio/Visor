@@ -7,10 +7,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(RenderSystem.class)
 public interface RenderSystemAccessor {
 
-    @Accessor
+    //? if <1.21.5 {
+    /*@Accessor
     static int[] getShaderTextures() {
         return null;
     }
+    *///?}
 
     @Accessor
     static void setShaderGameTime(float shaderGameTime) {

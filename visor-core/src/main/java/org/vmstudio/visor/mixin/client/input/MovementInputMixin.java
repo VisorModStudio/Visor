@@ -24,13 +24,18 @@ public class MovementInputMixin {
     /* ****************** *\
   //--------MOVEMENT--------\\
     \* ****************** */
-    //? if >=1.21.2 {
-    // 1.21.2 builds the key record first, so the first impulse write is the spot before the sneak multiplier
+    //? if >=1.21.5 {
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/ClientInput;moveVector:Lnet/minecraft/world/phys/Vec2;", opcode = Opcodes.PUTFIELD, ordinal = 0, shift = At.Shift.AFTER))
+    public void visor$applyVrInput(CallbackInfo ci) {
+        visor$applyVrInputState();
+    }
+    //?} elif >=1.21.2 {
+    /*// 1.21.2 builds the key record first, so the first impulse write is the spot before the sneak multiplier
     @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/KeyboardInput;leftImpulse:F", opcode = Opcodes.PUTFIELD, ordinal = 0, shift = At.Shift.AFTER))
     public void visor$applyVrInput(CallbackInfo ci) {
         visor$applyVrInputState();
     }
-    //?} else {
+    *///?} else {
     /*@Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/KeyboardInput;shiftKeyDown:Z", shift = At.Shift.AFTER))
     public void visor$applyVrInput(CallbackInfo ci) {
         visor$applyVrInputState();

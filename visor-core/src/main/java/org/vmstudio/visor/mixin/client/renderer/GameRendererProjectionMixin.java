@@ -166,7 +166,11 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
         info.setReturnValue(posestack.last().pose());
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "render", require = 1)
+    //? if >=1.21.5 {
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isGameLoadFinished()Z", shift = Shift.AFTER), method = "render", require = 1)
+    //?} else {
+    /*@Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;viewport(IIII)V", remap = false, shift = Shift.AFTER), method = "render", require = 1)
+    *///?}
     public void visor$matrix(CallbackInfo info) {
         if(VisorState.get().isNotActive()) return;
         McProjection.setPerspective(

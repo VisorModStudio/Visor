@@ -36,7 +36,11 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
     /**
      * Cancels GUI rendering for VRWorld stage and render VR main menu room
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "render", cancellable = true, require = 1)
+    //? if >=1.21.5 {
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearDepthTexture(Lcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false, ordinal = 0), method = "render", cancellable = true, require = 1)
+    //?} else {
+    /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 6), method = "render", cancellable = true, require = 1)
+    *///?}
     public void visor$onRenderGUI(CallbackInfo info) {
 
         if (VRRenderState.getPhase().isNotVRWorld()) {
@@ -64,7 +68,11 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
     /**
      * Draw GUI only after first level render
      */
-    @ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render", ordinal = 0, argsOnly = true, require = 1)
+    //? if >=1.21.5 {
+    @ModifyVariable(at = @At(value = "NEW", target = "net/minecraft/client/gui/GuiGraphics", shift = Shift.AFTER), method = "render", ordinal = 0, argsOnly = true, require = 1)
+    //?} else {
+    /*@ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render", ordinal = 0, argsOnly = true, require = 1)
+    *///?}
     private boolean visor$vrGuiVisibility(boolean doRender) {
         if (VRRenderState.getPhase().isVanilla()) {
             return doRender;

@@ -14,8 +14,10 @@ import org.spongepowered.asm.mixin.injection.*;
 
 @Mixin(RenderTarget.class)
 public abstract class RenderTargetMixin implements RenderTargetExtension {
-    @Shadow
+    //? if <1.21.5 {
+    /*@Shadow
     public int frameBufferId;
+    *///?}
     @Shadow
     public int width;
     @Shadow
@@ -24,8 +26,10 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     public int viewHeight;
     @Shadow
     public int viewWidth;
-    @Shadow
+    //? if <1.21.5 {
+    /*@Shadow
     protected int colorTextureId;
+    *///?}
 
 
     @Unique
@@ -36,10 +40,9 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     private boolean visor$useStencil = false;
 
 
-    /* ************************* *\
-  //--------STENCIL SUPPORT--------\\
-    \* ************************* */
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 2, require = 1)
+    //--------STENCIL SUPPORT--------
+    //? if <1.21.5 {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 2, require = 1)
     public int visor$vrUseStencil1(int internalformat) {
         return visor$useStencil
                 ? GL30.GL_DEPTH24_STENCIL8
@@ -65,9 +68,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     }
 
 
-    /* ************** *\
-  //--------MISC--------\\
-    \* ************** */
+    //--------MISC--------
     @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/TextureUtil;generateTextureId()I", remap = false, ordinal = 0), method = "createBuffers", require = 1)
     public int visor$vrTextureId(Operation<Integer> original) {
         if (this.visor$textureId == -1) {
@@ -82,20 +83,23 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
         return visor$useLinearFilter
                 ? GL11.GL_LINEAR : i;
     }
+    *///?}
 
     @Override
     public String toString() {
-        String stringbuilder = "\n" +
+        //? if >=1.21.5 {
+        return "\nSize:   " + this.viewWidth + " x " + this.viewHeight + "\n";
+        //?} else {
+        /*String stringbuilder = "\n" +
                 "Size:   " + this.viewWidth + " x " + this.viewHeight + "\n" +
                 "FB ID:  " + this.frameBufferId + "\n" +
                 "Tex ID: " + this.colorTextureId + "\n";
         return stringbuilder;
+        *///?}
     }
 
 
-    /* ************************ *\
-  //--------PUBLIC METHODS--------\\
-    \* ************************ */
+    //--------PUBLIC METHODS--------
 
     @Override
     @Unique

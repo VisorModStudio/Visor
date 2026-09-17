@@ -396,7 +396,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
         gui.flush();
 
-        McGlState.setShaderTexture(0, McRenderTarget.colorTextureId(target));
+        McGlState.setShaderTexture(0, target);
 
         McGlState.disableDepthTest();
         McGlState.enableBlend();

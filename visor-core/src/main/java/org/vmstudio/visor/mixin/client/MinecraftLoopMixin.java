@@ -5,6 +5,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
+//? if >=1.21.5 {
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
+//?}
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -80,6 +83,11 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     @Inject(at = @At("HEAD"), method = "runTick(Z)V", require = 1)
     public void visor$runVR(boolean tick, CallbackInfo callback) {
         VisorState.updateState();
+        //? if >=1.21.5 {
+        if (VisorState.get().isInitialized()) {
+            McRenderTarget.setMainTarget(VRRenderState.getVanillaTarget());
+        }
+        //?}
         if(ClientContext.visor != null) {
             ClientContext.visor
                     .onGameLoopStart();

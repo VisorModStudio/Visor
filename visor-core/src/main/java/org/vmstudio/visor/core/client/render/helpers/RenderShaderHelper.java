@@ -23,7 +23,7 @@ public class RenderShaderHelper {
         McGlState.disableDepthTest();
         McGlState.depthMask(false);
         McGlState.disableBlend();
-        shader.setSampler("Sampler0", McRenderTarget.colorTextureId(source));
+        shader.setSampler("Sampler0", source);
         shader.apply();
 
         // --- Render ---

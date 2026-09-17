@@ -130,7 +130,7 @@ public abstract class MinecraftLifecycleMixin {
     }
 
 
-    @Inject(method = "setCameraEntity", at = @At("HEAD"))
+    @Inject(method = "setCameraEntity", at = @At("HEAD"), cancellable = true)
     private void visor$rideEntity(Entity entity, CallbackInfo ci) {
         var state = VisorState.get();
         if (!state.isInitialized() || entity == null) {

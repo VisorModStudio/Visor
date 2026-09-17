@@ -11,10 +11,18 @@ public class McInventory {
     }
 
     public static int selectedSlot(Inventory inventory) {
-        return inventory.selected;
+        //? if >=1.21.5 {
+        return inventory.getSelectedSlot();
+        //?} else {
+        /*return inventory.selected;
+        *///?}
     }
 
     public static void setSelectedSlot(Inventory inventory, int slot) {
-        inventory.selected = slot;
+        //? if >=1.21.5 {
+        inventory.setSelectedSlot(slot);
+        //?} else {
+        /*inventory.selected = slot;
+        *///?}
     }
 }

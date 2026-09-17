@@ -82,8 +82,8 @@ public class VRShaderMixedReality implements VRShader{
 
         // --- Textures ---
         var target = ClientContext.renderer.thirdPersonTarget.getTarget();
-        handle.setSampler("SamplerColor", McRenderTarget.colorTextureId(target));
-        handle.setSampler("SamplerDepth", McRenderTarget.depthTextureId(target));
+        handle.setSampler("SamplerColor", target);
+        handle.setDepthSampler("SamplerDepth", target);
 
 
         // --- Render ---

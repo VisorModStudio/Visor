@@ -1,10 +1,25 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-//? if >=1.21.2 {
-import net.minecraft.client.renderer.CoreShaders;
+//? if >=1.21.5 {
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.platform.DestFactor;
+import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import org.lwjgl.opengl.GL11;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+//?} elif >=1.21.2 {
+/*import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.ShaderProgram;
-//?} else {
+*///?} else {
 /*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import java.util.function.Supplier;
@@ -27,8 +42,11 @@ public class McShaders {
     }
 
     public static void use(Core shader) {
-        //? if >=1.21.2 {
-        ShaderProgram program = switch (shader) {
+        //? if >=1.21.5 {
+        selected = shader;
+        McShaderProgram.clearActive();
+        //?} elif >=1.21.2 {
+        /*ShaderProgram program = switch (shader) {
             case POSITION -> CoreShaders.POSITION;
             case POSITION_COLOR -> CoreShaders.POSITION_COLOR;
             case POSITION_TEX -> CoreShaders.POSITION_TEX;
@@ -36,7 +54,7 @@ public class McShaders {
             case RENDERTYPE_TEXT -> CoreShaders.RENDERTYPE_TEXT;
         };
         RenderSystem.setShader(program);
-        //?} else {
+        *///?} else {
         /*Supplier<ShaderInstance> program = switch (shader) {
             case POSITION -> GameRenderer::getPositionShader;
             case POSITION_COLOR -> GameRenderer::getPositionColorShader;
@@ -47,4 +65,108 @@ public class McShaders {
         RenderSystem.setShader(program);
         *///?}
     }
+
+    //? if >=1.21.5 {
+    private static final Map<PipelineKey, RenderPipeline> PIPELINES = new HashMap<>();
+
+    private static Core selected = Core.POSITION;
+
+    private record PipelineKey(Core core, VertexFormat format, VertexFormat.Mode mode,
+                               McGlState.DrawState state) {
+    }
+
+    static RenderPipeline pipeline(VertexFormat format, VertexFormat.Mode mode) {
+        return PIPELINES.computeIfAbsent(
+                new PipelineKey(selected, format, mode, McGlState.drawState()),
+                McShaders::build);
+    }
+
+    static void applyUniforms(RenderPass pass) {
+        bindSampler(pass, 0, textured(selected));
+        bindSampler(pass, 2, selected == Core.RENDERTYPE_TEXT);
+    }
+
+    private static void bindSampler(RenderPass pass, int unit, boolean used) {
+        GpuTexture texture = RenderSystem.getShaderTexture(unit);
+        if (used && texture != null) {
+            pass.bindSampler("Sampler" + unit, texture);
+        }
+    }
+
+    private static RenderPipeline build(PipelineKey key) {
+        String shader = shaderName(key.core());
+        McGlState.DrawState state = key.state();
+        RenderPipeline.Builder builder = RenderPipeline.builder()
+                .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + shader + '_' + PIPELINES.size()))
+                .withVertexShader("core/" + shader)
+                .withFragmentShader("core/" + shader)
+                .withVertexFormat(key.format(), key.mode())
+                .withUniform("ModelViewMat", UniformType.MATRIX4X4)
+                .withUniform("ProjMat", UniformType.MATRIX4X4)
+                .withUniform("ColorModulator", UniformType.VEC4)
+                .withDepthTestFunction(depthTestFunction(state))
+                .withDepthWrite(state.depthWrite())
+                .withCull(state.cull())
+                .withColorWrite(state.colorWrite(), state.alphaWrite());
+        if (fogged(key.core())) {
+            builder.withUniform("FogStart", UniformType.FLOAT)
+                    .withUniform("FogEnd", UniformType.FLOAT)
+                    .withUniform("FogColor", UniformType.VEC4)
+                    .withUniform("FogShape", UniformType.INT);
+        }
+        if (textured(key.core())) {
+            builder.withSampler("Sampler0");
+        }
+        if (key.core() == Core.RENDERTYPE_TEXT) {
+            builder.withSampler("Sampler2");
+        }
+        if (state.blend()) {
+            builder.withBlend(new BlendFunction(
+                    source(state.blendSourceRgb()), destination(state.blendDestinationRgb()),
+                    source(state.blendSourceAlpha()), destination(state.blendDestinationAlpha())));
+        } else {
+            builder.withoutBlend();
+        }
+        return builder.build();
+    }
+
+    private static boolean textured(Core core) {
+        return core == Core.POSITION_TEX || core == Core.POSITION_TEX_COLOR || core == Core.RENDERTYPE_TEXT;
+    }
+
+    private static boolean fogged(Core core) {
+        return core == Core.POSITION || core == Core.RENDERTYPE_TEXT;
+    }
+
+    private static String shaderName(Core core) {
+        return switch (core) {
+            case POSITION -> "position";
+            case POSITION_COLOR -> "position_color";
+            case POSITION_TEX -> "position_tex";
+            case POSITION_TEX_COLOR -> "position_tex_color";
+            case RENDERTYPE_TEXT -> "rendertype_text";
+        };
+    }
+
+    static DepthTestFunction depthTestFunction(McGlState.DrawState state) {
+        if (!state.depthTest()) {
+            return DepthTestFunction.NO_DEPTH_TEST;
+        }
+        return switch (state.depthFunction()) {
+            case GL11.GL_ALWAYS -> DepthTestFunction.NO_DEPTH_TEST;
+            case GL11.GL_EQUAL -> DepthTestFunction.EQUAL_DEPTH_TEST;
+            case GL11.GL_LESS -> DepthTestFunction.LESS_DEPTH_TEST;
+            case GL11.GL_GREATER -> DepthTestFunction.GREATER_DEPTH_TEST;
+            default -> DepthTestFunction.LEQUAL_DEPTH_TEST;
+        };
+    }
+
+    static SourceFactor source(int glValue) {
+        return SourceFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
+    }
+
+    static DestFactor destination(int glValue) {
+        return DestFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
+    }
+    //?}
 }

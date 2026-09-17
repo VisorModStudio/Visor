@@ -85,6 +85,14 @@ public class McRenderUtils {
 
     private static final AtomicInteger DYNAMIC_TEXTURE_ID = new AtomicInteger();
 
+    public static DynamicTexture newDynamicTexture(String name, NativeImage image) {
+        //? if >=1.21.5 {
+        return new DynamicTexture(() -> name, image);
+        //?} else {
+        /*return new DynamicTexture(image);
+        *///?}
+    }
+
     public static ResourceLocation registerDynamicTexture(String name, DynamicTexture texture) {
         //? if >=1.21.4 {
         ResourceLocation id = McVersionUtils.newResourceLoc("visor",
