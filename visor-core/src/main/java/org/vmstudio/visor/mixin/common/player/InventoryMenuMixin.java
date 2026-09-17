@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.common.player;
 
 import net.minecraft.world.entity.player.Inventory;
@@ -12,7 +13,6 @@ import org.vmstudio.visor.core.common.player.OffhandSlot;
 @Mixin(InventoryMenu.class)
 public class InventoryMenuMixin {
 
-    //? if >=1.21.2 {
     @ModifyArg(
             method = "<init>",
             at = @At(
@@ -24,19 +24,6 @@ public class InventoryMenuMixin {
     private Slot visor$replaceOffhandSlot(Slot original) {
         return visor$offhandSlot(original);
     }
-    //?} else {
-    /*@ModifyArg(
-            method = "<init>",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/inventory/InventoryMenu;addSlot(Lnet/minecraft/world/inventory/Slot;)Lnet/minecraft/world/inventory/Slot;",
-                    ordinal = 5
-            )
-    )
-    private Slot visor$replaceOffhandSlot(Slot original) {
-        return visor$offhandSlot(original);
-    }
-    *///?}
 
     @Unique
     private static Slot visor$offhandSlot(Slot original) {

@@ -1,27 +1,19 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-//? if >=1.21.2 {
 import net.minecraft.client.renderer.WeatherEffectRenderer;
-//?} else {
-/*import net.minecraft.client.renderer.LevelRenderer;
-*///?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-//? if >=1.21.2 {
 @Mixin(WeatherEffectRenderer.class)
-//?} else {
-/*@Mixin(value = LevelRenderer.class, priority = 999)
-*///?}
 public abstract class WeatherMixin {
 
-    //? if >=1.21.2 {
     @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "collectColumnInstances")
     public double visor$rainAndSnowX(double x) {
         return visor$hmdAxis(x, 0);
@@ -36,22 +28,6 @@ public abstract class WeatherMixin {
     public double visor$rainAndSnowZ(double z) {
         return visor$hmdAxis(z, 2);
     }
-    //?} else {
-    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "renderSnowAndRain")
-    public double visor$rainAndSnowX(double x) {
-        return visor$hmdAxis(x, 0);
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "renderSnowAndRain")
-    public double visor$rainAndSnowY(double y) {
-        return visor$hmdAxis(y, 1);
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "renderSnowAndRain")
-    public double visor$rainAndSnowZ(double z) {
-        return visor$hmdAxis(z, 2);
-    }
-    *///?}
 
     @Unique
     private static double visor$hmdAxis(double vanilla, int axis) {

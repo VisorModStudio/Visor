@@ -60,6 +60,41 @@ tasks.register("buildAll") {
     dependsOn tasksByVersion.values().flatten()
 }
 
+// ------ mcversion range files -------------------------------------
+
+stonecutter.tree.getBranches().each { branch ->
+    project(":${branch.getId()}") {
+        apply plugin: "idea"
+        idea.module.excludeDirs += file("mcversion")
+    }
+}
+def mcversionSwitch = { String version ->
+    stonecutter.tree.getBranches().each { branch ->
+        def layout = new org.vmstudio.build.McVersionLayout(rootProject.file(branch.getId()),
+                branch.getVersions()*.getVersion())
+        layout.switchTo(version).each { logger.lifecycle("mcversion ${branch.getId()}: ${it}") }
+    }
+}
+def triggersSucceeded = { List<String> names ->
+    names.every { name ->
+        def trigger = tasks.findByName(name)
+        trigger == null || !trigger.state.executed || trigger.state.failure == null
+    }
+}
+tasksByVersion.keySet().each { mcVersion ->
+    def triggers = ["Set active project to ${mcVersion}".toString()]
+    if (mcVersion == stonecutter.vcsVersion.version) {
+        triggers << "Reset active project"
+    }
+    def switchTask = tasks.register("mcversionSwitch-${mcVersion}") {
+        group = "stonecutter"
+        description = "Moves the range files for ${mcVersion} into src and parks the others"
+        onlyIf { triggersSucceeded(triggers) }
+        doLast { mcversionSwitch(mcVersion) }
+    }
+    tasks.matching { it.name in triggers }.configureEach { finalizedBy switchTask }
+}
+
 // ------ StoneCutter parameters --------------------------------------
 stonecutter.parameters {
     swaps.put("mod_version", "\"${mod_version}\";")

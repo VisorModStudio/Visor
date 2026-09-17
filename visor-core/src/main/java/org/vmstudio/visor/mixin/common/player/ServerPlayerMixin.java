@@ -120,8 +120,8 @@ public abstract class ServerPlayerMixin
 
 
     //? if <1.21.5 {
-    /*
-     //keep @Local without variable name, to search by type
+    
+     /*//keep @Local without variable name, to search by type
      @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
     public void visor$vrItemDrop(ItemStack itemStack,
                                 boolean dropAround,

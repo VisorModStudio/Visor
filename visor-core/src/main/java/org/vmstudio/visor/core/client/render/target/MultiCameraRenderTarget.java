@@ -171,7 +171,7 @@ public class MultiCameraRenderTarget extends RenderTarget {
         return getCurrentTarget().getDepthTextureId();
     }
     *///?} else {
-    /*    @Override
+        /*@Override
     public void setFilterMode(int filterMode) {
         getCurrentTarget().setFilterMode(filterMode);
     }

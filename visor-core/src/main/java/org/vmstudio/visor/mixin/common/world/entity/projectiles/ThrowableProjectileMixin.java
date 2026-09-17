@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.common.world.entity.projectiles;
 
 
@@ -15,26 +16,17 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-//? if >=1.21.2 {
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.item.ItemStack;
-//?} else {
-/*import net.minecraft.world.entity.projectile.ThrowableProjectile;
-*///?}
 
 // 1.21.2 moved the thrower constructor down to ThrowableItemProjectile
-//? if >=1.21.2 {
 @Mixin(ThrowableItemProjectile.class)
-//?} else {
-/*@Mixin(ThrowableProjectile.class)
-*///?}
 public abstract class ThrowableProjectileMixin extends Entity {
 
     protected ThrowableProjectileMixin(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
     }
 
-    //? if >=1.21.2 {
     @Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;)V")
     public void visor$initVrPos(EntityType<? extends ThrowableItemProjectile> entityType,
                                LivingEntity entity,
@@ -43,15 +35,6 @@ public abstract class ThrowableProjectileMixin extends Entity {
                                CallbackInfo info) {
         visor$moveToHand(entity);
     }
-    //?} else {
-    /*@Inject(at = @At("TAIL"), method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;)V")
-    public void visor$initVrPos(EntityType<? extends ThrowableProjectile> entityType,
-                               LivingEntity entity,
-                               Level level,
-                               CallbackInfo info) {
-        visor$moveToHand(entity);
-    }
-    *///?}
 
     @Unique
     private void visor$moveToHand(LivingEntity entity) {

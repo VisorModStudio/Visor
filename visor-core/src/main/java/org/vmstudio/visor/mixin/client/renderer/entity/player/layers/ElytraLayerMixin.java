@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -16,23 +17,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.player.BackLayerPlacement;
-//? if >=1.21.2 {
 import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.client.player.AbstractClientPlayer;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-//?} else {
-/*import net.minecraft.client.renderer.entity.layers.ElytraLayer;
-import net.minecraft.world.entity.LivingEntity;
-*///?}
 
-//? if >=1.21.2 {
 @Mixin(WingsLayer.class)
 public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends EntityModel<S>> extends RenderLayer<S, M> {
-//?} else {
-/*@Mixin(ElytraLayer.class)
-public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
-*///?}
     // ElytraModel.setupAnim drops the wings by this while crouching,
     //VR don't need that, so, cancelled
     @Unique
@@ -47,7 +38,6 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
     @Unique
     private final Vector3f visor$offset = new Vector3f();
 
-    //? if >=1.21.2 {
     public ElytraLayerMixin(RenderLayerParent<S, M> renderer) {
         super(renderer);
     }
@@ -58,17 +48,6 @@ public abstract class ElytraLayerMixin<T extends LivingEntity, M extends EntityM
         var vrPlayer = player == null ? null : VRClientPlayers.getPlayer(player.getUUID());
         visor$attach(instance, x, y, z, original, vrPlayer, state.isFallFlying, state.isCrouching);
     }
-    //?} else {
-    /*public ElytraLayerMixin(RenderLayerParent<T, M> renderer) {
-        super(renderer);
-    }
-
-    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
-    private void visor$attachElytraToBack(PoseStack instance, float x, float y, float z, Operation<Void> original, @Local(argsOnly = true) LivingEntity entity) {
-        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
-        visor$attach(instance, x, y, z, original, vrPlayer, entity.isFallFlying(), entity.isCrouching());
-    }
-    *///?}
 
     @Unique
     private void visor$attach(PoseStack instance, float x, float y, float z, Operation<Void> original,

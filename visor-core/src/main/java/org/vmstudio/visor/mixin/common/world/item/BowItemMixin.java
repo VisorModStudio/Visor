@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.common.world.item;
 
 import net.minecraft.world.entity.LivingEntity;
@@ -10,11 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-//? if >=1.21.2 {
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-//?} else {
-/*import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-*///?}
 
 /**
  * Shoot power modified
@@ -31,7 +28,6 @@ public abstract class BowItemMixin extends ProjectileWeaponItem {
 
 
 
-    //? if >=1.21.2 {
     @Inject(method = "releaseUsing", at = @At("HEAD"))
     public void visor$releaseUsing(ItemStack itemStack,
                                   Level level,
@@ -43,19 +39,6 @@ public abstract class BowItemMixin extends ProjectileWeaponItem {
         }
 
     }
-    //?} else {
-    /*@Inject(method = "releaseUsing", at = @At("HEAD"))
-    public void visor$releaseUsing(ItemStack itemStack,
-                                  Level level,
-                                  LivingEntity livingEntity,
-                                  int i,
-                                  CallbackInfo callbackInfo) {
-        if (livingEntity instanceof Player player) {
-            visor$lastShooter = player;
-        }
-
-    }
-    *///?}
 /*
     @Inject(method = "getPowerForTime", at = @At("HEAD"), cancellable = true)
     private static void visor$getPowerForTime(int i,

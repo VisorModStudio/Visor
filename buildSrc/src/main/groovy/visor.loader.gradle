@@ -46,16 +46,22 @@ dependencies {
     apiBundle "com.github.Phoenix-Ra:AtumConfiguration:${atumconfig_version}"
 }
 
+
+def mcversionLayouts = ["visor-api", "visor-core"].collect { mcversionLayoutOf(it) }
+def mcversionSpecs = mcversionLayouts.collect { it.excludeSpec(minecraft_version) }
+def mcversionParked = { String kind -> mcversionLayouts.collectMany { it.parkedSourceDirs(minecraft_version, kind) } }
 compileJava {
     dependsOn configurations.apiJava, configurations.coreJava
-    source configurations.apiJava, configurations.coreJava
+    source configurations.apiJava, configurations.coreJava, mcversionParked("java")
+    exclude { element -> mcversionSpecs.any { it.isSatisfiedBy(element) } }
 }
 processResources {
     dependsOn configurations.apiResources, configurations.coreResources
-    from configurations.apiResources, configurations.coreResources
+    from configurations.apiResources, configurations.coreResources, mcversionParked("resources")
 }
 sourcesJar {
-    from configurations.apiJava, configurations.coreJava
+    from configurations.apiJava, configurations.coreJava, mcversionParked("java")
+    exclude { element -> mcversionSpecs.any { it.isSatisfiedBy(element) } }
 }
 
 // ---- Mod jar pipeline -----------------------------------------------------------------------
@@ -129,6 +135,32 @@ loom {
         }
     }
 }
+
+// ---- Mixin config check ---------------------------------------------------------------------
+tasks.register("checkMixinConfigs") {
+    description = "Verifies that every mixin listed in the mixin configs was compiled for this node"
+    dependsOn "classes"
+    def classesDirs = sourceSets.main.output.classesDirs
+    def resourcesDir = sourceSets.main.output.resourcesDir
+    doLast {
+        def missing = []
+        fileTree(resourcesDir) { include "*.mixins.json", "*.mixins.*.json" }.each { json ->
+            def config = new groovy.json.JsonSlurper().parse(json)
+            def pkg = config.package.replace('.', '/')
+            ["mixins", "client", "server"].each { key ->
+                (config[key] ?: []).each { name ->
+                    if (!classesDirs.any { new File(it, "${pkg}/${name.replace('.', '/')}.class").file }) {
+                        missing << "${json.name}: ${name}"
+                    }
+                }
+            }
+        }
+        if (missing) {
+            throw new GradleException("Mixin classes missing for ${project.path}:\n  " + missing.join("\n  "))
+        }
+    }
+}
+tasks.named("check") { dependsOn "checkMixinConfigs" }
 
 // ---- Build ----------------------------------------------------------------------------------
 tasks.register("buildAndCollect", Copy) {

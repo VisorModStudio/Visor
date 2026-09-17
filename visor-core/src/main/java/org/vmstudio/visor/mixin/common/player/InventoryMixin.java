@@ -27,9 +27,8 @@ import java.util.List;
 
 @Mixin(Inventory.class)
 public abstract class InventoryMixin implements Container, Nameable {
-    //? if >=1.21.5 {
     // since 1.21.5 the offhand redirect lives in VROffhandEquipment, installed by Common_PlayerMixin
-    //?} else {
+    //? if <1.21.5 {
     /*@Final
     @Shadow
     public NonNullList<ItemStack> items;
