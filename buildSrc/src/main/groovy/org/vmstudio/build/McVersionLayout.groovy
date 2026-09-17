@@ -113,9 +113,7 @@ class McVersionLayout {
 
 
     List<String> switchTo(String version) {
-        if (!(version in nodes)) {
-            throw new GradleException("${version} is not a ${branch.name} target")
-        }
+        // a branch without this target (neoforge has no 1.20.1) still parks what does not fit; nothing enters
         def leaving = [:]    // src file -> [node folders to copy into]
         def entering = []    // [parked file, src target, range]
         headerFiles().each { rel, range ->
