@@ -59,6 +59,9 @@ class McVersionLayout {
         def headers = headerFiles()
         headers.each { rel, range ->
             def where = "src/main/java/${rel}"
+            if (!rel.startsWith("org/vmstudio/visor/mixin/")) {
+                problems << "${where}: range files are for the core mixins only"
+            }
             if (!range.contains(active)) {
                 problems << "${where}: declares ${range} but the active version is ${active} - run the switch"
             }
@@ -75,6 +78,9 @@ class McVersionLayout {
         parked.each { node, files ->
             files.each { rel, f ->
                 def where = "mcversion/${node}/java/${rel}"
+                if (!rel.startsWith("org/vmstudio/visor/mixin/")) {
+                    problems << "${where}: range files are for the core mixins only"
+                }
                 def range = McVersionRange.fromHeader(f)
                 if (range == null) {
                     problems << "${where}: missing the '${McVersionRange.HEADER} <range>' header"

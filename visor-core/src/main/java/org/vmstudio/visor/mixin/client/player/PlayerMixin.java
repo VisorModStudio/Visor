@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.20.6+
 package org.vmstudio.visor.mixin.client.player;
 
 import net.minecraft.client.Minecraft;
@@ -25,29 +26,4 @@ public abstract class PlayerMixin extends LivingEntity {
     // the probe box keeps its original top, so a raised step height cannot make it
     // catch on whatever sits above the ledge
     // 1.20.5 canFallAtLeast already probes only below the feet
-    //? if <1.20.5 {
-    /*@WrapOperation( method = "maybeBackOffFromEdge",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/AABB;move(DDD)Lnet/minecraft/world/phys/AABB;"))
-    private AABB visor$keepEdgeProbeTop(AABB instance,
-                                        double x,
-                                        double y,
-                                        double z,
-                                        Operation<AABB> original) {
-        if(!VisorState.get().isActive()){
-            return original.call(instance, x, y, z);
-        }
-        if((Object) this != Minecraft.getInstance().player){
-            return original.call(instance, x, y, z);
-        }
-
-        return new AABB(
-                instance.minX + x,
-                instance.minY + y,
-                instance.minZ + z,
-                instance.maxX + x,
-                instance.maxY,
-                instance.maxZ + z
-        );
-    }
-    *///?}
 }

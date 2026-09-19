@@ -47,21 +47,20 @@ dependencies {
 }
 
 
-def mcversionLayouts = ["visor-api", "visor-core"].collect { mcversionLayoutOf(it) }
-def mcversionSpecs = mcversionLayouts.collect { it.excludeSpec(minecraft_version) }
-def mcversionParked = { String kind -> mcversionLayouts.collectMany { it.parkedSourceDirs(minecraft_version, kind) } }
+def mcversion = mcversionCoreLayout()
+def mcversionSpec = mcversion.excludeSpec(minecraft_version)
 compileJava {
     dependsOn configurations.apiJava, configurations.coreJava
-    source configurations.apiJava, configurations.coreJava, mcversionParked("java")
-    exclude { element -> mcversionSpecs.any { it.isSatisfiedBy(element) } }
+    source configurations.apiJava, configurations.coreJava, mcversion.parkedSourceDirs(minecraft_version, "java")
+    exclude { element -> mcversionSpec.isSatisfiedBy(element) }
 }
 processResources {
     dependsOn configurations.apiResources, configurations.coreResources
-    from configurations.apiResources, configurations.coreResources, mcversionParked("resources")
+    from configurations.apiResources, configurations.coreResources, mcversion.parkedSourceDirs(minecraft_version, "resources")
 }
 sourcesJar {
-    from configurations.apiJava, configurations.coreJava, mcversionParked("java")
-    exclude { element -> mcversionSpecs.any { it.isSatisfiedBy(element) } }
+    from configurations.apiJava, configurations.coreJava, mcversion.parkedSourceDirs(minecraft_version, "java")
+    exclude { element -> mcversionSpec.isSatisfiedBy(element) }
 }
 
 // ---- Mod jar pipeline -----------------------------------------------------------------------

@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.5+
 package org.vmstudio.visor.mixin.common.player;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -16,21 +17,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.vmstudio.visor.core.common.CommonUtils;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
-//? if >=1.21.5 {
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.component.BlocksAttacks;
 import org.joml.Vector3f;
-//?}
-//? if >=1.21.4 {
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
-//?}
 
 @Mixin(LivingEntity.class)
 public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
@@ -52,7 +49,6 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                               CallbackInfo ci){}
 
     // 1.21.5 replaced isDamageSourceBlocked with the blocks_attacks component and this hook
-    //? if >=1.21.5 {
     @Shadow
     protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
 
@@ -81,18 +77,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
         }
         cir.setReturnValue(damageAmount);
     }
-    //?} else {
-    /*@Inject(method = "isDamageSourceBlocked", at = @At("RETURN"), cancellable = true)
-    private void visor$poseShieldBlock(DamageSource damageSource,
-                                       CallbackInfoReturnable<Boolean> cir) {
-        if ((Object) this instanceof ServerPlayerExtension serverPlayer
-                && serverPlayer.visor$poseBlocks(damageSource, cir.getReturnValueZ())) {
-            cir.setReturnValue(true);
-        }
-    }
-    *///?}
 
-    //? if >=1.21.2 {
     @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
     private void visor$vrHurtKnockbackDirection(LivingEntity instance, double strength, double x, double z,
@@ -100,18 +85,8 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                                                 @Local(argsOnly = true) DamageSource damageSource) {
         visor$vrKnockback(instance, strength, x, z, original, damageSource);
     }
-    //?} else {
-    /*@WrapOperation(method = "hurt", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
-    private void visor$vrHurtKnockbackDirection(LivingEntity instance, double strength, double x, double z,
-                                                Operation<Void> original,
-                                                @Local(argsOnly = true) DamageSource damageSource) {
-        visor$vrKnockback(instance, strength, x, z, original, damageSource);
-    }
-    *///?}
 
 
-    //? if >=1.21.4 {
     @Inject(method = "isLookingAtMe(Lnet/minecraft/world/entity/LivingEntity;DZZ[D)Z", at = @At("HEAD"), cancellable = true)
     private void visor$vrLookingAtMe(LivingEntity observer, double tolerance, boolean scaleByDistance,
                                      boolean visualShape, double[] yValues,
@@ -156,9 +131,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                 .clip(new ClipContext(eye, target, block, ClipContext.Fluid.NONE, viewer))
                 .getType() == HitResult.Type.MISS;
     }
-    //?}
 
-    //? if >=1.21.5 {
     // keep @Local without a variable name, to search by type
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
     private void visor$vrItemDrop(ItemStack itemStack, boolean dropAround, boolean includeName,
@@ -181,7 +154,6 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                 handPos.z() + itemEntity.getDeltaMovement().z()
         );
     }
-    //?}
 
     @Unique
     private static void visor$vrKnockback(LivingEntity instance, double strength, double x, double z,

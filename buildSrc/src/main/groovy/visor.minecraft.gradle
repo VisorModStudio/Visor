@@ -111,30 +111,31 @@ dependencies {
     compileOnly "org.lwjgl:lwjgl-vulkan:${lwjgl_version}"
 }
 
-// ---- Version-range sources ----------------------------------------------------------------
-def nodeVersions = project.parent.subprojects*.name.findAll { it ==~ /\d+(\.\d+)+/ }
-def mcversion = new org.vmstudio.build.McVersionLayout(project.parent.projectDir, nodeVersions)
-afterEvaluate {
-    // after Stonecutter registered its own source directories
-    sourceSets.main.java.exclude(mcversion.excludeSpec(minecraftVersion))
-    tasks.named("compileJava") { source(mcversion.parkedSourceDirs(minecraftVersion, "java")) }
-    tasks.named("processResources") { from(mcversion.parkedSourceDirs(minecraftVersion, "resources")) }
+// ---- Version-range sources (visor-core mixins only) ---------------------------------------
+project.ext.mcversionCoreLayout = {
+    def core = rootProject.project(":visor-core")
+    new org.vmstudio.build.McVersionLayout(core.projectDir, core.subprojects*.name.findAll { it ==~ /\d+(\.\d+)+/ })
 }
-project.ext.mcversionLayoutOf = { String branchName ->
-    def branch = rootProject.project(":${branchName}")
-    new org.vmstudio.build.McVersionLayout(branch.projectDir, branch.subprojects*.name.findAll { it ==~ /\d+(\.\d+)+/ })
-}
-tasks.register("checkMcversionLayout") {
-    description = "Verifies the range headers, the parked copies and the absence of Stonecutter markers in range files"
-    def active = org.vmstudio.build.McVersionLayout.activeVersion(rootProject.projectDir)
-    doLast {
-        def problems = mcversion.check(active)
-        if (problems) {
-            throw new GradleException("mcversion layout of ${project.parent.name}:\n  " + problems.join("\n  "))
+if (project.parent.name == "visor-core") {
+    def mcversion = mcversionCoreLayout()
+    afterEvaluate {
+        // after Stonecutter registered its own source directories
+        sourceSets.main.java.exclude(mcversion.excludeSpec(minecraftVersion))
+        tasks.named("compileJava") { source(mcversion.parkedSourceDirs(minecraftVersion, "java")) }
+        tasks.named("processResources") { from(mcversion.parkedSourceDirs(minecraftVersion, "resources")) }
+    }
+    tasks.register("checkMcversionLayout") {
+        description = "Verifies the range headers, the parked copies and the absence of Stonecutter markers in range files"
+        def active = org.vmstudio.build.McVersionLayout.activeVersion(rootProject.projectDir)
+        doLast {
+            def problems = mcversion.check(active)
+            if (problems) {
+                throw new GradleException("mcversion layout of visor-core:\n  " + problems.join("\n  "))
+            }
         }
     }
+    tasks.named("check") { dependsOn "checkMcversionLayout" }
 }
-tasks.named("check") { dependsOn "checkMcversionLayout" }
 
 // ---- Resources --------------------------------------------------------------
 project.ext.resourcePlaceholders = [

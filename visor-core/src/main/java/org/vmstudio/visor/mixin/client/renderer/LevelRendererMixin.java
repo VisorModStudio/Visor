@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.5+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -6,11 +7,9 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-//? if >=1.21.2 {
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
-//?}
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -44,23 +43,16 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     // ---- Shadow fields ----
     @Final @Shadow
     private Minecraft minecraft;
-    //? if >=1.21.2 {
     @Shadow @Nullable
     private RenderTarget entityOutlineTarget;
-    //?}
 
     // ---- Unique fields ----
     @Unique
     private Entity visor$currentRenderEntity;
-    //? if >=1.21.2 {
     @Unique
     private EnumMap<VRRenderPass, RenderTarget> visor$passOutlineTargets;
     @Unique
     private RenderTarget visor$vanillaOutlineTarget;
-    //?} else {
-    /*@Unique
-    private RenderTarget visor$savedRenderTarget;
-    *///?}
 
 
     /* ***************** *\
@@ -83,7 +75,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     }
 
     // 1.21.2 moved the detached-camera check into collectVisibleEntities
-    //? if >=1.21.2 {
     @WrapOperation(
             method = "collectVisibleEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
@@ -94,18 +85,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         }
         return original.call(camera);
     }
-    //?} else {
-    /*@WrapOperation(
-            method = "renderLevel",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
-    )
-    private boolean visor$renderSpectatedVRSelfView(Camera camera, Operation<Boolean> original) {
-        if (VRRenderState.isSpectatedVRView(camera.getEntity())) {
-            return true;
-        }
-        return original.call(camera);
-    }
-    *///?}
 
     @Inject(at = @At("HEAD"), method = "renderEntity")
     public void visor$captureEntityRestore(CallbackInfo ci,
@@ -150,7 +129,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
      */
     // 1.21.2 imports one window-sized outline target into every pass, and its clear() leaves the viewport at that
     // size for entities, particles, clouds and weather drawn after it, so each VR pass gets one sized like its target
-    //? if >=1.21.2 {
     @Inject(method = "renderLevel", at = @At("HEAD"))
     private void visor$usePassOutlineTarget(CallbackInfo ci) {
         if (VisorState.get().isNotActive() || VRRenderState.getPhase().isVanilla()) {
@@ -172,11 +150,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         VRRenderPass renderPass = VRRenderState.getRenderPass();
         RenderTarget outline = this.visor$passOutlineTargets.get(renderPass);
         if (outline == null) {
-            //? if >=1.21.5 {
             outline = new TextureTarget("visor_vr_outline", width, height, true);
-            //?} else {
-            /*outline = new TextureTarget(width, height, true);
-            *///?}
             McRenderTarget.setClearColor(outline, 0.0F, 0.0F, 0.0F, 0.0F);
             this.visor$passOutlineTargets.put(renderPass, outline);
         } else if (McRenderTarget.viewWidth(outline) != width || McRenderTarget.viewHeight(outline) != height) {
@@ -217,22 +191,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
             this.visor$vanillaOutlineTarget = null;
         }
     }
-    //?} else {
-    /*@Inject(method = {"initOutline", "initTransparency"}, at = @At("HEAD"))
-    private void visor$ensureVanillaPhase(CallbackInfo ci) {
-        if (VisorState.get().isActive() && VRRenderState.getPhase().isNotVanilla()) {
-            this.visor$savedRenderTarget = McRenderTarget.mainTarget();
-            McRenderTarget.setMainTarget(VRRenderState.getVanillaTarget());
-        }
-    }
-    @Inject(method = {"initOutline", "initTransparency"}, at = @At("TAIL"))
-    private void visor$restoreAfterInit(CallbackInfo ci) {
-        if (this.visor$savedRenderTarget != null) {
-            McRenderTarget.setMainTarget(this.visor$savedRenderTarget);
-            this.visor$savedRenderTarget = null;
-        }
-    }
-    *///?}
 
     @Inject(at = @At("TAIL"), method = "onResourceManagerReload")
     public void visor$onResourceManagerReload(ResourceManager resourceManager, CallbackInfo ci) {

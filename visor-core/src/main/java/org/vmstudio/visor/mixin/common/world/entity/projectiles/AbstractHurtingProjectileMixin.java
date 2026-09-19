@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.20.6+
 package org.vmstudio.visor.mixin.common.world.entity.projectiles;
 
 import org.vmstudio.visor.api.VisorAPI;
@@ -16,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractHurtingProjectile.class)
 public abstract class AbstractHurtingProjectileMixin {
 
-    //? if >=1.20.5 {
     // AIM_DEFLECT has already stored the look angle, onDeflection turns it into the powers
     @Inject(at = @At("HEAD"), method = "onDeflection")
     public void visor$onDeflectByVRPlayer(Entity instance, boolean attack, CallbackInfo ci) {
@@ -35,21 +35,4 @@ public abstract class AbstractHurtingProjectileMixin {
                         .normalize()
         );
     }
-    //?} else {
-    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getLookAngle()Lnet/minecraft/world/phys/Vec3;"), method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z")
-    public Vec3 visor$onDeflectByVRPlayer(Entity instance, Operation<Vec3> original) {
-        if (!(instance instanceof ServerPlayer player)) {
-            return original.call(instance);
-        }
-        VRServerPlayer vrPlayer = VisorAPI.server()
-                .getVRPlayer(player);
-        if (vrPlayer == null) {
-            return original.call(instance);
-        }
-
-        return vrPlayer.getPoseData()
-                .getHmd()
-                .getDirectionVec3();
-    }
-    *///?}
 }

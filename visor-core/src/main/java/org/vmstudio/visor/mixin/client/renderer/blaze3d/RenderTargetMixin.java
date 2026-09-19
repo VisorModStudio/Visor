@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.5+
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -14,10 +15,6 @@ import org.spongepowered.asm.mixin.injection.*;
 
 @Mixin(RenderTarget.class)
 public abstract class RenderTargetMixin implements RenderTargetExtension {
-    //? if <1.21.5 {
-    /*@Shadow
-    public int frameBufferId;
-    *///?}
     @Shadow
     public int width;
     @Shadow
@@ -26,10 +23,6 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     public int viewHeight;
     @Shadow
     public int viewWidth;
-    //? if <1.21.5 {
-    /*@Shadow
-    protected int colorTextureId;
-    *///?}
 
 
     @Unique
@@ -41,61 +34,10 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
 
 
     //--------STENCIL SUPPORT--------
-    //? if <1.21.5 {
-    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 2, require = 1)
-    public int visor$vrUseStencil1(int internalformat) {
-        return visor$useStencil
-                ? GL30.GL_DEPTH24_STENCIL8
-                : internalformat;
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 6, require = 1)
-    public int visor$vrUseStencil2(int format) {
-        return visor$useStencil
-                ? GL30.GL_DEPTH_STENCIL : format;
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_texImage2D(IIIIIIIILjava/nio/IntBuffer;)V", remap = false, ordinal = 0), method = "createBuffers", index = 7, require = 1)
-    public int visor$vrUseStencil3(int type) {
-        return visor$useStencil
-                ? GL30.GL_UNSIGNED_INT_24_8 : type;
-    }
-
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;_glFramebufferTexture2D(IIIII)V", remap = false, ordinal = 1), method = "createBuffers", index = 1, require = 1)
-    public int visor$vrUseStencil4(int attachment) {
-        return visor$useStencil
-                ? GL30.GL_DEPTH_STENCIL_ATTACHMENT : attachment;
-    }
-
-
-    //--------MISC--------
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/TextureUtil;generateTextureId()I", remap = false, ordinal = 0), method = "createBuffers", require = 1)
-    public int visor$vrTextureId(Operation<Integer> original) {
-        if (this.visor$textureId == -1) {
-            return original.call();
-        } else {
-            return this.visor$textureId;
-        }
-    }
-
-    @ModifyConstant(method = "createBuffers", constant = @Constant(intValue = 9728))
-    public int visor$vrLinearFilter(int i) {
-        return visor$useLinearFilter
-                ? GL11.GL_LINEAR : i;
-    }
-    *///?}
 
     @Override
     public String toString() {
-        //? if >=1.21.5 {
         return "\nSize:   " + this.viewWidth + " x " + this.viewHeight + "\n";
-        //?} else {
-        /*String stringbuilder = "\n" +
-                "Size:   " + this.viewWidth + " x " + this.viewHeight + "\n" +
-                "FB ID:  " + this.frameBufferId + "\n" +
-                "Tex ID: " + this.colorTextureId + "\n";
-        return stringbuilder;
-        *///?}
     }
 
 

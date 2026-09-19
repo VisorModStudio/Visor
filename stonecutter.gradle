@@ -60,20 +60,16 @@ tasks.register("buildAll") {
     dependsOn tasksByVersion.values().flatten()
 }
 
-// ------ mcversion range files -------------------------------------
+// ------ mcversion range files (visor-core mixins) --------------------
 
-stonecutter.tree.getBranches().each { branch ->
-    project(":${branch.getId()}") {
-        apply plugin: "idea"
-        idea.module.excludeDirs += file("mcversion")
-    }
+project(":visor-core") {
+    apply plugin: "idea"
+    idea.module.excludeDirs += file("mcversion")
 }
 def mcversionSwitch = { String version ->
-    stonecutter.tree.getBranches().each { branch ->
-        def layout = new org.vmstudio.build.McVersionLayout(rootProject.file(branch.getId()),
-                branch.getVersions()*.getVersion())
-        layout.switchTo(version).each { logger.lifecycle("mcversion ${branch.getId()}: ${it}") }
-    }
+    def core = stonecutter.tree.getBranches().find { it.getId() == "visor-core" }
+    def layout = new org.vmstudio.build.McVersionLayout(rootProject.file("visor-core"), core.getVersions()*.getVersion())
+    layout.switchTo(version).each { logger.lifecycle("mcversion: ${it}") }
 }
 def triggersSucceeded = { List<String> names ->
     names.every { name ->

@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.20.6+
 package org.vmstudio.visor.mixin.common.world.entity;
 
 import org.vmstudio.visor.api.VisorAPI;
@@ -8,11 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-//? if >=1.20.5 {
 import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-//?}
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -32,8 +31,6 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
         super(entityType, level);
     }
 
-
-    //? if >=1.20.5 {
 
     @Inject(method = "shootFromRotation(Lnet/minecraft/world/entity/Entity;FFFFF)V",
             at = @At("HEAD"))
@@ -58,7 +55,6 @@ public abstract class ProjectileMixin extends Entity implements TraceableEntity 
                 handPos.z + handDir.z
         );
     }
-    //?}
 
     @ModifyVariable(method = "shootFromRotation(Lnet/minecraft/world/entity/Entity;FFFFF)V",
             at = @At("HEAD"), ordinal = 3, argsOnly = true)
