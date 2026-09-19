@@ -30,6 +30,7 @@ import org.vmstudio.visor.core.client.network.ClientPacketHandler;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.debug.RenderSelfTest;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -217,6 +218,7 @@ public class VisorClientImpl implements VisorClient {
         try {
             //NON-VR + VR
             ++VisorState.FRAME_COUNT;
+            RenderSelfTest.runOnce();
 
             if(VisorState.get().isNotActive()){
                 return;

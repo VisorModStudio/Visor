@@ -37,12 +37,14 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     Minecraft minecraft;
     @Shadow
     private float renderDistance;
-    @Shadow
+    //? if <1.21.6 {
+    /*@Shadow
     private float zoom;
     @Shadow
     private float zoomX;
     @Shadow
     private float zoomY;
+    *///?}
     @Shadow @Final
     private Camera mainCamera;
 
@@ -148,10 +150,12 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
             return;
         }
 
-        if (this.zoom != 1.0F) {
+        //? if <1.21.6 {
+        /*if (this.zoom != 1.0F) {
             posestack.translate(this.zoomX, -this.zoomY, 0.0D);
             posestack.scale(this.zoom, this.zoom, 1.0F);
         }
+        *///?}
         McRenderUtils.mulPose(posestack,
                 new Matrix4f()
                         .setPerspective(

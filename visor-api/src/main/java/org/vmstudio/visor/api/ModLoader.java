@@ -3,6 +3,10 @@ package org.vmstudio.visor.api;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+//? if >=1.21.5 {
+import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.textures.GpuTexture;
+//?}
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
@@ -129,6 +133,17 @@ public interface ModLoader {
 
     @ApiStatus.Internal
     boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget);
+    //? if >=1.21.5 {
+    // NeoForge's blaze3d validation layer (on by default outside production) wraps the device and its textures
+    @ApiStatus.Internal
+    default GpuDevice unwrapDevice(@NotNull GpuDevice device) {
+        return device;
+    }
+    @ApiStatus.Internal
+    default GpuTexture unwrapTexture(@NotNull GpuTexture texture) {
+        return texture;
+    }
+    //?}
     @ApiStatus.Internal
     double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot);
     @ApiStatus.Internal

@@ -4,9 +4,9 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiRenderer;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +29,6 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderGuiHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -95,7 +94,6 @@ public class VROverlayManagerImpl implements VROverlayManager {
     }
 
     public void renderOverlayTextures(ProfilerFiller profiler,
-                                      GuiGraphics guiGraphics,
                                       float partialTicks) {
         if(preparedOverlays.isEmpty()){
             return;
@@ -105,7 +103,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
         int prevOverlayWidth = -1;
         int prevOverlayHeight = -1;
 
-        RenderSystem.backupProjectionMatrix();
+        McProjection.State savedProjection = McProjection.save();
 
         McModelViewStack.push();
         McModelViewStack.identity();
@@ -148,9 +146,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
                         prevOverlayHeight = overlayScreen.height;
                     }
 
-                    //render overlay texture
-                    overlayScreen.renderToTarget(guiGraphics, partialTicks);
-                    guiGraphics.flush();
+                    //render overlay texture, each overlay is its own GUI frame
+                    overlayScreen.renderToTarget(McGuiRenderer.begin(), partialTicks);
 
                 }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
                     // rendering is fully handled by VROverlayFrameBuffer,
@@ -170,7 +167,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
 
         } finally {
             // --- Restore ---
-            RenderSystem.restoreProjectionMatrix();
+            McProjection.restore(savedProjection);
             McModelViewStack.pop();
         }
     }

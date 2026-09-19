@@ -68,13 +68,16 @@ public class RenderPoseHelper {
 
     // before 1.20.5 vanilla keeps the level lights in view space, so the eye-space upload already is its state
     public static void restoreLevelLights() {
-        //? if >=1.20.5 {
-        if (isConstantAmbient()) {
+        //? if >=1.21.6 {
+        // the LEVEL entry already holds what the level pass uploaded, nether included
+        MC.gameRenderer.getLighting().setupFor(Lighting.Entry.LEVEL);
+        //?} elif >=1.20.5 {
+        /*if (isConstantAmbient()) {
             Lighting.setupNetherLevel();
         } else {
             Lighting.setupLevel();
         }
-        //?}
+        *///?}
     }
 
     private static boolean isConstantAmbient() {

@@ -256,7 +256,11 @@ public class VisorState implements VisorClientState {
         setVrPlayMode(VRPlayMode.DISABLED);
 
         if(MC.level != null) {
-            MC.level.disconnect();
+            //? if >=1.21.6 {
+            MC.level.disconnect(net.minecraft.network.chat.Component.translatable("multiplayer.status.quitting"));
+            //?} else {
+            /*MC.level.disconnect();
+            *///?}
         }
         delayedErrorHandling = ()-> VRErrorReportScreen.catchError(throwable,true);
     }

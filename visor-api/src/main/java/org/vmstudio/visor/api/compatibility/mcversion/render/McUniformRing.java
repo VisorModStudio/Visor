@@ -1,0 +1,48 @@
+package org.vmstudio.visor.api.compatibility.mcversion.render;
+
+//? if >=1.21.6 {
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import java.nio.ByteBuffer;
+
+final class McUniformRing {
+    private final String label;
+    private final int blockSize;
+    private final int slots;
+    private GpuBuffer buffer;
+    private int stride;
+    private int next;
+
+    McUniformRing(String label, int blockSize, int slots) {
+        this.label = label;
+        this.blockSize = blockSize;
+        this.slots = slots;
+    }
+
+    int blockSize() {
+        return blockSize;
+    }
+
+    int slot(GpuBufferSlice slice) {
+        return buffer != null && slice.buffer() == buffer ? slice.offset() / stride : -1;
+    }
+
+    GpuBufferSlice write(ByteBuffer data) {
+        if (buffer == null) {
+            int alignment = Math.max(1, RenderSystem.getDevice().getUniformOffsetAlignment());
+            stride = (blockSize + alignment - 1) / alignment * alignment;
+            buffer = RenderSystem.getDevice().createBuffer(() -> label,
+                    GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST, stride * slots);
+        }
+        GpuBufferSlice slice = buffer.slice(next * stride, blockSize);
+        next = (next + 1) % slots;
+        RenderSystem.getDevice().createCommandEncoder().writeToBuffer(slice, data);
+        return slice;
+    }
+}
+//?} else {
+/*final class McUniformRing {
+}
+*///?}

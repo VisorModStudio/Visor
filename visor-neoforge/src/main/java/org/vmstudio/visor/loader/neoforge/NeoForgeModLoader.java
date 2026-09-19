@@ -3,6 +3,12 @@ package org.vmstudio.visor.loader.neoforge;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
+//? if >=1.21.6 {
+import com.mojang.blaze3d.systems.GpuDevice;
+import com.mojang.blaze3d.textures.GpuTexture;
+import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
+import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
+//?}
 import io.netty.buffer.Unpooled;
 import net.minecraft.resources.ResourceLocation;
 //? if <1.20.4 {
@@ -36,6 +42,7 @@ import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
 import net.neoforged.neoforgespi.language.IModFileInfo;
 import net.neoforged.neoforgespi.language.ModFileScanData;
 //? if >=1.20.5 {
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
@@ -45,6 +52,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.handling.IPayloadHandler;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 //?} elif >=1.20.4 {
 /*import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
@@ -111,7 +120,17 @@ public class NeoForgeModLoader implements ModLoader {
                 .add(callback);
 
         if (!levelStageListenerRegistered) {
-            NeoForge.EVENT_BUS.addListener(this::onRenderLevelStage);
+            //? if >=1.21.6 {
+            // 21.6 split RenderLevelStageEvent into one event per stage
+            NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterOpaqueBlocks event) ->
+                    onRenderLevelStage(event, RenderPipelineStage.AFTER_SOLID));
+            NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterTranslucentBlocks event) ->
+                    onRenderLevelStage(event, RenderPipelineStage.AFTER_TRANSLUCENT));
+            NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterLevel event) ->
+                    onRenderLevelStage(event, RenderPipelineStage.AFTER_WORLD));
+            //?} else {
+            /*NeoForge.EVENT_BUS.addListener(this::onRenderLevelStage);
+            *///?}
             levelStageListenerRegistered = true;
         }
     }
@@ -128,6 +147,41 @@ public class NeoForgeModLoader implements ModLoader {
         return true;
         *///?}
     }
+
+    //? if >=1.21.6 {
+    @Override
+    public GpuDevice unwrapDevice(@NotNull GpuDevice device) {
+        return B3dValidationLayer.PRESENT ? B3dValidationLayer.unwrap(device) : device;
+    }
+
+    @Override
+    public GpuTexture unwrapTexture(@NotNull GpuTexture texture) {
+        return B3dValidationLayer.PRESENT ? B3dValidationLayer.unwrap(texture) : texture;
+    }
+
+    // the validation layer arrived in 21.7.22-beta and its types are client-only: probed lazily, from render code only
+    private static final class B3dValidationLayer {
+        static final boolean PRESENT = present();
+
+        private static boolean present() {
+            try {
+                Class.forName("net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice",
+                        false, NeoForgeModLoader.class.getClassLoader());
+                return true;
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
+        }
+
+        static GpuDevice unwrap(GpuDevice device) {
+            return device instanceof ValidationGpuDevice validation ? validation.getRealDevice() : device;
+        }
+
+        static GpuTexture unwrap(GpuTexture texture) {
+            return texture instanceof ValidationGpuTexture validation ? validation.getRealTexture() : texture;
+        }
+    }
+    //?}
 
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {
@@ -308,10 +362,8 @@ public class NeoForgeModLoader implements ModLoader {
         for (VisorChannel channel : pendingChannels) {
             ResourceLocation channelId = channel.getChannelId();
             CustomPacketPayload.Type<RawPayload> type = new CustomPacketPayload.Type<>(channelId);
-            event.registrar(channelId.getNamespace())
-                    .optional()
-                    .playBidirectional(type, RawPayload.codec(type),
-                            (payload, context) -> handlePayload(channel, payload, context));
+            playBidirectional(event.registrar(channelId.getNamespace()).optional(), type, RawPayload.codec(type),
+                    (payload, context) -> handlePayload(channel, payload, context));
         }
         pendingChannels.clear();
     }
@@ -412,6 +464,34 @@ public class NeoForgeModLoader implements ModLoader {
     }
     *///?}
 
+    //? if >=1.21.6 {
+    // 21.7 stopped registering the client side from the bidirectional handler alone
+    private static <T extends CustomPacketPayload> void playBidirectional(PayloadRegistrar registrar,
+                                                                          CustomPacketPayload.Type<T> type,
+                                                                          StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+                                                                          IPayloadHandler<T> handler) {
+        registrar.playBidirectional(type, codec, handler, handler);
+    }
+
+    private void onRenderLevelStage(RenderLevelStageEvent event, RenderPipelineStage stage) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = event.getPoseStack();
+        float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+    //?} elif >=1.21 {
+    /*private static <T extends CustomPacketPayload> void playBidirectional(PayloadRegistrar registrar,
+                                                                          CustomPacketPayload.Type<T> type,
+                                                                          StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+                                                                          IPayloadHandler<T> handler) {
+        registrar.playBidirectional(type, codec, handler);
+    }
+
     private void onRenderLevelStage(RenderLevelStageEvent event) {
         RenderPipelineStage stage = mapForgeStage(event.getStage());
         if (stage == null) return;
@@ -420,19 +500,53 @@ public class NeoForgeModLoader implements ModLoader {
         if (callbacks == null || callbacks.isEmpty()) return;
 
         PoseStack poseStack = event.getPoseStack();
-        //? if >=1.21 {
         float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
-        //?} else {
-        /*float partialTicks = event.getPartialTick();
-        *///?}
 
         for (RenderPipelineCallback callback : callbacks) {
             callback.render(poseStack, partialTicks);
         }
     }
+    *///?} elif >=1.20.5 {
+    /*private static <T extends CustomPacketPayload> void playBidirectional(PayloadRegistrar registrar,
+                                                                          CustomPacketPayload.Type<T> type,
+                                                                          StreamCodec<? super RegistryFriendlyByteBuf, T> codec,
+                                                                          IPayloadHandler<T> handler) {
+        registrar.playBidirectional(type, codec, handler);
+    }
 
+    private void onRenderLevelStage(RenderLevelStageEvent event) {
+        RenderPipelineStage stage = mapForgeStage(event.getStage());
+        if (stage == null) return;
 
-    private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = event.getPoseStack();
+        float partialTicks = event.getPartialTick();
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+    *///?} else {
+    /*private void onRenderLevelStage(RenderLevelStageEvent event) {
+        RenderPipelineStage stage = mapForgeStage(event.getStage());
+        if (stage == null) return;
+
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = event.getPoseStack();
+        float partialTicks = event.getPartialTick();
+
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+    *///?}
+
+    //? if <1.21.6 {
+    /*private static RenderPipelineStage mapForgeStage(RenderLevelStageEvent.Stage forgeStage) {
         // must stay ahead of entity rendering
         if (forgeStage == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             return RenderPipelineStage.AFTER_SOLID;
@@ -445,4 +559,5 @@ public class NeoForgeModLoader implements ModLoader {
         }
         return null;
     }
+    *///?}
 }

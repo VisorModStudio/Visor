@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.server.network;
 
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.network.VisorChannel;
@@ -71,7 +72,7 @@ public class ServerNetworking {
 
     public static void kickDelayedIfNoVR(ServerPlayer serverPlayer) {
         scheduler.schedule(() -> {
-            if(serverPlayer.server.isShutdown()){
+            if(McEntity.serverLevel(serverPlayer).getServer().isShutdown()){
                 return;
             }
             if(serverPlayer.hasDisconnected()){
@@ -80,7 +81,7 @@ public class ServerNetworking {
             VRServerPlayer vrPlayer = VisorAPI.server()
                     .getVRPlayer(serverPlayer);
 
-            if(serverPlayer.server.getPlayerList()
+            if(McEntity.serverLevel(serverPlayer).getServer().getPlayerList()
                     .isOp(serverPlayer.getGameProfile())){
                 return;
             }
@@ -293,7 +294,7 @@ public class ServerNetworking {
 
 
     public static Set<ServerPlayerConnection> getTrackedVRPlayers(ServerPlayer trackedBy) {
-        ChunkMap chunkMap = trackedBy.serverLevel().getChunkSource().chunkMap;
+        ChunkMap chunkMap = McEntity.serverLevel(trackedBy).getChunkSource().chunkMap;
         var vrServer = VisorServerImpl.INSTANCE;
 
         TrackedEntityAccessor entityAccessor = ((ChunkMapAccessor) chunkMap).getEntityMap()

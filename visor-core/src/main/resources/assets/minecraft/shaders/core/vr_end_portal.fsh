@@ -29,8 +29,17 @@ SOFTWARE.
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
 
+// the block must match the vertex stage member for member
+#ifdef VISOR_UBO
+layout(std140) uniform VisorUniforms {
+    mat4 IViewRotMat;
+    float GameTime;
+    int EndPortalLayers;
+};
+#else
 uniform float GameTime;
 uniform int EndPortalLayers;
+#endif
 
 in vec3 pos;
 

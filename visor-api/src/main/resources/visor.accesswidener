@@ -93,10 +93,20 @@ accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStat
 accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
 
 # Used in: GameEffectVanilla, GameRendererMixin
-#? if >=1.21 {
-accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
-#?} else {
+#? if >=1.21 && <1.21.6 {
+#accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
+#?} elif <1.21 {
 #accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
+#?}
+
+# Used in: McFog, McGuiRenderer, McRenderUtils, OptionsScreenRegion
+#? if >=1.21.6 {
+accessible field net/minecraft/client/renderer/GameRenderer fogRenderer Lnet/minecraft/client/renderer/fog/FogRenderer;
+accessible field net/minecraft/client/renderer/GameRenderer guiRenderer Lnet/minecraft/client/gui/render/GuiRenderer;
+accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
+accessible field net/minecraft/client/renderer/GameRenderer screenEffectRenderer Lnet/minecraft/client/renderer/ScreenEffectRenderer;
+accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
+accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
 #?}
 
 # Used in: VRPlayerModelFull, VRPlayerModelSimple, VRPlayerRendererFull, VRPlayerRendererHandsOnly

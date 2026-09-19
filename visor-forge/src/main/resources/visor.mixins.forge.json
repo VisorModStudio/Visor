@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_${mixin_compat_level}",
   "refmap": "${mod_id}.refmap.json",
   "client": [
+    "ForgeChunkSectionsStageMixin",
     "ForgeGameRendererMixin",
     "ForgeIngameGuiVRMixin",
     "ForgeLevelRendererStageMixin",

@@ -12,9 +12,12 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.resources.ResourceLocation;
-//? if >=1.21.2 {
-import net.minecraft.client.renderer.RenderType;
-//?}
+import org.joml.Matrix4f;
+//? if >=1.21.6 {
+import net.minecraft.client.renderer.RenderPipelines;
+//?} else {
+/*import net.minecraft.client.renderer.RenderType;
+*///?}
 //? if >=1.21.9 {
 /*import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.CharacterEvent;
@@ -55,14 +58,62 @@ public class McGuiUtils {
     public static void setTooltipForNextRenderPass(Screen screen, GuiGraphics guiGraphics,
                                                    Tooltip tooltip, ClientTooltipPositioner positioner,
                                                    int mouseX, int mouseY, boolean focused) {
-        //? if >=1.21.9 {
-        /*guiGraphics.setTooltipForNextFrame(
+        //? if >=1.21.6 {
+        guiGraphics.setTooltipForNextFrame(
                 screen.getFont(), tooltip.toCharSequence(Minecraft.getInstance()),
                 positioner, mouseX, mouseY, focused
         );
-        *///?} else {
-        screen.setTooltipForNextRenderPass(tooltip, positioner, focused);
-        //?}
+        //?} else {
+        /*screen.setTooltipForNextRenderPass(tooltip, positioner, focused);
+        *///?}
+    }
+
+
+    // ------- POSE -------
+
+    public static void pushPose(GuiGraphics guiGraphics) {
+        //? if >=1.21.6 {
+        guiGraphics.pose().pushMatrix();
+        //?} else {
+        /*guiGraphics.pose().pushPose();
+        *///?}
+    }
+
+    public static void popPose(GuiGraphics guiGraphics) {
+        //? if >=1.21.6 {
+        guiGraphics.pose().popMatrix();
+        //?} else {
+        /*guiGraphics.pose().popPose();
+        *///?}
+    }
+
+    public static void translate(GuiGraphics guiGraphics, float x, float y) {
+        //? if >=1.21.6 {
+        guiGraphics.pose().translate(x, y);
+        //?} else {
+        /*guiGraphics.pose().translate(x, y, 0.0F);
+        *///?}
+    }
+
+    public static void scale(GuiGraphics guiGraphics, float x, float y) {
+        //? if >=1.21.6 {
+        guiGraphics.pose().scale(x, y);
+        //?} else {
+        /*guiGraphics.pose().scale(x, y, 1.0F);
+        *///?}
+    }
+
+    public static Matrix4f poseMatrix(GuiGraphics guiGraphics) {
+        //? if >=1.21.6 {
+        var pose = guiGraphics.pose();
+        return new Matrix4f(
+                pose.m00, pose.m01, 0.0F, 0.0F,
+                pose.m10, pose.m11, 0.0F, 0.0F,
+                0.0F, 0.0F, 1.0F, 0.0F,
+                pose.m20, pose.m21, 0.0F, 1.0F);
+        //?} else {
+        /*return new Matrix4f(guiGraphics.pose().last().pose());
+        *///?}
     }
 
 
@@ -72,10 +123,13 @@ public class McGuiUtils {
                             int x, int y, int width, int height,
                             float u, float v, int uWidth, int vHeight,
                             int textureWidth, int textureHeight) {
-        //? if >=1.21.2 {
-        guiGraphics.blit(RenderType::guiTextured, texture, x, y, u, v, width, height,
+        //? if >=1.21.6 {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, width, height,
                 uWidth, vHeight, textureWidth, textureHeight);
-        //?} else {
+        //?} elif >=1.21.2 {
+        /*guiGraphics.blit(RenderType::guiTextured, texture, x, y, u, v, width, height,
+                uWidth, vHeight, textureWidth, textureHeight);
+        *///?} else {
         /*guiGraphics.blit(texture, x, y, width, height, u, v, uWidth, vHeight, textureWidth, textureHeight);
         *///?}
     }
@@ -83,10 +137,28 @@ public class McGuiUtils {
     public static void blit(GuiGraphics guiGraphics, ResourceLocation texture,
                             int x, int y, float u, float v,
                             int width, int height, int textureWidth, int textureHeight) {
-        //? if >=1.21.2 {
-        guiGraphics.blit(RenderType::guiTextured, texture, x, y, u, v, width, height, textureWidth, textureHeight);
-        //?} else {
+        //? if >=1.21.6 {
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, width, height, textureWidth, textureHeight);
+        //?} elif >=1.21.2 {
+        /*guiGraphics.blit(RenderType::guiTextured, texture, x, y, u, v, width, height, textureWidth, textureHeight);
+        *///?} else {
         /*guiGraphics.blit(texture, x, y, u, v, width, height, textureWidth, textureHeight);
+        *///?}
+    }
+
+    public static void fillGuiOverlay(GuiGraphics guiGraphics, int x0, int y0, int x1, int y1, int color) {
+        //? if >=1.21.6 {
+        guiGraphics.fill(RenderPipelines.GUI, x0, y0, x1, y1, color);
+        //?} else {
+        /*guiGraphics.fill(RenderType.guiOverlay(), x0, y0, x1, y1, color);
+        *///?}
+    }
+
+    public static void fillTextHighlight(GuiGraphics guiGraphics, int x0, int y0, int x1, int y1, int color) {
+        //? if >=1.21.6 {
+        guiGraphics.fill(RenderPipelines.GUI_TEXT_HIGHLIGHT, x0, y0, x1, y1, color);
+        //?} else {
+        /*guiGraphics.fill(RenderType.guiTextHighlight(), x0, y0, x1, y1, color);
         *///?}
     }
 

@@ -3,7 +3,6 @@ package org.vmstudio.visor.core.client.render.decoration.decorators.winscreen;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -15,7 +14,6 @@ import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import org.vmstudio.visor.mixin.client.accessors.RenderSystemAccessor;
 
 
 public final class VREndVoid {
@@ -42,7 +40,7 @@ public final class VREndVoid {
     public static void render(PoseStack poseStack, float driftRad, float portalTicks) {
         McShaderProgram shader = VRShaders.getEndPortal().getHandle();
 
-        float previousGameTime = RenderSystem.getShaderGameTime();
+        float previousGameTime = McGlState.shaderGameTime();
         McGlState.setShaderGameTime((long) portalTicks, portalTicks % 1.0f);
 
         shader.use();
@@ -85,7 +83,7 @@ public final class VREndVoid {
             // per-eye value on a shared shader, never leave it set
             shader.setUniform("IViewRotMat", new Matrix3f());
             //?}
-            RenderSystemAccessor.setShaderGameTime(previousGameTime);
+            McGlState.setShaderGameTime(previousGameTime);
             McGlState.depthFunc(GL11C.GL_LEQUAL);
             McGlState.enableCull();
         }

@@ -161,7 +161,7 @@ public class ServerPacketHandler {
 
                 var payload = (SwingAttackPayloadToServer) payloadToServer;
 
-                ServerLevel serverLevel = serverPlayer.serverLevel();
+                ServerLevel serverLevel = McEntity.serverLevel(serverPlayer);
                 HandType handType = payload.mainHand() ? HandType.MAIN : HandType.OFFHAND;
 
                 Entity entity = serverLevel.getEntityOrPart(

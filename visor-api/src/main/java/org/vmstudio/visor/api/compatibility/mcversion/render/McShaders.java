@@ -9,7 +9,6 @@ import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
-import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.lwjgl.opengl.GL11;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
@@ -23,6 +22,11 @@ import net.minecraft.client.renderer.ShaderProgram;
 /*import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import java.util.function.Supplier;
+*///?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.textures.GpuTextureView;
+//?} elif >=1.21.5 {
+/*import com.mojang.blaze3d.textures.GpuTexture;
 *///?}
 
 /**
@@ -87,7 +91,11 @@ public class McShaders {
     }
 
     private static void bindSampler(RenderPass pass, int unit, boolean used) {
-        GpuTexture texture = RenderSystem.getShaderTexture(unit);
+        //? if >=1.21.6 {
+        GpuTextureView texture = RenderSystem.getShaderTexture(unit);
+        //?} else {
+        /*GpuTexture texture = RenderSystem.getShaderTexture(unit);
+        *///?}
         if (used && texture != null) {
             pass.bindSampler("Sampler" + unit, texture);
         }
@@ -101,18 +109,28 @@ public class McShaders {
                 .withVertexShader("core/" + shader)
                 .withFragmentShader("core/" + shader)
                 .withVertexFormat(key.format(), key.mode())
-                .withUniform("ModelViewMat", UniformType.MATRIX4X4)
+                //? if >=1.21.6 {
+                // the vanilla core GLSL reads its matrices and colour from the DynamicTransforms / Projection blocks
+                .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+                .withUniform("Projection", UniformType.UNIFORM_BUFFER)
+                //?} else {
+                /*.withUniform("ModelViewMat", UniformType.MATRIX4X4)
                 .withUniform("ProjMat", UniformType.MATRIX4X4)
                 .withUniform("ColorModulator", UniformType.VEC4)
+                *///?}
                 .withDepthTestFunction(depthTestFunction(state))
                 .withDepthWrite(state.depthWrite())
                 .withCull(state.cull())
                 .withColorWrite(state.colorWrite(), state.alphaWrite());
         if (fogged(key.core())) {
-            builder.withUniform("FogStart", UniformType.FLOAT)
+            //? if >=1.21.6 {
+            builder.withUniform("Fog", UniformType.UNIFORM_BUFFER);
+            //?} else {
+            /*builder.withUniform("FogStart", UniformType.FLOAT)
                     .withUniform("FogEnd", UniformType.FLOAT)
                     .withUniform("FogColor", UniformType.VEC4)
                     .withUniform("FogShape", UniformType.INT);
+            *///?}
         }
         if (textured(key.core())) {
             builder.withSampler("Sampler0");

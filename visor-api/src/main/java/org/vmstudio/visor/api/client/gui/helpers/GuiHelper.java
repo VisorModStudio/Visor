@@ -1,9 +1,9 @@
 package org.vmstudio.visor.api.client.gui.helpers;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,12 +62,10 @@ public class GuiHelper {
 
         float scaledTextWidth = font.width(text) * scale;
 
-        PoseStack poseStack = guiGraphics.pose();
-
-        poseStack.pushPose();
-        poseStack.translate(posX, posY, 0);
-        poseStack.scale(scale, scale, 1f);
-        poseStack.translate(-posX, -posY, 0);
+        McGuiUtils.pushPose(guiGraphics);
+        McGuiUtils.translate(guiGraphics, posX, posY);
+        McGuiUtils.scale(guiGraphics, scale, scale);
+        McGuiUtils.translate(guiGraphics, -posX, -posY);
 
         float areaW = width / scale;
         float areaH = height / scale;
@@ -99,7 +97,7 @@ public class GuiHelper {
             guiGraphics.disableScissor();
         }
 
-        poseStack.popPose();
+        McGuiUtils.popPose(guiGraphics);
     }
 
     public static void renderScalableText(@NotNull GuiGraphics guiGraphics,
@@ -151,14 +149,12 @@ public class GuiHelper {
             drawY = targetY;
         }
 
-        // Save current transform state
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
+        McGuiUtils.pushPose(guiGraphics);
 
         // Apply the transform FIRST, before scissoring
-        poseStack.translate(drawX, drawY, 0);
-        poseStack.scale(scale, scale, 1f);
-        poseStack.translate(-drawX, -drawY, 0);
+        McGuiUtils.translate(guiGraphics, drawX, drawY);
+        McGuiUtils.scale(guiGraphics, scale, scale);
+        McGuiUtils.translate(guiGraphics, -drawX, -drawY);
 
         // Calculate text position in the transformed space
         float baseX = drawX;
@@ -168,7 +164,7 @@ public class GuiHelper {
 
 
         // Restore transform state
-        poseStack.popPose();
+        McGuiUtils.popPose(guiGraphics);
 
     }
 

@@ -126,7 +126,19 @@ public abstract class WindowMixin implements WindowExtension {
     }
 
 
+    //? if >=1.21.6 {
     @Inject(method = "getGuiScale", at = @At("HEAD"), cancellable = true, require = 1)
+    void visor$vrScaleFactor(CallbackInfoReturnable<Integer> cir) {
+        if (VisorState.get().isActive()) {
+            VROverlayScreen overlay = VROverlayScreen.getRenderingOverlay();
+            cir.setReturnValue(overlay != null
+                    ? overlay.getGuiScaleFactor()
+                    : ClientContext.guiManager.getScaleFactor()
+            );
+        }
+    }
+    //?} else {
+    /*@Inject(method = "getGuiScale", at = @At("HEAD"), cancellable = true, require = 1)
     void visor$vrScaleFactor(CallbackInfoReturnable<Double> cir) {
         if (VisorState.get().isActive()) {
             VROverlayScreen overlay = VROverlayScreen.getRenderingOverlay();
@@ -136,6 +148,7 @@ public abstract class WindowMixin implements WindowExtension {
             );
         }
     }
+    *///?}
 
 
     @Unique

@@ -52,10 +52,16 @@ public abstract class McButton extends AbstractButton {
                 : new PositionedTooltip(tooltip, positioner));
     }
 
-    @Override
+    //? if >=1.21.6 {
+    public Tooltip getTooltip() {
+        return tooltipSource;
+    }
+    //?} else {
+    /*@Override
     public Tooltip getTooltip() {
         return tooltipSource != null ? tooltipSource : super.getTooltip();
     }
+    *///?}
 
     // 1.20.5 moved the positioner choice onto WidgetTooltipHolder, see TooltipMixins
     public static final class PositionedTooltip extends Tooltip {

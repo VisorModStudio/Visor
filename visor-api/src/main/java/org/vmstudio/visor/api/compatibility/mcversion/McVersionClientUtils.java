@@ -44,17 +44,21 @@ public class McVersionClientUtils {
     }
 
     public static void clearLevel(Minecraft minecraft) {
-        //? if >=1.20.2 {
-        minecraft.disconnect();
-        //?} else {
+        //? if >=1.21.6 {
+        minecraft.disconnectWithProgressScreen();
+        //?} elif >=1.20.2 {
+        /*minecraft.disconnect();
+        *///?} else {
         /*minecraft.clearLevel();
         *///?}
     }
 
     public static void clearLevel(Minecraft minecraft, Screen progressScreen) {
-        //? if >=1.20.2 {
-        minecraft.disconnect(progressScreen);
-        //?} else {
+        //? if >=1.21.6 {
+        minecraft.disconnect(progressScreen, false);
+        //?} elif >=1.20.2 {
+        /*minecraft.disconnect(progressScreen);
+        *///?} else {
         /*minecraft.clearLevel(progressScreen);
         *///?}
     }

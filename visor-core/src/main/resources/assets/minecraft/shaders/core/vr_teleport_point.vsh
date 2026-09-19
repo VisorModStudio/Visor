@@ -4,8 +4,22 @@
 in vec3 Position;
 
 
+#ifdef VISOR_UBO
+// 1.21.6 feeds the matrices through the engine's std140 blocks, declared like vanilla's gui.vsh does
+layout(std140) uniform DynamicTransforms {
+    mat4 ModelViewMat;
+    vec4 ColorModulator;
+    vec3 ModelOffset;
+    mat4 TextureMat;
+    float LineWidth;
+};
+layout(std140) uniform Projection {
+    mat4 ProjMat;
+};
+#else
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
+#endif
 
 out vec2 texCoord0;
 

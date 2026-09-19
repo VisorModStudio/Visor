@@ -134,7 +134,7 @@ public class RenderEffectsHelper {
     private static void writeHiddenAreaStencil(float[] mask) {
         RenderTarget target = McRenderTarget.mainTarget();
 
-        RenderSystem.backupProjectionMatrix();
+        McProjection.State savedProjection = McProjection.save();
         McModelViewStack.push();
 
         try {
@@ -148,7 +148,7 @@ public class RenderEffectsHelper {
         } finally {
             McModelViewStack.pop();
             McModelViewStack.apply();
-            RenderSystem.restoreProjectionMatrix();
+            McProjection.restore(savedProjection);
 
             endStencilWrite();
         }

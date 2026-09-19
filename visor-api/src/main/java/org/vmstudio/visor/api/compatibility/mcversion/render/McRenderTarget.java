@@ -12,9 +12,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.TextureFormat;
+import org.vmstudio.visor.api.ModLoader;
 
 import java.util.Map;
 import java.util.WeakHashMap;
+//?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.textures.GpuTextureView;
 //?}
 
 /**
@@ -175,9 +179,21 @@ public class McRenderTarget {
         return new ForeignTexture(label, width, height, glId);
     }
 
+    //? if >=1.21.6 {
+    // 1.21.6 samples and attaches views, a target created by Visor needs one per texture it swaps in
+    public static GpuTextureView createTextureView(GpuTexture texture) {
+        return RenderSystem.getDevice().createTextureView(texture);
+    }
+    //?}
+
     private static final class ForeignTexture extends GlTexture {
         private ForeignTexture(String label, int width, int height, int glId) {
-            super(label, TextureFormat.RGBA8, width, height, 1, glId);
+            //? if >=1.21.6 {
+            super(GpuTexture.USAGE_COPY_DST | GpuTexture.USAGE_COPY_SRC | GpuTexture.USAGE_TEXTURE_BINDING
+                    | GpuTexture.USAGE_RENDER_ATTACHMENT, label, TextureFormat.RGBA8, width, height, 1, 1, glId);
+            //?} else {
+            /*super(label, TextureFormat.RGBA8, width, height, 1, glId);
+            *///?}
         }
 
         @Override
@@ -187,15 +203,31 @@ public class McRenderTarget {
     }
 
     private static int glId(GpuTexture texture) {
-        return texture instanceof GlTexture glTexture ? glTexture.glId() : 0;
+        return texture != null && ModLoader.get().unwrapTexture(texture) instanceof GlTexture glTexture
+                ? glTexture.glId() : 0;
+    }
+
+    private static GlTexture glTexture(GpuTexture texture) {
+        return (GlTexture) ModLoader.get().unwrapTexture(texture);
     }
 
     private static int framebufferOf(RenderTarget target) {
-        GlDevice device = (GlDevice) RenderSystem.getDevice();
-        GlTexture color = (GlTexture) target.getColorTexture();
-        return color.getFbo(device.directStateAccess(), target.getDepthTexture());
+        GlDevice device = (GlDevice) ModLoader.get().unwrapDevice(RenderSystem.getDevice());
+        GpuTexture depth = target.getDepthTexture();
+        return glTexture(target.getColorTexture())
+                .getFbo(device.directStateAccess(), depth == null ? null : glTexture(depth));
     }
     //?}
+
+    // ------- FRAMEBUFFER -------
+
+    public static int framebufferId(RenderTarget target) {
+        //? if >=1.21.5 {
+        return framebufferOf(target);
+        //?} else {
+        /*return target.frameBufferId;
+        *///?}
+    }
 
     // ------- BLIT -------
 

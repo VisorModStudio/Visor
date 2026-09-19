@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import lombok.Getter;
@@ -175,7 +176,7 @@ public class VRHandRenderer {
                             @NotNull HandRenderState handStateOffhand,
                             float partialTicks,
                             boolean isGuiStage){
-        RenderSystem.backupProjectionMatrix();
+        McProjection.State savedProjection = McProjection.save();
 
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
@@ -217,7 +218,7 @@ public class VRHandRenderer {
             );
         }
 
-        RenderSystem.restoreProjectionMatrix();
+        McProjection.restore(savedProjection);
     }
     public void renderSpectatedHands(@NotNull Vec3 renderOffset,
                                      @NotNull AbstractClientPlayer player,
@@ -268,7 +269,7 @@ public class VRHandRenderer {
 
         VRCursorHandlerImpl cursorHandler = ClientContext.cursorHandler;
 
-        RenderSystem.backupProjectionMatrix();
+        McProjection.State savedProjection = McProjection.save();
         ((GameRendererExtension) MC.gameRenderer).visor$resetProjectionMatrix(partialTicks);
 
         VRRenderPass renderPass = VRRenderState.getRenderPass();
@@ -290,7 +291,7 @@ public class VRHandRenderer {
             }
         }
 
-        RenderSystem.restoreProjectionMatrix();
+        McProjection.restore(savedProjection);
     }
 
     private void renderCursorLine(@NotNull HandType hand,

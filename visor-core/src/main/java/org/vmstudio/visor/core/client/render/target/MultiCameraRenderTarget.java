@@ -5,6 +5,9 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTexture;
 //?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.textures.GpuTextureView;
+//?}
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
@@ -85,8 +88,43 @@ public class MultiCameraRenderTarget extends RenderTarget {
     }
     *///?}
 
-    //? if >=1.21.5 {
+    //? if >=1.21.6 {
     @Override
+    public void setFilterMode(FilterMode filterMode) {
+        getCurrentTarget().setFilterMode(filterMode);
+    }
+
+    @Override
+    public void blitToScreen() {
+        getCurrentTarget().blitToScreen();
+    }
+
+    @Override
+    public void blitAndBlendToTexture(GpuTextureView texture) {
+        getCurrentTarget().blitAndBlendToTexture(texture);
+    }
+
+    @Override
+    public GpuTexture getColorTexture() {
+        return getCurrentTarget().getColorTexture();
+    }
+
+    @Override
+    public GpuTextureView getColorTextureView() {
+        return getCurrentTarget().getColorTextureView();
+    }
+
+    @Override
+    public GpuTexture getDepthTexture() {
+        return getCurrentTarget().getDepthTexture();
+    }
+
+    @Override
+    public GpuTextureView getDepthTextureView() {
+        return getCurrentTarget().getDepthTextureView();
+    }
+    //?} elif >=1.21.5 {
+    /*@Override
     public void setFilterMode(FilterMode filterMode) {
         getCurrentTarget().setFilterMode(filterMode);
     }
@@ -110,7 +148,7 @@ public class MultiCameraRenderTarget extends RenderTarget {
     public GpuTexture getDepthTexture() {
         return getCurrentTarget().getDepthTexture();
     }
-    //?} elif >=1.21.2 {
+    *///?} elif >=1.21.2 {
     /*    @Override
     public void setFilterMode(int filterMode) {
         getCurrentTarget().setFilterMode(filterMode);

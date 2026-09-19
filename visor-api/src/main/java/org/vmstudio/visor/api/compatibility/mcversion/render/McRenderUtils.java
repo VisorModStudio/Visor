@@ -7,9 +7,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.model.geom.ModelPart;
-//? if >=1.21 {
-import net.minecraft.client.gui.GuiGraphics;
-//?}
+//? if >=1.21 && <1.21.6 {
+/*import net.minecraft.client.gui.GuiGraphics;
+*///?}
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -165,13 +165,16 @@ public class McRenderUtils {
     }
 
     public static void renderItemActivationAnimation(GameRenderer renderer, float partialTicks) {
-        //? if >=1.21 {
-        Minecraft minecraft = Minecraft.getInstance();
+        //? if >=1.21.6 {
+        // 1.21.6 moved the animation onto ScreenEffectRenderer
+        renderer.screenEffectRenderer.renderItemActivationAnimation(new PoseStack(), partialTicks);
+        //?} elif >=1.21 {
+        /*Minecraft minecraft = Minecraft.getInstance();
         renderer.renderItemActivationAnimation(
                 new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource()),
                 partialTicks
         );
-        //?} else {
+        *///?} else {
         /*renderer.renderItemActivationAnimation(0, 0, partialTicks);
         *///?}
     }

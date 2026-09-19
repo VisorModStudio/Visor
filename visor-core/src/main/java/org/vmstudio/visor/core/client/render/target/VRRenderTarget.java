@@ -57,8 +57,20 @@ public class VRRenderTarget extends RenderTarget {
     }
 
 
-    //? if >=1.21.5 {
+    //? if >=1.21.6 {
     @Override
+    public void createBuffers(int width, int height) {
+        super.createBuffers(width, height);
+        Integer adopted = textureSupplier == null ? null : textureSupplier.get();
+        if (adopted != null && adopted > 0) {
+            this.colorTextureView.close();
+            this.colorTexture.close();
+            this.colorTexture = McRenderTarget.adoptForeignTexture(name, width, height, adopted);
+            this.colorTextureView = McRenderTarget.createTextureView(this.colorTexture);
+        }
+    }
+    //?} elif >=1.21.5 {
+    /*@Override
     public void createBuffers(int width, int height) {
         super.createBuffers(width, height);
         Integer adopted = textureSupplier == null ? null : textureSupplier.get();
@@ -67,7 +79,7 @@ public class VRRenderTarget extends RenderTarget {
             this.colorTexture = McRenderTarget.adoptForeignTexture(name, width, height, adopted);
         }
     }
-    //?}
+    *///?}
 
     @Override
     public String toString() {

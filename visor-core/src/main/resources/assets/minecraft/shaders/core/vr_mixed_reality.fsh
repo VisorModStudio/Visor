@@ -4,6 +4,17 @@ uniform sampler2D SamplerColor;
 uniform sampler2D SamplerDepth;
 
 
+#ifdef VISOR_UBO
+// the json every older node reads gives this block its member order
+layout(std140) uniform VisorUniforms {
+    mat4 uInverseProjectionView;
+    bool uAsGrid2x2;
+    bool uAlphaMode;
+    vec3 uHmdViewPosition;
+    vec3 uHmdPlaneNormal;
+    vec3 uKeyColor;
+};
+#else
 uniform mat4 uInverseProjectionView;
 
 uniform bool uAsGrid2x2;
@@ -13,6 +24,7 @@ uniform vec3 uHmdViewPosition;
 uniform vec3 uHmdPlaneNormal;
 
 uniform vec3 uKeyColor;
+#endif
 
 
 in vec2 texCoord0;

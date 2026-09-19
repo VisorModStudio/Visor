@@ -1,9 +1,13 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-//? if >=1.21.2 {
-import net.minecraft.client.renderer.FogParameters;
-//?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.fog.FogRenderer;
+//?} elif >=1.21.2 {
+/*import net.minecraft.client.renderer.FogParameters;
+*///?}
 
 /**
  * Cross-mc-version facade over the shader fog
@@ -22,9 +26,11 @@ public class McFog {
     }
 
     public static void disable() {
-        //? if >=1.21.2 {
-        RenderSystem.setShaderFog(FogParameters.NO_FOG);
-        //?} else {
+        //? if >=1.21.6 {
+        RenderSystem.setShaderFog(Minecraft.getInstance().gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+        //?} elif >=1.21.2 {
+        /*RenderSystem.setShaderFog(FogParameters.NO_FOG);
+        *///?} else {
         /*RenderSystem.setShaderFogStart(Float.MAX_VALUE);
         *///?}
     }
@@ -38,13 +44,19 @@ public class McFog {
     }
 
     public static final class State {
-        //? if >=1.21.2 {
-        private final FogParameters fog;
+        //? if >=1.21.6 {
+        private final GpuBufferSlice fog;
+
+        private State(GpuBufferSlice fog) {
+            this.fog = fog;
+        }
+        //?} elif >=1.21.2 {
+        /*private final FogParameters fog;
 
         private State(FogParameters fog) {
             this.fog = fog;
         }
-        //?} else {
+        *///?} else {
         /*private final float fogStart;
 
         private State(float fogStart) {

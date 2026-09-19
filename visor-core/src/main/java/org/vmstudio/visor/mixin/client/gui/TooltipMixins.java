@@ -27,8 +27,30 @@ public class TooltipMixins {
     /**
      * Attaches a tooltip to the overlay handling screen
      */
-    //? if >=1.20.5 {
-    // 1.20.5 moved the attach point and the positioner choice onto WidgetTooltipHolder.
+    //? if >=1.21.6 {
+    // 1.21.6 hands the tooltip to the GuiGraphics being drawn, which already is the overlay's
+    @Mixin(WidgetTooltipHolder.class)
+    public static class TooltipScreenMixin {
+
+        @Shadow
+        private Tooltip tooltip;
+
+        // McButton wraps its tooltip to carry the positioner it wants
+        @ModifyExpressionValue(
+                method = "refreshTooltipForNextRenderPass",
+                at = @At(
+                        value = "INVOKE",
+                        target = "Lnet/minecraft/client/gui/components/WidgetTooltipHolder;createTooltipPositioner(Lnet/minecraft/client/gui/navigation/ScreenRectangle;ZZ)Lnet/minecraft/client/gui/screens/inventory/tooltip/ClientTooltipPositioner;"
+                )
+        )
+        private ClientTooltipPositioner visor$widgetTooltipPositioner(ClientTooltipPositioner original) {
+            return this.tooltip instanceof McButton.PositionedTooltip positioned
+                    ? positioned.positioner()
+                    : original;
+        }
+    }
+    //?} elif >=1.20.5 {
+    /*// 1.20.5 moved the attach point and the positioner choice onto WidgetTooltipHolder.
     @Mixin(WidgetTooltipHolder.class)
     public static class TooltipScreenMixin {
 
@@ -64,7 +86,7 @@ public class TooltipMixins {
                     : original;
         }
     }
-    //?} elif >=1.20.3 {
+    *///?} elif >=1.20.3 {
     /*// 1.20.3 moved the attach point off AbstractWidget onto the tooltip itself.
     @Mixin(Tooltip.class)
     public static class TooltipScreenMixin {

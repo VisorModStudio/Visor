@@ -11,6 +11,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+//? if >=1.21.6 {
+import org.joml.Matrix4f;
+//?}
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -54,8 +57,10 @@ public abstract class GameRendererMixin {
     *///?}
     @Shadow
     private long lastActiveTime;
-    @Shadow
+    //? if <1.21.6 {
+    /*@Shadow
     private int itemActivationTicks;
+    *///?}
 
 
     /* ****************** *\
@@ -102,15 +107,16 @@ public abstract class GameRendererMixin {
   //--------ITEM ACTIVATION--------\\
     \* ************************* */
     // item activation animation: skipped in the GUI pass, GameEffectVanilla draws it
+    // 1.21.6 moved it onto ScreenEffectRenderer, see ScreenEffectRendererMixin
 
-    //? if >=1.21 {
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
+    //? if >=1.21 && <1.21.6 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphics guiGraphics, float f, Operation<Void> original) {
         if(VRRenderState.getPhase().isVanilla()) {
             original.call(instance, guiGraphics, f);
         }
     }
-    //?} else {
+    *///?} elif <1.21 {
     /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(IIF)V"), method = "render(FJZ)V")
     private void visor$noItemActivationAnimInGUI(GameRenderer instance, int i, int j, float f, Operation<Void> original) {
         if(VRRenderState.getPhase().isVanilla()) {
@@ -119,7 +125,8 @@ public abstract class GameRendererMixin {
     }
     *///?}
 
-    @WrapOperation(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"))
+    //? if <1.21.6 {
+    /*@WrapOperation(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;scale(FFF)V"))
     private void visor$skipActivationScale(PoseStack poseStack, float x, float y, float z,
                                            Operation<Void> original,
                                            @Local(argsOnly = true) float partialTicks
@@ -156,6 +163,7 @@ public abstract class GameRendererMixin {
             original.call(poseStack, x, y, z);
         }
     }
+    *///?}
 
 
     /* ********************* *\
@@ -228,13 +236,26 @@ public abstract class GameRendererMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"), method = "renderLevel")
+    //? if >=1.21.6 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(FZLorg/joml/Matrix4f;)V"), method = "renderLevel")
+    public void visor$noVanillaHands(GameRenderer instance, float partialTick, boolean sleeping, Matrix4f projection,
+                                     Operation<Void> original) {
+        if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
+            return;
+        }
+        if (VRRenderState.getPhase().isVanilla()) {
+            original.call(instance, partialTick, sleeping, projection);
+        }
+    }
+    //?} else {
+    /*@WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"), method = "renderLevel")
     public boolean visor$noVanillaHands(GameRenderer instance, Operation<Boolean> original) {
         if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
             return false;
         }
         return VRRenderState.getPhase().isVanilla() && original.call(instance);
     }
+    *///?}
 
     /**
      * Only process this when rendering vanilla

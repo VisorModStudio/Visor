@@ -2,11 +2,21 @@
 
 uniform sampler2D Sampler0;
 
+#ifdef VISOR_UBO
+// the json every older node reads gives this block its member order
+layout(std140) uniform VisorUniforms {
+    float uTintRed;
+    float uTintBlue;
+    float uTintBlack;
+    float uDesaturate;
+};
+#else
 uniform float uTintRed;
 uniform float uTintBlue;
 uniform float uTintBlack;
 
 uniform float uDesaturate;
+#endif
 
 in vec2 texCoord0;
 out vec4 fragColor;

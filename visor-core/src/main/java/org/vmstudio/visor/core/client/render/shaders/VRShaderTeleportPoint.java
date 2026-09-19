@@ -22,7 +22,19 @@ public class VRShaderTeleportPoint implements VRShader{
                                    AtumColor color){
         handle.setModelViewMatrix(modelView);
         handle.setProjectionMatrix(projection);
+        setUniforms(time, color);
+        handle.apply();
+        return handle;
+    }
 
+    // drawn with the engine's current matrices
+    public McShaderProgram prepare(float time, AtumColor color) {
+        setUniforms(time, color);
+        handle.use();
+        return handle;
+    }
+
+    private void setUniforms(float time, AtumColor color) {
         handle.setUniform("uTime", time);
         float[] normColor = new float[] {
                 color.getRed(),
@@ -30,9 +42,6 @@ public class VRShaderTeleportPoint implements VRShader{
                 color.getBlue()
         };
         handle.setUniform("uColor", normColor);
-
-        handle.apply();
-        return handle;
     }
 
 

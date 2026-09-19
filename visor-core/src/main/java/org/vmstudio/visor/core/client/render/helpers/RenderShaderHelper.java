@@ -64,6 +64,17 @@ public class RenderShaderHelper {
                                   float z0,
                                   float x1,
                                   float z1) {
+        renderQuad(format, matrix, x0, y, z0, x1, z1, false);
+    }
+
+    public static void renderQuad(VertexFormat format,
+                                  Matrix4f matrix,
+                                  float x0,
+                                  float y,
+                                  float z0,
+                                  float x1,
+                                  float z1,
+                                  boolean withShader) {
         McVertexBuilder buf = McVertexBuilder.get();
         buf.begin(VertexFormat.Mode.QUADS, format);
 
@@ -72,7 +83,11 @@ public class RenderShaderHelper {
         putQuadVertex(buf, format, matrix, x1, y, z1, 1.0F, 1.0F);
         putQuadVertex(buf, format, matrix, x0, y, z1, 0.0F, 1.0F);
 
-        buf.drawNoShader();
+        if (withShader) {
+            buf.draw();
+        } else {
+            buf.drawNoShader();
+        }
     }
 
     private static void putFullscreenVertex(McVertexBuilder buf, VertexFormat format, int index) {

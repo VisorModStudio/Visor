@@ -131,6 +131,10 @@ loom {
             ideConfigGenerated stonecutter.current.active
             configName = "${loader.capitalize()} ${minecraft_version} ${name}"
             runDir "../../../run/${loader}/${minecraft_version}/${name}"
+            // -PvisorRenderSelfTest: draw through the render seam at the title screen and read the pixels back
+            if (project.hasProperty("visorRenderSelfTest")) {
+                vmArg "-Dvisor.renderSelfTest=true"
+            }
         }
     }
 }

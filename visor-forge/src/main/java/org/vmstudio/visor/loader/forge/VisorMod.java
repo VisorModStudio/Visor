@@ -10,12 +10,17 @@ import org.vmstudio.visor.core.common.addon.AddonManagerImpl;
 @Mod(VisorAPI.MOD_ID)
 public class VisorMod {
 
-    //? if >=1.20.2 {
-    public VisorMod(){
+    //? if >=1.21.6 {
+    public VisorMod(final FMLJavaModLoadingContext context){
+        FMLLoadCompleteEvent.getBus(context.getModBusGroup())
+                .addListener(this::onLoadComplete);
+    }
+    //?} elif >=1.20.2 {
+    /*public VisorMod(){
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener(this::onLoadComplete);
     }
-    //?} else {
+    *///?} else {
     /*public VisorMod(final FMLJavaModLoadingContext context){
         context.getModEventBus()
                 .addListener(this::onLoadComplete);

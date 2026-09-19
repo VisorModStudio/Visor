@@ -1,6 +1,11 @@
 package org.vmstudio.visor.mixin.common.player;
 
-import org.vmstudio.visor.api.compatibility.mcversion.McNbt;
+//? if >=1.21.6 {
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//?} else {
+/*import org.vmstudio.visor.api.compatibility.mcversion.McNbt;
+*///?}
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McUseAnim;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -16,7 +21,9 @@ import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
+//? if <1.21.6 {
+/*import net.minecraft.nbt.CompoundTag;
+*///?}
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -71,7 +78,21 @@ public abstract class ServerPlayerMixin
     \* **************** */
 
 
+    //? if >=1.21.6 {
     @WrapMethod(method = "readAdditionalSaveData")
+    protected void visor$wrapReadData(ValueInput input, Operation<Void> original) {
+        original.call(input);
+        visor$rotationYCached = input.getFloatOr("visor$rotation_y", 0.0F);
+        visor$offhandSlotCached = input.getIntOr("visor$offhand_slot", -1);
+    }
+    @WrapMethod(method = "addAdditionalSaveData")
+    protected void visor$wrapSaveData(ValueOutput output, Operation<Void> original) {
+        original.call(output);
+        output.putFloat("visor$rotation_y", visor$rotationYCached);
+        output.putInt("visor$offhand_slot", visor$offhandSlotCached);
+    }
+    //?} else {
+    /*@WrapMethod(method = "readAdditionalSaveData")
     protected void visor$wrapReadData(CompoundTag compound, Operation<Void> original) {
         original.call(compound);
         visor$rotationYCached = McNbt.getFloat(compound, "visor$rotation_y", 0.0F);
@@ -83,6 +104,7 @@ public abstract class ServerPlayerMixin
         compound.putFloat("visor$rotation_y", visor$rotationYCached);
         compound.putInt("visor$offhand_slot", visor$offhandSlotCached);
     }
+    *///?}
 
     /* *************** *\
   //--------OTHER--------\\

@@ -29,6 +29,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiRenderer;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 
 import java.io.IOException;
@@ -331,6 +332,7 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
                     getMouseX(), getMouseY(),
                     partialTicks
             );
+            McGuiRenderer.end(guiGraphics);
         } finally {
             renderingOverlay = previousRendering;
         }

@@ -17,8 +17,23 @@ import org.vmstudio.visor.loader.forge.ForgeModLoader;
 @Mixin(LevelRenderer.class)
 public class ForgeLevelRendererStageMixin {
 
-    //? if >=1.21.2 {
+    //? if >=1.21.6 {
     @Inject(method = "renderEntities", at = @At("HEAD"))
+    private void visor$afterSolid(CallbackInfo ci) {
+        visor$fire(RenderPipelineStage.AFTER_SOLID);
+    }
+
+    @Inject(method = "renderLevel", at = @At("TAIL"))
+    private void visor$afterWorld(CallbackInfo ci) {
+        visor$fire(RenderPipelineStage.AFTER_WORLD);
+    }
+
+    @Unique
+    private static void visor$fire(RenderPipelineStage stage) {
+        ((ForgeModLoader) ModLoader.get()).fireLevelStage(stage);
+    }
+    //?} elif >=1.21.2 {
+    /*@Inject(method = "renderEntities", at = @At("HEAD"))
     private void visor$afterSolid(CallbackInfo ci) {
         visor$fire(RenderPipelineStage.AFTER_SOLID);
     }
@@ -39,5 +54,5 @@ public class ForgeLevelRendererStageMixin {
     private static void visor$fire(RenderPipelineStage stage) {
         ((ForgeModLoader) ModLoader.get()).fireLevelStage(stage);
     }
-    //?}
+    *///?}
 }

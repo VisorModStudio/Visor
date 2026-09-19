@@ -1,7 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets;
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
-import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.VisorAPI;
@@ -16,7 +15,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -152,10 +150,9 @@ public class TextBoxEditable extends AbstractWidget implements McGuiEventListene
 
         guiGraphics.enableScissor(textX, textY, textMaxX, textMaxY);
 
-        PoseStack poseStack = guiGraphics.pose();
-        poseStack.pushPose();
-        poseStack.translate(textX, textY, 0);
-        poseStack.scale(textScale, textScale, 1.0f);
+        McGuiUtils.pushPose(guiGraphics);
+        McGuiUtils.translate(guiGraphics, textX, textY);
+        McGuiUtils.scale(guiGraphics, textScale, textScale);
 
         int lineHeight = getLineHeight();
         int lineY = -scrollOffset;
@@ -193,9 +190,7 @@ public class TextBoxEditable extends AbstractWidget implements McGuiEventListene
                         if (isCursorAtLineEnd) {
                             guiGraphics.drawString(this.font, "_", cursorX, lineY, this.textColor);
                         } else {
-                            guiGraphics.fill(
-                                    RenderType.guiOverlay(),
-                                    cursorX,
+                            McGuiUtils.fillGuiOverlay(guiGraphics, cursorX,
                                     lineY + LINE_PADDING,
                                     cursorX + 1,
                                     lineY + font.lineHeight + LINE_PADDING,
@@ -209,7 +204,7 @@ public class TextBoxEditable extends AbstractWidget implements McGuiEventListene
             }
         }
 
-        poseStack.popPose();
+        McGuiUtils.popPose(guiGraphics);
         guiGraphics.disableScissor();
 
         renderScrollBar(guiGraphics);
@@ -246,7 +241,7 @@ public class TextBoxEditable extends AbstractWidget implements McGuiEventListene
         if (scrollBarTex != null) {
             scrollBarTex.blit(guiGraphics, trackX, thumbY, scrollBarWidth, thumbHeight);
         } else {
-            guiGraphics.fill(RenderType.guiOverlay(), trackX, thumbY, trackX + scrollBarWidth, thumbY + thumbHeight, 0x80000000);
+            McGuiUtils.fillGuiOverlay(guiGraphics, trackX, thumbY, trackX + scrollBarWidth, thumbY + thumbHeight, 0x80000000);
         }
     }
 
@@ -272,9 +267,7 @@ public class TextBoxEditable extends AbstractWidget implements McGuiEventListene
         int endX = textLen == 0 ? this.font.width(" ") : this.font.width(lineText.substring(0, selEnd));
 
         var halfPadding = LINE_PADDING / 2;
-        guiGraphics.fill(
-                RenderType.guiTextHighlight(),
-                startX,
+        McGuiUtils.fillTextHighlight(guiGraphics, startX,
                 lineY - halfPadding,
                 endX,
                 lineY + halfPadding + font.lineHeight,

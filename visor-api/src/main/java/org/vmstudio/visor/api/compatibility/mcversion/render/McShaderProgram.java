@@ -1,7 +1,355 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
-//? if >=1.21.5 {
+//? if >=1.21.6 {
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.DestFactor;
+import com.mojang.blaze3d.platform.SourceFactor;
+import com.mojang.blaze3d.shaders.UniformType;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderStateShard;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+
+import java.io.BufferedReader;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Cross-mc-version handler of a shader program
+ */
+public final class McShaderProgram {
+    // 1.21.6 feeds uniforms through std140 blocks only: the json every older node reads gives the block layout,
+    // in declaration order, and the GLSL declares the same block under VISOR_UBO
+    private static final String BLOCK = "VisorUniforms";
+    private static final String UBO_DEFINE = "VISOR_UBO";
+    private static final String MAT3_AS_MAT4 = "VISOR_MAT3_AS_MAT4";
+    private static final int RING_SLOTS = 8;
+
+    private static final Matrix4f IDENTITY = new Matrix4f();
+
+    private static McShaderProgram active;
+
+    private record Slot(String name, String type, int count, int offset, float[] defaults) {
+    }
+
+    private final String name;
+    private final VertexFormat vertexFormat;
+    private final boolean alphaBlend;
+    private final List<Slot> slots = new ArrayList<>();
+    private final List<String> samplerNames = new ArrayList<>();
+    private final boolean usesMatrices;
+    private final int blockSize;
+    private final McUniformRing ring;
+    private final Map<String, float[]> floatUniforms = new HashMap<>();
+    private final Map<String, int[]> intUniforms = new HashMap<>();
+    private final Map<String, Matrix4f> matrixUniforms = new HashMap<>();
+    private final Map<String, GpuTextureView> samplers = new LinkedHashMap<>();
+    private final Map<PipelineKey, RenderPipeline> pipelines = new HashMap<>();
+    private GpuBufferSlice pendingBlock;
+    private Matrix4f modelView;
+    private Matrix4f projection;
+
+    private McShaderProgram(String name, VertexFormat vertexFormat, boolean alphaBlend) throws Exception {
+        this.name = name;
+        this.vertexFormat = vertexFormat;
+        this.alphaBlend = alphaBlend;
+
+        CompoundTag json = readJson(name);
+        boolean matrices = false;
+        int offset = 0;
+        ListTag uniforms = json.getListOrEmpty("uniforms");
+        for (int i = 0; i < uniforms.size(); i++) {
+            CompoundTag uniform = uniforms.getCompoundOrEmpty(i);
+            String uniformName = uniform.getStringOr("name", "");
+            if (uniformName.equals("ModelViewMat") || uniformName.equals("ProjMat")) {
+                matrices = true;
+                continue;
+            }
+            String type = uniform.getStringOr("type", "float");
+            int count = uniform.getIntOr("count", 1);
+            int align = alignmentOf(type, count);
+            offset = (offset + align - 1) / align * align;
+            ListTag values = uniform.getListOrEmpty("values");
+            float[] defaults = new float[values.size()];
+            for (int v = 0; v < defaults.length; v++) {
+                defaults[v] = (float) values.getDoubleOr(v, 0.0);
+            }
+            slots.add(new Slot(uniformName, type, count, offset, defaults));
+            offset += sizeOf(type, count);
+        }
+        ListTag samplerList = json.getListOrEmpty("samplers");
+        for (int i = 0; i < samplerList.size(); i++) {
+            samplerNames.add(samplerList.getCompoundOrEmpty(i).getStringOr("name", ""));
+        }
+        this.usesMatrices = matrices;
+        this.blockSize = (offset + 15) / 16 * 16;
+        this.ring = slots.isEmpty() ? null : new McUniformRing("visor " + name + " uniforms", blockSize, RING_SLOTS);
+    }
+
+    public static McShaderProgram core(String name, VertexFormat vertexFormat, boolean alphaBlend) throws Exception {
+        return new McShaderProgram(name, vertexFormat, alphaBlend);
+    }
+
+    public VertexFormat vertexFormat() {
+        return vertexFormat;
+    }
+
+    public void setUniform(String name, float value) {
+        floatUniforms.put(name, new float[]{value});
+    }
+
+    public void setUniform(String name, int value) {
+        intUniforms.put(name, new int[]{value});
+    }
+
+    public void setUniform(String name, float x, float y, float z) {
+        floatUniforms.put(name, new float[]{x, y, z});
+    }
+
+    public void setUniform(String name, float[] values) {
+        floatUniforms.put(name, values);
+    }
+
+    public void setUniform(String name, Matrix3f matrix) {
+        matrixUniforms.put(name, new Matrix4f(matrix));
+    }
+
+    public void setUniform(String name, Matrix4f matrix) {
+        matrixUniforms.put(name, new Matrix4f(matrix));
+    }
+
+    public void setSampler(String name, RenderTarget target) {
+        samplers.put(name, target.getColorTextureView());
+    }
+
+    public void setDepthSampler(String name, RenderTarget target) {
+        samplers.put(name, target.getDepthTextureView());
+    }
+
+    public void setModelViewMatrix(Matrix4f matrix) {
+        modelView = new Matrix4f(matrix);
+    }
+
+    public void setProjectionMatrix(Matrix4f matrix) {
+        projection = new Matrix4f(matrix);
+    }
+
+    public void apply() {
+        active = this;
+    }
+
+    public void use() {
+        active = this;
+    }
+
+    public void clear() {
+        if (active == this) {
+            active = null;
+        }
+    }
+
+    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
+        RenderStateShard.MultiTextureStateShard.Builder texture =
+                RenderStateShard.MultiTextureStateShard.builder();
+        for (ResourceLocation location : textures) {
+            texture.add(location, false);
+        }
+        RenderStateShard.MultiTextureStateShard textureState = texture.build();
+        return new RenderType(name, bufferSize, false, false,
+                textureState::setupRenderState, textureState::clearRenderState) {
+            @Override
+            public void draw(MeshData mesh) {
+                setupRenderState();
+                McShaderProgram.this.draw(mesh, McRenderTarget.writeTarget(), false);
+                clearRenderState();
+            }
+
+            @Override
+            public VertexFormat format() {
+                return vertexFormat;
+            }
+
+            @Override
+            public VertexFormat.Mode mode() {
+                return mode;
+            }
+        };
+    }
+
+    static McShaderProgram active() {
+        return active;
+    }
+
+    static void clearActive() {
+        active = null;
+    }
+
+    void draw(MeshData mesh, RenderTarget target, boolean ownMatrices) {
+        // buffer writes are illegal inside the pass
+        pendingBlock = ring == null ? null : writeBlock();
+        if (!ownMatrices) {
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+            return;
+        }
+        McModelViewStack.push();
+        RenderSystem.getModelViewStack().set(modelView != null ? modelView : IDENTITY);
+        McProjection.State savedProjection = McProjection.save();
+        McProjection.setKeepingType(projection != null ? projection : IDENTITY);
+        try {
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+        } finally {
+            McProjection.restore(savedProjection);
+            McModelViewStack.pop();
+        }
+    }
+
+    private record PipelineKey(VertexFormat.Mode mode, McGlState.DrawState state) {
+    }
+
+    private RenderPipeline pipeline(VertexFormat.Mode mode) {
+        return pipelines.computeIfAbsent(new PipelineKey(mode, McGlState.drawState()),
+                key -> buildPipeline(key.mode(), key.state()));
+    }
+
+    private void applyUniforms(RenderPass pass) {
+        for (String sampler : samplerNames) {
+            GpuTextureView texture = samplers.get(sampler);
+            if (texture == null && sampler.startsWith("Sampler")) {
+                texture = RenderSystem.getShaderTexture(Integer.parseInt(sampler.substring("Sampler".length())));
+            }
+            if (texture != null) {
+                pass.bindSampler(sampler, texture);
+            }
+        }
+        if (pendingBlock != null) {
+            pass.setUniform(BLOCK, pendingBlock);
+        }
+    }
+
+    private GpuBufferSlice writeBlock() {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            ByteBuffer buffer = stack.malloc(blockSize);
+            for (Slot slot : slots) {
+                switch (slot.type()) {
+                    case "int" -> {
+                        int[] values = intUniforms.get(slot.name());
+                        buffer.putInt(slot.offset(), values != null ? values[0] : (int) defaultAt(slot, 0));
+                    }
+                    case "matrix4x4", "matrix3x3" -> {
+                        Matrix4f matrix = matrixUniforms.get(slot.name());
+                        if (matrix == null) {
+                            matrix = defaultMatrix(slot);
+                        }
+                        matrix.get(slot.offset(), buffer);
+                    }
+                    default -> {
+                        float[] values = slot.name().equals("GameTime")
+                                ? new float[]{McGlState.shaderGameTime()}
+                                : floatUniforms.get(slot.name());
+                        for (int i = 0; i < slot.count(); i++) {
+                            buffer.putFloat(slot.offset() + i * 4,
+                                    values != null && i < values.length ? values[i] : defaultAt(slot, i));
+                        }
+                    }
+                }
+            }
+            return ring.write(buffer.position(0).limit(blockSize));
+        }
+    }
+
+    private static float defaultAt(Slot slot, int index) {
+        return index < slot.defaults().length ? slot.defaults()[index] : 0.0F;
+    }
+
+    private static Matrix4f defaultMatrix(Slot slot) {
+        float[] values = slot.defaults();
+        if (values.length == 16) {
+            return new Matrix4f().set(values);
+        }
+        if (values.length == 9) {
+            return new Matrix4f(new Matrix3f().set(values));
+        }
+        return new Matrix4f();
+    }
+
+    private static int sizeOf(String type, int count) {
+        return switch (type) {
+            case "matrix4x4", "matrix3x3" -> 64;
+            case "int" -> 4 * count;
+            default -> 4 * count;
+        };
+    }
+
+    private static int alignmentOf(String type, int count) {
+        return switch (type) {
+            case "matrix4x4", "matrix3x3" -> 16;
+            default -> count == 1 ? 4 : count == 2 ? 8 : 16;
+        };
+    }
+
+    private static CompoundTag readJson(String name) throws Exception {
+        ResourceLocation location = McVersionUtils.newResourceLoc("minecraft", "shaders/core/" + name + ".json");
+        try (BufferedReader reader = Minecraft.getInstance().getResourceManager().getResourceOrThrow(location).openAsReader()) {
+            // the json is a subset of SNBT, and gson is relocated in the mod jar
+            return TagParser.parseCompoundFully(reader.lines().collect(Collectors.joining("\n")));
+        }
+    }
+
+    private RenderPipeline buildPipeline(VertexFormat.Mode mode, McGlState.DrawState state) {
+        RenderPipeline.Builder builder = RenderPipeline.builder()
+                .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + name))
+                .withVertexShader("core/" + name)
+                .withFragmentShader("core/" + name)
+                .withVertexFormat(vertexFormat, mode)
+                .withShaderDefine(MAT3_AS_MAT4)
+                .withShaderDefine(UBO_DEFINE)
+                .withDepthTestFunction(McShaders.depthTestFunction(state))
+                .withDepthWrite(state.depthWrite())
+                .withCull(state.cull())
+                .withColorWrite(state.colorWrite(), state.alphaWrite());
+        if (usesMatrices) {
+            builder.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+                    .withUniform("Projection", UniformType.UNIFORM_BUFFER);
+        }
+        if (ring != null) {
+            builder.withUniform(BLOCK, UniformType.UNIFORM_BUFFER);
+        }
+        samplerNames.forEach(builder::withSampler);
+        if (alphaBlend) {
+            builder.withBlend(new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA));
+        } else if (state.blend()) {
+            builder.withBlend(new BlendFunction(
+                    McShaders.source(state.blendSourceRgb()), McShaders.destination(state.blendDestinationRgb()),
+                    McShaders.source(state.blendSourceAlpha()), McShaders.destination(state.blendDestinationAlpha())));
+        } else {
+            builder.withoutBlend();
+        }
+        return builder.build();
+    }
+}
+//?} elif >=1.21.5 {
+/*import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.DestFactor;
@@ -25,9 +373,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Cross-mc-version handler of a shader program
- */
 public final class McShaderProgram {
     private static final int SHADER_TEXTURE_UNITS = 3;
     private static final String MAT3_AS_MAT4 = "VISOR_MAT3_AS_MAT4";
@@ -250,7 +595,7 @@ public final class McShaderProgram {
         return builder.build();
     }
 }
-//?} elif >=1.21.2 {
+*///?} elif >=1.21.2 {
 /*import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.shaders.AbstractUniform;
 import com.mojang.blaze3d.shaders.Uniform;

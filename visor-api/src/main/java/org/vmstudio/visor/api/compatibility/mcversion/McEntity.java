@@ -1,5 +1,7 @@
 package org.vmstudio.visor.api.compatibility.mcversion;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
@@ -29,6 +31,14 @@ public class McEntity {
 
     public static double fallDistance(Entity entity) {
         return entity.fallDistance;
+    }
+
+    public static ServerLevel serverLevel(ServerPlayer player) {
+        //? if >=1.21.6 {
+        return player.level();
+        //?} else {
+        /*return player.serverLevel();
+        *///?}
     }
 
     public static boolean isLocallyControlled(Entity entity) {

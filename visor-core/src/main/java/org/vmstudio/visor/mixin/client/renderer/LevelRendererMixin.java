@@ -112,7 +112,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
 
 
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;getRenderDistance()F", shift = Shift.BEFORE),
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/culling/Frustum;prepare(DDD)V", shift = Shift.AFTER),
             method = "renderLevel")
     public void visor$maskHiddenArea(CallbackInfo info) {
         if (VRRenderState.getPhase().isNotVanilla()) {

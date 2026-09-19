@@ -45,7 +45,7 @@ stonecutter {
         branch("visor-neoforge") { versions(versionsFor("neoforge")) }
 
         // Main version, should be used for git commits
-        vcsVersion = "1.21.5"
+        vcsVersion = "1.21.8"
     }
 }
 

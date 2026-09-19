@@ -14,7 +14,9 @@ public interface RenderSystemAccessor {
     }
     *///?}
 
-    @Accessor
+    //? if <1.21.6 {
+    /*@Accessor
     static void setShaderGameTime(float shaderGameTime) {
     }
+    *///?}
 }

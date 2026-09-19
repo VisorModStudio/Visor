@@ -26,6 +26,7 @@ import org.vmstudio.visor.core.client.tasks.types.TaskHotBar;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -235,7 +236,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
             int itemX = ((SelectionBoxHotBar) selectionBox).getItemX();
             int itemY = ((SelectionBoxHotBar) selectionBox).getItemY();
 
-            guiGraphics.pose().pushPose();
+            McGuiUtils.pushPose(guiGraphics);
             guiGraphics.renderItem(
                     itemStack,
                     x + itemX,
@@ -249,7 +250,7 @@ public class VROverlayHotBar extends VROverlayRadialSelector
                     y + itemY,
                     null
             );
-            guiGraphics.pose().popPose();
+            McGuiUtils.popPose(guiGraphics);
         }
 
 

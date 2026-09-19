@@ -191,12 +191,16 @@ public class HandEffectTeleport extends VRHandEffect {
 
             McGlState.disableCull();
 
-            VRShaders.getTeleportPoint().prepare(
+            //? if >=1.21.6 {
+            VRShaders.getTeleportPoint().prepare(timer, color);
+            //?} else {
+            /*VRShaders.getTeleportPoint().prepare(
                     RenderSystem.getModelViewMatrix(),
                     RenderSystem.getProjectionMatrix(),
                     timer,
                     color
             );
+            *///?}
             McShaderProgram shaderInstance = VRShaders.getTeleportPoint().getHandle();
 
 
@@ -229,7 +233,12 @@ public class HandEffectTeleport extends VRHandEffect {
                 (float) center.y,
                 (float) center.z - halfSize,
                 (float) center.x + halfSize,
-                (float) center.z + halfSize
+                (float) center.z + halfSize,
+                //? if >=1.21.6 {
+                true
+                //?} else {
+                /*false
+                *///?}
         );
     }
 

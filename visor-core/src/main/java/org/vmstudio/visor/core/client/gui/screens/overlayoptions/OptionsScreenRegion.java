@@ -17,6 +17,9 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
 import org.vmstudio.visor.api.client.gui.widgets.sets.ValueEditorInt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >=1.21.6 {
+import net.minecraft.client.renderer.RenderPipelines;
+//?}
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -394,7 +397,16 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
             return;
         }
 
-        gui.flush();
+        float uMax = (float) McRenderTarget.viewWidth(target) / (float) target.width;
+        float vMax = (float) McRenderTarget.viewHeight(target) / (float) target.height;
+
+        //? if >=1.21.6 {
+        // the GUI is deferred, so the preview joins the element list instead of drawing between flushes
+        gui.submitBlit(RenderPipelines.GUI_TEXTURED, target.getColorTextureView(),
+                previewX, previewY, previewX + previewW, previewY + previewH,
+                0.0f, uMax, vMax, 0.0f, 0xFFFFFFFF);
+        //?} else {
+        /*gui.flush();
 
         McGlState.setShaderTexture(0, target);
 
@@ -403,9 +415,6 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         McGlState.defaultBlendFunc();
         McShaders.use(McShaders.Core.POSITION_TEX);
         McGlState.setShaderColor(1f, 1f, 1f, 1f);
-
-        float uMax = (float) McRenderTarget.viewWidth(target) / (float) target.width;
-        float vMax = (float) McRenderTarget.viewHeight(target) / (float) target.height;
 
         Matrix4f pose = gui.pose().last().pose();
         McVertexBuilder buf = McVertexBuilder.get();
@@ -422,6 +431,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
         McGlState.disableBlend();
         McGlState.enableDepthTest();
+        *///?}
 
         gui.renderOutline(previewX, previewY, previewW, previewH, 0x80FFFFFF);
     }

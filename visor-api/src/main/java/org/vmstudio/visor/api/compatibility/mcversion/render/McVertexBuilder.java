@@ -18,6 +18,10 @@ import java.util.function.Consumer;
 //?} else {
 /*import com.mojang.blaze3d.vertex.BufferUploader;
 *///?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.ScissorState;
+//?}
 
 /**
  * Cross-mc-version immediate-mode vertex building
@@ -164,6 +168,7 @@ public final class McVertexBuilder {
         }
     }
 
+    // buffer writes must happen before the pass opens, so `uniforms` may only bind what it prepared earlier
     static void drawPass(MeshData mesh, RenderTarget target, RenderPipeline pipeline,
                          Consumer<RenderPass> uniforms) {
         try (mesh) {
@@ -171,7 +176,28 @@ public final class McVertexBuilder {
             GpuBuffer vertices = state.format().uploadImmediateVertexBuffer(mesh.vertexBuffer());
             RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.mode());
             GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
+            //? if >=1.21.6 {
+            GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+                    RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), RenderSystem.getModelOffset(),
+                    RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
             try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                    () -> "visor immediate draw",
+                    target.getColorTextureView(), OptionalInt.empty(),
+                    target.getDepthTextureView(), OptionalDouble.empty())) {
+                pass.setPipeline(pipeline);
+                ScissorState scissor = RenderSystem.getScissorStateForRenderTypeDraws();
+                if (scissor.enabled()) {
+                    pass.enableScissor(scissor.x(), scissor.y(), scissor.width(), scissor.height());
+                }
+                RenderSystem.bindDefaultUniforms(pass);
+                pass.setUniform("DynamicTransforms", transforms);
+                uniforms.accept(pass);
+                pass.setVertexBuffer(0, vertices);
+                pass.setIndexBuffer(indexBuffer, indices.type());
+                pass.drawIndexed(0, 0, state.indexCount(), 1);
+            }
+            //?} else {
+            /*try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
                     target.getColorTexture(), OptionalInt.empty(),
                     target.getDepthTexture(), OptionalDouble.empty())) {
                 pass.setPipeline(pipeline);
@@ -184,6 +210,7 @@ public final class McVertexBuilder {
                 pass.setIndexBuffer(indexBuffer, indices.type());
                 pass.drawIndexed(0, state.indexCount());
             }
+            *///?}
         }
     }
     //?}

@@ -1,8 +1,16 @@
 #version 330 core
 
 
+#ifdef VISOR_UBO
+// the json every older node reads gives this block its member order
+layout(std140) uniform VisorUniforms {
+    float uTime;
+    vec3 uColor;
+};
+#else
 uniform float uTime;
 uniform vec3 uColor;
+#endif
 
 
 in vec2 texCoord0;

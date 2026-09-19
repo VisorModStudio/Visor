@@ -23,6 +23,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //? if >=1.21.2 {
 import org.vmstudio.visor.core.client.render.VRRenderState;
 //?}
+//? if >=1.21.6 {
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
+import org.spongepowered.asm.mixin.Unique;
+//?}
 
 
 @Mixin(Gui.class)
@@ -59,7 +65,40 @@ public abstract class GuiMixin implements GuiExtension {
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
-    @Inject(at = @At("HEAD"), method = "renderJumpMeter", cancellable = true)
+    //? if >=1.21.6 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderBackground(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"),
+            method = {"renderHotbarAndDecorations", "renderContextualInfoBarBackground"})
+    private void visor$noVanillaContextualBarBackground(ContextualBarRenderer instance, GuiGraphics guiGraphics,
+                                                        DeltaTracker deltaTracker, Operation<Void> original) {
+        if (visor$hudBarsVisible()) {
+            original.call(instance, guiGraphics, deltaTracker);
+        }
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;render(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V"),
+            method = {"renderHotbarAndDecorations", "renderContextualInfoBar"})
+    private void visor$noVanillaContextualBar(ContextualBarRenderer instance, GuiGraphics guiGraphics,
+                                              DeltaTracker deltaTracker, Operation<Void> original) {
+        if (visor$hudBarsVisible()) {
+            original.call(instance, guiGraphics, deltaTracker);
+        }
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/contextualbar/ContextualBarRenderer;renderExperienceLevel(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;I)V"),
+            method = {"renderHotbarAndDecorations", "renderExperienceLevel"})
+    private void visor$noVanillaExperienceLevel(GuiGraphics guiGraphics, Font font, int level, Operation<Void> original) {
+        if (visor$hudBarsVisible()) {
+            original.call(guiGraphics, font, level);
+        }
+    }
+
+    @Unique
+    private boolean visor$hudBarsVisible() {
+        return VisorState.get().isNotActive() || (minecraft.screen == null
+                && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD));
+    }
+    //?} else {
+    /*@Inject(at = @At("HEAD"), method = "renderJumpMeter", cancellable = true)
     public void visor$noVanillaJumpMeter(CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
@@ -71,14 +110,15 @@ public abstract class GuiMixin implements GuiExtension {
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
-    //? if >=1.20.5 {
-    @Inject(at = @At("HEAD"), method = "renderExperienceLevel", cancellable = true)
+    *///?}
+    //? if >=1.20.5 && <1.21.6 {
+    /*@Inject(at = @At("HEAD"), method = "renderExperienceLevel", cancellable = true)
     public void visor$noVanillaExperienceLevel(CallbackInfo ci) {
         if(VisorState.get().isNotActive() || (minecraft.screen == null
                 && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) return;
         ci.cancel();
     }
-    //?}
+    *///?}
     //? if >=1.20.5 {
 
     @Inject(at = @At("HEAD"), method = "renderChat", cancellable = true)

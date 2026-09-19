@@ -7,14 +7,14 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import org.vmstudio.visor.extensions.client.WindowExtension;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiRenderer;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.joml.Matrix4f;
 
 import java.util.List;
@@ -164,7 +164,7 @@ public class MirrorHelper {
         int vrHeight= window.visor$mcScreenHeight();
 
         // 2) viewport + projection
-        RenderSystem.backupProjectionMatrix();
+        McProjection.State savedProjection = McProjection.save();
         McGlState.viewport(0, 0, vrWidth, vrHeight);
         var proj = new Matrix4f().setOrtho(0, vrWidth, vrHeight, 0, NEAR_PLANE, FAR_PLANE);
         McProjection.setOrthographic(proj);
@@ -185,8 +185,8 @@ public class MirrorHelper {
             }
 
             // 5) prepare GuiGraphics with scaled text
-            var gui = new GuiGraphics(MC, MC.renderBuffers().bufferSource());
-            gui.pose().scale(TEXT_SCALE, TEXT_SCALE, TEXT_SCALE);
+            var gui = McGuiRenderer.begin();
+            McGuiUtils.scale(gui, TEXT_SCALE, TEXT_SCALE);
 
             // 6) wrap & draw text lines
             int wrapWidth = vrWidth / CHAR_WIDTH;
@@ -200,11 +200,11 @@ public class MirrorHelper {
                 y += LINE_HEIGHT;
             }
 
-            gui.flush();
+            McGuiRenderer.end(gui);
         } finally {
             McModelViewStack.pop();
             McModelViewStack.apply();
-            RenderSystem.restoreProjectionMatrix();
+            McProjection.restore(savedProjection);
             RenderStateHelper.restoreAfterExternalRender();
         }
     }

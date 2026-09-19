@@ -30,8 +30,21 @@ public class XrRenderTarget extends RenderTarget {
     }
     *///?}
 
-    //? if >=1.21.5 {
+    //? if >=1.21.6 {
     @Override
+    public void createBuffers(int width, int height) {
+        checkSize(width, height);
+        this.viewWidth = width;
+        this.viewHeight = height;
+        this.width = width;
+        this.height = height;
+        this.colorTexture = McRenderTarget.adoptForeignTexture(
+                "visor_xr_swapchain", width, height, visor$colorId);
+        this.colorTextureView = McRenderTarget.createTextureView(this.colorTexture);
+        McRenderTarget.clear(this);
+    }
+    //?} elif >=1.21.5 {
+    /*@Override
     public void createBuffers(int width, int height) {
         checkSize(width, height);
         this.viewWidth = width;
@@ -42,6 +55,8 @@ public class XrRenderTarget extends RenderTarget {
                 "visor_xr_swapchain", width, height, visor$colorId);
         McRenderTarget.clear(this);
     }
+    *///?}
+    //? if >=1.21.5 {
 
     private static void checkSize(int width, int height) {
         int maxSize = McGlState.maxSupportedTextureSize();

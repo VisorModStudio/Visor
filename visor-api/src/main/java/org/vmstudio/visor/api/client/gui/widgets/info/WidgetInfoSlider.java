@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.components.Tooltip;
 import org.jetbrains.annotations.NotNull;
 
@@ -194,67 +195,65 @@ public class WidgetInfoSlider extends WidgetInfo{
 
         float innerHAvail = Math.max(0f, innerH - 2f * s);
 
-        var pose = guiGraphics.pose();
-
         // Top
-        pose.pushPose();
-        pose.translate(x0, y0, 0);
-        pose.scale(innerW, s, 1.0f);
+        McGuiUtils.pushPose(guiGraphics);
+        McGuiUtils.translate(guiGraphics, x0, y0);
+        McGuiUtils.scale(guiGraphics, innerW, s);
         guiGraphics.fill(0, 0, 1, 1, baseColor);
-        pose.popPose();
+        McGuiUtils.popPose(guiGraphics);
 
         // Bottom
-        pose.pushPose();
-        pose.translate(x0, y1 - s, 0);
-        pose.scale(innerW, s, 1.0f);
+        McGuiUtils.pushPose(guiGraphics);
+        McGuiUtils.translate(guiGraphics, x0, y1 - s);
+        McGuiUtils.scale(guiGraphics, innerW, s);
         guiGraphics.fill(0, 0, 1, 1, baseColor);
-        pose.popPose();
+        McGuiUtils.popPose(guiGraphics);
 
         if (innerHAvail > 0f) {
             // Left (between corners)
-            pose.pushPose();
-            pose.translate(x0, y0 + s, 0);
-            pose.scale(s, innerHAvail, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x0, y0 + s);
+            McGuiUtils.scale(guiGraphics, s, innerHAvail);
             guiGraphics.fill(0, 0, 1, 1, baseColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
 
             // Right (between corners)
-            pose.pushPose();
-            pose.translate(x1 - s, y0 + s, 0);
-            pose.scale(s, innerHAvail, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x1 - s, y0 + s);
+            McGuiUtils.scale(guiGraphics, s, innerHAvail);
             guiGraphics.fill(0, 0, 1, 1, baseColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
         }
 
         // Corners
         if(knobHighlightCorners) {
             // Top-left
-            pose.pushPose();
-            pose.translate(x0, y0, 0);
-            pose.scale(s, s, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x0, y0);
+            McGuiUtils.scale(guiGraphics, s, s);
             guiGraphics.fill(0, 0, 1, 1, cornerColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
 
             // Top-right
-            pose.pushPose();
-            pose.translate(x1 - s, y0, 0);
-            pose.scale(s, s, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x1 - s, y0);
+            McGuiUtils.scale(guiGraphics, s, s);
             guiGraphics.fill(0, 0, 1, 1, cornerColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
 
             // Bottom-left
-            pose.pushPose();
-            pose.translate(x0, y1 - s, 0);
-            pose.scale(s, s, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x0, y1 - s);
+            McGuiUtils.scale(guiGraphics, s, s);
             guiGraphics.fill(0, 0, 1, 1, cornerColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
 
             // Bottom-right
-            pose.pushPose();
-            pose.translate(x1 - s, y1 - s, 0);
-            pose.scale(s, s, 1.0f);
+            McGuiUtils.pushPose(guiGraphics);
+            McGuiUtils.translate(guiGraphics, x1 - s, y1 - s);
+            McGuiUtils.scale(guiGraphics, s, s);
             guiGraphics.fill(0, 0, 1, 1, cornerColor);
-            pose.popPose();
+            McGuiUtils.popPose(guiGraphics);
         }
     }
 }

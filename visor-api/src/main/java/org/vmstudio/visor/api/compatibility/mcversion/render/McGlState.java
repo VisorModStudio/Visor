@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 //? if >=1.21.5 {
@@ -11,6 +12,10 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 //?} else {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///?}
+//? if >=1.21.6 {
+import com.mojang.blaze3d.buffers.Std140Builder;
+import org.lwjgl.system.MemoryStack;
+//?}
 
 /**
  * Cross-mc-version facade over the immediate-mode GL state of the render engine
@@ -74,6 +79,13 @@ public class McGlState {
                 blendSourceRgb, blendDestinationRgb, blendSourceAlpha, blendDestinationAlpha,
                 depthTest, depthFunction, depthWrite, cull, colorWrite, alphaWrite);
     }
+    //?}
+
+    //? if >=1.21.6 {
+    // 1.21.6 moved the shader colour, lights and game time out of RenderSystem into per-draw uniform blocks
+    private static final Vector4f SHADER_COLOR = new Vector4f(1.0F, 1.0F, 1.0F, 1.0F);
+    private static final McUniformRing LIGHTS = new McUniformRing("visor lights", 32, 4);
+    private static float shaderGameTime;
     //?}
 
     // ------- BLEND -------
@@ -310,24 +322,67 @@ public class McGlState {
     // ------- SHADER STATE -------
 
     public static void setShaderColor(float red, float green, float blue, float alpha) {
-        RenderSystem.setShaderColor(red, green, blue, alpha);
+        //? if >=1.21.6 {
+        SHADER_COLOR.set(red, green, blue, alpha);
+        //?} else {
+        /*RenderSystem.setShaderColor(red, green, blue, alpha);
+        *///?}
+    }
+
+    public static Vector4f shaderColor() {
+        //? if >=1.21.6 {
+        return new Vector4f(SHADER_COLOR);
+        //?} else {
+        /*float[] color = RenderSystem.getShaderColor();
+        return new Vector4f(color[0], color[1], color[2], color[3]);
+        *///?}
     }
 
     public static void setShaderLights(Vector3f light0, Vector3f light1) {
-        RenderSystem.setShaderLights(light0, light1);
+        //? if >=1.21.6 {
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            RenderSystem.setShaderLights(LIGHTS.write(
+                    Std140Builder.onStack(stack, LIGHTS.blockSize()).putVec3(light0).putVec3(light1).get()));
+        }
+        //?} else {
+        /*RenderSystem.setShaderLights(light0, light1);
+        *///?}
     }
 
     public static void setShaderGameTime(long tickTime, float partialTick) {
-        RenderSystem.setShaderGameTime(tickTime, partialTick);
+        //? if >=1.21.6 {
+        shaderGameTime = (tickTime % 24000L + partialTick) / 24000.0F;
+        //?} else {
+        /*RenderSystem.setShaderGameTime(tickTime, partialTick);
+        *///?}
+    }
+
+    public static void setShaderGameTime(float gameTime) {
+        //? if >=1.21.6 {
+        shaderGameTime = gameTime;
+        //?} else {
+        /*RenderSystem.setShaderGameTime(0L, gameTime * 24000.0F);
+        *///?}
+    }
+
+    public static float shaderGameTime() {
+        //? if >=1.21.6 {
+        return shaderGameTime;
+        //?} else {
+        /*return RenderSystem.getShaderGameTime();
+        *///?}
     }
 
     // ------- TEXTURES -------
 
     public static void setShaderTexture(int unit, ResourceLocation texture) {
-        //? if >=1.21.5 {
+        //? if >=1.21.6 {
         RenderSystem.setShaderTexture(unit, net.minecraft.client.Minecraft.getInstance()
+                .getTextureManager().getTexture(texture).getTextureView());
+        //?} elif >=1.21.5 {
+        /*RenderSystem.setShaderTexture(unit, net.minecraft.client.Minecraft.getInstance()
                 .getTextureManager().getTexture(texture).getTexture());
-        //?} elif >=1.21.2 {
+        *///?} elif >=1.21.2 {
         /*RenderSystem.setShaderTexture(unit, texture);
         *///?} else {
         /*net.minecraft.client.Minecraft.getInstance().getTextureManager().bindForSetup(texture);
@@ -336,9 +391,11 @@ public class McGlState {
     }
 
     public static void setShaderTexture(int unit, RenderTarget target) {
-        //? if >=1.21.5 {
-        RenderSystem.setShaderTexture(unit, target.getColorTexture());
-        //?} else {
+        //? if >=1.21.6 {
+        RenderSystem.setShaderTexture(unit, target.getColorTextureView());
+        //?} elif >=1.21.5 {
+        /*RenderSystem.setShaderTexture(unit, target.getColorTexture());
+        *///?} else {
         /*RenderSystem.setShaderTexture(unit, target.getColorTextureId());
         *///?}
     }

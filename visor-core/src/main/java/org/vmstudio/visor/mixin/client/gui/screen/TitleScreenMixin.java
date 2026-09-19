@@ -91,24 +91,34 @@ public abstract class TitleScreenMixin extends Screen {
             final int boxOffset = 12;
             final int topMargin = 5;
 
-            guiGraphics.renderTooltip(
+            //? if >=1.21.6 {
+            guiGraphics.setTooltipForNextFrame(
                     font,
                     font.split(text, wrapWidth),
                     this.width / 2 - wrapWidth / 2 - boxOffset,
                     topMargin + boxOffset
             );
+            //?} else {
+            /*guiGraphics.renderTooltip(
+                    font,
+                    font.split(text, wrapWidth),
+                    this.width / 2 - wrapWidth / 2 - boxOffset,
+                    topMargin + boxOffset
+            );
+            *///?}
         }
     }
 
 
-    //? if >=1.20.5 {
-    @Inject(method = "renderPanorama", at = @At("HEAD"), cancellable = true)
+    // 1.21.6 dropped the override, ScreenMixin cancels Screen.renderPanorama
+    //? if >=1.20.5 && <1.21.6 {
+    /*@Inject(method = "renderPanorama", at = @At("HEAD"), cancellable = true)
     public void visor$noPanorama(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
         }
     }
-    //?} else {
+    *///?} elif <1.20.5 {
     /*@ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(FF)V"), method = "render", index = 1)
     public float visor$noPanorama(float alpha) {
         return VisorState.get().isActive()

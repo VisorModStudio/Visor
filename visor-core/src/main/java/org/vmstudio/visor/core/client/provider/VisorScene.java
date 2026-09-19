@@ -25,7 +25,6 @@ import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
-import net.minecraft.client.gui.GuiGraphics;
 import org.joml.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,10 +63,8 @@ public class VisorScene implements AtumVRScene {
         profiler.pop();
 
         profiler.push("VROverlay texturing");
-        GuiGraphics guiGraphics = new GuiGraphics(MC, MC.renderBuffers().bufferSource());
         ClientContext.overlayManager.renderOverlayTextures(
                 McVersionClientUtils.profiler(),
-                guiGraphics,
                 renderContext.partialTicks()
         );
         profiler.pop();

@@ -23,14 +23,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#moj_import <projection.glsl>
-
 in vec3 Position;
 
+#ifdef VISOR_UBO
+// 1.21.6 feeds the matrices through the engine's std140 blocks, declared like vanilla's gui.vsh does
+layout(std140) uniform DynamicTransforms {
+    mat4 ModelViewMat;
+    vec4 ColorModulator;
+    vec3 ModelOffset;
+    mat4 TextureMat;
+    float LineWidth;
+};
+layout(std140) uniform Projection {
+    mat4 ProjMat;
+};
+#else
 uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
+#endif
+
 // a 1.21.5 pipeline cannot declare a mat3 uniform, McShaderProgram widens it and sets the define
-#ifdef VISOR_MAT3_AS_MAT4
+#ifdef VISOR_UBO
+layout(std140) uniform VisorUniforms {
+    mat4 IViewRotMat;
+    float GameTime;
+    int EndPortalLayers;
+};
+#elif defined(VISOR_MAT3_AS_MAT4)
 uniform mat4 IViewRotMat;
 #else
 uniform mat3 IViewRotMat;
