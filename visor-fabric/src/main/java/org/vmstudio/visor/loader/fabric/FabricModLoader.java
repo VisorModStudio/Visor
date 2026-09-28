@@ -1,6 +1,8 @@
 package org.vmstudio.visor.loader.fabric;
 
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+//? if <1.21.9 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+*///?}
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
@@ -8,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.VisorChannel;
@@ -15,7 +18,9 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToClient;
 import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+//? if <1.21.9 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+*///?}
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
@@ -86,7 +91,8 @@ public class FabricModLoader implements ModLoader {
                 .computeIfAbsent(stage, k -> new CopyOnWriteArrayList<>())
                 .add(callback);
 
-        if (!worldEventsRegistered) {
+        //? if <1.21.9 {
+        /*if (!worldEventsRegistered) {
             // Closest equivalent of AFTER_SOLID.
             WorldRenderEvents.BEFORE_ENTITIES.register(context -> {
                 fireCallbacks(RenderPipelineStage.AFTER_SOLID, visor$poseStackOf(context), visor$partialTick(context));
@@ -104,21 +110,32 @@ public class FabricModLoader implements ModLoader {
 
             worldEventsRegistered = true;
         }
+        *///?}
     }
 
-    // matrixStack() is null for some events
+    //? if >=1.21.9 {
+    // Fabric API has no world render events on 1.21.9, the stages come from
+    // FabricLevelRendererStageMixin / FabricChunkSectionsStageMixin instead
+    public void fireLevelStage(RenderPipelineStage stage) {
+        fireCallbacks(stage, new PoseStack(), McRenderUtils.partialTick());
+    }
+    //?} else {
+    /*// matrixStack() is null for some events
     private static PoseStack visor$poseStackOf(WorldRenderContext context) {
         PoseStack poseStack = context.matrixStack();
         return poseStack != null ? poseStack : new PoseStack();
     }
+    *///?}
 
-    private static float visor$partialTick(WorldRenderContext context) {
-        //? if >=1.21 {
+    //? if >=1.21 && <1.21.9 {
+    /*private static float visor$partialTick(WorldRenderContext context) {
         return context.tickCounter().getGameTimeDeltaPartialTick(true);
-        //?} else {
-        /*return context.tickDelta();
-        *///?}
     }
+    *///?} elif <1.21 {
+    /*private static float visor$partialTick(WorldRenderContext context) {
+        return context.tickDelta();
+    }
+    *///?}
 
     private void fireCallbacks(RenderPipelineStage stage, PoseStack poseStack, float partialTicks) {
         List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);

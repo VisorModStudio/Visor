@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.3+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.item;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -36,7 +36,7 @@ public abstract class FishingHookRendererMixin extends EntityRenderer<FishingHoo
     @Unique
     private Vec3 visor$savedHandPos;
 
-    @Inject(at = @At(value = "HEAD"), method = "render(Lnet/minecraft/client/renderer/entity/state/FishingHookRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    @Inject(at = @At(value = "HEAD"), method = "submit(Lnet/minecraft/client/renderer/entity/state/FishingHookRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
     cancellable = true)
     private void visor$noRenderOnGameScreen(CallbackInfo ci){
         if(MC.screen != null){

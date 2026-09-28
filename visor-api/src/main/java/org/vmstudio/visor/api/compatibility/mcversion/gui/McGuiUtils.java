@@ -19,12 +19,12 @@ import net.minecraft.client.renderer.RenderPipelines;
 /*import net.minecraft.client.renderer.RenderType;
 *///?}
 //? if >=1.21.9 {
-/*import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
-*///?}
+//?}
 
 /**
  * Cross-mc-version Utils for GUI methods
@@ -39,20 +39,16 @@ public class McGuiUtils {
     // ------- SCREEN -------
 
     public static void initScreen(Screen screen, int width, int height) {
-        //? if >=1.21.9 {
-        /*screen.init(width, height);
-        *///?} else {
         screen.init(Minecraft.getInstance(), width, height);
-        //?}
     }
 
     public static void renderWithTooltip(Screen screen, GuiGraphics guiGraphics,
                                          int mouseX, int mouseY, float partialTick) {
         //? if >=1.21.9 {
-        /*screen.renderWithTooltipAndSubtitles(guiGraphics, mouseX, mouseY, partialTick);
-        *///?} else {
-        screen.renderWithTooltip(guiGraphics, mouseX, mouseY, partialTick);
-        //?}
+        screen.renderWithTooltipAndSubtitles(guiGraphics, mouseX, mouseY, partialTick);
+        //?} else {
+        /*screen.renderWithTooltip(guiGraphics, mouseX, mouseY, partialTick);
+        *///?}
     }
 
     public static void setTooltipForNextRenderPass(Screen screen, GuiGraphics guiGraphics,
@@ -146,6 +142,14 @@ public class McGuiUtils {
         *///?}
     }
 
+    public static void renderOutline(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
+        //? if >=1.21.9 {
+        guiGraphics.submitOutline(x, y, width, height, color);
+        //?} else {
+        /*guiGraphics.renderOutline(x, y, width, height, color);
+        *///?}
+    }
+
     public static void fillGuiOverlay(GuiGraphics guiGraphics, int x0, int y0, int x1, int y1, int color) {
         //? if >=1.21.6 {
         guiGraphics.fill(RenderPipelines.GUI, x0, y0, x1, y1, color);
@@ -181,29 +185,29 @@ public class McGuiUtils {
     public static boolean mouseClicked(GuiEventListener listener,
                                        double mouseX, double mouseY, int button) {
         //? if >=1.21.9 {
-        /*return listener.mouseClicked(mouseButtonEvent(mouseX, mouseY, button), false);
-        *///?} else {
-        return listener.mouseClicked(mouseX, mouseY, button);
-        //?}
+        return listener.mouseClicked(mouseButtonEvent(mouseX, mouseY, button), false);
+        //?} else {
+        /*return listener.mouseClicked(mouseX, mouseY, button);
+        *///?}
     }
 
     public static boolean mouseReleased(GuiEventListener listener,
                                         double mouseX, double mouseY, int button) {
         //? if >=1.21.9 {
-        /*return listener.mouseReleased(mouseButtonEvent(mouseX, mouseY, button));
-        *///?} else {
-        return listener.mouseReleased(mouseX, mouseY, button);
-        //?}
+        return listener.mouseReleased(mouseButtonEvent(mouseX, mouseY, button));
+        //?} else {
+        /*return listener.mouseReleased(mouseX, mouseY, button);
+        *///?}
     }
 
     public static boolean mouseDragged(GuiEventListener listener,
                                        double mouseX, double mouseY, int button,
                                        double dragX, double dragY) {
         //? if >=1.21.9 {
-        /*return listener.mouseDragged(mouseButtonEvent(mouseX, mouseY, button), dragX, dragY);
-        *///?} else {
-        return listener.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        //?}
+        return listener.mouseDragged(mouseButtonEvent(mouseX, mouseY, button), dragX, dragY);
+        //?} else {
+        /*return listener.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        *///?}
     }
 
     public static boolean mouseScrolled(GuiEventListener listener,
@@ -218,27 +222,27 @@ public class McGuiUtils {
     public static boolean keyPressed(GuiEventListener listener,
                                      int keyCode, int scanCode, int modifiers) {
         //? if >=1.21.9 {
-        /*return listener.keyPressed(new KeyEvent(keyCode, scanCode, modifiers));
-        *///?} else {
-        return listener.keyPressed(keyCode, scanCode, modifiers);
-        //?}
+        return listener.keyPressed(new KeyEvent(keyCode, scanCode, modifiers));
+        //?} else {
+        /*return listener.keyPressed(keyCode, scanCode, modifiers);
+        *///?}
     }
 
     public static boolean keyReleased(GuiEventListener listener,
                                       int keyCode, int scanCode, int modifiers) {
         //? if >=1.21.9 {
-        /*return listener.keyReleased(new KeyEvent(keyCode, scanCode, modifiers));
-        *///?} else {
-        return listener.keyReleased(keyCode, scanCode, modifiers);
-        //?}
+        return listener.keyReleased(new KeyEvent(keyCode, scanCode, modifiers));
+        //?} else {
+        /*return listener.keyReleased(keyCode, scanCode, modifiers);
+        *///?}
     }
 
     public static boolean charTyped(GuiEventListener listener, char chr, int modifiers) {
         //? if >=1.21.9 {
-        /*return listener.charTyped(new CharacterEvent(chr, modifiers));
-        *///?} else {
-        return listener.charTyped(chr, modifiers);
-        //?}
+        return listener.charTyped(new CharacterEvent(chr, modifiers));
+        //?} else {
+        /*return listener.charTyped(chr, modifiers);
+        *///?}
     }
 
 
@@ -266,62 +270,62 @@ public class McGuiUtils {
 
     public static boolean hasControlDown() {
         //? if >=1.21.9 {
-        /*return Minecraft.getInstance().hasControlDown();
-        *///?} else {
-        return Screen.hasControlDown();
-        //?}
+        return Minecraft.getInstance().hasControlDown();
+        //?} else {
+        /*return Screen.hasControlDown();
+        *///?}
     }
 
     public static boolean hasShiftDown() {
         //? if >=1.21.9 {
-        /*return Minecraft.getInstance().hasShiftDown();
-        *///?} else {
-        return Screen.hasShiftDown();
-        //?}
+        return Minecraft.getInstance().hasShiftDown();
+        //?} else {
+        /*return Screen.hasShiftDown();
+        *///?}
     }
 
     public static boolean hasAltDown() {
         //? if >=1.21.9 {
-        /*return Minecraft.getInstance().hasAltDown();
-        *///?} else {
-        return Screen.hasAltDown();
-        //?}
+        return Minecraft.getInstance().hasAltDown();
+        //?} else {
+        /*return Screen.hasAltDown();
+        *///?}
     }
 
     public static boolean isCopy(int keyCode) {
         //? if >=1.21.9 {
-        /*return keyEvent(keyCode).isCopy();
-        *///?} else {
-        return Screen.isCopy(keyCode);
-        //?}
+        return keyEvent(keyCode).isCopy();
+        //?} else {
+        /*return Screen.isCopy(keyCode);
+        *///?}
     }
 
     public static boolean isCut(int keyCode) {
         //? if >=1.21.9 {
-        /*return keyEvent(keyCode).isCut();
-        *///?} else {
-        return Screen.isCut(keyCode);
-        //?}
+        return keyEvent(keyCode).isCut();
+        //?} else {
+        /*return Screen.isCut(keyCode);
+        *///?}
     }
 
     public static boolean isPaste(int keyCode) {
         //? if >=1.21.9 {
-        /*return keyEvent(keyCode).isPaste();
-        *///?} else {
-        return Screen.isPaste(keyCode);
-        //?}
+        return keyEvent(keyCode).isPaste();
+        //?} else {
+        /*return Screen.isPaste(keyCode);
+        *///?}
     }
 
     public static boolean isSelectAll(int keyCode) {
         //? if >=1.21.9 {
-        /*return keyEvent(keyCode).isSelectAll();
-        *///?} else {
-        return Screen.isSelectAll(keyCode);
-        //?}
+        return keyEvent(keyCode).isSelectAll();
+        //?} else {
+        /*return Screen.isSelectAll(keyCode);
+        *///?}
     }
 
     //? if >=1.21.9 {
-    /*public static MouseButtonEvent mouseButtonEvent(double mouseX, double mouseY, int button) {
+    public static MouseButtonEvent mouseButtonEvent(double mouseX, double mouseY, int button) {
         return new MouseButtonEvent(mouseX, mouseY, new MouseButtonInfo(button, currentModifiers()));
     }
 
@@ -335,5 +339,5 @@ public class McGuiUtils {
                 | (mc.hasControlDown() ? InputConstants.MOD_CONTROL : 0)
                 | (mc.hasAltDown() ? InputConstants.MOD_ALT : 0);
     }
-    *///?}
+    //?}
 }

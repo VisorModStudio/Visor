@@ -16,6 +16,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.camera.VRCameraEntitySwap;
 import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.resources.ResourceLocation;
@@ -48,7 +49,11 @@ public class GameEffectOnFire extends VRGameEffect {
                 - VRCameraEntitySwap.getCameraEntityCache()
                 .getY());
 
-        TextureAtlasSprite sprite = ModelBakery.FIRE_1.sprite();
+        //? if >=1.21.9 {
+        TextureAtlasSprite sprite = Minecraft.getInstance().getAtlasManager().get(ModelBakery.FIRE_1);
+        //?} else {
+        /*TextureAtlasSprite sprite = ModelBakery.FIRE_1.sprite();
+        *///?}
         ResourceLocation atlas = sprite.atlasLocation();
         float uMin = sprite.getU0();
         float uMax = sprite.getU1();

@@ -12,7 +12,14 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+//? if >=1.21.9 {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+*///?}
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -23,13 +30,19 @@ import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 import org.vmstudio.visor.core.client.render.player.model.simple.VRPlayerModelSimple;
-//? if >=1.21.2 {
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-//?} else {
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//?} elif >=1.21.2 {
+/*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+*///?} else {
 /*import net.minecraft.world.entity.player.PlayerModelPart;
 *///?}
 
-public class VRPlayerRendererHandsOnly extends PlayerRenderer {
+//? if >=1.21.9 {
+public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlayer> {
+//?} else {
+/*public class VRPlayerRendererHandsOnly extends PlayerRenderer {
+*///?}
     private static final LayerDefinition VR_LAYER_DEFAULT = LayerDefinition.create(
             CenteredArmsPlayerMesh.create(CubeDeformation.NONE, false), 64, 64);
     private static final LayerDefinition VR_LAYER_SLIM = LayerDefinition.create(
@@ -45,8 +58,31 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         );
     }
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    public AvatarRenderState createRenderState() {
+        return new VRPlayerRenderState();
+    }
+
+    @Override
+    public void extractRenderState(AbstractClientPlayer player, AvatarRenderState state, float partialTick) {
+        super.extractRenderState(player, state, partialTick);
+        VRPlayerRenderState.extract(state, player, partialTick);
+    }
+
+    @Override
+    public void submit(AvatarRenderState state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        if (!(state instanceof VRPlayerRenderState vrState) || vrState.player == null) {
+            super.submit(state, poseStack, collector, camera);
+            return;
+        }
+        renderVR(vrState.player, vrState.partialTick, this.getRenderOffset(state),
+                poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), state.lightCoords,
+                () -> super.submit(state, poseStack, collector, camera));
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     public PlayerRenderState createRenderState() {
         return new VRPlayerRenderState();
     }
@@ -67,7 +103,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
                 poseStack, buffer, packedLight,
                 () -> super.render(state, poseStack, buffer, packedLight));
     }
-    //?} else {
+    *///?} else {
     /*@Override
     public void render(
             AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
@@ -118,8 +154,21 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     }
 
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    protected void setupRotations(AvatarRenderState state, PoseStack poseStack, float bodyRot, float scale) {
+        if (VRRenderState.getPhase().isVRGui()) {
+            if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+                return;
+            }
+        } else {
+            bodyRot = vrBodyYaw(VRPlayerRenderState.playerOf(state), bodyRot);
+        }
+        super.setupRotations(state, poseStack, bodyRot, scale);
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     protected void setupRotations(PlayerRenderState state, PoseStack poseStack, float bodyRot, float scale) {
         if (VRRenderState.getPhase().isVRGui()) {
             if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
@@ -131,7 +180,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
         }
         super.setupRotations(state, poseStack, bodyRot, scale);
     }
-    //?} elif >=1.20.5 {
+    *///?} elif >=1.20.5 {
     /*@Override
     protected void setupRotations(
             AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float scale)
@@ -172,8 +221,18 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     }
 
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    public void renderRightHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, sleeveVisible, ControllerType.RIGHT);
+    }
+
+    @Override
+    public void renderLeftHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, sleeveVisible, ControllerType.LEFT);
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, sleeveVisible, ControllerType.RIGHT);
     }
@@ -182,7 +241,7 @@ public class VRPlayerRendererHandsOnly extends PlayerRenderer {
     public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, sleeveVisible, ControllerType.LEFT);
     }
-    //?} else {
+    *///?} else {
     /*@Override
     public void renderRightHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player)

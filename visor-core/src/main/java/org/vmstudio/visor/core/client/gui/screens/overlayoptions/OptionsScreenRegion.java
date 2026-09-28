@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.overlayoptions;
 
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
@@ -393,7 +394,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         RenderTarget target = optionsGroup.getTargetSupplier().get();
         if (target == null || McRenderTarget.colorTextureId(target) <= 0) {
             gui.fill(previewX, previewY, previewX + previewW, previewY + previewH, 0xFF202020);
-            gui.renderOutline(previewX, previewY, previewW, previewH, 0x55FFFFFF);
+            McGuiUtils.renderOutline(gui, previewX, previewY, previewW, previewH, 0x55FFFFFF);
             return;
         }
 
@@ -433,7 +434,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         McGlState.enableDepthTest();
         *///?}
 
-        gui.renderOutline(previewX, previewY, previewW, previewH, 0x80FFFFFF);
+        McGuiUtils.renderOutline(gui, previewX, previewY, previewW, previewH, 0x80FFFFFF);
     }
 
     private void drawInteractiveRegionOverlay(GuiGraphics gui) {

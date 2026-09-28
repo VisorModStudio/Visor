@@ -37,8 +37,10 @@ public class MultiCameraRenderTarget extends RenderTarget {
 
         this.width = mainTarget.width;
         this.height = mainTarget.height;
-        this.viewWidth = mainTarget.viewWidth;
+        //? if <1.21.9 {
+        /*this.viewWidth = mainTarget.viewWidth;
         this.viewHeight = mainTarget.viewHeight;
+        *///?}
     }
 
     private RenderTarget getCurrentTarget() {

@@ -6,6 +6,9 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >=1.21.9 {
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McObjectSelectionList;
@@ -183,9 +186,19 @@ public class VRSettingsAddonsScreen extends McScreen {
             }
         }
 
+        //? if >=1.21.9 {
         @Override
+        public void renderContent(GuiGraphics gui, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+            visor$renderRow(gui, getY(), getX(), getWidth(), mouseX, mouseY, partialTicks);
+        }
+
+        private void visor$renderRow(GuiGraphics gui, int top, int left, int listWidth,
+                                     int mouseX, int mouseY, float partialTicks) {
+        //?} else {
+        /*@Override
         public void render(GuiGraphics gui, int index, int top, int left, int listWidth, int slotHeight,
                            int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        *///?}
             int spacing = 5;
             int btnW = leftButton.getWidth();
             int totalW = btnW + (rightButton != null ? btnW + spacing : 0);
@@ -202,12 +215,21 @@ public class VRSettingsAddonsScreen extends McScreen {
             }
         }
 
+        //? if >=1.21.9 {
         @Override
+        public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+            if (leftButton.mouseClicked(event, doubleClick)) return true;
+            return rightButton != null
+                    && rightButton.mouseClicked(event, doubleClick);
+        }
+        //?} else {
+        /*@Override
         public boolean mouseClicked(double x, double y, int btn) {
             if (leftButton.mouseClicked(x, y, btn))  return true;
             return rightButton != null
                     && rightButton.mouseClicked(x, y, btn);
         }
+        *///?}
 
         @Override
         public @NotNull Component getNarration() {

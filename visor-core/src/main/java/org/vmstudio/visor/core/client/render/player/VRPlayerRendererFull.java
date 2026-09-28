@@ -21,14 +21,27 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+//? if >=1.21.9 {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.state.CameraRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+*///?}
 import net.minecraft.world.phys.Vec3;
-//? if >=1.21.2 {
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-//?}
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//?} elif >=1.21.2 {
+/*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+*///?}
 
 
-public class VRPlayerRendererFull extends PlayerRenderer {
+//? if >=1.21.9 {
+public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
+//?} else {
+/*public class VRPlayerRendererFull extends PlayerRenderer {
+*///?}
     // vanilla offset PlayerRenderer.getRenderOffset
     // applies while crouching, used here for swimming pose
     private static final double VANILLA_CROUCH_DIP = -0.125D;
@@ -48,8 +61,40 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         );
     }
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    public AvatarRenderState createRenderState() {
+        return new VRPlayerRenderState();
+    }
+
+    @Override
+    public void extractRenderState(AbstractClientPlayer player, AvatarRenderState state, float partialTick) {
+        super.extractRenderState(player, state, partialTick);
+        VRPlayerRenderState.extract(state, player, partialTick);
+        if (player.isVisuallySwimming()) {
+            state.isCrouching = false;
+        }
+    }
+
+    @Override
+    public void submit(AvatarRenderState state, PoseStack poseStack,
+                       SubmitNodeCollector collector, CameraRenderState camera) {
+        if (!(state instanceof VRPlayerRenderState vrState) || vrState.player == null) {
+            super.submit(state, poseStack, collector, camera);
+            return;
+        }
+        renderVR(vrState.player, vrState.partialTick, this.getRenderOffset(state),
+                poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), state.lightCoords,
+                () -> super.submit(state, poseStack, collector, camera));
+    }
+
+    @Override
+    public Vec3 getRenderOffset(AvatarRenderState state) {
+        AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
+        return player == null ? super.getRenderOffset(state) : renderOffset(player);
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     public PlayerRenderState createRenderState() {
         return new VRPlayerRenderState();
     }
@@ -79,7 +124,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         return player == null ? super.getRenderOffset(state) : renderOffset(player);
     }
-    //?} else {
+    *///?} else {
     /*@Override
     public void render(
             AbstractClientPlayer player, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
@@ -148,8 +193,18 @@ public class VRPlayerRendererFull extends PlayerRenderer {
     }
 
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    public void renderRightHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.RIGHT);
+    }
+
+    @Override
+    public void renderLeftHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.LEFT);
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, ControllerType.RIGHT);
     }
@@ -158,7 +213,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
     public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, ControllerType.LEFT);
     }
-    //?} else {
+    *///?} else {
     /*@Override
     public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
         this.setModelProperties(player);
@@ -217,8 +272,21 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         McGlState.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
-    //? if >=1.21.2 {
+    //? if >=1.21.9 {
     @Override
+    protected void setupRotations(AvatarRenderState state, PoseStack poseStack, float bodyRot, float scale) {
+        if (VRRenderState.getPhase().isVRGui()) {
+            if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+                return;
+            }
+        } else {
+            bodyRot = vrBodyYaw(VRPlayerRenderState.playerOf(state), bodyRot);
+        }
+        super.setupRotations(state, poseStack, bodyRot, scale);
+    }
+    //?} elif >=1.21.2 {
+    /*@Override
     protected void setupRotations(PlayerRenderState state, PoseStack poseStack, float bodyRot, float scale) {
         if (VRRenderState.getPhase().isVRGui()) {
             if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
@@ -230,7 +298,7 @@ public class VRPlayerRendererFull extends PlayerRenderer {
         }
         super.setupRotations(state, poseStack, bodyRot, scale);
     }
-    //?} elif >=1.20.5 {
+    *///?} elif >=1.20.5 {
     /*@Override
     protected void setupRotations(
             AbstractClientPlayer player, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float scale)

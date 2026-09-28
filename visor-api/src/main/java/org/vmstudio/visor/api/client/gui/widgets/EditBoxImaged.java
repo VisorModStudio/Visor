@@ -21,7 +21,10 @@ public class EditBoxImaged extends EditBox {
         );
         this.texture = widgetInfo.getTexture();
         setTextColor(widgetInfo.getTextColor().asInt());
-        setHint(widgetInfo.getHint());
+        // 1.21.9+ setHint dereferences its argument
+        if(widgetInfo.getHint() != null) {
+            setHint(widgetInfo.getHint());
+        }
         setMaxLength(widgetInfo.getTextMaxLength());
 
         setFilter(widgetInfo.getFilter());

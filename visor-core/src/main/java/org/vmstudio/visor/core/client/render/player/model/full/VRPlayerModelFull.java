@@ -17,7 +17,11 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 //? if >=1.21.2 {
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+*///?}
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 //?}
 
@@ -40,7 +44,11 @@ public class VRPlayerModelFull extends PlayerModel {
 
     //? if >=1.21.2 {
     @Override
-    public void setupAnim(PlayerRenderState state) {
+    //? if >=1.21.9 {
+    public void setupAnim(AvatarRenderState state) {
+    //?} else {
+    /*public void setupAnim(PlayerRenderState state) {
+    *///?}
         super.setupAnim(state);
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         if (player == null) {

@@ -4,6 +4,9 @@ package org.vmstudio.visor.mixin.client.gui.screen;
 
 import org.vmstudio.visor.core.client.VisorState;
 import net.minecraft.client.gui.components.EditBox;
+//? if >=1.21.9 {
+import net.minecraft.client.input.KeyEvent;
+//?}
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -21,7 +24,11 @@ public abstract class ChatScreenMixin extends Screen {
         super(component);
     }
     @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"),cancellable = true)
-    private void visor$clearInputOnClose(int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
+    //? if >=1.21.9 {
+    private void visor$clearInputOnClose(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+    //?} else {
+    /*private void visor$clearInputOnClose(int i, int j, int k, CallbackInfoReturnable<Boolean> cir) {
+    *///?}
         if(VisorState.get().isNotActive()) return;
         input.setValue("");
 

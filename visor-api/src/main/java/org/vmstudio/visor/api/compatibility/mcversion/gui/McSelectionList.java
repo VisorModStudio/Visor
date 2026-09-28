@@ -6,6 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+//? if >=1.21.9 {
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 
 /**
  * Cross-mc-version adapter for AbstractSelectionList
@@ -15,7 +18,55 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
 
     @Environment(EnvType.CLIENT)
-    public abstract static class Entry<E extends Entry<E>> extends AbstractSelectionList.Entry<E> {
+    public abstract static class Entry<E extends Entry<E>> extends AbstractSelectionList.Entry<E>
+            implements McGuiEventListener {
+
+        //? if >=1.21.9 {
+        // the row index vanilla no longer passes, filled in by McSelectionList.renderItem
+        int rowIndex;
+        //?}
+
+
+        // ------- STABLE API -------
+
+        protected void renderRowBack(GuiGraphics guiGraphics, int index,
+                                     int top, int left, int rowWidth, int rowHeight,
+                                     int mouseX, int mouseY, boolean hovering, float partialTick) {
+        }
+
+        protected abstract void renderRow(GuiGraphics guiGraphics, int index,
+                                          int top, int left, int rowWidth, int rowHeight,
+                                          int mouseX, int mouseY, boolean hovering, float partialTick);
+
+
+        // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
+
+        //? if >=1.21.9 {
+        @Override
+        public final void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY,
+                                        boolean hovering, float partialTick) {
+            renderRowBack(guiGraphics, rowIndex, getY(), getX(), getWidth(), getHeight(),
+                    mouseX, mouseY, hovering, partialTick);
+            renderRow(guiGraphics, rowIndex, getY(), getX(), getWidth(), getHeight(),
+                    mouseX, mouseY, hovering, partialTick);
+        }
+        //?} else {
+        /*@Override
+        public final void renderBack(GuiGraphics guiGraphics, int index,
+                                     int top, int left, int rowWidth, int rowHeight,
+                                     int mouseX, int mouseY, boolean hovering, float partialTick) {
+            renderRowBack(guiGraphics, index, top, left, rowWidth, rowHeight,
+                    mouseX, mouseY, hovering, partialTick);
+        }
+
+        @Override
+        public final void render(GuiGraphics guiGraphics, int index,
+                                 int top, int left, int rowWidth, int rowHeight,
+                                 int mouseX, int mouseY, boolean hovering, float partialTick) {
+            renderRow(guiGraphics, index, top, left, rowWidth, rowHeight,
+                    mouseX, mouseY, hovering, partialTick);
+        }
+        *///?}
     }
 
     protected McSelectionList(Minecraft minecraft,
@@ -65,6 +116,62 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         return super.scrollBarX();
         //?} else {
         /*return super.getScrollbarPosition();
+        *///?}
+    }
+
+    protected final int entryHeight() {
+        //? if >=1.21.9 {
+        return this.defaultEntryHeight;
+        //?} else {
+        /*return this.itemHeight;
+        *///?}
+    }
+
+    // 1.21.9 dropped the header band
+    protected final int listHeaderHeight() {
+        //? if >=1.21.9 {
+        return 0;
+        //?} else {
+        /*return this.headerHeight;
+        *///?}
+    }
+
+    protected final void renderRow(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick,
+                                   int index, int left, int top, int rowWidth, int rowHeight) {
+        //? if >=1.21.9 {
+        E entry = this.children().get(index);
+        entry.setX(left);
+        entry.setY(top);
+        entry.setWidth(rowWidth);
+        entry.setHeight(rowHeight);
+        renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+        //?} else {
+        /*renderItem(guiGraphics, mouseX, mouseY, partialTick, index, left, top, rowWidth, rowHeight);
+        *///?}
+    }
+
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        //? if >=1.21.9 {
+        return super.mouseClicked(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), false);
+        //?} else {
+        /*return super.mouseClicked(mouseX, mouseY, button);
+        *///?}
+    }
+
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        //? if >=1.21.9 {
+        return super.mouseReleased(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button));
+        //?} else {
+        /*return super.mouseReleased(mouseX, mouseY, button);
+        *///?}
+    }
+
+    public boolean mouseDragged(double mouseX, double mouseY, int button,
+                                double dragX, double dragY) {
+        //? if >=1.21.9 {
+        return super.mouseDragged(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), dragX, dragY);
+        //?} else {
+        /*return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         *///?}
     }
 
@@ -201,20 +308,50 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
     protected final int scrollBarX() {
         return scrollbarX();
     }
-
-    @Override
-    public final boolean updateScrolling(double mouseX, double mouseY, int button) {
-        boolean scrollingNow = super.updateScrolling(mouseX, mouseY, button);
-        onScrollStateUpdated(mouseX, mouseY, button);
-        return scrollingNow;
-    }
     //?} else {
     /*@Override
     protected final int getScrollbarPosition() {
         return scrollbarX();
     }
+    *///?}
+
+    //? if >=1.21.9 {
+    @Override
+    public final boolean updateScrolling(MouseButtonEvent event) {
+        boolean scrollingNow = super.updateScrolling(event);
+        onScrollStateUpdated(event.x(), event.y(), event.button());
+        return scrollingNow;
+    }
 
     @Override
+    protected void renderItem(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, E entry) {
+        entry.rowIndex = this.children().indexOf(entry);
+        super.renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+    }
+
+    @Override
+    public final boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return mouseClicked(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    public final boolean mouseReleased(MouseButtonEvent event) {
+        return mouseReleased(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    public final boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        return mouseDragged(event.x(), event.y(), event.button(), dragX, dragY);
+    }
+    //?} elif >=1.21.4 {
+    /*@Override
+    public final boolean updateScrolling(double mouseX, double mouseY, int button) {
+        boolean scrollingNow = super.updateScrolling(mouseX, mouseY, button);
+        onScrollStateUpdated(mouseX, mouseY, button);
+        return scrollingNow;
+    }
+    *///?} else {
+    /*@Override
     protected final void updateScrollingState(double mouseX, double mouseY, int button) {
         super.updateScrollingState(mouseX, mouseY, button);
         onScrollStateUpdated(mouseX, mouseY, button);

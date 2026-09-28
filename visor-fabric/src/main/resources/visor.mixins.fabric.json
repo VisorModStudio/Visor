@@ -5,6 +5,8 @@
   "compatibilityLevel": "JAVA_${mixin_compat_level}",
   "refmap": "${mod_id}.refmap.json",
   "client": [
+    "FabricChunkSectionsStageMixin",
+    "FabricLevelRendererStageMixin",
     "MinecraftMixin"
   ],
   "minVersion": "0.8.4",

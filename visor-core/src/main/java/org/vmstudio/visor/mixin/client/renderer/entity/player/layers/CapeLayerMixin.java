@@ -1,15 +1,19 @@
-// #!MC-VERSION:: 1.21.3+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.joml.Vector3f;
@@ -18,16 +22,15 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.player.BackLayerPlacement;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 
 @Mixin(CapeLayer.class)
-public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, PlayerModel> {
+public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, PlayerModel> {
 
     @Unique
     private static final float ARMOR_CLEARANCE_Y = -0.85F;
@@ -39,41 +42,44 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
     @Unique
     private final Vector3f visor$offset = new Vector3f();
 
-    public CapeLayerMixin(RenderLayerParent<PlayerRenderState, PlayerModel> renderer) {
+    public CapeLayerMixin(RenderLayerParent<AvatarRenderState, PlayerModel> renderer) {
         super(renderer);
     }
 
-    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
+    @WrapOperation(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
     private void visor$noArmorShift(PoseStack poseStack, float x, float y, float z, Operation<Void> original,
-                                    @Local(argsOnly = true) PlayerRenderState state) {
+                                    @Local(argsOnly = true) AvatarRenderState state) {
         if (visor$vrPlayer(state) == null) {
             original.call(poseStack, x, y, z);
         }
     }
 
-    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HumanoidModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"))
+    @WrapOperation(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IIILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
     private void visor$capeAnchor(
-        HumanoidModel<?> capeModel, PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay,
-        Operation<Void> original, @Local(argsOnly = true) PlayerRenderState state)
+        SubmitNodeCollector collector, Model model, Object renderState, PoseStack poseStack, RenderType renderType,
+        int packedLight, int packedOverlay, int tint, ModelFeatureRenderer.CrumblingOverlay crumbling,
+        Operation<Void> original, @Local(argsOnly = true) AvatarRenderState state)
     {
+        HumanoidModel<?> capeModel = (HumanoidModel<?>) model;
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         VRClientPlayer vrPlayer = player == null ? null : VRClientPlayers.getPlayer(player.getUUID());
         if (vrPlayer == null || !capeModel.body.hasChild("cape")) {
-            original.call(capeModel, poseStack, consumer, packedLight, packedOverlay);
+            original.call(collector, model, renderState, poseStack, renderType,
+                    packedLight, packedOverlay, tint, crumbling);
             return;
         }
 
-        PlayerModel model = getParentModel();
-        visor$placement.aim(model.body, true);
+        PlayerModel parentModel = getParentModel();
+        visor$placement.aim(parentModel.body, true);
         float bodyPitch = visor$placement.pitch();
         // read the slot, not the render state: 1.21.4 renamed its chestItem field to chestEquipment
         boolean armor = !player.getItemBySlot(EquipmentSlot.CHEST).isEmpty();
 
-        visor$offset.set(0F, 0F, BackLayerPlacement.restingDepth(model.body));
+        visor$offset.set(0F, 0F, BackLayerPlacement.restingDepth(parentModel.body));
         if (armor) {
             visor$offset.add(0F, ARMOR_CLEARANCE_Y, ARMOR_CLEARANCE_Z);
         }
-        visor$placement.place(vrPlayer, model.body, visor$offset, visor$offset);
+        visor$placement.place(vrPlayer, parentModel.body, visor$offset, visor$offset);
         poseStack.translate(visor$offset.x, -visor$offset.y, -visor$offset.z);
 
         float flatten = state.isFallFlying ? 1F : state.swimAmount;
@@ -93,11 +99,12 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
         } else {
             cape.setPos(0F, state.isCrouching ? 1.85F : 0F, state.isCrouching ? 1.4F : 0F);
         }
-        original.call(capeModel, poseStack, consumer, packedLight, packedOverlay);
+        original.call(collector, model, renderState, poseStack, renderType,
+                packedLight, packedOverlay, tint, crumbling);
     }
 
     @Unique
-    private static VRClientPlayer visor$vrPlayer(PlayerRenderState state) {
+    private static VRClientPlayer visor$vrPlayer(AvatarRenderState state) {
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         return player == null ? null : VRClientPlayers.getPlayer(player.getUUID());
     }

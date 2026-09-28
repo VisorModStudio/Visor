@@ -88,7 +88,11 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
       //--------VEHICLE--------\\
         \* ****************** */
     @Inject(at = @At("TAIL"), method = "startRiding")
-    public void visor$onStartRiding(Entity vehicle, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+    //? if >=1.21.9 {
+    public void visor$onStartRiding(Entity vehicle, boolean bl, boolean bl2, CallbackInfoReturnable<Boolean> cir) {
+    //?} else {
+    /*public void visor$onStartRiding(Entity vehicle, boolean bl, CallbackInfoReturnable<Boolean> cir) {
+    *///?}
         if (VisorState.get().isNotActive()
                 || !visor$isThisPlayerLocal(this)) {
             return;

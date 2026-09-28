@@ -22,9 +22,11 @@ public class ItemPickupParticleMixin {
     @Final
     @Shadow
     private Entity target;
-    @Final
+    //? if <1.21.9 {
+    /*@Final
     @Shadow
     private Entity itemEntity;
+    *///?}
 
     @Unique
     private Vector3fc visor$playerPos;
@@ -35,7 +37,11 @@ public class ItemPickupParticleMixin {
     /*private static final String RENDER = "render";
     *///?}
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 0), method = RENDER)
+    // 1.21.9 extracts the pickup particle instead of rendering it, the three lerps moved out of this class:
+    // the VR re-anchor to the headset has no hook here any more and is disabled until it is redesigned.
+
+    //? if <1.21.9 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;lerp(DDD)D", ordinal = 0), method = RENDER)
     public double visor$vrPosX(double partialTick,
                               double oldValue,
                               double newValue, Operation<Double> original) {
@@ -75,4 +81,5 @@ public class ItemPickupParticleMixin {
 
         return original.call(partialTick, oldValue, newValue);
     }
+    *///?}
 }

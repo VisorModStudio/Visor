@@ -137,6 +137,16 @@ if (project.parent.name == "visor-core") {
 }
 
 // ---- Resources --------------------------------------------------------------
+// 1.21.9 pack.mcmeta: the modern form is min_format/max_format alone, which is what the resource-pack
+// side wants (pack_format alone is rejected above 64, supported_formats is rejected from 65 upwards).
+// The data-pack side is still in the legacy regime below format 82 and asks for supported_formats, so one
+// shared pack.mcmeta cannot satisfy both - a dedicated server logs one "Couldn't load pack metadata" per
+// pack and falls back, the pack itself still loads. Tried and rejected: pack_format+min+max, min+max+
+// supported_formats, and max_format 88.
+def packFormatFields = stonecutter.eval(minecraftVersion, ">=1.21.9")
+        ? "\"min_format\": ${pack_format},\n    \"max_format\": ${pack_format}"
+        : "\"pack_format\": ${pack_format}"
+
 project.ext.resourcePlaceholders = [
         mod_id                           : mod_id,
         mod_name                         : mod_name,
@@ -149,6 +159,7 @@ project.ext.resourcePlaceholders = [
         java_version                     : java_version,
         mixin_compat_level               : mixin_compat_level,
         pack_format                      : pack_format,
+        pack_format_fields               : packFormatFields,
         fabric_loader_version            : fabric_loader_version,
         fabric_loader_version_range      : fabric_loader_version_range,
         minecraft_version_range_fabric   : minecraft_version_range_fabric,

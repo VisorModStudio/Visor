@@ -53,14 +53,22 @@ public abstract class MouseHandlerMixin {
     }
 
     //here we use ActualScreenWidth, to support mouse usage in GUI mirror mode
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 2, method = {"grabMouse", "releaseMouse"})
+    //? if >=1.21.9 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"), index = 2, method = {"grabMouse", "releaseMouse"})
+    //?} else {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 2, method = {"grabMouse", "releaseMouse"})
+    *///?}
     public double visor$vrMouseXCenter(double x) {
         return VisorState.get().isActive()
                 ? (double) ((WindowExtension) (Object) minecraft.getWindow())
                 .visor$mcScreenWidth() / 2
                 : x;
     }
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 3, method = {"grabMouse", "releaseMouse"})
+    //? if >=1.21.9 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"), index = 3, method = {"grabMouse", "releaseMouse"})
+    //?} else {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"), index = 3, method = {"grabMouse", "releaseMouse"})
+    *///?}
     public double visor$vrMouseYCenter(double y) {
         return VisorState.get().isActive()
                 ? (double) ((WindowExtension) (Object) minecraft.getWindow())

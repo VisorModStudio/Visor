@@ -89,7 +89,7 @@ public class VRRenderTarget extends RenderTarget {
                         "FB ID:  %d%n" +
                         "Tex ID: %d",
                 displayName,
-                viewWidth, viewHeight,
+                McRenderTarget.viewWidth(this), McRenderTarget.viewHeight(this),
                 //? if >=1.21.5 {
                 0,
                 //?} else {

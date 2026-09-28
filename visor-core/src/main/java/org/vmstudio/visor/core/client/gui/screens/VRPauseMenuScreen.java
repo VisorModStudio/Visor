@@ -3,6 +3,10 @@ package org.vmstudio.visor.core.client.gui.screens;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.*;
+//? if >=1.21.9 {
+import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+//?}
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
@@ -119,7 +123,7 @@ public class VRPauseMenuScreen extends McScreen {
                                 })
                 );
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chat").getString(), right, y,
-                        b -> this.minecraft.setScreen(new ChatScreen(""))));
+                        b -> this.minecraft.setScreen(McVersionClientUtils.chatScreen(""))));
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.pause_menu").getString(), left, y,
@@ -185,12 +189,19 @@ public class VRPauseMenuScreen extends McScreen {
             }
 
             case TOOLS -> {
-                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.hitboxes").getString(), left, y, b -> {
+                //? if >=1.21.9 {
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.hitboxes").getString(), left, y,
+                        b -> this.minecraft.debugEntries.toggleStatus(DebugScreenEntries.ENTITY_HITBOXES)));
+                addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chunk_borders").getString(), right, y,
+                        b -> this.minecraft.debugEntries.toggleStatus(DebugScreenEntries.CHUNK_BORDERS)));
+                //?} else {
+                /*addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.hitboxes").getString(), left, y, b -> {
                     boolean cur = this.minecraft.getEntityRenderDispatcher().shouldRenderHitBoxes();
                     this.minecraft.getEntityRenderDispatcher().setRenderHitBoxes(!cur);
                 }));
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chunk_borders").getString(), right, y,
                         b -> this.minecraft.debugRenderer.switchRenderChunkborder()));
+                *///?}
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.reload_chunks").getString(), left, y,

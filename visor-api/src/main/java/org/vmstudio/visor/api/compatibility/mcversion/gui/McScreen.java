@@ -7,10 +7,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 //? if >=1.21.9 {
-/*import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-*///?}
+//?}
 
 /**
  * Cross-mc-version adapter for Screen.
@@ -21,9 +21,9 @@ public abstract class McScreen extends Screen {
     protected McScreen(Component title) {
         super(title);
         //? if <1.21.9 {
-        this.minecraft = Minecraft.getInstance();
+        /*this.minecraft = Minecraft.getInstance();
         this.font = minecraft.font;
-        //?}
+        *///?}
     }
 
 
@@ -47,27 +47,27 @@ public abstract class McScreen extends Screen {
 
     protected boolean onMouseClicked(double mouseX, double mouseY, int button) {
         //? if >=1.21.9 {
-        /*return super.mouseClicked(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), false);
-        *///?} else {
-        return super.mouseClicked(mouseX, mouseY, button);
-        //?}
+        return super.mouseClicked(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), false);
+        //?} else {
+        /*return super.mouseClicked(mouseX, mouseY, button);
+        *///?}
     }
 
     protected boolean onMouseReleased(double mouseX, double mouseY, int button) {
         //? if >=1.21.9 {
-        /*return super.mouseReleased(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button));
-        *///?} else {
-        return super.mouseReleased(mouseX, mouseY, button);
-        //?}
+        return super.mouseReleased(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button));
+        //?} else {
+        /*return super.mouseReleased(mouseX, mouseY, button);
+        *///?}
     }
 
     protected boolean onMouseDragged(double mouseX, double mouseY, int button,
                                      double dragX, double dragY) {
         //? if >=1.21.9 {
-        /*return super.mouseDragged(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), dragX, dragY);
-        *///?} else {
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
-        //?}
+        return super.mouseDragged(McGuiUtils.mouseButtonEvent(mouseX, mouseY, button), dragX, dragY);
+        //?} else {
+        /*return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        *///?}
     }
 
     protected boolean onMouseScrolled(double mouseX, double mouseY, double verticalAmount) {
@@ -80,33 +80,33 @@ public abstract class McScreen extends Screen {
 
     protected boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
         //? if >=1.21.9 {
-        /*return super.keyPressed(new KeyEvent(keyCode, scanCode, modifiers));
-        *///?} else {
-        return super.keyPressed(keyCode, scanCode, modifiers);
-        //?}
+        return super.keyPressed(new KeyEvent(keyCode, scanCode, modifiers));
+        //?} else {
+        /*return super.keyPressed(keyCode, scanCode, modifiers);
+        *///?}
     }
 
     protected boolean onKeyReleased(int keyCode, int scanCode, int modifiers) {
         //? if >=1.21.9 {
-        /*return super.keyReleased(new KeyEvent(keyCode, scanCode, modifiers));
-        *///?} else {
-        return super.keyReleased(keyCode, scanCode, modifiers);
-        //?}
+        return super.keyReleased(new KeyEvent(keyCode, scanCode, modifiers));
+        //?} else {
+        /*return super.keyReleased(keyCode, scanCode, modifiers);
+        *///?}
     }
 
     protected boolean onCharTyped(char chr, int modifiers) {
         //? if >=1.21.9 {
-        /*return super.charTyped(new CharacterEvent(chr, modifiers));
-        *///?} else {
-        return super.charTyped(chr, modifiers);
-        //?}
+        return super.charTyped(new CharacterEvent(chr, modifiers));
+        //?} else {
+        /*return super.charTyped(chr, modifiers);
+        *///?}
     }
 
 
     // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
 
     //? if <1.21.9 {
-    @Override
+    /*@Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return onMouseClicked(mouseX, mouseY, button);
     }
@@ -136,7 +136,7 @@ public abstract class McScreen extends Screen {
     public boolean charTyped(char chr, int modifiers) {
         return onCharTyped(chr, modifiers);
     }
-    //?}
+    *///?}
 
     //? if <1.20.2 {
     /*@Override
@@ -146,9 +146,9 @@ public abstract class McScreen extends Screen {
     *///?}
 
     //? if >=1.20.2 && <1.21.9 {
-    // vanilla render() draws the background itself there, but the adapter already did
+    /*// vanilla render() draws the background itself there, but the adapter already did
     private boolean contentsPass;
-    //?}
+    *///?}
 
     @Override
     public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -156,16 +156,16 @@ public abstract class McScreen extends Screen {
         /*renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
         *///?} elif <1.21.9 {
-        renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
+        /*renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         contentsPass = true;
         try {
             renderContents(guiGraphics, mouseX, mouseY, partialTick);
         } finally {
             contentsPass = false;
         }
-        //?} else {
-        /*renderContents(guiGraphics, mouseX, mouseY, partialTick);
-        *///?}
+        *///?} else {
+        renderContents(guiGraphics, mouseX, mouseY, partialTick);
+        //?}
     }
 
     //? if <1.20.2 {
@@ -174,18 +174,18 @@ public abstract class McScreen extends Screen {
         renderScreenBackground(guiGraphics, 0, 0, 0);
     }
     *///?} elif <1.21.9 {
-    @Override
+    /*@Override
     public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (!contentsPass) {
             renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
-    //?} else {
-    /*@Override
+    *///?} else {
+    @Override
     public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
     }
-    *///?}
+    //?}
 
     //? if >=1.20.2 {
     @Override
@@ -195,7 +195,7 @@ public abstract class McScreen extends Screen {
     //?}
 
     //? if >=1.21.9 {
-    /*@Override
+    @Override
     public final boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         return onMouseClicked(event.x(), event.y(), event.button());
     }
@@ -229,5 +229,5 @@ public abstract class McScreen extends Screen {
         }
         return handled;
     }
-    *///?}
+    //?}
 }

@@ -34,8 +34,10 @@ public class XrRenderTarget extends RenderTarget {
     @Override
     public void createBuffers(int width, int height) {
         checkSize(width, height);
-        this.viewWidth = width;
+        //? if <1.21.9 {
+        /*this.viewWidth = width;
         this.viewHeight = height;
+        *///?}
         this.width = width;
         this.height = height;
         this.colorTexture = McRenderTarget.adoptForeignTexture(

@@ -4,11 +4,11 @@ import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.network.chat.Component;
 
 
-public class ValueDragWidget extends AbstractWidget {
+public class ValueDragWidget extends McWidget {
 
     @Getter
     private final WidgetInfoValueDrag widgetInfo;

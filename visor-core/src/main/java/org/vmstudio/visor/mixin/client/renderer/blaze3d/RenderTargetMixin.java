@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.5+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -19,10 +19,6 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     public int width;
     @Shadow
     public int height;
-    @Shadow
-    public int viewHeight;
-    @Shadow
-    public int viewWidth;
 
 
     @Unique
@@ -37,7 +33,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
 
     @Override
     public String toString() {
-        return "\nSize:   " + this.viewWidth + " x " + this.viewHeight + "\n";
+        return "\nSize:   " + this.width + " x " + this.height + "\n";
     }
 
 

@@ -22,7 +22,11 @@ public class LevelRendererCullMixin {
     @Shadow @Final
     private SectionOcclusionGraph sectionOcclusionGraph;
 
-    @Inject(method = "setupRender", at = @At("HEAD"))
+    //? if >=1.21.9 {
+    @Inject(method = "cullTerrain", at = @At("HEAD"))
+    //?} else {
+    /*@Inject(method = "setupRender", at = @At("HEAD"))
+    *///?}
     private void visor$refreshCullingEachPass(CallbackInfo ci) {
         if (!VisorState.get().isActive() || SodiumHelper.isLoaded()) {
             return;
@@ -33,10 +37,17 @@ public class LevelRendererCullMixin {
     }
 
     // needsFrustumUpdate is private to SectionOcclusionGraph now, so force the read instead of the write
+    //? if >=1.21.9 {
     @ModifyExpressionValue(
+            method = "cullTerrain",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/SectionOcclusionGraph;consumeFrustumUpdate()Z"))
+    //?} else {
+    /*@ModifyExpressionValue(
             method = "setupRender",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/SectionOcclusionGraph;consumeFrustumUpdate()Z"))
+    *///?}
     private boolean visor$forceFrustumUpdate(boolean original) {
         if (!VisorState.get().isActive() || SodiumHelper.isLoaded()) {
             return original;

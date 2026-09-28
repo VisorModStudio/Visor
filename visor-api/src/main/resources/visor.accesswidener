@@ -46,10 +46,19 @@ accessible field net/minecraft/client/player/ClientInput moveVector Lnet/minecra
 # ------ INPUT ------------------
 
 # Used in: InputHelper
-accessible method net/minecraft/client/MouseHandler onPress (JIII)V
+#? if >=1.21.9 {
+accessible method net/minecraft/client/MouseHandler onButton (JLnet/minecraft/client/input/MouseButtonInfo;I)V
+accessible method net/minecraft/client/KeyboardHandler keyPress (JILnet/minecraft/client/input/KeyEvent;)V
+#?} else {
+#accessible method net/minecraft/client/MouseHandler onPress (JIII)V
+#?}
 accessible method net/minecraft/client/MouseHandler onMove (JDD)V
 accessible method net/minecraft/client/MouseHandler onScroll (JDD)V
-accessible method net/minecraft/client/KeyboardHandler charTyped (JII)V
+#? if >=1.21.9 {
+accessible method net/minecraft/client/KeyboardHandler charTyped (JLnet/minecraft/client/input/CharacterEvent;)V
+#?} else {
+#accessible method net/minecraft/client/KeyboardHandler charTyped (JII)V
+#?}
 
 # Used in: ClientUtils
 accessible field net/minecraft/client/KeyMapping clickCount I
@@ -90,7 +99,11 @@ accessible class net/minecraft/client/renderer/RenderType$CompositeState
 accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 
 # Used in: ItemInHandLayerMixin, PlayerItemInHandLayerMixin
-accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
+#? if >=1.21.9 {
+accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
+#?} else {
+#accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
+#?}
 
 # Used in: GameEffectVanilla, GameRendererMixin
 #? if >=1.21 && <1.21.6 {
@@ -105,7 +118,11 @@ accessible field net/minecraft/client/renderer/GameRenderer fogRenderer Lnet/min
 accessible field net/minecraft/client/renderer/GameRenderer guiRenderer Lnet/minecraft/client/gui/render/GuiRenderer;
 accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
 accessible field net/minecraft/client/renderer/GameRenderer screenEffectRenderer Lnet/minecraft/client/renderer/ScreenEffectRenderer;
-accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
+#? if >=1.21.9 {
+accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/SubmitNodeCollector;)V
+#?} else {
+#accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
+#?}
 accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
 #?}
 

@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
 
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 //? if >=1.20.5 {
@@ -17,8 +18,8 @@ import net.minecraft.client.gui.screens.GenericMessageScreen;
 /*import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 *///?}
 //? if <1.21.9 {
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
-//?}
+/*import net.minecraft.client.gui.screens.ReceivingLevelScreen;
+*///?}
 //? if >=1.21.2 {
 import net.minecraft.util.profiling.Profiler;
 //?}
@@ -28,6 +29,22 @@ import net.minecraft.util.profiling.Profiler;
  *
  */
 public class McVersionClientUtils {
+
+    public static long windowHandle() {
+        //? if >=1.21.9 {
+        return Minecraft.getInstance().getWindow().handle();
+        //?} else {
+        /*return Minecraft.getInstance().getWindow().getWindow();
+        *///?}
+    }
+
+    public static Screen chatScreen(String initial) {
+        //? if >=1.21.9 {
+        return new ChatScreen(initial, false);
+        //?} else {
+        /*return new ChatScreen(initial);
+        *///?}
+    }
     private McVersionClientUtils() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
@@ -70,8 +87,8 @@ public class McVersionClientUtils {
         /*if (screen instanceof GenericDirtMessageScreen) return true;
         *///?}
         //? if <1.21.9 {
-        if (screen instanceof ReceivingLevelScreen) return true;
-        //?}
+        /*if (screen instanceof ReceivingLevelScreen) return true;
+        *///?}
         return screen instanceof ProgressScreen;
     }
 

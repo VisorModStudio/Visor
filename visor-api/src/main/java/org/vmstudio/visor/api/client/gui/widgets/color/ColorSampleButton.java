@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.gui.helpers.ColorsHelper;
 import java.util.function.Consumer;
 
 
-public class ColorSampleButton extends AbstractButton {
+public class ColorSampleButton extends McButton {
 
     private final Consumer<ColorSampleButton> onPress;
 

@@ -50,6 +50,12 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
 
         info.cancel();
 
+        //? if >=1.21.9 {
+        // the cancel lands before the tail of render(), where 1.21.9 ends the submit and feature frames
+        GameRenderer self = (GameRenderer) (Object) this;
+        self.getSubmitNodeStorage().endFrame();
+        self.getFeatureRenderDispatcher().endFrame();
+        //?}
 
         // Render Main Menu View
         if (VRRenderState.getSceneType().isMainMenu()) {

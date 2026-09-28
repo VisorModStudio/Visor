@@ -2,6 +2,7 @@ package org.vmstudio.visor.api.client.gui.widgets.lists;
 
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
@@ -300,7 +301,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
                 continue;
             }
             for (var widget : entry.getWidgets()) {
-                if (widget.mouseClicked(mouseX, mouseY, button)) {
+                if (McGuiUtils.mouseClicked(widget, mouseX, mouseY, button)) {
                     return true;
                 }
             }
@@ -319,7 +320,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
                 continue;
             }
             for (var widget : entry.getWidgets()) {
-                widget.mouseReleased(mouseX, mouseY, button);
+                McGuiUtils.mouseReleased(widget, mouseX, mouseY, button);
             }
         }
         return false;

@@ -5,7 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+*///?}
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -14,12 +18,20 @@ import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 
-public class VRPlayerRenderState extends PlayerRenderState {
+//? if >=1.21.9 {
+public class VRPlayerRenderState extends AvatarRenderState {
+//?} else {
+/*public class VRPlayerRenderState extends PlayerRenderState {
+*///?}
     @Nullable
     public AbstractClientPlayer player;
     public float partialTick;
 
-    public static void extract(PlayerRenderState state, AbstractClientPlayer player, float partialTick) {
+    //? if >=1.21.9 {
+    public static void extract(AvatarRenderState state, AbstractClientPlayer player, float partialTick) {
+    //?} else {
+    /*public static void extract(PlayerRenderState state, AbstractClientPlayer player, float partialTick) {
+    *///?}
         if (!(state instanceof VRPlayerRenderState vrState)) {
             return;
         }
@@ -53,7 +65,11 @@ public class VRPlayerRenderState extends PlayerRenderState {
             return vrState.player;
         }
         ClientLevel level = Minecraft.getInstance().level;
-        if (state instanceof PlayerRenderState playerState && level != null
+        //? if >=1.21.9 {
+        if (state instanceof AvatarRenderState playerState && level != null
+        //?} else {
+        /*if (state instanceof PlayerRenderState playerState && level != null
+        *///?}
                 && level.getEntity(playerState.id) instanceof AbstractClientPlayer player) {
             return player;
         }

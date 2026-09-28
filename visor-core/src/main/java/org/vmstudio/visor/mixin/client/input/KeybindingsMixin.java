@@ -19,6 +19,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 
+//? if >=1.21.9 {
+import net.minecraft.client.input.KeyEvent;
+//?}
+
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -26,12 +30,21 @@ import java.util.function.Consumer;
 @Mixin(KeyboardHandler.class)
 public class KeybindingsMixin {
 
+    //? if >=1.21.9 {
     @Inject(method = "keyPress", at = @At(value = "FIELD", target = "Lnet/minecraft/client/KeyboardHandler;debugCrashKeyTime:J", ordinal = 0), cancellable = true)
+    private void visor$handleVRHotKeys(long windowPointer,
+                                    int action, KeyEvent event,
+                                    CallbackInfo ci) {
+        int key = event.key();
+        if (action == GLFW.GLFW_PRESS) {
+    //?} else {
+    /*@Inject(method = "keyPress", at = @At(value = "FIELD", target = "Lnet/minecraft/client/KeyboardHandler;debugCrashKeyTime:J", ordinal = 0), cancellable = true)
     private void visor$handleVRHotKeys(long windowPointer,
                                     int key, int scanCode,
                                     int action, int modifiers,
                                     CallbackInfo ci) {
         if (action == GLFW.GLFW_PRESS) {
+    *///?}
             if (InputHelper.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
                 if (key == GLFW.GLFW_KEY_F7
                         && VisorAPI.clientState().sceneType() == VRSceneType.MAIN_MENU) {

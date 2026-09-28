@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.3+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -42,7 +42,7 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
         super(renderer);
     }
 
-    @WrapOperation(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
+    @WrapOperation(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
     private void visor$attachElytraToBack(PoseStack instance, float x, float y, float z, Operation<Void> original, @Local(argsOnly = true) HumanoidRenderState state) {
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         var vrPlayer = player == null ? null : VRClientPlayers.getPlayer(player.getUUID());

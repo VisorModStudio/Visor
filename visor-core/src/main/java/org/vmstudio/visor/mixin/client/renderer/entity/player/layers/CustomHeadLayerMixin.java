@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.3+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -16,7 +16,7 @@ import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 
 @Mixin(CustomHeadLayer.class)
 public class CustomHeadLayerMixin {
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V", at = @At("HEAD"), cancellable = true)
     private void visor$hideHeadDecorationOnVRSelf(CallbackInfo ci,
                                                   @Local(argsOnly = true) LivingEntityRenderState state)
     {

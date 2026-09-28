@@ -14,6 +14,9 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
+//? if >=1.21.9 {
+import net.minecraft.world.entity.player.PlayerModelType;
+//?}
 import org.joml.Matrix4f;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
@@ -30,17 +33,22 @@ public class McRenderUtils {
     // ------- PLAYER SKIN -------
 
     public static ResourceLocation getSkinTexture(AbstractClientPlayer player) {
-        //? if >=1.20.2 {
-        return player.getSkin().texture();
-        //?} else {
+        //? if >=1.21.9 {
+        return player.getSkin().body().id();
+        //?} elif >=1.20.2 {
+        /*return player.getSkin().texture();
+        *///?} else {
         /*return player.getSkinTextureLocation();
         *///?}
     }
 
     public static String getModelName(AbstractClientPlayer player) {
-        //? if >=1.20.2 {
-        return player.getSkin().model().id();
-        //?} else {
+        //? if >=1.21.9 {
+        // PlayerModelType.getSerializedName() is "wide", the model registry key stayed "default"
+        return player.getSkin().model() == PlayerModelType.SLIM ? "slim" : "default";
+        //?} elif >=1.20.2 {
+        /*return player.getSkin().model().id();
+        *///?} else {
         /*return player.getModelName();
         *///?}
     }
@@ -165,10 +173,14 @@ public class McRenderUtils {
     }
 
     public static void renderItemActivationAnimation(GameRenderer renderer, float partialTicks) {
-        //? if >=1.21.6 {
-        // 1.21.6 moved the animation onto ScreenEffectRenderer
+        //? if >=1.21.9 {
+        // 1.21.9 defers it: the node is drawn by the frame's FeatureRenderDispatcher
+        renderer.screenEffectRenderer.renderItemActivationAnimation(
+                new PoseStack(), partialTicks, renderer.getSubmitNodeStorage());
+        //?} elif >=1.21.6 {
+        /*// 1.21.6 moved the animation onto ScreenEffectRenderer
         renderer.screenEffectRenderer.renderItemActivationAnimation(new PoseStack(), partialTicks);
-        //?} elif >=1.21 {
+        *///?} elif >=1.21 {
         /*Minecraft minecraft = Minecraft.getInstance();
         renderer.renderItemActivationAnimation(
                 new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource()),

@@ -9,6 +9,11 @@ import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+//? if >=1.21.9 {
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+//?}
 
 import java.util.BitSet;
 import java.util.HashMap;
@@ -20,16 +25,35 @@ public class InputHelper {
     private static final HashMap<Character, Integer> keyCodes = new HashMap<>();
 
     private static long windowHandle() {
-        return Minecraft.getInstance().getWindow().getWindow();
+        //? if >=1.21.9 {
+        return Minecraft.getInstance().getWindow().handle();
+        //?} else {
+        /*return Minecraft.getInstance().getWindow().getWindow();
+        *///?}
+    }
+
+
+    public static void grabOrReleaseMouse(int cursorMode, double x, double y) {
+        //? if >=1.21.9 {
+        InputConstants.grabOrReleaseMouse(Minecraft.getInstance().getWindow(), cursorMode, x, y);
+        //?} else {
+        /*InputConstants.grabOrReleaseMouse(windowHandle(), cursorMode, x, y);
+        *///?}
     }
 
 
     /* ------- MOUSE ------- */
 
     public static void pressMouse(@NotNull MouseButtonType button, int modifiers) {
-        Minecraft.getInstance().mouseHandler.onPress(
+        //? if >=1.21.9 {
+        Minecraft.getInstance().mouseHandler.onButton(
+                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), GLFW.GLFW_PRESS
+        );
+        //?} else {
+        /*Minecraft.getInstance().mouseHandler.onPress(
                 windowHandle(), button.getId(), GLFW.GLFW_PRESS, modifiers
         );
+        *///?}
     }
     public static void pressMouse(@NotNull MouseButtonType button) {
         pressMouse(button, 0);
@@ -37,9 +61,15 @@ public class InputHelper {
 
 
     public static void releaseMouse(@NotNull MouseButtonType button, int modifiers) {
-        Minecraft.getInstance().mouseHandler.onPress(
+        //? if >=1.21.9 {
+        Minecraft.getInstance().mouseHandler.onButton(
+                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), GLFW.GLFW_RELEASE
+        );
+        //?} else {
+        /*Minecraft.getInstance().mouseHandler.onPress(
                 windowHandle(), button.getId(), GLFW.GLFW_RELEASE, modifiers
         );
+        *///?}
     }
     public static void releaseMouse(@NotNull MouseButtonType button) {
         releaseMouse(button, 0);
@@ -75,9 +105,15 @@ public class InputHelper {
     public static void pressKey(int key, int modifiers) {
         if (key < 0) return;
         heldKeys.set(key);
+        //? if >=1.21.9 {
         Minecraft.getInstance().keyboardHandler.keyPress(
+                windowHandle(), GLFW.GLFW_PRESS, new KeyEvent(key, 0, modifiers)
+        );
+        //?} else {
+        /*Minecraft.getInstance().keyboardHandler.keyPress(
                 windowHandle(), key, 0, GLFW.GLFW_PRESS, modifiers
         );
+        *///?}
     }
     public static void pressKey(int key) {
         pressKey(key, 0);
@@ -87,9 +123,15 @@ public class InputHelper {
     public static void releaseKey(int key, int modifiers) {
         if (key < 0) return;
         heldKeys.clear(key);
+        //? if >=1.21.9 {
         Minecraft.getInstance().keyboardHandler.keyPress(
+                windowHandle(), GLFW.GLFW_RELEASE, new KeyEvent(key, 0, modifiers)
+        );
+        //?} else {
+        /*Minecraft.getInstance().keyboardHandler.keyPress(
                 windowHandle(), key, 0, GLFW.GLFW_RELEASE, modifiers
         );
+        *///?}
     }
     public static void releaseKey(int key) {
         releaseKey(key, 0);
@@ -168,7 +210,11 @@ public class InputHelper {
         }
         Minecraft mc = Minecraft.getInstance();
         if(mc.screen != null) {
-            mc.keyboardHandler.charTyped(windowHandle(), character, modifiers);
+            //? if >=1.21.9 {
+            mc.keyboardHandler.charTyped(windowHandle(), new CharacterEvent(character, modifiers));
+            //?} else {
+            /*mc.keyboardHandler.charTyped(windowHandle(), character, modifiers);
+            *///?}
             return true;
         }
         return false;

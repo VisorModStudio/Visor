@@ -3,6 +3,11 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+//? if >=1.21.9 {
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 
 /**
  * Cross-mc-version adapter for GuiEventListener.
@@ -52,6 +57,38 @@ public interface McGuiEventListener extends GuiEventListener {
     default boolean mouseScrolled(double mouseX, double mouseY,
                                   double horizontalAmount, double verticalAmount) {
         return mouseScrolled(mouseX, mouseY, verticalAmount);
+    }
+    //?}
+
+    //? if >=1.21.9 {
+    @Override
+    default boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        return mouseClicked(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    default boolean mouseReleased(MouseButtonEvent event) {
+        return mouseReleased(event.x(), event.y(), event.button());
+    }
+
+    @Override
+    default boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        return mouseDragged(event.x(), event.y(), event.button(), dragX, dragY);
+    }
+
+    @Override
+    default boolean keyPressed(KeyEvent event) {
+        return keyPressed(event.key(), event.scancode(), event.modifiers());
+    }
+
+    @Override
+    default boolean keyReleased(KeyEvent event) {
+        return keyReleased(event.key(), event.scancode(), event.modifiers());
+    }
+
+    @Override
+    default boolean charTyped(CharacterEvent event) {
+        return charTyped((char) event.codepoint(), event.modifiers());
     }
     //?}
 }

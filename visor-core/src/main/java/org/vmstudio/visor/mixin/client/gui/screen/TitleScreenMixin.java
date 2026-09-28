@@ -6,6 +6,9 @@ import org.vmstudio.visor.api.client.gui.widgets.lists.DropDownListWidget;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
+//? if >=1.21.9 {
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
@@ -69,7 +72,18 @@ public abstract class TitleScreenMixin extends Screen {
     }
 
 
+    //? if >=1.21.9 {
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    private void visor$dropdownClickPriority(MouseButtonEvent event, boolean doubleClick,
+                                             CallbackInfoReturnable<Boolean> cir) {
+        if (visor$vrModeButton != null
+                && visor$vrModeButton.isExpanded()
+                && visor$vrModeButton.mouseClicked(event.x(), event.y(), event.button())) {
+            cir.setReturnValue(true);
+        }
+    }
+    //?} else {
+    /*@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void visor$dropdownClickPriority(double mouseX, double mouseY, int button,
                                              CallbackInfoReturnable<Boolean> cir) {
         if (visor$vrModeButton != null
@@ -78,6 +92,7 @@ public abstract class TitleScreenMixin extends Screen {
             cir.setReturnValue(true);
         }
     }
+    *///?}
 
     @Inject(at = @At("TAIL"), method = "render")
     public void visor$renderToolTip(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {

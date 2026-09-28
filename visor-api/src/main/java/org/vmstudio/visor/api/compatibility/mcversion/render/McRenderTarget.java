@@ -55,11 +55,19 @@ public class McRenderTarget {
     }
 
     public static int viewWidth(RenderTarget target) {
-        return target.viewWidth;
+        //? if >=1.21.9 {
+        return target.width;
+        //?} else {
+        /*return target.viewWidth;
+        *///?}
     }
 
     public static int viewHeight(RenderTarget target) {
-        return target.viewHeight;
+        //? if >=1.21.9 {
+        return target.height;
+        //?} else {
+        /*return target.viewHeight;
+        *///?}
     }
 
     // ------- BINDING -------

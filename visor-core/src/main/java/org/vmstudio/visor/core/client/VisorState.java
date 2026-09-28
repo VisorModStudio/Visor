@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import org.vmstudio.visor.api.client.input.InputHelper;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.screens.*;
@@ -213,8 +214,7 @@ public class VisorState implements VisorClientState {
                     MC.player, false
             );
         }
-        InputConstants.grabOrReleaseMouse(
-                MC.getWindow().getWindow(),
+        InputHelper.grabOrReleaseMouse(
                 GLFW.GLFW_CURSOR_NORMAL,
                 MC.mouseHandler.xpos(),
                 MC.mouseHandler.ypos()
@@ -233,16 +233,14 @@ public class VisorState implements VisorClientState {
         }
         if (MC.screen != null || MC.level == null) {
             MC.mouseHandler.releaseMouse();
-            InputConstants.grabOrReleaseMouse(
-                    MC.getWindow().getWindow(),
+            InputHelper.grabOrReleaseMouse(
                     GLFW.GLFW_CURSOR_NORMAL,
                     MC.mouseHandler.xpos(),
                     MC.mouseHandler.ypos()
             );
         } else {
             MC.mouseHandler.grabMouse();
-            InputConstants.grabOrReleaseMouse(
-                    MC.getWindow().getWindow(),
+            InputHelper.grabOrReleaseMouse(
                     GLFW.GLFW_CURSOR_DISABLED,
                     MC.mouseHandler.xpos(),
                     MC.mouseHandler.ypos()

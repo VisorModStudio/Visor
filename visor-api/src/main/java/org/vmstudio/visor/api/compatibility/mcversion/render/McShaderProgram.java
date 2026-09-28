@@ -194,6 +194,13 @@ public final class McShaderProgram {
             public VertexFormat.Mode mode() {
                 return mode;
             }
+
+            //? if >=1.21.9 {
+            @Override
+            public RenderPipeline pipeline() {
+                return McShaderProgram.this.pipeline(mode);
+            }
+            //?}
         };
     }
 

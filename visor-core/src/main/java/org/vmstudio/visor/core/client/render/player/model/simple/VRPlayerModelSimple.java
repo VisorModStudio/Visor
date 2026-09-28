@@ -17,7 +17,11 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 //? if >=1.21.2 {
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//?} else {
+/*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+*///?}
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 //?}
 
@@ -40,7 +44,11 @@ public class VRPlayerModelSimple extends PlayerModel {
 
     //? if >=1.21.2 {
     @Override
-    public void setupAnim(PlayerRenderState state) {
+    //? if >=1.21.9 {
+    public void setupAnim(AvatarRenderState state) {
+    //?} else {
+    /*public void setupAnim(PlayerRenderState state) {
+    *///?}
         super.setupAnim(state);
         AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
         if (player == null) {
@@ -178,8 +186,13 @@ public class VRPlayerModelSimple extends PlayerModel {
         attackPart.zRot -= roll * 0.4F;
     }
 
+    //? if >=1.21.9 {
     @Override
+    public void translateToHand(AvatarRenderState state, HumanoidArm side, PoseStack poseStack) {
+    //?} else {
+    /*@Override
     public void translateToHand(HumanoidArm side, PoseStack poseStack) {
+    *///?}
         this.getArm(side).translateAndRotate(poseStack);
         if (this.slim) {
             float outward = side == HumanoidArm.LEFT ? -1F : 1F;

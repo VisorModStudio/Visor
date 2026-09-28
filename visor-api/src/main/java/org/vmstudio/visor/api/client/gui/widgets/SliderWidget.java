@@ -8,7 +8,7 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoSlider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class SliderWidget<T> extends AbstractWidget {
+public class SliderWidget<T> extends McWidget {
 
     @Getter
     private final WidgetInfoSlider widgetInfo;

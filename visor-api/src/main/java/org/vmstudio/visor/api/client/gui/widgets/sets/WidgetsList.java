@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -237,7 +238,7 @@ public class WidgetsList extends DynamicWidgetSet {
     }
 
 
-    private class Scrollbar extends AbstractWidget implements McGuiEventListener {
+    private class Scrollbar extends McWidget implements McGuiEventListener {
 
         private boolean dragging = false;
 

@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractButton;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 
-public class DropDownListWidget extends AbstractButton implements McGuiEventListener {
+public class DropDownListWidget extends McButton implements McGuiEventListener {
 
     private final int ITEM_HEIGHT = 12;
 

@@ -1,6 +1,11 @@
 package org.vmstudio.visor.mixin.client.gui;
 
 import com.mojang.blaze3d.platform.InputConstants;
+//? if >=1.21.9 {
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -33,13 +38,23 @@ public class KeyboardMixins {
         /**
          * For keyboard to work
          */
+        //? if >=1.21.9 {
         @Inject(at = @At("HEAD"), method = "isKeyDown", cancellable = true)
+        private static void visor$keyDown(Window window, int i, CallbackInfoReturnable<Boolean> cir) {
+            cir.setReturnValue(
+                    GLFW.glfwGetKey(window.handle(), i) == 1
+                            || (VisorState.get().isActive() && InputHelper.isKeyDown(i))
+            );
+        }
+        //?} else {
+        /*@Inject(at = @At("HEAD"), method = "isKeyDown", cancellable = true)
         private static void visor$keyDown(long l, int i, CallbackInfoReturnable<Boolean> cir) {
             cir.setReturnValue(
                     GLFW.glfwGetKey(l, i) == 1
                             || (VisorState.get().isActive() && InputHelper.isKeyDown(i))
             );
         }
+        *///?}
     }
 
     @Mixin(KeyboardHandler.class)
@@ -54,7 +69,14 @@ public class KeyboardMixins {
          * if keyboard is attached to an overlay
          */
         @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", ordinal = 0, shift = At.Shift.AFTER), method = "keyPress", cancellable = true)
-        public void visor$onKeyPressed(long windowHandle, int keyCode, int keyScan, int actionType, int keyModifiers, CallbackInfo ci) {
+        //? if >=1.21.9 {
+        public void visor$onKeyPressed(long windowHandle, int actionType, KeyEvent event, CallbackInfo ci) {
+            int keyCode = event.key();
+            int keyScan = event.scancode();
+            int keyModifiers = event.modifiers();
+        //?} else {
+        /*public void visor$onKeyPressed(long windowHandle, int keyCode, int keyScan, int actionType, int keyModifiers, CallbackInfo ci) {
+        *///?}
             if (VisorState.get().isNotActive()) {
                 return;
             }
@@ -89,8 +111,13 @@ public class KeyboardMixins {
             super(i, j, k, l, component);
         }
 
+        //? if >=1.21.9 {
         @Inject(at = @At(value = "HEAD"), method = "onClick")
+        public void visor$openKeyboard(MouseButtonEvent event, boolean doubleClick, CallbackInfo ci) {
+        //?} else {
+        /*@Inject(at = @At(value = "HEAD"), method = "onClick")
         public void visor$openKeyboard(double d, double e, CallbackInfo ci) {
+        *///?}
             if (VisorState.get().isNotActive()) {
                 return;
             }

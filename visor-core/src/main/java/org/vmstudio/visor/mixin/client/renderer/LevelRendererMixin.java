@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.5+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -23,6 +23,7 @@ import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.lighting.LevelLightEngine;
@@ -35,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 // common mixin
 @Mixin(value = LevelRenderer.class, priority = 999)
@@ -59,7 +61,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
   //--------MIXINS--------\\
     \* ***************** */
 
-    @ModifyVariable(method = "prepareCullFrustum", at = @At("HEAD"), index = 3, argsOnly = true)
+    // 1.21.9 reordered prepareCullFrustum to (frustumMatrix, projectionMatrix, camPos)
+    @ModifyVariable(method = "prepareCullFrustum", at = @At("HEAD"), index = 2, argsOnly = true)
     private Matrix4f visor$widenCullFrustum(Matrix4f projection) {
         return CullFrustumHelper.widenCullProjection(projection);
     }
@@ -74,9 +77,9 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         return 0;
     }
 
-    // 1.21.2 moved the detached-camera check into collectVisibleEntities
+    // 1.21.2 moved the detached-camera check into collectVisibleEntities, 1.21.9 renamed it
     @WrapOperation(
-            method = "collectVisibleEntities",
+            method = "extractVisibleEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
     )
     private boolean visor$renderSpectatedVRSelfView(Camera camera, Operation<Boolean> original) {
@@ -86,8 +89,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         return original.call(camera);
     }
 
-    @Inject(at = @At("HEAD"), method = "renderEntity")
-    public void visor$captureEntityRestore(CallbackInfo ci,
+    @Inject(at = @At("HEAD"), method = "extractEntity")
+    public void visor$captureEntityRestore(CallbackInfoReturnable<EntityRenderState> cir,
                                            @Local(argsOnly = true) Entity entity,
                                            @Share("vrCameraEntity") LocalRef<Entity> vrCameraEntity
     ) {
@@ -99,8 +102,8 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         this.visor$currentRenderEntity = entity;
     }
 
-    @Inject(at = @At("TAIL"), method = "renderEntity")
-    public void visor$captureEntitySetup(CallbackInfo ci,
+    @Inject(at = @At("TAIL"), method = "extractEntity")
+    public void visor$captureEntitySetup(CallbackInfoReturnable<EntityRenderState> cir,
                                          @Local(argsOnly = true) Entity entity,
                                          @Share("vrCameraEntity") LocalRef<Entity> vrCameraEntity
     ) {

@@ -518,12 +518,17 @@ public class VRHandRenderer {
             ItemDisplayContext displayCtx = isLeftHand
                     ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                     : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-            //? if >=1.21.5 {
+            //? if >=1.21.9 {
             MC.gameRenderer.itemInHandRenderer.renderItem(
+                    player, itemStack, displayCtx,
+                    poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight
+            );
+            //?} elif >=1.21.5 {
+            /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
                     poseStack, buffer, packedLight
             );
-            //?} else {
+            *///?} else {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx, isLeftHand,
                     poseStack, buffer, packedLight
@@ -566,15 +571,23 @@ public class VRHandRenderer {
                         vrPlayer,
                         slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
                 );
-        //? if >=1.21.2 {
+        //? if >=1.21.9 {
         if (mainHand) {
+            bodyRenderer.renderRightHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
+                    McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
+        } else {
+            bodyRenderer.renderLeftHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
+                    McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
+        }
+        //?} elif >=1.21.2 {
+        /*if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, buffer, packedLight, McRenderUtils.getSkinTexture(player),
                     player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
         } else {
             bodyRenderer.renderLeftHand(poseStack, buffer, packedLight, McRenderUtils.getSkinTexture(player),
                     player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         }
-        //?} else {
+        *///?} else {
         /*if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, buffer, packedLight, player);
         } else {

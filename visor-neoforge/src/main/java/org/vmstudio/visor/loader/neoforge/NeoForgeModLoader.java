@@ -18,6 +18,7 @@ import net.neoforged.neoforge.network.event.EventNetworkChannel;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.network.VisorChannel;
@@ -27,6 +28,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -94,21 +96,34 @@ public class NeoForgeModLoader implements ModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
-        return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        //? if >=1.21.9 {
+        return FMLLoader.getCurrent().getLoadingModList().getModFileById(id) != null;
+        //?} else {
+        /*return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        *///?}
     }
 
     @Override
     public @NotNull String getModVersion(@NotNull String id) {
         if (isModLoaded(VisorAPI.MOD_ID)) {
-            return FMLLoader.getLoadingModList()
+            //? if >=1.21.9 {
+            return FMLLoader.getCurrent().getLoadingModList()
                     .getModFileById(id).versionString();
+            //?} else {
+            /*return FMLLoader.getLoadingModList()
+                    .getModFileById(id).versionString();
+            *///?}
         }
         return "no version";
     }
 
     @Override
     public boolean isDedicatedServer() {
-        return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+        //? if >=1.21.9 {
+        return FMLEnvironment.getDist() == Dist.DEDICATED_SERVER;
+        //?} else {
+        /*return FMLEnvironment.dist == Dist.DEDICATED_SERVER;
+        *///?}
     }
 
 
@@ -342,12 +357,39 @@ public class NeoForgeModLoader implements ModLoader {
 
     @Override
     public boolean renderWaterOverlay(Player player, PoseStack mat) {
-        return ClientHooks.renderWaterOverlay(player, mat);
+        //? if >=1.21.9 {
+        return ClientOverlays.water(player, mat);
+        //?} else {
+        /*return ClientHooks.renderWaterOverlay(player, mat);
+        *///?}
     }
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
-        return ClientHooks.renderFireOverlay(player, mat);
+        //? if >=1.21.9 {
+        return ClientOverlays.fire(player, mat);
+        //?} else {
+        /*return ClientHooks.renderFireOverlay(player, mat);
+        *///?}
     }
+
+    //? if >=1.21.9 {
+    // ModLoader.get() loads this class on a dedicated server too, and the verifier resolves every
+    // parameter type of the calls in its method bodies - the 1.21.9 overlay hooks take a MaterialSet
+    // and a MultiBufferSource, so they live in a holder that only a client ever loads
+    private static final class ClientOverlays {
+        static boolean water(Player player, PoseStack mat) {
+            return ClientHooks.renderWaterOverlay(player, mat,
+                    Minecraft.getInstance().getAtlasManager(),
+                    Minecraft.getInstance().renderBuffers().bufferSource());
+        }
+
+        static boolean fire(Player player, PoseStack mat) {
+            return ClientHooks.renderFireOverlay(player, mat,
+                    Minecraft.getInstance().getAtlasManager(),
+                    Minecraft.getInstance().renderBuffers().bufferSource());
+        }
+    }
+    //?}
 
     @Override
     public @NotNull LoaderType getType() {
@@ -478,7 +520,12 @@ public class NeoForgeModLoader implements ModLoader {
         if (callbacks == null || callbacks.isEmpty()) return;
 
         PoseStack poseStack = event.getPoseStack();
-        float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
+        //? if >=1.21.9 {
+        // 1.21.9 dropped the DeltaTracker from the event
+        float partialTicks = McRenderUtils.partialTick();
+        //?} else {
+        /*float partialTicks = event.getPartialTick().getGameTimeDeltaPartialTick(true);
+        *///?}
 
         for (RenderPipelineCallback callback : callbacks) {
             callback.render(poseStack, partialTicks);

@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.20.6+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.common.world.entity.projectiles;
 
 import org.vmstudio.visor.api.VisorAPI;
@@ -17,9 +17,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(AbstractHurtingProjectile.class)
 public abstract class AbstractHurtingProjectileMixin {
 
-    // AIM_DEFLECT has already stored the look angle, onDeflection turns it into the powers
+    // AIM_DEFLECT has already stored the look angle, onDeflection turns it into the powers.
+    // 1.21.9 dropped the deflecting entity from the signature; Projectile.deflect makes it the owner first.
     @Inject(at = @At("HEAD"), method = "onDeflection")
-    public void visor$onDeflectByVRPlayer(Entity instance, boolean attack, CallbackInfo ci) {
+    public void visor$onDeflectByVRPlayer(boolean attack, CallbackInfo ci) {
+        Entity instance = ((AbstractHurtingProjectile) (Object) this).getOwner();
         if (!attack || !(instance instanceof ServerPlayer player)) {
             return;
         }

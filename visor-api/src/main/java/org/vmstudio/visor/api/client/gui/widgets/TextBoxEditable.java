@@ -12,7 +12,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.sounds.SoundManager;
@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TextBoxEditable extends AbstractWidget implements McGuiEventListener {
+public class TextBoxEditable extends McWidget implements McGuiEventListener {
     private static final int CURSOR_INSERT_COLOR = -3092272;
     private static final int LINE_PADDING = 2;
 

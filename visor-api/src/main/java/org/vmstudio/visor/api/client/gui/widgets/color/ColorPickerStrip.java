@@ -4,14 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.gui.helpers.ColorsHelper;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 
-public class ColorPickerStrip extends AbstractWidget {
+public class ColorPickerStrip extends McWidget {
 
     private static final int HUE_SEGMENTS = 6;
 

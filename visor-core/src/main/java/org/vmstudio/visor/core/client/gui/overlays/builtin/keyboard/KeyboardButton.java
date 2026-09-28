@@ -3,6 +3,10 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+//? if >=1.21.9 {
+import net.minecraft.client.input.InputWithModifiers;
+import net.minecraft.client.input.MouseButtonEvent;
+//?}
 import net.minecraft.network.chat.Component;
 
 public class KeyboardButton extends Button {
@@ -48,7 +52,26 @@ public class KeyboardButton extends Button {
         super.renderWidget(guiGraphics, i, j, f);
     }
 
+    //? if >=1.21.9 {
     @Override
+    public void onPress(InputWithModifiers modifiers) {
+        if(usePressTask) {
+            keyboardScreen.setPressedTask(() -> super.onPress(modifiers));
+            keyboardScreen.setPressTick(0);
+        }
+        super.onPress(modifiers);
+        pressed = true;
+    }
+
+    @Override
+    public void onRelease(MouseButtonEvent event) {
+        if(onRelease != null && pressed) {
+            onRelease.onRelease(this);
+        }
+        pressed = false;
+    }
+    //?} else {
+    /*@Override
     public void onPress() {
         if(usePressTask) {
             keyboardScreen.setPressedTask(super::onPress);
@@ -65,6 +88,7 @@ public class KeyboardButton extends Button {
         }
         pressed = false;
     }
+    *///?}
 
     @Override
     public boolean isHovered() {

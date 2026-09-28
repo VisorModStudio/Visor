@@ -31,6 +31,7 @@ jetbrains_annotations_version = "26.1.0"
 "1.21.4" = ["fabric", "forge", "neoforge"]
 "1.21.5" = ["fabric", "forge", "neoforge"]
 "1.21.8" = ["fabric", "forge", "neoforge"]
+"1.21.10" = ["fabric", "forge", "neoforge"]
 
 # ---- Version dependencies ---------------------------------------------------------------------
 ["1.20.1"]
@@ -165,3 +166,21 @@ neoforge_version = "21.8.54"
 neoforge_version_range = "[21.7.0-beta,)"
 sodium_version = "mc1.21.8-0.7.3-fabric"
 iris_version = "1.9.6+1.21.8-fabric"
+
+["1.21.10"]
+# 1.21.9 - 1.21.10
+java_version = 21
+# fabric-api 0.138.4 requires Fabric Loader 0.17+
+fabric_loader_version = "0.17.3"
+fabric_loader_version_range = ">=0.17.0"
+pack_format = 69
+minecraft_version_range_fabric = ">=1.21.9 <1.21.11"
+minecraft_version_range_forgelike = "[1.21.9,1.21.10]"
+parchment_version = "2025.10.12"
+fabric_api_version = "0.138.4"
+forge_version = "60.1.15"
+forge_version_range = "[59,)"
+neoforge_version = "21.10.64"
+neoforge_version_range = "[21.9.0-beta,)"
+sodium_version = "mc1.21.10-0.7.3-fabric"
+iris_version = "1.9.7+1.21.10-fabric"

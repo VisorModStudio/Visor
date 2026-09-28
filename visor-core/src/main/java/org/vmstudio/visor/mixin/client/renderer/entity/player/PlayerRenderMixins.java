@@ -6,7 +6,11 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.*;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+//?} else {
+/*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+*///?}
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -33,7 +37,10 @@ public class PlayerRenderMixins {
         @Shadow
         public Camera camera;
 
-        @Inject(method = "cameraOrientation", at = @At("HEAD"), cancellable = true)
+        // 1.21.9 moved the camera basis onto CameraRenderState (GameRenderer.extractCamera) and
+        // dropped distanceToSqr, the distance now lives in EntityRenderState.distanceToCameraSq
+        //? if <1.21.9 {
+        /*@Inject(method = "cameraOrientation", at = @At("HEAD"), cancellable = true)
         private void visor$vrCameraOrientation(CallbackInfoReturnable<Quaternionf> cir) {
             if (VRRenderState.getPhase().isVRWorld()) {
                 cir.setReturnValue(this.visor$lookAtCameraOrientation(0.5F, 0.0F));
@@ -48,11 +55,18 @@ public class PlayerRenderMixins {
                 cir.setReturnValue(0.0D);
             }
         }
+        *///?}
 
         @Inject(method = "getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
+        //? if >=1.21.9 {
         private void visor$swapInVRBodyRenderer(
-                Entity entity, CallbackInfoReturnable<? super PlayerRenderer> cir)
+                Entity entity, CallbackInfoReturnable<Object> cir)
         {
+        //?} else {
+        /*private void visor$swapInVRBodyRenderer(
+                Entity entity, CallbackInfoReturnable<Object> cir)
+        {
+        *///?}
             if(ClientContext.visor == null) {
                 return;
             }
@@ -86,7 +100,11 @@ public class PlayerRenderMixins {
         }
 
         //keep @Local without variable name, to search by type
-        @Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
+        //? if >=1.21.9 {
+        @Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createAvatarRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
+        //?} else {
+        /*@Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
+        *///?}
         private void visor$rebuildVRBodyModels(CallbackInfo ci, @Local EntityRendererProvider.Context context) {
             if(ClientContext.visor == null) {
                 VisorState.setDelayedVrBodyInit(context);

@@ -26,6 +26,7 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -127,8 +128,8 @@ public abstract class VRRendererBase implements VRRenderer {
     public void updateState() throws Throwable {
 
         //Window context changed
-        if (MC.getWindow().getWindow() != this.lastWindow) {
-            this.lastWindow = MC.getWindow().getWindow();
+        if (McVersionClientUtils.windowHandle() != this.lastWindow) {
+            this.lastWindow = McVersionClientUtils.windowHandle();
             this.prepareReinit("window recreated");
         }
 
@@ -371,7 +372,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
     @Override
     public long getWindowHandle() {
-        return MC.getWindow().getWindow();
+        return McVersionClientUtils.windowHandle();
     }
 
     @Override

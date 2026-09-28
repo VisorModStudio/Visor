@@ -4,6 +4,9 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
+//? if >=1.21.9 {
+import org.joml.Vector3f;
+//?}
 //? if >=1.21.5 {
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -177,9 +180,15 @@ public final class McVertexBuilder {
             RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.mode());
             GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
             //? if >=1.21.6 {
+            //? if >=1.21.9 {
             GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+                    RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), new Vector3f(),
+                    RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
+            //?} else {
+            /*GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), RenderSystem.getModelOffset(),
                     RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
+            *///?}
             try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
                     () -> "visor immediate draw",
                     target.getColorTextureView(), OptionalInt.empty(),

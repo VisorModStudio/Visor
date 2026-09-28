@@ -3,7 +3,11 @@ package org.vmstudio.visor.core.client.player.body.full;
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Getter;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+//?} else {
+/*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+*///?}
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -21,7 +25,11 @@ import java.util.*;
 public class VRBodyRendererFull implements VRBodyRenderer {
 
     @Getter
-    private final List<PlayerRenderer> modelRenderers = new ArrayList<>();
+    //? if >=1.21.9 {
+    private final List<AvatarRenderer> modelRenderers = new ArrayList<>();
+    //?} else {
+    /*private final List<PlayerRenderer> modelRenderers = new ArrayList<>();
+    *///?}
 
     private final Map<String, VRPlayerRendererFull> modelsMap = new HashMap<>();
 
@@ -62,7 +70,11 @@ public class VRBodyRendererFull implements VRBodyRenderer {
     }
 
     @Override
-    public PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player, @NotNull String modelName) {
+    //? if >=1.21.9 {
+    public AvatarRenderer getModelRenderer(@NotNull VRClientPlayer player, @NotNull String modelName) {
+    //?} else {
+    /*public PlayerRenderer getModelRenderer(@NotNull VRClientPlayer player, @NotNull String modelName) {
+    *///?}
         return modelsMap.getOrDefault(modelName, defaultRenderer);
     }
 

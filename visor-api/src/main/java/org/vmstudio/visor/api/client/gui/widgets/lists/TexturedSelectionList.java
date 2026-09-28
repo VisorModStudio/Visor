@@ -217,14 +217,14 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
-        int k = this.itemHeight - paddingTop;
+        int k = entryHeight() - paddingTop;
         int l = this.getItemCount();
 
         for (int m = 0; m < l; ++m) {
             int n = this.getRowTop(m);
             int o = this.getRowBottom(m);
             if (o >= listTop() && n <= listBottom()) {
-                this.renderItem(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
+                this.renderRow(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
             }
         }
     }
@@ -337,7 +337,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         for (int i = 0; i < this.getItemCount(); i++) {
             TexturedRow row = this.children().get(i);
             if (row.contains(entry)) {
-                double desired = (double) i * this.itemHeight;
+                double desired = (double) i * entryHeight();
                 this.setScrollAmount(desired);
                 return;
             }
@@ -440,7 +440,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
 
     @Override
     public int getRowTop(int index) {
-        return listTop() + paddingTop - (int) this.scrollValue() + index * this.itemHeight + this.headerHeight;
+        return listTop() + paddingTop - (int) this.scrollValue() + index * entryHeight() + listHeaderHeight();
     }
 
     @Override
@@ -482,7 +482,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         }
 
         @Override
-        public void renderBack(@NotNull GuiGraphics guiGraphics,
+        protected void renderRowBack(@NotNull GuiGraphics guiGraphics,
                                int index,
                                int top, int left,
                                int rowWidth, int rowHeight,
@@ -525,7 +525,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         }
 
         @Override
-        public void render(@NotNull GuiGraphics guiGraphics,
+        protected void renderRow(@NotNull GuiGraphics guiGraphics,
                            int index,
                            int top, int left,
                            int rowWidth, int rowHeight,

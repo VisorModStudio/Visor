@@ -54,10 +54,9 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
     /* ***************** *\
   //--------MIXINS--------\\
     \* ***************** */
+    // CallbackInfo only: the LevelRenderer constructor gained arguments in 1.21.9
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void visor$initFields(Minecraft mc, EntityRenderDispatcher erd,
-                                  BlockEntityRenderDispatcher berd,
-                                  RenderBuffers rb, CallbackInfo ci) {
+    private void visor$initFields(CallbackInfo ci) {
         visor$damagedBlocksVr = Collections.synchronizedMap(new HashMap<>());
         visor$damagedBlocksVrSave = Collections.synchronizedMap(new HashMap<>());
     }

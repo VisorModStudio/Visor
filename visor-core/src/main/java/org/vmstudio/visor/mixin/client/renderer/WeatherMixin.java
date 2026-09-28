@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.3+
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import org.joml.Vector3fc;
@@ -14,17 +14,17 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 @Mixin(WeatherEffectRenderer.class)
 public abstract class WeatherMixin {
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "collectColumnInstances")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 0), method = "extractRenderState")
     public double visor$rainAndSnowX(double x) {
         return visor$hmdAxis(x, 0);
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "collectColumnInstances")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 1), method = "extractRenderState")
     public double visor$rainAndSnowY(double y) {
         return visor$hmdAxis(y, 1);
     }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "collectColumnInstances")
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(D)I", ordinal = 2), method = "extractRenderState")
     public double visor$rainAndSnowZ(double z) {
         return visor$hmdAxis(z, 2);
     }

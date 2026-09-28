@@ -146,12 +146,19 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     /**
      * Calls VR rendering after mc rendered
      */
-    //? if >=1.21.2 {
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 3, shift = Shift.AFTER), method = "runTick", require = 1)
+    // must sit between GameRenderer.render and blitToScreen, or the mirror is drawn after the window swap;
+    // 1.21.9 turned the pop after GameRenderer.render into popPush("blit")
+    //? if >=1.21.9 {
+    @Inject(at = @At(value = "CONSTANT", args = "stringValue=blit"), method = "runTick", require = 1)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci, @Local(ordinal = 0) long nanoTime) {
         visor$renderVRFrame(renderLevel, nanoTime);
     }
-    //?} else {
+    //?} elif >=1.21.2 {
+    /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 3, shift = Shift.AFTER), method = "runTick", require = 1)
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, @Local(ordinal = 0) long nanoTime) {
+        visor$renderVRFrame(renderLevel, nanoTime);
+    }
+    *///?} else {
     /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 4, shift = Shift.AFTER), method = "runTick", require = 1)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci, @Local(ordinal = 0) long nanoTime) {
         visor$renderVRFrame(renderLevel, nanoTime);

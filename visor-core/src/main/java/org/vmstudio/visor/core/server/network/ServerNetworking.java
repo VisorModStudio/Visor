@@ -82,7 +82,11 @@ public class ServerNetworking {
                     .getVRPlayer(serverPlayer);
 
             if(McEntity.serverLevel(serverPlayer).getServer().getPlayerList()
-                    .isOp(serverPlayer.getGameProfile())){
+                    //? if >=1.21.9 {
+                    .isOp(serverPlayer.nameAndId())){
+                    //?} else {
+                    /*.isOp(serverPlayer.getGameProfile())){
+                    *///?}
                 return;
             }
 

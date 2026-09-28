@@ -3,7 +3,11 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=1.21.9 {
+import net.minecraft.client.renderer.SubmitNodeCollector;
+//?}
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -31,15 +35,23 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
     private float offHandHeight;
 
 
-    //? if >=1.21.5 {
+    //? if >=1.21.9 {
     @Shadow
+    public abstract void renderItem(LivingEntity livingEntity,
+                                    ItemStack itemStack,
+                                    ItemDisplayContext itemDisplayContext,
+                                    PoseStack poseStack,
+                                    SubmitNodeCollector submitNodeCollector,
+                                    int i);
+    //?} elif >=1.21.5 {
+    /*@Shadow
     public abstract void renderItem(LivingEntity livingEntity,
                                     ItemStack itemStack,
                                     ItemDisplayContext itemDisplayContext,
                                     PoseStack poseStack,
                                     MultiBufferSource multiBufferSource,
                                     int i);
-    //?} else {
+    *///?} else {
     /*@Shadow
     public abstract void renderItem(LivingEntity livingEntity,
                                     ItemStack itemStack,
@@ -50,20 +62,24 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
                                     int i);
     *///?}
 
+    //? if >=1.21.9 {
     @Shadow
+    protected abstract void renderMap(PoseStack pMatrixStack,
+                                      SubmitNodeCollector pCollector,
+                                      int pCombinedLight,
+                                      ItemStack pStack);
+    //?} else {
+    /*@Shadow
     protected abstract void renderMap(PoseStack pMatrixStack,
                                       MultiBufferSource pBuffer,
                                       int pCombinedLight,
                                       ItemStack pStack);
+    *///?}
 
 
+    // CallbackInfo only: 1.21.9 swapped the buffer source for a SubmitNodeCollector
     @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
-    private void visor$noFirstPersonHandsInVR(float tickDelta,
-                                              PoseStack poseStack,
-                                              MultiBufferSource.BufferSource bufferSource,
-                                              LocalPlayer player,
-                                              int light,
-                                              CallbackInfo ci) {
+    private void visor$noFirstPersonHandsInVR(CallbackInfo ci) {
         if (VRRenderState.getPhase().isNotVanilla()) {
             ci.cancel();
         }
@@ -74,7 +90,12 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
                                 MultiBufferSource bufferSource,
                                 int pCombinedLight,
                                 ItemStack itemStack) {
-        renderMap(poseStack, bufferSource, pCombinedLight, itemStack);
+        //? if >=1.21.9 {
+        // 1.21.9 submits instead of drawing; the caller's buffer source has no equivalent
+        renderMap(poseStack, Minecraft.getInstance().gameRenderer.getSubmitNodeStorage(), pCombinedLight, itemStack);
+        //?} else {
+        /*renderMap(poseStack, bufferSource, pCombinedLight, itemStack);
+        *///?}
     }
 
     @Unique

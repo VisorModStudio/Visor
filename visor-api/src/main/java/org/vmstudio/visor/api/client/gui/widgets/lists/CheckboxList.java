@@ -120,14 +120,14 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
     protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
-        int k = this.itemHeight - paddingTop;
+        int k = entryHeight() - paddingTop;
         int l = this.getItemCount();
 
         for(int m = 0; m < l; ++m) {
             int n = this.getRowTop(m);
             int o = this.getRowBottom(m);
             if (o >= listTop() && n <= listBottom()) {
-                this.renderItem(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
+                this.renderRow(guiGraphics, mouseX, mouseY, partialTick, m, i, n, j, k);
             }
         }
 
@@ -241,7 +241,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
         if (idx < 0) {
             return;
         }
-        double desired = (double)idx * this.itemHeight;
+        double desired = (double)idx * entryHeight();
         this.setScrollAmount(desired);
     }
 
@@ -251,8 +251,8 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
         int j = listLeft() + this.width / 2;
         int k = j - i;
         int l = j + i;
-        int m = Mth.floor(mouseY - (double)listTop()) - this.headerHeight + (int)this.scrollValue() - 4;
-        int n = m / this.itemHeight;
+        int m = Mth.floor(mouseY - (double)listTop()) - listHeaderHeight() + (int)this.scrollValue() - 4;
+        int n = m / entryHeight();
         var entry = mouseX < (double)this.scrollbarX()
                 && mouseX >= (double)k
                 && mouseX <= (double)l && n >= 0
@@ -313,7 +313,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
     @Override
     public int getRowTop(int index) {
-        return listTop() + paddingTop - (int)this.scrollValue() + index * this.itemHeight + this.headerHeight;
+        return listTop() + paddingTop - (int)this.scrollValue() + index * entryHeight() + listHeaderHeight();
     }
 
     @Override
@@ -364,7 +364,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
 
         @Override
-        public void render(@NotNull GuiGraphics guiGraphics,
+        protected void renderRow(@NotNull GuiGraphics guiGraphics,
                            int index,
                            int top, int left,
                            int rowWidth, int rowHeight,
@@ -453,7 +453,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
             int rowTop = CheckboxList.this.getRowTop(idx);
             int rowWidth = CheckboxList.this.getRowWidth();
 
-            int cbSize = itemHeight - paddingTop;
+            int cbSize = entryHeight() - paddingTop;
 
             int iconX;
             if (widgetInfo.isCheckboxLeftSided()) {

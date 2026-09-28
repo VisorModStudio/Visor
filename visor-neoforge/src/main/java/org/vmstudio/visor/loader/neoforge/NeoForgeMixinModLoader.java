@@ -8,7 +8,11 @@ public class NeoForgeMixinModLoader implements MixinModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
-        return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        //? if >=1.21.9 {
+        return FMLLoader.getCurrent().getLoadingModList().getModFileById(id) != null;
+        //?} else {
+        /*return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        *///?}
     }
 
     @Override

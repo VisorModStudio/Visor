@@ -608,7 +608,11 @@ public class TaskSwing extends VisorTask {
         if (isHittingBlock()) {
             for (int hit = 0; hit < totalHits; ++hit) {
                 if (MC.gameMode.continueDestroyBlock(blockHit.getBlockPos(), blockHit.getDirection())) {
-                    MC.particleEngine.crack(blockHit.getBlockPos(), blockHit.getDirection());
+                    //? if >=1.21.9 {
+                    MC.level.addBreakingBlockEffect(blockHit.getBlockPos(), blockHit.getDirection());
+                    //?} else {
+                    /*MC.particleEngine.crack(blockHit.getBlockPos(), blockHit.getDirection());
+                    *///?}
                 }
                 if (!isHittingBlock()) {
                     break;

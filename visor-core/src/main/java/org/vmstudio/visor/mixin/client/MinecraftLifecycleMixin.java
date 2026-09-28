@@ -64,13 +64,16 @@ public abstract class MinecraftLifecycleMixin {
      * <p>
      * FPS has to be handled only by VR related features
      */
-    @WrapOperation(at = @At(value = "INVOKE", target = "Ljava/lang/Thread;sleep(J)V"), method = "doWorldLoad", expect = 0)
+    // 1.21.9 dropped the sleep from doWorldLoad, nothing left to cancel
+    //? if <1.21.9 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Ljava/lang/Thread;sleep(J)V"), method = "doWorldLoad", expect = 0)
     private void visor$cancelFPSLimitOnWorldLoad(long l, Operation<Void> original) {
         if (VisorState.get().isActive()) {
             return;
         }
         original.call(l);
     }
+    *///?}
 
 
     /**
