@@ -66,30 +66,21 @@ project(":visor-core") {
     apply plugin: "idea"
     idea.module.excludeDirs += file("mcversion")
 }
-def mcversionSwitch = { String version ->
-    def core = stonecutter.tree.getBranches().find { it.getId() == "visor-core" }
-    def layout = new org.vmstudio.build.McVersionLayout(rootProject.file("visor-core"), core.getVersions()*.getVersion())
-    layout.switchTo(version).each { logger.lifecycle("mcversion: ${it}") }
-}
-def triggersSucceeded = { List<String> names ->
-    names.every { name ->
-        def trigger = tasks.findByName(name)
-        trigger == null || !trigger.state.executed || trigger.state.failure == null
+def switchTaskType = dev.kikugie.stonecutter.controller.task.StonecutterSwitchTask
+def mcversionSwitch = tasks.register("mcversionSwitch") {
+    group = "stonecutter"
+    description = "Moves the range files covering the active version into visor-core/src and parks the others"
+    outputs.dirs(file("visor-core/src/main/java"), file("visor-core/mcversion"))
+    outputs.upToDateWhen { false }
+    onlyIf { gradle.taskGraph.allTasks.every { !switchTaskType.isInstance(it) || it.state.failure == null } }
+    doLast {
+        def core = stonecutter.tree.getBranches().find { it.getId() == "visor-core" }
+        def layout = new org.vmstudio.build.McVersionLayout(rootProject.file("visor-core"), core.getVersions()*.getVersion())
+        def active = org.vmstudio.build.McVersionLayout.activeVersion(rootDir)
+        layout.switchTo(active).each { logger.lifecycle("mcversion: ${it}") }
     }
 }
-tasksByVersion.keySet().each { mcVersion ->
-    def triggers = ["Set active project to ${mcVersion}".toString()]
-    if (mcVersion == stonecutter.vcsVersion.version) {
-        triggers << "Reset active project"
-    }
-    def switchTask = tasks.register("mcversionSwitch-${mcVersion}") {
-        group = "stonecutter"
-        description = "Moves the range files for ${mcVersion} into src and parks the others"
-        onlyIf { triggersSucceeded(triggers) }
-        doLast { mcversionSwitch(mcVersion) }
-    }
-    tasks.matching { it.name in triggers }.configureEach { finalizedBy switchTask }
-}
+tasks.withType(switchTaskType).configureEach { finalizedBy mcversionSwitch }
 
 // ------ StoneCutter parameters --------------------------------------
 stonecutter.parameters {

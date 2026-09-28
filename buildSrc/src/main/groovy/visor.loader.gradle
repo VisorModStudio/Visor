@@ -49,17 +49,18 @@ dependencies {
 
 def mcversion = mcversionCoreLayout()
 def mcversionSpec = mcversion.excludeSpec(minecraft_version)
+def mcversionParked = mcversion.parkedSources(project, minecraft_version)
 compileJava {
     dependsOn configurations.apiJava, configurations.coreJava
-    source configurations.apiJava, configurations.coreJava, mcversion.parkedSourceDirs(minecraft_version, "java")
+    source configurations.apiJava, configurations.coreJava, mcversionParked
     exclude { element -> mcversionSpec.isSatisfiedBy(element) }
 }
 processResources {
     dependsOn configurations.apiResources, configurations.coreResources
-    from configurations.apiResources, configurations.coreResources, mcversion.parkedSourceDirs(minecraft_version, "resources")
+    from configurations.apiResources, configurations.coreResources
 }
 sourcesJar {
-    from configurations.apiJava, configurations.coreJava, mcversion.parkedSourceDirs(minecraft_version, "java")
+    from configurations.apiJava, configurations.coreJava, mcversionParked
     exclude { element -> mcversionSpec.isSatisfiedBy(element) }
 }
 

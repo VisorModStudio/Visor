@@ -7,18 +7,15 @@ import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
-import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.events.render.RenderFrameStartedVREvent;
-import org.vmstudio.visor.api.client.events.render.RenderPipelineStageVREvent;
 import org.vmstudio.visor.api.client.input.action.VRActions;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.api.client.player.VRLocalPlayer;
 import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
-import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.compatibility.immediatelyfast.ImmediatelyFastCompatHelper;
@@ -26,11 +23,9 @@ import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
 import org.vmstudio.visor.core.client.input.actions.*;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
-import org.vmstudio.visor.core.client.network.ClientPacketHandler;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.debug.RenderSelfTest;
 import org.vmstudio.visor.core.client.render.context.PreRenderContext;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
@@ -218,7 +213,6 @@ public class VisorClientImpl implements VisorClient {
         try {
             //NON-VR + VR
             ++VisorState.FRAME_COUNT;
-            RenderSelfTest.runOnce();
 
             if(VisorState.get().isNotActive()){
                 return;

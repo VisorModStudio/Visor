@@ -121,8 +121,7 @@ if (project.parent.name == "visor-core") {
     afterEvaluate {
         // after Stonecutter registered its own source directories
         sourceSets.main.java.exclude(mcversion.excludeSpec(minecraftVersion))
-        tasks.named("compileJava") { source(mcversion.parkedSourceDirs(minecraftVersion, "java")) }
-        tasks.named("processResources") { from(mcversion.parkedSourceDirs(minecraftVersion, "resources")) }
+        tasks.named("compileJava") { source(mcversion.parkedSources(project, minecraftVersion)) }
     }
     tasks.register("checkMcversionLayout") {
         description = "Verifies the range headers, the parked copies and the absence of Stonecutter markers in range files"

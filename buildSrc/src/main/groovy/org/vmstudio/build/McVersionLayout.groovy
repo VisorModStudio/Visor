@@ -2,6 +2,8 @@ package org.vmstudio.build
 
 import groovy.io.FileType
 import org.gradle.api.GradleException
+import org.gradle.api.Project
+import org.gradle.api.file.FileTree
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.specs.Spec
 
@@ -36,9 +38,10 @@ class McVersionLayout {
         m.group(1)
     }
 
-    List<File> parkedSourceDirs(String version, String kind) {
-        def dir = new File(parkingLot, "${version}/${kind}")
-        dir.directory ? [dir] : []
+    List<FileTree> parkedSources(Project project, String version) {
+        parkedFiles().findAll { it.range?.contains(version) }
+                .groupBy { it.root }
+                .collect { root, files -> project.fileTree(root) { include(files*.rel) } }
     }
 
     List<String> excludes(String version) {
@@ -56,8 +59,8 @@ class McVersionLayout {
 
     List<String> check(String active) {
         def problems = []
-        def headers = headerFiles()
-        headers.each { rel, range ->
+        def copies = [:]    // rel -> [[where, range]]
+        headerFiles().each { rel, range ->
             def where = "src/main/java/${rel}"
             if (!rel.startsWith("org/vmstudio/visor/mixin/")) {
                 problems << "${where}: range files are for the core mixins only"
@@ -68,48 +71,39 @@ class McVersionLayout {
             if (hasMarkers(new File(src, rel))) {
                 problems << "${where}: range files are never preprocessed, no Stonecutter markers"
             }
-            nodesIn(range).each { node ->
-                if (new File(parkingLot, "${node}/java/${rel}").file) {
-                    problems << "mcversion/${node}/java/${rel}: stale copy, src covers ${node} - run the switch"
+            copies.computeIfAbsent(rel) { [] } << [where, range]
+        }
+        parkedFiles().each { p ->
+            def where = "mcversion/${p.folder}/java/${p.rel}"
+            if (!p.rel.startsWith("org/vmstudio/visor/mixin/")) {
+                problems << "${where}: range files are for the core mixins only"
+            }
+            if (p.range == null) {
+                problems << "${where}: missing the '${McVersionRange.HEADER} <range>' header"
+                return
+            }
+            p.range.bounds.each { bound ->
+                if (!(bound in nodes)) {
+                    problems << "${where}: ${bound} is not a ${branch.name} target"
                 }
             }
+            if (p.folder != p.range.from) {
+                problems << "${where}: declares ${p.range}, belongs in mcversion/${p.range.from}"
+            }
+            if (p.range.contains(active)) {
+                problems << "${where}: parked although ${p.range} covers the active version ${active} - run the switch"
+            }
+            if (hasMarkers(p.file)) {
+                problems << "${where}: range files are never preprocessed, no Stonecutter markers"
+            }
+            copies.computeIfAbsent(p.rel) { [] } << [where, p.range]
         }
-        def parked = parkedFiles()
-        parked.each { node, files ->
-            files.each { rel, f ->
-                def where = "mcversion/${node}/java/${rel}"
-                if (!rel.startsWith("org/vmstudio/visor/mixin/")) {
-                    problems << "${where}: range files are for the core mixins only"
-                }
-                def range = McVersionRange.fromHeader(f)
-                if (range == null) {
-                    problems << "${where}: missing the '${McVersionRange.HEADER} <range>' header"
-                    return
-                }
-                range.bounds.each { bound ->
-                    if (!(bound in nodes)) {
-                        problems << "${where}: ${bound} is not a ${branch.name} target"
-                    }
-                }
-                if (!range.contains(node)) {
-                    problems << "${where}: declares ${range}, which does not cover ${node}"
-                }
-                if (range.contains(active)) {
-                    problems << "${where}: parked although ${range} covers the active version ${active} - run the switch"
-                }
-                if (hasMarkers(f)) {
-                    problems << "${where}: range files are never preprocessed, no Stonecutter markers"
-                }
-                def headerCopy = headers[rel]
-                if (headerCopy != null && headerCopy.contains(node)) {
-                    problems << "${where}: src/main/java/${rel} (${headerCopy}) covers ${node} as well"
-                }
-                nodesIn(range).each { other ->
-                    def twin = parked[other]?.get(rel)
-                    if (twin == null) {
-                        problems << "${where}: ${range} covers ${other} but mcversion/${other} has no copy - run the switch"
-                    } else if (other > node && twin.bytes != f.bytes) {
-                        problems << "${where} and mcversion/${other}/java/${rel} differ although both declare ${range}"
+        copies.each { rel, list ->
+            list.eachWithIndex { a, i ->
+                list.drop(i + 1).each { b ->
+                    def shared = nodesIn(a[1]).intersect(nodesIn(b[1]))
+                    if (shared) {
+                        problems << "${a[0]} (${a[1]}) and ${b[0]} (${b[1]}) both cover ${shared.join(', ')}"
                     }
                 }
             }
@@ -119,25 +113,18 @@ class McVersionLayout {
 
 
     List<String> switchTo(String version) {
-        // a branch without this target (neoforge has no 1.20.1) still parks what does not fit; nothing enters
-        def leaving = [:]    // src file -> [node folders to copy into]
-        def entering = []    // [parked file, src target, range]
-        headerFiles().each { rel, range ->
-            if (!range.contains(version)) {
-                leaving[new File(src, rel)] = nodesIn(range).collect { new File(parkingLot, "${it}/java/${rel}") }
-            }
+        def parked = parkedFiles()
+        parked.findAll { it.range == null }.each {
+            throw new GradleException("mcversion/${it.folder}/java/${it.rel}: missing the '${McVersionRange.HEADER} <range>' header")
         }
-        def own = parkedFiles()[version] ?: [:]
-        own.each { rel, f ->
-            def range = McVersionRange.fromHeader(f)
-            if (range == null || !range.contains(version)) {
-                throw new GradleException("mcversion/${version}/java/${rel}: header ${range} does not cover ${version}")
-            }
-            entering << [f, new File(src, rel), range]
-        }
-        def vacated = leaving.keySet()
+        def leaving = headerFiles().findAll { rel, range -> !range.contains(version) }
+                .collect { rel, range -> [new File(src, rel), parkedFile(range, rel)] }
+        def entering = parked.findAll { it.range.contains(version) }
+                .collect { [it.file, new File(src, it.rel)] }
+        // leaving moves run first: a src file they vacate can be refilled, a parked target must be free
+        def vacated = leaving.collect { it[0] } as Set
         def targets = [] as Set
-        (leaving.values().flatten() + entering.collect { it[1] }).each { File to ->
+        (leaving + entering).each { File from, File to ->
             if (to.exists() && !(to in vacated)) {
                 throw new GradleException("${rel(branch, to)} exists already")
             }
@@ -145,54 +132,34 @@ class McVersionLayout {
                 throw new GradleException("two range files would land on ${rel(branch, to)}")
             }
         }
-        def log = []
-        leaving.each { File from, List<File> copies ->
-            copies.each { File to ->
-                to.parentFile.mkdirs()
-                Files.copy(from.toPath(), to.toPath())
-                log << "${rel(branch, from)} -> ${rel(branch, to)}".toString()
-            }
-            Files.delete(from.toPath())
-            pruneEmpty(from.parentFile)
-        }
-        entering.each { File from, File to, McVersionRange range ->
+        (leaving + entering).collect { File from, File to ->
             to.parentFile.mkdirs()
             Files.move(from.toPath(), to.toPath())
-            log << "${rel(branch, from)} -> ${rel(branch, to)}".toString()
             pruneEmpty(from.parentFile)
-            // the other folders of the range hold the same bytes: src is the only copy while it is active
-            nodesIn(range).findAll { it != version }.each { other ->
-                def twin = new File(parkingLot, "${other}/java/${rel(src, to)}")
-                if (twin.file) {
-                    Files.delete(twin.toPath())
-                    log << "removed ${rel(branch, twin)}".toString()
-                    pruneEmpty(twin.parentFile)
-                }
-            }
+            "${rel(branch, from)} -> ${rel(branch, to)}".toString()
         }
-        log
     }
 
     List<String> nodesIn(McVersionRange range) {
         nodes.findAll { range.contains(it) }
     }
 
-    private Map<String, Map<String, File>> parkedFiles() {
-        def out = new TreeMap<String, Map<String, File>>()
-        (parkingLot.listFiles() ?: new File[0]).findAll { it.directory }.each { dir ->
-            if (!(dir.name in nodes)) {
-                throw new GradleException("mcversion/${dir.name}: not a ${branch.name} target")
-            }
-            def files = new TreeMap<String, File>()
-            def java = new File(dir, "java")
-            if (java.directory) {
-                java.eachFileRecurse(FileType.FILES) { f ->
+    // the only copy of a parked range file sits in the folder of its range's first version
+    private File parkedFile(McVersionRange range, String rel) {
+        new File(parkingLot, "${range.from}/java/${rel}")
+    }
+
+    private List<Map> parkedFiles() {
+        def out = []
+        (parkingLot.listFiles() ?: new File[0]).findAll { it.directory }.sort { it.name }.each { dir ->
+            def root = new File(dir, "java")
+            if (root.directory) {
+                root.eachFileRecurse(FileType.FILES) { f ->
                     if (f.name.endsWith(".java")) {
-                        files[rel(java, f)] = f
+                        out << [folder: dir.name, root: root, rel: rel(root, f), file: f, range: McVersionRange.fromHeader(f)]
                     }
                 }
             }
-            out[dir.name] = files
         }
         out
     }
