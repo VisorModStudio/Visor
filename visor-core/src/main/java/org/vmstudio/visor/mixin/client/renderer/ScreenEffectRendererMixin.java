@@ -11,6 +11,8 @@ import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -19,17 +21,16 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 
-// item activation animation: skipped in the VR passes, GameEffectVanilla draws it with the camera pose
 @Mixin(ScreenEffectRenderer.class)
 public abstract class ScreenEffectRendererMixin {
 
     @Shadow
     private int itemActivationTicks;
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ScreenEffectRenderer;renderItemActivationAnimation(Lcom/mojang/blaze3d/vertex/PoseStack;F)V"), method = "renderScreenEffect")
-    private void visor$noItemActivationAnimInVR(ScreenEffectRenderer instance, PoseStack poseStack, float partialTick, Operation<Void> original) {
-        if (VRRenderState.getPhase().isVanilla()) {
-            original.call(instance, poseStack, partialTick);
+    @Inject(method = "renderScreenEffect", at = @At("HEAD"), cancellable = true)
+    private void visor$noScreenEffectsInVR(CallbackInfo ci) {
+        if (VRRenderState.getPhase().isNotVanilla()) {
+            ci.cancel();
         }
     }
 
