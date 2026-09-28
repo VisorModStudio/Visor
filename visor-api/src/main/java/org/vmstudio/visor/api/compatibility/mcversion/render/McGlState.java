@@ -319,6 +319,12 @@ public class McGlState {
         *///?}
     }
 
+    // ------- SCISSOR -------
+
+    public static void disableScissorTest() {
+        GlStateManager._disableScissorTest();
+    }
+
     // ------- SHADER STATE -------
 
     public static void setShaderColor(float red, float green, float blue, float alpha) {

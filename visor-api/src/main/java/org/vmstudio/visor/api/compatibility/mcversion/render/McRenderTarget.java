@@ -238,6 +238,7 @@ public class McRenderTarget {
                             int dstX0, int dstY0, int dstX1, int dstY1,
                             boolean linear) {
         //? if >=1.21.5 {
+        McGlState.disableScissorTest();
         McGlState.bindFramebuffer(GL30.GL_READ_FRAMEBUFFER, framebufferOf(source));
         McGlState.bindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, framebufferOf(destination));
         //?} else {

@@ -38,9 +38,6 @@ public class VRRenderTarget extends RenderTarget {
         //? if >=1.21.5 {
         McRenderTarget.resize(this, width, height);
         McRenderTarget.setFilterMode(this, linearFilter);
-        if (useStencil) {
-            ModLoader.get().enableRenderTargetStencil(this);
-        }
         //?} else {
         /*((RenderTargetExtension) this).visor$setTextureId(textureSupplier.get());
         ((RenderTargetExtension) this).visor$setLinearFilter(linearFilter);
