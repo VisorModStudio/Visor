@@ -56,11 +56,15 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
 
             GL11.glDisable(GL11.GL_STENCIL_TEST);
 
+            float partialTicks = ((MinecraftExtension) MC).visor$getPartialTicks();
+            // 1.21.6 renderLevel leaves vanilla's hud3d projection behind
+            visor$resetProjectionMatrix(partialTicks);
+
             PoseStack poseStack = new PoseStack();
             //render VR main menu
             ClientContext.decorationRenderer.renderMainMenu(
                     poseStack,
-                    ((MinecraftExtension) MC).visor$getPartialTicks()
+                    partialTicks
             );
         }
     }
