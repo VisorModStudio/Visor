@@ -6,6 +6,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import org.jetbrains.annotations.Nullable;
@@ -31,7 +32,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -112,12 +112,17 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
 
 
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/culling/Frustum;prepare(DDD)V", shift = Shift.AFTER),
-            method = "renderLevel")
-    public void visor$maskHiddenArea(CallbackInfo info) {
-        if (VRRenderState.getPhase().isNotVanilla()) {
-            RenderEffectsHelper.maskHiddenArea();
+    @WrapOperation(method = "renderLevel", require = 1,
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/framegraph/FramePass;executes(Ljava/lang/Runnable;)V"))
+    private void visor$maskHiddenArea(FramePass clearPass, Runnable clear, Operation<Void> original) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            original.call(clearPass, clear);
+            return;
         }
+        original.call(clearPass, (Runnable) () -> {
+            clear.run();
+            RenderEffectsHelper.maskHiddenArea();
+        });
     }
 
 

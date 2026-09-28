@@ -120,7 +120,7 @@ public class RenderEffectsHelper {
         if (mask == null || mask.length < 2) {
             return;
         }
-        writeHiddenAreaStencil(mask);
+        writeHiddenAreaMask(mask);
     }
 
     public static void releaseHiddenAreaMask() {
@@ -131,17 +131,18 @@ public class RenderEffectsHelper {
     }
 
 
-    private static void writeHiddenAreaStencil(float[] mask) {
+    private static void writeHiddenAreaMask(float[] mask) {
         RenderTarget target = McRenderTarget.mainTarget();
 
         McProjection.State savedProjection = McProjection.save();
         McModelViewStack.push();
 
         try {
-            beginStencilWrite();
+            beginMaskWrite();
             Matrix4f ortho = new Matrix4f()
                     .setOrtho(0, McRenderTarget.viewWidth(target), 0, McRenderTarget.viewHeight(target), 0, MASK_FAR_PLANE);
             McProjection.setOrthographic(ortho);
+            McModelViewStack.identity();
             McModelViewStack.apply();
 
             drawMaskTriangles(mask);
@@ -150,12 +151,19 @@ public class RenderEffectsHelper {
             McModelViewStack.apply();
             McProjection.restore(savedProjection);
 
-            endStencilWrite();
+            endMaskWrite();
         }
     }
 
-    private static void beginStencilWrite() {
-        maskEnabledStencil = !GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
+    private static void beginMaskWrite() {
+        //? if >=1.21.5 {
+        McRenderTarget.bindWrite(McRenderTarget.mainTarget());
+        McGlState.colorMask(true, true, true, true);
+        McGlState.depthMask(true);
+        McGlState.enableDepthTest();
+        McGlState.depthFunc(GL11.GL_LEQUAL);
+        //?} else {
+        /*maskEnabledStencil = !GL11C.glIsEnabled(GL11C.GL_STENCIL_TEST);
         GL11.glEnable(GL11.GL_STENCIL_TEST);
 
         McGlState.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE);
@@ -169,15 +177,20 @@ public class RenderEffectsHelper {
         McGlState.depthMask(true);
         McGlState.enableDepthTest();
         McGlState.depthFunc(GL11.GL_ALWAYS);
+        *///?}
         McGlState.disableCull();
         McGlState.setShaderColor(0f, 0f, 0f, 1f);
     }
 
-    private static void endStencilWrite() {
-        McGlState.stencilMask(0);
+    private static void endMaskWrite() {
+        //? if >=1.21.5 {
+        RenderStateHelper.restoreAfterExternalRender();
+        //?} else {
+        /*McGlState.stencilMask(0);
         McGlState.stencilFunc(GL11.GL_NOTEQUAL, 0xFF, 0xFF);
         McGlState.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderStateHelper.restoreAfterExternalRender(true);
+        *///?}
     }
 
     private static float[] hiddenAreaFor(VRRenderPass pass) {
