@@ -84,9 +84,9 @@ public class DropDownListWidget extends McButton implements McGuiEventListener {
      * Renders the base button and, if expanded, the dropdown list along with the interactive scrollbar.
      */
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Render the base button (background, border, and label)
-        super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        renderDefaultButton(guiGraphics, mouseX, mouseY, partialTick);
 
         if (expanded) {
             int dropdownX = this.getX();

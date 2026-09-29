@@ -8,7 +8,7 @@ import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.textures.GpuTexture;
 //?}
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
 import org.vmstudio.visor.api.client.render.RenderPipelineStage;
 import net.minecraft.core.BlockPos;
@@ -81,7 +81,7 @@ public interface ModLoader {
      * @return packet
      */
     @NotNull
-    Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+    Packet<?> createPacketToServer(@NotNull Identifier channelId,
                                    @NotNull VisorPayloadToServer payload);
 
     /**
@@ -91,7 +91,7 @@ public interface ModLoader {
      * @return packet
      */
     @NotNull
-    Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+    Packet<?> createPacketToClient(@NotNull Identifier channelId,
                                    @NotNull VisorPayloadToClient payload);
 
 

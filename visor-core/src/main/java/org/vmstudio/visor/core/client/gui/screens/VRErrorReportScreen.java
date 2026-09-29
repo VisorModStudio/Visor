@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui.screens;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.core.client.exceptions.VisorException;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;

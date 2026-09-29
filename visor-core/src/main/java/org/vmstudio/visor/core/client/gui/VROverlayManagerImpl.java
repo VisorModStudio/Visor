@@ -147,7 +147,8 @@ public class VROverlayManagerImpl implements VROverlayManager {
                     }
 
                     //render overlay texture, each overlay is its own GUI frame
-                    overlayScreen.renderToTarget(McGuiRenderer.begin(), partialTicks);
+                    overlayScreen.renderToTarget(
+                            McGuiRenderer.begin(overlayScreen.getMouseX(), overlayScreen.getMouseY()), partialTicks);
 
                 }else if(overlay instanceof VROverlayFrameBuffer overlayFrameBuffer){
                     // rendering is fully handled by VROverlayFrameBuffer,

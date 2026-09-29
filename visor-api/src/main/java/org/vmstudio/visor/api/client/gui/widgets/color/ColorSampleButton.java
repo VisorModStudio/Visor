@@ -41,7 +41,7 @@ public class ColorSampleButton extends McButton {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics,
+    protected void renderContents(GuiGraphics guiGraphics,
                                 int mouseX, int mouseY,
                                 float partialTick) {
         int x = getX();

@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -36,7 +36,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class GameEffectPumpkin extends VRGameEffect {
 
     public static final String ID = "pumpkin";
-    private static final ResourceLocation PUMPKIN_BLUR_LOCATION = McVersionUtils.newResourceLoc("textures/misc/pumpkinblur.png");
+    private static final Identifier PUMPKIN_BLUR_LOCATION = McVersionUtils.newResourceLoc("textures/misc/pumpkinblur.png");
 
     private static final float FACE_DISTANCE = 0.24F;
     private static final float FACE_RADIUS = 0.24F;

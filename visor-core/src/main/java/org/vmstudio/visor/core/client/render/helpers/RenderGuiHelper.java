@@ -214,7 +214,7 @@ public class RenderGuiHelper {
 
         buf.draw();
         if (packedLight >= 0) {
-            MC.gameRenderer.lightTexture().turnOffLightLayer();
+            McGlState.turnOffLightLayer();
         }
     }
 
@@ -222,7 +222,7 @@ public class RenderGuiHelper {
         if (packedLight >= 0) {
             McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
             McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
-            MC.gameRenderer.lightTexture().turnOnLightLayer();
+            McGlState.turnOnLightLayer();
             buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         } else {
             McShaders.use(McShaders.Core.POSITION_COLOR);

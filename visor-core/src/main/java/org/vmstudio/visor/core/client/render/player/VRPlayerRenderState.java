@@ -42,12 +42,22 @@ public class VRPlayerRenderState extends AvatarRenderState {
             return;
         }
         ItemModelResolver resolver = Minecraft.getInstance().getItemModelResolver();
-        //? if >=1.21.5 {
-        resolver.updateForLiving(state.rightHandItem, player.getItemHeldByArm(HumanoidArm.LEFT),
+        //? if >=1.21.11 {
+        // 1.21.11 extracts the stacks next to their render states, ItemInHandLayer reads both
+        ItemStack rightItem = player.getItemHeldByArm(HumanoidArm.LEFT);
+        ItemStack leftItem = player.getItemHeldByArm(HumanoidArm.RIGHT);
+        resolver.updateForLiving(state.rightHandItemState, rightItem,
+                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, player);
+        resolver.updateForLiving(state.leftHandItemState, leftItem,
+                ItemDisplayContext.THIRD_PERSON_LEFT_HAND, player);
+        state.rightHandItemStack = rightItem.copy();
+        state.leftHandItemStack = leftItem.copy();
+        //?} elif >=1.21.5 {
+        /*resolver.updateForLiving(state.rightHandItem, player.getItemHeldByArm(HumanoidArm.LEFT),
                 ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, player);
         resolver.updateForLiving(state.leftHandItem, player.getItemHeldByArm(HumanoidArm.RIGHT),
                 ItemDisplayContext.THIRD_PERSON_LEFT_HAND, player);
-        //?} else {
+        *///?} else {
         /*resolver.updateForLiving(state.rightHandItem, player.getItemHeldByArm(HumanoidArm.LEFT),
                 ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, player);
         resolver.updateForLiving(state.leftHandItem, player.getItemHeldByArm(HumanoidArm.RIGHT),

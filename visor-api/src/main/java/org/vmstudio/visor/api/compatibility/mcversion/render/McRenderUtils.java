@@ -13,10 +13,22 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+//? if >=1.21.11 {
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.world.level.MoonPhase;
+//?}
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
+//? if >=1.21.11 {
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+//?}
 //? if >=1.21.9 {
 import net.minecraft.world.entity.player.PlayerModelType;
 //?}
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
@@ -32,7 +44,7 @@ public class McRenderUtils {
 
     // ------- PLAYER SKIN -------
 
-    public static ResourceLocation getSkinTexture(AbstractClientPlayer player) {
+    public static Identifier getSkinTexture(AbstractClientPlayer player) {
         //? if >=1.21.9 {
         return player.getSkin().body().texturePath();
         //?} elif >=1.20.2 {
@@ -53,9 +65,85 @@ public class McRenderUtils {
         *///?}
     }
 
+    // ------- RENDER TYPES -------
+
+    public static RenderType entityTranslucent(Identifier texture) {
+        //? if >=1.21.11 {
+        return RenderTypes.entityTranslucent(texture);
+        //?} else {
+        /*return RenderType.entityTranslucent(texture);
+        *///?}
+    }
+
+    // ------- SPRITES -------
+
+    // how far the UVs are pulled towards the sprite centre against bleeding; 1.21.11 pads sprites instead
+    public static float uvShrinkRatio(TextureAtlasSprite sprite) {
+        //? if >=1.21.11 {
+        return 0.0F;
+        //?} else {
+        /*return sprite.uvShrinkRatio();
+        *///?}
+    }
+
+    // ------- CELESTIALS -------
+
+    /**
+     * A sun or moon image: the texture and the UV rect in it
+     */
+    public record CelestialSprite(Identifier texture, float u0, float v0, float u1, float v1) {
+    }
+
+    // null while the celestials atlas of 1.21.11 is not stitched yet
+    @Nullable
+    public static CelestialSprite sunSprite() {
+        //? if >=1.21.11 {
+        TextureAtlas atlas = celestialsAtlas();
+        return atlas == null ? null : celestialSprite(atlas, McVersionUtils.newResourceLoc("sun"));
+        //?} else {
+        /*return new CelestialSprite(McVersionUtils.newResourceLoc("textures/environment/sun.png"), 0f, 0f, 1f, 1f);
+        *///?}
+    }
+
+    // phase 0..7, full moon to waxing gibbous
+    @Nullable
+    public static CelestialSprite moonSprite(int phase) {
+        //? if >=1.21.11 {
+        TextureAtlas atlas = celestialsAtlas();
+        return atlas == null ? null : celestialSprite(atlas,
+                McVersionUtils.newResourceLoc("moon/" + MoonPhase.values()[phase & 7].getSerializedName()));
+        //?} else {
+        /*float u0 = (phase % 4) / 4f;
+        float v0 = ((int) (phase / 4f)) / 2f;
+        return new CelestialSprite(McVersionUtils.newResourceLoc("textures/environment/moon_phases.png"),
+                u0, v0, u0 + 0.25f, v0 + 0.5f);
+        *///?}
+    }
+
+    // 1.21.11 moved sun.png and moon_phases.png into the celestials atlas
+    //? if >=1.21.11 {
+    @Nullable
+    private static TextureAtlas celestialsAtlas() {
+        AtlasManager manager = Minecraft.getInstance().getAtlasManager();
+        if (manager == null) {
+            return null;
+        }
+        try {
+            return manager.getAtlasOrThrow(AtlasIds.CELESTIALS);
+        } catch (RuntimeException notStitched) {
+            return null;
+        }
+    }
+
+    private static CelestialSprite celestialSprite(TextureAtlas atlas, Identifier id) {
+        TextureAtlasSprite sprite = atlas.getSprite(id);
+        return new CelestialSprite(atlas.location(), sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1());
+    }
+    //?}
+
     // ------- CROSSHAIR -------
 
-    public static ResourceLocation crosshairTexture() {
+    public static Identifier crosshairTexture() {
         //? if >=1.20.2 {
         return McVersionUtils.newResourceLoc("minecraft", "textures/gui/sprites/hud/crosshair.png");
         //?} else {
@@ -77,7 +165,7 @@ public class McRenderUtils {
         McGlState.clear(mask);
     }
 
-    public static void setShaderTexture(int unit, ResourceLocation texture) {
+    public static void setShaderTexture(int unit, Identifier texture) {
         McGlState.setShaderTexture(unit, texture);
     }
 
@@ -101,9 +189,9 @@ public class McRenderUtils {
         *///?}
     }
 
-    public static ResourceLocation registerDynamicTexture(String name, DynamicTexture texture) {
+    public static Identifier registerDynamicTexture(String name, DynamicTexture texture) {
         //? if >=1.21.4 {
-        ResourceLocation id = McVersionUtils.newResourceLoc("visor",
+        Identifier id = McVersionUtils.newResourceLoc("visor",
                 "dynamic/" + name + "_" + DYNAMIC_TEXTURE_ID.incrementAndGet());
         Minecraft.getInstance().getTextureManager().register(id, texture);
         return id;

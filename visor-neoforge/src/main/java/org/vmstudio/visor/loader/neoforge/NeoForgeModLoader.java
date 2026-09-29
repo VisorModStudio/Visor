@@ -10,7 +10,7 @@ import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
 //?}
 import io.netty.buffer.Unpooled;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 //? if <1.20.4 {
 /*import net.neoforged.neoforge.network.NetworkRegistry;
 import net.neoforged.neoforge.network.event.EventNetworkChannel;
@@ -326,7 +326,7 @@ public class NeoForgeModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToClient(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -341,7 +341,7 @@ public class NeoForgeModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToServer(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -402,7 +402,7 @@ public class NeoForgeModLoader implements ModLoader {
     //? if >=1.20.5 {
     void registerPayloads(@NotNull RegisterPayloadHandlersEvent event) {
         for (VisorChannel channel : pendingChannels) {
-            ResourceLocation channelId = channel.getChannelId();
+            Identifier channelId = channel.getChannelId();
             CustomPacketPayload.Type<RawPayload> type = new CustomPacketPayload.Type<>(channelId);
             playBidirectional(event.registrar(channelId.getNamespace()).optional(), type, RawPayload.codec(type),
                     (payload, context) -> handlePayload(channel, payload, context));
@@ -442,11 +442,11 @@ public class NeoForgeModLoader implements ModLoader {
                     });
         }
 
-        private static RawPayload of(ResourceLocation id, FriendlyByteBuf buffer) {
+        private static RawPayload of(Identifier id, FriendlyByteBuf buffer) {
             return new RawPayload(new CustomPacketPayload.Type<>(id), buffer);
         }
 
-        private static RawPayload of(ResourceLocation id, VisorPayloadToClient payload) {
+        private static RawPayload of(Identifier id, VisorPayloadToClient payload) {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             payload.write(buffer);
             return of(id, buffer);
@@ -455,7 +455,7 @@ public class NeoForgeModLoader implements ModLoader {
     //?} elif >=1.20.4 {
     /*void registerPayloads(@NotNull RegisterPayloadHandlerEvent event) {
         for (VisorChannel channel : pendingChannels) {
-            ResourceLocation channelId = channel.getChannelId();
+            Identifier channelId = channel.getChannelId();
             event.registrar(channelId.getNamespace())
                     .optional()
                     .play(channelId,
@@ -484,16 +484,16 @@ public class NeoForgeModLoader implements ModLoader {
     }
 
 
-    private record RawPayload(ResourceLocation id, FriendlyByteBuf buffer)
+    private record RawPayload(Identifier id, FriendlyByteBuf buffer)
             implements CustomPacketPayload {
 
-        private static RawPayload read(ResourceLocation id, FriendlyByteBuf source) {
+        private static RawPayload read(Identifier id, FriendlyByteBuf source) {
             FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
             copy.writeBytes(source, source.readableBytes());
             return new RawPayload(id, copy);
         }
 
-        private static RawPayload of(ResourceLocation id, VisorPayloadToClient payload) {
+        private static RawPayload of(Identifier id, VisorPayloadToClient payload) {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             payload.write(buffer);
             return new RawPayload(id, buffer);

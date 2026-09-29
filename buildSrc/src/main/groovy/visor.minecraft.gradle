@@ -121,7 +121,8 @@ if (project.parent.name == "visor-core") {
     afterEvaluate {
         // after Stonecutter registered its own source directories
         sourceSets.main.java.exclude(mcversion.excludeSpec(minecraftVersion))
-        tasks.named("compileJava") { source(mcversion.parkedSources(project, minecraftVersion)) }
+        def parked = mcversion.parkedSources(project, minecraftVersion)
+        tasks.named("compileJava") { source(parked) }
     }
     tasks.register("checkMcversionLayout") {
         description = "Verifies the range headers, the parked copies and the absence of Stonecutter markers in range files"
@@ -137,14 +138,13 @@ if (project.parent.name == "visor-core") {
 }
 
 // ---- Resources --------------------------------------------------------------
-// 1.21.9 pack.mcmeta: the modern form is min_format/max_format alone, which is what the resource-pack
-// side wants (pack_format alone is rejected above 64, supported_formats is rejected from 65 upwards).
-// The data-pack side is still in the legacy regime below format 82 and asks for supported_formats, so one
-// shared pack.mcmeta cannot satisfy both - a dedicated server logs one "Couldn't load pack metadata" per
-// pack and falls back, the pack itself still loads. Tried and rejected: pack_format+min+max, min+max+
-// supported_formats, and max_format 88.
+// 1.21.9 pack.mcmeta, one file for the resource side (format 69+) and the data side (88+): with min_format at or
+// below the last pre-minor format of both (64 resources, 81 data) each side accepts, and then requires,
+// pack_format + supported_formats + min_format/max_format, the range covering its own current format.
+// min/max alone is rejected by the data side, supported_formats with a min above 64 by the resource side.
 def packFormatFields = stonecutter.eval(minecraftVersion, ">=1.21.9")
-        ? "\"min_format\": ${pack_format},\n    \"max_format\": ${pack_format}"
+        ? "\"pack_format\": ${pack_format},\n    \"supported_formats\": [64, ${data_pack_format}],\n" +
+          "    \"min_format\": 64,\n    \"max_format\": ${data_pack_format}"
         : "\"pack_format\": ${pack_format}"
 
 project.ext.resourcePlaceholders = [

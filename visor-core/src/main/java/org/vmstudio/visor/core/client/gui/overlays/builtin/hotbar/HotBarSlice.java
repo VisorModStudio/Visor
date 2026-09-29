@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar;
 
 import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public enum HotBarSlice {

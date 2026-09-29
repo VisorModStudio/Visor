@@ -27,7 +27,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -42,17 +42,17 @@ public class VROverlaySettings extends VROverlayScreen
 
     public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.overlays.find");
 
-    private static final ResourceLocation BACKGROUND_OVERLAYS = McVersionUtils.newResourceLoc(
+    private static final Identifier BACKGROUND_OVERLAYS = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_1.png"
     );
-    private static final ResourceLocation BACKGROUND_CREATE = McVersionUtils.newResourceLoc(
+    private static final Identifier BACKGROUND_CREATE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_2.png"
     );
 
-    private static final ResourceLocation BACKGROUND_EXTRA = McVersionUtils.newResourceLoc(
+    private static final Identifier BACKGROUND_EXTRA = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_extra_1.png"
     );
-    private static final ResourceLocation BACKGROUND_EXTRA_EXTENDED = McVersionUtils.newResourceLoc(
+    private static final Identifier BACKGROUND_EXTRA_EXTENDED = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/bg_main_extra_2.png"
     );
 
@@ -421,11 +421,11 @@ public class VROverlaySettings extends VROverlayScreen
                     : settings.createOverlayWidgetSet;
         }
 
-        private ResourceLocation background() {
+        private Identifier background() {
             return this == OVERLAYS ? BACKGROUND_OVERLAYS : BACKGROUND_CREATE;
         }
 
-        private ResourceLocation backgroundExtra(VROverlaySettings settings) {
+        private Identifier backgroundExtra(VROverlaySettings settings) {
             return this == OVERLAYS ? BACKGROUND_EXTRA
                     : settings.isBackgroundExtended()
                     ? BACKGROUND_EXTRA_EXTENDED

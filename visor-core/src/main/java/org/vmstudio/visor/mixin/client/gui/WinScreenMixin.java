@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.WinScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -77,9 +77,9 @@ public abstract class WinScreenMixin extends Screen {
         }
     }
     //?} else {
-    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIFFIIII)V"), method = "render")
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/Identifier;IIIFFIIII)V"), method = "render")
     private void visor$noVignette(GuiGraphics instance,
-                                  ResourceLocation texture,
+                                  Identifier texture,
                                   int x, int y, int blitOffset,
                                   float uOffset, float vOffset,
                                   int uWidth, int vHeight,

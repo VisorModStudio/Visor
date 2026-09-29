@@ -2,6 +2,7 @@ package org.vmstudio.visor.loader.fabric.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 //? if >=1.21.9 {
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayerGroup;
 import net.minecraft.client.renderer.chunk.ChunkSectionsToRender;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,8 +19,9 @@ import org.vmstudio.visor.loader.fabric.FabricModLoader;
 @Mixin(ChunkSectionsToRender.class)
 public class FabricChunkSectionsStageMixin {
 
+    // 1.21.11 added the terrain GpuSampler parameter
     @Inject(method = "renderGroup", at = @At("TAIL"))
-    private void visor$afterTranslucent(ChunkSectionLayerGroup group, CallbackInfo ci) {
+    private void visor$afterTranslucent(CallbackInfo ci, @Local(argsOnly = true) ChunkSectionLayerGroup group) {
         if (group == ChunkSectionLayerGroup.TRANSLUCENT) {
             ((FabricModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_TRANSLUCENT);
         }

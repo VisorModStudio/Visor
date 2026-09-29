@@ -2,6 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
@@ -25,7 +26,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 public abstract class McButton extends AbstractButton {
 
     protected McButton(int x, int y, int width, int height, Component message) {
-        super(x, y, width, height, message);
+        // 1.21.11 styles the message in the constructor
+        super(x, y, width, height, message == null ? Component.empty() : message);
     }
 
 
@@ -40,6 +42,25 @@ public abstract class McButton extends AbstractButton {
     }
 
     public abstract void onPress();
+
+    /**
+     * Draws the button, AbstractButton.renderWidget is final around this since 1.21.11.
+     */
+    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderDefaultButton(guiGraphics, mouseX, mouseY, partialTick);
+    }
+
+    /**
+     * The vanilla look: the button sprite and the message.
+     */
+    protected void renderDefaultButton(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        //? if >=1.21.11 {
+        renderDefaultSprite(guiGraphics);
+        renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
+        //?} else {
+        /*super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+        *///?}
+    }
 
     public void onRelease(double mouseX, double mouseY) {
     }
@@ -137,6 +158,13 @@ public abstract class McButton extends AbstractButton {
 
 
     // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
+
+    //? if <1.21.11 {
+    /*@Override
+    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderContents(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    *///?}
 
     //? if >=1.20.3 {
     @Nullable

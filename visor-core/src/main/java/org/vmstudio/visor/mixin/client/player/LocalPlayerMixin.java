@@ -47,6 +47,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//? if >=1.21.11 {
+import net.minecraft.world.phys.HitResult;
+import org.vmstudio.visor.core.client.player.VRAimPicker;
+//?}
 
 
 @Mixin(LocalPlayer.class)
@@ -355,7 +359,25 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
 
 
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
+    // 1.21.11 Mth.sin/cos take a double
+    //? if >=1.21.11 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(D)F"), method = "updateAutoJump")
+    private double visor$vrAutoJumpSin(double original) {
+        return VisorState.get().isActive()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
+                : original;
+    }
+
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(D)F"), method = "updateAutoJump")
+    private double visor$vrAutoJumpCos(double original) {
+        return VisorState.get().isActive()
+                ? ClientContext.localPlayer
+                .getPoseData(PlayerPoseType.TICK).getBodyYaw()
+                : original;
+    }
+    //?} else {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;sin(F)F"), method = "updateAutoJump")
     private float visor$vrAutoJumpSin(float original) {
         return VisorState.get().isActive()
                 ? ClientContext.localPlayer
@@ -370,6 +392,32 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
                 .getPoseData(PlayerPoseType.TICK).getBodyYaw()
                 : original;
     }
+    *///?}
+
+
+    /* ****************** *\
+  //--------AIM PICK--------\\
+    \* ****************** */
+    // 1.21.11 moved the ray trace of GameRenderer.pick(Entity,DDF) into this static helper, see GameRendererMixin
+
+    //? if >=1.21.11 {
+    @ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 0)
+    private static Vec3 visor$pickPos(Vec3 original) {
+        return VRAimPicker.pickPos(original);
+    }
+
+    @ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 1)
+    private static Vec3 visor$pickDirection(Vec3 original) {
+        return VRAimPicker.pickDirection(original);
+    }
+
+    @WrapOperation(method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"))
+    private static HitResult visor$vrBlockPick(Entity entity, double range, float partialTick, boolean fluid, Operation<HitResult> original) {
+        HitResult vrHit = VRAimPicker.vrBlockPick();
+        return vrHit != null ? vrHit : original.call(entity, range, partialTick, fluid);
+    }
+    //?}
 
 
     //? if >=1.21.2 {

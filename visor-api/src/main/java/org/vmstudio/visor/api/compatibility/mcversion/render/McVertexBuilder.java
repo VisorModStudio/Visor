@@ -180,11 +180,15 @@ public final class McVertexBuilder {
             RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.mode());
             GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
             //? if >=1.21.6 {
-            //? if >=1.21.9 {
+            //? if >=1.21.11 {
+            // 1.21.11 keeps no texture matrix or line width, a RenderType carries its own texture transform
             GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+                    RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), new Vector3f(), new Matrix4f());
+            //?} elif >=1.21.9 {
+            /*GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), new Vector3f(),
                     RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
-            //?} else {
+            *///?} else {
             /*GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), RenderSystem.getModelOffset(),
                     RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());

@@ -12,7 +12,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class VROverlayMovementState extends VROverlayScreen {
 
     protected final OverlayOptionsPose optionsPose;
 
-    protected static final ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
+    protected static final Identifier RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/movement_state.png"
     );
     protected static final int TEX_WIDTH = 162;

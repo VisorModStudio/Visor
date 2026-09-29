@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class TexturesHelper {
     }
 
 
-    private static final Map<Integer, ResourceLocation> CACHE = new ConcurrentHashMap<>();
+    private static final Map<Integer, Identifier> CACHE = new ConcurrentHashMap<>();
     private static final Map<Integer, GuiTexture> CACHE_GUI = new ConcurrentHashMap<>();
 
 
@@ -33,19 +33,19 @@ public class TexturesHelper {
 
 
 
-    public static ResourceLocation getWhiteTexture() {
+    public static Identifier getWhiteTexture() {
         return getColorTexture(WHITE_COLOR);
     }
 
-    public static ResourceLocation getBlackTexture() {
+    public static Identifier getBlackTexture() {
         return getColorTexture(BLACK_COLOR);
     }
 
 
 
-    public static ResourceLocation getColorTexture(@NotNull AtumColor color) {
+    public static Identifier getColorTexture(@NotNull AtumColor color) {
 
-        ResourceLocation texture = CACHE.computeIfAbsent(
+        Identifier texture = CACHE.computeIfAbsent(
                 color.asInt(),
                 it -> createAndRegister(color)
         );
@@ -66,7 +66,7 @@ public class TexturesHelper {
     }
 
 
-    private static ResourceLocation createAndRegister(AtumColor color) {
+    private static Identifier createAndRegister(AtumColor color) {
         int red = color.getRedInt();
         int green = color.getGreenInt();
         int blue = color.getBlueInt();

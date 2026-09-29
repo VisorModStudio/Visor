@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;

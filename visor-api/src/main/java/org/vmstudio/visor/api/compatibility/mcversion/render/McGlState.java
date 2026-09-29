@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
@@ -381,11 +381,13 @@ public class McGlState {
 
     // ------- TEXTURES -------
 
-    public static void setShaderTexture(int unit, ResourceLocation texture) {
-        //? if >=1.21.6 {
-        RenderSystem.setShaderTexture(unit, net.minecraft.client.Minecraft.getInstance()
+    public static void setShaderTexture(int unit, Identifier texture) {
+        //? if >=1.21.11 {
+        McShaderTexture.setUnit(unit, McShaderTexture.of(texture));
+        //?} elif >=1.21.6 {
+        /*RenderSystem.setShaderTexture(unit, net.minecraft.client.Minecraft.getInstance()
                 .getTextureManager().getTexture(texture).getTextureView());
-        //?} elif >=1.21.5 {
+        *///?} elif >=1.21.5 {
         /*RenderSystem.setShaderTexture(unit, net.minecraft.client.Minecraft.getInstance()
                 .getTextureManager().getTexture(texture).getTexture());
         *///?} elif >=1.21.2 {
@@ -397,9 +399,11 @@ public class McGlState {
     }
 
     public static void setShaderTexture(int unit, RenderTarget target) {
-        //? if >=1.21.6 {
-        RenderSystem.setShaderTexture(unit, target.getColorTextureView());
-        //?} elif >=1.21.5 {
+        //? if >=1.21.11 {
+        McShaderTexture.setUnit(unit, McShaderTexture.color(target));
+        //?} elif >=1.21.6 {
+        /*RenderSystem.setShaderTexture(unit, target.getColorTextureView());
+        *///?} elif >=1.21.5 {
         /*RenderSystem.setShaderTexture(unit, target.getColorTexture());
         *///?} else {
         /*RenderSystem.setShaderTexture(unit, target.getColorTextureId());
@@ -407,10 +411,31 @@ public class McGlState {
     }
 
     public static void clearShaderTexture(int unit) {
-        //? if >=1.21.5 {
-        RenderSystem.setShaderTexture(unit, null);
-        //?} else {
+        //? if >=1.21.11 {
+        McShaderTexture.setUnit(unit, null);
+        //?} elif >=1.21.5 {
+        /*RenderSystem.setShaderTexture(unit, null);
+        *///?} else {
         /*RenderSystem.setShaderTexture(unit, 0);
+        *///?}
+    }
+
+    // the lightmap on Sampler2, as RENDERTYPE_TEXT draws sample it
+    public static void turnOnLightLayer() {
+        //? if >=1.21.11 {
+        McShaderTexture.setUnit(2, new McShaderTexture(
+                net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().getTextureView(),
+                RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.LINEAR)));
+        //?} else {
+        /*net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+        *///?}
+    }
+
+    public static void turnOffLightLayer() {
+        //? if >=1.21.11 {
+        McShaderTexture.setUnit(2, null);
+        //?} else {
+        /*net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
         *///?}
     }
 

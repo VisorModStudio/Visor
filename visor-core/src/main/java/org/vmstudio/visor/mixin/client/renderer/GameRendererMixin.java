@@ -72,9 +72,10 @@ public abstract class GameRendererMixin {
         VRAimPicker.pickWithVRHands(() -> original.call(partialTick));
     }
 
-    // 1.20.5 moved the ray trace into pick(Entity,DDF), pick(F)V has no Vec3 locals left
-    //? if >=1.20.5 {
-    @ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 0)
+    // 1.20.5 moved the ray trace into pick(Entity,DDF), pick(F)V has no Vec3 locals left;
+    // 1.21.11 moved it on into the static LocalPlayer.pick(Entity,DDF), see LocalPlayerMixin
+    //? if >=1.20.5 && <1.21.11 {
+    /*@ModifyVariable(at = @At("STORE"), method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", ordinal = 0)
     public Vec3 visor$pickPos(Vec3 original) {
         return VRAimPicker.pickPos(original);
     }
@@ -90,7 +91,7 @@ public abstract class GameRendererMixin {
         HitResult vrHit = VRAimPicker.vrBlockPick();
         return vrHit != null ? vrHit : original.call(entity, range, partialTick, fluid);
     }
-    //?} else {
+    *///?} elif <1.20.5 {
     /*@ModifyVariable(at = @At("STORE"), method = "pick(F)V", ordinal = 0)
     public Vec3 visor$pickPos(Vec3 original) {
         return VRAimPicker.pickPos(original);
@@ -272,7 +273,7 @@ public abstract class GameRendererMixin {
      * Only process this when rendering vanilla
      * or VR camera that is a worldUpdater
      */
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/Util;getMillis()J"), method = "render")
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Util;getMillis()J"), method = "render")
     public long visor$useActiveTimeOncePerFrame(Operation<Long> original) {
         if (VisorState.get().isNotActive() || VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
             return original.call();

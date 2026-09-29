@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.common.network;
 
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
@@ -16,12 +16,12 @@ public class VisorNetwork {
         throw new UnsupportedOperationException("This class cannot be instantiated");
     }
 
-    public static final ResourceLocation CORE_CHANNEL_ID = McVersionUtils.newResourceLoc("visor:channel");
+    public static final Identifier CORE_CHANNEL_ID = McVersionUtils.newResourceLoc("visor:channel");
 
     public static final int CORE_NETWORK_VERSION = 5; // 5: since Visor 0.5.0
 
 
-    private static final Map<ResourceLocation, VisorChannel> CHANNELS = new ConcurrentHashMap<>();
+    private static final Map<Identifier, VisorChannel> CHANNELS = new ConcurrentHashMap<>();
 
 
     public static void registerChannel(@NotNull VisorChannel channel) {
@@ -32,11 +32,11 @@ public class VisorNetwork {
         ModLoader.get().registerNetworkChannel(channel);
     }
 
-    public static @Nullable VisorChannel getChannel(@NotNull ResourceLocation id) {
+    public static @Nullable VisorChannel getChannel(@NotNull Identifier id) {
         return CHANNELS.get(id);
     }
 
-    public static @NotNull Map<ResourceLocation, VisorChannel> getAllChannels() {
+    public static @NotNull Map<Identifier, VisorChannel> getAllChannels() {
         return Collections.unmodifiableMap(CHANNELS);
     }
 

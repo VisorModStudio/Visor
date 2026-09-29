@@ -14,7 +14,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;

@@ -3,11 +3,11 @@ package org.vmstudio.visor.api.client.gui.overlays.options;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 public interface OptionTextures {
-    ResourceLocation RESOURCE_2 = McVersionUtils.newResourceLoc(
+    Identifier RESOURCE_2 = McVersionUtils.newResourceLoc(
             "visor:textures/gui/overlays/settings/general_2.png"
     );
     int TEX_WIDTH_2 = 119;

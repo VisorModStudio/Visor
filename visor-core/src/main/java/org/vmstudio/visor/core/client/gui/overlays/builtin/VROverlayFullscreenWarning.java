@@ -1,9 +1,9 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class VROverlayFullscreenWarning extends VROverlayScreen {
     public static String ID = "fullscreen_warning";
-    protected static ResourceLocation RESOURCE = McVersionUtils.newResourceLoc("visor:textures/gui/overlays/warning.png");
+    protected static Identifier RESOURCE = McVersionUtils.newResourceLoc("visor:textures/gui/overlays/warning.png");
     protected OverlayOptionsPose optionsPose;
 
     public VROverlayFullscreenWarning(@NotNull VisorAddon owner, @NotNull String id) {

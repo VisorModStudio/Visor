@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.effects;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
@@ -19,7 +20,7 @@ import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
@@ -54,14 +55,14 @@ public class GameEffectOnFire extends VRGameEffect {
         //?} else {
         /*TextureAtlasSprite sprite = ModelBakery.FIRE_1.sprite();
         *///?}
-        ResourceLocation atlas = sprite.atlasLocation();
+        Identifier atlas = sprite.atlasLocation();
         float uMin = sprite.getU0();
         float uMax = sprite.getU1();
         float vMin = sprite.getV0();
         float vMax = sprite.getV1();
         float midU = (uMin + uMax) * 0.5f;
         float midV = (vMin + vMax) * 0.5f;
-        float shrink = sprite.uvShrinkRatio();
+        float shrink = McRenderUtils.uvShrinkRatio(sprite);
 
         float u0 = Mth.lerp(shrink, uMin, midU);
         float u1 = Mth.lerp(shrink, uMax, midU);

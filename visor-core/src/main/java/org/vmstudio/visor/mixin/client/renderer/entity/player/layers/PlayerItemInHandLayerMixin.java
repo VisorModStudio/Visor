@@ -27,8 +27,24 @@ import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 @Mixin(value = PlayerItemInHandLayer.class, priority = 900)
 public class PlayerItemInHandLayerMixin {
 
-    //? if >=1.21.9 {
-    @Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At("HEAD"), cancellable = true)
+    // 1.21.11 passes the held ItemStack next to its render state
+    //? if >=1.21.11 {
+    @Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At("HEAD"), cancellable = true)
+    private void visor$noItemInGui(
+            CallbackInfo ci, @Local(argsOnly = true) AvatarRenderState state, @Local(argsOnly = true) HumanoidArm arm)
+    {
+        if (visor$hideItem(VRPlayerRenderState.playerOf(state), arm)) {
+            ci.cancel();
+        }
+    }
+
+    @ModifyExpressionValue(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/item/ItemStackRenderState;isEmpty()Z", ordinal = 1))
+    private boolean visor$noSpyglass(boolean isEmpty, @Local(argsOnly = true) AvatarRenderState state) {
+        var player = VRPlayerRenderState.playerOf(state);
+        return isEmpty || (player != null && VRRenderState.isSelfModelHandsRender(player));
+    }
+    //?} elif >=1.21.9 {
+    /*@Inject(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/AvatarRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V", at = @At("HEAD"), cancellable = true)
     private void visor$noItemInGui(
             CallbackInfo ci, @Local(argsOnly = true) AvatarRenderState state, @Local(argsOnly = true) HumanoidArm arm)
     {
@@ -42,7 +58,7 @@ public class PlayerItemInHandLayerMixin {
         var player = VRPlayerRenderState.playerOf(state);
         return isEmpty || (player != null && VRRenderState.isSelfModelHandsRender(player));
     }
-    //?} elif >=1.21.4 {
+    *///?} elif >=1.21.4 {
     /*@Inject(method = "renderArmWithItem(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
     private void visor$noItemInGui(
             CallbackInfo ci, @Local(argsOnly = true) PlayerRenderState state, @Local(argsOnly = true) HumanoidArm arm)

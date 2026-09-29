@@ -33,13 +33,17 @@ accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessag
 
 # Used in: HandEffectCrosshair (via McVersionClientUtils.crosshairTexture)
 #? if <1.20.2 {
-#accessible field net/minecraft/client/gui/Gui GUI_ICONS_LOCATION Lnet/minecraft/resources/ResourceLocation;
+#accessible field net/minecraft/client/gui/Gui GUI_ICONS_LOCATION Lnet/minecraft/resources/Identifier;
 #?}
 
-# Used in: McShaderProgram, McPlayerInput
+# Used in: McShaderProgram
+#? if >=1.21.5 && <1.21.11 {
+#accessible method net/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder;
+#accessible method net/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;
+#?}
+
+# Used in: McPlayerInput
 #? if >=1.21.5 {
-accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
-accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/RenderType$CompositeState;
 accessible field net/minecraft/client/player/ClientInput moveVector Lnet/minecraft/world/phys/Vec2;
 #?}
 
@@ -67,10 +71,17 @@ accessible field net/minecraft/client/KeyMapping clickCount I
 
 # Used in: VRGameCamera
 accessible field net/minecraft/client/Camera initialized Z
-accessible field net/minecraft/client/Camera level Lnet/minecraft/world/level/BlockGetter;
+#? if >=1.21.11 {
+accessible field net/minecraft/client/Camera level Lnet/minecraft/world/level/Level;
+#?} else {
+#accessible field net/minecraft/client/Camera level Lnet/minecraft/world/level/BlockGetter;
+#?}
 accessible field net/minecraft/client/Camera entity Lnet/minecraft/world/entity/Entity;
 accessible field net/minecraft/client/Camera xRot F
 accessible field net/minecraft/client/Camera yRot F
+accessible field net/minecraft/client/Camera forwards Lorg/joml/Vector3f;
+accessible field net/minecraft/client/Camera up Lorg/joml/Vector3f;
+accessible field net/minecraft/client/Camera left Lorg/joml/Vector3f;
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
 
 # Used in: VR render target switching, mirror and shader passes
@@ -89,14 +100,18 @@ accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
 # ------ RENDERING ------------------
 
 # Used in: McShaderProgram
-#? if >=1.21.5 {
-accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+#? if >=1.21.11 {
+accessible method net/minecraft/client/renderer/rendertype/RenderType <init> (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)V
+#?} elif >=1.21.5 {
+#accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeRenderType;
 #?} else {
-#accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
+#accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeRenderType;
 #accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
 #?}
-accessible class net/minecraft/client/renderer/RenderType$CompositeState
-accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
+#? if <1.21.11 {
+#accessible class net/minecraft/client/renderer/rendertype/RenderType$CompositeState
+#accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
+#?}
 
 # Used in: ItemInHandLayerMixin, PlayerItemInHandLayerMixin
 #? if >=1.21.9 {
@@ -123,11 +138,15 @@ accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemA
 #?} else {
 #accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
 #?}
-accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
+#? if >=1.21.11 {
+accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;Lcom/mojang/blaze3d/textures/GpuSampler;IIIIFFFFI)V
+#?} else {
+#accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
+#?}
 #?}
 
 # Used in: VRPlayerModelFull, VRPlayerModelSimple, VRPlayerRendererFull, VRPlayerRendererHandsOnly
-accessible field net/minecraft/client/model/PlayerModel slim Z
+accessible field net/minecraft/client/model/player/PlayerModel slim Z
 
 # Used in: VRPlayerRendererFull, VRPlayerRendererHandsOnly
 #? if <1.21.2 {

@@ -4,7 +4,7 @@ package org.vmstudio.visor.loader.forge;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 //? if >=1.20.2 {
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
@@ -74,7 +74,7 @@ public class ForgeModLoader implements ModLoader {
     *///?}
 
     //? if >=1.20.5 {
-    private final Map<ResourceLocation, EventNetworkChannel> networkChannels = new ConcurrentHashMap<>();
+    private final Map<Identifier, EventNetworkChannel> networkChannels = new ConcurrentHashMap<>();
     //?}
 
 
@@ -284,7 +284,7 @@ public class ForgeModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToClient(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -298,7 +298,7 @@ public class ForgeModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToServer(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -329,7 +329,7 @@ public class ForgeModLoader implements ModLoader {
     // ----- INNER -----
 
     //? if >=1.20.5 {
-    private EventNetworkChannel networkChannel(ResourceLocation channelId) {
+    private EventNetworkChannel networkChannel(Identifier channelId) {
         EventNetworkChannel channel = networkChannels.get(channelId);
         if (channel == null) {
             throw new IllegalStateException("No Visor network channel registered for " + channelId);

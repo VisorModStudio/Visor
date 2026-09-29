@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McPlainButton;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -9,7 +10,7 @@ import net.minecraft.client.input.MouseButtonEvent;
 //?}
 import net.minecraft.network.chat.Component;
 
-public class KeyboardButton extends Button {
+public class KeyboardButton extends McPlainButton {
     private VRKeyboardScreen keyboardScreen;
     private final OnRelease onRelease;
     private boolean pressed;
@@ -35,8 +36,9 @@ public class KeyboardButton extends Button {
         this.onRelease = onRelease;
     }
 
+    // before super.renderContents: the button sprite reads isHovered()
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+    protected void renderContents(GuiGraphics guiGraphics, int i, int j, float f) {
         VROverlayKeyboard overlayKeyboard = keyboardScreen.getOverlayKeyboard();
         if(overlayKeyboard.getInactiveCursorData().isInGui()){
             int mX = overlayKeyboard.getInactiveCursorData().getCursorX();
@@ -49,7 +51,7 @@ public class KeyboardButton extends Button {
             hoveredSecondary = false;
         }
 
-        super.renderWidget(guiGraphics, i, j, f);
+        super.renderContents(guiGraphics, i, j, f);
     }
 
     //? if >=1.21.9 {

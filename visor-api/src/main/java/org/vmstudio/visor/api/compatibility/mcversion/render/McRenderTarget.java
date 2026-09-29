@@ -20,6 +20,9 @@ import java.util.WeakHashMap;
 //? if >=1.21.6 {
 import com.mojang.blaze3d.textures.GpuTextureView;
 //?}
+//? if >=1.21.11 {
+import com.mojang.blaze3d.textures.GpuSampler;
+//?}
 
 /**
  * Cross-mc-version facade over RenderTarget and the main render target
@@ -32,6 +35,10 @@ public class McRenderTarget {
     //? if >=1.21.5 {
     private static RenderTarget writeTarget;
     private static final Map<RenderTarget, Integer> CLEAR_COLORS = new WeakHashMap<>();
+    //?}
+    //? if >=1.21.11 {
+    // 1.21.11 samples through a GpuSampler chosen per draw, the target keeps no filter
+    private static final Map<RenderTarget, FilterMode> FILTERS = new WeakHashMap<>();
     //?}
 
     // ------- MAIN TARGET -------
@@ -107,12 +114,31 @@ public class McRenderTarget {
     }
 
     public static void setFilterMode(RenderTarget target, boolean linear) {
-        //? if >=1.21.5 {
-        target.setFilterMode(linear ? FilterMode.LINEAR : FilterMode.NEAREST);
-        //?} else {
+        //? if >=1.21.11 {
+        FILTERS.put(target, linear ? FilterMode.LINEAR : FilterMode.NEAREST);
+        //?} elif >=1.21.5 {
+        /*target.setFilterMode(linear ? FilterMode.LINEAR : FilterMode.NEAREST);
+        *///?} else {
         /*target.setFilterMode(linear ? GL11.GL_LINEAR : GL11.GL_NEAREST);
         *///?}
     }
+
+    public static boolean isLinearFilter(RenderTarget target) {
+        //? if >=1.21.11 {
+        return FILTERS.get(target) == FilterMode.LINEAR;
+        //?} elif >=1.21.5 {
+        /*return target.filterMode == FilterMode.LINEAR;
+        *///?} else {
+        /*return target.filterMode == GL11.GL_LINEAR;
+        *///?}
+    }
+
+    //? if >=1.21.11 {
+    // targets sample NEAREST and CLAMP_TO_EDGE unless setFilterMode asked for LINEAR, as before 1.21.11
+    static GpuSampler sampler(RenderTarget target) {
+        return RenderSystem.getSamplerCache().getClampToEdge(isLinearFilter(target) ? FilterMode.LINEAR : FilterMode.NEAREST);
+    }
+    //?}
 
     // ------- CLEARING -------
 

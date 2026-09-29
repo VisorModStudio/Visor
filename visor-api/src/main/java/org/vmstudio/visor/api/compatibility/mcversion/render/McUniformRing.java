@@ -26,7 +26,8 @@ final class McUniformRing {
     }
 
     int slot(GpuBufferSlice slice) {
-        return buffer != null && slice.buffer() == buffer ? slice.offset() / stride : -1;
+        // offset() is a long since 1.21.11
+        return buffer != null && slice.buffer() == buffer ? (int) (slice.offset() / stride) : -1;
     }
 
     GpuBufferSlice write(ByteBuffer data) {

@@ -1,6 +1,6 @@
 package org.vmstudio.visor.core.client.render.player.model;
 
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;

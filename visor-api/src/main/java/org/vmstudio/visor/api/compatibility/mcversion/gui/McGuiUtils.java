@@ -11,12 +11,12 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 //? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
 //?} else {
-/*import net.minecraft.client.renderer.RenderType;
+/*import net.minecraft.client.renderer.rendertype.RenderType;
 *///?}
 //? if >=1.21.9 {
 import com.mojang.blaze3d.platform.InputConstants;
@@ -39,7 +39,11 @@ public class McGuiUtils {
     // ------- SCREEN -------
 
     public static void initScreen(Screen screen, int width, int height) {
-        screen.init(Minecraft.getInstance(), width, height);
+        //? if >=1.21.11 {
+        screen.init(width, height);
+        //?} else {
+        /*screen.init(Minecraft.getInstance(), width, height);
+        *///?}
     }
 
     public static void renderWithTooltip(Screen screen, GuiGraphics guiGraphics,
@@ -115,7 +119,7 @@ public class McGuiUtils {
 
     // ------- TEXTURES -------
 
-    public static void blit(GuiGraphics guiGraphics, ResourceLocation texture,
+    public static void blit(GuiGraphics guiGraphics, Identifier texture,
                             int x, int y, int width, int height,
                             float u, float v, int uWidth, int vHeight,
                             int textureWidth, int textureHeight) {
@@ -130,7 +134,7 @@ public class McGuiUtils {
         *///?}
     }
 
-    public static void blit(GuiGraphics guiGraphics, ResourceLocation texture,
+    public static void blit(GuiGraphics guiGraphics, Identifier texture,
                             int x, int y, float u, float v,
                             int width, int height, int textureWidth, int textureHeight) {
         //? if >=1.21.6 {
@@ -143,11 +147,11 @@ public class McGuiUtils {
     }
 
     public static void renderOutline(GuiGraphics guiGraphics, int x, int y, int width, int height, int color) {
-        //? if >=1.21.9 {
-        guiGraphics.submitOutline(x, y, width, height, color);
-        //?} else {
-        /*guiGraphics.renderOutline(x, y, width, height, color);
-        *///?}
+        //? if >=1.21.9 && <1.21.11 {
+        /*guiGraphics.submitOutline(x, y, width, height, color);
+        *///?} else {
+        guiGraphics.renderOutline(x, y, width, height, color);
+        //?}
     }
 
     public static void fillGuiOverlay(GuiGraphics guiGraphics, int x0, int y0, int x1, int y1, int color) {
@@ -172,9 +176,11 @@ public class McGuiUtils {
     public static void renderChat(ChatComponent chat,
                                   GuiGraphics guiGraphics,
                                   int tickCount, int mouseX, int mouseY) {
-        //? if >=1.20.5 {
-        chat.render(guiGraphics, tickCount, mouseX, mouseY, false);
-        //?} else {
+        //? if >=1.21.11 {
+        chat.render(guiGraphics, Minecraft.getInstance().font, tickCount, mouseX, mouseY, false, false);
+        //?} elif >=1.20.5 {
+        /*chat.render(guiGraphics, tickCount, mouseX, mouseY, false);
+        *///?} else {
         /*chat.render(guiGraphics, tickCount, mouseX, mouseY);
         *///?}
     }

@@ -20,7 +20,7 @@ import org.vmstudio.visor.core.client.input.actions.ActionRightMouse;
 import org.vmstudio.visor.core.client.input.actions.ActionScrollMouse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -121,7 +121,7 @@ public class OverlayOptionsButtonTemplate extends OverlayOptionGroup<OverlayOpti
         rawTexturePath = config.getStringOrDefault(
                 "texturePath",
                 defaultTexture.getNamespace()
-                        + ResourceLocation.NAMESPACE_SEPARATOR
+                        + Identifier.NAMESPACE_SEPARATOR
                         + defaultTexture.getPath()
         );
 

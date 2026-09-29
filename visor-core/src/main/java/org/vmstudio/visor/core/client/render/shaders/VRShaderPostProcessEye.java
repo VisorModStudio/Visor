@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.util.Mth;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;

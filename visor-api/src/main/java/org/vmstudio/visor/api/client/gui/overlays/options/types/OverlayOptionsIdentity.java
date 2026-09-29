@@ -11,7 +11,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

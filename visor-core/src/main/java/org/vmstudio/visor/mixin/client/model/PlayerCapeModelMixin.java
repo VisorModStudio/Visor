@@ -1,8 +1,8 @@
 // #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.model;
 
-import net.minecraft.client.model.PlayerCapeModel;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerCapeModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;

@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.common.player;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -38,12 +38,12 @@ public class OffhandSlot extends Slot {
     // 1.21.4 moved the empty-slot icons to the gui atlas: one sprite id instead of atlas + texture
     //? if >=1.21.4 {
     @Override
-    public ResourceLocation getNoItemIcon() {
+    public Identifier getNoItemIcon() {
         return InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD;
     }
     //?} else {
     /*@Override
-    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+    public Pair<Identifier, Identifier> getNoItemIcon() {
         return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
     }
     *///?}

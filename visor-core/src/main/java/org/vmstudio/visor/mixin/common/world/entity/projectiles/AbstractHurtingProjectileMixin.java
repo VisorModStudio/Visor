@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

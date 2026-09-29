@@ -12,7 +12,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.common.eventbus.VREventBus;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -2,12 +2,15 @@ package org.vmstudio.visor.api.compatibility.mcversion;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -97,6 +100,24 @@ public class McVersionClientUtils {
         return new GenericMessageScreen(message);
         //?} else {
         /*return new GenericDirtMessageScreen(message);
+        *///?}
+    }
+
+    // ------- CAMERA -------
+
+    public static Vec3 cameraPosition(Camera camera) {
+        //? if >=1.21.11 {
+        return camera.position();
+        //?} else {
+        /*return camera.getPosition();
+        *///?}
+    }
+
+    public static Entity cameraEntity(Camera camera) {
+        //? if >=1.21.11 {
+        return camera.entity();
+        //?} else {
+        /*return camera.getEntity();
         *///?}
     }
 

@@ -17,7 +17,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;

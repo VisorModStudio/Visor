@@ -20,7 +20,8 @@ public abstract class McScreen extends Screen {
 
     protected McScreen(Component title) {
         super(title);
-        //? if <1.21.9 {
+        // vanilla fills them only in init() before 1.21.11, which makes them final and fills them here
+        //? if <1.21.11 {
         /*this.minecraft = Minecraft.getInstance();
         this.font = minecraft.font;
         *///?}

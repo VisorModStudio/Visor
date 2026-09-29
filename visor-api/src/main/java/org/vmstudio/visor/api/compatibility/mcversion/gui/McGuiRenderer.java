@@ -20,12 +20,23 @@ public class McGuiRenderer {
     }
 
     public static GuiGraphics begin() {
+        return begin(-1, -1);
+    }
+
+    /**
+     * Same with the cursor position, which drives the text hover effects since 1.21.11
+     */
+    public static GuiGraphics begin(int mouseX, int mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
-        //? if >=1.21.6 {
+        //? if >=1.21.11 {
         GameRenderer gameRenderer = minecraft.gameRenderer;
         gameRenderer.guiRenderState.reset();
+        return new GuiGraphics(minecraft, gameRenderer.guiRenderState, mouseX, mouseY);
+        //?} elif >=1.21.6 {
+        /*GameRenderer gameRenderer = minecraft.gameRenderer;
+        gameRenderer.guiRenderState.reset();
         return new GuiGraphics(minecraft, gameRenderer.guiRenderState);
-        //?} else {
+        *///?} else {
         /*return new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
         *///?}
     }

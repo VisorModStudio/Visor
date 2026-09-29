@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.lwjgl.opengl.GL11C;
@@ -20,7 +20,7 @@ import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 public final class VREndFloor {
-    private static final ResourceLocation TEXTURE =
+    private static final Identifier TEXTURE =
             McVersionUtils.newResourceLoc("textures/block/obsidian.png");
 
     private static final float MARGIN = 1.0f;

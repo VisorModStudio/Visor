@@ -1,34 +1,11 @@
+// #!MC-VERSION:: 1.21.11+
 package org.vmstudio.visor.mixin.client.vanillafix.itemmodel;
 
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// [EMPTY SHELL since 1.21.11] DO NOT TOUCH
+// sprites are padded instead of UV-shrunk, uvShrinkRatio is gone
 @Mixin(TextureAtlasSprite.class)
 public abstract class TextureAtlasSpriteMixin {
-    @Shadow
-    protected abstract float atlasSize();
-
-    @Shadow
-    public abstract ResourceLocation atlasLocation();
-
-    @Inject(method = "uvShrinkRatio", at = @At("RETURN"), cancellable = true)
-    public void visor$fixOutlineTransparency(CallbackInfoReturnable<Float> cir) {
-        float expectedValue = 4.0F / this.atlasSize();
-
-        boolean blockAtlas = this.atlasLocation()
-                .equals(TextureAtlas.LOCATION_BLOCKS);
-
-        if (blockAtlas
-                && expectedValue == cir.getReturnValueF()) {
-            cir.setReturnValue(
-                    0f
-            );
-        }
-    }
 }

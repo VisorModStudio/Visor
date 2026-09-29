@@ -9,7 +9,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.TraceableEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
+import net.minecraft.world.entity.projectile.hurtingprojectile.windcharge.AbstractWindCharge;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.world.item.BowItem;

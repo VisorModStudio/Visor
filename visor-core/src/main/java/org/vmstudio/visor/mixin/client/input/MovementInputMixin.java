@@ -25,7 +25,8 @@ public class MovementInputMixin {
   //--------MOVEMENT--------\\
     \* ****************** */
     //? if >=1.21.5 {
-    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/ClientInput;moveVector:Lnet/minecraft/world/phys/Vec2;", opcode = Opcodes.PUTFIELD, ordinal = 0, shift = At.Shift.AFTER))
+    // javac writes the inherited field through KeyboardInput, and Mixin matches the owner exactly
+    @Inject(method = "tick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/KeyboardInput;moveVector:Lnet/minecraft/world/phys/Vec2;", opcode = Opcodes.PUTFIELD, ordinal = 0, shift = At.Shift.AFTER))
     public void visor$applyVrInput(CallbackInfo ci) {
         visor$applyVrInputState();
     }

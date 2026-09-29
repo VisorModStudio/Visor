@@ -13,14 +13,14 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +32,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class VRSettingsScreen extends McScreen {
 
     public static AtumColor INACTIVE_COLOR = AtumColor.immutable(91,91,91,255);
-    private static final ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
+    private static final Identifier RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;

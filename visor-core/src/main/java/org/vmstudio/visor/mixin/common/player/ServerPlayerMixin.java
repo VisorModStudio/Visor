@@ -20,6 +20,9 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
 import net.minecraft.core.particles.ItemParticleOption;
+//? if >=1.21.11 {
+import net.minecraft.core.particles.ParticleOptions;
+//?}
 import net.minecraft.core.particles.ParticleTypes;
 //? if <1.21.6 {
 /*import net.minecraft.nbt.CompoundTag;
@@ -36,7 +39,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -224,7 +227,37 @@ public abstract class ServerPlayerMixin
         cir.setReturnValue(false);
     }
 
+    //? if >=1.21.11 {
     @Override
+    protected int visor$sweepParticles(ServerLevel level, ParticleOptions particle,
+                                       double x, double y, double z, int count,
+                                       double xDist, double yDist, double zDist, double speed,
+                                       Operation<Integer> original) {
+        VRServerPlayer vrPlayer = visor$getVrPlayer();
+        if (vrPlayer == null) {
+            return original.call(level, particle, x, y, z, count, xDist, yDist, zDist, speed);
+        }
+        var handPose = vrPlayer.getPoseData().getHand(
+                visor$attackHand(vrPlayer)
+        );
+
+        var handDir = handPose.getDirection();
+        var handPos = handPose.getPosition();
+
+        float handAngle = (float) Mth.atan2(-handDir.x(), handDir.z());
+        double offsetX = -Mth.sin(handAngle);
+        double offsetZ = Mth.cos(handAngle);
+
+        return original.call(level, particle,
+                handPos.x() + offsetX,
+                handPos.y(),
+                handPos.z() + offsetZ,
+                0,
+                offsetX, 0.0D, offsetZ,
+                0.0D);
+    }
+    //?} else {
+    /*@Override
     protected void visor$wrapSweepAttack(Operation<Void> original) {
         VRServerPlayer vrPlayer = visor$getVrPlayer();
 
@@ -255,6 +288,7 @@ public abstract class ServerPlayerMixin
             original.call();
         }
     }
+    *///?}
 
 
 

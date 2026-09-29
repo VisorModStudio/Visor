@@ -30,6 +30,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 *///?}
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+//? if >=1.21.11 {
+import net.minecraft.core.particles.ParticleOptions;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -73,10 +76,26 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
 
 
-    @WrapMethod(method = "sweepAttack")
+    // 1.21.11 folded the particle-only sweepAttack() into doSweepAttack(), next to the sweep damage, so only the
+    // particle is wrapped there; NeoForge moves that body into an (..., AABB) overload behind a delegating stub
+    //? if >=1.21.11 {
+    @WrapOperation(method = {
+            "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V",
+            "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"
+    }, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/level/ServerLevel;sendParticles(Lnet/minecraft/core/particles/ParticleOptions;DDDIDDDD)I"))
+    protected int visor$sweepParticles(ServerLevel level, ParticleOptions particle,
+                                       double x, double y, double z, int count,
+                                       double xDist, double yDist, double zDist, double speed,
+                                       Operation<Integer> original) {
+        return original.call(level, particle, x, y, z, count, xDist, yDist, zDist, speed);
+    }
+    //?} else {
+    /*@WrapMethod(method = "sweepAttack")
     protected void visor$wrapSweepAttack(Operation<Void> original) {
         original.call();
     }
+    *///?}
     @Inject(method = "die", at = @At("TAIL"))
     protected void visor$afterDie(DamageSource damageSource, CallbackInfo ci){
 
@@ -244,7 +263,9 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     //?}
 
     // replace getMainHand with getItemInHand()
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+    // 1.21.11 moved the weapon-broke check into itemAttackInteraction, where the real main hand is what it needs
+    //? if <1.21.11 {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
@@ -256,10 +277,17 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         );
 
     }
+    *///?}
 
     //getItemInHand()
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+    // 1.21.11 moved the sword check into isSweepAttack, Forge also reads the sweep hitbox in doSweepAttack
+    //? if >=1.21.11 {
+    @WrapOperation(method = {"isSweepAttack(ZZZ)Z", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V"}, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
+    //?} else {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Player;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"))
+    *///?}
     private ItemStack visor$itemInHand(Player self, InteractionHand hand, Operation<ItemStack> original) {
         VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
         if (vrPlayer == null) {
@@ -272,12 +300,17 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
-    //ATTACK_DAMAGE attribute for offhand
-    //? if >=1.20.5 {
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+    //ATTACK_DAMAGE attribute for offhand, and the sweep ratio that 1.21.11 moved into doSweepAttack
+    // (both doSweepAttack shapes, see visor$sweepParticles)
+    //? if >=1.21.11 {
+    @WrapOperation(method = {"attack", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"}, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/core/Holder;)D"))
     private double visor$attackDamage(Player self, Holder<Attribute> attribute, Operation<Double> original) {
-    //?} else {
+    //?} elif >=1.20.5 {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/core/Holder;)D"))
+    private double visor$attackDamage(Player self, Holder<Attribute> attribute, Operation<Double> original) {
+    *///?} else {
     /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getAttributeValue(Lnet/minecraft/world/entity/ai/attributes/Attribute;)D"))
     private double visor$attackDamage(Player self, Attribute attribute, Operation<Double> original) {
@@ -305,10 +338,16 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         float base = visor$withOffhandAttributes(
                 () -> (float) self.getAttributeValue(Attributes.ATTACK_KNOCKBACK)
         );
-        return self.level() instanceof ServerLevel serverLevel
+        float knockback = self.level() instanceof ServerLevel serverLevel
                 ? EnchantmentHelper.modifyKnockback(serverLevel, self.getOffhandItem(),
                         target, damageSource, base)
                 : base;
+        // 1.21.11 halves inside getKnockback, attack no longer does
+        //? if >=1.21.11 {
+        return knockback / 2.0F;
+        //?} else {
+        /*return knockback;
+        *///?}
     }
     //?} else {
     /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
@@ -329,8 +368,15 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     *///?}
 
     // knockback for living entities targets
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+    // 1.21.11 moved it into causeExtraKnockback (attack and spear stab), the swept targets into doSweepAttack
+    // (both doSweepAttack shapes, see visor$sweepParticles)
+    //? if >=1.21.11 {
+    @WrapOperation(method = {"causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"}, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
+    //?} else {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
+    *///?}
     private void visor$vrKnockbackDirection(LivingEntity target, double strength, double x, double z,
                                             Operation<Void> original) {
         Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
@@ -342,8 +388,13 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     }
 
     // knockback for non-living entities targets
-    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+    //? if >=1.21.11 {
+    @WrapOperation(method = "causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
+    //?} else {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
+    *///?}
     private void visor$vrPushDirection(Entity target, double x, double y, double z,
                                        Operation<Void> original) {
         Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);

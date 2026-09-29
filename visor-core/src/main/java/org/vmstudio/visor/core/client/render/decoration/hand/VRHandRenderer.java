@@ -429,7 +429,7 @@ public class VRHandRenderer {
 
         poseStack.pushPose();
 
-        MC.gameRenderer.lightTexture().turnOnLightLayer();
+        McGlState.turnOnLightLayer();
         MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
 
         renderWorldArmWithItem(
@@ -447,7 +447,7 @@ public class VRHandRenderer {
         MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
         //?}
         bufferSource.endBatch();
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
+        McGlState.turnOffLightLayer();
 
         poseStack.popPose();
 

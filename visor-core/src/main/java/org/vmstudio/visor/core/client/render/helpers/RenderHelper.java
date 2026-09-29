@@ -214,7 +214,7 @@ public class RenderHelper {
 
         // --- Setup ---
         McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
-        MC.gameRenderer.lightTexture().turnOnLightLayer();
+        McGlState.turnOnLightLayer();
 
         // --- Render ---
         McVertexBuilder buf = McVertexBuilder.get();
@@ -231,7 +231,7 @@ public class RenderHelper {
         buf.draw();
 
         // --- Restore ---
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
+        McGlState.turnOffLightLayer();
     }
 
 

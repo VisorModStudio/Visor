@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.common.utils;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 

@@ -81,7 +81,12 @@ public class RenderPoseHelper {
     }
 
     private static boolean isConstantAmbient() {
-        return MC.level != null && MC.level.effects().constantAmbientLight();
+        //? if >=1.21.11 {
+        return MC.level != null && MC.level.dimensionType().cardinalLightType()
+                == net.minecraft.world.level.dimension.DimensionType.CardinalLightType.NETHER;
+        //?} else {
+        /*return MC.level != null && MC.level.effects().constantAmbientLight();
+        *///?}
     }
 
     public static Matrix4f getViewRotation(VRRenderPass renderPass) {

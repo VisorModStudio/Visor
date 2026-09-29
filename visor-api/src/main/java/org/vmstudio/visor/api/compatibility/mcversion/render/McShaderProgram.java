@@ -14,12 +14,16 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
+//? if >=1.21.11 {
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+//?} else {
+/*import net.minecraft.client.renderer.RenderStateShard;
+*///?}
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -63,7 +67,7 @@ public final class McShaderProgram {
     private final Map<String, float[]> floatUniforms = new HashMap<>();
     private final Map<String, int[]> intUniforms = new HashMap<>();
     private final Map<String, Matrix4f> matrixUniforms = new HashMap<>();
-    private final Map<String, GpuTextureView> samplers = new LinkedHashMap<>();
+    private final Map<String, McShaderTexture> samplers = new LinkedHashMap<>();
     private final Map<PipelineKey, RenderPipeline> pipelines = new HashMap<>();
     private GpuBufferSlice pendingBlock;
     private Matrix4f modelView;
@@ -139,11 +143,11 @@ public final class McShaderProgram {
     }
 
     public void setSampler(String name, RenderTarget target) {
-        samplers.put(name, target.getColorTextureView());
+        samplers.put(name, McShaderTexture.color(target));
     }
 
     public void setDepthSampler(String name, RenderTarget target) {
-        samplers.put(name, target.getDepthTextureView());
+        samplers.put(name, McShaderTexture.depth(target));
     }
 
     public void setModelViewMatrix(Matrix4f matrix) {
@@ -168,11 +172,56 @@ public final class McShaderProgram {
         }
     }
 
+    //? if >=1.21.11 {
     public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
-                                 ResourceLocation... textures) {
+                                 Identifier... textures) {
+        RenderSetup.RenderSetupBuilder setupBuilder = RenderSetup.builder(pipeline(mode)).bufferSize(bufferSize);
+        for (int i = 0; i < textures.length; i++) {
+            setupBuilder.withTexture("Sampler" + i, textures[i]);
+        }
+        RenderSetup setup = setupBuilder.createRenderSetup();
+        return new RenderType(name, setup) {
+            // the textures go to the units the Sampler<n> fallback of applyUniforms reads
+            @Override
+            public void draw(MeshData mesh) {
+                Map<String, RenderSetup.TextureAndSampler> bound = setup.getTextures();
+                McShaderTexture[] previous = new McShaderTexture[textures.length];
+                for (int i = 0; i < textures.length; i++) {
+                    RenderSetup.TextureAndSampler texture = bound.get("Sampler" + i);
+                    previous[i] = McShaderTexture.setUnit(i, texture == null ? null
+                            : new McShaderTexture(texture.textureView(), texture.sampler()));
+                }
+                try {
+                    McShaderProgram.this.draw(mesh, McRenderTarget.writeTarget(), false);
+                } finally {
+                    for (int i = 0; i < textures.length; i++) {
+                        McShaderTexture.setUnit(i, previous[i]);
+                    }
+                }
+            }
+
+            @Override
+            public VertexFormat format() {
+                return vertexFormat;
+            }
+
+            @Override
+            public VertexFormat.Mode mode() {
+                return mode;
+            }
+
+            @Override
+            public RenderPipeline pipeline() {
+                return McShaderProgram.this.pipeline(mode);
+            }
+        };
+    }
+    //?} elif >=1.21.9 {
+    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (ResourceLocation location : textures) {
+        for (Identifier location : textures) {
             texture.add(location, false);
         }
         RenderStateShard.MultiTextureStateShard textureState = texture.build();
@@ -195,14 +244,42 @@ public final class McShaderProgram {
                 return mode;
             }
 
-            //? if >=1.21.9 {
             @Override
             public RenderPipeline pipeline() {
                 return McShaderProgram.this.pipeline(mode);
             }
-            //?}
         };
     }
+    *///?} else {
+    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 Identifier... textures) {
+        RenderStateShard.MultiTextureStateShard.Builder texture =
+                RenderStateShard.MultiTextureStateShard.builder();
+        for (Identifier location : textures) {
+            texture.add(location, false);
+        }
+        RenderStateShard.MultiTextureStateShard textureState = texture.build();
+        return new RenderType(name, bufferSize, false, false,
+                textureState::setupRenderState, textureState::clearRenderState) {
+            @Override
+            public void draw(MeshData mesh) {
+                setupRenderState();
+                McShaderProgram.this.draw(mesh, McRenderTarget.writeTarget(), false);
+                clearRenderState();
+            }
+
+            @Override
+            public VertexFormat format() {
+                return vertexFormat;
+            }
+
+            @Override
+            public VertexFormat.Mode mode() {
+                return mode;
+            }
+        };
+    }
+    *///?}
 
     static McShaderProgram active() {
         return active;
@@ -241,12 +318,12 @@ public final class McShaderProgram {
 
     private void applyUniforms(RenderPass pass) {
         for (String sampler : samplerNames) {
-            GpuTextureView texture = samplers.get(sampler);
+            McShaderTexture texture = samplers.get(sampler);
             if (texture == null && sampler.startsWith("Sampler")) {
-                texture = RenderSystem.getShaderTexture(Integer.parseInt(sampler.substring("Sampler".length())));
+                texture = McShaderTexture.unit(Integer.parseInt(sampler.substring("Sampler".length())));
             }
             if (texture != null) {
-                pass.bindSampler(sampler, texture);
+                texture.bind(pass, sampler);
             }
         }
         if (pendingBlock != null) {
@@ -316,7 +393,7 @@ public final class McShaderProgram {
     }
 
     private static CompoundTag readJson(String name) throws Exception {
-        ResourceLocation location = McVersionUtils.newResourceLoc("minecraft", "shaders/core/" + name + ".json");
+        Identifier location = McVersionUtils.newResourceLoc("minecraft", "shaders/core/" + name + ".json");
         try (BufferedReader reader = Minecraft.getInstance().getResourceManager().getResourceOrThrow(location).openAsReader()) {
             // the json is a subset of SNBT, and gson is relocated in the mod jar
             return TagParser.parseCompoundFully(reader.lines().collect(Collectors.joining("\n")));
@@ -368,8 +445,8 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
@@ -468,10 +545,10 @@ public final class McShaderProgram {
     }
 
     public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
-                                 ResourceLocation... textures) {
+                                 Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (ResourceLocation location : textures) {
+        for (Identifier location : textures) {
             texture.add(location, false, false);
         }
         RenderStateShard.MultiTextureStateShard textureState = texture.build();
@@ -611,10 +688,10 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CompiledShaderProgram;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderDefines;
 import net.minecraft.client.renderer.ShaderProgram;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL14;
@@ -706,10 +783,10 @@ public final class McShaderProgram {
     }
 
     public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
-                                 ResourceLocation... textures) {
+                                 Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (ResourceLocation location : textures) {
+        for (Identifier location : textures) {
             texture.add(location, false, false);
         }
         return RenderType.create(name, vertexFormat, mode, bufferSize, false, false,
@@ -748,9 +825,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -833,10 +910,10 @@ public final class McShaderProgram {
     }
 
     public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
-                                 ResourceLocation... textures) {
+                                 Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (ResourceLocation location : textures) {
+        for (Identifier location : textures) {
             texture.add(location, false, false);
         }
         return RenderType.create(name, vertexFormat, mode, bufferSize, false, false,

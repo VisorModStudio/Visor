@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 //? if >=1.21.2 {
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

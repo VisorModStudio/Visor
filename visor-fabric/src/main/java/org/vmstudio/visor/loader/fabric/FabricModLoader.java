@@ -6,7 +6,7 @@ package org.vmstudio.visor.loader.fabric;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.render.RenderPipelineCallback;
@@ -267,7 +267,7 @@ public class FabricModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToClient(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToClient(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -280,7 +280,7 @@ public class FabricModLoader implements ModLoader {
     }
 
     @Override
-    public @NotNull Packet<?> createPacketToServer(@NotNull ResourceLocation channelId,
+    public @NotNull Packet<?> createPacketToServer(@NotNull Identifier channelId,
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
@@ -293,7 +293,7 @@ public class FabricModLoader implements ModLoader {
     }
 
     //? if >=1.20.5 {
-    private static CustomPacketPayload.Type<RawPayload> payloadType(ResourceLocation channelId) {
+    private static CustomPacketPayload.Type<RawPayload> payloadType(Identifier channelId) {
         return new CustomPacketPayload.Type<>(channelId);
     }
 

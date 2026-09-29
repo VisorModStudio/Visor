@@ -75,11 +75,16 @@ public enum ItemClassifier {
     }
 
     private static boolean isSword(ItemStack itemStack) {
-        //? if >=1.20.5 {
-        if (itemStack.is(ItemTags.SWORD_ENCHANTABLE)) {
+        // 1.21.11 renamed enchantable/sword (#swords) to enchantable/sweeping
+        //? if >=1.21.11 {
+        if (itemStack.is(ItemTags.SWEEPING_ENCHANTABLE)) {
             return true;
         }
-        //?}
+        //?} elif >=1.20.5 {
+        /*if (itemStack.is(ItemTags.SWORD_ENCHANTABLE)) {
+            return true;
+        }
+        *///?}
         //? if >=1.21.5 {
         return itemStack.is(ItemTags.SWORDS);
         //?} else {

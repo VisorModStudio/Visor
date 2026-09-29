@@ -32,6 +32,7 @@ jetbrains_annotations_version = "26.1.0"
 "1.21.5" = ["fabric", "forge", "neoforge"]
 "1.21.8" = ["fabric", "forge", "neoforge"]
 "1.21.10" = ["fabric", "forge", "neoforge"]
+"1.21.11" = ["fabric", "forge", "neoforge"]
 
 # ---- Version dependencies ---------------------------------------------------------------------
 ["1.20.1"]
@@ -174,6 +175,7 @@ java_version = 21
 fabric_loader_version = "0.17.3"
 fabric_loader_version_range = ">=0.17.0"
 pack_format = 69
+data_pack_format = 88
 minecraft_version_range_fabric = ">=1.21.9 <1.21.11"
 minecraft_version_range_forgelike = "[1.21.9,1.21.10]"
 parchment_version = "2025.10.12"
@@ -184,3 +186,22 @@ neoforge_version = "21.10.64"
 neoforge_version_range = "[21.9.0-beta,)"
 sodium_version = "mc1.21.10-0.7.3-fabric"
 iris_version = "1.9.7+1.21.10-fabric"
+
+["1.21.11"]
+# 1.21.11
+java_version = 21
+# fabric-api 0.141.6 and the modules Visor bundles require Fabric Loader 0.17.3+
+fabric_loader_version = "0.17.3"
+fabric_loader_version_range = ">=0.17.3"
+pack_format = 75
+data_pack_format = 94
+minecraft_version_range_fabric = ">=1.21.11 <1.21.12"
+minecraft_version_range_forgelike = "[1.21.11]"
+parchment_version = "2025.12.20"
+fabric_api_version = "0.141.6"
+forge_version = "61.2.1"
+forge_version_range = "[61,)"
+neoforge_version = "21.11.45"
+neoforge_version_range = "[21.11,)"
+sodium_version = "mc1.21.11-0.8.14-fabric"
+iris_version = "1.10.7+1.21.11-fabric"

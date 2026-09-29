@@ -33,7 +33,10 @@ public class MultiCameraRenderTarget extends RenderTarget {
         //? if <1.21.5 {
         /*this.frameBufferId = mainTarget.frameBufferId;
         *///?}
-        this.filterMode = mainTarget.filterMode;
+        // 1.21.11 samples through a per-draw GpuSampler, targets keep no filter
+        //? if <1.21.11 {
+        /*this.filterMode = mainTarget.filterMode;
+        *///?}
 
         this.width = mainTarget.width;
         this.height = mainTarget.height;
@@ -91,10 +94,12 @@ public class MultiCameraRenderTarget extends RenderTarget {
     *///?}
 
     //? if >=1.21.6 {
-    @Override
+    //? if <1.21.11 {
+    /*@Override
     public void setFilterMode(FilterMode filterMode) {
         getCurrentTarget().setFilterMode(filterMode);
     }
+    *///?}
 
     @Override
     public void blitToScreen() {

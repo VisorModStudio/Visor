@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.client.gui.helpers;
 
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;

@@ -12,6 +12,7 @@ import com.mojang.blaze3d.pipeline.TextureTarget;
 import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -83,7 +84,7 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;isDetached()Z")
     )
     private boolean visor$renderSpectatedVRSelfView(Camera camera, Operation<Boolean> original) {
-        if (VRRenderState.isSpectatedVRView(camera.getEntity())) {
+        if (VRRenderState.isSpectatedVRView(McVersionClientUtils.cameraEntity(camera))) {
             return true;
         }
         return original.call(camera);

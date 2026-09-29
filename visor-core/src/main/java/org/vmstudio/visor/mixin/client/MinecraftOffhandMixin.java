@@ -69,8 +69,9 @@ public abstract class MinecraftOffhandMixin {
     }
 
 
+    // continueAttack reads the hand since 1.21.11: a spear in the main hand stops mining
     @WrapOperation(
-            method = "startAttack",
+            method = {"startAttack", "continueAttack"},
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/player/LocalPlayer;getItemInHand(Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/item/ItemStack;"

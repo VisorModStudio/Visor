@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.compatibility.mcversion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityDimensions;
@@ -30,9 +30,9 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 /*import net.minecraft.world.item.Equipable;
 *///?}
 //? if >=1.21.2 {
-import net.minecraft.world.entity.vehicle.AbstractBoat;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 //?} else {
-/*import net.minecraft.world.entity.vehicle.Boat;
+/*import net.minecraft.world.entity.vehicle.boat.Boat;
 *///?}
 import net.minecraft.world.entity.Entity;
 
@@ -46,19 +46,19 @@ public class McVersionUtils {
 
     // ------- RESOURCES -------
 
-    public static ResourceLocation newResourceLoc(String namespace,
+    public static Identifier newResourceLoc(String namespace,
                                                   String path){
         //? if >=1.21 {
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        return Identifier.fromNamespaceAndPath(namespace, path);
         //?} else {
-        /*return new ResourceLocation(namespace, path);
+        /*return new Identifier(namespace, path);
         *///?}
     }
-    public static ResourceLocation newResourceLoc(String location){
+    public static Identifier newResourceLoc(String location){
         //? if >=1.21 {
-        return ResourceLocation.parse(location);
+        return Identifier.parse(location);
         //?} else {
-        /*return new ResourceLocation(location);
+        /*return new Identifier(location);
         *///?}
     }
 
@@ -88,7 +88,12 @@ public class McVersionUtils {
             case DRINK -> McUseAnim.DRINK;
             case BLOCK -> McUseAnim.BLOCK;
             case BOW -> McUseAnim.BOW;
-            case SPEAR -> McUseAnim.SPEAR;
+            // 1.21.11 renamed the trident's SPEAR to TRIDENT and gave SPEAR to the new spears
+            //? if >=1.21.11 {
+            case TRIDENT -> McUseAnim.SPEAR;
+            //?} else {
+            /*case SPEAR -> McUseAnim.SPEAR;
+            *///?}
             case CROSSBOW -> McUseAnim.CROSSBOW;
             case SPYGLASS -> McUseAnim.SPYGLASS;
             case TOOT_HORN -> McUseAnim.TOOT_HORN;
@@ -147,9 +152,11 @@ public class McVersionUtils {
 
     public static boolean canInteractWithEntity(Player player,
                                                 AABB boundingBox){
-        //? if >=1.20.5 {
-        return player.canInteractWithEntity(boundingBox, 1.0);
-        //?} else {
+        //? if >=1.21.11 {
+        return player.isWithinEntityInteractionRange(boundingBox, 1.0);
+        //?} elif >=1.20.5 {
+        /*return player.canInteractWithEntity(boundingBox, 1.0);
+        *///?} else {
         /*return boundingBox.distanceToSqr(player.getEyePosition())
                 < ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
         *///?}
@@ -157,9 +164,11 @@ public class McVersionUtils {
 
     public static boolean canInteractWithBlock(Player player,
                                                BlockPos blockPos){
-        //? if >=1.20.5 {
-        return player.canInteractWithBlock(blockPos, 1.0);
-        //?} else {
+        //? if >=1.21.11 {
+        return player.isWithinBlockInteractionRange(blockPos, 1.0);
+        //?} elif >=1.20.5 {
+        /*return player.canInteractWithBlock(blockPos, 1.0);
+        *///?} else {
         /*return blockPos.distToCenterSqr(player.getEyePosition())
                 < ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE;
         *///?}

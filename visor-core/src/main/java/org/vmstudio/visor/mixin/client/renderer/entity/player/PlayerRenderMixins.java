@@ -1,5 +1,6 @@
 package org.vmstudio.visor.mixin.client.renderer.entity.player;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Camera;
@@ -134,7 +135,7 @@ public class PlayerRenderMixins {
                 return this.camera.rotation();
             }
             Vec3 source = VRRenderState.getRenderPass().isThirdPerson()
-                    ? this.camera.getPosition()
+                    ? McVersionClientUtils.cameraPosition(this.camera)
                     : ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK).getHmd().getPositionVec3();
 
             Vec3 target = entity.position()

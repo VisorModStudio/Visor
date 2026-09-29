@@ -25,7 +25,7 @@ import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -40,7 +40,7 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 public class HandEffectCrosshair extends VRHandEffect {
     public static final String ID = "crosshair";
 
-    private static final ResourceLocation ICONS_LOC = McRenderUtils.crosshairTexture();
+    private static final Identifier ICONS_LOC = McRenderUtils.crosshairTexture();
     private static final float BASE_SCALE = 0.125f;
     private static final float UV_SIZE = McRenderUtils.crosshairUvSize();
     private static final float LIGHT_OFFSET = -0.01f;
@@ -106,7 +106,7 @@ public class HandEffectCrosshair extends VRHandEffect {
 
         McGlState.setShaderTexture(0, ICONS_LOC);
         McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
-        MC.gameRenderer.lightTexture().turnOnLightLayer();
+        McGlState.turnOnLightLayer();
 
         // --- Pose setup ---
         poseStack.pushPose();
@@ -149,7 +149,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         buf.draw();
 
         // --- Restore GL & pose ---
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
+        McGlState.turnOffLightLayer();
         McGlState.setShaderColor(1f, 1f, 1f, 1f);
         McGlState.defaultBlendFunc();
         McGlState.disableBlend();

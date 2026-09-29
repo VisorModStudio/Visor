@@ -3,9 +3,10 @@ package org.vmstudio.build
 import groovy.io.FileType
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.FileTree
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.TaskProvider
 
 import java.nio.file.Files
 import java.util.regex.Pattern
@@ -38,10 +39,19 @@ class McVersionLayout {
         m.group(1)
     }
 
-    List<FileTree> parkedSources(Project project, String version) {
-        parkedFiles().findAll { it.range?.contains(version) }
-                .groupBy { it.root }
-                .collect { root, files -> project.fileTree(root) { include(files*.rel) } }
+    // parked copies keep whatever form they were parked in, McVersionRenames brings them to the node's
+    TaskProvider<Sync> parkedSources(Project project, String version) {
+        def parked = parkedFiles().findAll { it.range?.contains(version) }
+        project.tasks.register("mcversionParkedSources", Sync) { Sync task ->
+            task.description = "Copies the parked range files covering ${version}, renamed for it"
+            parked.groupBy { it.root }.each { root, files ->
+                task.from(root) { include(files*.rel) }
+            }
+            task.into(project.layout.buildDirectory.dir("mcversion/java"))
+            task.inputs.property("renames", McVersionRenames.signature(version))
+            task.filteringCharset = "UTF-8"
+            task.filter { String line -> McVersionRenames.apply(line, version) }
+        }
     }
 
     List<String> excludes(String version) {
@@ -49,11 +59,11 @@ class McVersionLayout {
     }
 
 
+    // by header, not by location: the parked copy that covers the version shares the rel path
     Spec<FileTreeElement> excludeSpec(String version) {
         Set<String> excluded = excludes(version) as Set
-        String lot = parkingLot.absolutePath + File.separator
         return { FileTreeElement e ->
-            !e.directory && excluded.contains(e.relativePath.pathString) && !e.file.absolutePath.startsWith(lot)
+            !e.directory && excluded.contains(e.relativePath.pathString) && !McVersionRange.fromHeader(e.file)?.contains(version)
         } as Spec<FileTreeElement>
     }
 
@@ -70,6 +80,9 @@ class McVersionLayout {
             }
             if (hasMarkers(new File(src, rel))) {
                 problems << "${where}: range files are never preprocessed, no Stonecutter markers"
+            }
+            if (!renamedFor(new File(src, rel), active)) {
+                problems << "${where}: not renamed for ${active} (McVersionRenames) - run the switch"
             }
             copies.computeIfAbsent(rel) { [] } << [where, range]
         }
@@ -132,12 +145,19 @@ class McVersionLayout {
                 throw new GradleException("two range files would land on ${rel(branch, to)}")
             }
         }
-        (leaving + entering).collect { File from, File to ->
+        def moved = (leaving + entering).collect { File from, File to ->
             to.parentFile.mkdirs()
             Files.move(from.toPath(), to.toPath())
             pruneEmpty(from.parentFile)
             "${rel(branch, from)} -> ${rel(branch, to)}".toString()
         }
+        // Stonecutter renamed src before these arrived
+        entering.each { File from, File to ->
+            if (rename(to, version)) {
+                moved << "${rel(branch, to)}: renamed for ${version}".toString()
+            }
+        }
+        moved
     }
 
     List<String> nodesIn(McVersionRange range) {
@@ -184,6 +204,21 @@ class McVersionLayout {
             }
         }
         found
+    }
+
+    private static boolean renamedFor(File f, String version) {
+        def text = f.getText("UTF-8")
+        McVersionRenames.apply(text, version) == text
+    }
+
+    private static boolean rename(File f, String version) {
+        def text = f.getText("UTF-8")
+        def renamed = McVersionRenames.apply(text, version)
+        if (renamed == text) {
+            return false
+        }
+        f.setText(renamed, "UTF-8")
+        true
     }
 
     private static boolean hasMarkers(File f) {

@@ -91,13 +91,9 @@ public class McShaders {
     }
 
     private static void bindSampler(RenderPass pass, int unit, boolean used) {
-        //? if >=1.21.6 {
-        GpuTextureView texture = RenderSystem.getShaderTexture(unit);
-        //?} else {
-        /*GpuTexture texture = RenderSystem.getShaderTexture(unit);
-        *///?}
+        McShaderTexture texture = McShaderTexture.unit(unit);
         if (used && texture != null) {
-            pass.bindSampler("Sampler" + unit, texture);
+            texture.bind(pass, "Sampler" + unit);
         }
     }
 

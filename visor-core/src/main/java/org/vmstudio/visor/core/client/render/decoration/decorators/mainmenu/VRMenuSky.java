@@ -9,10 +9,10 @@ import com.mojang.blaze3d.vertex.*;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11C;
@@ -66,11 +66,11 @@ public final class VRMenuSky {
     private static final long SKY_UPDATE_FREQUENCY = 200L;
 
     // ---- CELESTIAL BODIES ----
-    private static final ResourceLocation SUN_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/sun.png");
+    private static final Identifier SUN_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/sun.png");
     private static final float SUN_DISTANCE = 92.0f;
     private static final float SUN_SIZE = 13.0f;
 
-    private static final ResourceLocation MOON_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/moon_phases.png");
+    private static final Identifier MOON_TEXTURE = McVersionUtils.newResourceLoc("textures/environment/moon_phases.png");
     private static final float MOON_DISTANCE = 90.0f;
     private static final float MOON_SIZE = 10.0f;
 
@@ -160,7 +160,7 @@ public final class VRMenuSky {
 
     private static final DotsSign VISOR_SIGN;
 
-    private static ResourceLocation GLOW_SPRITE = null;
+    private static Identifier GLOW_SPRITE = null;
 
     // ---- CLOUDS ----
     private static final float CLOUD_Y = -14.0f;
@@ -626,12 +626,15 @@ public final class VRMenuSky {
                 )
         );
         float size = SUN_SIZE * (1f + 0.45f * currentTwilight);
+        McRenderUtils.CelestialSprite sun = McRenderUtils.sunSprite();
+        if (sun == null) {
+            return;
+        }
         renderCelestial(
                 builder, pose,
                 currentSunDir, visible,
-                SUN_TEXTURE, SUN_DISTANCE, size,
-                sunTint,
-                0f, 0f, 1f, 1f
+                sun, SUN_DISTANCE, size,
+                sunTint
         );
     }
 
@@ -641,28 +644,31 @@ public final class VRMenuSky {
         if (visible <= 0f) {
             return;
         }
-        int phase = currentMoonPhase();
-        float u0 = (phase % 4) / 4f;
-        float v0 = ((int)(phase / 4f)) / 2f;
+        McRenderUtils.CelestialSprite moon = McRenderUtils.moonSprite(currentMoonPhase());
+        if (moon == null) {
+            return;
+        }
         renderCelestial(
                 builder, pose,
                 currentMoonDir, visible,
-                MOON_TEXTURE, MOON_DISTANCE, MOON_SIZE,
-                moonTint,
-                u0, v0, u0 + 0.25f, v0 + 0.5f
+                moon, MOON_DISTANCE, MOON_SIZE,
+                moonTint
         );
     }
 
     private static void renderCelestial(McVertexBuilder builder, Matrix4f pose,
                                         Vector3f dir, float visible,
-                                        ResourceLocation texture, float distance, float size,
-                                        AtumColor color,
-                                        float u0, float v0, float u1, float v1) {
+                                        McRenderUtils.CelestialSprite sprite, float distance, float size,
+                                        AtumColor color) {
         scratchCenter.set(dir).mul(distance);
         billboardBasis(dir, scratchRight, scratchUp);
+        float u0 = sprite.u0();
+        float v0 = sprite.v0();
+        float u1 = sprite.u1();
+        float v1 = sprite.v1();
 
         McShaders.use(McShaders.Core.POSITION_TEX);
-        McGlState.setShaderTexture(0, texture);
+        McGlState.setShaderTexture(0, sprite.texture());
         McGlState.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), visible);
         McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
@@ -1168,7 +1174,7 @@ public final class VRMenuSky {
         McGlState.defaultBlendFunc();
         McGlState.setShaderColor(1, 1, 1, 1);
     }
-    static ResourceLocation glowSprite() {
+    static Identifier glowSprite() {
         ensureGlowSprite();
         return GLOW_SPRITE;
     }

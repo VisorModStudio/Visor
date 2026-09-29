@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.vertex.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -17,14 +17,14 @@ public class VRMenuPanorama {
     private static final float SIZE = 100.0f;
     private static final float HALF = SIZE * 0.5f;
 
-    private static final ResourceLocation cubeFront = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaFront());
-    private static final ResourceLocation cubeBack = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBack());
-    private static final ResourceLocation cubeRight = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaRight());
-    private static final ResourceLocation cubeLeft = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaLeft());
-    private static final ResourceLocation cubeUp = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaUp());
-    private static final ResourceLocation cubeBelow = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBelow());
+    private static final Identifier cubeFront = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaFront());
+    private static final Identifier cubeBack = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBack());
+    private static final Identifier cubeRight = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaRight());
+    private static final Identifier cubeLeft = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaLeft());
+    private static final Identifier cubeUp = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaUp());
+    private static final Identifier cubeBelow = McVersionUtils.newResourceLoc(VRClientSettings.getPanoramaBelow());
 
-    private record Face(ResourceLocation texture, Vector3fc origin, Vector3fc across, Vector3fc down) {
+    private record Face(Identifier texture, Vector3fc origin, Vector3fc across, Vector3fc down) {
     }
 
     private static final Vector3fc TEXTURE_DOWN = new Vector3f(0.0f, -1.0f, 0.0f);

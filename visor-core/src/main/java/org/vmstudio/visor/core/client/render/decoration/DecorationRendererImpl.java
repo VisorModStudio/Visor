@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
@@ -277,7 +278,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
 
         currentDecorator.setupRendering(poseStack, partialTicks);
 
-        MC.gameRenderer.lightTexture().turnOffLightLayer();
+        McGlState.turnOffLightLayer();
         if (!ShaderCompatHelper.isShaderActive()) {
             ClientContext.guiManager.renderDepthOverlays(poseStack, partialTicks);
         }

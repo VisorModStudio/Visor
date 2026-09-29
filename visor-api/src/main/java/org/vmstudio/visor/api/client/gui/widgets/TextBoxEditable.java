@@ -8,7 +8,7 @@ import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

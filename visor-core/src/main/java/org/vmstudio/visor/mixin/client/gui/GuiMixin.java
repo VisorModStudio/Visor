@@ -11,7 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -171,7 +171,7 @@ public abstract class GuiMixin implements GuiExtension {
     }
 
     @Inject(method = "renderTextureOverlay", at = @At("HEAD"), cancellable = true)
-    public void visor$noTextureOverlay(GuiGraphics guiGraphics, ResourceLocation resourceLocation, float f, CallbackInfo ci) {
+    public void visor$noTextureOverlay(GuiGraphics guiGraphics, Identifier resourceLocation, float f, CallbackInfo ci) {
         if(VisorState.get().isNotActive()) return;
         ci.cancel();
     }

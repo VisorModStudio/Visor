@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.*;
@@ -62,7 +63,7 @@ public class VRPauseMenuScreen extends McScreen {
     protected void init() {
         TaskHotBar.setResetData(true);
         measureHeightButton = null;
-        boolean hasPerms = this.minecraft.player != null && this.minecraft.player.hasPermissions(2);
+        boolean hasPerms = this.minecraft.player != null && McEntity.hasPermissions(this.minecraft.player, 2);
 
         if (this.currentTab == Tab.COMMANDS && !hasPerms) {
             this.currentTab = Tab.MAIN;

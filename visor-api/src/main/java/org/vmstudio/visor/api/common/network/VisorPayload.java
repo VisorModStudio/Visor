@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.common.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.charset.StandardCharsets;
 

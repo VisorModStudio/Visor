@@ -401,12 +401,19 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         float uMax = (float) McRenderTarget.viewWidth(target) / (float) target.width;
         float vMax = (float) McRenderTarget.viewHeight(target) / (float) target.height;
 
-        //? if >=1.21.6 {
-        // the GUI is deferred, so the preview joins the element list instead of drawing between flushes
+        // the GUI is deferred since 1.21.6, so the preview joins the element list instead of drawing between flushes
+        //? if >=1.21.11 {
+        // 1.21.11 moved the filter of the target onto a per-draw sampler
         gui.submitBlit(RenderPipelines.GUI_TEXTURED, target.getColorTextureView(),
+                com.mojang.blaze3d.systems.RenderSystem.getSamplerCache().getClampToEdge(McRenderTarget.isLinearFilter(target)
+                        ? com.mojang.blaze3d.textures.FilterMode.LINEAR : com.mojang.blaze3d.textures.FilterMode.NEAREST),
                 previewX, previewY, previewX + previewW, previewY + previewH,
                 0.0f, uMax, vMax, 0.0f, 0xFFFFFFFF);
-        //?} else {
+        //?} elif >=1.21.6 {
+        /*gui.submitBlit(RenderPipelines.GUI_TEXTURED, target.getColorTextureView(),
+                previewX, previewY, previewX + previewW, previewY + previewH,
+                0.0f, uMax, vMax, 0.0f, 0xFFFFFFFF);
+        *///?} else {
         /*gui.flush();
 
         McGlState.setShaderTexture(0, target);

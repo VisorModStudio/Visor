@@ -6,9 +6,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 //? if >=1.21.9 {
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
@@ -207,22 +207,22 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
 
     //? if >=1.21.9 {
     @Override
-    public void renderRightHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+    public void renderRightHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, Identifier skin, boolean sleeveVisible) {
         renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.RIGHT);
     }
 
     @Override
-    public void renderLeftHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+    public void renderLeftHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, Identifier skin, boolean sleeveVisible) {
         renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.LEFT);
     }
     //?} elif >=1.21.2 {
     /*@Override
-    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, Identifier skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, ControllerType.RIGHT);
     }
 
     @Override
-    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
+    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, Identifier skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, ControllerType.LEFT);
     }
     *///?} else {
@@ -241,7 +241,7 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
 
     private void renderVRHand(
             PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
-            ResourceLocation skin, ControllerType side) {
+            Identifier skin, ControllerType side) {
         boolean left = side == ControllerType.LEFT;
         ModelPart arm = left ? this.model.leftArm : this.model.rightArm;
         ModelPart sleeve = left ? this.model.leftSleeve : this.model.rightSleeve;
@@ -264,7 +264,7 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
         arm.zScale = 1F;
         arm.visible = true;
 
-        var consumer = buffer.getBuffer(RenderType.entityTranslucent(skin));
+        var consumer = buffer.getBuffer(McRenderUtils.entityTranslucent(skin));
         //? if >=1.21.2 {
         // the sleeve is a child of the arm since 1.21.2
         sleeve.resetPose();

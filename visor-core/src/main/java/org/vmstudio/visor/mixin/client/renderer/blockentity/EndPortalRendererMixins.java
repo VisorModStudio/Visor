@@ -2,7 +2,7 @@ package org.vmstudio.visor.mixin.client.renderer.blockentity;
 
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRShaders;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.blockentity.AbstractEndPortalRenderer;
 //?} else {

@@ -25,14 +25,14 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.api.client.gui.settings.VRPresetSettingsType;
 import org.vmstudio.visor.core.client.settings.presets.types.VRSettingsPresetCustom;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,7 +76,7 @@ public class VRSettingsPresets extends VROptionsSet {
     );
 
 
-    private static final ResourceLocation RESOURCE = McVersionUtils.newResourceLoc(
+    private static final Identifier RESOURCE = McVersionUtils.newResourceLoc(
             "visor:textures/gui/settings/general.png"
     );
     private static final int RESOURCE_WIDTH = 274;
