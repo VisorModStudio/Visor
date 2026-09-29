@@ -156,7 +156,7 @@ public class RenderEffectsHelper {
     }
 
     private static void beginMaskWrite() {
-        //? if >=1.21.5 {
+        //? if >=1.21.2 {
         McRenderTarget.bindWrite(McRenderTarget.mainTarget());
         McGlState.colorMask(true, true, true, true);
         McGlState.depthMask(true);
@@ -183,7 +183,7 @@ public class RenderEffectsHelper {
     }
 
     private static void endMaskWrite() {
-        //? if >=1.21.5 {
+        //? if >=1.21.2 {
         RenderStateHelper.restoreAfterExternalRender();
         //?} else {
         /*McGlState.stencilMask(0);

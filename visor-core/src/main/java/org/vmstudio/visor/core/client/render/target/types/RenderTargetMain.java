@@ -5,7 +5,6 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.utils.GLUtils;
 import org.vmstudio.visor.core.client.VisorClientImpl;
 import org.vmstudio.visor.extensions.client.WindowExtension;
-import org.vmstudio.visor.extensions.client.render.RenderTargetExtension;
 import org.vmstudio.visor.core.client.render.target.RenderTargetHolder;
 import org.vmstudio.visor.core.client.render.target.VRRenderTarget;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
@@ -50,9 +49,11 @@ public class RenderTargetMain implements RenderTargetHolder {
 
     @Override
     public void resize(int width, int height) throws Exception {
-        ((RenderTargetExtension) target).visor$setUseStencil(
+        //? if <1.21.2 {
+        /*((org.vmstudio.visor.extensions.client.render.RenderTargetExtension) target).visor$setUseStencil(
                 true
         );
+        *///?}
         McRenderTarget.resize(target, width, height);
         var mcWindow = (WindowExtension) (Object) MC.getWindow();
         McRenderTarget.resize(
