@@ -30,7 +30,8 @@
     "visor.dynamicfps.mixins.json",
     "visor.iris.mixins.json",
     "visor.nvidium.mixins.json",
-    "visor.blur.mixins.json"
+    "visor.blur.mixins.json",
+    "visor.reacharound.mixins.json"
   ],
   "depends": {
     "fabricloader": "${fabric_loader_version_range}",

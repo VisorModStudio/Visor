@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "org.vmstudio.visor.compatibility.reacharound.mixin",
+  "plugin": "org.vmstudio.visor.MixinConfig",
+  "compatibilityLevel": "JAVA_${mixin_compat_level}",
+  "refmap": "${mod_id}.refmap.json",
+  "client": [
+    "RayTraceHandlerMixin"
+  ],
+  "server": [
+  ],
+  "minVersion": "0.8.4",
+  "mixins": [
+  ]
+}
