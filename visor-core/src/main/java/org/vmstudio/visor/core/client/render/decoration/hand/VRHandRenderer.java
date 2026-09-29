@@ -443,6 +443,9 @@ public class VRHandRenderer {
                 MC.getEntityRenderDispatcher().getPackedLightCoords(MC.player, partialTicks),
                 partialTicks
         );
+        //? if >=1.21.9 {
+        MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
+        //?}
         bufferSource.endBatch();
         MC.gameRenderer.lightTexture().turnOffLightLayer();
 

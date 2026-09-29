@@ -32,6 +32,7 @@
     "client.input.KeybindingsMixin",
     "client.input.MouseHandlerMixin",
     "client.input.MovementInputMixin",
+    "client.model.PlayerCapeModelMixin",
     "client.multiplayer.ClientPacketListenerMixin",
     "client.multiplayer.MultiPlayerGameModeMixin",
     "client.player.LocalPlayerMixin",

@@ -23,7 +23,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 //? if >=1.21.9 {
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.ArmorModelSet;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.state.CameraRenderState;
 //?} else {
@@ -59,6 +63,14 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
                         : VR_LAYER_DEFAULT.bakeRoot(),
                 slim
         );
+        //? if >=1.21.9 {
+        ArmorModelSet<PlayerModel> armorModels = ArmorModelSet.bake(
+                slim ? ModelLayers.PLAYER_SLIM_ARMOR : ModelLayers.PLAYER_ARMOR,
+                context.getModelSet(), part -> new VRPlayerModelFull(part, slim));
+        this.layers.replaceAll(layer -> layer instanceof HumanoidArmorLayer<?, ?, ?>
+                ? new HumanoidArmorLayer<>(this, armorModels, context.getEquipmentRenderer())
+                : layer);
+        //?}
     }
 
     //? if >=1.21.9 {

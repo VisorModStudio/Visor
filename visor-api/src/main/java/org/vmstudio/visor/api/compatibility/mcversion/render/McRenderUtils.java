@@ -34,7 +34,7 @@ public class McRenderUtils {
 
     public static ResourceLocation getSkinTexture(AbstractClientPlayer player) {
         //? if >=1.21.9 {
-        return player.getSkin().body().id();
+        return player.getSkin().body().texturePath();
         //?} elif >=1.20.2 {
         /*return player.getSkin().texture();
         *///?} else {
@@ -174,9 +174,11 @@ public class McRenderUtils {
 
     public static void renderItemActivationAnimation(GameRenderer renderer, float partialTicks) {
         //? if >=1.21.9 {
-        // 1.21.9 defers it: the node is drawn by the frame's FeatureRenderDispatcher
+        // 1.21.9 only queues it: draw it now, under the caller's matrices and the ITEMS_3D lights it just set
         renderer.screenEffectRenderer.renderItemActivationAnimation(
                 new PoseStack(), partialTicks, renderer.getSubmitNodeStorage());
+        renderer.getFeatureRenderDispatcher().renderAllFeatures();
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
         //?} elif >=1.21.6 {
         /*// 1.21.6 moved the animation onto ScreenEffectRenderer
         renderer.screenEffectRenderer.renderItemActivationAnimation(new PoseStack(), partialTicks);

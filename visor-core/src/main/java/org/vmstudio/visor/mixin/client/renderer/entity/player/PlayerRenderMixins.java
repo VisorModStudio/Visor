@@ -8,6 +8,8 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.*;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
 //?} else {
 /*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 *///?}
@@ -58,15 +60,22 @@ public class PlayerRenderMixins {
         *///?}
 
         @Inject(method = "getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
+        private void visor$swapInVRBodyRenderer(Entity entity, CallbackInfoReturnable<Object> cir) {
+            visor$useVRBodyRenderer(entity, cir);
+        }
+
         //? if >=1.21.9 {
-        private void visor$swapInVRBodyRenderer(
-                Entity entity, CallbackInfoReturnable<Object> cir)
-        {
-        //?} else {
-        /*private void visor$swapInVRBodyRenderer(
-                Entity entity, CallbackInfoReturnable<Object> cir)
-        {
-        *///?}
+
+        @Inject(method = "getRenderer(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
+        private void visor$swapInVRBodyRendererForState(EntityRenderState state, CallbackInfoReturnable<Object> cir) {
+            if (state instanceof VRPlayerRenderState vrState) {
+                visor$useVRBodyRenderer(vrState.player, cir);
+            }
+        }
+        //?}
+
+        @Unique
+        private static void visor$useVRBodyRenderer(Entity entity, CallbackInfoReturnable<Object> cir) {
             if(ClientContext.visor == null) {
                 return;
             }

@@ -24,7 +24,6 @@ import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.player.BackLayerPlacement;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.vmstudio.visor.api.client.player.VRClientPlayer;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
@@ -90,15 +89,6 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
         poseStack.mulPose(Axis.ZP.rotationDegrees(state.capeLean2 / 2.0F));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.capeLean2 / 2.0F + Mth.RAD_TO_DEG * visor$placement.yaw()));
 
-        capeModel.body.resetPose();
-        ModelPart cape = capeModel.body.getChild("cape");
-        cape.setRotation(0F, 0F, 0F);
-
-        if (armor) {
-            cape.setPos(0F, state.isCrouching ? 0.8F : -0.85F, state.isCrouching ? 0.3F : -1.1F);
-        } else {
-            cape.setPos(0F, state.isCrouching ? 1.85F : 0F, state.isCrouching ? 1.4F : 0F);
-        }
         original.call(collector, model, renderState, poseStack, renderType,
                 packedLight, packedOverlay, tint, crumbling);
     }

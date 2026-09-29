@@ -107,6 +107,9 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             stage.run();
             return;
         }
+        //? if >=1.21.9 {
+        MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
+        //?}
         MC.renderBuffers().bufferSource().endBatch();
         McModelViewStack.push();
         McModelViewStack.identity();
