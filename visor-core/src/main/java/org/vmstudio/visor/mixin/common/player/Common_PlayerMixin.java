@@ -263,8 +263,9 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     //?}
 
     // replace getMainHand with getItemInHand()
-    // 1.21.11 moved the weapon-broke check into itemAttackInteraction, where the real main hand is what it needs
-    //? if <1.21.11 {
+    // 1.21+ takes the weapon from getWeaponItem (above) and reads the main hand only to pick the hand it empties when
+    // the weapon breaks, so a wrap there emptied the main hand after an offhand weapon broke
+    //? if <1.21 {
     /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/player/Player;getMainHandItem()Lnet/minecraft/world/item/ItemStack;"))
     private ItemStack visor$mainHandItem(Player self, Operation<ItemStack> original) {
@@ -276,6 +277,14 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
                 visor$attackHand(vrPlayer).asInteractionHand()
         );
 
+    }
+
+    // the weapon above is the attack hand's item, empty that hand when it breaks
+    @WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/player/Player;setItemInHand(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;)V"))
+    private void visor$brokenWeaponHand(Player self, InteractionHand hand, ItemStack stack, Operation<Void> original) {
+        VRPlayer vrPlayer = VisorAPI.getVRPlayer(self);
+        original.call(self, vrPlayer == null ? hand : visor$attackHand(vrPlayer).asInteractionHand(), stack);
     }
     *///?}
 

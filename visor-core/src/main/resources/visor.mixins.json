@@ -36,6 +36,7 @@
     "client.multiplayer.MultiPlayerGameModeMixin",
     "client.player.LocalPlayerMixin",
     "client.player.PlayerMixin",
+    "client.renderer.CloudRendererMixin",
     "client.renderer.GameRendererCameraMixin",
     "client.renderer.GameRendererGuiPhaseMixin",
     "client.renderer.GameRendererProjectionMixin",

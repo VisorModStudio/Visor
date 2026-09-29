@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 public class VRRenderTarget extends RenderTarget {
 
     private final String name;
+    private final boolean linearFilter;
 
 
     @Getter
@@ -34,10 +35,10 @@ public class VRRenderTarget extends RenderTarget {
 
         this.textureSupplier = textureSupplier;
         this.name = name;
+        this.linearFilter = linearFilter;
 
         //? if >=1.21.5 {
         McRenderTarget.resize(this, width, height);
-        McRenderTarget.setFilterMode(this, linearFilter);
         //?} else {
         /*((RenderTargetExtension) this).visor$setTextureId(textureSupplier.get());
         ((RenderTargetExtension) this).visor$setLinearFilter(linearFilter);
@@ -65,6 +66,7 @@ public class VRRenderTarget extends RenderTarget {
             this.colorTexture = McRenderTarget.adoptForeignTexture(name, width, height, adopted);
             this.colorTextureView = McRenderTarget.createTextureView(this.colorTexture);
         }
+        McRenderTarget.setFilterMode(this, linearFilter);
     }
     //?} elif >=1.21.5 {
     /*@Override
@@ -75,6 +77,7 @@ public class VRRenderTarget extends RenderTarget {
             this.colorTexture.close();
             this.colorTexture = McRenderTarget.adoptForeignTexture(name, width, height, adopted);
         }
+        McRenderTarget.setFilterMode(this, linearFilter);
     }
     *///?}
 
