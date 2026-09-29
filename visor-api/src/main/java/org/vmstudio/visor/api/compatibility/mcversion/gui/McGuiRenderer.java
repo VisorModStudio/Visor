@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 //? if >=1.21.6 {
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 //?}
 
 /**
@@ -44,7 +45,13 @@ public class McGuiRenderer {
     public static void end(GuiGraphics guiGraphics) {
         //? if >=1.21.6 {
         GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
-        gameRenderer.guiRenderer.render(gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+        McModelViewStack.push();
+        McModelViewStack.identity();
+        try {
+            gameRenderer.guiRenderer.render(gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+        } finally {
+            McModelViewStack.pop();
+        }
         gameRenderer.guiRenderer.incrementFrameNumber();
         //?} else {
         /*guiGraphics.flush();

@@ -22,7 +22,6 @@ import org.vmstudio.visor.core.client.VisorState;
 @Mixin(targets = "com.spanser.reacharound.client.handler.RayTraceHandler", remap = false)
 @MixinGate(classes = "com.spanser.reacharound.client.handler.RayTraceHandler")
 @Pseudo
-
 public class RayTraceHandlerMixin {
 
     @Inject(method = "getEntityParams", at = @At("HEAD"), cancellable = true)
