@@ -39,7 +39,7 @@ class McVersionLayout {
         m.group(1)
     }
 
-    // parked copies keep whatever form they were parked in, McVersionRenames brings them to the node's
+    // parked copies are in the form of their range's first version, McVersionRenames brings them to the node's
     TaskProvider<Sync> parkedSources(Project project, String version) {
         def parked = parkedFiles().findAll { it.range?.contains(version) }
         project.tasks.register("mcversionParkedSources", Sync) { Sync task ->
@@ -103,6 +103,9 @@ class McVersionLayout {
             if (p.folder != p.range.from) {
                 problems << "${where}: declares ${p.range}, belongs in mcversion/${p.range.from}"
             }
+            if (!renamedFor(p.file, p.range.from)) {
+                problems << "${where}: not renamed for ${p.range.from} (McVersionRenames) - run the switch"
+            }
             if (p.range.contains(active)) {
                 problems << "${where}: parked although ${p.range} covers the active version ${active} - run the switch"
             }
@@ -155,6 +158,12 @@ class McVersionLayout {
         entering.each { File from, File to ->
             if (rename(to, version)) {
                 moved << "${rel(branch, to)}: renamed for ${version}".toString()
+            }
+        }
+        // ...and before those left: parked copies keep the form of their range's first version, so round trips stay clean
+        parkedFiles().each { p ->
+            if (rename(p.file, p.range.from)) {
+                moved << "${rel(branch, p.file)}: renamed for ${p.range.from}".toString()
             }
         }
         moved

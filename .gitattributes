@@ -1,0 +1,3 @@
+# Stonecutter 0.9.8 drops the CR from the first line of every block it comments out with '#',
+# so a CRLF access widener turns mixed after a version switch aand this is a workaround
+*.accesswidener text eol=lf
