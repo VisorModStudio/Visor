@@ -61,43 +61,42 @@ public class GuiHelper {
         }
 
         float scaledTextWidth = font.width(text) * scale;
-
-        McGuiUtils.pushPose(guiGraphics);
-        McGuiUtils.translate(guiGraphics, posX, posY);
-        McGuiUtils.scale(guiGraphics, scale, scale);
-        McGuiUtils.translate(guiGraphics, -posX, -posY);
-
         float areaW = width / scale;
         float areaH = height / scale;
         int textWidth = font.width(text);
 
+        int x = posX;
         int y = center
                 ? posY + Math.round((areaH - font.lineHeight) / 2f)
                 : posY;
 
-        if (scaledTextWidth <= width) {
-            int x = center
-                    ? posX + Math.round((areaW - textWidth) / 2f)
-                    : posX;
+        // 1.21.4+ transforms the scissor by the pose, so it must be pushed outside the text scale
+        guiGraphics.enableScissor(posX, posY, posX + width, posY + height);
+        McGuiUtils.pushPose(guiGraphics);
 
-            guiGraphics.enableScissor(posX, posY, posX + width, posY + height);
-            guiGraphics.drawString(font, text, x, y, color, false);
-            guiGraphics.disableScissor();
+        if (scaledTextWidth <= width) {
+            if (center) {
+                x = posX + Math.round((areaW - textWidth) / 2f);
+            }
         } else {
             float overflow = scaledTextWidth - width;
             double d = (double) Util.getMillis() / 1000.0;
             double e = Math.max((double) overflow * 0.5, 3.0);
             double f = Math.sin((Math.PI / 2.0) * Math.cos((Math.PI * 2.0) * d / e)) / 2.0 + 0.5;
-            int offset = (int) Mth.lerp(f, 0.0, (double) overflow);
+            // not truncated: below scale 1 the lost pixel would clip the last glyph
+            float offset = (float) Mth.lerp(f, 0.0, (double) overflow);
 
-            int x = posX - Math.round(offset / scale);
-
-            guiGraphics.enableScissor(posX, posY, posX + width, posY + height);
-            guiGraphics.drawString(font, text, x, y, color, false);
-            guiGraphics.disableScissor();
+            McGuiUtils.translate(guiGraphics, -offset, 0);
         }
 
+        McGuiUtils.translate(guiGraphics, posX, posY);
+        McGuiUtils.scale(guiGraphics, scale, scale);
+        McGuiUtils.translate(guiGraphics, -posX, -posY);
+
+        guiGraphics.drawString(font, text, x, y, color, false);
+
         McGuiUtils.popPose(guiGraphics);
+        guiGraphics.disableScissor();
     }
 
     public static void renderScalableText(@NotNull GuiGraphics guiGraphics,
