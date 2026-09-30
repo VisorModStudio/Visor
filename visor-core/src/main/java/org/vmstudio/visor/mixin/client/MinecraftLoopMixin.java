@@ -17,6 +17,7 @@ import org.vmstudio.visor.core.client.render.context.RenderContext;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.util.Util;
 //? if >=1.21 {
 import net.minecraft.client.DeltaTracker;
 //?}
@@ -150,8 +151,8 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     // 1.21.9 turned the pop after GameRenderer.render into popPush("blit")
     //? if >=1.21.9 {
     @Inject(at = @At(value = "CONSTANT", args = "stringValue=blit"), method = "runTick", require = 1)
-    public void visor$renderVR(boolean renderLevel, CallbackInfo ci, @Local(ordinal = 0) long nanoTime) {
-        visor$renderVRFrame(renderLevel, nanoTime);
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci) {
+        visor$renderVRFrame(renderLevel, Util.getNanos());
     }
     //?} elif >=1.21.2 {
     /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop()V", ordinal = 3, shift = Shift.AFTER), method = "runTick", require = 1)
