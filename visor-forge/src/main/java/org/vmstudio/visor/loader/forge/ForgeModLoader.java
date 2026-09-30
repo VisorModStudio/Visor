@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
 import net.minecraft.resources.Identifier;
 //? if >=1.20.2 {
+import net.minecraftforge.event.network.CustomPayloadEvent;
 import net.minecraftforge.network.ChannelBuilder;
 import net.minecraftforge.network.EventNetworkChannel;
 //?} else {
@@ -23,6 +24,16 @@ import org.vmstudio.visor.api.common.network.VisorPayloadToServer;
 //? if >=1.21 && <1.21.2 {
 /*import net.minecraft.client.Minecraft;
 *///?}
+//? if >=1.21.9 {
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.PacketProcessor;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.PacketType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import java.util.concurrent.RejectedExecutionException;
+//?}
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -236,14 +247,14 @@ public class ForgeModLoader implements ModLoader {
             if (context.isServerSide()) {
                 if (channel.hasPacketsToServer() && context.getSender() != null) {
                     var sender = context.getSender();
-                    context.enqueueWork(() -> channel.handleToServer(copy, sender,
+                    enqueuePayloadWork(context, channel.getChannelId(), () -> channel.handleToServer(copy, sender,
                             p -> context.getConnection().send(
                                     ModLoader.get().createPacketToClient(channel.getChannelId(), p)
                             )));
                 }
             } else {
                 if (channel.hasPacketsToClient()) {
-                    context.enqueueWork(() -> channel.handleToClient(copy));
+                    enqueuePayloadWork(context, channel.getChannelId(), () -> channel.handleToClient(copy));
                 }
             }
             context.setPacketHandled(true);
@@ -337,6 +348,47 @@ public class ForgeModLoader implements ModLoader {
         return channel;
     }
     //?}
+
+    //? if >=1.21.9 {
+    private static void enqueuePayloadWork(CustomPayloadEvent.Context context, Identifier channelId, Runnable work) {
+        PacketListener listener = context.getConnection().getPacketListener();
+        if (listener == null) {
+            context.enqueueWork(work);
+            return;
+        }
+        PacketProcessor processor = context.isServerSide()
+                ? context.getSender().level().getServer().packetProcessor()
+                : Minecraft.getInstance().packetProcessor();
+        if (processor.isSameThread()) {
+            work.run();
+            return;
+        }
+        PacketFlow flow = context.isServerSide() ? PacketFlow.SERVERBOUND : PacketFlow.CLIENTBOUND;
+        try {
+            processor.scheduleIfPossible(listener, new QueuedPayload(new PacketType<>(flow, channelId), work));
+        } catch (RejectedExecutionException ignored) {
+            // shutting down
+        }
+    }
+
+    private record QueuedPayload(PacketType<QueuedPayload> type, Runnable work) implements Packet<PacketListener> {
+        private static final Logger LOGGER = LogManager.getLogger(VisorAPI.MOD_NAME);
+
+        @Override
+        public void handle(PacketListener listener) {
+            // enqueueWork swallowed handler errors, from here they would crash the server or kick the client
+            try {
+                work.run();
+            } catch (Exception e) {
+                LOGGER.error("Failed to handle a {} payload", type.id(), e);
+            }
+        }
+    }
+    //?} elif >=1.20.2 {
+    /*private static void enqueuePayloadWork(CustomPayloadEvent.Context context, Identifier channelId, Runnable work) {
+        context.enqueueWork(work);
+    }
+    *///?}
 
     //? if >=1.21.2 {
     // Forge 53 dropped RenderLevelStageEvent, ForgeLevelRendererStageMixin fires the stages from LevelRenderer
