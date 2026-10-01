@@ -1,0 +1,40 @@
+name: CI
+
+# Builds every Minecraft version (build.yml) on pushes to dev and on pull requests.
+# release.yml attaches the jars of the CI run of the tagged commit, so dev pushes are never cancelled.
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build.yml
+    with:
+      retention-days: ${{ github.event_name == 'pull_request' && 7 || 30 }}
+
+  # the check to require for merges, the build job names change with [targets]
+  ci:
+    name: CI
+    needs: build
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every Minecraft version built
+        env:
+          RESULT: ${{ needs.build.result }}
+        run: |
+          if [ "$RESULT" != success ]; then
+            echo "::error::A Minecraft version did not build ($RESULT), see the Build jobs"
+            exit 1
+          fi

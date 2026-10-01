@@ -1,0 +1,104 @@
+name: Build
+
+# Builds every Minecraft version of [targets] in its own parallel job, the jars of a version become the artifact jars-<mc>.
+# Used by ci.yml and release.yml. Settings: .github/release.toml [build]. Helper: .github/scripts/release.py
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Commit to build (empty = the commit of the run)
+        type: string
+        default: ''
+      versions:
+        description: Minecraft versions to build, comma or space separated (empty = every version)
+        type: string
+        default: ''
+      retention-days:
+        description: Days to keep the jars
+        type: number
+        default: 1
+    outputs:
+      versions:
+        description: The Minecraft versions that were asked for (empty = every version)
+        value: ${{ jobs.plan.outputs.versions }}
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      java: ${{ steps.plan.outputs.java }}
+      args: ${{ steps.plan.outputs.args }}
+      jars: ${{ steps.plan.outputs.jars }}
+      versions: ${{ steps.plan.outputs.versions }}
+    steps:
+      - name: Checkout settings and helper
+        uses: actions/checkout@v7
+
+      - name: Read the version table
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          set -euo pipefail
+          FILE=$(python3 .github/scripts/release.py config publish.versions.file)
+          if [ -n "$REF" ]; then
+            git fetch --no-tags --depth=1 origin "$REF"
+            git show "FETCH_HEAD:$FILE" > release-versions.toml
+          else
+            cp "$FILE" release-versions.toml
+          fi
+
+      - name: One build job per Minecraft version
+        id: plan
+        env:
+          VERSIONS: ${{ inputs.versions }}
+        run: python3 .github/scripts/release.py plan --versions release-versions.toml --only "$VERSIONS"
+
+  build:
+    name: ${{ matrix.target.mc }}
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      # a failing version does not stop the others
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Set up JDK ${{ needs.plan.outputs.java }}
+        uses: actions/setup-java@v6
+        with:
+          java-version: ${{ needs.plan.outputs.java }}
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-disabled: true
+
+      - name: Build (${{ matrix.target.task }})
+        env:
+          TASK: ${{ matrix.target.task }}
+          ARGS: ${{ needs.plan.outputs.args }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew "$TASK" $ARGS --continue --stacktrace
+
+      - name: Keep the jars
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: jars-${{ matrix.target.mc }}
+          path: ${{ needs.plan.outputs.jars }}/*.jar
+          if-no-files-found: ignore
+          retention-days: ${{ inputs.retention-days }}
+          overwrite: true

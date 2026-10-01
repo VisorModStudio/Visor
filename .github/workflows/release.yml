@@ -1,7 +1,8 @@
 name: Release build
 
-# Builds every Minecraft version of a release tag in its own parallel job and attaches the jars to the GitHub release.
-# Settings: .github/release.toml [build], versions: [targets] of the tag's version table. Helper: .github/scripts/release.py
+# Attaches the jars of a release tag to the GitHub release: the jars of the CI run (ci.yml) of the tagged commit,
+# or, when it has none, jars built here (build.yml).
+# Settings: .github/release.toml [build]. Helper: .github/scripts/release.py
 # Settings and helper come from the run's commit (the tag, or the branch a dispatch runs on), the sources from the tag.
 
 on:
@@ -10,13 +11,17 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to build and attach jars to
+        description: Release tag to attach jars to
         type: string
         required: true
       versions:
         description: Minecraft versions to rebuild, e.g. 1.20.1, 1.21.1 (empty = every version)
         type: string
         required: false
+      rebuild:
+        description: Build the jars even if the CI run of the tagged commit has them
+        type: boolean
+        default: false
       attach:
         description: Attach the jars to the release (off = keep them as a workflow artifact only)
         type: boolean
@@ -33,112 +38,105 @@ env:
   TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
-  plan:
-    name: Plan ${{ github.event.release.tag_name || inputs.tag }}
+  find:
+    name: Find the CI build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
-      matrix: ${{ steps.plan.outputs.matrix }}
-      java: ${{ steps.plan.outputs.java }}
-      args: ${{ steps.plan.outputs.args }}
-      jars: ${{ steps.plan.outputs.jars }}
-      versions: ${{ steps.plan.outputs.versions }}
+      sha: ${{ steps.sha.outputs.sha }}
+      run: ${{ steps.ci.outputs.run }}
     steps:
-      - name: Checkout settings and helper
-        uses: actions/checkout@v7
-
-      - name: Read the version table of the release tag
+      - name: Commit of ${{ env.TAG }}
+        id: sha
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          FILE=$(python3 .github/scripts/release.py config publish.versions.file)
-          git fetch --no-tags --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG"
-          git show "refs/tags/$TAG:$FILE" > release-versions.toml
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/$TAG" --jq .sha)
+          [ -n "$sha" ]
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
 
-      - name: One build job per Minecraft version
-        id: plan
+      - name: CI run of the commit
+        id: ci
+        if: ${{ !inputs.versions && !inputs.rebuild }}
         env:
-          VERSIONS: ${{ inputs.versions }}
-        run: python3 .github/scripts/release.py plan --versions release-versions.toml --only "$VERSIONS"
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          set -uo pipefail
+          run=$(gh run list -R "$GITHUB_REPOSITORY" -w ci.yml -c "$SHA" -L 20 --json databaseId,event \
+            -q 'map(select(.event == "push" or .event == "workflow_dispatch")) | .[0].databaseId // empty') || run=""
+          if [ -n "$run" ]; then
+            echo "CI run $run of $SHA, waiting until it has finished"
+            timeout 40m gh run watch "$run" -R "$GITHUB_REPOSITORY" --exit-status -i 30 > /dev/null || run=""
+          fi
+          if [ -n "$run" ]; then
+            jars=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$run/artifacts?per_page=100" \
+              -q '[.artifacts[] | select((.name | startswith("jars-")) and (.expired | not))] | length') || jars=0
+            [ "${jars:-0}" -gt 0 ] || run=""
+          fi
+          if [ -n "$run" ]; then
+            echo "Jars of CI run $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$run" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::notice::No successful CI run with jars for $SHA, building them"
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
 
   build:
-    name: Build ${{ matrix.target.mc }}
-    needs: plan
-    runs-on: ubuntu-latest
-    strategy:
-      # a failing version does not stop the others, their jars still get attached
-      fail-fast: false
-      matrix:
-        target: ${{ fromJSON(needs.plan.outputs.matrix) }}
-    steps:
-      - name: Checkout ${{ env.TAG }}
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ env.TAG }}
-
-      - name: Set up JDK ${{ needs.plan.outputs.java }}
-        uses: actions/setup-java@v6
-        with:
-          java-version: ${{ needs.plan.outputs.java }}
-          distribution: temurin
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-disabled: true
-
-      - name: Build (${{ matrix.target.task }})
-        env:
-          TASK: ${{ matrix.target.task }}
-          ARGS: ${{ needs.plan.outputs.args }}
-        run: |
-          chmod +x ./gradlew
-          ./gradlew "$TASK" $ARGS --continue --stacktrace
-
-      - name: Keep the jars for the attach job
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: jars-${{ matrix.target.mc }}
-          path: ${{ needs.plan.outputs.jars }}/*.jar
-          if-no-files-found: ignore
-          retention-days: 1
-          overwrite: true
+    name: Build
+    needs: find
+    if: needs.find.outputs.run == ''
+    uses: ./.github/workflows/build.yml
+    with:
+      ref: ${{ needs.find.outputs.sha }}
+      versions: ${{ inputs.versions }}
 
   attach:
     name: Attach jars
-    needs: [plan, build]
-    if: ${{ !cancelled() && needs.plan.result == 'success' }}
+    needs: [find, build]
+    if: ${{ !cancelled() && needs.find.result == 'success' && (needs.find.outputs.run != '' || needs.build.result != 'skipped') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: read
     steps:
       - name: Checkout settings and helper
         uses: actions/checkout@v7
 
       - name: Read the version table of the release tag
+        id: table
+        env:
+          SHA: ${{ needs.find.outputs.sha }}
         run: |
           set -euo pipefail
           FILE=$(python3 .github/scripts/release.py config publish.versions.file)
-          git fetch --no-tags --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG"
-          git show "refs/tags/$TAG:$FILE" > release-versions.toml
+          git fetch --no-tags --depth=1 origin "$SHA"
+          git show "FETCH_HEAD:$FILE" > release-versions.toml
+          JARS=$(python3 .github/scripts/release.py config build.jars)
+          echo "jars=$JARS" >> "$GITHUB_OUTPUT"
 
       - name: Download the jars of every version
         uses: actions/download-artifact@v8
         with:
           pattern: jars-*
           merge-multiple: true
-          path: ${{ needs.plan.outputs.jars }}
+          path: ${{ steps.table.outputs.jars }}
+          run-id: ${{ needs.find.outputs.run || github.run_id }}
+          github-token: ${{ github.token }}
 
       - name: Collect release jars
         id: collect
         env:
-          VERSIONS: ${{ needs.plan.outputs.versions }}
+          VERSIONS: ${{ needs.build.outputs.versions }}
         run: python3 .github/scripts/release.py collect --versions release-versions.toml --mc "$VERSIONS"
 
       - name: Attach jars to the release
         if: steps.collect.outputs.found == 'true' && (github.event_name != 'workflow_dispatch' || inputs.attach)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$TAG" build/release-assets/*.jar --repo "${{ github.repository }}" --clobber
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" build/release-assets/*.jar --repo "$GITHUB_REPOSITORY" --clobber
 
       - name: Keep jars as workflow artifact
         if: steps.collect.outputs.found == 'true'
@@ -151,7 +149,7 @@ jobs:
           overwrite: true
 
       - name: Fail on build errors
-        if: ${{ !cancelled() && needs.build.result != 'success' }}
+        if: ${{ !cancelled() && needs.build.result == 'failure' }}
         run: |
           echo "::error::A Minecraft version failed to build, see its Build job. The jars of the versions that did build were attached anyway, use Re-run failed jobs once fixed."
           exit 1

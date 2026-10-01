@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Helper of .github/workflows/release.yml and publish.yml, settings in .github/release.toml.
+"""Helper of .github/workflows (build.yml, ci.yml, release.yml, publish.yml), settings in .github/release.toml.
 
     release.py config <key>                      one setting, e.g. build.java
     release.py plan [--versions FILE]            build matrix, one job per [targets] version (outputs: matrix, java,

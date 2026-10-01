@@ -1,4 +1,4 @@
-# Settings of .github/workflows/release.yml and publish.yml, read by .github/scripts/release.py.
+# Settings of .github/workflows (build.yml, ci.yml, release.yml, publish.yml), read by .github/scripts/release.py.
 # Repository variables: MODRINTH_ID, CURSEFORGE_ID. Secrets: MODRINTH_TOKEN, CURSEFORGE_TOKEN.
 
 [build]
