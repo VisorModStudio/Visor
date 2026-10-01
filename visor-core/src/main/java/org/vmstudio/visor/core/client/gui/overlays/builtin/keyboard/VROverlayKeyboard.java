@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +74,7 @@ public class VROverlayKeyboard extends VROverlayScreenInScreen<VRKeyboardScreen>
 
 
     @Override
-    protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    protected void onPreRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if(ClientContext.cursorHandler.getFocusedOverlayScreen() != this){
             getScreen().clearPress();
         }

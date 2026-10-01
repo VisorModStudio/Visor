@@ -22,6 +22,10 @@ import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
+//? if >=26.1 {
+import org.vmstudio.visor.core.client.render.camera.VRCameraEntitySwap;
+import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
+//?}
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -96,6 +100,9 @@ public class VisorScene implements AtumVRScene {
         profiler.push("VR mirror");
         VRRenderState.startVRMirrorPhase();
         McRenderTarget.bindWrite(McRenderTarget.mainTarget());
+        //? if >=26.1 {
+        McRenderTarget.clear(McRenderTarget.mainTarget());
+        //?}
         MirrorHelper.drawMirror();
         profiler.pop();
         GLUtils.checkGLError("post mirror");
@@ -171,12 +178,34 @@ public class VisorScene implements AtumVRScene {
             McGlState.clearShaderTexture(2);
         }
 
-        McRenderUtils.renderGame(
+        //? if >=26.1 {
+        boolean levelPass = context.renderLevel() && MC.level != null && MC.player != null
+                && MC.isGameLoadFinished();
+        if (levelPass) {
+            VRCameraEntitySwap.cacheCameraEntity(MC.getCameraEntity());
+            VRCameraEntitySwap.setupCameraEntityAsVRCamera();
+            VRCameraOverlaps.updateCameraOverlaps();
+        }
+        try {
+            McRenderUtils.renderGame(
+                    MC.gameRenderer,
+                    context.partialTicks(),
+                    context.nanoTime(),
+                    context.renderLevel()
+            );
+        } finally {
+            if (levelPass) {
+                VRCameraEntitySwap.restoreCameraEntity(MC.getCameraEntity());
+            }
+        }
+        //?} else {
+        /*McRenderUtils.renderGame(
                 MC.gameRenderer,
                 context.partialTicks(),
                 context.nanoTime(),
                 context.renderLevel()
         );
+        *///?}
         //render game is outside of VR control. many mods might interfere
         //so, we drain GL errors instead of crash
         RenderStateHelper.drainExternalGLErrors("VR level render");

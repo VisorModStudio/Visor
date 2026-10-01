@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.10+
+// #!MC-VERSION:: 26.1.2+
 package org.vmstudio.visor.mixin.client.renderer.entity;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -13,7 +13,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
@@ -30,14 +30,14 @@ public class EntityRendererMixin {
 
     @Unique
     private static final String SUBMIT_NAME_TAG =
-            "submitNameTag(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
+            "submitNameDisplay(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
                     + "Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;"
-                    + "Lnet/minecraft/client/renderer/state/CameraRenderState;)V";
+                    + "Lnet/minecraft/client/renderer/state/level/CameraRenderState;I)V";
 
     // 1.21.9 dropped EntityRenderDispatcher.cameraOrientation; the billboard basis is read from the
     // CameraRenderState the tag is submitted with, so the VR look-at goes in as a per-entity copy
     @WrapOperation(method = SUBMIT_NAME_TAG,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitNameTag(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/phys/Vec3;ILnet/minecraft/network/chat/Component;ZIDLnet/minecraft/client/renderer/state/CameraRenderState;)V"))
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitNameTag(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/phys/Vec3;ILnet/minecraft/network/chat/Component;ZIDLnet/minecraft/client/renderer/state/level/CameraRenderState;)V"))
     private void visor$vrNameTagCameraOrient(SubmitNodeCollector collector, PoseStack poseStack, Vec3 pos,
                                              int light, Component text, boolean discrete, int background,
                                              double distance, CameraRenderState camera, Operation<Void> original,
@@ -79,7 +79,6 @@ public class EntityRendererMixin {
         CameraRenderState vrCamera = new CameraRenderState();
         vrCamera.blockPos = camera.blockPos;
         vrCamera.pos = camera.pos;
-        vrCamera.entityPos = camera.entityPos;
         vrCamera.initialized = camera.initialized;
         vrCamera.orientation = new Quaternionf().rotationYXZ(yaw + (float) Math.PI, -pitch, 0F);
         return vrCamera;

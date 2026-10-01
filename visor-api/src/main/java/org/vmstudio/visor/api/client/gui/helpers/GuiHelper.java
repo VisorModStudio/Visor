@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.client.gui.helpers;
 
 import net.minecraft.util.Util;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ public class GuiHelper {
      * @param scale       fixed text scale (1.0 = default)
      * @param center      whether to center the text when it fits
      */
-    public static void renderScrollableText(@NotNull GuiGraphics guiGraphics,
+    public static void renderScrollableText(@NotNull GuiGraphicsExtractor guiGraphics,
                                             @NotNull Font font,
                                             @NotNull String text,
                                             int color,
@@ -45,7 +45,7 @@ public class GuiHelper {
             int y = center ? posY + (height - textHeight) / 2 : posY;
 
             if (textWidth <= width) {
-                guiGraphics.drawString(font, text, x, y, color, false);
+                McGuiUtils.drawString(guiGraphics, font, text, x, y, color, false);
             } else {
                 int overflow = textWidth - width;
                 double d = (double) Util.getMillis() / 1000.0;
@@ -54,7 +54,7 @@ public class GuiHelper {
                 int offset = (int) Mth.lerp(f, 0.0, (double) overflow);
 
                 guiGraphics.enableScissor(posX, posY, posX + width, posY + height);
-                guiGraphics.drawString(font, text, posX - offset, y, color, false);
+                McGuiUtils.drawString(guiGraphics, font, text, posX - offset, y, color, false);
                 guiGraphics.disableScissor();
             }
             return;
@@ -93,13 +93,13 @@ public class GuiHelper {
         McGuiUtils.scale(guiGraphics, scale, scale);
         McGuiUtils.translate(guiGraphics, -posX, -posY);
 
-        guiGraphics.drawString(font, text, x, y, color, false);
+        McGuiUtils.drawString(guiGraphics, font, text, x, y, color, false);
 
         McGuiUtils.popPose(guiGraphics);
         guiGraphics.disableScissor();
     }
 
-    public static void renderScalableText(@NotNull GuiGraphics guiGraphics,
+    public static void renderScalableText(@NotNull GuiGraphicsExtractor guiGraphics,
                                           @NotNull Font font,
                                           @NotNull String text,
                                           int color,
@@ -118,7 +118,7 @@ public class GuiHelper {
         );
     }
 
-    public static void renderScalableText(@NotNull GuiGraphics guiGraphics,
+    public static void renderScalableText(@NotNull GuiGraphicsExtractor guiGraphics,
                                           @NotNull Font font,
                                           @NotNull String text,
                                           int color,
@@ -159,7 +159,7 @@ public class GuiHelper {
         float baseX = drawX;
         float baseY = drawY;
 
-        guiGraphics.drawString(font, text, Math.round(baseX), Math.round(baseY), color, false);
+        McGuiUtils.drawString(guiGraphics, font, text, Math.round(baseX), Math.round(baseY), color, false);
 
 
         // Restore transform state

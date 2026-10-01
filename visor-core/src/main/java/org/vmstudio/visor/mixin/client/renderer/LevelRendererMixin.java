@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.10+
+// #!MC-VERSION:: 26.1.2+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -13,12 +13,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.EnumMap;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFog;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.camera.VRCameraEntitySwap;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-import org.vmstudio.visor.core.client.render.helpers.CullFrustumHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
 import net.minecraft.client.Camera;
@@ -27,15 +27,12 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.lighting.LevelLightEngine;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -61,22 +58,6 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
     /* ***************** *\
   //--------MIXINS--------\\
     \* ***************** */
-
-    // 1.21.9 reordered prepareCullFrustum to (frustumMatrix, projectionMatrix, camPos)
-    @ModifyVariable(method = "prepareCullFrustum", at = @At("HEAD"), index = 2, argsOnly = true)
-    private Matrix4f visor$widenCullFrustum(Matrix4f projection) {
-        return CullFrustumHelper.widenCullProjection(projection);
-    }
-
-    @WrapOperation(method = "renderLevel", require = 1,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/lighting/LevelLightEngine;runLightUpdates()I"))
-    private int visor$lightUpdatesOncePerFrame(LevelLightEngine engine, Operation<Integer> original) {
-        if (VisorState.get().isNotActive() || VRRenderState.getPhase().isNotVRWorld()
-                || VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
-            return original.call(engine);
-        }
-        return 0;
-    }
 
     // 1.21.2 moved the detached-camera check into collectVisibleEntities, 1.21.9 renamed it
     @WrapOperation(
@@ -126,6 +107,22 @@ public abstract class LevelRendererMixin implements LevelRendererExtension {
         original.call(clearPass, (Runnable) () -> {
             clear.run();
             RenderEffectsHelper.maskHiddenArea();
+        });
+    }
+
+    @WrapOperation(method = "addSkyPass*", require = 1,
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/framegraph/FramePass;executes(Ljava/lang/Runnable;)V"))
+    private void visor$maskHiddenAreaAfterSky(FramePass skyPass, Runnable sky, Operation<Void> original) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            original.call(skyPass, sky);
+            return;
+        }
+        original.call(skyPass, (Runnable) () -> {
+            sky.run();
+            McFog.State skyFog = McFog.save();
+            McFog.disable();
+            RenderEffectsHelper.maskHiddenArea();
+            McFog.restore(skyFog);
         });
     }
 

@@ -408,10 +408,15 @@ public final class McShaderProgram {
                 .withVertexFormat(vertexFormat, mode)
                 .withShaderDefine(MAT3_AS_MAT4)
                 .withShaderDefine(UBO_DEFINE)
-                .withDepthTestFunction(McShaders.depthTestFunction(state))
+                //? if >=26.1 {
+                .withDepthStencilState(McShaders.depthStencilState(state))
+                .withCull(state.cull());
+                //?} else {
+                /*.withDepthTestFunction(McShaders.depthTestFunction(state))
                 .withDepthWrite(state.depthWrite())
                 .withCull(state.cull())
                 .withColorWrite(state.colorWrite(), state.alphaWrite());
+                *///?}
         if (usesMatrices) {
             builder.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
                     .withUniform("Projection", UniformType.UNIFORM_BUFFER);
@@ -420,15 +425,20 @@ public final class McShaderProgram {
             builder.withUniform(BLOCK, UniformType.UNIFORM_BUFFER);
         }
         samplerNames.forEach(builder::withSampler);
-        if (alphaBlend) {
+        //? if >=26.1 {
+        BlendFunction blend = alphaBlend
+                ? new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA)
+                : state.blend() ? McShaders.blendFunction(state) : null;
+        builder.withColorTargetState(McShaders.colorTargetState(state, blend));
+        //?} else {
+        /*if (alphaBlend) {
             builder.withBlend(new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA));
         } else if (state.blend()) {
-            builder.withBlend(new BlendFunction(
-                    McShaders.source(state.blendSourceRgb()), McShaders.destination(state.blendDestinationRgb()),
-                    McShaders.source(state.blendSourceAlpha()), McShaders.destination(state.blendDestinationAlpha())));
+            builder.withBlend(McShaders.blendFunction(state));
         } else {
             builder.withoutBlend();
         }
+        *///?}
         return builder.build();
     }
 }

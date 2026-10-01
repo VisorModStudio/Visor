@@ -1,12 +1,16 @@
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+//? if >=26.1 {
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+//?}
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
 //? if <1.21.2 {
-/*import net.minecraft.client.gui.GuiGraphics;
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?}
 import net.minecraft.client.renderer.GameRenderer;
 import org.lwjgl.opengl.GL11;
@@ -49,6 +53,9 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
         }
 
         info.cancel();
+        //? if >=26.1 {
+        McVersionClientUtils.profiler().pop();
+        //?}
 
         //? if >=1.21.9 {
         // the cancel lands before the tail of render(), where 1.21.9 ends the submit and feature frames
@@ -78,22 +85,37 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
     /**
      * Draw GUI only after first level render
      */
-    //? if >=1.21.5 {
-    @ModifyVariable(at = @At(value = "NEW", target = "net/minecraft/client/gui/GuiGraphics", shift = Shift.AFTER), method = "render", ordinal = 0, argsOnly = true, require = 1)
-    //?} else {
+    //? if >=26.1 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;extractGui(Lnet/minecraft/client/DeltaTracker;ZZ)V"), method = "extract", index = 1, require = 1)
+    //?} elif >=1.21.5 {
+    /*@ModifyVariable(at = @At(value = "NEW", target = "net/minecraft/client/gui/GuiGraphicsExtractor", shift = Shift.AFTER), method = "render", ordinal = 0, argsOnly = true, require = 1)
+    *///?} else {
     /*@ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render", ordinal = 0, argsOnly = true, require = 1)
     *///?}
     private boolean visor$vrGuiVisibility(boolean doRender) {
         if (VRRenderState.getPhase().isVanilla()) {
             return doRender;
         }
-        return visor$isVRGuiVisible();
+        //? if >=26.1 {
+        return visor$isVRGuiVisible() && MC.isGameLoadFinished() && MC.level != null;
+        //?} else {
+        /*return visor$isVRGuiVisible();
+        *///?}
     }
+
+    //? if >=26.1 {
+    @Inject(at = @At("HEAD"), method = "extractGui", cancellable = true)
+    private void visor$noGuiExtractionInWorldPass(CallbackInfo ci) {
+        if (VRRenderState.getPhase().isVRWorld()) {
+            ci.cancel();
+        }
+    }
+    //?}
 
     // 1.21.2 moved it into Gui, see GuiMixin
     //? if <1.21.2 {
     /*@Inject(at = @At("HEAD"), method = "renderConfusionOverlay", cancellable = true)
-    private void visor$noConfusionOverlayInGUI(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
+    private void visor$noConfusionOverlayInGUI(GuiGraphicsExtractor guiGraphics, float f, CallbackInfo ci) {
         if (VRRenderState.getPhase().isVRGui()) {
             ci.cancel();
         }

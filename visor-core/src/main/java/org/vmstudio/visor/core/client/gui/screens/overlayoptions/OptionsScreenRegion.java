@@ -17,7 +17,7 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoValueDrag;
 import org.vmstudio.visor.api.client.gui.widgets.sets.ValueEditorInt;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=1.21.6 {
 import net.minecraft.client.renderer.RenderPipelines;
 //?}
@@ -290,7 +290,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     }
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         int editBoxWidth = (cursorBoundsWidth - 30) / 2;
         int startPosX = cursorBoundsX + (cursorBoundsWidth - editBoxWidth) / 2;
 
@@ -343,7 +343,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     }
 
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
         computePreviewArea();
         drawFramebufferPreview(guiGraphics);
@@ -390,7 +390,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         this.previewScale = scale;
     }
 
-    private void drawFramebufferPreview(GuiGraphics gui) {
+    private void drawFramebufferPreview(GuiGraphicsExtractor gui) {
         RenderTarget target = optionsGroup.getTargetSupplier().get();
         if (target == null || McRenderTarget.colorTextureId(target) <= 0) {
             gui.fill(previewX, previewY, previewX + previewW, previewY + previewH, 0xFF202020);
@@ -402,14 +402,20 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         float vMax = (float) McRenderTarget.viewHeight(target) / (float) target.height;
 
         // the GUI is deferred since 1.21.6, so the preview joins the element list instead of drawing between flushes
-        //? if >=1.21.11 {
-        // 1.21.11 moved the filter of the target onto a per-draw sampler
+        //? if >=26.1 {
+        gui.blit(target.getColorTextureView(),
+                com.mojang.blaze3d.systems.RenderSystem.getSamplerCache().getClampToEdge(McRenderTarget.isLinearFilter(target)
+                        ? com.mojang.blaze3d.textures.FilterMode.LINEAR : com.mojang.blaze3d.textures.FilterMode.NEAREST),
+                previewX, previewY, previewX + previewW, previewY + previewH,
+                0.0f, uMax, vMax, 0.0f);
+        //?} elif >=1.21.11 {
+        /*// 1.21.11 moved the filter of the target onto a per-draw sampler
         gui.submitBlit(RenderPipelines.GUI_TEXTURED, target.getColorTextureView(),
                 com.mojang.blaze3d.systems.RenderSystem.getSamplerCache().getClampToEdge(McRenderTarget.isLinearFilter(target)
                         ? com.mojang.blaze3d.textures.FilterMode.LINEAR : com.mojang.blaze3d.textures.FilterMode.NEAREST),
                 previewX, previewY, previewX + previewW, previewY + previewH,
                 0.0f, uMax, vMax, 0.0f, 0xFFFFFFFF);
-        //?} elif >=1.21.6 {
+        *///?} elif >=1.21.6 {
         /*gui.submitBlit(RenderPipelines.GUI_TEXTURED, target.getColorTextureView(),
                 previewX, previewY, previewX + previewW, previewY + previewH,
                 0.0f, uMax, vMax, 0.0f, 0xFFFFFFFF);
@@ -444,7 +450,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         McGuiUtils.renderOutline(gui, previewX, previewY, previewW, previewH, 0x80FFFFFF);
     }
 
-    private void drawInteractiveRegionOverlay(GuiGraphics gui) {
+    private void drawInteractiveRegionOverlay(GuiGraphicsExtractor gui) {
         // Map region rect to preview coordinates
         int rx = previewX + (int) Math.round(optionsGroup.getRegionX() * previewScale);
         int ry = previewY + (int) Math.round(optionsGroup.getRegionY() * previewScale);
@@ -482,7 +488,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         drawKnob(gui, rx + rw, ry + rh);       // bottom-right
     }
 
-    private void drawKnob(GuiGraphics gui, int cx, int cy) {
+    private void drawKnob(GuiGraphicsExtractor gui, int cx, int cy) {
         int x1 = cx - KNOB_HALF;
         int y1 = cy - KNOB_HALF;
         int x2 = x1 + KNOB_SIZE;

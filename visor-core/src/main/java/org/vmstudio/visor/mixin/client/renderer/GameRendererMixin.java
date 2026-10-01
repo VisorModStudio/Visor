@@ -6,13 +6,19 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 //? if >=1.21.6 {
 import org.joml.Matrix4f;
+//?}
+//? if >=26.1 {
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.textures.GpuTexture;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import org.joml.Matrix4fc;
 //?}
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -44,19 +50,21 @@ public abstract class GameRendererMixin {
     // ---- Shadow fields ----
     @Shadow @Final
     Minecraft minecraft;
-    //? if >=1.21.2 {
-    @Shadow
+    //? if >=1.21.2 && <26.1 {
+    /*@Shadow
     private float fovModifier;
     @Shadow
     private float oldFovModifier;
-    //?} else {
+    *///?} elif <1.21.2 {
     /*@Shadow
     private float fov;
     @Shadow
     private float oldFov;
     *///?}
-    @Shadow
+    //? if <26.1 {
+    /*@Shadow
     private long lastActiveTime;
+    *///?}
     //? if <1.21.6 {
     /*@Shadow
     private int itemActivationTicks;
@@ -67,10 +75,12 @@ public abstract class GameRendererMixin {
   //--------AIM PICK--------\\
     \* ****************** */
 
-    @WrapMethod(method = "pick(F)V")
+    //? if <26.1 {
+    /*@WrapMethod(method = "pick(F)V")
     private void visor$pickWithVRHands(float partialTick, Operation<Void> original) {
         VRAimPicker.pickWithVRHands(() -> original.call(partialTick));
     }
+    *///?}
 
     // 1.20.5 moved the ray trace into pick(Entity,DDF), pick(F)V has no Vec3 locals left;
     // 1.21.11 moved it on into the static LocalPlayer.pick(Entity,DDF), see LocalPlayerMixin
@@ -111,8 +121,8 @@ public abstract class GameRendererMixin {
     // 1.21.6 moved it onto ScreenEffectRenderer, see ScreenEffectRendererMixin
 
     //? if >=1.21 && <1.21.6 {
-    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphics;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
-    private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphics guiGraphics, float f, Operation<Void> original) {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemActivationAnimation(Lnet/minecraft/client/gui/GuiGraphicsExtractor;F)V"), method = "render(Lnet/minecraft/client/DeltaTracker;Z)V")
+    private void visor$noItemActivationAnimInGUI(GameRenderer instance, GuiGraphicsExtractor guiGraphics, float f, Operation<Void> original) {
         if(VRRenderState.getPhase().isVanilla()) {
             original.call(instance, guiGraphics, f);
         }
@@ -191,26 +201,53 @@ public abstract class GameRendererMixin {
         return original.call(instance) && VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON;
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = "render")
+    //? if <26.1 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = "render")
     public boolean visor$noPauseGameIfWindowNotFocused(Minecraft instance, Operation<Boolean> original) {
         return VisorState.get().isActive() || original.call(instance);
     }
+    *///?}
 
-    @Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
+    //? if >=1.21.2 && <26.1 {
+    /*@Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
     public void visor$freezeFovInVR(CallbackInfo ci) {
         if(VRRenderState.getPhase().isNotVanilla()) {
             // vanilla tickFov starts from when the view is not modified
             final float neutralFovModifier = 1.0F;
-            //? if >=1.21.2 {
             this.fovModifier = neutralFovModifier;
             this.oldFovModifier = neutralFovModifier;
-            //?} else {
-            /*this.fov = neutralFovModifier;
-            this.oldFov = neutralFovModifier;
-            *///?}
             ci.cancel();
         }
     }
+    *///?} elif <1.21.2 {
+    /*@Inject(at = @At("HEAD"), method = "tickFov", cancellable = true)
+    public void visor$freezeFovInVR(CallbackInfo ci) {
+        if(VRRenderState.getPhase().isNotVanilla()) {
+            // vanilla tickFov starts from when the view is not modified
+            final float neutralFovModifier = 1.0F;
+            this.fov = neutralFovModifier;
+            this.oldFov = neutralFovModifier;
+            ci.cancel();
+        }
+    }
+    *///?}
+
+    //? if >=26.1 {
+    @Inject(at = @At("TAIL"), method = "extractWindow")
+    private void visor$noVanillaResizeInVR(CallbackInfo ci) {
+        if (VisorState.get().isActive()) {
+            ((GameRenderer) (Object) this).getGameRenderState().windowRenderState.isResized = false;
+        }
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearColorAndDepthTextures(Lcom/mojang/blaze3d/textures/GpuTexture;ILcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false), method = "render", require = 1)
+    private void visor$noFrameClearInWorldPass(CommandEncoder encoder, GpuTexture color, int clearColor,
+                                               GpuTexture depth, double clearDepth, Operation<Void> original) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
+            original.call(encoder, color, clearColor, depth, clearDepth);
+        }
+    }
+    //?}
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$skipAutoScreenshotInMenu(Path path, CallbackInfo ci) {
@@ -219,26 +256,51 @@ public abstract class GameRendererMixin {
         }
     }
 
+    //? if >=26.1 {
     @Inject(at = @At("HEAD"), method = "bobHurt", cancellable = true)
+    public void visor$noBobHurt(CameraRenderState cameraState,
+                                PoseStack poseStack,
+                                CallbackInfo ci) {
+    //?} else {
+    /*@Inject(at = @At("HEAD"), method = "bobHurt", cancellable = true)
     public void visor$noBobHurt(PoseStack poseStack,
                                 float f,
                                 CallbackInfo ci) {
+    *///?}
         if(VRRenderState.getPhase().isNotVanilla()) {
             ci.cancel();
         }
     }
 
+    //? if >=26.1 {
     @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
+    public void visor$noBobView(CameraRenderState cameraState,
+                                PoseStack matrixStack,
+                                CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
     public void visor$noBobView(PoseStack matrixStack,
                                 float f,
                                 CallbackInfo ci) {
+    *///?}
         if(VRRenderState.getPhase().isNotVanilla()) {
             ci.cancel();
         }
     }
 
-    //? if >=1.21.6 {
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(FZLorg/joml/Matrix4f;)V"), method = "renderLevel")
+    //? if >=26.1 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(Lnet/minecraft/client/renderer/state/level/CameraRenderState;FLorg/joml/Matrix4fc;)V"), method = "renderLevel")
+    public void visor$noVanillaHands(GameRenderer instance, CameraRenderState cameraState, float partialTick, Matrix4fc modelView,
+                                     Operation<Void> original) {
+        if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
+            return;
+        }
+        if (VRRenderState.getPhase().isVanilla()) {
+            original.call(instance, cameraState, partialTick, modelView);
+        }
+    }
+    //?} elif >=1.21.6 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(FZLorg/joml/Matrix4f;)V"), method = "renderLevel")
     public void visor$noVanillaHands(GameRenderer instance, float partialTick, boolean sleeping, Matrix4f projection,
                                      Operation<Void> original) {
         if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
@@ -248,7 +310,7 @@ public abstract class GameRendererMixin {
             original.call(instance, partialTick, sleeping, projection);
         }
     }
-    //?} else {
+    *///?} else {
     /*@WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;renderHand:Z"), method = "renderLevel")
     public boolean visor$noVanillaHands(GameRenderer instance, Operation<Boolean> original) {
         if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
@@ -262,18 +324,21 @@ public abstract class GameRendererMixin {
      * Only process this when rendering vanilla
      * or VR camera that is a worldUpdater
      */
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;pauseGame(Z)V"), method = "render")
+    //? if <26.1 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;pauseGame(Z)V"), method = "render")
     public void visor$pauseOncePerFrame(Minecraft instance, boolean bl, Operation<Void> original) {
         if (VisorState.get().isNotActive() || VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
             original.call(instance, bl);
         }
     }
+    *///?}
 
     /**
      * Only process this when rendering vanilla
      * or VR camera that is a worldUpdater
      */
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Util;getMillis()J"), method = "render")
+    //? if <26.1 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Util;getMillis()J"), method = "render")
     public long visor$useActiveTimeOncePerFrame(Operation<Long> original) {
         if (VisorState.get().isNotActive() || VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
             return original.call();
@@ -281,4 +346,5 @@ public abstract class GameRendererMixin {
             return this.lastActiveTime;
         }
     }
+    *///?}
 }

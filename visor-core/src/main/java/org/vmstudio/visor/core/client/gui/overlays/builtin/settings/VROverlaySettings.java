@@ -25,7 +25,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.widgets.Over
 import org.vmstudio.visor.api.client.gui.widgets.sets.WidgetSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
@@ -191,7 +191,7 @@ public class VROverlaySettings extends VROverlayScreen
     }
 
     @Override
-    public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
+    public void onPreRender(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY, float partialTicks) {
         //MAIN BACKGROUND
         McGuiUtils.blit(
                 guiGraphics,

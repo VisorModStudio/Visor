@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.network;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
@@ -223,7 +224,7 @@ public class ClientNetworking {
 
     protected static void receivedHandShake(){
         if (!Minecraft.getInstance().isLocalServer()) {
-            MC.gui.getChat().addMessage(
+            McGuiUtils.addChatMessage(MC.gui.getChat(),
                     Component.translatable(
                             "visor.messages.server_supports"
                     )

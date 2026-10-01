@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McButton;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -84,7 +85,7 @@ public class DropDownListWidget extends McButton implements McGuiEventListener {
      * Renders the base button and, if expanded, the dropdown list along with the interactive scrollbar.
      */
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Render the base button (background, border, and label)
         renderDefaultButton(guiGraphics, mouseX, mouseY, partialTick);
 
@@ -157,7 +158,7 @@ public class DropDownListWidget extends McButton implements McGuiEventListener {
                         }
 
                         guiGraphics.enableScissor(dropdownX + padding, itemY, dropdownX + padding + availableWidth, itemY + ITEM_HEIGHT);
-                        guiGraphics.drawString(font, text, dropdownX + padding - offset, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
+                        McGuiUtils.drawString(guiGraphics, font, text, dropdownX + padding - offset, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
                         guiGraphics.disableScissor();
                     } else {
                         if(elementScrollingText == i) {
@@ -165,11 +166,11 @@ public class DropDownListWidget extends McButton implements McGuiEventListener {
                         }
                         // Not hovered: draw truncated text
                         String truncatedText = font.plainSubstrByWidth(text, availableWidth);
-                        guiGraphics.drawString(font, truncatedText, dropdownX + padding, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
+                        McGuiUtils.drawString(guiGraphics, font, truncatedText, dropdownX + padding, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
                     }
                 } else {
                     // If text fits, center it.
-                    guiGraphics.drawCenteredString(font, text, dropdownX + this.getWidth() / 2, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
+                    McGuiUtils.drawCenteredString(guiGraphics, font, text, dropdownX + this.getWidth() / 2, itemY + (ITEM_HEIGHT - 8) / 2, textColor);
                 }
             }
 

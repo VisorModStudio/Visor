@@ -19,7 +19,6 @@ import org.vmstudio.visor.api.compatibility.ItemClassifier;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
 import org.vmstudio.visor.extensions.common.ServerPlayerExtension;
-import net.minecraft.core.particles.ItemParticleOption;
 //? if >=1.21.11 {
 import net.minecraft.core.particles.ParticleOptions;
 //?}
@@ -377,8 +376,13 @@ public abstract class ServerPlayerMixin
                 || McVersionUtils.useAnimation(stack) == McUseAnim.BLOCK);
     }
 
-    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    //? if >=26.1 {
+    @Override
+    protected void visor$noAttackWhileShieldUp(Entity target, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "attack", at = @At("HEAD"), cancellable = true)
     private void visor$noAttackWhileShieldUp(Entity target, CallbackInfo ci) {
+    *///?}
         if (VRServerSettings.isAttacksWhileBlocking()) {
             return;
         }
@@ -396,6 +400,11 @@ public abstract class ServerPlayerMixin
             return;
         }
         ci.cancel();
+        //? if >=26.1 {
+        if (itemStack.isEmpty()) {
+            return;
+        }
+        //?}
 
         VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(player);
         for (int i = 0; i < count; ++i) {
@@ -448,10 +457,7 @@ public abstract class ServerPlayerMixin
                     .add(0,-0.8,0);
             if (this.level() instanceof ServerLevel) {
                 ((ServerLevel)this.level()).sendParticles(
-                        new ItemParticleOption(
-                                ParticleTypes.ITEM,
-                                itemStack
-                        ),
+                        McVersionUtils.itemParticle(itemStack),
                         particlePos.x,
                         particlePos.y,
                         particlePos.z,
@@ -462,10 +468,7 @@ public abstract class ServerPlayerMixin
                 );
             }else {
                 this.level().addParticle(
-                        new ItemParticleOption(
-                                ParticleTypes.ITEM,
-                                itemStack
-                        ),
+                        McVersionUtils.itemParticle(itemStack),
                         particlePos.x,
                         particlePos.y,
                         particlePos.z,

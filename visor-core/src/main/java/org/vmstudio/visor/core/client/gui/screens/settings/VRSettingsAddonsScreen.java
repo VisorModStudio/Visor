@@ -5,7 +5,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=1.21.9 {
 import net.minecraft.client.input.MouseButtonEvent;
 //?}
@@ -117,10 +117,10 @@ public class VRSettingsAddonsScreen extends McScreen {
     }
 
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.list.render(guiGraphics, mouseX, mouseY, partialTicks);
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+        McGuiUtils.render(this.list, guiGraphics, mouseX, mouseY, partialTicks);
 
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 0xFFFFFF);
+        McGuiUtils.drawCenteredString(guiGraphics, this.font, this.title, this.width / 2, 15, 0xFFFFFF);
 
         super.renderContents(guiGraphics, mouseX, mouseY, partialTicks);
     }
@@ -142,7 +142,7 @@ public class VRSettingsAddonsScreen extends McScreen {
         }
 
         @Override
-        protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
             guiGraphics.fill(
                     listLeft(), listTop(),
                     listRight(), listBottom(),
@@ -186,17 +186,25 @@ public class VRSettingsAddonsScreen extends McScreen {
             }
         }
 
-        //? if >=1.21.9 {
+        //? if >=26.1 {
         @Override
-        public void renderContent(GuiGraphics gui, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        public void extractContent(GuiGraphicsExtractor gui, int mouseX, int mouseY, boolean hovered, float partialTicks) {
             visor$renderRow(gui, getY(), getX(), getWidth(), mouseX, mouseY, partialTicks);
         }
 
-        private void visor$renderRow(GuiGraphics gui, int top, int left, int listWidth,
+        private void visor$renderRow(GuiGraphicsExtractor gui, int top, int left, int listWidth,
                                      int mouseX, int mouseY, float partialTicks) {
-        //?} else {
+        //?} elif >=1.21.9 {
         /*@Override
-        public void render(GuiGraphics gui, int index, int top, int left, int listWidth, int slotHeight,
+        public void renderContent(GuiGraphicsExtractor gui, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+            visor$renderRow(gui, getY(), getX(), getWidth(), mouseX, mouseY, partialTicks);
+        }
+
+        private void visor$renderRow(GuiGraphicsExtractor gui, int top, int left, int listWidth,
+                                     int mouseX, int mouseY, float partialTicks) {
+        *///?} else {
+        /*@Override
+        public void render(GuiGraphicsExtractor gui, int index, int top, int left, int listWidth, int slotHeight,
                            int mouseX, int mouseY, boolean hovered, float partialTicks) {
         *///?}
             int spacing = 5;
@@ -206,12 +214,12 @@ public class VRSettingsAddonsScreen extends McScreen {
 
             leftButton.setX(startX);
             leftButton.setY(top);
-            leftButton.render(gui, mouseX, mouseY, partialTicks);
+            McGuiUtils.render(leftButton, gui, mouseX, mouseY, partialTicks);
 
             if (rightButton != null) {
                 rightButton.setX(startX + btnW + spacing);
                 rightButton.setY(top);
-                rightButton.render(gui, mouseX, mouseY, partialTicks);
+                McGuiUtils.render(rightButton, gui, mouseX, mouseY, partialTicks);
             }
         }
 

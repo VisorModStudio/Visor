@@ -8,7 +8,11 @@ public class ForgeMixinModLoader implements MixinModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
-        return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        //? if >=26.1 {
+        return net.minecraftforge.fml.loading.LoadingModList.getModFileById(id) != null;
+        //?} else {
+        /*return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        *///?}
     }
 
     @Override

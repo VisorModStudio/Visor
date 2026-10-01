@@ -28,7 +28,7 @@ public class TooltipMixins {
      * Attaches a tooltip to the overlay handling screen
      */
     //? if >=1.21.6 {
-    // 1.21.6 hands the tooltip to the GuiGraphics being drawn, which already is the overlay's
+    // 1.21.6 hands the tooltip to the GuiGraphicsExtractor being drawn, which already is the overlay's
     @Mixin(WidgetTooltipHolder.class)
     public static class TooltipScreenMixin {
 

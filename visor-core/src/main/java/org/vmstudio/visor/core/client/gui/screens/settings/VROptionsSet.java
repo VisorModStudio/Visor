@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -85,7 +85,7 @@ public abstract class VROptionsSet extends DynamicWidgetSet {
     }
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics,
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {
 

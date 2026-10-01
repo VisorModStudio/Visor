@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin;
 
 import net.minecraft.util.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
@@ -17,6 +17,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public class VROverlayFullscreenWarning extends VROverlayScreen {
     }
 
     @Override
-    protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    protected void onPreRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         int pulsePeriodMs = 1100;
         float phase = (Util.getMillis() % pulsePeriodMs) / (float) pulsePeriodMs;
         float pulse = (Mth.sin(phase * Mth.TWO_PI) + 1.0f) * 0.5f;
@@ -79,11 +80,11 @@ public class VROverlayFullscreenWarning extends VROverlayScreen {
         int blockHeight = font.lineHeight + lines.size() * (font.lineHeight + lineGap);
         int textY = (height - blockHeight) / 2;
 
-        guiGraphics.drawString(font, warningText(), textX, textY, textColor, false);
+        McGuiUtils.drawString(guiGraphics, font, warningText(), textX, textY, textColor, false);
         textY += font.lineHeight + lineGap;
 
         for (FormattedCharSequence line : lines) {
-            guiGraphics.drawString(font, line, textX, textY, descriptionColor, false);
+            McGuiUtils.drawString(guiGraphics, font, line, textX, textY, descriptionColor, false);
             textY += font.lineHeight + lineGap;
         }
     }

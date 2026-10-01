@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.client.gui;
 
 import lombok.Getter;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
@@ -85,13 +85,13 @@ public class GuiTexture {
     /**
      * Draws this texture region with specified position and size.
      *
-     * @param gui          the GuiGraphics instance
+     * @param gui          the GuiGraphicsExtractor instance
      * @param xPos         X coordinate to draw at
      * @param yPos         Y coordinate to draw at
      * @param targetWidth  desired width
      * @param targetHeight desired height
      */
-    public void blit(@NotNull GuiGraphics gui,
+    public void blit(@NotNull GuiGraphicsExtractor gui,
                      int xPos, int yPos,
                      int targetWidth, int targetHeight) {
 
@@ -120,11 +120,11 @@ public class GuiTexture {
     /**
      * Draws this texture region with specified position and original size
      *
-     * @param gui          the GuiGraphics instance
+     * @param gui          the GuiGraphicsExtractor instance
      * @param xPos         X coordinate to draw at
      * @param yPos         Y coordinate to draw at
      */
-    public void blit(@NotNull GuiGraphics gui,
+    public void blit(@NotNull GuiGraphicsExtractor gui,
                      int xPos, int yPos) {
         blit(gui, xPos, yPos, textureWidth, textureHeight);
     }

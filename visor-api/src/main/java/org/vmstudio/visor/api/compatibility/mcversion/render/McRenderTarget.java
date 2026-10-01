@@ -246,7 +246,11 @@ public class McRenderTarget {
     }
 
     private static int framebufferOf(RenderTarget target) {
-        GlDevice device = (GlDevice) ModLoader.get().unwrapDevice(RenderSystem.getDevice());
+        //? if >=26.1 {
+        GlDevice device = (GlDevice) RenderSystem.getDevice().backend;
+        //?} else {
+        /*GlDevice device = (GlDevice) ModLoader.get().unwrapDevice(RenderSystem.getDevice());
+        *///?}
         GpuTexture depth = target.getDepthTexture();
         return glTexture(target.getColorTexture())
                 .getFbo(device.directStateAccess(), depth == null ? null : glTexture(depth));

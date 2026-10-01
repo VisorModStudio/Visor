@@ -96,14 +96,23 @@ public class ForgeModLoader implements ModLoader {
 
     @Override
     public boolean isModLoaded(@NotNull String id) {
-        return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        //? if >=26.1 {
+        return net.minecraftforge.fml.loading.LoadingModList.getModFileById(id) != null;
+        //?} else {
+        /*return FMLLoader.getLoadingModList().getModFileById(id) != null;
+        *///?}
     }
 
     @Override
     public @NotNull String getModVersion(@NotNull String id) {
         if (isModLoaded(VisorAPI.MOD_ID)) {
-            return FMLLoader.getLoadingModList()
+            //? if >=26.1 {
+            return net.minecraftforge.fml.loading.LoadingModList
                     .getModFileById(id).versionString();
+            //?} else {
+            /*return FMLLoader.getLoadingModList()
+                    .getModFileById(id).versionString();
+            *///?}
         }
         return "no version";
     }
@@ -191,7 +200,11 @@ public class ForgeModLoader implements ModLoader {
                                                        @NotNull String modId,
                                                        @NotNull String packagePath) {
         List<Class<?>> result = new ArrayList<>();
-        IModFileInfo info = ModList.get().getModFileById(modId);
+        //? if >=26.1 {
+        IModFileInfo info = ModList.getModFileById(modId);
+        //?} else {
+        /*IModFileInfo info = ModList.get().getModFileById(modId);
+        *///?}
         if (!(info instanceof ModFileInfo modFileInfo)) {
             return result;
         }

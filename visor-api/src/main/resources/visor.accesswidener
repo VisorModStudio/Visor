@@ -1,4 +1,4 @@
-accessWidener	v1	named
+accessWidener	v1	official
 
 
 # ------ OVERLAY WIDGETS ------------------
@@ -17,15 +17,22 @@ extendable method net/minecraft/client/gui/components/AbstractSelectionList getE
 
 # Used in: EditBoxImaged
 extendable method net/minecraft/client/gui/components/EditBox isBordered ()Z
+#? if >=26.1 {
+accessible field net/minecraft/client/gui/components/EditBox highlightPos I
+#?}
 
 # Used in: McButton.PositionedTooltip
+#? if >=26.1 {
+accessible method net/minecraft/client/gui/components/Tooltip <init> (Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Ljava/util/Optional;Lnet/minecraft/resources/Identifier;)V
+#?} elif >=1.20.3 {
+#accessible method net/minecraft/client/gui/components/Tooltip <init> (Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V
+#?}
 #? if >=1.20.3 {
-accessible method net/minecraft/client/gui/components/Tooltip <init> (Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V
 accessible field net/minecraft/client/gui/components/Tooltip message Lnet/minecraft/network/chat/Component;
 accessible field net/minecraft/client/gui/components/Tooltip narration Lnet/minecraft/network/chat/Component;
 #?}
 
-# Used in: overlay option and value widgets
+# Used in: EditBoxImaged, overlay option and value widgets
 accessible field net/minecraft/client/gui/components/EditBox responder Ljava/util/function/Consumer;
 
 # Used in: VROverlayChat
@@ -83,6 +90,19 @@ accessible field net/minecraft/client/Camera forwards Lorg/joml/Vector3f;
 accessible field net/minecraft/client/Camera up Lorg/joml/Vector3f;
 accessible field net/minecraft/client/Camera left Lorg/joml/Vector3f;
 accessible method net/minecraft/client/Camera setPosition (Lnet/minecraft/world/phys/Vec3;)V
+#? if >=26.1 {
+extendable method net/minecraft/client/Camera alignWithEntity (F)V
+extendable method net/minecraft/client/Camera calculateFov (F)F
+extendable method net/minecraft/client/Camera createProjectionMatrixForCulling ()Lorg/joml/Matrix4f;
+accessible field net/minecraft/client/Camera fovModifier F
+accessible field net/minecraft/client/Camera oldFovModifier F
+accessible field net/minecraft/client/Camera matrixPropertiesDirty I
+#?}
+
+# Used in: VRAimPicker
+#? if >=26.1 {
+accessible method net/minecraft/client/Minecraft pick (F)V
+#?}
 
 # Used in: VR render target switching, mirror and shader passes
 mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
@@ -95,6 +115,12 @@ accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
 #?} else {
 #accessible field com/mojang/blaze3d/platform/GlStateManager BLEND Lcom/mojang/blaze3d/platform/GlStateManager$BlendState;
 #accessible class com/mojang/blaze3d/platform/GlStateManager$BlendState
+#?}
+
+# Used in: McRenderTarget
+#? if >=26.1 {
+accessible class com/mojang/blaze3d/opengl/GlDevice
+accessible field com/mojang/blaze3d/systems/GpuDevice backend Lcom/mojang/blaze3d/systems/GpuDeviceBackend;
 #?}
 
 # ------ RENDERING ------------------
@@ -122,7 +148,7 @@ accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWith
 
 # Used in: GameEffectVanilla, GameRendererMixin
 #? if >=1.21 && <1.21.6 {
-#accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
+#accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphicsExtractor;F)V
 #?} elif <1.21 {
 #accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
 #?}
@@ -131,17 +157,21 @@ accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWith
 #? if >=1.21.6 {
 accessible field net/minecraft/client/renderer/GameRenderer fogRenderer Lnet/minecraft/client/renderer/fog/FogRenderer;
 accessible field net/minecraft/client/renderer/GameRenderer guiRenderer Lnet/minecraft/client/gui/render/GuiRenderer;
-accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
+#? if >=26.1 {
+accessible field net/minecraft/client/renderer/GameRenderer useUiLightmap Z
+#?} else {
+#accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/renderer/state/gui/GuiRenderState;
+#?}
 accessible field net/minecraft/client/renderer/GameRenderer screenEffectRenderer Lnet/minecraft/client/renderer/ScreenEffectRenderer;
 #? if >=1.21.9 {
 accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/SubmitNodeCollector;)V
 #?} else {
 #accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
 #?}
-#? if >=1.21.11 {
-accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;Lcom/mojang/blaze3d/textures/GpuSampler;IIIIFFFFI)V
-#?} else {
-#accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
+#? if >=1.21.11 && <26.1 {
+#accessible method net/minecraft/client/gui/GuiGraphicsExtractor submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;Lcom/mojang/blaze3d/textures/GpuSampler;IIIIFFFFI)V
+#?} elif <1.21.11 {
+#accessible method net/minecraft/client/gui/GuiGraphicsExtractor submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
 #?}
 #?}
 

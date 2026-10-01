@@ -14,7 +14,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import net.minecraft.util.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
@@ -397,14 +397,14 @@ public class VRSettingsScreen extends McScreen {
     }
 
     @Override
-    protected void renderScreenBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderScreenBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(VisorState.get().isNotActive()) {
             guiGraphics.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
         }
     }
 
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         BACKGROUND.blit(
                 guiGraphics,
                 startX,startY,
@@ -524,7 +524,7 @@ public class VRSettingsScreen extends McScreen {
                 && mouseY < scaleHelper.scaledY(CATEGORY_SCROLL_TOP + CATEGORY_SCROLL_HEIGHT);
     }
 
-    private void renderCategoryScrollBar(GuiGraphics guiGraphics, int mouseX, int mouseY){
+    private void renderCategoryScrollBar(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY){
         int max = maxCategoryScroll();
         int x = scaleHelper.scaledX(54);
         int xEnd = Math.max(x + 1, scaleHelper.scaledX(56));
@@ -540,7 +540,7 @@ public class VRSettingsScreen extends McScreen {
         guiGraphics.fill(x, thumbY, xEnd, thumbY + thumbHeight, thumbColor);
     }
 
-    private void renderCategoryScrollHints(GuiGraphics guiGraphics, int mouseX, int mouseY){
+    private void renderCategoryScrollHints(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY){
         if(categoryScroll > 0){
             drawCategoryArrow(guiGraphics, 40, true,
                     isOverCategoryArrowUp(mouseX, mouseY) ? 0xFFFFFFFF : 0xFF969696);
@@ -551,7 +551,7 @@ public class VRSettingsScreen extends McScreen {
         }
     }
 
-    private void drawCategoryArrow(GuiGraphics guiGraphics, int topY, boolean up, int color){
+    private void drawCategoryArrow(GuiGraphicsExtractor guiGraphics, int topY, boolean up, int color){
         for(int row = 0; row < 5; row++){
             int inset = up ? 4 - row : row;
             guiGraphics.fill(

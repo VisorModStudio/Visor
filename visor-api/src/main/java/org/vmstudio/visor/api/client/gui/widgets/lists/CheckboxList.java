@@ -9,7 +9,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
@@ -77,7 +77,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
 
     @Override
-    public void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderContents(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.hovered = this.isMouseOver(mouseX, mouseY) ? this.getEntryAtPosition(mouseX, mouseY) : null;
         if (VisorAPI.clientState().stateMode().isActive()
                 && scrolling
@@ -117,7 +117,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
     }
 
     @Override
-    protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderRows(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = entryHeight() - paddingTop;
@@ -364,7 +364,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
 
         @Override
-        protected void renderRow(@NotNull GuiGraphics guiGraphics,
+        protected void renderRow(@NotNull GuiGraphicsExtractor guiGraphics,
                            int index,
                            int top, int left,
                            int rowWidth, int rowHeight,

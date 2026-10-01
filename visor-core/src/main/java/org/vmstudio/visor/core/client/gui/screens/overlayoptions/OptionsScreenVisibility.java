@@ -1,6 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.overlayoptions;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +46,7 @@ public class OptionsScreenVisibility extends OptionsScreen<OverlayOptionsVisibil
     }
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
 }

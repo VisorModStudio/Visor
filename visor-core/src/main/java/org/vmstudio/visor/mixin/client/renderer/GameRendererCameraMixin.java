@@ -43,8 +43,8 @@ public abstract class GameRendererCameraMixin {
         return new VRGameCamera();
     }
 
-    //? if >=1.21 {
-    // 1.21 builds the frustum from Camera.rotation() instead of its euler angles
+    //? if >=1.21 && <26.1 {
+    /*// 1.21 builds the frustum from Camera.rotation() instead of its euler angles
     @WrapOperation(at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/Camera;rotation()Lorg/joml/Quaternionf;"),
             method = "renderLevel", require = 1)
@@ -54,7 +54,7 @@ public abstract class GameRendererCameraMixin {
         }
         return new Quaternionf();
     }
-    //?} else {
+    *///?} elif <1.21 {
     /*@WrapOperation(at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/Camera;getXRot()F"),
             method = "renderLevel", require = 1)
@@ -77,8 +77,8 @@ public abstract class GameRendererCameraMixin {
     }
     *///?}
 
-    //? if >=1.21 {
-    @ModifyExpressionValue(method = "renderLevel",
+    //? if >=1.21 && <26.1 {
+    /*@ModifyExpressionValue(method = "renderLevel",
             at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotation(Lorg/joml/Quaternionfc;)Lorg/joml/Matrix4f;", remap = false), require = 1)
     public Matrix4f visor$orientCameraToPass(Matrix4f frustumMatrix) {
         if (VRRenderState.getPhase().isNotVanilla()) {
@@ -88,7 +88,7 @@ public abstract class GameRendererCameraMixin {
         }
         return frustumMatrix;
     }
-    //?} elif >=1.20.5 {
+    *///?} elif >=1.20.5 && <1.21 {
     /*@ModifyExpressionValue(method = "renderLevel",
             at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotationXYZ(FFF)Lorg/joml/Matrix4f;", remap = false), require = 1)
     public Matrix4f visor$orientCameraToPass(Matrix4f frustumMatrix) {
@@ -99,7 +99,7 @@ public abstract class GameRendererCameraMixin {
         }
         return frustumMatrix;
     }
-    *///?} else {
+    *///?} elif <1.20.5 {
     /*@Inject(at = @At(value = "NEW", target = "org/joml/Matrix3f", remap = false),
             method = "renderLevel", require = 1)
     public void visor$orientCameraToPass(float partialTicks, long nanos, PoseStack poseStack, CallbackInfo ci) {
@@ -111,7 +111,8 @@ public abstract class GameRendererCameraMixin {
     }
     *///?}
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel", require = 1)
+    //? if <26.1 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;pick(F)V"), method = "renderLevel", require = 1)
     public void visor$pickAndSetupCamera(GameRenderer g, float pPartialTicks, Operation<Void> original) {
         if (VRRenderState.getPhase().isVanilla()) {
             original.call(g, pPartialTicks);
@@ -138,6 +139,7 @@ public abstract class GameRendererCameraMixin {
             );
         }
     }
+    *///?}
 
     @Inject(at = @At("TAIL"), method = "renderLevel")
     public void visor$releaseHiddenAreaMask(CallbackInfo ci) {

@@ -19,5 +19,7 @@ public interface GameRendererExtension {
 
     void visor$resetProjectionMatrix(float partialTicks);
 
+    Matrix4f visor$passProjection(float fov);
+
     Matrix4f visor$getThirdPersonProjection();
 }

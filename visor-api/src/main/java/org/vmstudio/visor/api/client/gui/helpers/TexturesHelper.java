@@ -93,7 +93,7 @@ public class TexturesHelper {
         LoggerUtils.getLogger().warn(
                 "TexturesHelper is holding {} distinct color textures, which are never released. "
                         + "A caller is likely passing runtime-varying colors to getColorTexture - "
-                        + "those should use GuiGraphics#fill instead.",
+                        + "those should use GuiGraphicsExtractor#fill instead.",
                 CACHE.size()
         );
     }

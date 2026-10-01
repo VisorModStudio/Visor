@@ -226,8 +226,13 @@ public class FabricModLoader implements ModLoader {
         CustomPacketPayload.Type<RawPayload> type = payloadType(channel.getChannelId());
         StreamCodec<FriendlyByteBuf, RawPayload> codec = RawPayload.codec(type);
         // from 1.20.5 both sender and receiver need same
-        PayloadTypeRegistry.playC2S().register(type, codec);
+        //? if >=26.1 {
+        PayloadTypeRegistry.serverboundPlay().register(type, codec);
+        PayloadTypeRegistry.clientboundPlay().register(type, codec);
+        //?} else {
+        /*PayloadTypeRegistry.playC2S().register(type, codec);
         PayloadTypeRegistry.playS2C().register(type, codec);
+        *///?}
         if (channel.hasPacketsToServer()) {
             ServerPlayNetworking.registerGlobalReceiver(type, (payload, context) ->
                     channel.handleToServer(
@@ -271,10 +276,13 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToClient payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        //? if >=1.20.5 {
-        return ServerPlayNetworking.createS2CPacket(
+        //? if >=26.1 {
+        return ServerPlayNetworking.createClientboundPacket(
                 new RawPayload(payloadType(channelId), buffer));
-        //?} else {
+        //?} elif >=1.20.5 {
+        /*return ServerPlayNetworking.createS2CPacket(
+                new RawPayload(payloadType(channelId), buffer));
+        *///?} else {
         /*return ServerPlayNetworking.createS2CPacket(channelId, buffer);
         *///?}
     }
@@ -284,10 +292,13 @@ public class FabricModLoader implements ModLoader {
                                                    @NotNull VisorPayloadToServer payload) {
         FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
         payload.write(buffer);
-        //? if >=1.20.5 {
-        return ClientPlayNetworking.createC2SPacket(
+        //? if >=26.1 {
+        return ClientPlayNetworking.createServerboundPacket(
                 new RawPayload(payloadType(channelId), buffer));
-        //?} else {
+        //?} elif >=1.20.5 {
+        /*return ClientPlayNetworking.createC2SPacket(
+                new RawPayload(payloadType(channelId), buffer));
+        *///?} else {
         /*return ClientPlayNetworking.createC2SPacket(channelId, buffer);
         *///?}
     }

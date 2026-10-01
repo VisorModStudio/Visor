@@ -18,7 +18,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -56,7 +56,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         int startX = 0;
         int startY = 0;
 
@@ -272,7 +272,7 @@ public class VROverlayDemo extends VROverlayScreen {
         targetPoseOptions.update(true);
     }
 
-    private void renderOutline(GuiGraphics guiGraphics,
+    private void renderOutline(GuiGraphicsExtractor guiGraphics,
                                int x, int y,
                                int width, int height,
                                int color){

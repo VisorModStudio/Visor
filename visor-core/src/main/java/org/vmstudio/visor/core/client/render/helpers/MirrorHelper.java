@@ -184,7 +184,7 @@ public class MirrorHelper {
                 McGlState.clearColor(0, 0, 0, 0);
             }
 
-            // 5) prepare GuiGraphics with scaled text
+            // 5) prepare GuiGraphicsExtractor with scaled text
             var gui = McGuiRenderer.begin();
             McGuiUtils.scale(gui, TEXT_SCALE, TEXT_SCALE);
 
@@ -196,7 +196,7 @@ public class MirrorHelper {
 
             int y = LINE_HEIGHT;
             for (String line : lines) {
-                gui.drawString(MC.font, line, TEXT_X_OFFSET, y, TEXT_COLOR);
+                McGuiUtils.drawString(gui, MC.font, line, TEXT_X_OFFSET, y, TEXT_COLOR);
                 y += LINE_HEIGHT;
             }
 

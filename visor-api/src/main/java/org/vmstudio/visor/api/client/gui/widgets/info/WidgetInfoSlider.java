@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.components.Tooltip;
 import org.jetbrains.annotations.NotNull;
@@ -164,7 +164,7 @@ public class WidgetInfoSlider extends WidgetInfo{
 
 
 
-    public void drawHighlight(GuiGraphics guiGraphics,
+    public void drawHighlight(GuiGraphicsExtractor guiGraphics,
                               int x, int y, int width, int height,
                               boolean active,
                               boolean hovered) {

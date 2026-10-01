@@ -10,7 +10,7 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoTextBoxEditable;
 
 import org.vmstudio.visor.api.client.gui.widgets.sets.WidgetSet;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -109,7 +109,7 @@ public class SetupIdentityWidgetSet implements WidgetSet {
     }
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics,
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {
 

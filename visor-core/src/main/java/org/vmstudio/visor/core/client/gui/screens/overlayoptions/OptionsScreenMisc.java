@@ -7,7 +7,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsMi
 import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ public class OptionsScreenMisc extends OptionsScreen<OverlayOptionsMisc> {
     }
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
 }

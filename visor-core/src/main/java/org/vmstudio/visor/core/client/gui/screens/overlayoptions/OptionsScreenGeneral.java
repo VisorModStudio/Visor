@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.OptionsScreen;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.properties.Property;
 import org.vmstudio.visor.api.client.gui.widgets.sets.WidgetsList;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -35,13 +35,13 @@ public class OptionsScreenGeneral extends OptionsScreen<OverlayOptionsGeneral> {
     }
 
     @Override
-    protected void onRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 
         widgetsList.onPreRender(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
         widgetsList.onPostRender(guiGraphics, mouseX, mouseY, partialTick);
     }

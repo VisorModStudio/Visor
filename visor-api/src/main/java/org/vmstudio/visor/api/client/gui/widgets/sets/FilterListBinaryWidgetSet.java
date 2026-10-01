@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoCheckboxList;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoImage;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -92,7 +92,7 @@ public class FilterListBinaryWidgetSet<T> extends DynamicWidgetSet implements Fi
         this.selectedSupplierSecond = builder.selectedSupplierSecond;
     }
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if(buttonFirst.isSelected()){
             filtersWidgetFirst.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
         }else{

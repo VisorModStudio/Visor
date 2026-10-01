@@ -17,7 +17,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.SettingsText
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -305,7 +305,7 @@ public class SetupOverlayWidgetSet extends DynamicWidgetSet {
     }
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         //PREPARE WIDGETS
         if(hasSettings){
             var selectedEntry = optionsListWidget.getSelectedEntry();

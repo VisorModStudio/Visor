@@ -88,7 +88,7 @@ public interface McGuiEventListener extends GuiEventListener {
 
     @Override
     default boolean charTyped(CharacterEvent event) {
-        return charTyped((char) event.codepoint(), event.modifiers());
+        return charTyped((char) event.codepoint(), McGuiUtils.modifiers(event));
     }
     //?}
 }

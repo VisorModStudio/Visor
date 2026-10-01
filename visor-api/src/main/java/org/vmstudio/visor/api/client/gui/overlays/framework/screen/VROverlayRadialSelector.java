@@ -9,7 +9,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -54,7 +54,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
         this.disabledBoxes = new ArrayList<>();
     }
 
-    protected abstract void renderRadialImage(GuiGraphics guiGraphics,
+    protected abstract void renderRadialImage(GuiGraphicsExtractor guiGraphics,
                                               float pPartialTicks,
                                               int selectedSlice,
                                               int x,
@@ -63,7 +63,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     );
 
     @Override
-    public void onPreRender(GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
+    public void onPreRender(GuiGraphicsExtractor guiGraphics, int pMouseX, int pMouseY, float pPartialTicks) {
         Vector2f cursor = VisorAPI.client().getGuiManager()
                 .getCursorHandler()
                 .findCursorPosition2D(
@@ -116,7 +116,7 @@ public abstract class VROverlayRadialSelector extends VROverlayScreen {
     }
 
     @Override
-    public void onRender(GuiGraphics guiGraphics,
+    public void onRender(GuiGraphicsExtractor guiGraphics,
                          int mouseX, int mouseY,
                          float pPartialTicks
     ) {

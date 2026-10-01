@@ -2,7 +2,7 @@ package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McPlainButton;
 import org.vmstudio.visor.core.client.gui.screens.VRKeyboardScreen;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 //? if >=1.21.9 {
 import net.minecraft.client.input.InputWithModifiers;
@@ -38,7 +38,7 @@ public class KeyboardButton extends McPlainButton {
 
     // before super.renderContents: the button sprite reads isHovered()
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int i, int j, float f) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
         VROverlayKeyboard overlayKeyboard = keyboardScreen.getOverlayKeyboard();
         if(overlayKeyboard.getInactiveCursorData().isInGui()){
             int mX = overlayKeyboard.getInactiveCursorData().getCursorX();

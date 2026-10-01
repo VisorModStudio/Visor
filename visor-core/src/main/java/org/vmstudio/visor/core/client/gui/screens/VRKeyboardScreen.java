@@ -3,7 +3,7 @@ package org.vmstudio.visor.core.client.gui.screens;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
 import net.minecraft.network.chat.Component;
@@ -379,7 +379,7 @@ public class VRKeyboardScreen extends McScreen {
     }
 
     @Override
-    protected void renderScreenBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderScreenBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
 
     }
 

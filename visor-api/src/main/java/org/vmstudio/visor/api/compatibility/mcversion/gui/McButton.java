@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
@@ -46,18 +46,21 @@ public abstract class McButton extends AbstractButton {
     /**
      * Draws the button, AbstractButton.renderWidget is final around this since 1.21.11.
      */
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderDefaultButton(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     /**
      * The vanilla look: the button sprite and the message.
      */
-    protected void renderDefaultButton(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        //? if >=1.21.11 {
-        renderDefaultSprite(guiGraphics);
-        renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
-        //?} else {
+    protected void renderDefaultButton(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        //? if >=26.1 {
+        extractDefaultSprite(guiGraphics);
+        extractDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
+        //?} elif >=1.21.11 {
+        /*renderDefaultSprite(guiGraphics);
+        renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
+        *///?} else {
         /*super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         *///?}
     }
@@ -108,7 +111,7 @@ public abstract class McButton extends AbstractButton {
 
     public boolean charTyped(char chr, int modifiers) {
         //? if >=1.21.9 {
-        return super.charTyped(new CharacterEvent(chr, modifiers));
+        return super.charTyped(McGuiUtils.characterEvent(chr, modifiers));
         //?} else {
         /*return super.charTyped(chr, modifiers);
         *///?}
@@ -152,16 +155,21 @@ public abstract class McButton extends AbstractButton {
 
     @Override
     public final boolean charTyped(CharacterEvent event) {
-        return charTyped((char) event.codepoint(), event.modifiers());
+        return charTyped((char) event.codepoint(), McGuiUtils.modifiers(event));
     }
     //?}
 
 
     // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
 
-    //? if <1.21.11 {
+    //? if >=26.1 {
+    @Override
+    protected final void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderContents(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    //?} elif <1.21.11 {
     /*@Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}
@@ -199,7 +207,11 @@ public abstract class McButton extends AbstractButton {
         private final ClientTooltipPositioner positioner;
 
         private PositionedTooltip(Tooltip source, ClientTooltipPositioner positioner) {
-            super(source.message, source.narration);
+            //? if >=26.1 {
+            super(source.message, source.narration, source.component(), source.style());
+            //?} else {
+            /*super(source.message, source.narration);
+            *///?}
             this.positioner = positioner;
         }
 

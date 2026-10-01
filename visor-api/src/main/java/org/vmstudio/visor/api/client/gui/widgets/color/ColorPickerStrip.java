@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.client.gui.widgets.color;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.gui.helpers.ColorsHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -45,7 +45,7 @@ public class ColorPickerStrip extends McWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics,
+    protected void renderWidget(GuiGraphicsExtractor guiGraphics,
                                 int mouseX, int mouseY,
                                 float partialTick) {
         int x = getX();
@@ -64,7 +64,7 @@ public class ColorPickerStrip extends McWidget {
         drawKnob(guiGraphics, x, y, width, height);
     }
 
-    private void renderHue(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void renderHue(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height) {
         int span = vertical ? height : width;
 
         for (int segment = 0; segment < HUE_SEGMENTS; segment++) {
@@ -89,7 +89,7 @@ public class ColorPickerStrip extends McWidget {
         }
     }
 
-    private void renderAlpha(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void renderAlpha(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height) {
         ColorsHelper.drawTransparencyChecker(guiGraphics, x, y, width, height);
 
         int rgb = baseColorArgb & 0x00FFFFFF;
@@ -107,7 +107,7 @@ public class ColorPickerStrip extends McWidget {
         }
     }
 
-    private void drawKnob(GuiGraphics guiGraphics, int x, int y, int width, int height) {
+    private void drawKnob(GuiGraphicsExtractor guiGraphics, int x, int y, int width, int height) {
         int span = vertical ? height : width;
         if (span <= 0) return;
 

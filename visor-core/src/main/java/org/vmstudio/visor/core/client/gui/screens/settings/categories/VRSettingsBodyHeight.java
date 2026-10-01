@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;

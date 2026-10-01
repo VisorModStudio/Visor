@@ -81,10 +81,13 @@ public class RenderPoseHelper {
     }
 
     private static boolean isConstantAmbient() {
-        //? if >=1.21.11 {
+        //? if >=26.1 {
         return MC.level != null && MC.level.dimensionType().cardinalLightType()
+                == net.minecraft.world.level.CardinalLighting.Type.NETHER;
+        //?} elif >=1.21.11 {
+        /*return MC.level != null && MC.level.dimensionType().cardinalLightType()
                 == net.minecraft.world.level.dimension.DimensionType.CardinalLightType.NETHER;
-        //?} else {
+        *///?} else {
         /*return MC.level != null && MC.level.effects().constantAmbientLight();
         *///?}
     }

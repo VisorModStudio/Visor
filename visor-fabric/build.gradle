@@ -21,6 +21,6 @@ dependencies {
     include(modImplementation(fabricApi.module("fabric-command-api-v2", fabricApiVersion)))
 }
 
-remapJar {
-    injectAccessWidener = true
+loom {
+    injectAccessWidener(modJar)
 }

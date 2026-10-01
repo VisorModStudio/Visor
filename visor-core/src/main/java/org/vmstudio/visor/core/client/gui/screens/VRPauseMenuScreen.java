@@ -1,7 +1,7 @@
 package org.vmstudio.visor.core.client.gui.screens;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.*;
 //? if >=1.21.9 {
@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 //?}
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -217,11 +218,11 @@ public class VRPauseMenuScreen extends McScreen {
     }
 
     @Override
-    protected void renderContents(GuiGraphics gfx, int mouseX, int mouseY, float delta) {
+    protected void renderContents(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float delta) {
         int cx = this.width / 2;
         int startY = this.height / 2 - totalColumnHeight() / 2;
 
-        gfx.drawCenteredString(this.font, Component.translatable("visor.screen.pause_menu.title"), cx, startY, 0xFFFFFFFF);
+        McGuiUtils.drawCenteredString(gfx, this.font, Component.translatable("visor.screen.pause_menu.title"), cx, startY, 0xFFFFFFFF);
 
         int dividerColor = 0xFF555555;
 
@@ -243,7 +244,7 @@ public class VRPauseMenuScreen extends McScreen {
                 gfx.fill(sx, lineY, sx + 18, lineY + 1, dividerColor);
                 gfx.fill(sx + 22 + lblW, lineY, sx + COLUMN_W, lineY + 1, dividerColor);
 
-                gfx.drawString(this.font, sectionHeaderTexts.get(i), sx + 20, sy, 0xFF6AE3EA, false);
+                McGuiUtils.drawString(gfx, this.font, sectionHeaderTexts.get(i), sx + 20, sy, 0xFF6AE3EA, false);
             }
         }
 

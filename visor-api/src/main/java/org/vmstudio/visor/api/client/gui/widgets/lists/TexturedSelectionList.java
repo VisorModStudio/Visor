@@ -13,7 +13,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -160,7 +160,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     //Rendering
 
     @Override
-    public void renderContents(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderContents(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         // Determine hovered entry across columns
         this.hoveredEntry = null;
         if (this.isMouseOver(mouseX, mouseY)) {
@@ -214,7 +214,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
     }
 
     @Override
-    protected void renderRows(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderRows(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         int i = this.getRowLeft();
         int j = this.getRowWidth();
         int k = entryHeight() - paddingTop;
@@ -229,7 +229,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         }
     }
 
-    private void updateTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void updateTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         Function<String, Component> factory = widgetInfo.getTooltip();
         if (factory == null) return;
 
@@ -482,7 +482,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         }
 
         @Override
-        protected void renderRowBack(@NotNull GuiGraphics guiGraphics,
+        protected void renderRowBack(@NotNull GuiGraphicsExtractor guiGraphics,
                                int index,
                                int top, int left,
                                int rowWidth, int rowHeight,
@@ -525,7 +525,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         }
 
         @Override
-        protected void renderRow(@NotNull GuiGraphics guiGraphics,
+        protected void renderRow(@NotNull GuiGraphicsExtractor guiGraphics,
                            int index,
                            int top, int left,
                            int rowWidth, int rowHeight,

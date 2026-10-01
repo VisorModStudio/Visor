@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 //? if >=1.21.9 {
@@ -30,20 +30,26 @@ public abstract class McScreen extends Screen {
 
     // ------- STABLE API -------
 
-    protected void renderScreenBackground(GuiGraphics guiGraphics,
+    protected void renderScreenBackground(GuiGraphicsExtractor guiGraphics,
                                           int mouseX, int mouseY,
                                           float partialTick) {
-        //? if >=1.20.2 {
-        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        //?} else {
+        //? if >=26.1 {
+        super.extractBackground(guiGraphics, mouseX, mouseY, partialTick);
+        //?} elif >=1.20.2 {
+        /*super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        *///?} else {
         /*super.renderBackground(guiGraphics);
         *///?}
     }
 
-    protected void renderContents(GuiGraphics guiGraphics,
+    protected void renderContents(GuiGraphicsExtractor guiGraphics,
                                   int mouseX, int mouseY,
                                   float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        //? if >=26.1 {
+        super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
+        //?} else {
+        /*super.render(guiGraphics, mouseX, mouseY, partialTick);
+        *///?}
     }
 
     protected boolean onMouseClicked(double mouseX, double mouseY, int button) {
@@ -97,7 +103,7 @@ public abstract class McScreen extends Screen {
 
     protected boolean onCharTyped(char chr, int modifiers) {
         //? if >=1.21.9 {
-        return super.charTyped(new CharacterEvent(chr, modifiers));
+        return super.charTyped(McGuiUtils.characterEvent(chr, modifiers));
         //?} else {
         /*return super.charTyped(chr, modifiers);
         *///?}
@@ -152,7 +158,11 @@ public abstract class McScreen extends Screen {
     *///?}
 
     @Override
-    public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    //? if >=26.1 {
+    public final void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    //?} else {
+    /*public final void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    *///?}
         //? if <1.20.2 {
         /*renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
@@ -171,19 +181,24 @@ public abstract class McScreen extends Screen {
 
     //? if <1.20.2 {
     /*@Override
-    public final void renderBackground(GuiGraphics guiGraphics) {
+    public final void renderBackground(GuiGraphicsExtractor guiGraphics) {
         renderScreenBackground(guiGraphics, 0, 0, 0);
     }
     *///?} elif <1.21.9 {
     /*@Override
-    public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (!contentsPass) {
             renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
+    *///?} elif <26.1 {
+    /*@Override
+    public final void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
+    }
     *///?} else {
     @Override
-    public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
     }
     //?}
@@ -226,7 +241,7 @@ public abstract class McScreen extends Screen {
     public final boolean charTyped(CharacterEvent event) {
         boolean handled = false;
         for (char chr : Character.toChars(event.codepoint())) {
-            handled |= onCharTyped(chr, event.modifiers());
+            handled |= onCharTyped(chr, McGuiUtils.modifiers(event));
         }
         return handled;
     }

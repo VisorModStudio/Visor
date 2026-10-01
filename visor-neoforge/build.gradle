@@ -55,9 +55,18 @@ configurations.runtimeClasspath {
     exclude group: "com.github.Phoenix-Ra", module: "AtumConfiguration"
     exclude group: "com.github.Phoenix-Ra.AtumConfiguration"
 
-    exclude group: "com.github.Phoenix-Ra.AtumVR"
-    exclude module: "atumvr-api-${atumvr_version}"
-    exclude module: "atumvr-core-${atumvr_version}"
+    if (!unobfuscated) {
+        exclude group: "com.github.Phoenix-Ra.AtumVR"
+        exclude module: "atumvr-api-${atumvr_version}"
+        exclude module: "atumvr-core-${atumvr_version}"
+    }
+}
+
+if (unobfuscated) {
+    configurations {
+        fabricAnnotations { canBeConsumed = false; canBeResolved = true; transitive = false }
+    }
+    sourceSets.main.compileClasspath += configurations.fabricAnnotations
 }
 
 dependencies {
@@ -65,7 +74,7 @@ dependencies {
 
     // We need it for @Environment annotation, to mark methods/classes
     // NeoForge ignores this annotation, but addons will see
-    compileOnly("net.fabricmc:fabric-loader:${fabric_loader_version}") { transitive = false }
+    add(unobfuscated ? "fabricAnnotations" : "compileOnly", "net.fabricmc:fabric-loader:${fabric_loader_version}") { transitive = false }
 
     // NeoForge 20.2 ships Mixin 0.8.5, which has no @Inject(order = ..). The shared sources use it,
     // so compile against the 0.8.7 annotations; the runtime simply ignores the extra attribute.
@@ -90,8 +99,7 @@ dependencies {
 
 loom {
     neoForge {
-         convertAccessWideners(tasks.named("remapJar", net.fabricmc.loom.task.RemapJarTask),
-                loom.accessWidenerPath.get().asFile.name)
+         convertAccessWideners(modJar, loom.accessWidenerPath.get().asFile.name)
     }
 }
 

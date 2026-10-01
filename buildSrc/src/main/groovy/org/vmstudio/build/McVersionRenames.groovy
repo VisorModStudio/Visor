@@ -22,6 +22,13 @@ class McVersionRenames {
             move("1.21.11", "net.minecraft.world.entity.vehicle.AbstractBoat", "net.minecraft.world.entity.vehicle.boat.AbstractBoat"),
             move("1.21.11", "net.minecraft.world.entity.vehicle.Boat", "net.minecraft.world.entity.vehicle.boat.Boat"),
             move("1.21.11", "net.minecraft.world.entity.vehicle.Minecart", "net.minecraft.world.entity.vehicle.minecart.Minecart"),
+            text("26.1", "accessWidener\tv1\tnamed", "accessWidener\tv1\tofficial"),
+            type("26.1", "GuiGraphics", "GuiGraphicsExtractor"),
+            move("26.1", "net.minecraft.client.gui.render.state.GuiRenderState", "net.minecraft.client.renderer.state.gui.GuiRenderState"),
+            move("26.1", "net.minecraft.client.renderer.state.CameraRenderState", "net.minecraft.client.renderer.state.level.CameraRenderState"),
+            move("26.1", "net.minecraft.client.renderer.state.LevelRenderState", "net.minecraft.client.renderer.state.level.LevelRenderState"),
+            move("26.1", "net.minecraft.client.renderer.state.WeatherRenderState", "net.minecraft.client.renderer.state.level.WeatherRenderState"),
+            move("26.1", "net.minecraft.client.resources.model.AtlasManager", "net.minecraft.client.resources.model.sprite.AtlasManager"),
     ].flatten() as List<Rule>
 
     static class Rule {
@@ -69,6 +76,11 @@ class McVersionRenames {
                 new Rule(since, "${Pattern.quote(oldName)}\\b", oldName, "${Pattern.quote(newName)}\\b", newName),
                 new Rule(since, "${Pattern.quote(slashed(oldName))}\\b", slashed(oldName), "${Pattern.quote(slashed(newName))}\\b", slashed(newName)),
         ]
+    }
+
+    // a literal that differs between the versions, outside of any class name
+    private static Rule text(String since, String oldText, String newText) {
+        new Rule(since, Pattern.quote(oldText), oldText, Pattern.quote(newText), newText)
     }
 
     private static String slashed(String name) {

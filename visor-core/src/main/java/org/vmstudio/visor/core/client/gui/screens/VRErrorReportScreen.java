@@ -5,9 +5,10 @@ import org.vmstudio.visor.core.client.exceptions.VisorException;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
@@ -80,14 +81,14 @@ public class VRErrorReportScreen extends McScreen {
     }
 
     @Override
-    protected void renderContents(@NotNull GuiGraphics gfx, int mx, int my, float pt) {
-        gfx.drawCenteredString(this.font, this.title, this.width/2, 15, 0xFF5555);
+    protected void renderContents(@NotNull GuiGraphicsExtractor gfx, int mx, int my, float pt) {
+        McGuiUtils.drawCenteredString(gfx, this.font, this.title, this.width/2, 15, 0xFF5555);
 
         int y = 40;
         for (var line : summaryLines) {
             int lineWidth = this.font.width(line);
             int x = (this.width - lineWidth) / 2;
-            gfx.drawString(this.font, line, x, y, 0xFFFFFF, false);
+            McGuiUtils.drawString(gfx, this.font, line, x, y, 0xFFFFFF, false);
             y += this.font.lineHeight;
         }
 

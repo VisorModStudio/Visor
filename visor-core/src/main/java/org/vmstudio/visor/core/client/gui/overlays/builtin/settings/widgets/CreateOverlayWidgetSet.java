@@ -23,7 +23,7 @@ import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.widgets.iden
 import org.vmstudio.visor.core.client.gui.registry.VROverlayRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -235,7 +235,7 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
     }
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics,
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {
         Font font = Minecraft.getInstance().font;

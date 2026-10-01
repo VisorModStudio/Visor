@@ -35,8 +35,10 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     @Shadow
     @Final
     Minecraft minecraft;
-    @Shadow
+    //? if <26.1 {
+    /*@Shadow
     private float renderDistance;
+    *///?}
     //? if <1.21.6 {
     /*@Shadow
     private float zoom;
@@ -57,12 +59,12 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     private float visor$farClipPlane = 128.0F;
 
     // ---- Shadow methods ----
-    //? if >=1.21.2 {
-    @Shadow
+    //? if >=1.21.2 && <26.1 {
+    /*@Shadow
     public abstract Matrix4f getProjectionMatrix(float fov);
     @Shadow
     protected abstract float getFov(Camera mainCamera2, float partialTicks, boolean b);
-    //?} else {
+    *///?} elif <1.21.2 {
     /*@Shadow
     public abstract Matrix4f getProjectionMatrix(double fov);
     @Shadow
@@ -74,8 +76,8 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
   //--------MIXINS--------\\
     \* ***************** */
 
-    //? if >=1.21.2 {
-    @Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)F", cancellable = true)
+    //? if >=1.21.2 && <26.1 {
+    /*@Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)F", cancellable = true)
     public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Float> info) {
         if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
             info.setReturnValue(this.minecraft.options.fov().get().floatValue());
@@ -86,7 +88,7 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     public void visor$projection(float fov, CallbackInfoReturnable<Matrix4f> info) {
         visor$applyVrProjection(fov, info);
     }
-    //?} else {
+    *///?} elif <1.21.2 {
     /*@Inject(at = @At("HEAD"), method = "getFov(Lnet/minecraft/client/Camera;FZ)D", cancellable = true)
     public void visor$fov(Camera camera, float f, boolean bl, CallbackInfoReturnable<Double> info) {
         if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
@@ -100,11 +102,19 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     }
     *///?}
 
-    @Unique
+    //? if <26.1 {
+    /*@Unique
     private void visor$applyVrProjection(double d, CallbackInfoReturnable<Matrix4f> info) {
         if (VisorState.get().isNotActive()) {
             return;
         }
+        info.setReturnValue(visor$passProjection((float) d));
+    }
+    *///?}
+
+    @Override
+    @Unique
+    public Matrix4f visor$passProjection(float fov) {
         PoseStack posestack = new PoseStack();
         visor$setupClipPlanes();
         ClientContext.renderer.updateProjection();
@@ -114,17 +124,13 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
             McRenderUtils.mulPose(posestack,
                     ClientContext.renderer.getEyeProjection(EyeType.LEFT)
             );
-            info.setReturnValue(
-                    posestack.last().pose()
-            );
-            return;
+            return posestack.last().pose();
         }
         if (renderPass == VRRenderPass.EYE_RIGHT) {
             McRenderUtils.mulPose(posestack,
                     ClientContext.renderer.getEyeProjection(EyeType.RIGHT)
             );
-            info.setReturnValue(posestack.last().pose());
-            return;
+            return posestack.last().pose();
         }
         if (renderPass == VRRenderPass.THIRD_PERSON) {
             if (VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY) {
@@ -146,8 +152,7 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
                 );
             }
             this.visor$thirdPersonProjection = new Matrix4f(posestack.last().pose());
-            info.setReturnValue(posestack.last().pose());
-            return;
+            return posestack.last().pose();
         }
 
         //? if <1.21.6 {
@@ -159,7 +164,7 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
         McRenderUtils.mulPose(posestack,
                 new Matrix4f()
                         .setPerspective(
-                                (float) d * Mth.DEG_TO_RAD,
+                                fov * Mth.DEG_TO_RAD,
                                 (float) this.minecraft.getWindow().getScreenWidth()
                                         / (float) this.minecraft.getWindow().getScreenHeight(),
                                 this.visor$nearClipPlane,
@@ -167,8 +172,18 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
                         )
         );
 
-        info.setReturnValue(posestack.last().pose());
+        return posestack.last().pose();
     }
+
+    //? if >=26.1 {
+    @Unique
+    private float visor$cameraFov() {
+        if (VRRenderState.getSceneType().isMainMenu() || !this.mainCamera.isInitialized()) {
+            return this.minecraft.options.fov().get().floatValue();
+        }
+        return this.mainCamera.getFov();
+    }
+    //?}
 
     //? if >=1.21.5 {
     @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isGameLoadFinished()Z", shift = Shift.AFTER), method = "render", require = 1)
@@ -177,11 +192,19 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     *///?}
     public void visor$matrix(CallbackInfo info) {
         if(VisorState.get().isNotActive()) return;
+        //? if >=26.1 {
         McProjection.setPerspective(
+                visor$passProjection(
+                        minecraft.options.fov().get()
+                )
+        );
+        //?} else {
+        /*McProjection.setPerspective(
                 this.getProjectionMatrix(
                         minecraft.options.fov().get()
                 )
         );
+        *///?}
         McModelViewStack.identity();
         McModelViewStack.apply();
     }
@@ -194,8 +217,14 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     @Override
     @Unique
     public void visor$setupClipPlanes() {
-        this.renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
+        //? if >=26.1 {
+        float renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
+        this.visor$farClipPlane = Math.max(renderDistance + 1024.0F,
+                Math.max(renderDistance * 4.0F, this.minecraft.options.cloudRange().get() * 16));
+        //?} else {
+        /*this.renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
         this.visor$farClipPlane = this.renderDistance + 1024.0F;
+        *///?}
     }
 
     @Override
@@ -213,7 +242,11 @@ public abstract class GameRendererProjectionMixin implements GameRendererExtensi
     @Override
     @Unique
     public void visor$resetProjectionMatrix(float partialTicks) {
-        McProjection.setPerspective(this.getProjectionMatrix(this.getFov(this.mainCamera, partialTicks, true)));
+        //? if >=26.1 {
+        McProjection.setPerspective(visor$passProjection(visor$cameraFov()));
+        //?} else {
+        /*McProjection.setPerspective(this.getProjectionMatrix(this.getFov(this.mainCamera, partialTicks, true)));
+        *///?}
     }
 
     @Override

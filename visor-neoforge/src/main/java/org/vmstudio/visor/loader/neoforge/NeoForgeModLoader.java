@@ -3,12 +3,12 @@ package org.vmstudio.visor.loader.neoforge;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
-//? if >=1.21.6 {
-import com.mojang.blaze3d.systems.GpuDevice;
+//? if >=1.21.6 && <26.1 {
+/*import com.mojang.blaze3d.systems.GpuDevice;
 import com.mojang.blaze3d.textures.GpuTexture;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
-//?}
+*///?}
 import io.netty.buffer.Unpooled;
 import net.minecraft.resources.Identifier;
 //? if <1.20.4 {
@@ -163,8 +163,8 @@ public class NeoForgeModLoader implements ModLoader {
         *///?}
     }
 
-    //? if >=1.21.6 {
-    @Override
+    //? if >=1.21.6 && <26.1 {
+    /*@Override
     public GpuDevice unwrapDevice(@NotNull GpuDevice device) {
         return B3dValidationLayer.PRESENT ? B3dValidationLayer.unwrap(device) : device;
     }
@@ -196,7 +196,7 @@ public class NeoForgeModLoader implements ModLoader {
             return texture instanceof ValidationGpuTexture validation ? validation.getRealTexture() : texture;
         }
     }
-    //?}
+    *///?}
 
     @Override
     public double getItemEntityReach(double baseRange, ItemStack itemStack, EquipmentSlot slot) {

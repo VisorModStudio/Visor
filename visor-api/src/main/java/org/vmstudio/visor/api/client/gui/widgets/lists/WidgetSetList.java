@@ -3,12 +3,13 @@ package org.vmstudio.visor.api.client.gui.widgets.lists;
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McRenderable;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoWidgetSetList;
 import org.vmstudio.visor.api.client.gui.widgets.sets.DynamicWidgetSet;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -27,7 +28,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
  * Entries are not selectable — each entry manages its own widgets
  * and interaction.
  */
-public class WidgetSetList implements McGuiEventListener, Renderable, NarratableEntry {
+public class WidgetSetList implements McGuiEventListener, McRenderable, NarratableEntry {
 
     @Getter
     private final WidgetInfoWidgetSetList widgetInfo;
@@ -95,7 +96,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
 
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void render(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (VisorAPI.clientState().stateMode().isActive()
                 && scrolling
                 && lastDragCall + 200 < System.currentTimeMillis()) {
@@ -116,7 +117,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
             entry.onPreRender(guiGraphics, mouseX, mouseY, partialTick);
 
             for (var widget : entry.getWidgets()) {
-                widget.render(guiGraphics, mouseX, mouseY, partialTick);
+                McGuiUtils.render(widget, guiGraphics, mouseX, mouseY, partialTick);
             }
         }
 
@@ -132,7 +133,7 @@ public class WidgetSetList implements McGuiEventListener, Renderable, Narratable
         McGlState.disableBlend();
     }
 
-    private void renderScrollbar(@NotNull GuiGraphics guiGraphics) {
+    private void renderScrollbar(@NotNull GuiGraphicsExtractor guiGraphics) {
         int maxScroll = getMaxScroll();
         if (maxScroll <= 0) return;
 

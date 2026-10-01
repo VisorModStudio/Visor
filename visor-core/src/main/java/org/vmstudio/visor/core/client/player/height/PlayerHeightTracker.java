@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -99,13 +100,13 @@ public final class PlayerHeightTracker {
                 : Float.NaN;
         var chat = MC.gui.getChat();
         if (!(height >= VRClientSettings.MIN_HEIGHT)) {
-            chat.addMessage(Component.translatable("visor.messages.height_calibration_failed"));
+            McGuiUtils.addChatMessage(chat, Component.translatable("visor.messages.height_calibration_failed"));
             return;
         }
         store(height);
         estimator.reset();
         lastSaveMs = 0L;
-        chat.addMessage(Component.translatable("visor.messages.height_measured", HeightFormat.format(height)));
+        McGuiUtils.addChatMessage(chat, Component.translatable("visor.messages.height_measured", HeightFormat.format(height)));
     }
 
     private void store(float height) {
@@ -133,7 +134,7 @@ public final class PlayerHeightTracker {
         var chat = MC.gui.getChat();
         if (announceAutoSet) {
             announceAutoSet = false;
-            chat.addMessage(Component.translatable(
+            McGuiUtils.addChatMessage(chat, Component.translatable(
                     "visor.messages.height_auto_set",
                     HeightFormat.format(VRClientSettings.getFullHeight())
             ));
@@ -141,7 +142,7 @@ public final class PlayerHeightTracker {
                 && VRClientSettings.isHeightAuto()
                 && !VRClientSettings.isFullHeightMeasured()) {
             hintShown = true;
-            chat.addMessage(Component.translatable("visor.messages.height_auto_hint"));
+            McGuiUtils.addChatMessage(chat, Component.translatable("visor.messages.height_auto_hint"));
         }
     }
 

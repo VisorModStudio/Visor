@@ -101,6 +101,13 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
 
     }
 
+    //? if >=26.1 {
+    @Inject(method = "attack", at = @At("HEAD"), cancellable = true)
+    protected void visor$noAttackWhileShieldUp(Entity target, CallbackInfo ci) {
+
+    }
+    //?}
+
 
     @Unique
     protected ItemStack visor$poseBlockItem;

@@ -230,11 +230,18 @@ public class McGlState {
     // ------- COLOR -------
 
     public static void colorMask(boolean red, boolean green, boolean blue, boolean alpha) {
-        //? if >=1.21.5 {
+        //? if >=26.1 {
         colorWrite = red || green || blue;
         alphaWrite = alpha;
+        GlStateManager._colorMask((red ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_RED : 0)
+                | (green ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_GREEN : 0)
+                | (blue ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_BLUE : 0)
+                | (alpha ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_ALPHA : 0));
+        //?} elif >=1.21.5 {
+        /*colorWrite = red || green || blue;
+        alphaWrite = alpha;
         GlStateManager._colorMask(red, green, blue, alpha);
-        //?} else {
+        *///?} else {
         /*RenderSystem.colorMask(red, green, blue, alpha);
         *///?}
     }
@@ -422,11 +429,15 @@ public class McGlState {
 
     // the lightmap on Sampler2, as RENDERTYPE_TEXT draws sample it
     public static void turnOnLightLayer() {
-        //? if >=1.21.11 {
+        //? if >=26.1 {
         McShaderTexture.setUnit(2, new McShaderTexture(
+                net.minecraft.client.Minecraft.getInstance().gameRenderer.levelLightmap(),
+                RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.LINEAR)));
+        //?} elif >=1.21.11 {
+        /*McShaderTexture.setUnit(2, new McShaderTexture(
                 net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().getTextureView(),
                 RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.LINEAR)));
-        //?} else {
+        *///?} else {
         /*net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
         *///?}
     }

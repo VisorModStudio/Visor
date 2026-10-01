@@ -4,6 +4,9 @@ package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///?}
 import com.mojang.blaze3d.systems.RenderSystem;
+//? if >=26.1 {
+import net.minecraft.client.FramerateLimiter;
+//?}
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /*import static com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate;
 *///?}
 
-@Mixin(RenderSystem.class)
+//? if >=26.1 {
+@Mixin(FramerateLimiter.class)
+//?} else {
+/*@Mixin(RenderSystem.class)
+*///?}
 public class RenderSystemMixin {
 
     @Inject(at = @At("HEAD"), method = "limitDisplayFPS",

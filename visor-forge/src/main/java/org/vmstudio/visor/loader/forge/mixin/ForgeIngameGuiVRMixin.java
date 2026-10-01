@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ChatScreen;
 //? if >=1.20.5 {
 import net.minecraft.client.gui.Gui;
@@ -31,7 +31,7 @@ public abstract class ForgeIngameGuiVRMixin {
 
 
     @Inject(method = "pre", at = @At("HEAD"), remap = false, cancellable = true)
-    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics,
+    private void noHudElements(NamedGuiOverlay overlay, GuiGraphicsExtractor guiGraphics,
                                CallbackInfoReturnable<Boolean> info) {
 
         if (VisorState.get().isNotActive()) {

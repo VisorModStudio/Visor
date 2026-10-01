@@ -23,7 +23,6 @@ import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.core.client.player.VRAimPicker;
 import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -81,7 +80,7 @@ public class HandEffectCrosshair extends VRHandEffect {
             brightness *= INACTIVE_BRIGHTNESS;
         }
         int light = MC.level == null
-                ? LightTexture.FULL_BRIGHT
+                ? McRenderUtils.fullBrightLight()
                 : ClientUtils.packedLightWithFloor(
                         MC.level,
                         BlockPos.containing(crossPos.x, crossPos.y, crossPos.z),

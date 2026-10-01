@@ -1,6 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets.sets;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -21,11 +21,11 @@ public interface WidgetSet {
 
     void onTick();
 
-    void onPreRender(@NotNull GuiGraphics guiGraphics,
+    void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                      int mouseX, int mouseY,
                      float partialTicks);
 
-    default void onPostRender(@NotNull GuiGraphics guiGraphics,
+    default void onPostRender(@NotNull GuiGraphicsExtractor guiGraphics,
                               int mouseX, int mouseY,
                               float partialTicks){
 

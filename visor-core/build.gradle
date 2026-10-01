@@ -30,8 +30,10 @@ test {
 }
 
 // The core sources are compiled into each loader jar, this node only type-checks them.
-tasks.named("remapJar") { enabled = false }
-tasks.named("remapSourcesJar") { enabled = false }
+if (!unobfuscated) {
+    tasks.named("remapJar") { enabled = false }
+    tasks.named("remapSourcesJar") { enabled = false }
+}
 
 configurations {
     coreJava      { canBeConsumed = true; canBeResolved = false }

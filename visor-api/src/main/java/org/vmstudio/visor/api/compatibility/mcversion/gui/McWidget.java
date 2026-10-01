@@ -2,6 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 //? if >=1.21.9 {
@@ -24,6 +25,8 @@ public abstract class McWidget extends AbstractWidget {
 
 
     // ------- STABLE API -------
+
+    protected abstract void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick);
 
     public void onClick(double mouseX, double mouseY) {
     }
@@ -85,7 +88,7 @@ public abstract class McWidget extends AbstractWidget {
 
     public boolean charTyped(char chr, int modifiers) {
         //? if >=1.21.9 {
-        return super.charTyped(new CharacterEvent(chr, modifiers));
+        return super.charTyped(McGuiUtils.characterEvent(chr, modifiers));
         //?} else {
         /*return super.charTyped(chr, modifiers);
         *///?}
@@ -93,6 +96,14 @@ public abstract class McWidget extends AbstractWidget {
 
 
     // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
+
+    //? if >=26.1 {
+    @Override
+    protected final void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics,
+                                                  int mouseX, int mouseY, float partialTick) {
+        renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    //?}
 
     //? if >=1.21.9 {
     @Override
@@ -142,7 +153,7 @@ public abstract class McWidget extends AbstractWidget {
 
     @Override
     public final boolean charTyped(CharacterEvent event) {
-        return charTyped((char) event.codepoint(), event.modifiers());
+        return charTyped((char) event.codepoint(), McGuiUtils.modifiers(event));
     }
     //?}
 }

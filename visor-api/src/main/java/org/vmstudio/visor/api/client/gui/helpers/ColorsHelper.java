@@ -1,7 +1,7 @@
 package org.vmstudio.visor.api.client.gui.helpers;
 
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -116,7 +116,7 @@ public class ColorsHelper {
         }
     }
 
-    public static void drawTransparencyChecker(@NotNull GuiGraphics guiGraphics,
+    public static void drawTransparencyChecker(@NotNull GuiGraphicsExtractor guiGraphics,
                                                int posX, int posY,
                                                int width, int height) {
         if (width <= 0 || height <= 0) return;
@@ -135,7 +135,7 @@ public class ColorsHelper {
         }
     }
 
-    public static void drawBorder(@NotNull GuiGraphics guiGraphics,
+    public static void drawBorder(@NotNull GuiGraphicsExtractor guiGraphics,
                                   int posX, int posY,
                                   int width, int height,
                                   int color) {

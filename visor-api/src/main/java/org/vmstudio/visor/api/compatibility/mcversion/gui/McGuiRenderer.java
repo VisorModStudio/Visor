@@ -3,16 +3,21 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=1.21.6 {
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 //?}
+//? if >=26.1 {
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.renderer.state.WindowRenderState;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
+//?}
 
 /**
- * Cross-mc-version GUI frame: a GuiGraphics that draws into the main render target
- * once {@link #end(GuiGraphics)} is called
+ * Cross-mc-version GUI frame: a GuiGraphicsExtractor that draws into the main render target
+ * once {@link #end(GuiGraphicsExtractor)} is called
  */
 @Environment(EnvType.CLIENT)
 public class McGuiRenderer {
@@ -20,31 +25,60 @@ public class McGuiRenderer {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
 
-    public static GuiGraphics begin() {
+    public static GuiGraphicsExtractor begin() {
         return begin(-1, -1);
     }
 
     /**
      * Same with the cursor position, which drives the text hover effects since 1.21.11
      */
-    public static GuiGraphics begin(int mouseX, int mouseY) {
+    public static GuiGraphicsExtractor begin(int mouseX, int mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
-        //? if >=1.21.11 {
-        GameRenderer gameRenderer = minecraft.gameRenderer;
-        gameRenderer.guiRenderState.reset();
-        return new GuiGraphics(minecraft, gameRenderer.guiRenderState, mouseX, mouseY);
-        //?} elif >=1.21.6 {
+        //? if >=26.1 {
+        GuiRenderState guiRenderState = minecraft.gameRenderer.getGameRenderState().guiRenderState;
+        guiRenderState.reset();
+        return new GuiGraphicsExtractor(minecraft, guiRenderState, mouseX, mouseY);
+        //?} elif >=1.21.11 {
         /*GameRenderer gameRenderer = minecraft.gameRenderer;
         gameRenderer.guiRenderState.reset();
-        return new GuiGraphics(minecraft, gameRenderer.guiRenderState);
+        return new GuiGraphicsExtractor(minecraft, gameRenderer.guiRenderState, mouseX, mouseY);
+        *///?} elif >=1.21.6 {
+        /*GameRenderer gameRenderer = minecraft.gameRenderer;
+        gameRenderer.guiRenderState.reset();
+        return new GuiGraphicsExtractor(minecraft, gameRenderer.guiRenderState);
         *///?} else {
-        /*return new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+        /*return new GuiGraphicsExtractor(minecraft, minecraft.renderBuffers().bufferSource());
         *///?}
     }
 
-    public static void end(GuiGraphics guiGraphics) {
-        //? if >=1.21.6 {
-        GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+    public static void end(GuiGraphicsExtractor guiGraphics) {
+        //? if >=26.1 {
+        Minecraft minecraft = Minecraft.getInstance();
+        GameRenderer gameRenderer = minecraft.gameRenderer;
+        WindowRenderState windowState = gameRenderer.getGameRenderState().windowRenderState;
+        Window window = minecraft.getWindow();
+        int width = windowState.width;
+        int height = windowState.height;
+        int guiScale = windowState.guiScale;
+        boolean uiLightmap = gameRenderer.useUiLightmap;
+        windowState.width = window.getWidth();
+        windowState.height = window.getHeight();
+        windowState.guiScale = window.getGuiScale();
+        gameRenderer.useUiLightmap = true;
+        McModelViewStack.push();
+        McModelViewStack.identity();
+        try {
+            gameRenderer.guiRenderer.render(gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+        } finally {
+            McModelViewStack.pop();
+            gameRenderer.useUiLightmap = uiLightmap;
+            windowState.width = width;
+            windowState.height = height;
+            windowState.guiScale = guiScale;
+        }
+        gameRenderer.guiRenderer.endFrame();
+        //?} elif >=1.21.6 {
+        /*GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         McModelViewStack.push();
         McModelViewStack.identity();
         try {
@@ -53,7 +87,7 @@ public class McGuiRenderer {
             McModelViewStack.pop();
         }
         gameRenderer.guiRenderer.incrementFrameNumber();
-        //?} else {
+        *///?} else {
         /*guiGraphics.flush();
         *///?}
     }

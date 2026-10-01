@@ -103,6 +103,17 @@ public class McVersionClientUtils {
         *///?}
     }
 
+    // ------- WINDOW -------
+
+    public static void resizeDisplay(Minecraft minecraft) {
+        //? if >=26.1 {
+        minecraft.resizeGui();
+        minecraft.gameRenderer.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+        //?} else {
+        /*minecraft.resizeDisplay();
+        *///?}
+    }
+
     // ------- CAMERA -------
 
     public static Vec3 cameraPosition(Camera camera) {

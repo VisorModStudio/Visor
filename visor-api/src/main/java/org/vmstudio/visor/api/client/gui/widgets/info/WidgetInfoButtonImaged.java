@@ -7,7 +7,7 @@ import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -257,11 +257,11 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
     }
 
 
-    public void drawFill(GuiGraphics guiGraphics) {
+    public void drawFill(GuiGraphicsExtractor guiGraphics) {
         drawFill(guiGraphics, false);
     }
 
-    public void drawFill(GuiGraphics guiGraphics, boolean hovered) {
+    public void drawFill(GuiGraphicsExtractor guiGraphics, boolean hovered) {
         int color;
         if (hovered && fillColorHovered != null) {
             color = fillColorHoveredInt;
@@ -280,7 +280,7 @@ public class WidgetInfoButtonImaged extends WidgetInfoImage {
         );
     }
 
-    public void drawHighlight(GuiGraphics guiGraphics,
+    public void drawHighlight(GuiGraphicsExtractor guiGraphics,
                               boolean active,
                               boolean hovered,
                               boolean selected) {

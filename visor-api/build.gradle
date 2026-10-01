@@ -12,8 +12,10 @@ dependencies {
     api "com.github.Phoenix-Ra:AtumConfiguration:${atumconfig_version}"
 }
 
-tasks.named("remapJar") { enabled = false }
-tasks.named("remapSourcesJar") { enabled = false }
+if (!unobfuscated) {
+    tasks.named("remapJar") { enabled = false }
+    tasks.named("remapSourcesJar") { enabled = false }
+}
 
 configurations {
     apiJava      { canBeConsumed = true; canBeResolved = false }

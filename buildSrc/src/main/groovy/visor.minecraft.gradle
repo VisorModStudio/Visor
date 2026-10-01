@@ -4,13 +4,17 @@
  */
 plugins {
     id "java-library"
-    id "dev.architectury.loom"
 }
 
 // ---- Identity -----------------------------------------------------------------------------
 def minecraftVersion = stonecutter.current.version
 project.ext.minecraft_version = minecraftVersion
 project.ext.branch = project.parent.name - "visor-" // remove "visor-" prefix
+
+// ---- Loom ---------------------------------------------------------------------------------
+def unobfuscated = stonecutter.eval(minecraftVersion, ">=26.1")
+project.ext.unobfuscated = unobfuscated
+pluginManager.apply(unobfuscated ? "dev.architectury.loom-no-remap" : "dev.architectury.loom")
 
 
 group = "${mod_group}.${mod_id}.${branch}"
@@ -85,21 +89,41 @@ project.ext.visorAccessWidener = stonecutter.process(
 loom {
     silentMojangMappingsLicense()
     accessWidenerPath = visorAccessWidener
-    mixin {
-        // At runtime Fabric uses "intermediary" names and Forge uses "SRG" names,
-        // not the Mojang names used by mod.
-        // Mixin needs a "refmap" to translate its targets. Loom generates it.
-        useLegacyMixinAp = true
-        defaultRefmapName = "${mod_id}.refmap.json"
+    if (!unobfuscated) {
+        mixin {
+            // At runtime Fabric uses "intermediary" names and Forge uses "SRG" names,
+            // not the Mojang names used by mod.
+            // Mixin needs a "refmap" to translate its targets. Loom generates it.
+            useLegacyMixinAp = true
+            defaultRefmapName = "${mod_id}.refmap.json"
+        }
     }
+}
+
+if (unobfuscated) {
+    ["Api", "Implementation", "CompileOnly"].each { bucket ->
+        def mod = configurations.create("mod${bucket}") {
+            canBeConsumed = false
+            canBeResolved = false
+        }
+        configurations.named(bucket.uncapitalize()) { extendsFrom mod }
+    }
+    configurations.register("namedElements") {
+        canBeConsumed = true
+        canBeResolved = false
+        extendsFrom configurations.api
+    }
+    artifacts.add("namedElements", tasks.named("jar"))
 }
 
 
 dependencies {
     minecraft "com.mojang:minecraft:${minecraftVersion}"
-    mappings loom.layered() {
-        officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-${minecraftVersion}:${parchment_version}@zip")
+    if (!unobfuscated) {
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${minecraftVersion}:${parchment_version}@zip")
+        }
     }
 
     compileOnly "org.projectlombok:lombok:${lombok_version}"
@@ -176,6 +200,9 @@ processResources {
 
     filesMatching(["*.mixins.json", "*.mixins.*.json"]) {
         filter { String line ->
+            if (unobfuscated && line.contains('"refmap"')) {
+                return null
+            }
             resourcePlaceholders.inject(line) { l, key, value -> l.replace('${' + key + '}', value.toString()) }
         }
     }

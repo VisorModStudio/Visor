@@ -12,9 +12,16 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.world.entity.Entity;
-//? if >=1.21.11 {
-import net.minecraft.world.level.Level;
-//?} else {
+//? if >=26.1 {
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.render.helpers.CullFrustumHelper;
+import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
+//?} elif >=1.21.11 {
+/*import net.minecraft.world.level.Level;
+*///?} else {
 /*import net.minecraft.world.level.BlockGetter;
 *///?}
 import net.minecraft.world.phys.Vec3;
@@ -22,12 +29,73 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import org.vmstudio.visor.core.client.ClientContext;
+//? if >=26.1 {
+import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
+//?}
 
 
 public class VRGameCamera extends Camera {
 
-    // 1.21.11 takes the Level
-    //? if >=1.21.11 {
+    //? if >=26.1 {
+    @Override
+    protected void alignWithEntity(float partialTicks) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            super.alignWithEntity(partialTicks);
+            if (VRRenderState.isSpectatedVRView(this.entity)) {
+                setupSpectatedVR(this.entity);
+            }
+        } else {
+            setupVR(this.entity);
+        }
+    }
+
+    @Override
+    protected float calculateFov(float partialTicks) {
+        if (VisorState.get().isActive() && VRRenderState.getSceneType().isMainMenu()) {
+            return MC.options.fov().get().floatValue();
+        }
+        return super.calculateFov(partialTicks);
+    }
+
+    @Override
+    protected Matrix4f createProjectionMatrixForCulling() {
+        if (VisorState.get().isNotActive()) {
+            return super.createProjectionMatrixForCulling();
+        }
+        float fov = Math.max(this.getFov(), MC.options.fov().get().intValue());
+        return CullFrustumHelper.widenCullProjection(passProjection(fov));
+    }
+
+    @Override
+    public void extractRenderState(CameraRenderState cameraState, float cameraEntityPartialTicks) {
+        super.extractRenderState(cameraState, cameraEntityPartialTicks);
+        if (VisorState.get().isActive()) {
+            cameraState.projectionMatrix.set(passProjection(this.getFov()));
+        }
+    }
+
+    @Override
+    public Matrix4f getViewRotationMatrix(Matrix4f dest) {
+        if (VRRenderState.getPhase().isVanilla()) {
+            return super.getViewRotationMatrix(dest);
+        }
+        return dest.set(RenderPoseHelper.getViewRotation(VRRenderState.getRenderPass()));
+    }
+
+    @Override
+    public Matrix4f getViewRotationProjectionMatrix(Matrix4f dest) {
+        if (VisorState.get().isNotActive()) {
+            return super.getViewRotationProjectionMatrix(dest);
+        }
+        return dest.set(passProjection(this.getFov()))
+                .rotate(this.rotation().conjugate(new Quaternionf()));
+    }
+
+    private static Matrix4f passProjection(float fov) {
+        return ((GameRendererExtension) MC.gameRenderer).visor$passProjection(fov);
+    }
+    //?} elif >=1.21.11 {
+    /*// 1.21.11 takes the Level
     @Override
     public void setup(@NotNull Level level,
                       @NotNull Entity entity,
@@ -44,7 +112,7 @@ public class VRGameCamera extends Camera {
             setupVR(entity);
         }
     }
-    //?} else {
+    *///?} else {
     /*@Override
     public void setup(@NotNull BlockGetter level,
                       @NotNull Entity entity,
@@ -76,6 +144,10 @@ public class VRGameCamera extends Camera {
         if (this.entity != null && this.level != null) {
             this.attributeProbe().tick(this.level, this.position());
         }
+        //?}
+        //? if >=26.1 {
+        this.fovModifier = 1.0F;
+        this.oldFovModifier = 1.0F;
         //?}
     }
 
@@ -157,6 +229,9 @@ public class VRGameCamera extends Camera {
                 .mul(Axis.YP.rotationDegrees(-this.yRot))
                 .mul(Axis.XP.rotationDegrees( this.xRot));
         *///?}
+        //? if >=26.1 {
+        this.matrixPropertiesDirty |= 3;
+        //?}
     }
 
 }

@@ -4,7 +4,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -186,7 +186,7 @@ public class VRSettingsConfirmCrossBinding extends VROptionsSet {
     }
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics,
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {
         var sh = getScreen().getScaleHelper();
@@ -198,7 +198,7 @@ public class VRSettingsConfirmCrossBinding extends VROptionsSet {
     }
 
     @Override
-    public void onPostRender(@NotNull GuiGraphics guiGraphics,
+    public void onPostRender(@NotNull GuiGraphicsExtractor guiGraphics,
                              int mouseX, int mouseY,
                              float partialTicks) {
         var sh = getScreen().getScaleHelper();

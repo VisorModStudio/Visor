@@ -84,21 +84,30 @@ def bundleLibraries = { ShadowJar task, Configuration bundle ->
 }
 
 shadowJar { task ->
-    archiveClassifier = "dev-shadow"
+    archiveClassifier = unobfuscated ? "" : "dev-shadow"
     bundleLibraries(task, project.configurations.shadowBundle)
 }
 
-remapJar {
-    dependsOn shadowJar
-    inputFile = shadowJar.archiveFile        // remap the bundled jar, not the plain one
+if (unobfuscated) {
+    jar {
+        archiveClassifier = "dev"
+        destinationDirectory = layout.buildDirectory.dir("devlibs")
+    }
+    loom.nestJars(tasks.named("shadowJar"), configurations.named("include"))
+} else {
+    remapJar {
+        dependsOn shadowJar
+        inputFile = shadowJar.archiveFile        // remap the bundled jar, not the plain one
+    }
 }
+project.ext.modJar = tasks.named(unobfuscated ? "shadowJar" : "remapJar")
 
 // ---- API jar --------------------------------------------------------------------------------
 def apiPackage = "org/vmstudio/visor/api/**"
 
 tasks.register("processApiResources", Sync) {
     from(project.parent.file("src/apijar")) { expand(resourcePlaceholders) }
-    from(project.parent.parent.file("visor-api/src/main/resources/visor.accesswidener"))
+    from(visorAccessWidener)
     into layout.buildDirectory.dir("apijar")
     inputs.properties(resourcePlaceholders)
 }
@@ -107,19 +116,28 @@ tasks.register("processApiResources", Sync) {
 tasks.register("apiJar", ShadowJar) { task ->
     from(sourceSets.main.output) { include apiPackage }
     from(processApiResources)
-    archiveClassifier = "api-dev"
+    archiveClassifier = unobfuscated ? "api" : "api-dev"
     bundleLibraries(task, project.configurations.apiBundle)
 }
 
-tasks.register("remapApiJar", net.fabricmc.loom.task.RemapJarTask) {
-    dependsOn apiJar
-    inputFile = apiJar.archiveFile
-    archiveClassifier = "api"
-    addNestedDependencies = false
-    classpath.from(sourceSets.main.compileClasspath)   // the remapper needs the class hierarchy
+if (!unobfuscated) {
+    tasks.register("remapApiJar", net.fabricmc.loom.task.RemapJarTask) {
+        dependsOn apiJar
+        inputFile = apiJar.archiveFile
+        archiveClassifier = "api"
+        addNestedDependencies = false
+        classpath.from(sourceSets.main.compileClasspath)   // the remapper needs the class hierarchy
+    }
+}
+project.ext.apiModJar = tasks.named(unobfuscated ? "apiJar" : "remapApiJar")
+
+if (unobfuscated && loader == "fabric") {
+    [modJar, apiModJar].each { shipped ->
+        shipped.configure { manifest.attributes("Fabric-Mapping-Namespace": "official") }
+    }
 }
 
-tasks.named("build") { dependsOn remapApiJar }
+tasks.named("build") { dependsOn modJar, apiModJar }
 
 // ---- Running --------------------------------------------------------------------------------
 loom {
@@ -185,6 +203,6 @@ tasks.register("buildAndCollect", Copy) {
             }
         }
     }
-    from(remapJar.archiveFile, remapApiJar.archiveFile)
+    from(modJar.flatMap { it.archiveFile }, apiModJar.flatMap { it.archiveFile })
     into(rootProject.layout.buildDirectory.dir("libs"))
 }

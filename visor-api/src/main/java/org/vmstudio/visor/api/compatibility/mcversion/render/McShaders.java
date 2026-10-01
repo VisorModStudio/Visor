@@ -4,7 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=1.21.5 {
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.platform.DepthTestFunction;
+//? if >=26.1 {
+import com.mojang.blaze3d.pipeline.ColorTargetState;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
+import com.mojang.blaze3d.platform.CompareOp;
+import java.util.Optional;
+//?} else {
+/*import com.mojang.blaze3d.platform.DepthTestFunction;
+*///?}
 import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
@@ -114,10 +121,15 @@ public class McShaders {
                 .withUniform("ProjMat", UniformType.MATRIX4X4)
                 .withUniform("ColorModulator", UniformType.VEC4)
                 *///?}
-                .withDepthTestFunction(depthTestFunction(state))
+                //? if >=26.1 {
+                .withDepthStencilState(depthStencilState(state))
+                .withCull(state.cull());
+                //?} else {
+                /*.withDepthTestFunction(depthTestFunction(state))
                 .withDepthWrite(state.depthWrite())
                 .withCull(state.cull())
                 .withColorWrite(state.colorWrite(), state.alphaWrite());
+                *///?}
         if (fogged(key.core())) {
             //? if >=1.21.6 {
             builder.withUniform("Fog", UniformType.UNIFORM_BUFFER);
@@ -134,14 +146,22 @@ public class McShaders {
         if (key.core() == Core.RENDERTYPE_TEXT) {
             builder.withSampler("Sampler2");
         }
-        if (state.blend()) {
-            builder.withBlend(new BlendFunction(
-                    source(state.blendSourceRgb()), destination(state.blendDestinationRgb()),
-                    source(state.blendSourceAlpha()), destination(state.blendDestinationAlpha())));
+        //? if >=26.1 {
+        builder.withColorTargetState(colorTargetState(state, state.blend() ? blendFunction(state) : null));
+        //?} else {
+        /*if (state.blend()) {
+            builder.withBlend(blendFunction(state));
         } else {
             builder.withoutBlend();
         }
+        *///?}
         return builder.build();
+    }
+
+    static BlendFunction blendFunction(McGlState.DrawState state) {
+        return new BlendFunction(
+                source(state.blendSourceRgb()), destination(state.blendDestinationRgb()),
+                source(state.blendSourceAlpha()), destination(state.blendDestinationAlpha()));
     }
 
     private static boolean textured(Core core) {
@@ -162,7 +182,27 @@ public class McShaders {
         };
     }
 
-    static DepthTestFunction depthTestFunction(McGlState.DrawState state) {
+    //? if >=26.1 {
+    static Optional<DepthStencilState> depthStencilState(McGlState.DrawState state) {
+        if (!state.depthTest() || state.depthFunction() == GL11.GL_ALWAYS) {
+            return Optional.empty();
+        }
+        CompareOp depthTest = switch (state.depthFunction()) {
+            case GL11.GL_EQUAL -> CompareOp.EQUAL;
+            case GL11.GL_LESS -> CompareOp.LESS_THAN;
+            case GL11.GL_GREATER -> CompareOp.GREATER_THAN;
+            default -> CompareOp.LESS_THAN_OR_EQUAL;
+        };
+        return Optional.of(new DepthStencilState(depthTest, state.depthWrite()));
+    }
+
+    static ColorTargetState colorTargetState(McGlState.DrawState state, BlendFunction blend) {
+        int writeMask = (state.colorWrite() ? ColorTargetState.WRITE_COLOR : ColorTargetState.WRITE_NONE)
+                | (state.alphaWrite() ? ColorTargetState.WRITE_ALPHA : ColorTargetState.WRITE_NONE);
+        return new ColorTargetState(Optional.ofNullable(blend), writeMask);
+    }
+    //?} else {
+    /*static DepthTestFunction depthTestFunction(McGlState.DrawState state) {
         if (!state.depthTest()) {
             return DepthTestFunction.NO_DEPTH_TEST;
         }
@@ -174,6 +214,7 @@ public class McShaders {
             default -> DepthTestFunction.LEQUAL_DEPTH_TEST;
         };
     }
+    *///?}
 
     static SourceFactor source(int glValue) {
         return SourceFactor.valueOf(McGlState.Blend.ofGl(glValue).name());

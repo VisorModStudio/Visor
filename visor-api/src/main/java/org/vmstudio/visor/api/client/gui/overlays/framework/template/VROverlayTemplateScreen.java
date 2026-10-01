@@ -14,7 +14,7 @@ import org.vmstudio.visor.api.client.gui.overlays.RegisterVROverlayTemplate;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlayTemplate;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -136,7 +136,7 @@ public abstract class VROverlayTemplateScreen extends VROverlayScreen implements
     }
 
     @Override
-    protected void onPreRender(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+    protected void onPreRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         if(optionsMisc != null
                 && optionsMisc.getOptionsUpdaterType() == OverlayOptionsMisc.OptionsUpdaterType.FRAME) {
             optionsMap.forEach(

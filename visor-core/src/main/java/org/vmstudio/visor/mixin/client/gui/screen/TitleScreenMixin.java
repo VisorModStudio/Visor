@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.widgets.lists.DropDownListWidget;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 //? if >=1.21.9 {
 import net.minecraft.client.input.MouseButtonEvent;
 //?}
@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +48,12 @@ public abstract class TitleScreenMixin extends Screen {
         }
     }
 
-    @Inject(at = @At("TAIL"), method = "render")
-    public void visor$renderVrInitFailedWarning(GuiGraphics gfx, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    //? if >=26.1 {
+    @Inject(at = @At("TAIL"), method = "extractRenderState")
+    //?} else {
+    /*@Inject(at = @At("TAIL"), method = "render")
+    *///?}
+    public void visor$renderVrInitFailedWarning(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (!VisorState.isVrInitFailed()) {
             return;
         }
@@ -63,7 +68,7 @@ public abstract class TitleScreenMixin extends Screen {
 
         gfx.fill(x - 1, y - 1, x + boxW + 1, y + boxH + 1, 0xFF5DD9FF);
         gfx.fill(x, y, x + boxW, y + boxH, 0xE6050B14);
-        gfx.drawCenteredString(font, msg, this.width / 2, y + padY, 0xFFFFFFFF);
+        McGuiUtils.drawCenteredString(gfx, font, msg, this.width / 2, y + padY, 0xFFFFFFFF);
     }
 
     @Inject(method = "init", at = @At("TAIL"), order = 9999)
@@ -94,8 +99,12 @@ public abstract class TitleScreenMixin extends Screen {
     }
     *///?}
 
-    @Inject(at = @At("TAIL"), method = "render")
-    public void visor$renderToolTip(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
+    //? if >=26.1 {
+    @Inject(at = @At("TAIL"), method = "extractRenderState")
+    //?} else {
+    /*@Inject(at = @At("TAIL"), method = "render")
+    *///?}
+    public void visor$renderToolTip(GuiGraphicsExtractor guiGraphics, int i, int j, float f, CallbackInfo ci) {
         if (VisorState.get() == VRStateMode.INITIALIZED
                 && VRClientSettings.getVrPlayMode().canPlayVR()) {
             Component text = Component.translatable("visor.messages.vr_auto_switch");

@@ -18,7 +18,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -183,11 +183,11 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
     protected void onTick() {}
 
 
-    protected void onPreRender(GuiGraphics guiGraphics,
+    protected void onPreRender(GuiGraphicsExtractor guiGraphics,
                                int mouseX, int mouseY,
                                float partialTicks) {}
 
-    protected void onRender(GuiGraphics guiGraphics,
+    protected void onRender(GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {}
 
@@ -273,7 +273,7 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
 
 
     @Override
-    protected final void renderContents(@NotNull GuiGraphics guiGraphics,
+    protected final void renderContents(@NotNull GuiGraphicsExtractor guiGraphics,
                                         int pMouseX, int pMouseY,
                                         float partialTicks
     ) {
@@ -322,7 +322,7 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
      * Do not touch!
      */
     @ApiStatus.Internal
-    public final void renderToTarget(@NotNull GuiGraphics guiGraphics,
+    public final void renderToTarget(@NotNull GuiGraphicsExtractor guiGraphics,
                                      float partialTicks) {
         VROverlayScreen previousRendering = renderingOverlay;
         renderingOverlay = this;
@@ -353,7 +353,7 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
 
 
     @Override
-    protected void renderScreenBackground(@NotNull GuiGraphics guiGraphics,
+    protected void renderScreenBackground(@NotNull GuiGraphicsExtractor guiGraphics,
                                           int mouseX, int mouseY,
                                           float partialTicks) {
         //empty

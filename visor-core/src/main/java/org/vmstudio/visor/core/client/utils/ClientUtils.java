@@ -1,6 +1,8 @@
 package org.vmstudio.visor.core.client.utils;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.realmsclient.RealmsMainScreen;
 import net.minecraft.client.KeyMapping;
@@ -8,10 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LevelReader;
 import org.joml.Vector2f;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.player.VRPlayer;
@@ -33,8 +34,8 @@ public class ClientUtils {
         return new Vector2f(2, 2);
     }
 
-    public static int packedLightWithFloor(BlockAndTintGetter level, BlockPos pos, int minBlockLight) {
-        int packed = LevelRenderer.getLightColor(level, pos);
+    public static int packedLightWithFloor(LevelReader level, BlockPos pos, int minBlockLight) {
+        int packed = McRenderUtils.packedLight(level, pos);
         int blockLight = (packed >> 4) & 0xF;
         if (blockLight >= minBlockLight) {
             return packed;
@@ -112,7 +113,7 @@ public class ClientUtils {
         Screenshot.grab(minecraft.gameDirectory, fb, (text) ->
         {
             minecraft.execute(() -> {
-                minecraft.gui.getChat().addMessage(text);
+                McGuiUtils.addChatMessage(minecraft.gui.getChat(), text);
             });
         });
     }

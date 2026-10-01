@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.client.gui.overlays.options;
 
 import lombok.Getter;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends McS
 
     protected abstract void onInit();
 
-    protected abstract void onRender(GuiGraphics guiGraphics,
+    protected abstract void onRender(GuiGraphicsExtractor guiGraphics,
                                      int mouseX,
                                      int mouseY,
                                      float partialTick);
@@ -45,14 +45,14 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends McS
     }
 
     @Override
-    protected void renderScreenBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderScreenBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         if(background != Background.EMPTY) {
             background.render(guiGraphics, cursorBoundsX, cursorBoundsY);
         }
     }
 
     @Override
-    protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         onRender(guiGraphics, mouseX, mouseY, partialTick);
         super.renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
@@ -71,7 +71,7 @@ public abstract class OptionsScreen<T extends OverlayOptionGroup<?>> extends McS
         Background(GuiTexture texture){
             this.texture = texture;
         }
-        public void render(GuiGraphics guiGraphics, int x, int y){
+        public void render(GuiGraphicsExtractor guiGraphics, int x, int y){
             if(texture == null) return;
             texture.blit(
                     guiGraphics,

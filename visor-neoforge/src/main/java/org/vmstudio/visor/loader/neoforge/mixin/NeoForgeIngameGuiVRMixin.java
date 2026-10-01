@@ -5,7 +5,7 @@ import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ChatScreen;
 //? if >=1.20.5 {
 import net.minecraft.client.gui.Gui;
@@ -26,9 +26,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Gui.class)
 public abstract class NeoForgeIngameGuiVRMixin {
 
-    @Inject(method = {"renderHealthLevel", "renderArmorLevel", "renderFoodLevel", "renderAirLevel"},
+    //? if >=26.1 {
+    @Inject(method = {"extractHealthLevel", "extractArmorLevel", "extractFoodLevel", "extractAirLevel"},
             at = @At("HEAD"), remap = false, cancellable = true)
-    private void visor$noHudElements(GuiGraphics guiGraphics, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = {"renderHealthLevel", "renderArmorLevel", "renderFoodLevel", "renderAirLevel"},
+            at = @At("HEAD"), remap = false, cancellable = true)
+    *///?}
+    private void visor$noHudElements(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
         if (VisorState.get().isNotActive()) {
             return;
         }
@@ -47,7 +52,7 @@ public abstract class NeoForgeIngameGuiVRMixin {
 
 
     @Inject(method = "pre", at = @At("HEAD"), remap = false, cancellable = true)
-    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics,
+    private void noHudElements(NamedGuiOverlay overlay, GuiGraphicsExtractor guiGraphics,
                                CallbackInfoReturnable<Boolean> info) {
 
         if (VisorState.get().isNotActive()) {

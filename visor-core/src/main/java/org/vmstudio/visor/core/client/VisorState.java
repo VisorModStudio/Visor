@@ -24,6 +24,7 @@ import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -200,7 +201,7 @@ public class VisorState implements VisorClientState {
             MC.getSoundManager().reload();
         }
 
-        MC.resizeDisplay();
+        McVersionClientUtils.resizeDisplay(MC);
         MC.getWindow().updateVsync(MC.options.enableVsync().get());
         ClientContext.renderer.prepareReinit("Switched state");
         return true;

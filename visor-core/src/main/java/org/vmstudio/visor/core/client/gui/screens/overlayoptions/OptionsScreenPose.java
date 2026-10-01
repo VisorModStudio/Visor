@@ -15,7 +15,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlayDemo;
 import org.vmstudio.visor.core.client.gui.screens.overlayoptions.pose.OptionsPoseTextures;
 import org.vmstudio.visor.core.client.gui.screens.overlayoptions.pose.PoseEditorWidgetSet;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -228,7 +228,7 @@ public class OptionsScreenPose extends OptionsScreen<OverlayOptionsPose> {
     }
 
     @Override
-    public void onRender(@NotNull GuiGraphics guiGraphics,
+    public void onRender(@NotNull GuiGraphicsExtractor guiGraphics,
                          int mouseX, int mouseY, float partialTicks) {
         renderScreenBackground(guiGraphics, mouseX, mouseY, partialTicks);
         poseEditorWidgetSet.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);

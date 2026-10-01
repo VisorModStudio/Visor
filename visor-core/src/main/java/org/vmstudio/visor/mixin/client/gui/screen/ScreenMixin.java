@@ -17,7 +17,11 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
     @Shadow public int width;
     @Shadow public int height;
 
-    @Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
+    //? if >=26.1 {
+    @Inject(at = @At("HEAD"), method = "extractBackground", cancellable = true)
+    //?} else {
+    /*@Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
+    *///?}
     public void visor$noBackground(CallbackInfo ci) {
         if((Object)this instanceof CreateWorldScreen){
             return;
@@ -29,13 +33,21 @@ public abstract class ScreenMixin extends AbstractContainerEventHandler implemen
 
     }
 
-    //? if >=1.20.5 {
-    @Inject(method = {"renderTransparentBackground", "renderPanorama", "renderBlurredBackground"},
+    //? if >=26.1 {
+    @Inject(method = {"extractTransparentBackground", "extractPanorama", "extractBlurredBackground"},
             at = @At("HEAD"), cancellable = true)
     public void visor$noScreenBackdrop(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
         }
     }
-    //?}
+    //?} elif >=1.20.5 {
+    /*@Inject(method = {"renderTransparentBackground", "renderPanorama", "renderBlurredBackground"},
+            at = @At("HEAD"), cancellable = true)
+    public void visor$noScreenBackdrop(CallbackInfo ci) {
+        if (VisorState.get().isActive()) {
+            ci.cancel();
+        }
+    }
+    *///?}
 }

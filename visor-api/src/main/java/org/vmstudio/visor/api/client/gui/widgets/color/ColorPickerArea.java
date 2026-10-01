@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.client.gui.widgets.color;
 import lombok.Getter;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.gui.helpers.ColorsHelper;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -37,7 +37,7 @@ public class ColorPickerArea extends McWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics,
+    protected void renderWidget(GuiGraphicsExtractor guiGraphics,
                                 int mouseX, int mouseY,
                                 float partialTick) {
         int x = getX();
@@ -65,7 +65,7 @@ public class ColorPickerArea extends McWidget {
         drawMarker(guiGraphics, markerX, markerY);
     }
 
-    private void drawMarker(GuiGraphics guiGraphics, int centerX, int centerY) {
+    private void drawMarker(GuiGraphicsExtractor guiGraphics, int centerX, int centerY) {
         int radius = 3;
         int left = Mth.clamp(centerX - radius, getX(), getX() + getWidth() - 1);
         int top = Mth.clamp(centerY - radius, getY(), getY() + getHeight() - 1);

@@ -8,20 +8,28 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.model.geom.ModelPart;
 //? if >=1.21 && <1.21.6 {
-/*import net.minecraft.client.gui.GuiGraphics;
+/*import net.minecraft.client.gui.GuiGraphicsExtractor;
 *///?}
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+//? if >=26.1 {
+import net.minecraft.util.LightCoordsUtil;
+//?} else {
+/*import net.minecraft.client.renderer.LightTexture;
+*///?}
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.resources.model.AtlasManager;
+import net.minecraft.client.resources.model.sprite.AtlasManager;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.world.level.MoonPhase;
 //?}
 import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.LevelReader;
 //? if >=1.21.11 {
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 //?}
@@ -141,6 +149,24 @@ public class McRenderUtils {
     }
     //?}
 
+    // ------- LIGHT -------
+
+    public static int fullBrightLight() {
+        //? if >=26.1 {
+        return LightCoordsUtil.FULL_BRIGHT;
+        //?} else {
+        /*return LightTexture.FULL_BRIGHT;
+        *///?}
+    }
+
+    public static int packedLight(LevelReader level, BlockPos pos) {
+        //? if >=26.1 {
+        return LevelRenderer.getLightCoords(level, pos);
+        //?} else {
+        /*return LevelRenderer.getLightColor(level, pos);
+        *///?}
+    }
+
     // ------- CROSSHAIR -------
 
     public static Identifier crosshairTexture() {
@@ -170,9 +196,11 @@ public class McRenderUtils {
     }
 
     public static void updateDisplay(Window window) {
-        //? if >=1.21.2 {
-        window.updateDisplay(null);
-        //?} else {
+        //? if >=26.1 {
+        com.mojang.blaze3d.systems.RenderSystem.flipFrame(null);
+        //?} elif >=1.21.2 {
+        /*window.updateDisplay(null);
+        *///?} else {
         /*window.updateDisplay();
         *///?}
     }
@@ -251,9 +279,14 @@ public class McRenderUtils {
                                   float partialTicks,
                                   long nanoTime,
                                   boolean renderLevel) {
-        //? if >=1.21.2 {
-        renderer.render(Minecraft.getInstance().getDeltaTracker(), renderLevel);
-        //?} elif >=1.21 {
+        //? if >=26.1 {
+        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+        renderer.update(deltaTracker, renderLevel);
+        renderer.extract(deltaTracker, renderLevel);
+        renderer.render(deltaTracker, renderLevel);
+        //?} elif >=1.21.2 {
+        /*renderer.render(Minecraft.getInstance().getDeltaTracker(), renderLevel);
+        *///?} elif >=1.21 {
         /*renderer.render(Minecraft.getInstance().getTimer(), renderLevel);
         *///?} else {
         /*renderer.render(partialTicks, nanoTime, renderLevel);
@@ -273,7 +306,7 @@ public class McRenderUtils {
         *///?} elif >=1.21 {
         /*Minecraft minecraft = Minecraft.getInstance();
         renderer.renderItemActivationAnimation(
-                new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource()),
+                new GuiGraphicsExtractor(minecraft, minecraft.renderBuffers().bufferSource()),
                 partialTicks
         );
         *///?} else {

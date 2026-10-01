@@ -3,7 +3,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.gui;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 //? if >=1.21.9 {
@@ -29,12 +29,12 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
         // ------- STABLE API -------
 
-        protected void renderRowBack(GuiGraphics guiGraphics, int index,
+        protected void renderRowBack(GuiGraphicsExtractor guiGraphics, int index,
                                      int top, int left, int rowWidth, int rowHeight,
                                      int mouseX, int mouseY, boolean hovering, float partialTick) {
         }
 
-        protected abstract void renderRow(GuiGraphics guiGraphics, int index,
+        protected abstract void renderRow(GuiGraphicsExtractor guiGraphics, int index,
                                           int top, int left, int rowWidth, int rowHeight,
                                           int mouseX, int mouseY, boolean hovering, float partialTick);
 
@@ -43,8 +43,13 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
         //? if >=1.21.9 {
         @Override
-        public final void renderContent(GuiGraphics guiGraphics, int mouseX, int mouseY,
+        //? if >=26.1 {
+        public final void extractContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY,
+                                         boolean hovering, float partialTick) {
+        //?} else {
+        /*public final void renderContent(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY,
                                         boolean hovering, float partialTick) {
+        *///?}
             renderRowBack(guiGraphics, rowIndex, getY(), getX(), getWidth(), getHeight(),
                     mouseX, mouseY, hovering, partialTick);
             renderRow(guiGraphics, rowIndex, getY(), getX(), getWidth(), getHeight(),
@@ -52,7 +57,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         }
         //?} else {
         /*@Override
-        public final void renderBack(GuiGraphics guiGraphics, int index,
+        public final void renderBack(GuiGraphicsExtractor guiGraphics, int index,
                                      int top, int left, int rowWidth, int rowHeight,
                                      int mouseX, int mouseY, boolean hovering, float partialTick) {
             renderRowBack(guiGraphics, index, top, left, rowWidth, rowHeight,
@@ -60,7 +65,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         }
 
         @Override
-        public final void render(GuiGraphics guiGraphics, int index,
+        public final void render(GuiGraphicsExtractor guiGraphics, int index,
                                  int top, int left, int rowWidth, int rowHeight,
                                  int mouseX, int mouseY, boolean hovering, float partialTick) {
             renderRow(guiGraphics, index, top, left, rowWidth, rowHeight,
@@ -96,16 +101,18 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
     // ------- STABLE API -------
 
-    protected abstract void renderContents(GuiGraphics guiGraphics,
+    protected abstract void renderContents(GuiGraphicsExtractor guiGraphics,
                                            int mouseX, int mouseY,
                                            float partialTick);
 
-    protected void renderRows(GuiGraphics guiGraphics,
+    protected void renderRows(GuiGraphicsExtractor guiGraphics,
                               int mouseX, int mouseY,
                               float partialTick) {
-        //? if >=1.20.5 {
-        super.renderListItems(guiGraphics, mouseX, mouseY, partialTick);
-        //?} else {
+        //? if >=26.1 {
+        super.extractListItems(guiGraphics, mouseX, mouseY, partialTick);
+        //?} elif >=1.20.5 {
+        /*super.renderListItems(guiGraphics, mouseX, mouseY, partialTick);
+        *///?} else {
         /*super.renderList(guiGraphics, mouseX, mouseY, partialTick);
         *///?}
     }
@@ -136,7 +143,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         *///?}
     }
 
-    protected final void renderRow(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick,
+    protected final void renderRow(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick,
                                    int index, int left, int top, int rowWidth, int rowHeight) {
         //? if >=1.21.9 {
         E entry = this.children().get(index);
@@ -144,7 +151,11 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         entry.setY(top);
         entry.setWidth(rowWidth);
         entry.setHeight(rowHeight);
-        renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+        //? if >=26.1 {
+        extractItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+        //?} else {
+        /*renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+        *///?}
         //?} else {
         /*renderItem(guiGraphics, mouseX, mouseY, partialTick, index, left, top, rowWidth, rowHeight);
         *///?}
@@ -260,33 +271,43 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
 
     // ------- MC-VERSION SPECIFIC IMPLEMENTATION -------
 
-    //? if >=1.20.3 {
+    //? if >=26.1 {
     @Override
-    public final void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
-    //?} else {
+    //?} elif >=1.20.3 {
     /*@Override
-    public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderContents(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    *///?} else {
+    /*@Override
+    public final void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}
 
-    //? if >=1.20.5 {
+    //? if >=26.1 {
     @Override
-    protected final void renderListItems(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected final void extractListItems(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderRows(guiGraphics, mouseX, mouseY, partialTick);
     }
-    //?} else {
+    //?} elif >=1.20.5 {
     /*@Override
-    protected final void renderList(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected final void renderListItems(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        renderRows(guiGraphics, mouseX, mouseY, partialTick);
+    }
+    *///?} else {
+    /*@Override
+    protected final void renderList(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderRows(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}
 
     //? if <1.20.2 {
     /*@Override
-    protected void renderBackground(GuiGraphics guiGraphics) {
+    protected void renderBackground(GuiGraphicsExtractor guiGraphics) {
     }
     *///?}
 
@@ -323,11 +344,19 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         return scrollingNow;
     }
 
+    //? if >=26.1 {
     @Override
-    protected void renderItem(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, E entry) {
+    protected void extractItem(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, E entry) {
+        entry.rowIndex = this.children().indexOf(entry);
+        super.extractItem(guiGraphics, mouseX, mouseY, partialTick, entry);
+    }
+    //?} else {
+    /*@Override
+    protected void renderItem(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, E entry) {
         entry.rowIndex = this.children().indexOf(entry);
         super.renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
     }
+    *///?}
 
     @Override
     public final boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {

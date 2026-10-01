@@ -139,7 +139,11 @@ public class VRAimPicker {
         HitResult hitResult = handHitResult[hand.ordinal()];
         Vec3 aimHitPos = handAimHitPos[hand.ordinal()];
         if (hitResult == null || aimHitPos == null) {
-            MC.gameRenderer.pick(1.0f);
+            //? if >=26.1 {
+            MC.pick(1.0f);
+            //?} else {
+            /*MC.gameRenderer.pick(1.0f);
+            *///?}
             return;
         }
         MC.hitResult = hitResult;

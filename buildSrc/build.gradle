@@ -12,6 +12,6 @@ repositories {
 }
 
 dependencies {
-    implementation "dev.architectury.loom:dev.architectury.loom.gradle.plugin:1.17.491"
+    implementation "dev.architectury.loom:dev.architectury.loom.gradle.plugin:1.17.493"
     implementation "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.6.1"
 }

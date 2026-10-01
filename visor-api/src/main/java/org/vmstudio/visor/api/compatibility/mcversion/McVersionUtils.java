@@ -3,6 +3,8 @@ package org.vmstudio.visor.api.compatibility.mcversion;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionResult;
@@ -35,6 +37,9 @@ import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 /*import net.minecraft.world.entity.vehicle.boat.Boat;
 *///?}
 import net.minecraft.world.entity.Entity;
+//? if >=26.1 {
+import net.minecraft.world.item.ItemStackTemplate;
+//?}
 
 /**
  * Cross-mc-version Utils for common methods
@@ -272,6 +277,14 @@ public class McVersionUtils {
         //?} else {
         /*entity.getAttributes().removeAttributeModifiers(
                 itemStack.getAttributeModifiers(slot));
+        *///?}
+    }
+
+    public static ItemParticleOption itemParticle(ItemStack itemStack){
+        //? if >=26.1 {
+        return new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(itemStack));
+        //?} else {
+        /*return new ItemParticleOption(ParticleTypes.ITEM, itemStack);
         *///?}
     }
 

@@ -15,7 +15,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.SettingsTextures;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlayOptionsMenu;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -292,7 +292,7 @@ public class OverlaysWidgetSet extends DynamicWidgetSet {
 
 
     @Override
-    public void onPreRender(@NotNull GuiGraphics guiGraphics,
+    public void onPreRender(@NotNull GuiGraphicsExtractor guiGraphics,
                             int mouseX, int mouseY,
                             float partialTicks) {
         overlaysList.onPreRender(guiGraphics, mouseX, mouseY, partialTicks);
