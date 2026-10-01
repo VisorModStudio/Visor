@@ -101,6 +101,8 @@ jobs:
     permissions:
       contents: write
       actions: read
+      id-token: write
+      attestations: write
     steps:
       - name: Checkout settings and helper
         uses: actions/checkout@v7
@@ -147,6 +149,12 @@ jobs:
           retention-days: 14
           if-no-files-found: error
           overwrite: true
+
+      - name: Attest the jars built here
+        if: steps.collect.outputs.found == 'true' && needs.find.outputs.run == ''
+        uses: actions/attest@v4
+        with:
+          subject-path: build/release-assets/*.jar
 
       - name: Fail on build errors
         if: ${{ !cancelled() && needs.build.result == 'failure' }}

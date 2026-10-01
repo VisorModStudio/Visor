@@ -2,6 +2,7 @@ name: CI
 
 # Builds every Minecraft version (build.yml) on pushes to dev and on pull requests.
 # release.yml attaches the jars of the CI run of the tagged commit, so dev pushes are never cancelled.
+# Jars of non-PR runs are attested, check one with: gh attestation verify <jar> -R <owner>/<repo>
 
 on:
   push:
@@ -22,6 +23,28 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       retention-days: ${{ github.event_name == 'pull_request' && 7 || 30 }}
+
+  attest:
+    name: Attest jars
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download the jars of every version
+        uses: actions/download-artifact@v8
+        with:
+          pattern: jars-*
+          merge-multiple: true
+          path: jars
+
+      - name: Attest the jars
+        uses: actions/attest@v4
+        with:
+          subject-path: jars/*.jar
 
   # the check to require for merges, the build job names change with [targets]
   ci:
