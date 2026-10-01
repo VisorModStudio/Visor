@@ -1,7 +1,8 @@
 name: Release build
 
-# Builds every Minecraft version and loader of a release tag and attaches the jars to the GitHub release.
-# Settings: .github/release.toml [build]. Helper: .github/scripts/release.py
+# Builds every Minecraft version of a release tag in its own parallel job and attaches the jars to the GitHub release.
+# Settings: .github/release.toml [build], versions: [targets] of the tag's version table. Helper: .github/scripts/release.py
+# Settings and helper come from the run's commit (the tag, or the branch a dispatch runs on), the sources from the tag.
 
 on:
   release:
@@ -12,65 +13,129 @@ on:
         description: Release tag to build and attach jars to
         type: string
         required: true
-      task:
-        description: Gradle task instead of the configured one, e.g. build-1.20.1 to rebuild a single version
+      versions:
+        description: Minecraft versions to rebuild, e.g. 1.20.1, 1.21.1 (empty = every version)
         type: string
         required: false
+      attach:
+        description: Attach the jars to the release (off = keep them as a workflow artifact only)
+        type: boolean
+        default: true
 
 concurrency:
   group: release-${{ github.event.release.tag_name || inputs.tag }}
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 env:
   TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
 jobs:
-  build:
-    name: Build ${{ github.event.release.tag_name || inputs.tag }}
+  plan:
+    name: Plan ${{ github.event.release.tag_name || inputs.tag }}
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      java: ${{ steps.plan.outputs.java }}
+      args: ${{ steps.plan.outputs.args }}
+      jars: ${{ steps.plan.outputs.jars }}
+      versions: ${{ steps.plan.outputs.versions }}
+    steps:
+      - name: Checkout settings and helper
+        uses: actions/checkout@v7
+
+      - name: Read the version table of the release tag
+        run: |
+          set -euo pipefail
+          FILE=$(python3 .github/scripts/release.py config publish.versions.file)
+          git fetch --no-tags --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG"
+          git show "refs/tags/$TAG:$FILE" > release-versions.toml
+
+      - name: One build job per Minecraft version
+        id: plan
+        env:
+          VERSIONS: ${{ inputs.versions }}
+        run: python3 .github/scripts/release.py plan --versions release-versions.toml --only "$VERSIONS"
+
+  build:
+    name: Build ${{ matrix.target.mc }}
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      # a failing version does not stop the others, their jars still get attached
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - name: Checkout ${{ env.TAG }}
         uses: actions/checkout@v7
         with:
           ref: ${{ env.TAG }}
 
-      - name: Read build settings
-        id: settings
-        run: |
-          set -euo pipefail
-          echo "java=$(python3 .github/scripts/release.py config build.java)" >> "$GITHUB_OUTPUT"
-          echo "task=$(python3 .github/scripts/release.py config build.task)" >> "$GITHUB_OUTPUT"
-
-      - name: Set up JDK ${{ steps.settings.outputs.java }}
+      - name: Set up JDK ${{ needs.plan.outputs.java }}
         uses: actions/setup-java@v6
         with:
-          java-version: ${{ steps.settings.outputs.java }}
+          java-version: ${{ needs.plan.outputs.java }}
           distribution: temurin
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-disabled: true
 
-      # ubuntu-latest has ~14 GB free, a Loom build of several Minecraft versions needs about that much
-      - name: Free disk space
-        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
-
-      # --continue: a failing version does not stop the others, their jars still get attached
-      - name: Build (${{ inputs.task || steps.settings.outputs.task }})
-        id: build
-        continue-on-error: true
+      - name: Build (${{ matrix.target.task }})
+        env:
+          TASK: ${{ matrix.target.task }}
+          ARGS: ${{ needs.plan.outputs.args }}
         run: |
           chmod +x ./gradlew
-          ./gradlew ${{ inputs.task || steps.settings.outputs.task }} --continue --stacktrace
+          ./gradlew "$TASK" $ARGS --continue --stacktrace
+
+      - name: Keep the jars for the attach job
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: jars-${{ matrix.target.mc }}
+          path: ${{ needs.plan.outputs.jars }}/*.jar
+          if-no-files-found: ignore
+          retention-days: 1
+          overwrite: true
+
+  attach:
+    name: Attach jars
+    needs: [plan, build]
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout settings and helper
+        uses: actions/checkout@v7
+
+      - name: Read the version table of the release tag
+        run: |
+          set -euo pipefail
+          FILE=$(python3 .github/scripts/release.py config publish.versions.file)
+          git fetch --no-tags --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG"
+          git show "refs/tags/$TAG:$FILE" > release-versions.toml
+
+      - name: Download the jars of every version
+        uses: actions/download-artifact@v8
+        with:
+          pattern: jars-*
+          merge-multiple: true
+          path: ${{ needs.plan.outputs.jars }}
 
       - name: Collect release jars
         id: collect
-        run: python3 .github/scripts/release.py collect
+        env:
+          VERSIONS: ${{ needs.plan.outputs.versions }}
+        run: python3 .github/scripts/release.py collect --versions release-versions.toml --mc "$VERSIONS"
 
       - name: Attach jars to the release
-        if: steps.collect.outputs.found == 'true'
+        if: steps.collect.outputs.found == 'true' && (github.event_name != 'workflow_dispatch' || inputs.attach)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload "$TAG" build/release-assets/*.jar --repo "${{ github.repository }}" --clobber
@@ -83,9 +148,10 @@ jobs:
           path: build/release-assets/*.jar
           retention-days: 14
           if-no-files-found: error
+          overwrite: true
 
       - name: Fail on build errors
-        if: steps.build.outcome != 'success'
+        if: ${{ !cancelled() && needs.build.result != 'success' }}
         run: |
-          echo "::error::The Gradle build failed, see the Build step. Jars of the versions that did build were attached anyway, rerun with a single task (e.g. build-1.20.1) once fixed."
+          echo "::error::A Minecraft version failed to build, see its Build job. The jars of the versions that did build were attached anyway, use Re-run failed jobs once fixed."
           exit 1

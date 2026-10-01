@@ -3,7 +3,8 @@
 
 [build]
 java = "21"
-task = "buildAll"
+task = ":build-{mc}"
+args = "--configure-on-demand --parallel"
 jars = "build/libs"
 exclude = ["*-dev*.jar", "*-sources.jar", "*-javadoc.jar"]
 
@@ -25,7 +26,7 @@ modrinth_classifiers = ["api"]
 # so they are uploaded under that name. Slug of the Modrinth project, leave empty to keep the asset name.
 modrinth_slug = "visor"
 
-# Version table of the project
+# Version table of the project, read at the release tag. Its [targets] are the build jobs of release.yml.
 [publish.versions]
 file = "stonecutter.properties.toml"
 java = "java_version"

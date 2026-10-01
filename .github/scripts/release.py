@@ -2,7 +2,10 @@
 """Helper of .github/workflows/release.yml and publish.yml, settings in .github/release.toml.
 
     release.py config <key>                      one setting, e.g. build.java
-    release.py collect                           copy the release jars of [build] jars into build/release-assets/
+    release.py plan [--versions FILE]            build matrix, one job per [targets] version (outputs: matrix, java,
+               [--only VERSIONS]                 args, jars, versions)
+    release.py collect [--versions FILE]         copy the release jars of [build] jars into build/release-assets/
+               [--mc VERSIONS]
     release.py matrix <assets.json> --tag T      release assets -> publish matrix (outputs: matrix, version_type)
                [--versions FILE] [--only GLOB] [--modrinth]
     release.py meta <jar> [<classifier jar>...]  mc-publish inputs of one release jar (outputs: name, version,
@@ -179,13 +182,18 @@ def version_ranges(value):
     return ranges
 
 
-def check_targets(entries, versions):
-    """Warn when [targets] expects a jar that is not there, or a jar is not in [targets]."""
+def version_list(text):
+    """'1.20.1, 1.21.1' or '1.20.1 1.21.1' -> ['1.20.1', '1.21.1']"""
+    return [v for v in re.split(r"[\s,]+", text or "") if v]
+
+
+def check_targets(entries, versions, only=()):
+    """Warn when [targets] expects a jar that is not there (of the `only` versions, when given), or a jar is not in [targets]."""
     targets = versions.get("targets")
     if not targets:
         return
     found = {(entry["mc"], entry["loader"]) for entry in entries}
-    expected = {(mc, loader) for mc, loaders in targets.items() for loader in loaders}
+    expected = {(mc, loader) for mc, loaders in targets.items() for loader in loaders if not only or mc in only}
     for mc, loader in sorted(expected - found, key=lambda pair: (version_key(pair[0]), pair[1])):
         warn(f"[targets] expects a jar for Minecraft {mc} {loader}, there is none")
     for mc, loader in sorted(found - expected, key=lambda pair: (version_key(pair[0]), pair[1])):
@@ -234,6 +242,35 @@ def cmd_config(args):
     print(value if isinstance(value, str) else json.dumps(value))
 
 
+def cmd_plan(args):
+    task = settings("build.task", "buildAll")
+    java = settings("build.java")
+    if not java:
+        fail(f"build.java is not set in {SETTINGS.relative_to(ROOT)}")
+    wanted = version_list(args.only)
+    if "{mc}" in task:
+        table = args.versions or ROOT / settings("publish.versions.file", "")
+        targets = sorted(load_versions(table).get("targets") or {}, key=version_key)
+        if not targets:
+            fail(f"build.task {task} builds one version of [targets], {table} has none")
+        unknown = [mc for mc in wanted if mc not in targets]
+        if unknown:
+            fail(f"Not in [targets]: {', '.join(unknown)}. The versions are {', '.join(targets)}")
+        jobs = [{"mc": mc, "task": task.replace("{mc}", mc)} for mc in targets if not wanted or mc in wanted]
+    elif wanted:
+        fail(f"build.task {task} builds every version at once, put {{mc}} in it to pick versions")
+    else:
+        jobs = [{"mc": "all", "task": task}]
+    gradle_args = settings("build.args", "")
+    if isinstance(gradle_args, list):
+        gradle_args = " ".join(gradle_args)
+    for job in jobs:
+        print(f"  {job['mc']}: {job['task']} {gradle_args}".rstrip())
+    summary("### Build jobs\n" + "".join(f"- `{job['mc']}`: `{job['task']}`\n" for job in jobs))
+    output(matrix=json.dumps(jobs), java=str(java), args=gradle_args, jars=settings("build.jars", "build/libs"),
+           versions=" ".join(wanted))
+
+
 def cmd_collect(args):
     jars_dir = ROOT / settings("build.jars", "build/libs")
     exclude = settings("build.exclude", [])
@@ -257,8 +294,8 @@ def cmd_collect(args):
     else:
         warn(f"No release jars in {jars_dir}")
     entries = group_assets(collected, pattern)
-    versions = load_versions(ROOT / settings("publish.versions.file", ""))
-    check_targets(entries, versions)
+    versions = load_versions(args.versions or ROOT / settings("publish.versions.file", ""))
+    check_targets(entries, versions, version_list(args.mc))
     check_modrinth(entries, versions, strict=False)
     output(found=str(bool(collected)).lower(), count=len(collected))
 
@@ -389,7 +426,14 @@ def main():
     p.add_argument("key")
     p.set_defaults(run=cmd_config)
 
+    p = commands.add_parser("plan", help="build matrix, one job per [targets] version")
+    p.add_argument("--versions", help="version table of the release tag, default publish.versions.file")
+    p.add_argument("--only", help="build only these Minecraft versions, comma or space separated")
+    p.set_defaults(run=cmd_plan)
+
     p = commands.add_parser("collect", help="copy the release jars into build/release-assets/")
+    p.add_argument("--versions", help="version table of the release tag, default publish.versions.file")
+    p.add_argument("--mc", help="the Minecraft versions that were built, [targets] expects jars of these only")
     p.set_defaults(run=cmd_collect)
 
     p = commands.add_parser("matrix", help="publish matrix from the release assets")
