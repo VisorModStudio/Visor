@@ -45,9 +45,7 @@ public class OptionsScreenVRMixin extends Screen {
         header.addChild(new SpacerElement(-150, 4), header.newCellSettings());
     }
 
-    @Inject(method = "init", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;",
-            ordinal = 2, shift = At.Shift.AFTER))
+    @Inject(method = "init", at = @At(value = "NEW", target = "net/minecraft/client/gui/layouts/GridLayout"))
     private void visor$addVRSettingsButton(CallbackInfo ci,
                                            @Local(ordinal = 0) LinearLayout header) {
         header.addChild(visor$vrSettingsButton(), header.newCellSettings().paddingTop(-4));
