@@ -4,7 +4,7 @@
 [build]
 java = "21"
 task = ":build-{mc}"
-args = "--configure-on-demand --parallel"
+args = "--configure-on-demand --parallel -Dorg.gradle.internal.repository.max.tentatives=8 -Dorg.gradle.internal.repository.initial.backoff=1000"
 jars = "build/libs"
 exclude = ["*-dev*.jar", "*-sources.jar", "*-javadoc.jar"]
 
