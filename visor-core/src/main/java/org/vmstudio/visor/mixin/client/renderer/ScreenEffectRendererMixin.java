@@ -27,7 +27,7 @@ public abstract class ScreenEffectRendererMixin {
     @Shadow
     private int itemActivationTicks;
 
-    @Inject(method = "renderScreenEffect", at = @At("HEAD"), cancellable = true)
+    @Inject(method = {"renderScreenEffect", "submit"}, at = @At("HEAD"), cancellable = true)
     private void visor$noScreenEffectsInVR(CallbackInfo ci) {
         if (VRRenderState.getPhase().isNotVanilla()) {
             ci.cancel();

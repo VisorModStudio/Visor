@@ -11,7 +11,18 @@ import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.TextureFormat;
+//? if >=26.2 {
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.opengl.FrameBufferCache;
+import net.minecraft.client.renderer.GameRenderer;
+import org.joml.Vector4f;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+//?} else {
+/*import com.mojang.blaze3d.textures.TextureFormat;
+*///?}
 import org.vmstudio.visor.api.ModLoader;
 
 import java.util.Map;
@@ -44,11 +55,20 @@ public class McRenderTarget {
     // ------- MAIN TARGET -------
 
     public static RenderTarget mainTarget() {
-        return Minecraft.getInstance().getMainRenderTarget();
+        //? if >=26.2 {
+        GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
+        return gameRenderer == null ? null : gameRenderer.mainRenderTarget();
+        //?} else {
+        /*return Minecraft.getInstance().getMainRenderTarget();
+        *///?}
     }
 
     public static void setMainTarget(RenderTarget target) {
-        Minecraft.getInstance().mainRenderTarget = target;
+        //? if >=26.2 {
+        Minecraft.getInstance().gameRenderer.mainRenderTarget = target;
+        //?} else {
+        /*Minecraft.getInstance().mainRenderTarget = target;
+        *///?}
     }
 
     // ------- SIZE -------
@@ -143,8 +163,18 @@ public class McRenderTarget {
     // ------- CLEARING -------
 
     public static void clear(RenderTarget target) {
-        //? if >=1.21.5 {
-        int color = CLEAR_COLORS.getOrDefault(target, 0);
+        //? if >=26.2 {
+        Vector4f color = clearVector(CLEAR_COLORS.getOrDefault(target, 0));
+        GpuTexture depth = target.getDepthTexture();
+        if (depth == null) {
+            RenderSystem.getDevice().createCommandEncoder()
+                    .clearColorTexture(target.getColorTexture(), color);
+        } else {
+            RenderSystem.getDevice().createCommandEncoder()
+                    .clearColorAndDepthTextures(target.getColorTexture(), color, depth, FAR_DEPTH);
+        }
+        //?} elif >=1.21.5 {
+        /*int color = CLEAR_COLORS.getOrDefault(target, 0);
         GpuTexture depth = target.getDepthTexture();
         if (depth == null) {
             RenderSystem.getDevice().createCommandEncoder()
@@ -153,7 +183,7 @@ public class McRenderTarget {
             RenderSystem.getDevice().createCommandEncoder()
                     .clearColorAndDepthTextures(target.getColorTexture(), color, depth, 1.0);
         }
-        //?} elif >=1.21.2 {
+        *///?} elif >=1.21.2 {
         /*target.clear();
         *///?} else {
         /*target.clear(Minecraft.ON_OSX);
@@ -199,18 +229,43 @@ public class McRenderTarget {
         boolean clearColor = (mask & GL11.GL_COLOR_BUFFER_BIT) != 0;
         boolean clearDepth = (mask & GL11.GL_DEPTH_BUFFER_BIT) != 0 && target.getDepthTexture() != null;
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
+        //? if >=26.2 {
+        Vector4f rgba = clearVector(color);
+        double engineDepth = 1.0 - depth;
         if (clearColor && clearDepth) {
+            encoder.clearColorAndDepthTextures(target.getColorTexture(), rgba, target.getDepthTexture(), engineDepth);
+        } else if (clearColor) {
+            encoder.clearColorTexture(target.getColorTexture(), rgba);
+        } else if (clearDepth) {
+            encoder.clearDepthTexture(target.getDepthTexture(), engineDepth);
+        }
+        //?} else {
+        /*if (clearColor && clearDepth) {
             encoder.clearColorAndDepthTextures(target.getColorTexture(), color, target.getDepthTexture(), depth);
         } else if (clearColor) {
             encoder.clearColorTexture(target.getColorTexture(), color);
         } else if (clearDepth) {
             encoder.clearDepthTexture(target.getDepthTexture(), depth);
         }
+        *///?}
     }
 
+    //? if >=26.2 {
+    private static final double FAR_DEPTH = 0.0;
+
+    private static Vector4f clearVector(int argb) {
+        return new Vector4f((argb >> 16 & 0xFF) / 255.0F, (argb >> 8 & 0xFF) / 255.0F,
+                (argb & 0xFF) / 255.0F, (argb >>> 24) / 255.0F);
+    }
+    //?}
 
     public static GpuTexture adoptForeignTexture(String label, int width, int height, int glId) {
-        return new ForeignTexture(label, width, height, glId);
+        //? if >=26.2 {
+        return new ForeignTexture(label, width, height, glId,
+                ((GlDevice) RenderSystem.getDevice().backend).frameBufferCache());
+        //?} else {
+        /*return new ForeignTexture(label, width, height, glId);
+        *///?}
     }
 
     //? if >=1.21.6 {
@@ -221,18 +276,47 @@ public class McRenderTarget {
     //?}
 
     private static final class ForeignTexture extends GlTexture {
-        private ForeignTexture(String label, int width, int height, int glId) {
-            //? if >=1.21.6 {
+        //? if >=26.2 {
+        private final FrameBufferCache framebufferCache;
+        private final List<FrameBufferCache.CacheKey> framebuffers = new ArrayList<>();
+
+        private ForeignTexture(String label, int width, int height, int glId, FrameBufferCache framebufferCache) {
             super(GpuTexture.USAGE_COPY_DST | GpuTexture.USAGE_COPY_SRC | GpuTexture.USAGE_TEXTURE_BINDING
-                    | GpuTexture.USAGE_RENDER_ATTACHMENT, label, TextureFormat.RGBA8, width, height, 1, 1, glId);
-            //?} else {
-            /*super(label, TextureFormat.RGBA8, width, height, 1, glId);
-            *///?}
+                    | GpuTexture.USAGE_RENDER_ATTACHMENT, label, GpuFormat.RGBA8_UNORM, width, height, 1, 1, glId,
+                    framebufferCache);
+            this.framebufferCache = framebufferCache;
         }
 
         @Override
-        public void close() {
+        public void addAssociatedFbo(FrameBufferCache.CacheKey key) {
+            super.addAssociatedFbo(key);
+            framebuffers.add(key);
+        }
 
+        @Override
+        public void removeAssociatedFbo(FrameBufferCache.CacheKey key) {
+            super.removeAssociatedFbo(key);
+            framebuffers.remove(key);
+        }
+        //?} elif >=1.21.6 {
+        /*private ForeignTexture(String label, int width, int height, int glId) {
+            super(GpuTexture.USAGE_COPY_DST | GpuTexture.USAGE_COPY_SRC | GpuTexture.USAGE_TEXTURE_BINDING
+                    | GpuTexture.USAGE_RENDER_ATTACHMENT, label, TextureFormat.RGBA8, width, height, 1, 1, glId);
+        }
+        *///?} else {
+        /*private ForeignTexture(String label, int width, int height, int glId) {
+            super(label, TextureFormat.RGBA8, width, height, 1, glId);
+        }
+        *///?}
+
+        @Override
+        public void close() {
+            //? if >=26.2 {
+            for (FrameBufferCache.CacheKey key : List.copyOf(framebuffers)) {
+                framebufferCache.destroyFbo(key);
+            }
+            framebuffers.clear();
+            //?}
         }
     }
 
@@ -252,8 +336,14 @@ public class McRenderTarget {
         /*GlDevice device = (GlDevice) ModLoader.get().unwrapDevice(RenderSystem.getDevice());
         *///?}
         GpuTexture depth = target.getDepthTexture();
-        return glTexture(target.getColorTexture())
+        //? if >=26.2 {
+        return device.frameBufferCache().getFbo(device.directStateAccess(),
+                Collections.singletonList(glTexture(target.getColorTexture())),
+                depth == null ? null : glTexture(depth));
+        //?} else {
+        /*return glTexture(target.getColorTexture())
                 .getFbo(device.directStateAccess(), depth == null ? null : glTexture(depth));
+        *///?}
     }
     //?}
 

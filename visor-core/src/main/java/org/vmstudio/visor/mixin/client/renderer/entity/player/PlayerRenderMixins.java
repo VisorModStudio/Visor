@@ -130,7 +130,7 @@ public class PlayerRenderMixins {
         @Override
         @Unique
         public Quaternionf visor$lookAtCameraOrientation(float heightFraction, float yOffset) {
-            Entity entity = ((LevelRendererExtension) Minecraft.getInstance().levelRenderer).visor$getCurrentRenderEntity();
+            Entity entity = LevelRendererExtension.get().visor$getCurrentRenderEntity();
             if (entity == null) {
                 return this.camera.rotation();
             }

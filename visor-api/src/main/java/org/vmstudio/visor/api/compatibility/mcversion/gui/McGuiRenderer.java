@@ -9,6 +9,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.fog.FogRenderer;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 //?}
+//? if >=26.2 {
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFog;
+//?}
 //? if >=26.1 {
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.renderer.state.WindowRenderState;
@@ -35,7 +38,11 @@ public class McGuiRenderer {
     public static GuiGraphicsExtractor begin(int mouseX, int mouseY) {
         Minecraft minecraft = Minecraft.getInstance();
         //? if >=26.1 {
-        GuiRenderState guiRenderState = minecraft.gameRenderer.getGameRenderState().guiRenderState;
+        //? if >=26.2 {
+        GuiRenderState guiRenderState = minecraft.gameRenderer.gameRenderState().guiRenderState;
+        //?} else {
+        /*GuiRenderState guiRenderState = minecraft.gameRenderer.getGameRenderState().guiRenderState;
+        *///?}
         guiRenderState.reset();
         return new GuiGraphicsExtractor(minecraft, guiRenderState, mouseX, mouseY);
         //?} elif >=1.21.11 {
@@ -55,7 +62,13 @@ public class McGuiRenderer {
         //? if >=26.1 {
         Minecraft minecraft = Minecraft.getInstance();
         GameRenderer gameRenderer = minecraft.gameRenderer;
-        WindowRenderState windowState = gameRenderer.getGameRenderState().windowRenderState;
+        //? if >=26.2 {
+        WindowRenderState windowState = gameRenderer.gameRenderState().windowRenderState;
+        McFog.State fog = McFog.save();
+        McFog.disable();
+        //?} else {
+        /*WindowRenderState windowState = gameRenderer.getGameRenderState().windowRenderState;
+        *///?}
         Window window = minecraft.getWindow();
         int width = windowState.width;
         int height = windowState.height;
@@ -68,8 +81,15 @@ public class McGuiRenderer {
         McModelViewStack.push();
         McModelViewStack.identity();
         try {
-            gameRenderer.guiRenderer.render(gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+            //? if >=26.2 {
+            gameRenderer.guiRenderer.render();
+            //?} else {
+            /*gameRenderer.guiRenderer.render(gameRenderer.fogRenderer.getBuffer(FogRenderer.FogMode.NONE));
+            *///?}
         } finally {
+            //? if >=26.2 {
+            McFog.restore(fog);
+            //?}
             McModelViewStack.pop();
             gameRenderer.useUiLightmap = uiLightmap;
             windowState.width = width;

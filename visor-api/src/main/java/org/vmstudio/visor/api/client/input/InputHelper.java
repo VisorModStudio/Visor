@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 //? if >=1.21.9 {
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -209,7 +210,7 @@ public class InputHelper {
             return true;
         }
         Minecraft mc = Minecraft.getInstance();
-        if(mc.screen != null) {
+        if(McVersionClientUtils.screen() != null) {
             //? if >=1.21.9 {
             mc.keyboardHandler.charTyped(windowHandle(), McGuiUtils.characterEvent(character, modifiers));
             //?} else {

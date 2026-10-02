@@ -4,7 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+//? if <26.2 {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
 //?}
@@ -78,7 +80,11 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
 
 
     // CallbackInfo only: 1.21.9 swapped the buffer source for a SubmitNodeCollector
-    @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
+    //? if >=26.2 {
+    @Inject(method = "submitHandsWithItems", at = @At("HEAD"), cancellable = true)
+    //?} else {
+    /*@Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
+    *///?}
     private void visor$noFirstPersonHandsInVR(CallbackInfo ci) {
         if (VRRenderState.getPhase().isNotVanilla()) {
             ci.cancel();
@@ -87,15 +93,19 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
 
     @Override
     public void visor$renderMap(PoseStack poseStack,
-                                MultiBufferSource bufferSource,
+                                //? if >=26.2 {
+                                SubmitNodeCollector bufferSource,
+                                //?} else {
+                                /*MultiBufferSource bufferSource,
+                                *///?}
                                 int pCombinedLight,
                                 ItemStack itemStack) {
-        //? if >=1.21.9 {
-        // 1.21.9 submits instead of drawing; the caller's buffer source has no equivalent
+        //? if >=1.21.9 && <26.2 {
+        /*// 1.21.9 submits instead of drawing; the caller's buffer source has no equivalent
         renderMap(poseStack, Minecraft.getInstance().gameRenderer.getSubmitNodeStorage(), pCombinedLight, itemStack);
-        //?} else {
-        /*renderMap(poseStack, bufferSource, pCombinedLight, itemStack);
-        *///?}
+        *///?} else {
+        renderMap(poseStack, bufferSource, pCombinedLight, itemStack);
+        //?}
     }
 
     @Unique

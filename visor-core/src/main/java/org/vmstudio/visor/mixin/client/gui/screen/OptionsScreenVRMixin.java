@@ -20,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.llamalad7.mixinextras.sugar.Local;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 @Mixin(OptionsScreen.class)
 public class OptionsScreenVRMixin extends Screen {
@@ -32,7 +33,7 @@ public class OptionsScreenVRMixin extends Screen {
         return new Button.Builder(Component.translatable("visor.options.main.button"), (p) ->
         {
             Minecraft.getInstance().options.save();
-            Minecraft.getInstance().setScreen(new VRSettingsScreen(this));
+            McVersionClientUtils.setScreen(new VRSettingsScreen(this));
         }).build();
     }
 

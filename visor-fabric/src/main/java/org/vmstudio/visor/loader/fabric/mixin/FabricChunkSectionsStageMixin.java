@@ -25,6 +25,11 @@ public class FabricChunkSectionsStageMixin {
         if (group == ChunkSectionLayerGroup.TRANSLUCENT) {
             ((FabricModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_TRANSLUCENT);
         }
+        //? if >=26.2 {
+        if (group == ChunkSectionLayerGroup.OPAQUE) {
+            ((FabricModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_SOLID);
+        }
+        //?}
     }
 }
 //?} else {

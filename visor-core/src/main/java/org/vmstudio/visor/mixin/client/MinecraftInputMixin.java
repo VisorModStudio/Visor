@@ -71,6 +71,17 @@ public abstract class MinecraftInputMixin {
         return VisorState.get().isActive() || original.call(instance);
     }
 
+    //? if >=26.2 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Screenshot;grab(Lnet/minecraft/client/Minecraft;Z)V"), method = "handleGlobalKeyPress")
+    private void visor$screenshot(Minecraft minecraft, boolean debugPanorama, Operation<Void> original) {
+        if (VisorState.get().isNotActive()) {
+            original.call(minecraft, debugPanorama);
+            return;
+        }
+        ClientContext.renderer.setAskedForScreenShot(true);
+    }
+    //?}
+
     @WrapOperation(method = "handleKeybinds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;releaseUsingItem(Lnet/minecraft/world/entity/player/Player;)V"))
     private void visor$keepConsume(MultiPlayerGameMode instance, Player player, Operation<Void> original) {
         if (VisorState.get().isActive()

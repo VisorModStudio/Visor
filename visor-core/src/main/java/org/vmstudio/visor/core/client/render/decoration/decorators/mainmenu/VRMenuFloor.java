@@ -11,6 +11,7 @@ import org.joml.Vector2f;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 /**
  * Renders the play-area floor
@@ -37,7 +38,7 @@ public final class VRMenuFloor {
             int r = 128, g = 128, b = 128;
 
             Matrix4f matrix4f = poseStack.last().pose();
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             poseStack.translate(-width / 2.0F, 0.0F, -length / 2.0F);
 
             final int repeat = 4;

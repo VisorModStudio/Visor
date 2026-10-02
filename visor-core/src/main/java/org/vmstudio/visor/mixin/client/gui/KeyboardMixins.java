@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 
 
@@ -131,7 +132,7 @@ public class KeyboardMixins {
                     overlayBase = overlayScreen;
                 }
                 Screen screenFocused = overlayBase == null
-                        ? Minecraft.getInstance().screen
+                        ? McVersionClientUtils.screen()
                         : overlayBase;
                 keyboardAccessor.showKeyboard(
                         screenFocused

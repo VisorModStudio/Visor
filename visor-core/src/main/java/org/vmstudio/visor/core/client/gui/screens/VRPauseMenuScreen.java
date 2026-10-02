@@ -113,7 +113,7 @@ public class VRPauseMenuScreen extends McScreen {
         switch (this.currentTab) {
             case MAIN -> {
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.inventory").getString(), left, y,
-                        b -> this.minecraft.setScreen(new InventoryScreen(this.minecraft.player))));
+                        b -> McVersionClientUtils.setScreen(new InventoryScreen(this.minecraft.player))));
                 measureHeightButton = addRenderableWidget(makeHalfBtn(measureHeightLabel(), right, y,
                         b -> ClientContext.localPlayer.getHeightTracker().startMeasure()));
                 y += BTN_H + GAP;
@@ -125,13 +125,13 @@ public class VRPauseMenuScreen extends McScreen {
                                 })
                 );
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.chat").getString(), right, y,
-                        b -> this.minecraft.setScreen(McVersionClientUtils.chatScreen(""))));
+                        b -> McVersionClientUtils.setScreen(McVersionClientUtils.chatScreen(""))));
                 y += BTN_H + GAP;
 
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.pause_menu").getString(), left, y,
-                        b -> this.minecraft.setScreen(new PauseScreen(true))));
+                        b -> McVersionClientUtils.setScreen(new PauseScreen(true))));
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.vr_settings").getString(), right, y,
-                        b -> this.minecraft.setScreen(new VRSettingsScreen(this))));
+                        b -> McVersionClientUtils.setScreen(new VRSettingsScreen(this))));
                 y += BTN_H + GAP;
             }
 
@@ -206,10 +206,15 @@ public class VRPauseMenuScreen extends McScreen {
                 *///?}
                 y += BTN_H + GAP;
 
+                //? if >=26.2 {
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.reload_chunks").getString(), left, y,
+                        b -> this.minecraft.levelExtractor.allChanged()));
+                //?} else {
+                /*addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.reload_chunks").getString(), left, y,
                         b -> this.minecraft.levelRenderer.allChanged()));
+                *///?}
                 addRenderableWidget(makeHalfBtn(Component.translatable("visor.screen.pause_menu.button.clear_chat").getString(), right, y,
-                        b -> this.minecraft.gui.getChat().clearMessages(false)));
+                        b -> McVersionClientUtils.chat().clearMessages(false)));
                 y += BTN_H + GAP;
             }
         }

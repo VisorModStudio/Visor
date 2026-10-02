@@ -40,7 +40,7 @@ public class VRAimPicker {
             vanillaPick.run();
             return;
         }
-        if (MC.screen != null && MC.hitResult != null) {
+        if (McVersionClientUtils.screen() != null && MC.hitResult != null) {
             return;
         }
         if (MC.getCameraEntity() == null) {

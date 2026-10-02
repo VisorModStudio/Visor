@@ -181,13 +181,15 @@ public abstract class WindowMixin implements WindowExtension {
      * @param v s
      * @return s
      */
-    @ModifyVariable(method = "updateVsync", ordinal = 0, at = @At("HEAD"), argsOnly = true)
+    //? if <26.2 {
+    /*@ModifyVariable(method = "updateVsync", ordinal = 0, at = @At("HEAD"), argsOnly = true)
     boolean visor$noVsync(boolean v) {
         if (VisorState.get().isActive()) {
             return false;
         }
         return v;
     }
+    *///?}
 
 
     /* ************************ *\

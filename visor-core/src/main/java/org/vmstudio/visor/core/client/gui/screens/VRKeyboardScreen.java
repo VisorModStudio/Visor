@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.client.input.InputHelper;
@@ -363,7 +364,7 @@ public class VRKeyboardScreen extends McScreen {
 
     private boolean canTypeText() {
         return overlayKeyboard.getAttachedTo() != null
-                || Minecraft.getInstance().screen != null;
+                || McVersionClientUtils.screen() != null;
     }
 
     private void pressModifiers(int modifiers) {

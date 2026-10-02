@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.gui.overlays.templates;
 
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 
 
@@ -40,9 +41,9 @@ public class VROverlayChat extends VROverlayTemplateScreen {
     @Override
     protected void onRender(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
         McGuiUtils.renderChat(
-                minecraft.gui.getChat(),
+                McVersionClientUtils.chat(),
                 guiGraphics,
-                minecraft.gui.getGuiTicks(), 0, 0
+                McVersionClientUtils.guiTicks(), 0, 0
         );
     }
 
@@ -53,7 +54,7 @@ public class VROverlayChat extends VROverlayTemplateScreen {
         if(minecraft.isPaused()
                 || ClientContext.overlayManager.getKeyboardAccessor().isVisible()) return false;
 
-        return !minecraft.gui.getChat().trimmedMessages.isEmpty() &&
+        return !McVersionClientUtils.chat().trimmedMessages.isEmpty() &&
                 minecraft.options.chatVisibility().get() != ChatVisiblity.HIDDEN;
     }
 

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.gui.overlays.options.OptionTextures;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsGeneral;
@@ -76,7 +77,7 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
 
     @Override
     public boolean updateVisibility() {
-        return MC.screen == null
+        return McVersionClientUtils.screen() == null
                 && MC.player != null;
     }
 
@@ -205,9 +206,11 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
     // Minimal concrete RenderTarget for region copies
     private static final class RegionRenderTarget extends RenderTarget {
         public RegionRenderTarget(boolean useDepth) {
-            //? if >=1.21.5 {
-            super("visor_hud_region", useDepth);
-            //?} else {
+            //? if >=26.2 {
+            super("visor_hud_region", useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+            //?} elif >=1.21.5 {
+            /*super("visor_hud_region", useDepth);
+            *///?} else {
             /*super(useDepth);
             *///?}
         }

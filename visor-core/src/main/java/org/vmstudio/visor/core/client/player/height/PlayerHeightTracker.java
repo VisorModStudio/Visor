@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.common.player.VRPlayer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -98,7 +99,7 @@ public final class PlayerHeightTracker {
         float height = tracking
                 ? ClientContext.rawPoseHandler.getHmdData().getPivotHistory().averagePosition(1.0f).y
                 : Float.NaN;
-        var chat = MC.gui.getChat();
+        var chat = McVersionClientUtils.chat();
         if (!(height >= VRClientSettings.MIN_HEIGHT)) {
             McGuiUtils.addChatMessage(chat, Component.translatable("visor.messages.height_calibration_failed"));
             return;
@@ -131,7 +132,7 @@ public final class PlayerHeightTracker {
         if (MC.player == null) {
             return;
         }
-        var chat = MC.gui.getChat();
+        var chat = McVersionClientUtils.chat();
         if (announceAutoSet) {
             announceAutoSet = false;
             McGuiUtils.addChatMessage(chat, Component.translatable(
@@ -148,6 +149,6 @@ public final class PlayerHeightTracker {
 
 
     private static boolean isSafeMoment() {
-        return MC.screen != null || VRRenderState.getSceneType().isMainMenu();
+        return McVersionClientUtils.screen() != null || VRRenderState.getSceneType().isMainMenu();
     }
 }

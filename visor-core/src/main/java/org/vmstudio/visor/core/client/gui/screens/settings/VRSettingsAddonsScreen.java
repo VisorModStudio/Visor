@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.ObjectSelectionList;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,7 +100,7 @@ public class VRSettingsAddonsScreen extends McScreen {
         //Back button
         this.addRenderableWidget(
                 Button.builder(Component.translatable("gui.back"), btn -> {
-                            MC.setScreen(this.previousScreen);
+                            McVersionClientUtils.setScreen(this.previousScreen);
                         })
                         .bounds(this.width / 2 - 100, this.height - 27, 200, 20)
                         .build()
@@ -110,7 +111,7 @@ public class VRSettingsAddonsScreen extends McScreen {
     protected boolean onKeyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == InputConstants.KEY_ESCAPE) {
             ClientContext.settingsManager.saveOptions();
-            MC.setScreen(this.previousScreen);
+            McVersionClientUtils.setScreen(this.previousScreen);
             return true;
         }
         return super.onKeyPressed(keyCode, scanCode, modifiers);
@@ -169,7 +170,7 @@ public class VRSettingsAddonsScreen extends McScreen {
 
             this.leftButton = Button.builder(
                             left.getAddonName().copy().append("..."),
-                            b -> MC.setScreen(leftScreen)
+                            b -> McVersionClientUtils.setScreen(leftScreen)
                     )
                     .bounds(0, 0, buttonWidth, buttonH)
                     .build();
@@ -177,7 +178,7 @@ public class VRSettingsAddonsScreen extends McScreen {
             if (right != null) {
                 this.rightButton = Button.builder(
                                 right.getAddonName().copy().append("..."),
-                                b -> MC.setScreen(rightScreen)
+                                b -> McVersionClientUtils.setScreen(rightScreen)
                         )
                         .bounds(0, 0, buttonWidth, buttonH)
                         .build();

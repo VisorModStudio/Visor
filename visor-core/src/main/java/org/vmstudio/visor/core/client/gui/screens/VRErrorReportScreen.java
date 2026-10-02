@@ -55,7 +55,7 @@ public class VRErrorReportScreen extends McScreen {
         // Back
         addRenderableWidget(Button.builder(
                         Component.translatable("gui.back"),
-                        b -> Minecraft.getInstance().setScreen(new TitleScreen()))
+                        b -> McVersionClientUtils.setScreen(new TitleScreen()))
                 .size(btnW, btnH)
                 .pos(startX, bottomY)
                 .build()
@@ -103,7 +103,7 @@ public class VRErrorReportScreen extends McScreen {
                 : Component.translatable("visor.messages.error.generic");
 
         McVersionClientUtils.schedule(() ->
-                Minecraft.getInstance().setScreen(new VRErrorReportScreen(title, t))
+                McVersionClientUtils.setScreen(new VRErrorReportScreen(title, t))
         );
     }
 }

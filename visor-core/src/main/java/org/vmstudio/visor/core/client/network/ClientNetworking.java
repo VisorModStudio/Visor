@@ -224,7 +224,7 @@ public class ClientNetworking {
 
     protected static void receivedHandShake(){
         if (!Minecraft.getInstance().isLocalServer()) {
-            McGuiUtils.addChatMessage(MC.gui.getChat(),
+            McGuiUtils.addChatMessage(McVersionClientUtils.chat(),
                     Component.translatable(
                             "visor.messages.server_supports"
                     )

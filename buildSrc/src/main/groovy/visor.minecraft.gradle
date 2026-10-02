@@ -14,6 +14,7 @@ project.ext.branch = project.parent.name - "visor-" // remove "visor-" prefix
 // ---- Loom ---------------------------------------------------------------------------------
 def unobfuscated = stonecutter.eval(minecraftVersion, ">=26.1")
 project.ext.unobfuscated = unobfuscated
+project.ext.bundlesVulkan = !stonecutter.eval(minecraftVersion, ">=26.2")
 pluginManager.apply(unobfuscated ? "dev.architectury.loom-no-remap" : "dev.architectury.loom")
 
 

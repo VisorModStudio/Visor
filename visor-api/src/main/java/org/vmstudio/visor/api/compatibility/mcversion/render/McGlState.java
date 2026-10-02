@@ -12,6 +12,9 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 //?} else {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///?}
+//? if >=26.2 {
+import com.mojang.blaze3d.opengl.GlDevice;
+//?}
 //? if >=1.21.6 {
 import com.mojang.blaze3d.buffers.Std140Builder;
 import org.lwjgl.system.MemoryStack;
@@ -88,22 +91,42 @@ public class McGlState {
     private static float shaderGameTime;
     //?}
 
+    // ------- BACKEND -------
+
+    public static boolean isOpenGl() {
+        //? if >=26.2 {
+        return RenderSystem.getDevice().backend instanceof GlDevice;
+        //?} else {
+        /*return true;
+        *///?}
+    }
+
     // ------- BLEND -------
 
     public static void enableBlend() {
-        //? if >=1.21.5 {
+        //? if >=26.2 {
         blend = true;
+        if (isOpenGl()) {
+            GlStateManager._enableBlend(0);
+        }
+        //?} elif >=1.21.5 {
+        /*blend = true;
         GlStateManager._enableBlend();
-        //?} else {
+        *///?} else {
         /*RenderSystem.enableBlend();
         *///?}
     }
 
     public static void disableBlend() {
-        //? if >=1.21.5 {
+        //? if >=26.2 {
         blend = false;
+        if (isOpenGl()) {
+            GlStateManager._disableBlend(0);
+        }
+        //?} elif >=1.21.5 {
+        /*blend = false;
         GlStateManager._disableBlend();
-        //?} else {
+        *///?} else {
         /*RenderSystem.disableBlend();
         *///?}
     }
@@ -138,6 +161,11 @@ public class McGlState {
         blendDestinationRgb = destinationRgb;
         blendSourceAlpha = sourceAlpha;
         blendDestinationAlpha = destinationAlpha;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._blendFuncSeparate(sourceRgb, destinationRgb, sourceAlpha, destinationAlpha);
         //?} else {
         /*RenderSystem.blendFuncSeparate(sourceRgb, destinationRgb, sourceAlpha, destinationAlpha);
@@ -146,6 +174,11 @@ public class McGlState {
 
     public static void blendEquation(int mode) {
         //? if >=1.21.5 {
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GL14.glBlendEquation(mode);
         //?} else {
         /*RenderSystem.blendEquation(mode);
@@ -154,19 +187,35 @@ public class McGlState {
 
     // the engine caches the blend state, reading it back is how a pass restores what it found
     public static int blendSourceRgb() {
-        return GlStateManager.BLEND.srcRgb;
+        //? if >=26.2 {
+        return GlStateManager.BLEND[0].srcRgb;
+        //?} else {
+        /*return GlStateManager.BLEND.srcRgb;
+        *///?}
     }
 
     public static int blendDestinationRgb() {
-        return GlStateManager.BLEND.dstRgb;
+        //? if >=26.2 {
+        return GlStateManager.BLEND[0].dstRgb;
+        //?} else {
+        /*return GlStateManager.BLEND.dstRgb;
+        *///?}
     }
 
     public static int blendSourceAlpha() {
-        return GlStateManager.BLEND.srcAlpha;
+        //? if >=26.2 {
+        return GlStateManager.BLEND[0].srcAlpha;
+        //?} else {
+        /*return GlStateManager.BLEND.srcAlpha;
+        *///?}
     }
 
     public static int blendDestinationAlpha() {
-        return GlStateManager.BLEND.dstAlpha;
+        //? if >=26.2 {
+        return GlStateManager.BLEND[0].dstAlpha;
+        //?} else {
+        /*return GlStateManager.BLEND.dstAlpha;
+        *///?}
     }
 
     // ------- DEPTH -------
@@ -174,6 +223,11 @@ public class McGlState {
     public static void enableDepthTest() {
         //? if >=1.21.5 {
         depthTest = true;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._enableDepthTest();
         //?} else {
         /*RenderSystem.enableDepthTest();
@@ -183,6 +237,11 @@ public class McGlState {
     public static void disableDepthTest() {
         //? if >=1.21.5 {
         depthTest = false;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._disableDepthTest();
         //?} else {
         /*RenderSystem.disableDepthTest();
@@ -192,6 +251,11 @@ public class McGlState {
     public static void depthMask(boolean write) {
         //? if >=1.21.5 {
         depthWrite = write;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._depthMask(write);
         //?} else {
         /*RenderSystem.depthMask(write);
@@ -201,6 +265,11 @@ public class McGlState {
     public static void depthFunc(int function) {
         //? if >=1.21.5 {
         depthFunction = function;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._depthFunc(function);
         //?} else {
         /*RenderSystem.depthFunc(function);
@@ -212,6 +281,11 @@ public class McGlState {
     public static void enableCull() {
         //? if >=1.21.5 {
         cull = true;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._enableCull();
         //?} else {
         /*RenderSystem.enableCull();
@@ -221,6 +295,11 @@ public class McGlState {
     public static void disableCull() {
         //? if >=1.21.5 {
         cull = false;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._disableCull();
         //?} else {
         /*RenderSystem.disableCull();
@@ -233,6 +312,11 @@ public class McGlState {
         //? if >=26.1 {
         colorWrite = red || green || blue;
         alphaWrite = alpha;
+        //? if >=26.2 {
+        if (!isOpenGl()) {
+            return;
+        }
+        //?}
         GlStateManager._colorMask((red ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_RED : 0)
                 | (green ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_GREEN : 0)
                 | (blue ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_BLUE : 0)
@@ -451,9 +535,11 @@ public class McGlState {
     }
 
     public static int maxSupportedTextureSize() {
-        //? if >=1.21.5 {
-        return RenderSystem.getDevice().getMaxTextureSize();
-        //?} else {
+        //? if >=26.2 {
+        return RenderSystem.getDevice().getDeviceInfo().limits().maxTextureSize();
+        //?} elif >=1.21.5 {
+        /*return RenderSystem.getDevice().getMaxTextureSize();
+        *///?} else {
         /*return RenderSystem.maxSupportedTextureSize();
         *///?}
     }

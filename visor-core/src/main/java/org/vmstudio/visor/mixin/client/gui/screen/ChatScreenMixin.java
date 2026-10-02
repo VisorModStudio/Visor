@@ -23,7 +23,11 @@ public abstract class ChatScreenMixin extends Screen {
     protected ChatScreenMixin(Component component) {
         super(component);
     }
-    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"),cancellable = true)
+    //? if >=26.2 {
+    @Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"),cancellable = true)
+    //?} else {
+    /*@Inject(method = "keyPressed", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"),cancellable = true)
+    *///?}
     //? if >=1.21.9 {
     private void visor$clearInputOnClose(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
     //?} else {

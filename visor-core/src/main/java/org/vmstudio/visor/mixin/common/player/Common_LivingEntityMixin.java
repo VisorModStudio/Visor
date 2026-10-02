@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 1.21.5+
+// #!MC-VERSION:: 26.2+
 package org.vmstudio.visor.mixin.common.player;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -50,7 +50,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
 
     // 1.21.5 replaced isDamageSourceBlocked with the blocks_attacks component and this hook
     @Shadow
-    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker);
+    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage);
 
     @Inject(method = "applyItemBlocking", at = @At("RETURN"), cancellable = true)
     private void visor$poseShieldBlock(ServerLevel level, DamageSource damageSource, float damageAmount,
@@ -68,7 +68,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
             blocksAttacks.onBlocked(level, self);
             if (!damageSource.is(DamageTypeTags.IS_PROJECTILE)
                     && damageSource.getDirectEntity() instanceof LivingEntity attacker) {
-                blockUsingItem(level, attacker);
+                blockUsingItem(level, attacker, damageSource, damageAmount);
                 float disableSeconds = attacker.getSecondsToDisableBlocking();
                 if (disableSeconds > 0.0F) {
                     blocksAttacks.disable(level, self, disableSeconds, shield);
@@ -78,12 +78,17 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
         cir.setReturnValue(damageAmount);
     }
 
-    @WrapOperation(method = "hurtServer", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
+    @WrapOperation(method = "dealDefaultKnockback", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"))
     private void visor$vrHurtKnockbackDirection(LivingEntity instance, double strength, double x, double z,
-                                                Operation<Void> original,
-                                                @Local(argsOnly = true) DamageSource damageSource) {
-        visor$vrKnockback(instance, strength, x, z, original, damageSource);
+                                                DamageSource damageSource, float damage,
+                                                Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback(damageSource.getEntity(), instance);
+        if (knockBack != null) {
+            x = knockBack.x;
+            z = knockBack.z;
+        }
+        original.call(instance, strength, x, z, damageSource, damage);
     }
 
 
@@ -153,16 +158,5 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
                 handPos.y() + itemEntity.getDeltaMovement().y(),
                 handPos.z() + itemEntity.getDeltaMovement().z()
         );
-    }
-
-    @Unique
-    private static void visor$vrKnockback(LivingEntity instance, double strength, double x, double z,
-                                          Operation<Void> original, DamageSource damageSource) {
-        Vec3 knockBack = CommonUtils.calcVRKnockback(damageSource.getEntity(), instance);
-        if (knockBack != null) {
-            x = knockBack.x;
-            z = knockBack.z;
-        }
-        original.call(instance, strength, x, z);
     }
 }

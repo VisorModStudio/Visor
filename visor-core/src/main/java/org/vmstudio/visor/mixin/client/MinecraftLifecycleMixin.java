@@ -45,7 +45,11 @@ public abstract class MinecraftLifecycleMixin {
      * @param overlay s
      * @return s
      */
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"), method = "<init>", index = 0, require = 1)
+    //? if >=26.2 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"), method = "<init>", index = 0, require = 1)
+    //?} else {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"), method = "<init>", index = 0, require = 1)
+    *///?}
     public Overlay visor$initRenderStageManager(Overlay overlay) {
         VRRenderState.initVanillaTarget((MainTarget) McRenderTarget.mainTarget());
 

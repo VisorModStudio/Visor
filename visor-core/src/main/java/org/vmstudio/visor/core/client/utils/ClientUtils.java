@@ -113,7 +113,7 @@ public class ClientUtils {
         Screenshot.grab(minecraft.gameDirectory, fb, (text) ->
         {
             minecraft.execute(() -> {
-                McGuiUtils.addChatMessage(minecraft.gui.getChat(), text);
+                McGuiUtils.addChatMessage(McVersionClientUtils.chat(), text);
             });
         });
     }
@@ -136,11 +136,11 @@ public class ClientUtils {
 
         TitleScreen titleScreen = new TitleScreen();
         if (bl) {
-            minecraft.setScreen(titleScreen);
+            McVersionClientUtils.setScreen(titleScreen);
         } else if (bl2) {
-            minecraft.setScreen(new RealmsMainScreen(titleScreen));
+            McVersionClientUtils.setScreen(new RealmsMainScreen(titleScreen));
         } else {
-            minecraft.setScreen(new JoinMultiplayerScreen(titleScreen));
+            McVersionClientUtils.setScreen(new JoinMultiplayerScreen(titleScreen));
         }
     }
 }

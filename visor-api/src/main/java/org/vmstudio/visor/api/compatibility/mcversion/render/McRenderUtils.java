@@ -160,9 +160,11 @@ public class McRenderUtils {
     }
 
     public static int packedLight(LevelReader level, BlockPos pos) {
-        //? if >=26.1 {
-        return LevelRenderer.getLightCoords(level, pos);
-        //?} else {
+        //? if >=26.2 {
+        return LightCoordsUtil.getLightCoords(level, pos);
+        //?} elif >=26.1 {
+        /*return LevelRenderer.getLightCoords(level, pos);
+        *///?} else {
         /*return LevelRenderer.getLightColor(level, pos);
         *///?}
     }
@@ -196,11 +198,11 @@ public class McRenderUtils {
     }
 
     public static void updateDisplay(Window window) {
-        //? if >=26.1 {
-        com.mojang.blaze3d.systems.RenderSystem.flipFrame(null);
-        //?} elif >=1.21.2 {
+        //? if >=26.1 && <26.2 {
+        /*com.mojang.blaze3d.systems.RenderSystem.flipFrame(null);
+        *///?} elif >=1.21.2 && <26.1 {
         /*window.updateDisplay(null);
-        *///?} else {
+        *///?} elif <1.21.2 {
         /*window.updateDisplay();
         *///?}
     }
@@ -279,12 +281,22 @@ public class McRenderUtils {
                                   float partialTicks,
                                   long nanoTime,
                                   boolean renderLevel) {
-        //? if >=26.1 {
-        var deltaTracker = Minecraft.getInstance().getDeltaTracker();
+        //? if >=26.2 {
+        Minecraft minecraft = Minecraft.getInstance();
+        var deltaTracker = minecraft.getDeltaTracker();
+        try (var mainThreadGizmos = minecraft.levelExtractor.collectPerFrameMainThreadGizmos()) {
+            renderer.update(deltaTracker);
+            renderer.extract(deltaTracker, renderLevel);
+        }
+        try (var renderThreadGizmos = minecraft.levelRenderer.collectPerFrameRenderThreadGizmos()) {
+            renderer.render(deltaTracker, renderLevel);
+        }
+        //?} elif >=26.1 {
+        /*var deltaTracker = Minecraft.getInstance().getDeltaTracker();
         renderer.update(deltaTracker, renderLevel);
         renderer.extract(deltaTracker, renderLevel);
         renderer.render(deltaTracker, renderLevel);
-        //?} elif >=1.21.2 {
+        *///?} elif >=1.21.2 {
         /*renderer.render(Minecraft.getInstance().getDeltaTracker(), renderLevel);
         *///?} elif >=1.21 {
         /*renderer.render(Minecraft.getInstance().getTimer(), renderLevel);
@@ -293,13 +305,19 @@ public class McRenderUtils {
         *///?}
     }
 
+    public static void endRenderPass() {
+        //? if >=26.2 {
+        McFeatureRenderer.endFrame();
+        com.mojang.blaze3d.systems.RenderSystem.getDevice().createCommandEncoder().submit();
+        //?}
+    }
+
     public static void renderItemActivationAnimation(GameRenderer renderer, float partialTicks) {
         //? if >=1.21.9 {
         // 1.21.9 only queues it: draw it now, under the caller's matrices and the ITEMS_3D lights it just set
         renderer.screenEffectRenderer.renderItemActivationAnimation(
-                new PoseStack(), partialTicks, renderer.getSubmitNodeStorage());
-        renderer.getFeatureRenderDispatcher().renderAllFeatures();
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch();
+                new PoseStack(), partialTicks, McFeatureRenderer.collector());
+        McFeatureRenderer.render();
         //?} elif >=1.21.6 {
         /*// 1.21.6 moved the animation onto ScreenEffectRenderer
         renderer.screenEffectRenderer.renderItemActivationAnimation(new PoseStack(), partialTicks);

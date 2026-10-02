@@ -18,6 +18,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -237,7 +238,7 @@ public class VRSettingsScreen extends McScreen {
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT),
                 (it)->{
                     ClientContext.settingsManager.saveOptions();
-                    MC.setScreen(this.previousScreen);
+                    McVersionClientUtils.setScreen(this.previousScreen);
                 }
         );
         buttonBack = new ButtonImaged(
@@ -303,7 +304,7 @@ public class VRSettingsScreen extends McScreen {
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
                         .setText(Component.translatable("visor.options.main.addons")),
                 (it)->{
-                    MC.setScreen(new VRSettingsAddonsScreen(this));
+                    McVersionClientUtils.setScreen(new VRSettingsAddonsScreen(this));
                 }
         );
         buttonJoinCommunity = new ButtonImaged(

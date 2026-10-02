@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,7 +121,7 @@ public enum VROptionWidgetType {
                 ).setOnChanged(
                         ()->{
                             //reinit screen
-                            MC.setScreen(MC.screen);
+                            McVersionClientUtils.setScreen(McVersionClientUtils.screen());
                         }
                 ).build();
             }

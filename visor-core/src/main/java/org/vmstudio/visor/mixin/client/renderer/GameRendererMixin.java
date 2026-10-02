@@ -20,6 +20,9 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4fc;
 //?}
+//? if >=26.2 {
+import org.joml.Vector4fc;
+//?}
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -232,8 +235,23 @@ public abstract class GameRendererMixin {
     }
     *///?}
 
-    //? if >=26.1 {
-    @Inject(at = @At("TAIL"), method = "extractWindow")
+    //? if >=26.2 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resize(II)V"), method = "render", require = 1)
+    private void visor$noVanillaResizeInVR(GameRenderer instance, int width, int height, Operation<Void> original) {
+        if (VisorState.get().isNotActive()) {
+            original.call(instance, width, height);
+        }
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearColorAndDepthTextures(Lcom/mojang/blaze3d/textures/GpuTexture;Lorg/joml/Vector4fc;Lcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false), method = "render", require = 1)
+    private void visor$noFrameClearInWorldPass(CommandEncoder encoder, GpuTexture color, Vector4fc clearColor,
+                                               GpuTexture depth, double clearDepth, Operation<Void> original) {
+        if (VRRenderState.getPhase().isNotVRWorld()) {
+            original.call(encoder, color, clearColor, depth, clearDepth);
+        }
+    }
+    //?} elif >=26.1 {
+    /*@Inject(at = @At("TAIL"), method = "extractWindow")
     private void visor$noVanillaResizeInVR(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ((GameRenderer) (Object) this).getGameRenderState().windowRenderState.isResized = false;
@@ -247,7 +265,7 @@ public abstract class GameRendererMixin {
             original.call(encoder, color, clearColor, depth, clearDepth);
         }
     }
-    //?}
+    *///?}
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$skipAutoScreenshotInMenu(Path path, CallbackInfo ci) {

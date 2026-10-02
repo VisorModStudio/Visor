@@ -18,6 +18,7 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 public final class VREndFloor {
     private static final Identifier TEXTURE =
@@ -70,7 +71,7 @@ public final class VREndFloor {
 
             Matrix4f pose = poseStack.last().pose();
             McVertexBuilder bufferBuilder = McVertexBuilder.get();
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferBuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
             // top
             quad(bufferBuilder, pose, TOP_SHADE,

@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
@@ -117,7 +118,7 @@ public class GameEffectPumpkin extends VRGameEffect {
         float uv1 = 0.5F + 0.5F * BORDER_SCALE;
 
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
         buf.vertex(matrix, x0, y0, center.z).uv(uv0, uv1).endVertex();
         buf.vertex(matrix, x1, y0, center.z).uv(uv1, uv1).endVertex();
         buf.vertex(matrix, x1, y1, center.z).uv(uv1, uv0).endVertex();

@@ -8,6 +8,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -146,7 +147,7 @@ public class OptionWidgetEntry {
                 try {
 
                     ClientContext.settingsManager.saveOptions();
-                    Minecraft.getInstance().setScreen(
+                    McVersionClientUtils.setScreen(
                             opensScreen
                                     .getConstructor(Screen.class)
                                     .newInstance(owner.getScreen())

@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.input.MouseButtonType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -162,7 +163,7 @@ public class MouseClickHandler {
         }
 
         if (ClientContext.cursorHandler.isCursorHandFocused()
-                || MC.screen != null
+                || McVersionClientUtils.screen() != null
                 || MC.player == null) {
             var activeHand = ClientContext.cursorHandler.getCursorHand();
             if (handType != activeHand) {
@@ -236,7 +237,7 @@ public class MouseClickHandler {
             processOverlay(focusedOverlay);
             return;
         }
-        if (MC.screen != null) {
+        if (McVersionClientUtils.screen() != null) {
             processScreen();
             return;
         }

@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.core.client.input.actions.*;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,7 @@ public class MenuActionSet extends VRActionSet {
 
     @Override
     public boolean canActivate() {
-        return MC.screen != null;
+        return McVersionClientUtils.screen() != null;
     }
 
     @Override

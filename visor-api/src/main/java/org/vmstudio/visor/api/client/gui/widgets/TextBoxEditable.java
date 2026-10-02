@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -875,7 +876,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                         overlayBase = overlayScreen;
                     }
                     Screen screenFocused = overlayBase == null
-                            ? Minecraft.getInstance().screen
+                            ? McVersionClientUtils.screen()
                             : overlayBase;
                     keyboardAccessor.showKeyboard(screenFocused);
                 }

@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.helpers.CullFrustumHelper;
 import org.vmstudio.visor.extensions.client.render.GameRendererExtension;
@@ -70,7 +71,7 @@ public class VRGameCamera extends Camera {
     public void extractRenderState(CameraRenderState cameraState, float cameraEntityPartialTicks) {
         super.extractRenderState(cameraState, cameraEntityPartialTicks);
         if (VisorState.get().isActive()) {
-            cameraState.projectionMatrix.set(passProjection(this.getFov()));
+            cameraState.projectionMatrix.set(McProjection.engine(passProjection(this.getFov())));
         }
     }
 
@@ -87,7 +88,7 @@ public class VRGameCamera extends Camera {
         if (VisorState.get().isNotActive()) {
             return super.getViewRotationProjectionMatrix(dest);
         }
-        return dest.set(passProjection(this.getFov()))
+        return dest.set(McProjection.engine(passProjection(this.getFov())))
                 .rotate(this.rotation().conjugate(new Quaternionf()));
     }
 

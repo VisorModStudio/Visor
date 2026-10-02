@@ -19,7 +19,12 @@ import org.vmstudio.visor.core.client.render.player.model.full.VRPlayerModelFull
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=26.2 {
+import net.minecraft.client.model.Model;
+import net.minecraft.util.Unit;
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 //? if >=1.21.9 {
 import net.minecraft.client.Minecraft;
@@ -96,7 +101,11 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
             return;
         }
         renderVR(vrState.player, vrState.partialTick, this.getRenderOffset(state),
-                poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), state.lightCoords,
+                //? if >=26.2 {
+                poseStack, collector, state.lightCoords,
+                //?} else {
+                /*poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), state.lightCoords,
+                *///?}
                 () -> super.submit(state, poseStack, collector, camera));
     }
 
@@ -166,7 +175,11 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
     *///?}
 
     private void renderVR(AbstractClientPlayer player, float partialTick, Vec3 renderOffset,
-                          PoseStack poseStack, MultiBufferSource buffer, int packedLight,
+                          //? if >=26.2 {
+                          PoseStack poseStack, SubmitNodeCollector buffer, int packedLight,
+                          //?} else {
+                          /*PoseStack poseStack, MultiBufferSource buffer, int packedLight,
+                          *///?}
                           Runnable vanillaRender) {
         poseStack.pushPose();
 
@@ -208,12 +221,20 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
     //? if >=1.21.9 {
     @Override
     public void renderRightHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, Identifier skin, boolean sleeveVisible) {
-        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.RIGHT);
+        //? if >=26.2 {
+        renderVRHand(poseStack, collector, combinedLight, skin, ControllerType.RIGHT);
+        //?} else {
+        /*renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.RIGHT);
+        *///?}
     }
 
     @Override
     public void renderLeftHand(PoseStack poseStack, SubmitNodeCollector collector, int combinedLight, Identifier skin, boolean sleeveVisible) {
-        renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.LEFT);
+        //? if >=26.2 {
+        renderVRHand(poseStack, collector, combinedLight, skin, ControllerType.LEFT);
+        //?} else {
+        /*renderVRHand(poseStack, Minecraft.getInstance().renderBuffers().bufferSource(), combinedLight, skin, ControllerType.LEFT);
+        *///?}
     }
     //?} elif >=1.21.2 {
     /*@Override
@@ -240,7 +261,11 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
     *///?}
 
     private void renderVRHand(
-            PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+            //? if >=26.2 {
+            PoseStack poseStack, SubmitNodeCollector buffer, int combinedLight,
+            //?} else {
+            /*PoseStack poseStack, MultiBufferSource buffer, int combinedLight,
+            *///?}
             Identifier skin, ControllerType side) {
         boolean left = side == ControllerType.LEFT;
         ModelPart arm = left ? this.model.leftArm : this.model.rightArm;
@@ -255,24 +280,28 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
                 McGlState.Blend.ONE_MINUS_SRC_ALPHA
         );
 
-        boolean slim = this.getModel().slim;
-        arm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
-                CenteredArmsPlayerMesh.armPivotY(slim), 0F);
-        arm.setRotation(0F, 0F, 0F);
-        arm.xScale = 1F;
-        arm.yScale = 1F;
-        arm.zScale = 1F;
-        arm.visible = true;
-
+        //? if >=26.2 {
+        RenderType renderType = McRenderUtils.entityTranslucent(skin);
+        buffer.submitModel(new Model<Unit>(arm, texture -> renderType) {
+            @Override
+            public void setupAnim(Unit state) {
+                poseArm(arm, left);
+                sleeve.resetPose();
+                sleeve.visible = true;
+            }
+        }, Unit.INSTANCE, poseStack, renderType, combinedLight, OverlayTexture.NO_OVERLAY, 0, null);
+        //?} elif >=1.21.2 {
+        /*poseArm(arm, left);
         var consumer = buffer.getBuffer(McRenderUtils.entityTranslucent(skin));
-        //? if >=1.21.2 {
         // the sleeve is a child of the arm since 1.21.2
         sleeve.resetPose();
         sleeve.visible = true;
         McRenderUtils.renderModelPart(arm, poseStack, consumer, combinedLight,
                 OverlayTexture.NO_OVERLAY);
-        //?} else {
-        /*sleeve.copyFrom(arm);
+        *///?} else {
+        /*poseArm(arm, left);
+        var consumer = buffer.getBuffer(McRenderUtils.entityTranslucent(skin));
+        sleeve.copyFrom(arm);
         sleeve.visible = true;
         McRenderUtils.renderModelPart(arm, poseStack, consumer, combinedLight,
                 OverlayTexture.NO_OVERLAY);
@@ -282,6 +311,17 @@ public class VRPlayerRendererFull extends AvatarRenderer<AbstractClientPlayer> {
 
         McGlState.disableBlend();
         McGlState.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void poseArm(ModelPart arm, boolean left) {
+        boolean slim = this.getModel().slim;
+        arm.setPos(CenteredArmsPlayerMesh.armPivotX(slim, left),
+                CenteredArmsPlayerMesh.armPivotY(slim), 0F);
+        arm.setRotation(0F, 0F, 0F);
+        arm.xScale = 1F;
+        arm.yScale = 1F;
+        arm.zScale = 1F;
+        arm.visible = true;
     }
 
     //? if >=1.21.9 {

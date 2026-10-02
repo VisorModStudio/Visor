@@ -15,8 +15,18 @@ import org.vmstudio.visor.loader.fabric.FabricModLoader;
 @Mixin(LevelRenderer.class)
 public class FabricLevelRendererStageMixin {
 
-    //? if >=1.21.9 {
-    @Inject(method = "submitEntities", at = @At("HEAD"))
+    //? if >=26.2 {
+    @Inject(method = "render", at = @At("TAIL"))
+    private void visor$afterWorld(CallbackInfo ci) {
+        visor$fire(RenderPipelineStage.AFTER_WORLD);
+    }
+
+    @Unique
+    private static void visor$fire(RenderPipelineStage stage) {
+        ((FabricModLoader) ModLoader.get()).fireLevelStage(stage);
+    }
+    //?} elif >=1.21.9 {
+    /*@Inject(method = "submitEntities", at = @At("HEAD"))
     private void visor$afterSolid(CallbackInfo ci) {
         visor$fire(RenderPipelineStage.AFTER_SOLID);
     }
@@ -30,5 +40,5 @@ public class FabricLevelRendererStageMixin {
     private static void visor$fire(RenderPipelineStage stage) {
         ((FabricModLoader) ModLoader.get()).fireLevelStage(stage);
     }
-    //?}
+    *///?}
 }

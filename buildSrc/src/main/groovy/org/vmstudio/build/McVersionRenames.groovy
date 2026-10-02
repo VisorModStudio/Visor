@@ -29,6 +29,10 @@ class McVersionRenames {
             move("26.1", "net.minecraft.client.renderer.state.LevelRenderState", "net.minecraft.client.renderer.state.level.LevelRenderState"),
             move("26.1", "net.minecraft.client.renderer.state.WeatherRenderState", "net.minecraft.client.renderer.state.level.WeatherRenderState"),
             move("26.1", "net.minecraft.client.resources.model.AtlasManager", "net.minecraft.client.resources.model.sprite.AtlasManager"),
+            move("26.2", "com.mojang.blaze3d.vertex.VertexFormat.Mode", "com.mojang.blaze3d.PrimitiveTopology"),
+            nested("26.2", "VertexFormat.Mode", "PrimitiveTopology"),
+            text("26.2", "drawState().mode()", "drawState().primitiveTopology()"),
+            type("26.2", "ContextualBarRenderer", "ContextualBar"),
     ].flatten() as List<Rule>
 
     static class Rule {
@@ -76,6 +80,11 @@ class McVersionRenames {
                 new Rule(since, "${Pattern.quote(oldName)}\\b", oldName, "${Pattern.quote(newName)}\\b", newName),
                 new Rule(since, "${Pattern.quote(slashed(oldName))}\\b", slashed(oldName), "${Pattern.quote(slashed(newName))}\\b", slashed(newName)),
         ]
+    }
+
+    // a nested class that became a top-level one: every use by its simple name, qualified names are a move
+    private static Rule nested(String since, String oldName, String newName) {
+        new Rule(since, "(?<![\\w.])${Pattern.quote(oldName)}\\b", oldName, "(?<![\\w.])${Pattern.quote(newName)}\\b", newName)
     }
 
     // a literal that differs between the versions, outside of any class name

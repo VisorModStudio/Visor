@@ -18,6 +18,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsButtonTemplate;
 import org.vmstudio.visor.core.client.gui.overlays.options.OverlayOptionsButtonTemplate.ActionType;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -245,7 +246,7 @@ public class VROverlayButton extends VROverlayTemplateScreen {
                 && !isVrActionSetActive()){
             return false;
         }
-        return MC.screen == null || !optionsButtonTemplate.isWorldOnly();
+        return McVersionClientUtils.screen() == null || !optionsButtonTemplate.isWorldOnly();
     }
 
     @Override

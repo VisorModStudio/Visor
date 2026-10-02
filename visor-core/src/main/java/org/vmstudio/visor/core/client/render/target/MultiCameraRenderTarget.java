@@ -20,9 +20,11 @@ public class MultiCameraRenderTarget extends RenderTarget {
     private final EnumMap<VRRenderPass, RenderTarget> vrTargets;
 
     public MultiCameraRenderTarget(RenderTarget mainTarget, EnumMap<VRRenderPass, RenderTarget> vrTargets) {
-        //? if >=1.21.5 {
-        super("visor_multi_camera", mainTarget.useDepth);
-        //?} else {
+        //? if >=26.2 {
+        super("visor_multi_camera", mainTarget.useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+        //?} elif >=1.21.5 {
+        /*super("visor_multi_camera", mainTarget.useDepth);
+        *///?} else {
         /*super(mainTarget.useDepth);
         *///?}
 
@@ -101,7 +103,13 @@ public class MultiCameraRenderTarget extends RenderTarget {
     }
     *///?}
 
+    //? if >=26.2 {
     @Override
+    public void blitAndBlendToTexture(GpuTextureView texture, GpuTextureView depth) {
+        getCurrentTarget().blitAndBlendToTexture(texture, depth);
+    }
+    //?} else {
+    /*@Override
     public void blitToScreen() {
         getCurrentTarget().blitToScreen();
     }
@@ -110,6 +118,7 @@ public class MultiCameraRenderTarget extends RenderTarget {
     public void blitAndBlendToTexture(GpuTextureView texture) {
         getCurrentTarget().blitAndBlendToTexture(texture);
     }
+    *///?}
 
     @Override
     public GpuTexture getColorTexture() {

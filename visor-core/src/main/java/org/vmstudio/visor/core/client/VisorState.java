@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -66,8 +67,8 @@ public class VisorState implements VisorClientState {
         //HANDLE DELAYED ERROR IN WORLD
         if(MC != null){
             if(delayedErrorHandling != null
-                    && (MC.screen instanceof DisconnectedScreen
-                    || MC.screen instanceof TitleScreen)){
+                    && (McVersionClientUtils.screen() instanceof DisconnectedScreen
+                    || McVersionClientUtils.screen() instanceof TitleScreen)){
                 delayedErrorHandling.run();
                 delayedErrorHandling = null;
             }
@@ -115,7 +116,7 @@ public class VisorState implements VisorClientState {
             } else {
                 if (state != VRStateMode.ACTIVE) {
                     if (MC.level != null) {
-                        MC.setScreen(new VRPauseMenuScreen());
+                        McVersionClientUtils.setScreen(new VRPauseMenuScreen());
                     }
                 }
                 setState(VRStateMode.ACTIVE);
@@ -170,6 +171,11 @@ public class VisorState implements VisorClientState {
         try {
             VisorClientImpl.LOGGER.info("Initializing VR session...");
 
+            if (!McGlState.isOpenGl()) {
+                throw new IllegalStateException("Visor renders VR with OpenGL and the game runs on another graphics API:"
+                        + " select OpenGL as the graphics API in the video settings and restart the game");
+            }
+
             ClientContext.visor.initializeVR();
             VRRenderState.startVanillaPhase();
 
@@ -202,7 +208,7 @@ public class VisorState implements VisorClientState {
         }
 
         McVersionClientUtils.resizeDisplay(MC);
-        MC.getWindow().updateVsync(MC.options.enableVsync().get());
+        McVersionClientUtils.updateVsync(MC);
         ClientContext.renderer.prepareReinit("Switched state");
         return true;
     }
@@ -232,7 +238,7 @@ public class VisorState implements VisorClientState {
                             ? MC.getCameraEntity() : null
             );
         }
-        if (MC.screen != null || MC.level == null) {
+        if (McVersionClientUtils.screen() != null || MC.level == null) {
             MC.mouseHandler.releaseMouse();
             InputHelper.grabOrReleaseMouse(
                     GLFW.GLFW_CURSOR_NORMAL,

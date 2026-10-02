@@ -8,6 +8,7 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 public class RenderShaderHelper {
     private RenderShaderHelper() {
@@ -49,7 +50,7 @@ public class RenderShaderHelper {
         McVertexBuilder buf = McVertexBuilder.get();
 
 
-        buf.begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
+        buf.begin(PrimitiveTopology.TRIANGLE_STRIP, format);
         for (int i = 0; i < 4; i++) {
             putFullscreenVertex(buf, format, i);
         }
@@ -76,7 +77,7 @@ public class RenderShaderHelper {
                                   float z1,
                                   boolean withShader) {
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.QUADS, format);
+        buf.begin(PrimitiveTopology.QUADS, format);
 
         putQuadVertex(buf, format, matrix, x0, y, z0, 0.0F, 0.0F);
         putQuadVertex(buf, format, matrix, x1, y, z0, 1.0F, 0.0F);

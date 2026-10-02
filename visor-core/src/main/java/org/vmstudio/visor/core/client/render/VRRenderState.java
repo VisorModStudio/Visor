@@ -216,8 +216,8 @@ public class VRRenderState {
         }
         return MC.level == null
                 || MC.gameRenderer == null
-                || McVersionClientUtils.isLevelTransitionScreen(MC.screen)
-                || MC.getOverlay() != null;
+                || McVersionClientUtils.isLevelTransitionScreen(McVersionClientUtils.screen())
+                || McVersionClientUtils.overlay() != null;
     }
 
 

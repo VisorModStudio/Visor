@@ -91,6 +91,7 @@ public class VisorScene implements AtumVRScene {
             if (ClientContext.renderer.isAskedForScreenShot()) {
                 takeScreenshot(renderPass);
             }
+            McRenderUtils.endRenderPass();
             profiler.pop();
         }
 

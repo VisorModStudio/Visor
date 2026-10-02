@@ -53,7 +53,7 @@ public class ClientPacketHandler {
                 if(player == null){
                     return;
                 }
-                ((LevelRendererExtension)Minecraft.getInstance().levelRenderer)
+                LevelRendererExtension.get()
                         .visor$damageBlockProgress(
                                 player,
                                 payload.blockPos(),

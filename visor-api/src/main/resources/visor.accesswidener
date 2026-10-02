@@ -105,13 +105,21 @@ accessible method net/minecraft/client/Minecraft pick (F)V
 #?}
 
 # Used in: VR render target switching, mirror and shader passes
-mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
-accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+#? if >=26.2 {
+mutable field net/minecraft/client/renderer/GameRenderer mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+accessible field net/minecraft/client/renderer/GameRenderer mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+#?} else {
+#mutable field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+#accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
+#?}
 
 # Used in: McGlState
-#? if >=1.21.5 {
-accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
+#? if >=26.2 {
+accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND [Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
 accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
+#?} elif >=1.21.5 {
+#accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
+#accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
 #?} else {
 #accessible field com/mojang/blaze3d/platform/GlStateManager BLEND Lcom/mojang/blaze3d/platform/GlStateManager$BlendState;
 #accessible class com/mojang/blaze3d/platform/GlStateManager$BlendState
@@ -140,8 +148,10 @@ accessible method net/minecraft/client/renderer/rendertype/RenderType <init> (Lj
 #?}
 
 # Used in: ItemInHandLayerMixin, PlayerItemInHandLayerMixin
-#? if >=1.21.9 {
-accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
+#? if >=26.2 {
+accessible method net/minecraft/client/renderer/ItemInHandRenderer submitArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
+#?} elif >=1.21.9 {
+#accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
 #?} else {
 #accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
 #?}

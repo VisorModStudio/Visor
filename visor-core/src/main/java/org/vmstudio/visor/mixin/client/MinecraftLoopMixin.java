@@ -27,6 +27,12 @@ import net.minecraft.util.Util;
 //? if >=1.21 {
 import net.minecraft.client.DeltaTracker;
 //?}
+//? if >=26.2 {
+import com.mojang.blaze3d.systems.GpuSurface;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+//?}
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -48,6 +54,12 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     private boolean visor$loopStartedByRunTick;
     @Unique
     private boolean visor$levelInVanillaFrame;
+    //?}
+
+    // ---- Shadow fields ----
+    //? if >=26.2 {
+    @Shadow @Final
+    private GpuSurface windowSurface;
     //?}
 
 
@@ -122,6 +134,11 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     //? if >=26.1 {
     @Inject(method = "renderFrame", at = @At("HEAD"), require = 1)
     public void visor$preRenderVR(boolean tick, CallbackInfo callback) {
+        //? if >=26.2 {
+        if (this.windowSurface.isAcquired()) {
+            return;
+        }
+        //?}
         if (!visor$loopStartedByRunTick) {
             visor$startGameLoop();
         }
@@ -147,8 +164,20 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
      *
      * @param renderLevel s
      */
-    //? if >=26.1 {
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;update(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "renderFrame", require = 1)
+    //? if >=26.2 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;update(Lnet/minecraft/client/DeltaTracker;)V"), method = "renderFrame", require = 1)
+    public void visor$startVRGuiPhase(GameRenderer instance, DeltaTracker deltaTracker, Operation<Void> original,
+                                      @Local(argsOnly = true) boolean renderLevel) {
+        visor$levelInVanillaFrame = renderLevel;
+        if (VisorState.get().isActive()) {
+            ClientContext.renderer.onGameRenderStart(renderLevel);
+            //disabled in VRGui phase, fallback on exception
+            visor$levelInVanillaFrame = renderLevel && !VRRenderState.getPhase().isVRGui();
+        }
+        original.call(instance, deltaTracker);
+    }
+    //?} elif >=26.1 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;update(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "renderFrame", require = 1)
     public void visor$startVRGuiPhase(GameRenderer instance, DeltaTracker deltaTracker, boolean renderLevel, Operation<Void> original) {
         visor$levelInVanillaFrame = renderLevel;
         if (VisorState.get().isActive()) {
@@ -158,7 +187,9 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
         }
         original.call(instance, deltaTracker, visor$levelInVanillaFrame);
     }
+    *///?}
 
+    //? if >=26.1 {
     @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;extract(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "renderFrame", require = 1)
     public void visor$extractVRGuiPhase(GameRenderer instance, DeltaTracker deltaTracker, boolean renderLevel, Operation<Void> original) {
         original.call(instance, deltaTracker, visor$levelInVanillaFrame);
@@ -308,7 +339,7 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
         if (renderLevel && MC.level != null && MC.player != null && MC.isGameLoadFinished()) {
             original.call(instance, partialTick);
 
-            if (MC.screen == null) {
+            if (McVersionClientUtils.screen() == null) {
                 TaskTeleport.updateTeleportDestination(MC.player);
             }
         }
@@ -317,6 +348,13 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;isFocused()Z"), method = "pauseIfInactive", require = 1)
     private boolean visor$noPauseGameIfWindowNotFocused(Window window, Operation<Boolean> original) {
         return VisorState.get().isActive() || original.call(window);
+    }
+    //?}
+
+    //? if >=26.2 {
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/GpuSurface$PresentMode;getSupportedVsyncMode(Ljava/util/Collection;Z)Lcom/mojang/blaze3d/systems/GpuSurface$PresentMode;", remap = false), method = "renderFrame", index = 1, require = 1)
+    private boolean visor$noVsync(boolean vsync) {
+        return vsync && VisorState.get().isNotActive();
     }
     //?}
 

@@ -3,9 +3,11 @@ package org.vmstudio.visor.core.client.render.decoration.decorators.mainmenu;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.math.Axis;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
@@ -242,7 +244,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
         McGlState.disableCull();
         McShaders.use(McShaders.Core.POSITION_COLOR);
         McGlState.setShaderColor(1, 1, 1, 1);
-        if (MC.getOverlay() == null) {
+        if (McVersionClientUtils.overlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
             McGlState.setShaderTexture(0, whiteTex);
         }
@@ -274,7 +276,7 @@ public final class VRMenuSkyCanvas implements VREventListener {
 
             float hitDistance = aim.distance;
             float seconds = (float) ((Util.getMillis() % 100_000L) / 1000.0);
-            builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             float ringRadius = hitDistance * ERASE_RING_SIN;
             float spinAngle = seconds * ERASE_RING_SPIN;
             for (int i = 0; i < ERASE_RING_DOTS; i++) {

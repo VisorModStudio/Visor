@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 
 @Mixin(KeyboardInput.class)
@@ -50,7 +51,7 @@ public class MovementInputMixin {
         }
         KeyboardInput input = (KeyboardInput) (Object) this;
 
-        boolean screenOpen = Minecraft.getInstance().screen != null;
+        boolean screenOpen = McVersionClientUtils.screen() != null;
         if (screenOpen) {
             McPlayerInput.setJumping(input, false);
         }

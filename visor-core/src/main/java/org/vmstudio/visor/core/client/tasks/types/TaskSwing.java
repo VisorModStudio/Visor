@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.tasks.types;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import lombok.Setter;
@@ -291,7 +292,7 @@ public class TaskSwing extends VisorTask {
                 && !p.isSpectator()
                 && p.getVehicle() == null
                 && !TaskRoomClimb.getInstance().isGrabbed()
-                && MC.screen == null
+                && McVersionClientUtils.screen() == null
                 && (VRServerSettings.isAttacksWhileBlocking() || !p.isBlocking());
     }
 

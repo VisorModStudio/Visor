@@ -32,7 +32,11 @@ final class McUniformRing {
 
     GpuBufferSlice write(ByteBuffer data) {
         if (buffer == null) {
-            int alignment = Math.max(1, RenderSystem.getDevice().getUniformOffsetAlignment());
+            //? if >=26.2 {
+            int alignment = Math.max(1, RenderSystem.getDevice().getDeviceInfo().limits().minUniformOffsetAlignment());
+            //?} else {
+            /*int alignment = Math.max(1, RenderSystem.getDevice().getUniformOffsetAlignment());
+            *///?}
             stride = (blockSize + alignment - 1) / alignment * alignment;
             buffer = RenderSystem.getDevice().createBuffer(() -> label,
                     GpuBuffer.USAGE_UNIFORM | GpuBuffer.USAGE_COPY_DST, stride * slots);

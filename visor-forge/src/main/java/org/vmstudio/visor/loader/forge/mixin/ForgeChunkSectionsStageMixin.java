@@ -25,6 +25,11 @@ public class ForgeChunkSectionsStageMixin {
         if (group == ChunkSectionLayerGroup.TRANSLUCENT) {
             ((ForgeModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_TRANSLUCENT);
         }
+        //? if >=26.2 {
+        if (group == ChunkSectionLayerGroup.OPAQUE) {
+            ((ForgeModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_SOLID);
+        }
+        //?}
     }
 }
 //?} else {

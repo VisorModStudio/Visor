@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.client.settings.VROptionCategory;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,6 +51,6 @@ public class VRSettingsGui extends VROptionsSet {
     @Override
     public void loadDefaults() {
         super.loadDefaults();
-        MC.options.hideGui = false;
+        McVersionClientUtils.setHudHidden(false);
     }
 }

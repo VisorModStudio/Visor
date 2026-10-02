@@ -26,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegion> {
     private static final int FIELD_HEIGHT = 15;
@@ -432,7 +433,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
         Matrix4f pose = gui.pose().last().pose();
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
         // bottom-left
         buf.vertex(pose, previewX, previewY + previewH, 0).uv(0.0f, 0.0f).endVertex();
         // bottom-right

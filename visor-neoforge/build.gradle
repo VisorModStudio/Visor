@@ -32,7 +32,9 @@ dependencies {
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}"
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux"
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-windows"
-    lwjglRaw "org.lwjgl:lwjgl-vulkan:${lwjgl_version}"
+    if (bundlesVulkan) {
+        lwjglRaw "org.lwjgl:lwjgl-vulkan:${lwjgl_version}"
+    }
 }
 def devNativesJar = tasks.register("devNativesJar", Jar) {
     description = "LWJGL OpenXR and Vulkan without module-info, for the NeoForge dev runtime"
@@ -89,7 +91,9 @@ dependencies {
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}") { transitive = false }
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux") { transitive = false }
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-windows") { transitive = false }
-    shadowBundle("org.lwjgl:lwjgl-vulkan:${lwjgl_version}") { transitive = false }
+    if (bundlesVulkan) {
+        shadowBundle("org.lwjgl:lwjgl-vulkan:${lwjgl_version}") { transitive = false }
+    }
 
     // Dev Runtime
     forgeRuntimeLibrary(atumvr("api")) { transitive = false }
@@ -116,6 +120,17 @@ if (stonecutter.eval(minecraft_version, ">=1.20.3")) {
         t.configure {
             filesMatching("META-INF/neoforge.mods.toml") {
                 filter { String line -> line.replace("mandatory = true", "type = \"required\"") }
+            }
+        }
+    }
+}
+
+if (stonecutter.eval(minecraft_version, ">=26.2")) {
+    [tasks.named("processResources"), tasks.named("processApiResources")].each { t ->
+        t.configure {
+            inputs.property("neoforge_icon_key", "iconFile")
+            filesMatching("META-INF/neoforge.mods.toml") {
+                filter { String line -> line.replace("logoFile = ", "iconFile = ") }
             }
         }
     }

@@ -2,6 +2,7 @@ package org.vmstudio.visor.core.client.tasks.types;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McUseAnim;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.client.input.HapticFeedback;
 import lombok.Getter;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -131,7 +132,7 @@ public class TaskRoomConsume extends VisorTask {
                 || !player.isAlive() || player.isSleeping() || player.isSpectator()) {
             return false;
         }
-        if(MC.screen != null){
+        if(McVersionClientUtils.screen() != null){
             return false;
         }
         return isConsumable(player.getMainHandItem())

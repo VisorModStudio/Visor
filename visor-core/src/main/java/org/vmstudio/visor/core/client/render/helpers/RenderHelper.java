@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.common.utils.VRMathUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -78,7 +79,7 @@ public class RenderHelper {
 
         // --- Render ---
         bufferBuilder.begin(
-                VertexFormat.Mode.QUADS,
+                PrimitiveTopology.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL
         );
         for (int f = 0; f < faceIndices.length; f++) {
@@ -122,7 +123,7 @@ public class RenderHelper {
 
 
         // --- Render ---
-        bufferBuilder.begin(VertexFormat.Mode.QUADS,
+        bufferBuilder.begin(PrimitiveTopology.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL);
         for (float[] vertex : vertices) {
             bufferBuilder.vertex(poseMatrix, vertex[0], vertex[1], vertex[2])
@@ -162,7 +163,7 @@ public class RenderHelper {
 
         // --- Render ---
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.QUADS,
+        buf.begin(PrimitiveTopology.QUADS,
                 DefaultVertexFormat.POSITION_TEX);
 
         for (float[] vertex : vertices) {
@@ -218,7 +219,7 @@ public class RenderHelper {
 
         // --- Render ---
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
 
         for (int i = 0; i < 4; i++) {
             buf.vertex(poseMatrix, pos[i][0], pos[i][1], 0f)

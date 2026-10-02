@@ -2,6 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 //? if >=1.21.2 {
 import com.mojang.blaze3d.ProjectionType;
 //?} else {
@@ -10,7 +11,6 @@ import com.mojang.blaze3d.ProjectionType;
 //? if >=1.21.6 {
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
-import org.joml.Matrix4fc;
 import org.lwjgl.system.MemoryStack;
 //?}
 
@@ -38,7 +38,11 @@ public class McProjection {
     static GpuBufferSlice upload(Matrix4fc projection) {
         GpuBufferSlice slice;
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            slice = RING.write(Std140Builder.onStack(stack, 64).putMat4f(projection).get());
+            //? if >=26.2 {
+            slice = RING.write(Std140Builder.onStack(stack, 64).putMat4f(engine(projection)).get());
+            //?} else {
+            /*slice = RING.write(Std140Builder.onStack(stack, 64).putMat4f(projection).get());
+            *///?}
         }
         int slot = RING.slot(slice);
         if (UPLOADED[slot] == null) {
@@ -48,6 +52,20 @@ public class McProjection {
         return slice;
     }
     //?}
+
+    public static Matrix4f engine(Matrix4fc projection) {
+        //? if >=26.2 {
+        Matrix4f depthRange = new Matrix4f();
+        if (RenderSystem.getDevice().getDeviceInfo().isZZeroToOne()) {
+            depthRange.m22(-0.5F).m32(0.5F);
+        } else {
+            depthRange.m22(-1.0F);
+        }
+        return depthRange.mul(projection, new Matrix4f());
+        //?} else {
+        /*return new Matrix4f(projection);
+        *///?}
+    }
 
     public static void setPerspective(Matrix4f projection) {
         //? if >=1.21.6 {

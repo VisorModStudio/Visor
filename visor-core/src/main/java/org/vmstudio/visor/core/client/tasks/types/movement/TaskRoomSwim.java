@@ -15,6 +15,7 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
@@ -119,7 +120,7 @@ public class TaskRoomSwim extends VisorTask {
             return false;
         }
         if(!VRClientSettings.isRoomSwimEnabled()) return false;
-        if (MC.screen != null) return false;
+        if (McVersionClientUtils.screen() != null) return false;
         if (MC.gameMode == null) return false;
         if (p == null || !p.isAlive()) return false;
         if (p.isPassenger()) return false;

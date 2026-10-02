@@ -7,6 +7,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import lombok.Getter;
@@ -43,7 +44,12 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
+//? if >=26.2 {
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -224,7 +230,11 @@ public class VRHandRenderer {
                                      @NotNull AbstractClientPlayer player,
                                      @NotNull VRClientPlayer vrPlayer,
                                      @NotNull PoseStack poseStack,
-                                     @NotNull MultiBufferSource buffer,
+                                     //? if >=26.2 {
+                                     @NotNull SubmitNodeCollector buffer,
+                                     //?} else {
+                                     /*@NotNull MultiBufferSource buffer,
+                                     *///?}
                                      int packedLight,
                                      float partialTicks) {
         var renderPose = vrPlayer.getPoseData(PlayerPoseType.RENDER);
@@ -320,7 +330,7 @@ public class VRHandRenderer {
         McGlState.depthMask(false);
         McShaders.use(McShaders.Core.POSITION_COLOR);
 
-        if (MC.getOverlay() == null) {
+        if (McVersionClientUtils.overlay() == null) {
             var whiteTex = TexturesHelper.getWhiteTexture();
             McGlState.setShaderTexture(0, whiteTex);
         }
@@ -423,14 +433,18 @@ public class VRHandRenderer {
 
         InteractionHand interactionHand = hand.asInteractionHand();
         ItemStack item = MC.player.getItemInHand(interactionHand);
-        if(MC.screen != null){
+        if(McVersionClientUtils.screen() != null){
             item = ItemStack.EMPTY;
         }
 
         poseStack.pushPose();
 
         McGlState.turnOnLightLayer();
-        MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
+        //? if >=26.2 {
+        SubmitNodeCollector bufferSource = McFeatureRenderer.collector();
+        //?} else {
+        /*MultiBufferSource.BufferSource bufferSource = MC.renderBuffers().bufferSource();
+        *///?}
 
         renderWorldArmWithItem(
                 MC.player,
@@ -443,10 +457,14 @@ public class VRHandRenderer {
                 MC.getEntityRenderDispatcher().getPackedLightCoords(MC.player, partialTicks),
                 partialTicks
         );
-        //? if >=1.21.9 {
-        MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
-        //?}
+        //? if >=26.2 {
+        McFeatureRenderer.render();
+        //?} elif >=1.21.9 {
+        /*MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
         bufferSource.endBatch();
+        *///?} else {
+        /*bufferSource.endBatch();
+        *///?}
         McGlState.turnOffLightLayer();
 
         poseStack.popPose();
@@ -461,7 +479,11 @@ public class VRHandRenderer {
                                         float swingProgress,
                                         ItemStack itemStack,
                                         PoseStack poseStack,
-                                        MultiBufferSource buffer,
+                                        //? if >=26.2 {
+                                        SubmitNodeCollector buffer,
+                                        //?} else {
+                                        /*MultiBufferSource buffer,
+                                        *///?}
                                         int packedLight,
                                         float partialTicks
     ) {
@@ -521,17 +543,17 @@ public class VRHandRenderer {
             ItemDisplayContext displayCtx = isLeftHand
                     ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                     : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-            //? if >=1.21.9 {
-            MC.gameRenderer.itemInHandRenderer.renderItem(
+            //? if >=1.21.9 && <26.2 {
+            /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
                     poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight
             );
-            //?} elif >=1.21.5 {
-            /*MC.gameRenderer.itemInHandRenderer.renderItem(
+            *///?} elif >=1.21.5 {
+            MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
                     poseStack, buffer, packedLight
             );
-            *///?} else {
+            //?} else {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx, isLeftHand,
                     poseStack, buffer, packedLight
@@ -545,7 +567,11 @@ public class VRHandRenderer {
     private void renderWorldArm(AbstractClientPlayer player,
                                 VRClientPlayer vrPlayer,
                                 PoseStack poseStack,
-                                MultiBufferSource buffer,
+                                //? if >=26.2 {
+                                SubmitNodeCollector buffer,
+                                //?} else {
+                                /*MultiBufferSource buffer,
+                                *///?}
                                 int packedLight, float equipProgress, float swingProgress,
                                 HumanoidArm arm
     ) {
@@ -574,23 +600,23 @@ public class VRHandRenderer {
                         vrPlayer,
                         slim ? VRBodyRenderer.MODEL_NAME_SLIM : VRBodyRenderer.MODEL_NAME_DEFAULT
                 );
-        //? if >=1.21.9 {
-        if (mainHand) {
+        //? if >=1.21.9 && <26.2 {
+        /*if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
                     McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
         } else {
             bodyRenderer.renderLeftHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
                     McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         }
-        //?} elif >=1.21.2 {
-        /*if (mainHand) {
+        *///?} elif >=1.21.2 {
+        if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, buffer, packedLight, McRenderUtils.getSkinTexture(player),
                     player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
         } else {
             bodyRenderer.renderLeftHand(poseStack, buffer, packedLight, McRenderUtils.getSkinTexture(player),
                     player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         }
-        *///?} else {
+        //?} else {
         /*if (mainHand) {
             bodyRenderer.renderRightHand(poseStack, buffer, packedLight, player);
         } else {

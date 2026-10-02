@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import org.joml.Matrix3f;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 public class VRShaderEndPortal implements VRShader{
     @Getter
@@ -28,7 +29,7 @@ public class VRShaderEndPortal implements VRShader{
     private RenderType createRenderType(){
         return handle.renderType(
                 "end_portal",
-                VertexFormat.Mode.QUADS,
+                PrimitiveTopology.QUADS,
                 256,
                 TheEndPortalRenderer.END_SKY_LOCATION,
                 TheEndPortalRenderer.END_PORTAL_LOCATION);

@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 
 public final class VREndVoid {
@@ -64,7 +65,7 @@ public final class VREndVoid {
 
             Matrix4f pose = poseStack.last().pose();
             McVertexBuilder bufferBuilder = McVertexBuilder.get();
-            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+            bufferBuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION);
             for (int[] face : FACES) {
                 for (int corner : face) {
                     float[] offset = CORNERS[corner];

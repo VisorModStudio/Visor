@@ -12,6 +12,7 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderEffectsHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.Camera;
 import org.joml.Quaternionf;
 import net.minecraft.client.Minecraft;
@@ -121,7 +122,7 @@ public abstract class GameRendererCameraMixin {
         if (VRRenderState.getRenderPass() == VRRenderPass.worldUpdater()) {
             original.call(g, pPartialTicks);
 
-            if(MC.screen == null){
+            if(McVersionClientUtils.screen() == null){
                 TaskTeleport.updateTeleportDestination(MC.player);
             }
         }

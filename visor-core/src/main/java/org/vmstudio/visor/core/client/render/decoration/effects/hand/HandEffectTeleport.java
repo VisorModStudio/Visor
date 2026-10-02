@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -107,7 +108,7 @@ public class HandEffectTeleport extends VRHandEffect {
         McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
 
         McVertexBuilder builder = McVertexBuilder.get();
-        builder.begin(VertexFormat.Mode.QUADS,
+        builder.begin(PrimitiveTopology.QUADS,
                 DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         Vec3 dest = TaskTeleport.getDestination();

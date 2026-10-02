@@ -12,9 +12,16 @@ import java.util.Optional;
 //?} else {
 /*import com.mojang.blaze3d.platform.DepthTestFunction;
 *///?}
-import com.mojang.blaze3d.platform.DestFactor;
+//? if >=26.2 {
+import com.mojang.blaze3d.GpuFormat;
+import com.mojang.blaze3d.platform.BlendFactor;
+import net.minecraft.client.renderer.BindGroupLayouts;
+//?} else {
+/*import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
+*///?}
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.lwjgl.opengl.GL11;
@@ -82,11 +89,11 @@ public class McShaders {
 
     private static Core selected = Core.POSITION;
 
-    private record PipelineKey(Core core, VertexFormat format, VertexFormat.Mode mode,
+    private record PipelineKey(Core core, VertexFormat format, PrimitiveTopology mode,
                                McGlState.DrawState state) {
     }
 
-    static RenderPipeline pipeline(VertexFormat format, VertexFormat.Mode mode) {
+    static RenderPipeline pipeline(VertexFormat format, PrimitiveTopology mode) {
         return PIPELINES.computeIfAbsent(
                 new PipelineKey(selected, format, mode, McGlState.drawState()),
                 McShaders::build);
@@ -111,13 +118,18 @@ public class McShaders {
                 .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + shader + '_' + PIPELINES.size()))
                 .withVertexShader("core/" + shader)
                 .withFragmentShader("core/" + shader)
-                .withVertexFormat(key.format(), key.mode())
-                //? if >=1.21.6 {
+                //? if >=26.2 {
+                .withVertexBinding(0, key.format())
+                .withPrimitiveTopology(key.mode())
+                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+                //?} elif >=1.21.6 {
+                /*.withVertexFormat(key.format(), key.mode())
                 // the vanilla core GLSL reads its matrices and colour from the DynamicTransforms / Projection blocks
                 .withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
                 .withUniform("Projection", UniformType.UNIFORM_BUFFER)
-                //?} else {
-                /*.withUniform("ModelViewMat", UniformType.MATRIX4X4)
+                *///?} else {
+                /*.withVertexFormat(key.format(), key.mode())
+                .withUniform("ModelViewMat", UniformType.MATRIX4X4)
                 .withUniform("ProjMat", UniformType.MATRIX4X4)
                 .withUniform("ColorModulator", UniformType.VEC4)
                 *///?}
@@ -131,21 +143,31 @@ public class McShaders {
                 .withColorWrite(state.colorWrite(), state.alphaWrite());
                 *///?}
         if (fogged(key.core())) {
-            //? if >=1.21.6 {
-            builder.withUniform("Fog", UniformType.UNIFORM_BUFFER);
-            //?} else {
+            //? if >=26.2 {
+            builder.withBindGroupLayout(BindGroupLayouts.FOG);
+            //?} elif >=1.21.6 {
+            /*builder.withUniform("Fog", UniformType.UNIFORM_BUFFER);
+            *///?} else {
             /*builder.withUniform("FogStart", UniformType.FLOAT)
                     .withUniform("FogEnd", UniformType.FLOAT)
                     .withUniform("FogColor", UniformType.VEC4)
                     .withUniform("FogShape", UniformType.INT);
             *///?}
         }
-        if (textured(key.core())) {
+        //? if >=26.2 {
+        if (key.core() == Core.RENDERTYPE_TEXT) {
+            builder.withBindGroupLayout(BindGroupLayouts.SAMPLER0_SAMPLER2);
+        } else if (textured(key.core())) {
+            builder.withBindGroupLayout(BindGroupLayouts.SAMPLER0);
+        }
+        //?} else {
+        /*if (textured(key.core())) {
             builder.withSampler("Sampler0");
         }
         if (key.core() == Core.RENDERTYPE_TEXT) {
             builder.withSampler("Sampler2");
         }
+        *///?}
         //? if >=26.1 {
         builder.withColorTargetState(colorTargetState(state, state.blend() ? blendFunction(state) : null));
         //?} else {
@@ -178,7 +200,11 @@ public class McShaders {
             case POSITION_COLOR -> "position_color";
             case POSITION_TEX -> "position_tex";
             case POSITION_TEX_COLOR -> "position_tex_color";
-            case RENDERTYPE_TEXT -> "rendertype_text";
+            //? if >=26.2 {
+            case RENDERTYPE_TEXT -> "text";
+            //?} else {
+            /*case RENDERTYPE_TEXT -> "rendertype_text";
+            *///?}
         };
     }
 
@@ -189,9 +215,15 @@ public class McShaders {
         }
         CompareOp depthTest = switch (state.depthFunction()) {
             case GL11.GL_EQUAL -> CompareOp.EQUAL;
-            case GL11.GL_LESS -> CompareOp.LESS_THAN;
+            //? if >=26.2 {
+            case GL11.GL_LESS -> CompareOp.GREATER_THAN;
+            case GL11.GL_GREATER -> CompareOp.LESS_THAN;
+            default -> CompareOp.GREATER_THAN_OR_EQUAL;
+            //?} else {
+            /*case GL11.GL_LESS -> CompareOp.LESS_THAN;
             case GL11.GL_GREATER -> CompareOp.GREATER_THAN;
             default -> CompareOp.LESS_THAN_OR_EQUAL;
+            *///?}
         };
         return Optional.of(new DepthStencilState(depthTest, state.depthWrite()));
     }
@@ -199,7 +231,11 @@ public class McShaders {
     static ColorTargetState colorTargetState(McGlState.DrawState state, BlendFunction blend) {
         int writeMask = (state.colorWrite() ? ColorTargetState.WRITE_COLOR : ColorTargetState.WRITE_NONE)
                 | (state.alphaWrite() ? ColorTargetState.WRITE_ALPHA : ColorTargetState.WRITE_NONE);
-        return new ColorTargetState(Optional.ofNullable(blend), writeMask);
+        //? if >=26.2 {
+        return new ColorTargetState(Optional.ofNullable(blend), GpuFormat.RGBA8_UNORM, writeMask);
+        //?} else {
+        /*return new ColorTargetState(Optional.ofNullable(blend), writeMask);
+        *///?}
     }
     //?} else {
     /*static DepthTestFunction depthTestFunction(McGlState.DrawState state) {
@@ -216,12 +252,22 @@ public class McShaders {
     }
     *///?}
 
-    static SourceFactor source(int glValue) {
+    //? if >=26.2 {
+    static BlendFactor source(int glValue) {
+        return BlendFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
+    }
+
+    static BlendFactor destination(int glValue) {
+        return BlendFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
+    }
+    //?} else {
+    /*static SourceFactor source(int glValue) {
         return SourceFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
     }
 
     static DestFactor destination(int glValue) {
         return DestFactor.valueOf(McGlState.Blend.ofGl(glValue).name());
     }
+    *///?}
     //?}
 }

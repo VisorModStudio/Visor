@@ -69,7 +69,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     protected boolean updateVisibility() {
-        return MC.screen != null;
+        return McVersionClientUtils.screen() != null;
     }
 
 
@@ -233,7 +233,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         if (relativePosition == null || relativeRotation == null) {
             orient(
                     null,
-                    MC.screen
+                    McVersionClientUtils.screen()
             );
         }
 
@@ -309,7 +309,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
         return MC.level == null
                 || newScreen instanceof WinScreen
                 || McVersionClientUtils.isLevelTransitionScreen(newScreen)
-                || MC.getOverlay() != null;
+                || McVersionClientUtils.overlay() != null;
     }
 
     @Override
@@ -361,7 +361,7 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollDelta) {
-        if(MC.screen == null){
+        if(McVersionClientUtils.screen() == null){
             return false;
         }
         //scroll delta is already calculated...
@@ -384,17 +384,17 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
     }
     @Override
     public boolean supportsDragging() {
-        return !willBeInMenuRoom(MC.screen);
+        return !willBeInMenuRoom(McVersionClientUtils.screen());
     }
 
     @Override
     public boolean supportsResizing() {
-        return !willBeInMenuRoom(MC.screen);
+        return !willBeInMenuRoom(McVersionClientUtils.screen());
     }
 
     @Override
     public boolean supportsLight() {
-        return !willBeInMenuRoom(MC.screen);
+        return !willBeInMenuRoom(McVersionClientUtils.screen());
     }
 
 

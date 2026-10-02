@@ -23,6 +23,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.shaders.VRShaderInBlockVignette;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 public class RenderEffectsHelper {
     private RenderEffectsHelper() {
@@ -61,7 +62,7 @@ public class RenderEffectsHelper {
         McGlState.defaultBlendFunc();
         McGlState.disableCull();
 
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        bufferbuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION);
         for (float[] corner : SCREEN_QUAD_CORNERS) {
             bufferbuilder.vertex(mat, corner[0], corner[1], 0.0F).endVertex();
         }
@@ -89,7 +90,7 @@ public class RenderEffectsHelper {
         McGlState.defaultBlendFunc();
         McGlState.disableCull();
 
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferbuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
         for (float[] corner : SCREEN_QUAD_CORNERS) {
             bufferbuilder.vertex(mat, corner[0], corner[1], 0.0F)
                     .uv(corner[0] * 0.5F + 0.5F, corner[1] * 0.5F + 0.5F)
@@ -209,7 +210,7 @@ public class RenderEffectsHelper {
         McShaders.use(McShaders.Core.POSITION);
 
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
+        buf.begin(PrimitiveTopology.TRIANGLES, DefaultVertexFormat.POSITION);
 
         float scale = ClientContext.renderer.renderScale;
         for (int i = 0; i + 1 < verts.length; i += 2) {

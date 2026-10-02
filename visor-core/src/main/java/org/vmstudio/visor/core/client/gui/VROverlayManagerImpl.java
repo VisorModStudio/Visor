@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McProjection;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McModelViewStack;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiRenderer;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -164,6 +165,7 @@ public class VROverlayManagerImpl implements VROverlayManager {
                 //therefore to not cause crash because of some silly UI mods,
                 //we should drain these GL errors instead
                 RenderStateHelper.drainExternalGLErrors("VROverlay texture " + overlay.getId());
+                McRenderUtils.endRenderPass();
             }
 
         } finally {

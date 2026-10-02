@@ -35,7 +35,11 @@ import java.util.Set;
 import java.util.SortedSet;
 
 // better swinging
-@Mixin(value = LevelRenderer.class, priority = 999)
+//? if >=26.2 {
+@Mixin(value = ClientLevel.class, priority = 999)
+//?} else {
+/*@Mixin(value = LevelRenderer.class, priority = 999)
+*///?}
 public abstract class LevelRendererSwingDamageMixin implements LevelRendererExtension {
 
     // ---- Shadow fields ----
@@ -61,7 +65,8 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
         visor$damagedBlocksVrSave = Collections.synchronizedMap(new HashMap<>());
     }
 
-    @Inject(at = @At("HEAD"), method = "setLevel")
+    //? if <26.2 {
+    /*@Inject(at = @At("HEAD"), method = "setLevel")
     private void visor$clearSwingDamage(ClientLevel level, CallbackInfo ci) {
         visor$damagedBlocksVrSave.keySet().forEach(
                 key -> destructionProgress.remove(key.longValue())
@@ -69,6 +74,7 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
         visor$damagedBlocksVr.clear();
         visor$damagedBlocksVrSave.clear();
     }
+    *///?}
 
     @Inject(at = @At("HEAD"), method = "removeProgress", cancellable = true)
     private void visor$removeProgress(BlockDestructionProgress progress,
@@ -86,7 +92,11 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
 
     }
 
-    @Inject(at = @At("HEAD"), method = "renderLevel")
+    //? if >=26.2 {
+    @Inject(at = @At("HEAD"), method = "update")
+    //?} else {
+    /*@Inject(at = @At("HEAD"), method = "renderLevel")
+    *///?}
     private void visor$betterSwinging(CallbackInfo ci) {
         if (visor$damagedBlocksVr.isEmpty()
                 && visor$damagedBlocksVrSave.isEmpty()) {

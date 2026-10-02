@@ -1,12 +1,19 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 //? if >=1.21.6 {
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.DestFactor;
+//? if >=26.2 {
+import com.mojang.blaze3d.pipeline.BindGroupLayout;
+import com.mojang.blaze3d.platform.BlendFactor;
+import org.lwjgl.opengl.GL11;
+//?} else {
+/*import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
+*///?}
 import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -47,6 +54,13 @@ public final class McShaderProgram {
     private static final String BLOCK = "VisorUniforms";
     private static final String UBO_DEFINE = "VISOR_UBO";
     private static final String MAT3_AS_MAT4 = "VISOR_MAT3_AS_MAT4";
+    //? if >=26.2 {
+    private static final String REVERSED_DEPTH = "VISOR_REVERSED_DEPTH";
+    private static final McGlState.DrawState LEVEL_DRAW = new McGlState.DrawState(false,
+            GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO,
+            true, GL11.GL_LEQUAL, true, true, true, true);
+    private static final Map<RenderPipeline, McShaderProgram> RENDER_TYPE_PROGRAMS = new HashMap<>();
+    //?}
     private static final int RING_SLOTS = 8;
 
     private static final Matrix4f IDENTITY = new Matrix4f();
@@ -172,8 +186,34 @@ public final class McShaderProgram {
         }
     }
 
-    //? if >=1.21.11 {
-    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    //? if >=26.2 {
+    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
+                                 Identifier... textures) {
+        RenderPipeline pipeline = pipelines.computeIfAbsent(new PipelineKey(mode, LEVEL_DRAW),
+                key -> buildPipeline(key.mode(), key.state()));
+        RENDER_TYPE_PROGRAMS.put(pipeline, this);
+        RenderSetup.RenderSetupBuilder setupBuilder = RenderSetup.builder(pipeline);
+        for (int i = 0; i < textures.length; i++) {
+            setupBuilder.withTexture("Sampler" + i, textures[i]);
+        }
+        return new RenderType(name, setupBuilder.createRenderSetup());
+    }
+
+    public static void prepareRenderTypeDraw(RenderPipeline pipeline) {
+        McShaderProgram program = RENDER_TYPE_PROGRAMS.get(pipeline);
+        if (program != null) {
+            program.pendingBlock = program.ring == null ? null : program.writeBlock();
+        }
+    }
+
+    public static void bindRenderTypeDraw(RenderPass pass, RenderPipeline pipeline) {
+        McShaderProgram program = RENDER_TYPE_PROGRAMS.get(pipeline);
+        if (program != null && program.pendingBlock != null) {
+            pass.setUniform(BLOCK, program.pendingBlock);
+        }
+    }
+    //?} elif >=1.21.11 {
+    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderSetup.RenderSetupBuilder setupBuilder = RenderSetup.builder(pipeline(mode)).bufferSize(bufferSize);
         for (int i = 0; i < textures.length; i++) {
@@ -206,7 +246,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public VertexFormat.Mode mode() {
+            public PrimitiveTopology mode() {
                 return mode;
             }
 
@@ -216,8 +256,8 @@ public final class McShaderProgram {
             }
         };
     }
-    //?} elif >=1.21.9 {
-    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    *///?} elif >=1.21.9 {
+    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
@@ -240,7 +280,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public VertexFormat.Mode mode() {
+            public PrimitiveTopology mode() {
                 return mode;
             }
 
@@ -251,7 +291,7 @@ public final class McShaderProgram {
         };
     }
     *///?} else {
-    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
@@ -274,7 +314,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public VertexFormat.Mode mode() {
+            public PrimitiveTopology mode() {
                 return mode;
             }
         };
@@ -293,7 +333,7 @@ public final class McShaderProgram {
         // buffer writes are illegal inside the pass
         pendingBlock = ring == null ? null : writeBlock();
         if (!ownMatrices) {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
             return;
         }
         McModelViewStack.push();
@@ -301,17 +341,17 @@ public final class McShaderProgram {
         McProjection.State savedProjection = McProjection.save();
         McProjection.setKeepingType(projection != null ? projection : IDENTITY);
         try {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
         } finally {
             McProjection.restore(savedProjection);
             McModelViewStack.pop();
         }
     }
 
-    private record PipelineKey(VertexFormat.Mode mode, McGlState.DrawState state) {
+    private record PipelineKey(PrimitiveTopology mode, McGlState.DrawState state) {
     }
 
-    private RenderPipeline pipeline(VertexFormat.Mode mode) {
+    private RenderPipeline pipeline(PrimitiveTopology mode) {
         return pipelines.computeIfAbsent(new PipelineKey(mode, McGlState.drawState()),
                 key -> buildPipeline(key.mode(), key.state()));
     }
@@ -400,12 +440,18 @@ public final class McShaderProgram {
         }
     }
 
-    private RenderPipeline buildPipeline(VertexFormat.Mode mode, McGlState.DrawState state) {
+    private RenderPipeline buildPipeline(PrimitiveTopology mode, McGlState.DrawState state) {
         RenderPipeline.Builder builder = RenderPipeline.builder()
                 .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + name))
                 .withVertexShader("core/" + name)
                 .withFragmentShader("core/" + name)
-                .withVertexFormat(vertexFormat, mode)
+                //? if >=26.2 {
+                .withVertexBinding(0, vertexFormat)
+                .withPrimitiveTopology(mode)
+                .withShaderDefine(REVERSED_DEPTH)
+                //?} else {
+                /*.withVertexFormat(vertexFormat, mode)
+                *///?}
                 .withShaderDefine(MAT3_AS_MAT4)
                 .withShaderDefine(UBO_DEFINE)
                 //? if >=26.1 {
@@ -417,7 +463,19 @@ public final class McShaderProgram {
                 .withCull(state.cull())
                 .withColorWrite(state.colorWrite(), state.alphaWrite());
                 *///?}
+        //? if >=26.2 {
+        BindGroupLayout.Builder layout = BindGroupLayout.builder();
         if (usesMatrices) {
+            layout.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
+                    .withUniform("Projection", UniformType.UNIFORM_BUFFER);
+        }
+        if (ring != null) {
+            layout.withUniform(BLOCK, UniformType.UNIFORM_BUFFER);
+        }
+        samplerNames.forEach(layout::withSampler);
+        builder.withBindGroupLayout(layout.build());
+        //?} else {
+        /*if (usesMatrices) {
             builder.withUniform("DynamicTransforms", UniformType.UNIFORM_BUFFER)
                     .withUniform("Projection", UniformType.UNIFORM_BUFFER);
         }
@@ -425,12 +483,18 @@ public final class McShaderProgram {
             builder.withUniform(BLOCK, UniformType.UNIFORM_BUFFER);
         }
         samplerNames.forEach(builder::withSampler);
-        //? if >=26.1 {
+        *///?}
+        //? if >=26.2 {
         BlendFunction blend = alphaBlend
+                ? new BlendFunction(BlendFactor.SRC_ALPHA, BlendFactor.ONE_MINUS_SRC_ALPHA)
+                : state.blend() ? McShaders.blendFunction(state) : null;
+        builder.withColorTargetState(McShaders.colorTargetState(state, blend));
+        //?} elif >=26.1 {
+        /*BlendFunction blend = alphaBlend
                 ? new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA)
                 : state.blend() ? McShaders.blendFunction(state) : null;
         builder.withColorTargetState(McShaders.colorTargetState(state, blend));
-        //?} else {
+        *///?} else {
         /*if (alphaBlend) {
             builder.withBlend(new BlendFunction(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA));
         } else if (state.blend()) {
@@ -554,7 +618,7 @@ public final class McShaderProgram {
         }
     }
 
-    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
@@ -587,7 +651,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public VertexFormat.Mode mode() {
+            public PrimitiveTopology mode() {
                 return mode;
             }
         };
@@ -603,7 +667,7 @@ public final class McShaderProgram {
 
     void draw(MeshData mesh, RenderTarget target, boolean ownMatrices) {
         if (!ownMatrices) {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
             return;
         }
         McModelViewStack.push();
@@ -611,17 +675,17 @@ public final class McShaderProgram {
         McProjection.State savedProjection = McProjection.save();
         RenderSystem.setProjectionMatrix(projection != null ? projection : IDENTITY, RenderSystem.getProjectionType());
         try {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
         } finally {
             McProjection.restore(savedProjection);
             McModelViewStack.pop();
         }
     }
 
-    private record PipelineKey(VertexFormat.Mode mode, McGlState.DrawState state, String uniforms) {
+    private record PipelineKey(PrimitiveTopology mode, McGlState.DrawState state, String uniforms) {
     }
 
-    private RenderPipeline pipeline(VertexFormat.Mode mode) {
+    private RenderPipeline pipeline(PrimitiveTopology mode) {
         String uniforms = matrixUniforms.keySet() + "|" + floatUniforms.keySet() + "|"
                 + intUniforms.keySet() + "|" + samplers.keySet();
         return pipelines.computeIfAbsent(new PipelineKey(mode, McGlState.drawState(), uniforms),
@@ -645,7 +709,7 @@ public final class McShaderProgram {
         });
     }
 
-    private RenderPipeline buildPipeline(VertexFormat.Mode mode, McGlState.DrawState state) {
+    private RenderPipeline buildPipeline(PrimitiveTopology mode, McGlState.DrawState state) {
         RenderPipeline.Builder builder = RenderPipeline.builder()
                 .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + name))
                 .withVertexShader("core/" + name)
@@ -792,7 +856,7 @@ public final class McShaderProgram {
         compiled().clear();
     }
 
-    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
@@ -919,7 +983,7 @@ public final class McShaderProgram {
         instance.clear();
     }
 
-    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
                                  Identifier... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();

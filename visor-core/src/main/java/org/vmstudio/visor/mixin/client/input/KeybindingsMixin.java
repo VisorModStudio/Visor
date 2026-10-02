@@ -56,7 +56,8 @@ public class KeybindingsMixin {
             }
         }
     }
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Screenshot;grab(Ljava/io/File;Lcom/mojang/blaze3d/pipeline/RenderTarget;Ljava/util/function/Consumer;)V"), method = "keyPress")
+    //? if <26.2 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Screenshot;grab(Ljava/io/File;Lcom/mojang/blaze3d/pipeline/RenderTarget;Ljava/util/function/Consumer;)V"), method = "keyPress")
     public void visor$screenshot(File file, RenderTarget renderTarget, Consumer<Component> consumer, Operation<Void> original) {
         if (VisorState.get().isNotActive()) {
             original.call(file, renderTarget, consumer);
@@ -64,4 +65,5 @@ public class KeybindingsMixin {
         }
         ClientContext.renderer.setAskedForScreenShot(true);
     }
+    *///?}
 }

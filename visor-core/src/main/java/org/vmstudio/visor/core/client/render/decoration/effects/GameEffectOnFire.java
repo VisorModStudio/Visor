@@ -25,6 +25,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 
 @RegisterVRGameEffect
@@ -98,7 +99,7 @@ public class GameEffectOnFire extends VRGameEffect {
             stack.translate(0, -fireHeight, 0);
 
             Matrix4f mat = stack.last().pose();
-            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             buf.vertex(mat, -FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)
                     .uv(u1, v1).color(1,1,1,FIRE_ALPHA).endVertex();
             buf.vertex(mat,  FIRE_HALF_WIDTH,0, -FIRE_HALF_WIDTH)

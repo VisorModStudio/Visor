@@ -54,6 +54,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.core.common.player.VRPoseImpl;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -224,7 +225,7 @@ public class VisorClientImpl implements VisorClient {
             ClientContext.inputManager.update();
             VRClientPlayers.onGameLoopStart();
 
-            if (!(MC.screen instanceof OptionsScreen)
+            if (!(McVersionClientUtils.screen() instanceof OptionsScreen)
                     && VRClientSettings.getEyeFovScaleCurrent() != VRClientSettings.getEyesFovScale()) {
                 VRClientSettings.setEyeFovScaleCurrent(
                         VRClientSettings.getEyesFovScale()

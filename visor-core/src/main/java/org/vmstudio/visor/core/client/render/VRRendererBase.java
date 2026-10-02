@@ -27,6 +27,7 @@ import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import net.minecraft.client.Minecraft;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
@@ -225,7 +226,7 @@ public abstract class VRRendererBase implements VRRenderer {
             System.exit(-1);
         }
 
-        if (minecraft.screen != null) {
+        if (McVersionClientUtils.screen() != null) {
             McVersionClientUtils.resizeDisplay(minecraft);
         }
 
@@ -246,7 +247,11 @@ public abstract class VRRendererBase implements VRRenderer {
                 "\nPer-frame fill: " + String.format("%.1f", (float) vrPixels / 1000000.0F) + " MP, stencil mask not subtracted"
         );
 
-        minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
+        //? if >=26.2 {
+        minecraft.levelExtractor.onResourceManagerReload(minecraft.getResourceManager());
+        //?} else {
+        /*minecraft.levelRenderer.onResourceManagerReload(minecraft.getResourceManager());
+        *///?}
 
         ShaderCompatHelper.bridge().onVisorTargetsRecreated(eyeRenderWidth, eyeRenderHeight);
 
@@ -361,6 +366,7 @@ public abstract class VRRendererBase implements VRRenderer {
             guiTarget.destroy();
             guiTarget = null;
         }
+        McFeatureRenderer.close();
     }
 
 

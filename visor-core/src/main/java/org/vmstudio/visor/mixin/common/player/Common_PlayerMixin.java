@@ -386,13 +386,35 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
     // knockback for living entities targets
     // 1.21.11 moved it into causeExtraKnockback (attack and spear stab), the swept targets into doSweepAttack
     // (both doSweepAttack shapes, see visor$sweepParticles)
-    //? if >=1.21.11 {
-    @WrapOperation(method = {"causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"}, at = @At(value = "INVOKE",
+    //? if >=26.2 {
+    @WrapOperation(method = "causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/damagesource/DamageSource;FZ)V", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;FZ)V"))
+    private void visor$vrKnockbackDirection(LivingEntity target, double strength, double x, double z,
+                                            DamageSource source, float damage, boolean fromEffect,
+                                            Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
+        if (knockBack != null) {
+            x = knockBack.x;
+            z = knockBack.z;
+        }
+        original.call(target, strength, x, z, source, damage, fromEffect);
+    }
+
+    @WrapOperation(method = {"doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"}, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDDLnet/minecraft/world/damagesource/DamageSource;F)V"))
+    private void visor$vrSweepKnockbackDirection(LivingEntity target, double strength, double x, double z,
+                                                 DamageSource source, float damage,
+                                                 Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
+        if (knockBack != null) {
+            x = knockBack.x;
+            z = knockBack.z;
+        }
+        original.call(target, strength, x, z, source, damage);
+    }
+    //?} elif >=1.21.11 {
+    /*@WrapOperation(method = {"causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;F)V", "doSweepAttack(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/damagesource/DamageSource;FLnet/minecraft/world/phys/AABB;)V"}, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
-    //?} else {
-    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
-    *///?}
     private void visor$vrKnockbackDirection(LivingEntity target, double strength, double x, double z,
                                             Operation<Void> original) {
         Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
@@ -402,12 +424,28 @@ public abstract class Common_PlayerMixin extends Common_LivingEntityMixin
         }
         original.call(target, strength, x, z);
     }
+    *///?} else {
+    /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;knockback(DDD)V"))
+    private void visor$vrKnockbackDirection(LivingEntity target, double strength, double x, double z,
+                                            Operation<Void> original) {
+        Vec3 knockBack = CommonUtils.calcVRKnockback((Player) (Object) this, target);
+        if (knockBack != null) {
+            x = knockBack.x;
+            z = knockBack.z;
+        }
+        original.call(target, strength, x, z);
+    }
+    *///?}
 
     // knockback for non-living entities targets
-    //? if >=1.21.11 {
-    @WrapOperation(method = "causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE",
+    //? if >=26.2 {
+    @WrapOperation(method = "causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/damagesource/DamageSource;FZ)V", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
-    //?} else {
+    //?} elif >=1.21.11 {
+    /*@WrapOperation(method = "causeExtraKnockback(Lnet/minecraft/world/entity/Entity;FLnet/minecraft/world/phys/Vec3;)V", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
+    *///?} else {
     /*@WrapOperation(method = "attack", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/world/entity/Entity;push(DDD)V"))
     *///?}

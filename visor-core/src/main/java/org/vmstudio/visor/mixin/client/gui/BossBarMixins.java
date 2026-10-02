@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 public class BossBarMixins {
 
@@ -28,7 +29,7 @@ public class BossBarMixins {
 
         @Inject(at = @At("HEAD"), method = "extractRenderState", cancellable = true)
         public void visor$noVanillaGuiBossHealth(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
-            if (VisorState.get().isNotActive() || (minecraft.screen == null
+            if (VisorState.get().isNotActive() || (McVersionClientUtils.screen() == null
                     && ClientContext.visor.isFeatureDisabled(ClientFeature.GUI_DISABLE_HUD))) {
                 return;
             }

@@ -11,7 +11,11 @@ public class XrRenderTarget extends RenderTarget {
     private final int visor$colorId;
 
     public XrRenderTarget(int width, int height, int colorId, int index) {
-        super("visor_xr_eye_" + index, false);
+        //? if >=26.2 {
+        super("visor_xr_eye_" + index, false, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+        //?} else {
+        /*super("visor_xr_eye_" + index, false);
+        *///?}
         McGlState.assertOnRenderThreadOrInit();
 
         this.visor$colorId = colorId;

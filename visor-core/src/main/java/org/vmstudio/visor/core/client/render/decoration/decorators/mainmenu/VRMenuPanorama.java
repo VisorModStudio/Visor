@@ -11,6 +11,7 @@ import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import com.mojang.blaze3d.PrimitiveTopology;
 
 
 public class VRMenuPanorama {
@@ -59,7 +60,7 @@ public class VRMenuPanorama {
 
         for (Face face : FACES) {
             McGlState.setShaderTexture(0, face.texture());
-            bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferbuilder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
             for (int i = 0; i < CORNER_U.length; i++) {
                 float u = CORNER_U[i];

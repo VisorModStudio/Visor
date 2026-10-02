@@ -3,6 +3,7 @@ package org.vmstudio.visor.core.client.player;
 import org.vmstudio.visor.api.compatibility.mcversion.McEntity;
 import org.vmstudio.visor.api.compatibility.mcversion.McPlayerInput;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 import lombok.Getter;
 
@@ -199,7 +200,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         );
 
         this.updatePlayerLook(MC.player, PlayerPoseType.TICK);
-        this.overlayFocused = MC.screen != null || ClientContext.cursorHandler.isAnyHandFocused(false);
+        this.overlayFocused = McVersionClientUtils.screen() != null || ClientContext.cursorHandler.isAnyHandFocused(false);
 
         ClientNetworking.sendVRPlayerState();
 

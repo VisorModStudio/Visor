@@ -5,8 +5,8 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.PrimitiveTopology;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -122,7 +122,7 @@ public class GameEffectTrackerDebug extends VRGameEffect {
         Matrix4f pose = poseStack.last().pose();
 
         McVertexBuilder builder = McVertexBuilder.get();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_NORMAL);
 
         for (var entry : active.entrySet()) {
             VRPose ancestor = findActiveAncestor(entry.getKey(), active);

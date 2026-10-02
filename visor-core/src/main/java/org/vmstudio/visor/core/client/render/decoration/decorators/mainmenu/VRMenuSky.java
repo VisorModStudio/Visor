@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;
@@ -573,7 +574,7 @@ public final class VRMenuSky {
 
     private static void renderSkyBox(McVertexBuilder builder,
                                      Matrix4f pose){
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         // -Z wall
         horizon(builder, pose, -SKY_BOX, -SKY_BOX, -SKY_BOX);
@@ -672,7 +673,7 @@ public final class VRMenuSky {
         McGlState.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), visible);
         McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp, -size, -size, u0, v0);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp,  size, -size, u1, v0);
         billboardVertex(builder, pose, scratchCenter, scratchRight, scratchUp,  size,  size, u1, v1);
@@ -695,7 +696,7 @@ public final class VRMenuSky {
         McGlState.setShaderColor(1, 1, 1, 1);
         McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int star = 0; star < STAR_QUAD.length; star++) {
             float twinkle = 0.65f + 0.35f * (float) Math.sin(currentTimeSec * 1.6f + STAR_PHASE[star]);
             int alpha = (int) (255f * night * twinkle * STAR_BRIGHT);
@@ -862,7 +863,7 @@ public final class VRMenuSky {
         McGlState.setShaderColor(1, 1, 1, 1);
         McGlState.blendFunc(McGlState.Blend.SRC_ALPHA, McGlState.Blend.ONE);
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < UFO_DOTS_AMOUNT; i++) {
             float dotX = ufoX + scratchRight.x * UFO_LX[i] + scratchUp.x * UFO_LY[i];
             float dotY = ufoY + scratchRight.y * UFO_LX[i] + scratchUp.y * UFO_LY[i];
@@ -925,7 +926,7 @@ public final class VRMenuSky {
         }
 
         int[] cloudTint = {0, 0, 0};
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < VISOR_SIGN.n; i++) {
             float gleam = 1f + VISOR_GLEAM_AMT * Math.max(0f, 1f - Math.abs(VISOR_SIGN.col[i] - gleamPos) / VISOR_GLEAM_W);
             float cx = VISOR_SIGN.px[i], cy = VISOR_SIGN.py[i], cz = VISOR_SIGN.pz[i]; // anchored
@@ -967,7 +968,7 @@ public final class VRMenuSky {
 
         float cullDistance = CLOUD_RANGE + 24f;
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
         for (int cellX = minCellX; cellX <= maxCellX; cellX++) {
             for (int cellZ = minCellZ; cellZ <= maxCellZ; cellZ++) {
                 if (hash01(cellX, cellZ, 0) > CLOUD_FILL) {
@@ -1149,7 +1150,7 @@ public final class VRMenuSky {
         }
 
 
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        builder.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         for (int i = 0; i < userDotCount; i++) {
             scratchDir.set(userDotX[i], userDotY[i], userDotZ[i]);
             billboardBasis(scratchDir, scratchRight, scratchUp);

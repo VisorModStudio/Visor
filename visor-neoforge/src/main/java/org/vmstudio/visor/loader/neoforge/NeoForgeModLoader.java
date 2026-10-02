@@ -378,15 +378,27 @@ public class NeoForgeModLoader implements ModLoader {
     // and a MultiBufferSource, so they live in a holder that only a client ever loads
     private static final class ClientOverlays {
         static boolean water(Player player, PoseStack mat) {
+            //? if >=26.2 {
             return ClientHooks.renderWaterOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
+                    org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector());
+            //?} else {
+            /*return ClientHooks.renderWaterOverlay(player, mat,
+                    Minecraft.getInstance().getAtlasManager(),
                     Minecraft.getInstance().renderBuffers().bufferSource());
+            *///?}
         }
 
         static boolean fire(Player player, PoseStack mat) {
+            //? if >=26.2 {
             return ClientHooks.renderFireOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
+                    org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector());
+            //?} else {
+            /*return ClientHooks.renderFireOverlay(player, mat,
+                    Minecraft.getInstance().getAtlasManager(),
                     Minecraft.getInstance().renderBuffers().bufferSource());
+            *///?}
         }
     }
     //?}

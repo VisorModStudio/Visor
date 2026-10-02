@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.compatibility.mcversion.McInventory;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.hotbar.VROverlayHotBar;
@@ -238,7 +239,7 @@ public class TaskHotBar extends VisorTask {
     @Override
     public boolean isActive(@Nullable LocalPlayer player) {
         if(player == null) return false;
-        if(MC.screen != null) return false;
+        if(McVersionClientUtils.screen() != null) return false;
         if(player.isSpectator()) return false;
         return true;
     }

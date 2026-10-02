@@ -1,7 +1,12 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
+//? if >=26.2 {
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+//?} else {
+/*import com.mojang.blaze3d.vertex.Tesselator;
+*///?}
 import com.mojang.blaze3d.vertex.VertexFormat;
 import org.joml.Matrix4f;
 //? if >=1.21.9 {
@@ -16,7 +21,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
 
 import java.util.OptionalDouble;
-import java.util.OptionalInt;
+//? if >=26.2 {
+import java.util.Optional;
+//?} else {
+/*import java.util.OptionalInt;
+*///?}
 import java.util.function.Consumer;
 //?} else {
 /*import com.mojang.blaze3d.vertex.BufferUploader;
@@ -24,6 +33,9 @@ import java.util.function.Consumer;
 //? if >=1.21.6 {
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.ScissorState;
+//?}
+//? if >=26.2 {
+import com.mojang.blaze3d.systems.CommandEncoder;
 //?}
 
 /**
@@ -34,6 +46,10 @@ public final class McVertexBuilder {
     private static final McVertexBuilder INSTANCE = new McVertexBuilder();
 
     private BufferBuilder builder;
+
+    //? if >=26.2 {
+    private ByteBufferBuilder scratch;
+    //?}
 
     private McVertexBuilder() {
     }
@@ -47,10 +63,15 @@ public final class McVertexBuilder {
         return INSTANCE;
     }
 
-    public McVertexBuilder begin(VertexFormat.Mode mode, VertexFormat format) {
-        //? if >=1.21 {
-        this.builder = Tesselator.getInstance().begin(mode, format);
-        //?} else {
+    public McVertexBuilder begin(PrimitiveTopology mode, VertexFormat format) {
+        //? if >=26.2 {
+        if (scratch == null) {
+            scratch = new ByteBufferBuilder(786432);
+        }
+        this.builder = new BufferBuilder(scratch, mode, format);
+        //?} elif >=1.21 {
+        /*this.builder = Tesselator.getInstance().begin(mode, format);
+        *///?} else {
         /*this.builder.begin(mode, format);
         *///?}
         return this;
@@ -166,8 +187,7 @@ public final class McVertexBuilder {
         if (program != null) {
             program.draw(mesh, target, ownMatrices);
         } else {
-            MeshData.DrawState state = mesh.drawState();
-            drawPass(mesh, target, McShaders.pipeline(state.format(), state.mode()), McShaders::applyUniforms);
+            drawPass(mesh, target, McShaders.pipeline(mesh.drawState().format(), mesh.drawState().primitiveTopology()), McShaders::applyUniforms);
         }
     }
 
@@ -176,7 +196,39 @@ public final class McVertexBuilder {
                          Consumer<RenderPass> uniforms) {
         try (mesh) {
             MeshData.DrawState state = mesh.drawState();
-            GpuBuffer vertices = state.format().uploadImmediateVertexBuffer(mesh.vertexBuffer());
+            //? if >=26.2 {
+            CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
+            GpuBufferSlice vertices = encoder.transientMemory().uploadGpu(
+                    mesh.vertexBuffer(), state.format().getVertexSize(), GpuBuffer.USAGE_VERTEX);
+            RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.primitiveTopology());
+            GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
+            GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+                    RenderSystem.getModelViewMatrixCopy(), McGlState.shaderColor(), new Vector3f(), new Matrix4f());
+            try (RenderPass pass = encoder.createRenderPass(
+                    () -> "visor immediate draw",
+                    target.getColorTextureView(), Optional.empty(),
+                    target.getDepthTextureView(), OptionalDouble.empty())) {
+                pass.setPipeline(pipeline);
+                ScissorState scissor = RenderSystem.getScissorStateForRenderTypeDraws();
+                if (scissor.enabled()) {
+                    int left = Math.max(0, scissor.x());
+                    int bottom = Math.max(0, scissor.y());
+                    int right = Math.min(target.width, scissor.x() + scissor.width());
+                    int top = Math.min(target.height, scissor.y() + scissor.height());
+                    if (left >= right || bottom >= top) {
+                        return;
+                    }
+                    pass.enableScissor(left, bottom, right - left, top - bottom);
+                }
+                RenderSystem.bindDefaultUniforms(pass);
+                pass.setUniform("DynamicTransforms", transforms);
+                uniforms.accept(pass);
+                pass.setVertexBuffer(0, vertices);
+                pass.setIndexBuffer(indexBuffer, indices.type());
+                pass.drawIndexed(state.indexCount(), 1, 0, 0, 0);
+            }
+            //?} else {
+            /*GpuBuffer vertices = state.format().uploadImmediateVertexBuffer(mesh.vertexBuffer());
             RenderSystem.AutoStorageIndexBuffer indices = RenderSystem.getSequentialBuffer(state.mode());
             GpuBuffer indexBuffer = indices.getBuffer(state.indexCount());
             //? if >=1.21.6 {
@@ -185,14 +237,14 @@ public final class McVertexBuilder {
             GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), new Vector3f(), new Matrix4f());
             //?} elif >=1.21.9 {
-            /*GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+            /^GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), new Vector3f(),
                     RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
-            *///?} else {
-            /*GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
+            ^///?} else {
+            /^GpuBufferSlice transforms = RenderSystem.getDynamicUniforms().writeTransform(
                     RenderSystem.getModelViewMatrix(), McGlState.shaderColor(), RenderSystem.getModelOffset(),
                     RenderSystem.getTextureMatrix(), RenderSystem.getShaderLineWidth());
-            *///?}
+            ^///?}
             try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
                     () -> "visor immediate draw",
                     target.getColorTextureView(), OptionalInt.empty(),
@@ -210,7 +262,7 @@ public final class McVertexBuilder {
                 pass.drawIndexed(0, 0, state.indexCount(), 1);
             }
             //?} else {
-            /*try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+            /^try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
                     target.getColorTexture(), OptionalInt.empty(),
                     target.getDepthTexture(), OptionalDouble.empty())) {
                 pass.setPipeline(pipeline);
@@ -223,6 +275,7 @@ public final class McVertexBuilder {
                 pass.setIndexBuffer(indexBuffer, indices.type());
                 pass.drawIndexed(0, state.indexCount());
             }
+            ^///?}
             *///?}
         }
     }

@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
 
@@ -47,7 +48,7 @@ public class MouseScrollHandler {
 
         HandType handType;
         if(!ClientContext.cursorHandler.isCursorHandFocused()
-                && MC.screen == null && MC.player != null){
+                && McVersionClientUtils.screen() == null && MC.player != null){
             handType = ClientContext.localPlayer.getActiveHand();
         }else {
             handType = ClientContext.cursorHandler.getCursorHand();

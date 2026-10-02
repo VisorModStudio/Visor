@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 
 
 public class TexturedSelectionList extends McSelectionList<TexturedSelectionList.TexturedRow> {
@@ -273,7 +274,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
         if (overlay != null) {
             return overlay;
         }
-        return Minecraft.getInstance().screen;
+        return McVersionClientUtils.screen();
     }
 
     //Entry management

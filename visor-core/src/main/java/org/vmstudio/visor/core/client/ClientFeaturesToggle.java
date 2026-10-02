@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.events.AllowClientFeatureVREvent;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
@@ -52,7 +53,7 @@ public class ClientFeaturesToggle {
 
     private boolean checkAimEffects() {
         if (MC.level == null)               return false;
-        if (MC.screen != null)              return false;
+        if (McVersionClientUtils.screen() != null)              return false;
         return !ClientContext.cursorHandler.isCursorHandFocused();
     }
 

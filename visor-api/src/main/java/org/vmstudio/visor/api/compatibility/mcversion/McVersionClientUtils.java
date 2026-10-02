@@ -12,7 +12,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 //? if >=1.20.5 {
@@ -103,6 +105,78 @@ public class McVersionClientUtils {
         *///?}
     }
 
+    // ------- SCREENS -------
+
+    @Nullable
+    public static Screen screen() {
+        //? if >=26.2 {
+        return Minecraft.getInstance().gui.screen();
+        //?} else {
+        /*return Minecraft.getInstance().screen;
+        *///?}
+    }
+
+    public static void setScreen(@Nullable Screen screen) {
+        //? if >=26.2 {
+        Minecraft.getInstance().gui.setScreen(screen);
+        //?} else {
+        /*Minecraft.getInstance().setScreen(screen);
+        *///?}
+    }
+
+    @Nullable
+    public static Overlay overlay() {
+        //? if >=26.2 {
+        return Minecraft.getInstance().gui.overlay();
+        //?} else {
+        /*return Minecraft.getInstance().getOverlay();
+        *///?}
+    }
+
+    public static void setOverlay(@Nullable Overlay overlay) {
+        //? if >=26.2 {
+        Minecraft.getInstance().gui.setOverlay(overlay);
+        //?} else {
+        /*Minecraft.getInstance().setOverlay(overlay);
+        *///?}
+    }
+
+    // ------- HUD -------
+
+    public static ChatComponent chat() {
+        //? if >=26.2 {
+        return Minecraft.getInstance().gui.hud.getChat();
+        //?} else {
+        /*return Minecraft.getInstance().gui.getChat();
+        *///?}
+    }
+
+    public static int guiTicks() {
+        //? if >=26.2 {
+        return Minecraft.getInstance().gui.hud.getGuiTicks();
+        //?} else {
+        /*return Minecraft.getInstance().gui.getGuiTicks();
+        *///?}
+    }
+
+    public static boolean isHudHidden() {
+        //? if >=26.2 {
+        return Minecraft.getInstance().gui.hud.isHidden();
+        //?} else {
+        /*return Minecraft.getInstance().options.hideGui;
+        *///?}
+    }
+
+    public static void setHudHidden(boolean hidden) {
+        //? if >=26.2 {
+        if (Minecraft.getInstance().gui.hud.isHidden() != hidden) {
+            Minecraft.getInstance().gui.hud.toggle();
+        }
+        //?} else {
+        /*Minecraft.getInstance().options.hideGui = hidden;
+        *///?}
+    }
+
     // ------- WINDOW -------
 
     public static void resizeDisplay(Minecraft minecraft) {
@@ -111,6 +185,14 @@ public class McVersionClientUtils {
         minecraft.gameRenderer.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
         //?} else {
         /*minecraft.resizeDisplay();
+        *///?}
+    }
+
+    public static void updateVsync(Minecraft minecraft) {
+        //? if >=26.2 {
+        minecraft.invalidateSurfaceConfiguration();
+        //?} else {
+        /*minecraft.getWindow().updateVsync(minecraft.options.enableVsync().get());
         *///?}
     }
 

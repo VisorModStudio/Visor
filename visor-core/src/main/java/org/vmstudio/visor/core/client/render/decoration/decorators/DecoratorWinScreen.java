@@ -6,6 +6,7 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.decoration.effects.GameEffectEndCredits;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.gui.screens.WinScreen;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,7 +40,7 @@ public class DecoratorWinScreen extends VRDecorator {
     @Override
     public boolean canActivate() {
         return MC.level != null
-                && MC.screen instanceof WinScreen;
+                && McVersionClientUtils.screen() instanceof WinScreen;
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -223,10 +224,10 @@ public class RenderGuiHelper {
             McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
             McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
             McGlState.turnOnLightLayer();
-            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+            buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
         } else {
             McShaders.use(McShaders.Core.POSITION_COLOR);
-            buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
         }
     }
 

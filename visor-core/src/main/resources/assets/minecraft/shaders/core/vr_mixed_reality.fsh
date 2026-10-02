@@ -45,7 +45,11 @@ vec3 nudgeOffKeyColor(in vec3 color) {
 }
 
 vec3 worldPosAt(in vec2 uv) {
-    float z = texture(SamplerDepth, uv).r * 2.0 - 1.0;
+    float depth = texture(SamplerDepth, uv).r;
+#ifdef VISOR_REVERSED_DEPTH
+    depth = 1.0 - depth;
+#endif
+    float z = depth * 2.0 - 1.0;
     vec4 clip = vec4(uv * 2.0 - 1.0, z, 1.0);
     vec4 world = uInverseProjectionView * clip;
     return world.xyz / world.w;

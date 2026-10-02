@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVi
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -161,7 +162,7 @@ public class VROverlayMovementState extends VROverlayScreen {
 
     @Override
     protected boolean updateVisibility() {
-        if(MC.screen != null){
+        if(McVersionClientUtils.screen() != null){
             return false;
         }
         if(MC.player == null) return false;

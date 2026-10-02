@@ -5,6 +5,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 //?}
+//? if >=26.2 {
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.gui.Gui;
+//?}
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.MinecraftExtension;
@@ -57,12 +63,14 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
         McVersionClientUtils.profiler().pop();
         //?}
 
-        //? if >=1.21.9 {
         // the cancel lands before the tail of render(), where 1.21.9 ends the submit and feature frames
-        GameRenderer self = (GameRenderer) (Object) this;
+        //? if >=26.2 {
+        ((GameRenderer) (Object) this).renderBuffers().endFrame();
+        //?} elif >=1.21.9 {
+        /*GameRenderer self = (GameRenderer) (Object) this;
         self.getSubmitNodeStorage().endFrame();
         self.getFeatureRenderDispatcher().endFrame();
-        //?}
+        *///?}
 
         // Render Main Menu View
         if (VRRenderState.getSceneType().isMainMenu()) {
@@ -85,9 +93,11 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
     /**
      * Draw GUI only after first level render
      */
-    //? if >=26.1 {
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;extractGui(Lnet/minecraft/client/DeltaTracker;ZZ)V"), method = "extract", index = 1, require = 1)
-    //?} elif >=1.21.5 {
+    //? if >=26.2 {
+    @Unique
+    //?} elif >=26.1 {
+    /*@ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;extractGui(Lnet/minecraft/client/DeltaTracker;ZZ)V"), method = "extract", index = 1, require = 1)
+    *///?} elif >=1.21.5 {
     /*@ModifyVariable(at = @At(value = "NEW", target = "net/minecraft/client/gui/GuiGraphicsExtractor", shift = Shift.AFTER), method = "render", ordinal = 0, argsOnly = true, require = 1)
     *///?} else {
     /*@ModifyVariable(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getWindow()Lcom/mojang/blaze3d/platform/Window;", shift = Shift.AFTER, ordinal = 6), method = "render", ordinal = 0, argsOnly = true, require = 1)
@@ -103,14 +113,23 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
         *///?}
     }
 
-    //? if >=26.1 {
-    @Inject(at = @At("HEAD"), method = "extractGui", cancellable = true)
+    //? if >=26.2 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;extractRenderState(Lnet/minecraft/client/DeltaTracker;ZZ)V"), method = "extract", require = 1)
+    private void visor$extractVRGui(Gui gui, DeltaTracker deltaTracker, boolean renderLevel, boolean resourcesLoaded,
+                                    Operation<Void> original) {
+        if (VRRenderState.getPhase().isVRWorld()) {
+            return;
+        }
+        original.call(gui, deltaTracker, visor$vrGuiVisibility(renderLevel), resourcesLoaded);
+    }
+    //?} elif >=26.1 {
+    /*@Inject(at = @At("HEAD"), method = "extractGui", cancellable = true)
     private void visor$noGuiExtractionInWorldPass(CallbackInfo ci) {
         if (VRRenderState.getPhase().isVRWorld()) {
             ci.cancel();
         }
     }
-    //?}
+    *///?}
 
     // 1.21.2 moved it into Gui, see GuiMixin
     //? if <1.21.2 {
