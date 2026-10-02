@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.player;
 
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
@@ -7,13 +8,9 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.*;
-//? if >=1.21.9 {
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-//?} else {
-/*import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-*///?}
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -42,30 +39,11 @@ public class PlayerRenderMixins {
 
         // 1.21.9 moved the camera basis onto CameraRenderState (GameRenderer.extractCamera) and
         // dropped distanceToSqr, the distance now lives in EntityRenderState.distanceToCameraSq
-        //? if <1.21.9 {
-        /*@Inject(method = "cameraOrientation", at = @At("HEAD"), cancellable = true)
-        private void visor$vrCameraOrientation(CallbackInfoReturnable<Quaternionf> cir) {
-            if (VRRenderState.getPhase().isVRWorld()) {
-                cir.setReturnValue(this.visor$lookAtCameraOrientation(0.5F, 0.0F));
-            }
-        }
-
-        @Inject(
-                method = {"distanceToSqr(Lnet/minecraft/world/entity/Entity;)D", "distanceToSqr(DDD)D"},
-                at = @At("HEAD"), cancellable = true)
-        private void visor$zeroDistanceWithoutCamera(CallbackInfoReturnable<Double> cir) {
-            if (this.camera == null) {
-                cir.setReturnValue(0.0D);
-            }
-        }
-        *///?}
 
         @Inject(method = "getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
         private void visor$swapInVRBodyRenderer(Entity entity, CallbackInfoReturnable<Object> cir) {
             visor$useVRBodyRenderer(entity, cir);
         }
-
-        //? if >=1.21.9 {
 
         @Inject(method = "getRenderer(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
         private void visor$swapInVRBodyRendererForState(EntityRenderState state, CallbackInfoReturnable<Object> cir) {
@@ -73,7 +51,6 @@ public class PlayerRenderMixins {
                 visor$useVRBodyRenderer(vrState.player, cir);
             }
         }
-        //?}
 
         @Unique
         private static void visor$useVRBodyRenderer(Entity entity, CallbackInfoReturnable<Object> cir) {
@@ -110,11 +87,7 @@ public class PlayerRenderMixins {
         }
 
         //keep @Local without variable name, to search by type
-        //? if >=1.21.9 {
         @Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createAvatarRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
-        //?} else {
-        /*@Inject(method = "onResourceManagerReload", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderers;createPlayerRenderers(Lnet/minecraft/client/renderer/entity/EntityRendererProvider$Context;)Ljava/util/Map;"))
-        *///?}
         private void visor$rebuildVRBodyModels(CallbackInfo ci, @Local EntityRendererProvider.Context context) {
             if(ClientContext.visor == null) {
                 VisorState.setDelayedVrBodyInit(context);
@@ -144,11 +117,7 @@ public class PlayerRenderMixins {
 
             float yaw = (float) Math.atan2(dir.x, dir.z);
             float pitch = (float) -Math.asin(dir.y);
-            //? if >=1.21 {
             return new Quaternionf().rotationYXZ(yaw + (float) Math.PI, -pitch, 0F);
-            //?} else {
-            /*return new Quaternionf().rotationYXZ(yaw, pitch, 0F);
-            *///?}
         }
 
 

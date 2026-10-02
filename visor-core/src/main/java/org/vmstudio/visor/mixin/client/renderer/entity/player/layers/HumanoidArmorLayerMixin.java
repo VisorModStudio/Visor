@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.sugar.Local;
@@ -9,15 +10,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.vmstudio.visor.core.client.render.VRRenderState;
-//? if >=1.21.2 {
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.item.ItemStack;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-//?} else {
-/*import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-*///?}
 
 @Mixin(HumanoidArmorLayer.class)
 public class HumanoidArmorLayerMixin {
@@ -39,28 +35,13 @@ public class HumanoidArmorLayerMixin {
     private ItemStack visor$hideHeadArmorOnVRSelf(ItemStack headItem, @Local(argsOnly = true) HumanoidRenderState state) {
         return visor$hidesPiece(VRPlayerRenderState.playerOf(state), EquipmentSlot.HEAD) ? ItemStack.EMPTY : headItem;
     }
-    *///?} elif >=1.21.2 {
+    *///?} else {
     /*@ModifyExpressionValue(
             method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/HumanoidRenderState;FF)V",
             at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;headItem:Lnet/minecraft/world/item/ItemStack;")
     )
     private ItemStack visor$hideHeadArmorOnVRSelf(ItemStack headItem, @Local(argsOnly = true) HumanoidRenderState state) {
         return visor$hidesPiece(VRPlayerRenderState.playerOf(state), EquipmentSlot.HEAD) ? ItemStack.EMPTY : headItem;
-    }
-    *///?} else {
-    /*@Inject(
-            method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;)V",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void visor$hideHeadArmorOnVRSelf(
-            CallbackInfo ci,
-            @Local(argsOnly = true) LivingEntity entity,
-            @Local(argsOnly = true) EquipmentSlot slot)
-    {
-        if (visor$hidesPiece(entity, slot)) {
-            ci.cancel();
-        }
     }
     *///?}
 

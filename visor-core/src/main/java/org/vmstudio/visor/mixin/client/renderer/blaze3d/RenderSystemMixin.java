@@ -1,8 +1,6 @@
+// #!MC-VERSION:: 1.21.5+
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
-//? if <1.21.5 {
-/*import com.mojang.blaze3d.platform.GlStateManager;
-*///?}
 import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=26.1 {
 import net.minecraft.client.FramerateLimiter;
@@ -15,10 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-//? if <1.21.5 {
-/*import static com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate;
-*///?}
 
 //? if >=26.1 {
 @Mixin(FramerateLimiter.class)
@@ -34,27 +28,5 @@ public class RenderSystemMixin {
             ci.cancel();
         }
     }
-
-    //? if <1.21.5 {
-    /*@ModifyArg(method = "defaultBlendFunc", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;blendFuncSeparate(Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;)V"), remap = false, index = 3)
-    private static GlStateManager.DestFactor visor$defaultBlendFuncDest2(
-            GlStateManager.DestFactor destFactor) {
-        return GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA;
-    }
-    *///?}
-
-    //? if >=1.21.2 && <1.21.5 {
-    /*@ModifyVariable(method = "setShaderTexture(II)V", at = @At("HEAD"),
-            index = 1, argsOnly = true, remap = false)
-    private static int visor$dropDeletedShaderTexture(int textureId) {
-        return ShaderTextureHelper.sanitize(textureId);
-    }
-    *///?} elif <1.21.2 {
-    /*@ModifyVariable(method = "_setShaderTexture(II)V", at = @At("HEAD"),
-            index = 1, argsOnly = true, remap = false)
-    private static int visor$dropDeletedShaderTexture(int textureId) {
-        return ShaderTextureHelper.sanitize(textureId);
-    }
-    *///?}
 
 }

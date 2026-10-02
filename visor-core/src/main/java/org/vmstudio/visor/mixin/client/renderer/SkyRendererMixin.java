@@ -1,6 +1,6 @@
+// #!MC-VERSION:: 26.2+
 package org.vmstudio.visor.mixin.client.renderer;
 
-//? if >=26.2 {
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.renderer.SkyRenderer;
@@ -23,12 +23,3 @@ public abstract class SkyRendererMixin {
         return main != null ? main : created;
     }
 }
-//?} else {
-/*import net.minecraft.client.renderer.LevelRenderer;
-import org.spongepowered.asm.mixin.Mixin;
-
-// [EMPTY SHELL before 26.2] the sky draws to the main render target of the moment
-@Mixin(LevelRenderer.class)
-public abstract class SkyRendererMixin {
-}
-*///?}

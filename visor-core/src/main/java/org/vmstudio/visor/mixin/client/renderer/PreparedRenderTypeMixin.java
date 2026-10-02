@@ -1,6 +1,6 @@
+// #!MC-VERSION:: 26.2+
 package org.vmstudio.visor.mixin.client.renderer;
 
-//? if >=26.2 {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -34,12 +34,3 @@ public abstract class PreparedRenderTypeMixin {
         McShaderProgram.bindRenderTypeDraw(pass, this.pipeline);
     }
 }
-//?} else {
-/*import net.minecraft.client.renderer.LevelRenderer;
-import org.spongepowered.asm.mixin.Mixin;
-
-// [EMPTY SHELL before 26.2] a render type draws itself, McShaderProgram overrides the draw of its own
-@Mixin(LevelRenderer.class)
-public abstract class PreparedRenderTypeMixin {
-}
-*///?}

@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.20.6+
 package org.vmstudio.visor.mixin.client.gui.screen;
 
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
@@ -37,7 +38,6 @@ public class OptionsScreenVRMixin extends Screen {
         }).build();
     }
 
-    //? if >=1.20.5 {
     @Inject(method = "init", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/layouts/LinearLayout;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;Ljava/util/function/Consumer;)Lnet/minecraft/client/gui/layouts/LayoutElement;",
             ordinal = 0))
@@ -51,16 +51,5 @@ public class OptionsScreenVRMixin extends Screen {
                                            @Local(ordinal = 0) LinearLayout header) {
         header.addChild(visor$vrSettingsButton(), header.newCellSettings().paddingTop(-4));
     }
-    //?} else {
-    /*@ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;I)Lnet/minecraft/client/gui/layouts/LayoutElement;"))
-    private int visor$vrSpacerSize(int layoutElement) {
-        return 1;
-    }
-
-    @Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;I)Lnet/minecraft/client/gui/layouts/LayoutElement;"))
-    private void visor$addVRSettingsButton(CallbackInfo ci, @Local GridLayout.RowHelper rowHelper) {
-        rowHelper.addChild(visor$vrSettingsButton());
-    }
-    *///?}
 
 }

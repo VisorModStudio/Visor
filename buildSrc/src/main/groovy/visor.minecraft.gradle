@@ -150,7 +150,7 @@ if (project.parent.name == "visor-core") {
         tasks.named("compileJava") { source(parked) }
     }
     tasks.register("checkMcversionLayout") {
-        description = "Verifies the range headers, the parked copies and the absence of Stonecutter markers in range files"
+        description = "Verifies the range headers, the parked copies and the Stonecutter gates of the range files"
         def active = org.vmstudio.build.McVersionLayout.activeVersion(rootProject.projectDir)
         doLast {
             def problems = mcversion.check(active)

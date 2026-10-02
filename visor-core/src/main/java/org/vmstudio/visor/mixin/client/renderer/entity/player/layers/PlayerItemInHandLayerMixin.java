@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -17,11 +18,9 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 //? if >=1.21.9 {
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-//?} elif >=1.21.2 {
+//?} else {
 /*import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-*///?} else {
-/*import net.minecraft.world.item.ItemStack;
 *///?}
 
 @Mixin(value = PlayerItemInHandLayer.class, priority = 900)
@@ -73,7 +72,7 @@ public class PlayerItemInHandLayerMixin {
         var player = VRPlayerRenderState.playerOf(state);
         return isEmpty || (player != null && VRRenderState.isSelfModelHandsRender(player));
     }
-    *///?} elif >=1.21.2 {
+    *///?} else {
     /*@Inject(method = "renderArmWithItem(Lnet/minecraft/client/renderer/entity/state/PlayerRenderState;Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At("HEAD"), cancellable = true)
     private void visor$noItemInGui(
             CallbackInfo ci, @Local(argsOnly = true) PlayerRenderState state, @Local(argsOnly = true) HumanoidArm arm)
@@ -87,22 +86,6 @@ public class PlayerItemInHandLayerMixin {
     private boolean visor$noSpyglass(boolean isSpyglass, @Local(argsOnly = true) PlayerRenderState state) {
         var player = VRPlayerRenderState.playerOf(state);
         return isSpyglass && (player == null || !VRRenderState.isSelfModelHandsRender(player));
-    }
-    *///?} else {
-    /*@Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
-    private void visor$noItemInGui(
-            CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) HumanoidArm arm)
-    {
-        if (visor$hideItem(entity, arm)) {
-            ci.cancel();
-        }
-    }
-
-    @ModifyExpressionValue(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getUseItem()Lnet/minecraft/world/item/ItemStack;"))
-    private ItemStack visor$noSpyglass(
-        ItemStack useItem, @Local(argsOnly = true) LivingEntity entity)
-    {
-        return VRRenderState.isSelfModelHandsRender(entity) ? ItemStack.EMPTY : useItem;
     }
     *///?}
 

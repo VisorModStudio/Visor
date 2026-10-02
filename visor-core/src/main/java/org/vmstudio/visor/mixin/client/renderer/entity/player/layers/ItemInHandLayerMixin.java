@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.21.3+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
@@ -32,12 +33,9 @@ import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
 //? if >=1.21.4 {
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-//?} elif >=1.21.2 {
+//?} else {
 /*import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
-*///?} else {
-/*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import net.minecraft.client.model.player.PlayerModel;
 *///?}
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
@@ -48,18 +46,6 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
     public ItemInHandLayerMixin(RenderLayerParent renderer) {
         super(renderer);
     }
-
-    //? if <1.21.2 {
-    /*@ModifyExpressionValue(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getMainArm()Lnet/minecraft/world/entity/HumanoidArm;"))
-    private HumanoidArm visor$vrMainArm(HumanoidArm vanillaArm, @Local(argsOnly = true) LivingEntity entity) {
-        if (!(this.getParentModel() instanceof PlayerModel<?>)) {
-            return vanillaArm;
-        }
-        var vrPlayer = VRClientPlayers.getPlayer(entity.getUUID());
-        boolean leftHanded = vrPlayer != null && vrPlayer.isLeftHanded();
-        return leftHanded ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
-    }
-    *///?}
 
     // 1.21.11 passes the held ItemStack next to its render state
     //? if >=1.21.11 {
@@ -131,7 +117,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         }
         visor$applyHandPose(player, VRPlayerRenderState.heldItemForArm(player, arm), arm, poseStack);
     }
-    *///?} elif >=1.21.2 {
+    *///?} else {
     /*@Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
     private void visor$scaleItemWithModelArms(
             CallbackInfo ci, @Local(argsOnly = true) LivingEntityRenderState state, @Local(argsOnly = true) PoseStack poseStack)
@@ -150,26 +136,6 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
             @Local(argsOnly = true) PoseStack poseStack)
     {
         visor$applyHandPose(VRPlayerRenderState.playerOf(state), itemStack, arm, poseStack);
-    }
-    *///?} else {
-    /*@Inject(method = "renderArmWithItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER))
-    private void visor$scaleItemWithModelArms(
-            CallbackInfo ci, @Local(argsOnly = true) LivingEntity entity, @Local(argsOnly = true) PoseStack poseStack)
-    {
-        visor$scaleItem(entity, poseStack);
-    }
-
-    @Inject(method = "renderArmWithItem",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"))
-    private void visor$applyItemHandPose(
-            CallbackInfo ci,
-            @Local(argsOnly = true) LivingEntity entity,
-            @Local(argsOnly = true) ItemStack itemStack,
-            @Local(argsOnly = true) HumanoidArm arm,
-            @Local(argsOnly = true) PoseStack poseStack)
-    {
-        visor$applyHandPose(entity, itemStack, arm, poseStack);
     }
     *///?}
 

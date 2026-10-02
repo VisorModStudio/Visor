@@ -1,6 +1,6 @@
+// #!MC-VERSION:: 26.2+
 package org.vmstudio.visor.mixin.client.renderer;
 
-//? if >=26.2 {
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -110,12 +110,3 @@ public abstract class LevelExtractorMixin implements LevelRendererExtension {
         }
     }
 }
-//?} else {
-/*import net.minecraft.client.renderer.LevelRenderer;
-import org.spongepowered.asm.mixin.Mixin;
-
-// [EMPTY SHELL before 26.2] LevelRenderer extracts the level itself, see LevelRendererMixin
-@Mixin(LevelRenderer.class)
-public abstract class LevelExtractorMixin {
-}
-*///?}

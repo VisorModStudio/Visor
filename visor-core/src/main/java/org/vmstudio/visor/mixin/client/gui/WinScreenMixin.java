@@ -1,9 +1,6 @@
+// #!MC-VERSION:: 1.20.6+
 package org.vmstudio.visor.mixin.client.gui;
 
-//? if <1.20.5 {
-/*import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-*///?}
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -50,20 +47,12 @@ public abstract class WinScreenMixin extends Screen {
     }
 
     // 1.20.5 render() no longer sets the blend func itself
-    //? if <1.20.5 {
-    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;blendFunc(Lcom/mojang/blaze3d/platform/GlStateManager$SourceFactor;Lcom/mojang/blaze3d/platform/GlStateManager$DestFactor;)V"), method = "render")
-    private void visor$keepAlpha(GlStateManager.SourceFactor sourceFactor, GlStateManager.DestFactor destFactor, Operation<Void> original) {
-        RenderSystem.blendFuncSeparate(sourceFactor, destFactor, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-    }
-    *///?}
 
 
     //? if >=26.1 {
     @Inject(at = @At("HEAD"), method = "extractBackground", cancellable = true)
-    //?} elif >=1.20.2 {
+    //?} else {
     /*@Inject(at = @At("HEAD"), method = "renderBackground", cancellable = true)
-    *///?} else {
-    /*@Inject(at = @At("HEAD"), method = "renderBg", cancellable = true)
     *///?}
     private void visor$noCreditsBackground(CallbackInfo ci) {
         if (VisorState.get().isActive()) {
@@ -77,25 +66,12 @@ public abstract class WinScreenMixin extends Screen {
             ci.cancel();
         }
     }
-    //?} elif >=1.20.5 {
+    //?} else {
     /*// 1.20.5 moved the vignette blit into its own method
     @Inject(at = @At("HEAD"), method = "renderVignette", cancellable = true)
     private void visor$noVignette(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
-        }
-    }
-    *///?} else {
-    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;blit(Lnet/minecraft/resources/Identifier;IIIFFIIII)V"), method = "render")
-    private void visor$noVignette(GuiGraphicsExtractor instance,
-                                  Identifier texture,
-                                  int x, int y, int blitOffset,
-                                  float uOffset, float vOffset,
-                                  int uWidth, int vHeight,
-                                  int textureWidth, int textureHeight,
-                                  Operation<Void> original) {
-        if (VisorState.get().isNotActive()) {
-            original.call(instance, texture, x, y, blitOffset, uOffset, vOffset, uWidth, vHeight, textureWidth, textureHeight);
         }
     }
     *///?}

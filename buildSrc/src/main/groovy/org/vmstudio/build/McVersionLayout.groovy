@@ -39,18 +39,18 @@ class McVersionLayout {
         m.group(1)
     }
 
-    // parked copies are in the form of their range's first version, McVersionRenames brings them to the node's
+    // parked copies are in the form of their range's first version: gates and renames are brought to the node's
     TaskProvider<Sync> parkedSources(Project project, String version) {
         def parked = parkedFiles().findAll { it.range?.contains(version) }
         project.tasks.register("mcversionParkedSources", Sync) { Sync task ->
-            task.description = "Copies the parked range files covering ${version}, renamed for it"
+            task.description = "Copies the parked range files covering ${version}, rendered and renamed for it"
             parked.groupBy { it.root }.each { root, files ->
                 task.from(root) { include(files*.rel) }
             }
             task.into(project.layout.buildDirectory.dir("mcversion/java"))
             task.inputs.property("renames", McVersionRenames.signature(version))
             task.filteringCharset = "UTF-8"
-            task.filter { String line -> McVersionRenames.apply(line, version) }
+            task.filter(McVersionParkedFilter, version: version)
         }
     }
 
@@ -78,12 +78,7 @@ class McVersionLayout {
             if (!range.contains(active)) {
                 problems << "${where}: declares ${range} but the active version is ${active} - run the switch"
             }
-            if (hasMarkers(new File(src, rel))) {
-                problems << "${where}: range files are never preprocessed, no Stonecutter markers"
-            }
-            if (!renamedFor(new File(src, rel), active)) {
-                problems << "${where}: not renamed for ${active} (McVersionRenames) - run the switch"
-            }
+            problems.addAll(gateProblems(where, new File(src, rel), range, active, "refresh the active project"))
             copies.computeIfAbsent(rel) { [] } << [where, range]
         }
         parkedFiles().each { p ->
@@ -103,14 +98,9 @@ class McVersionLayout {
             if (p.folder != p.range.from) {
                 problems << "${where}: declares ${p.range}, belongs in mcversion/${p.range.from}"
             }
-            if (!renamedFor(p.file, p.range.from)) {
-                problems << "${where}: not renamed for ${p.range.from} (McVersionRenames) - run the switch"
-            }
+            problems.addAll(gateProblems(where, p.file, p.range, p.range.from, "run mcversionSwitch"))
             if (p.range.contains(active)) {
                 problems << "${where}: parked although ${p.range} covers the active version ${active} - run the switch"
-            }
-            if (hasMarkers(p.file)) {
-                problems << "${where}: range files are never preprocessed, no Stonecutter markers"
             }
             copies.computeIfAbsent(p.rel) { [] } << [where, p.range]
         }
@@ -128,7 +118,31 @@ class McVersionLayout {
     }
 
 
+    // before Stonecutter processes src for the version: it renders the arrivals itself, files are only moved
+    List<String> moveTo(String version) {
+        def moves = moves(version)
+        (moves.leaving + moves.entering).collect { File from, File to -> move(from, to) }
+    }
+
+    // after Stonecutter (or standalone, to resync): moves what is still misplaced, renders those arrivals, and puts
+    // every parked copy in the form of its range's first version, so round trips stay clean
     List<String> switchTo(String version) {
+        def moves = moves(version)
+        def log = (moves.leaving + moves.entering).collect { File from, File to -> move(from, to) }
+        moves.entering.each { File from, File to ->
+            if (normalize(to, version)) {
+                log << "${rel(branch, to)}: rendered for ${version}".toString()
+            }
+        }
+        parkedFiles().each { p ->
+            if (normalize(p.file, p.range.from)) {
+                log << "${rel(branch, p.file)}: rendered for ${p.range.from}".toString()
+            }
+        }
+        log
+    }
+
+    private Map<String, List<List<File>>> moves(String version) {
         def parked = parkedFiles()
         parked.findAll { it.range == null }.each {
             throw new GradleException("mcversion/${it.folder}/java/${it.rel}: missing the '${McVersionRange.HEADER} <range>' header")
@@ -148,25 +162,14 @@ class McVersionLayout {
                 throw new GradleException("two range files would land on ${rel(branch, to)}")
             }
         }
-        def moved = (leaving + entering).collect { File from, File to ->
-            to.parentFile.mkdirs()
-            Files.move(from.toPath(), to.toPath())
-            pruneEmpty(from.parentFile)
-            "${rel(branch, from)} -> ${rel(branch, to)}".toString()
-        }
-        // Stonecutter renamed src before these arrived
-        entering.each { File from, File to ->
-            if (rename(to, version)) {
-                moved << "${rel(branch, to)}: renamed for ${version}".toString()
-            }
-        }
-        // ...and before those left: parked copies keep the form of their range's first version, so round trips stay clean
-        parkedFiles().each { p ->
-            if (rename(p.file, p.range.from)) {
-                moved << "${rel(branch, p.file)}: renamed for ${p.range.from}".toString()
-            }
-        }
-        moved
+        [leaving: leaving, entering: entering]
+    }
+
+    private String move(File from, File to) {
+        to.parentFile.mkdirs()
+        Files.move(from.toPath(), to.toPath())
+        pruneEmpty(from.parentFile)
+        "${rel(branch, from)} -> ${rel(branch, to)}".toString()
     }
 
     List<String> nodesIn(McVersionRange range) {
@@ -215,24 +218,35 @@ class McVersionLayout {
         found
     }
 
-    private static boolean renamedFor(File f, String version) {
-        def text = f.getText("UTF-8")
-        McVersionRenames.apply(text, version) == text
+    // what Stonecutter would make of the file on that version: gates rendered, McVersionRenames applied
+    static String forVersion(String text, String version) {
+        McVersionRenames.apply(McVersionGates.render(text, version), version)
     }
 
-    private static boolean rename(File f, String version) {
+    private List<String> gateProblems(String where, File f, McVersionRange range, String version, String fix) {
         def text = f.getText("UTF-8")
-        def renamed = McVersionRenames.apply(text, version)
-        if (renamed == text) {
+        try {
+            def problems = []
+            if (forVersion(text, version) != text) {
+                problems << "${where}: gates or names not in the form of ${version} - ${fix}".toString()
+            }
+            McVersionGates.constantChains(text, nodesIn(range)).each { marker ->
+                problems << "${where}: '${marker}' decides the same on every version of ${range}, resolve it".toString()
+            }
+            problems
+        } catch (IllegalArgumentException e) {
+            ["${where}: ${e.message}".toString()]
+        }
+    }
+
+    private static boolean normalize(File f, String version) {
+        def text = f.getText("UTF-8")
+        def normalized = forVersion(text, version)
+        if (normalized == text) {
             return false
         }
-        f.setText(renamed, "UTF-8")
+        f.setText(normalized, "UTF-8")
         true
-    }
-
-    private static boolean hasMarkers(File f) {
-        def text = f.getText("UTF-8")
-        text.contains("//?") || text.contains("/*?")
     }
 
     private void pruneEmpty(File dir) {

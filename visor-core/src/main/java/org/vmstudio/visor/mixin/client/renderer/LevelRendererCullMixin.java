@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 1.20.2+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
@@ -77,7 +78,7 @@ public class LevelRendererCullMixin {
         return true;
     }
 }
-*///?} elif >=1.20.2 {
+*///?} else {
 /*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.renderer.SectionOcclusionGraph;
 
@@ -108,29 +109,6 @@ public class LevelRendererCullMixin {
             return original;
         }
         return true;
-    }
-}
-*///?} else {
-/*import java.util.concurrent.atomic.AtomicBoolean;
-
-//Higher than Sodium priority
-@Mixin(value = LevelRenderer.class, priority = 1100)
-public class LevelRendererCullMixin {
-
-    @Shadow
-    private boolean needsFullRenderChunkUpdate;
-    @Shadow @Final
-    private AtomicBoolean needsFrustumUpdate;
-
-    @Inject(method = "setupRender", at = @At("HEAD"))
-    private void visor$refreshCullingEachPass(CallbackInfo ci) {
-        if (!VisorState.get().isActive() || SodiumHelper.isLoaded()) {
-            return;
-        }
-        // each VR pass has its own camera,
-        // visibility cached by the previous pass won't work
-        this.needsFullRenderChunkUpdate = true;
-        this.needsFrustumUpdate.set(true);
     }
 }
 *///?}
