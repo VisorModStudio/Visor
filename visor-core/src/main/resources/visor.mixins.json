@@ -25,6 +25,7 @@
     "client.gui.WinScreenMixin",
     "client.gui.screen.ChatScreenMixin",
     "client.gui.screen.OptionsScreenVRMixin",
+    "client.gui.screen.PauseScreenMixin",
     "client.gui.screen.ReceivingLevelScreenMixin",
     "client.gui.screen.ScreenMixin",
     "client.gui.screen.TitleScreenMixin",
