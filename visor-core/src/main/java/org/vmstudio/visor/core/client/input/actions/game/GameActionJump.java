@@ -65,6 +65,11 @@ public class GameActionJump extends VRActionButton {
                 new ActionBinding(
                         WindowsMotionProfile.BUTTON_MENU_RIGHT,
                         WindowsMotionProfile.BUTTON_MENU_LEFT
+                ),
+                VRInteractionProfileType.STEAM_FRAME,
+                new ActionBinding(
+                        SteamFrameProfile.BUTTON_B,
+                        SteamFrameProfile.BUTTON_DPAD_UP
                 )
         );
     }

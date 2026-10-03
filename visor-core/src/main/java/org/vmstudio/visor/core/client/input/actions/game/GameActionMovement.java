@@ -207,6 +207,11 @@ public class GameActionMovement extends VRActionVec2 {
                 new ActionBinding(
                         WindowsMotionProfile.VEC2_THUMBSTICK_LEFT,
                         WindowsMotionProfile.VEC2_THUMBSTICK_RIGHT
+                ),
+                VRInteractionProfileType.STEAM_FRAME,
+                new ActionBinding(
+                        SteamFrameProfile.VEC2_THUMBSTICK_LEFT,
+                        SteamFrameProfile.VEC2_THUMBSTICK_RIGHT
                 )
         );
     }

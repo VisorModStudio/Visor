@@ -5,7 +5,6 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.input.action.data.VRActionDataButton;
-import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.VisorAPI;
@@ -244,15 +243,7 @@ public abstract class VRActionButton implements VRAction {
                                                                           boolean keyModifiersActive) {
         var list = new ArrayList<VRActionIdentifier>();
         list.add(ActionBinding.ID_EMPTY);
-        list.addAll(switch (profileType){
-            case VALVE_INDEX -> ValveIndexProfile.BUTTON_IDS;
-            case OCULUS_TOUCH -> OculusTouchProfile.BUTTON_IDS;
-            case VIVE -> ViveProfile.BUTTON_IDS;
-            case VIVE_COSMOS -> ViveCosmosProfile.BUTTON_IDS;
-            case HP_MIXED_REALITY -> HpMixedRealityProfile.BUTTON_IDS;
-            case WINDOWS_MOTION -> WindowsMotionProfile.BUTTON_IDS;
-            case VIVE_TRACKER -> List.of();
-        });
+        list.addAll(VRInteractionProfileType.getButtonIdsOf(profileType));
         if(keyModifiersActive){
             list.removeIf(it-> it.getValue().contains("trigger"));
         }

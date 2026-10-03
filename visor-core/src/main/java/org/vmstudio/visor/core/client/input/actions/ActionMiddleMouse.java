@@ -115,6 +115,11 @@ public class ActionMiddleMouse extends VRActionButton {
                     new ActionBinding(
                             ActionBinding.ID_EMPTY,
                             ActionBinding.ID_EMPTY
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_SHOULDER_RIGHT,
+                            SteamFrameProfile.BUTTON_SHOULDER_LEFT
                     )
             );
         } else {
@@ -148,6 +153,11 @@ public class ActionMiddleMouse extends VRActionButton {
                     new ActionBinding(
                             ActionBinding.ID_EMPTY,
                             ActionBinding.ID_EMPTY
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_SHOULDER_LEFT,
+                            SteamFrameProfile.BUTTON_SHOULDER_RIGHT
                     )
             );
         }

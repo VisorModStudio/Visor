@@ -4,7 +4,6 @@ import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.ControllerType;
 import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.api.input.action.data.VRActionDataVec2;
-import me.phoenixra.atumvr.api.input.profile.types.*;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.VisorAPI;
@@ -174,15 +173,7 @@ public abstract class VRActionVec2 implements VRAction {
                                                                           boolean keyModifiersActive) {
         var list = new ArrayList<VRActionIdentifier>();
         list.add(ActionBinding.ID_EMPTY);
-        list.addAll(switch (profileType){
-            case VALVE_INDEX -> ValveIndexProfile.VEC2_IDS;
-            case OCULUS_TOUCH -> OculusTouchProfile.VEC2_IDS;
-            case VIVE -> ViveProfile.VEC2_IDS;
-            case VIVE_COSMOS -> ViveCosmosProfile.VEC2_IDS;
-            case HP_MIXED_REALITY -> HpMixedRealityProfile.VEC2_IDS;
-            case WINDOWS_MOTION -> WindowsMotionProfile.VEC2_IDS;
-            case VIVE_TRACKER -> List.of();
-        });
+        list.addAll(VRInteractionProfileType.getVec2IdsOf(profileType));
         return list;
     }
 }

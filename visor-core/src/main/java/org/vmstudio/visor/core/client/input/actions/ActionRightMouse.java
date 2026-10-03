@@ -115,6 +115,11 @@ public class ActionRightMouse extends VRActionButton {
                     new ActionBinding(
                             WindowsMotionProfile.BUTTON_GRIP_RIGHT,
                             WindowsMotionProfile.BUTTON_GRIP_LEFT
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_A,
+                            SteamFrameProfile.BUTTON_DPAD_DOWN
                     )
             );
         } else {
@@ -148,6 +153,11 @@ public class ActionRightMouse extends VRActionButton {
                     new ActionBinding(
                             WindowsMotionProfile.BUTTON_GRIP_LEFT,
                             WindowsMotionProfile.BUTTON_GRIP_RIGHT
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_DPAD_DOWN,
+                            SteamFrameProfile.BUTTON_A
                     )
             );
         }

@@ -67,6 +67,11 @@ public class ActionShift extends VRActionButton {
                 new ActionBinding(
                         WindowsMotionProfile.BUTTON_THUMBSTICK_RIGHT,
                         WindowsMotionProfile.BUTTON_THUMBSTICK_LEFT
+                ),
+                VRInteractionProfileType.STEAM_FRAME,
+                new ActionBinding(
+                        SteamFrameProfile.BUTTON_THUMBSTICK_RIGHT,
+                        SteamFrameProfile.BUTTON_THUMBSTICK_LEFT
                 )
         );
     }

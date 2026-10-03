@@ -82,6 +82,11 @@ public class ActionMenu extends VRActionButton {
                 new ActionBinding(
                         WindowsMotionProfile.BUTTON_MENU_LEFT,
                         WindowsMotionProfile.BUTTON_MENU_RIGHT
+                ),
+                VRInteractionProfileType.STEAM_FRAME,
+                new ActionBinding(
+                        SteamFrameProfile.BUTTON_VIEW,
+                        SteamFrameProfile.BUTTON_MENU
                 )
         );
     }

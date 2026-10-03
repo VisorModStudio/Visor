@@ -78,6 +78,11 @@ public class GameActionHotBar extends VRActionButton {
                     new ActionBinding(
                             WindowsMotionProfile.BUTTON_TRACKPAD_RIGHT,
                             WindowsMotionProfile.BUTTON_TRACKPAD_LEFT
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_GRIP_RIGHT,
+                            SteamFrameProfile.BUTTON_GRIP_LEFT
                     )
             );
         }else{
@@ -111,6 +116,11 @@ public class GameActionHotBar extends VRActionButton {
                     new ActionBinding(
                             WindowsMotionProfile.BUTTON_TRACKPAD_LEFT,
                             WindowsMotionProfile.BUTTON_TRACKPAD_RIGHT
+                    ),
+                    VRInteractionProfileType.STEAM_FRAME,
+                    new ActionBinding(
+                            SteamFrameProfile.BUTTON_GRIP_LEFT,
+                            SteamFrameProfile.BUTTON_GRIP_RIGHT
                     )
             );
         }
