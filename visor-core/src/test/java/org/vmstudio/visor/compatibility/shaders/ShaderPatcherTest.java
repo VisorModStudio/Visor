@@ -103,6 +103,19 @@ class ShaderPatcherTest {
                 "vec4 clipPos = vec4(applyMAD(cam2clip, eyePos), eyePos.z * cam2clip[2].w);");
     }
 
+    @Test
+    void rowByRowClipWithFma() {
+        patchesTo(
+                "return cam2clip * vec4(eyePos, 1.0);",
+                """
+                return vec4(
+                    vec2(cam2clip[0].x, cam2clip[1].y) * eyePos.xy,
+                    fma(cam2clip[2].z, eyePos.z, cam2clip[3].z),
+                    cam2clip[2].w * eyePos.z
+                );""");
+        unchanged("float clipZ = fma(cam2clip[2].z, eyePos.z, cam2clip[3].z);");
+    }
+
     // ---- screen -> view ----
 
     @Test
@@ -153,6 +166,19 @@ class ShaderPatcherTest {
                 """
                 eyePoint = vec3(vec2(clip2view[0].x, clip2view[1].y) * (texUV * 2.0 - 1.0) + clip2view[3].xy, clip2view[3].z);
                 eyePoint /= (clip2view[2].w * (sceneDepth * 2.0 - 1.0) + clip2view[3].w);""");
+    }
+
+    @Test
+    void rowByRowUnprojectWithFma() {
+        patchesTo(
+                "return clip2view * vec4(devPos, 1.0);",
+                """
+                return vec4(
+                    vec2(clip2view[0].x, clip2view[1].y) * devPos.xy,
+                    clip2view[3].z,
+                    fma(clip2view[2].w, devPos.z, clip2view[3].w)
+                );""");
+        unchanged("return vec4(vec2(a[0].x, a[1].y) * devPos.xy, b[3].z, fma(a[2].w, devPos.z, a[3].w));");
     }
 
     // ---- view -> screen uv ----
@@ -221,6 +247,17 @@ class ShaderPatcherTest {
                 """
                 histClip = vec2(prevCam2clip[0].x, prevCam2clip[1].y) * prevEye.xy + prevCam2clip[3].xy;
                 histUV = (histClip / -prevEye.z) * 0.5 + 0.5;""");
+    }
+
+    @Test
+    void screenUvPreviousFrameReturned() {
+        patchesTo(
+                """
+                vec4 histClip = prevCam2clip * vec4(prevEye, 1.0);
+                return (histClip.xy / histClip.w) * 0.5 + 0.5;""",
+                """
+                vec2 histClip = vec2(prevCam2clip[0].x, prevCam2clip[1].y) * prevEye.xy + prevCam2clip[3].xy;
+                return (histClip / -prevEye.z) * 0.5 + 0.5;""");
     }
 
     // ---- non-matches ----

@@ -30,6 +30,7 @@
     "visor.dynamicfps.mixins.json",
     "visor.iris.mixins.json",
     "visor.nvidium.mixins.json",
+    "visor.voxy.mixins.json",
     "visor.blur.mixins.json",
     "visor.reacharound.mixins.json"
   ],

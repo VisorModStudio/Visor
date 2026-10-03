@@ -8,6 +8,7 @@
   ],
   "minVersion": "0.8.4",
   "client": [
-    "DhClientApiVRMixin"
+    "DhClientApiVRMixin",
+    "DhCameraZoomVRMixin"
   ]
 }

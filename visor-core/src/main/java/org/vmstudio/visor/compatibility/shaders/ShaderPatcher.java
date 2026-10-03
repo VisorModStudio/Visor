@@ -87,6 +87,15 @@ public final class ShaderPatcher {
                             .capture("view").glsl("),").same("view").glsl(".z*")
                             .same("mat").glsl("[2].w)"));
 
+    // vec4 assembled row by row with fma() for the depth term, the [2].xy column is simply left out (Mellow)
+    private static final ShaderPatch FORWARD_FMA_ROWS = new ShaderPatch()
+            .hint("fma")
+            .rewrite("return ${mat} * vec4(${view}, 1.0);",
+                    p -> p.glsl("return vec4(vec2(").capture("mat").glsl("[0].x,").same("mat")
+                            .glsl("[1].y)*").capture("view").glsl(".xy,fma(").same("mat")
+                            .glsl("[2].z,").same("view").glsl(".z,").same("mat").glsl("[3].z),")
+                            .same("mat").glsl("[2].w*").same("view").glsl(".z);"));
+
     // ---- screen -> view ----
 
     // unproject via inverse diagonal plus [3] column, divided in a second statement (rre36 packs);
@@ -144,6 +153,15 @@ public final class ShaderPatcher {
                             .same("mat").glsl("[3].xy,").same("mat").glsl("[3].z);")
                             .same("out").glsl("/=(").same("mat").glsl("[2].w*(")
                             .capture("depth").glsl("*2.0-1.0)+").same("mat").glsl("[3].w);"));
+
+    // same row by row assembly for the inverse, this one drops the [3].xy column (Mellow)
+    private static final ShaderPatch INVERSE_FMA_ROWS = new ShaderPatch()
+            .hint("fma")
+            .rewrite("return ${mat} * vec4(${ndc}, 1.0);",
+                    p -> p.glsl("return vec4(vec2(").capture("mat").glsl("[0].x,").same("mat")
+                            .glsl("[1].y)*").capture("ndc").glsl(".xy,").same("mat")
+                            .glsl("[3].z,fma(").same("mat").glsl("[2].w,").same("ndc")
+                            .glsl(".z,").same("mat").glsl("[3].w));"));
 
     // ---- view -> screen uv ----
 
@@ -210,6 +228,17 @@ public final class ShaderPatcher {
                             .same("mat").glsl("[3].xy;").capture("uv").glsl("=(")
                             .same("clip").glsl("/-").same("view").glsl(".z)*0.5+0.5;"));
 
+    // previous-frame reprojection returned straight away, what a TAA resolve samples its history with (Mellow)
+    private static final ShaderPatch SCREEN_PREVIOUS_FRAME_RETURN = new ShaderPatch()
+            .hint("[0]")
+            .rewrite("""
+                    vec4 ${clip} = ${mat} * vec4(${view}, 1.0);
+                    return (${clip}.xy / ${clip}.w) * 0.5 + 0.5;""",
+                    p -> p.glsl("vec2").capture("clip").glsl("=vec2(").capture("mat").glsl("[0].x,")
+                            .same("mat").glsl("[1].y)*").capture("view").glsl(".xy+")
+                            .same("mat").glsl("[3].xy;return(").same("clip").glsl("/-")
+                            .same("view").glsl(".z)*0.5+0.5;"));
+
     private static final List<ShaderPatch> PATCHES = List.of(
             // macro definitions first, then grouped by direction
             PROJMAD_MACRO,
@@ -219,17 +248,20 @@ public final class ShaderPatcher {
             FORWARD_DIAG4_Z,
             FORWARD_MAT3_SCALE,
             FORWARD_PROJMAD,
+            FORWARD_FMA_ROWS,
             // screen -> view
             INVERSE_DIAG_DIVIDE,
             INVERSE_NDC_DIAG,
             INVERSE_PROJMAD,
             INVERSE_TEXCOORD_DIAG,
+            INVERSE_FMA_ROWS,
             // view -> screen uv
             SCREEN_XY_DIAG,
             SCREEN_XY_DIAG2,
             SCREEN_XYZ_DIAG,
             SCREEN_LINE_XY_DIAG,
-            SCREEN_PREVIOUS_FRAME);
+            SCREEN_PREVIOUS_FRAME,
+            SCREEN_PREVIOUS_FRAME_RETURN);
 
     private ShaderPatcher() {
         throw new UnsupportedOperationException("Utility class");
