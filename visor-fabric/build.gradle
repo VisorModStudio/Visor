@@ -12,6 +12,7 @@ dependencies {
     // Natives
     include(implementation("org.lwjgl:lwjgl-openxr:${lwjgl_version}") { transitive = false })
     include(implementation("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux") { transitive = false })
+    include(implementation("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux-arm64") { transitive = false })
     include(implementation("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-windows") { transitive = false })
     if (bundlesVulkan) {
         include(implementation("org.lwjgl:lwjgl-vulkan:${lwjgl_version}") { transitive = false })

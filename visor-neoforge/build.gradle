@@ -31,6 +31,7 @@ configurations {
 dependencies {
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}"
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux"
+    lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux-arm64"
     lwjglRaw "org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-windows"
     if (bundlesVulkan) {
         lwjglRaw "org.lwjgl:lwjgl-vulkan:${lwjgl_version}"
@@ -90,6 +91,7 @@ dependencies {
 
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}") { transitive = false }
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux") { transitive = false }
+    shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-linux-arm64") { transitive = false }
     shadowBundle("org.lwjgl:lwjgl-openxr:${lwjgl_version}:natives-windows") { transitive = false }
     if (bundlesVulkan) {
         shadowBundle("org.lwjgl:lwjgl-vulkan:${lwjgl_version}") { transitive = false }
