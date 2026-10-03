@@ -15,6 +15,7 @@ import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.decoration.hand.VRItemPoseDefault;
 import org.vmstudio.visor.core.client.render.player.model.ArmPoseClamp;
 import org.vmstudio.visor.core.client.render.player.model.CenteredArmsPlayerMesh;
 //? if >=1.21.2 {
@@ -157,7 +158,7 @@ public class VRPlayerModelSimple extends PlayerModel {
                                               AbstractClientPlayer player,
                                               float partialTicks) {
         InteractionHand swinging = McVersionUtils.swingingArm(player);
-        if (swinging == null) {
+        if (swinging == null || VRItemPoseDefault.isSpearStab(player, swinging)) {
             return;
         }
         float attackTime = McVersionUtils.attackAnim(player, partialTicks);

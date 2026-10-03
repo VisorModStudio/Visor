@@ -30,6 +30,11 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.extensions.client.render.ItemInHandRendererExtension;
+//? if >=1.21.11 {
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.model.HumanoidModel;
+//?}
 //? if >=1.21.4 {
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import org.vmstudio.visor.core.client.render.player.VRPlayerRenderState;
@@ -138,6 +143,34 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         visor$applyHandPose(VRPlayerRenderState.playerOf(state), itemStack, arm, poseStack);
     }
     *///?}
+
+    //? if >=1.21.11 {
+    @WrapOperation(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/model/effects/SpearAnimations;thirdPersonAttackItem(Lnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
+    private void visor$noVanillaSpearStab(ArmedEntityRenderState state, PoseStack poseStack, Operation<Void> original) {
+        if (!visor$isVRPlayer(state)) {
+            original.call(state, poseStack);
+        }
+    }
+
+    @WrapOperation(method = "submitArmWithItem(Lnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/model/HumanoidModel$ArmPose;animateUseItem(Lnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/world/entity/HumanoidArm;Lnet/minecraft/world/item/ItemStack;)V"))
+    private void visor$noVanillaSpearCharge(HumanoidModel.ArmPose pose, ArmedEntityRenderState state, PoseStack poseStack,
+                                            float ticksUsingItem, HumanoidArm arm, ItemStack itemStack,
+                                            Operation<Void> original) {
+        if (pose != HumanoidModel.ArmPose.SPEAR || !visor$isVRPlayer(state)) {
+            original.call(pose, state, poseStack, ticksUsingItem, arm, itemStack);
+        }
+    }
+
+    @Unique
+    private static boolean visor$isVRPlayer(ArmedEntityRenderState state) {
+        AbstractClientPlayer player = VRPlayerRenderState.playerOf(state);
+        return player != null && VRClientPlayers.getPlayer(player) != null;
+    }
+    //?}
 
     @Unique
     private static void visor$scaleItem(@Nullable LivingEntity entity, PoseStack poseStack) {

@@ -494,6 +494,9 @@ public class VRHandRenderer {
                 : player.getMainArm().getOpposite();
         float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.firstPersonHandsAndItemsRenderer)
                 .visor$getEquipProgress(hand, partialTicks);
+        if (VRItemPoseDefault.isSpearStab(player, hand)) {
+            swingProgress = 0.0F;
+        }
 
         boolean mixedRealityHands = VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
                 && VRClientSettings.isMixedRealityRenderHands();

@@ -20,6 +20,7 @@ public enum ItemClassifier {
             || itemStack.is(VisorItemTags.SHIELDS)),
     SWORD(ItemClassifier::isSword),
     MACE(ItemClassifier::isMace),
+    TRIDENT(ItemClassifier::isTrident),
     SPEAR(ItemClassifier::isSpear),
     FOOD_STICK((itemStack) -> itemStack.getItem() instanceof FoodOnAStickItem),
     THROWABLE(ItemClassifier::isThrowable);
@@ -119,12 +120,20 @@ public enum ItemClassifier {
                 || item instanceof FireChargeItem;
     }
 
-    private static boolean isSpear(ItemStack itemStack) {
+    private static boolean isTrident(ItemStack itemStack) {
         //? if >=1.20.5 {
         if (itemStack.is(ItemTags.TRIDENT_ENCHANTABLE)) {
             return true;
         }
         //?}
         return itemStack.getItem() instanceof TridentItem;
+    }
+
+    private static boolean isSpear(ItemStack itemStack) {
+        //? if >=1.21.11 {
+        return itemStack.is(ItemTags.SPEARS);
+        //?} else {
+        /*return false;
+        *///?}
     }
 }

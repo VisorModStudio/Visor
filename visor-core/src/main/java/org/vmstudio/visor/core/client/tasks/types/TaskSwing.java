@@ -310,7 +310,7 @@ public class TaskSwing extends VisorTask {
     // Computes the effective item length and damage range based on the item type.
     private ItemProperties getItemProperties(final ItemStack itemStack, final EquipmentSlot slot) {
         final boolean isWeapon = ItemClassifier.SWORD.is(itemStack.getItem())
-                || ItemClassifier.SPEAR.is(itemStack.getItem())
+                || ItemClassifier.TRIDENT.is(itemStack.getItem())
                 || ItemClassifier.MACE.is(itemStack.getItem());
 
         float itemLength;

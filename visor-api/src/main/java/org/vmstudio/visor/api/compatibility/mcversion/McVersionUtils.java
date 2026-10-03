@@ -41,6 +41,9 @@ import net.minecraft.world.entity.Entity;
 //? if >=26.1 {
 import net.minecraft.world.item.ItemStackTemplate;
 //?}
+//? if >=1.21.11 {
+import net.minecraft.world.item.SwingAnimationType;
+//?}
 
 /**
  * Cross-mc-version Utils for common methods
@@ -206,6 +209,18 @@ public class McVersionUtils {
         return entity.getSwingAnimation(partialTicks);
         //?} else {
         /*return entity.getAttackAnim(partialTicks);
+        *///?}
+    }
+
+    public static boolean isStabSwing(LivingEntity entity) {
+        //? if >=26.3 {
+        LivingEntity.SwingDescription swing = entity.getCurrentSwing();
+        return swing != null && swing.animation().type() == SwingAnimationType.STAB;
+        //?} elif >=1.21.11 {
+        /*InteractionHand hand = entity.swingingArm;
+        return hand != null && entity.getItemInHand(hand).getSwingAnimation().type() == SwingAnimationType.STAB;
+        *///?} else {
+        /*return false;
         *///?}
     }
 
