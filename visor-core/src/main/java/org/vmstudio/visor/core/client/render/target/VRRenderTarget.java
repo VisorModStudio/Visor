@@ -26,9 +26,12 @@ public class VRRenderTarget extends RenderTarget {
                           Supplier<Integer> textureSupplier,
                           boolean linearFilter,
                           boolean useStencil) {
-        //? if >=26.2 {
-        super(name, usedepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
-        //?} elif >=1.21.5 {
+        //? if >=26.3 {
+        super(name, com.mojang.renderpearl.api.GpuFormat.RGBA8_UNORM,
+                usedepth ? com.mojang.renderpearl.api.GpuFormat.D32_FLOAT : null);
+        //?} elif >=26.2 {
+        /*super(name, usedepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+        *///?} elif >=1.21.5 {
         /*super(name, usedepth);
         *///?} else {
         /*super(usedepth);

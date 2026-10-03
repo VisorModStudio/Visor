@@ -23,7 +23,11 @@ import java.nio.IntBuffer;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+//? if >=26.3 {
+import org.lwjgl.sdl.SDLVideo;
+//?} else {
+/*import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+*///?}
 
 public class XrRenderer extends VRRendererBase {
     @Getter
@@ -59,9 +63,18 @@ public class XrRenderer extends VRRendererBase {
         currentScene = new VisorScene(this);
     }
 
+    //? if >=26.3 {
+    private long glWindow;
+    private long glContext;
+    //?}
+
     @Override
     public void init() throws Throwable {
         steamVRLinuxWorkaround = XRUtils.detectSteamVRLinux(vrProvider);
+        //? if >=26.3 {
+        glWindow = SDLVideo.SDL_GL_GetCurrentWindow();
+        glContext = SDLVideo.SDL_GL_GetCurrentContext();
+        //?}
 
         super.init();
     }
@@ -563,7 +576,11 @@ public class XrRenderer extends VRRendererBase {
 
     protected void restoreGLContext() {
         if (steamVRLinuxWorkaround) {
-            glfwMakeContextCurrent(getWindowHandle());
+            //? if >=26.3 {
+            SDLVideo.SDL_GL_MakeCurrent(glWindow, glContext);
+            //?} else {
+            /*glfwMakeContextCurrent(getWindowHandle());
+            *///?}
         }
     }
 }

@@ -2,11 +2,11 @@ package org.vmstudio.visor.core.client.render.target;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 //? if >=1.21.5 {
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 //?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 //?}
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -20,9 +20,12 @@ public class MultiCameraRenderTarget extends RenderTarget {
     private final EnumMap<VRRenderPass, RenderTarget> vrTargets;
 
     public MultiCameraRenderTarget(RenderTarget mainTarget, EnumMap<VRRenderPass, RenderTarget> vrTargets) {
-        //? if >=26.2 {
-        super("visor_multi_camera", mainTarget.useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
-        //?} elif >=1.21.5 {
+        //? if >=26.3 {
+        super("visor_multi_camera", com.mojang.renderpearl.api.GpuFormat.RGBA8_UNORM,
+                mainTarget.hasDepth() ? com.mojang.renderpearl.api.GpuFormat.D32_FLOAT : null);
+        //?} elif >=26.2 {
+        /*super("visor_multi_camera", mainTarget.useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+        *///?} elif >=1.21.5 {
         /*super("visor_multi_camera", mainTarget.useDepth);
         *///?} else {
         /*super(mainTarget.useDepth);

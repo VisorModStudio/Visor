@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +23,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
@@ -677,27 +677,27 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
 
         if (readOnly) {
             switch (keyCode) {
-                case GLFW.GLFW_KEY_PAGE_UP -> {
+                case InputConstants.KEY_PAGEUP -> {
                     setScrollAmount(getScrollAmount() - getLineHeightScaled() * 4);
                     return true;
                 }
-                case GLFW.GLFW_KEY_PAGE_DOWN -> {
+                case InputConstants.KEY_PAGEDOWN -> {
                     setScrollAmount(getScrollAmount() + getLineHeightScaled() * 4);
                     return true;
                 }
-                case GLFW.GLFW_KEY_UP -> {
+                case InputConstants.KEY_UP -> {
                     setScrollAmount(getScrollAmount() - getLineHeightScaled());
                     return true;
                 }
-                case GLFW.GLFW_KEY_DOWN -> {
+                case InputConstants.KEY_DOWN -> {
                     setScrollAmount(getScrollAmount() + getLineHeightScaled());
                     return true;
                 }
-                case GLFW.GLFW_KEY_HOME -> {
+                case InputConstants.KEY_HOME -> {
                     setScrollAmount(0);
                     return true;
                 }
-                case GLFW.GLFW_KEY_END -> {
+                case InputConstants.KEY_END -> {
                     setScrollAmount(this.maxScrollOffset);
                     return true;
                 }
@@ -708,13 +708,13 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
         }
 
         switch (keyCode) {
-            case GLFW.GLFW_KEY_ENTER, 335 -> {
+            case InputConstants.KEY_RETURN, InputConstants.KEY_NUMPADENTER -> {
                 if (!readOnly) {
                     this.insertText("\n");
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_BACKSPACE -> {
+            case InputConstants.KEY_BACKSPACE -> {
                 if (!readOnly) {
                     this.shiftPressed = false;
                     this.deleteText(-1);
@@ -722,7 +722,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_DELETE -> {
+            case InputConstants.KEY_DELETE -> {
                 if (!readOnly) {
                     this.shiftPressed = false;
                     this.deleteText(1);
@@ -730,7 +730,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_RIGHT -> {
+            case InputConstants.KEY_RIGHT -> {
                 if (McGuiUtils.hasControlDown()) {
                     this.moveCursorTo(this.getWordPosition(1));
                 } else {
@@ -738,7 +738,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_LEFT -> {
+            case InputConstants.KEY_LEFT -> {
                 if (McGuiUtils.hasControlDown()) {
                     this.moveCursorTo(this.getWordPosition(-1));
                 } else {
@@ -746,15 +746,15 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_DOWN -> {
+            case InputConstants.KEY_DOWN -> {
                 this.moveCursorVertical(1);
                 return true;
             }
-            case GLFW.GLFW_KEY_UP -> {
+            case InputConstants.KEY_UP -> {
                 this.moveCursorVertical(-1);
                 return true;
             }
-            case GLFW.GLFW_KEY_HOME -> {
+            case InputConstants.KEY_HOME -> {
                 if (McGuiUtils.hasControlDown()) {
                     this.moveCursorToStart();
                 } else {
@@ -765,7 +765,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
                 }
                 return true;
             }
-            case GLFW.GLFW_KEY_END -> {
+            case InputConstants.KEY_END -> {
                 if (McGuiUtils.hasControlDown()) {
                     this.moveCursorToEnd();
                 } else {
@@ -915,7 +915,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
         followCaret = false;
 
         // Text selection drag (only when not read-only and not on scrollbar)
-        if (button == 0 && !this.scrolling && !readOnly) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && !this.scrolling && !readOnly) {
             calculateLines();
 
             if (mouseY < this.getY() + paddingY) {
@@ -946,7 +946,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
         }
 
         // Scrollbar drag: only when drag started on scrollbar
-        if (button == 0 && this.scrolling) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && this.scrolling) {
             lastScrollingCall = System.currentTimeMillis();
 
             int trackY = this.getY() + paddingY;
@@ -988,7 +988,7 @@ public class TextBoxEditable extends McWidget implements McGuiEventListener {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             this.scrolling = false;
             this.thumbGrabOffset = -1;
         }

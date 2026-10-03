@@ -1,4 +1,11 @@
 #version 150 core
+#ifdef VISOR_SPIRV
+#extension GL_ARB_separate_shader_objects : require
+#extension GL_ARB_explicit_attrib_location : require
+#define VISOR_LOCATION(n) layout(location = n)
+#else
+#define VISOR_LOCATION(n)
+#endif
 
 uniform sampler2D Sampler0;
 
@@ -18,8 +25,8 @@ uniform float uTintBlack;
 uniform float uDesaturate;
 #endif
 
-in vec2 texCoord0;
-out vec4 fragColor;
+VISOR_LOCATION(0) in vec2 texCoord0;
+VISOR_LOCATION(0) out vec4 fragColor;
 
 vec4 applyTints(vec4 col) {
     float red = clamp(uTintRed, 0.0, 1.0);

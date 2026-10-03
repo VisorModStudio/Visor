@@ -15,8 +15,12 @@ import org.vmstudio.visor.loader.forge.ForgeModLoader;
 /*import net.minecraft.client.renderer.LevelRenderer;
 *///?}
 
-//? if >=1.21.6 {
+//? if >=26.3 {
 @Mixin(ChunkSectionsToRender.class)
+public class ForgeChunkSectionsStageMixin {
+}
+//?} elif >=26.2 {
+/*@Mixin(ChunkSectionsToRender.class)
 public class ForgeChunkSectionsStageMixin {
 
     // 1.21.11 added the terrain GpuSampler parameter
@@ -25,14 +29,24 @@ public class ForgeChunkSectionsStageMixin {
         if (group == ChunkSectionLayerGroup.TRANSLUCENT) {
             ((ForgeModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_TRANSLUCENT);
         }
-        //? if >=26.2 {
         if (group == ChunkSectionLayerGroup.OPAQUE) {
             ((ForgeModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_SOLID);
         }
-        //?}
     }
 }
-//?} else {
+*///?} elif >=1.21.6 {
+/*@Mixin(ChunkSectionsToRender.class)
+public class ForgeChunkSectionsStageMixin {
+
+    // 1.21.11 added the terrain GpuSampler parameter
+    @Inject(method = "renderGroup", at = @At("TAIL"))
+    private void visor$afterTranslucent(CallbackInfo ci, @Local(argsOnly = true) ChunkSectionLayerGroup group) {
+        if (group == ChunkSectionLayerGroup.TRANSLUCENT) {
+            ((ForgeModLoader) ModLoader.get()).fireLevelStage(RenderPipelineStage.AFTER_TRANSLUCENT);
+        }
+    }
+}
+*///?} else {
 /*@Mixin(LevelRenderer.class)
 public class ForgeChunkSectionsStageMixin {
 }

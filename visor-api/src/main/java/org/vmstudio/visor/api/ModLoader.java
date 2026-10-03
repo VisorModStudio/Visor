@@ -4,8 +4,8 @@ package org.vmstudio.visor.api;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 //? if >=1.21.5 {
-import com.mojang.blaze3d.systems.GpuDevice;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.renderpearl.api.device.GpuDevice;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 //?}
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.Identifier;
@@ -130,6 +130,11 @@ public interface ModLoader {
      */
     void addToRenderPipeline(@NotNull RenderPipelineStage stage,
                              @NotNull RenderPipelineCallback callback);
+
+    //? if >=26.3 {
+    @ApiStatus.Internal
+    void fireLevelStage(@NotNull RenderPipelineStage stage);
+    //?}
 
     @ApiStatus.Internal
     boolean enableRenderTargetStencil(@NotNull RenderTarget renderTarget);

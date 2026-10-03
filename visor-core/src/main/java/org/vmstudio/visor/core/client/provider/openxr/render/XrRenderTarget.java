@@ -5,15 +5,19 @@ import org.lwjgl.opengl.GL30;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
+
+//@TODO maybe move it to mcversion folder?
 public class XrRenderTarget extends RenderTarget {
 
     //? if >=1.21.5 {
     private final int visor$colorId;
 
     public XrRenderTarget(int width, int height, int colorId, int index) {
-        //? if >=26.2 {
-        super("visor_xr_eye_" + index, false, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
-        //?} else {
+        //? if >=26.3 {
+        super("visor_xr_eye_" + index, com.mojang.renderpearl.api.GpuFormat.RGBA8_UNORM, null);
+        //?} elif >=26.2 {
+        /*super("visor_xr_eye_" + index, false, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+        *///?} else {
         /*super("visor_xr_eye_" + index, false);
         *///?}
         McGlState.assertOnRenderThreadOrInit();

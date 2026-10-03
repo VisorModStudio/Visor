@@ -13,7 +13,7 @@ import net.minecraft.world.entity.EntityType;
 //? if >=1.21.2 {
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 //?} else {
-/*import net.minecraft.world.entity.vehicle.boat.Boat;
+/*import net.minecraft.world.entity.vehicle.Boat;
 *///?}
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
@@ -73,7 +73,7 @@ public abstract class BoatMixin extends Entity {
         visor$applyRowing(ci, forward);
     }
     //?} else {
-    /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/boat/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", shift = At.Shift.BEFORE), method = "controlBoat", cancellable = true)
+    /*@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V", shift = At.Shift.BEFORE), method = "controlBoat", cancellable = true)
     public void visor$rowingInVR(CallbackInfo ci, @Local float forward) {
         visor$applyRowing(ci, forward);
     }

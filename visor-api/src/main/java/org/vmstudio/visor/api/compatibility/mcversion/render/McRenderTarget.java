@@ -5,15 +5,15 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 //? if >=1.21.5 {
-import com.mojang.blaze3d.opengl.GlDevice;
-import com.mojang.blaze3d.opengl.GlTexture;
-import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.renderpearl.backend.opengl.GlDevice;
+import com.mojang.renderpearl.backend.opengl.GlTexture;
+import com.mojang.renderpearl.api.commands.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTexture;
-import com.mojang.blaze3d.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuTexture;
+import com.mojang.renderpearl.api.textures.FilterMode;
 //? if >=26.2 {
-import com.mojang.blaze3d.GpuFormat;
-import com.mojang.blaze3d.opengl.FrameBufferCache;
+import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.backend.opengl.FrameBufferCache;
 import net.minecraft.client.renderer.GameRenderer;
 import org.joml.Vector4f;
 
@@ -29,10 +29,10 @@ import java.util.Map;
 import java.util.WeakHashMap;
 //?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 //?}
 //? if >=1.21.11 {
-import com.mojang.blaze3d.textures.GpuSampler;
+import com.mojang.renderpearl.api.textures.GpuSampler;
 //?}
 
 /**
@@ -261,8 +261,7 @@ public class McRenderTarget {
 
     public static GpuTexture adoptForeignTexture(String label, int width, int height, int glId) {
         //? if >=26.2 {
-        return new ForeignTexture(label, width, height, glId,
-                ((GlDevice) RenderSystem.getDevice().backend).frameBufferCache());
+        return new ForeignTexture(label, width, height, glId, McGlState.glDevice().frameBufferCache());
         //?} else {
         /*return new ForeignTexture(label, width, height, glId);
         *///?}
@@ -331,7 +330,7 @@ public class McRenderTarget {
 
     private static int framebufferOf(RenderTarget target) {
         //? if >=26.1 {
-        GlDevice device = (GlDevice) RenderSystem.getDevice().backend;
+        GlDevice device = McGlState.glDevice();
         //?} else {
         /*GlDevice device = (GlDevice) ModLoader.get().unwrapDevice(RenderSystem.getDevice());
         *///?}

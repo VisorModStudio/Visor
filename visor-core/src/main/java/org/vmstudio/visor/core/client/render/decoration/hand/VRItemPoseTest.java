@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.hand;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -40,9 +41,9 @@ public class VRItemPoseTest extends VRHandItemPose {
 
         PoseParams params = computeParams(getAimToGripRotation(vrPlayer, hand));
 
-        stack.mulPose(params.preRotation);
+        McRenderUtils.rotate(stack, params.preRotation);
         stack.translate(params.offsetX, params.offsetY, params.offsetZ);
-        stack.mulPose(params.rotation);
+        McRenderUtils.rotate(stack, params.rotation);
         stack.scale(params.scale, params.scale, params.scale);
     }
 

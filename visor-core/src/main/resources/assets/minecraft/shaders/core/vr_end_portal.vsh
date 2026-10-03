@@ -1,4 +1,11 @@
 #version 150
+#ifdef VISOR_SPIRV
+#extension GL_ARB_separate_shader_objects : require
+#extension GL_ARB_explicit_attrib_location : require
+#define VISOR_LOCATION(n) layout(location = n)
+#else
+#define VISOR_LOCATION(n)
+#endif
 /*
 MIT License
 
@@ -23,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-in vec3 Position;
+VISOR_LOCATION(0) in vec3 Position;
 
 #ifdef VISOR_UBO
 // 1.21.6 feeds the matrices through the engine's std140 blocks, declared like vanilla's gui.vsh does
@@ -54,7 +61,7 @@ uniform mat4 IViewRotMat;
 uniform mat3 IViewRotMat;
 #endif
 
-out vec3 pos;
+VISOR_LOCATION(0) out vec3 pos;
 
 void main() {
 gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);

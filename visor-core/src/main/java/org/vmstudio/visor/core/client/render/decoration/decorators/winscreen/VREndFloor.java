@@ -1,11 +1,12 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.winscreen;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
@@ -18,7 +19,7 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 public final class VREndFloor {
     private static final Identifier TEXTURE =
@@ -60,7 +61,7 @@ public final class VREndFloor {
                     origin.y() - eye.y(),
                     origin.z() - eye.z()
             );
-            poseStack.mulPose(Axis.YN.rotation(-renderPose.getRotationY()));
+            McRenderUtils.rotate(poseStack, Axis.YN.rotation(-renderPose.getRotationY()));
             float scale = renderPose.getWorldScale();
             poseStack.scale(scale, scale, scale);
 

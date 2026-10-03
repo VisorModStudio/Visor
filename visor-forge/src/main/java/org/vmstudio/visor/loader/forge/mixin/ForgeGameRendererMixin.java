@@ -14,8 +14,19 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(GameRenderer.class)
 public class ForgeGameRendererMixin {
 
-    //? if >=1.21 {
+    //? if >=26.3 {
     @WrapOperation(at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/Camera;setRotation(FFF)V", remap = false),
+            method = {"update", "extractCamera"}, require = 2)
+    public void visor$keepVRAnglesInEyes(Camera camera, float yaw, float pitch, float roll, Operation<Void> original) {
+        if (VRRenderState.getPhase().isVanilla()
+                || !VRRenderState.getRenderPass().isEye()) {
+            // eye passes must keep the VR pose angles
+            original.call(camera, yaw, pitch, roll);
+        }
+    }
+    //?} elif >=1.21 {
+    /*@WrapOperation(at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/Camera;setRotation(FFF)V", remap = false),
             method = "renderLevel", require = 1)
     public void visor$keepVRAnglesInEyes(Camera camera, float yaw, float pitch, float roll, Operation<Void> original) {
@@ -25,7 +36,7 @@ public class ForgeGameRendererMixin {
             original.call(camera, yaw, pitch, roll);
         }
     }
-    //?} else {
+    *///?} else {
     /*@WrapOperation(at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/Camera;setAnglesInternal(FF)V", remap = false),
             method = "renderLevel", require = 1)

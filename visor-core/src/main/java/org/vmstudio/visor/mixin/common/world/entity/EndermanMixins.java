@@ -8,7 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.control.LookControl;
-import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Enderman;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +30,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 public class EndermanMixins {
 
 
-    @Mixin(targets = "net.minecraft.world.entity.monster.EnderMan$EndermanFreezeWhenLookedAt")
+    @Mixin(targets = "net.minecraft.world.entity.monster.Enderman$EndermanFreezeWhenLookedAt")
     public static class EndermanFreezeWhenLookedAtMixin {
 
         @Shadow
@@ -60,7 +60,7 @@ public class EndermanMixins {
 
 
 
-    @Mixin(EnderMan.class)
+    @Mixin(Enderman.class)
     public abstract static class EndermanMixin extends Monster {
 
         protected EndermanMixin(EntityType<? extends Monster> entityType, Level level) {
@@ -86,7 +86,7 @@ public class EndermanMixins {
             if (vrPlayer != null) {
                 cir.setReturnValue(
                         visor$canAttackVrPlayer(
-                                (EnderMan) (Object) this,
+                                (Enderman) (Object) this,
                                 serverPlayer,
                                 vrPlayer
                         )
@@ -95,7 +95,7 @@ public class EndermanMixins {
         }
 
         @Unique
-        private static boolean visor$canAttackVrPlayer(EnderMan enderman,
+        private static boolean visor$canAttackVrPlayer(Enderman enderman,
                                                        ServerPlayer player,
                                                        VRServerPlayer vrPlayer) {
             ItemStack itemstack = player.getItemBySlot(EquipmentSlot.HEAD);

@@ -106,12 +106,12 @@ public abstract class McObjectSelectionList<E extends ObjectSelectionList.Entry<
     }
     //?} elif >=1.20.3 {
     /*@Override
-    public final void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?} else {
     /*@Override
-    public final void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}

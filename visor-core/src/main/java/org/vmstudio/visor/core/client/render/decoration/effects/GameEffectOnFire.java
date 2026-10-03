@@ -25,7 +25,7 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11C;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 
 @RegisterVRGameEffect
@@ -93,7 +93,7 @@ public class GameEffectOnFire extends VRGameEffect {
         for (int i = 0; i < 4; i++) {
             stack.pushPose();
             // spin quad around player
-            stack.mulPose(Axis.YP.rotation(
+            McRenderUtils.rotate(stack, Axis.YP.rotation(
                     i * (float)Math.PI/2 - renderPose.getBodyYaw()
             ));
             stack.translate(0, -fireHeight, 0);

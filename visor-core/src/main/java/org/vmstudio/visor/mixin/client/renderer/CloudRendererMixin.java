@@ -18,7 +18,11 @@ public class CloudRendererMixin {
     @Final
     private MappableRingBuffer ubo;
 
-    @Inject(method = "render", at = @At("HEAD"))
+    //? if >=26.3 {
+    @Inject(method = "prepare(ILnet/minecraft/client/CloudStatus;FILnet/minecraft/world/phys/Vec3;JF)V", at = @At("HEAD"))
+    //?} else {
+    /*@Inject(method = "render", at = @At("HEAD"))
+    *///?}
     private void visor$cloudInfoPerPass(CallbackInfo ci) {
         if (VRRenderState.getPhase().isNotVanilla()) {
             this.ubo.rotate();

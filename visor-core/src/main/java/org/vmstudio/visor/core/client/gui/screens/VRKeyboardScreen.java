@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -8,7 +9,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McScreen;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard.KeyboardButton;
@@ -120,14 +120,14 @@ public class VRKeyboardScreen extends McScreen {
                         (p) -> pressSpace())
                         .size(5 * (keyWidth + keyGap), keyHeight)
                         .pos(spaceX, bottomY)
-                        .onRelease((p) -> releaseKey(GLFW.GLFW_KEY_SPACE))
+                        .onRelease((p) -> releaseKey(InputConstants.KEY_SPACE))
                         .build()
         );
         //BACKSPACE
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("BKSP"),
-                        (p) -> pressKeyAction(GLFW.GLFW_KEY_BACKSPACE))
+                        (p) -> pressKeyAction(InputConstants.KEY_BACKSPACE))
                         .size(sideButtonWidth, keyHeight)
                         .pos(gridRightX, gridStart)
                         .build()
@@ -136,7 +136,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("ENTER"),
-                        (p) -> pressKeyAction(GLFW.GLFW_KEY_ENTER))
+                        (p) -> pressKeyAction(InputConstants.KEY_RETURN))
                         .size(sideButtonWidth, keyHeight)
                         .pos(gridRightX, gridStart + 2 * (keyHeight + keyGap))
                         .usePressTask(false)
@@ -146,7 +146,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("TAB"),
-                        (p) -> pressKeyAction(GLFW.GLFW_KEY_TAB))
+                        (p) -> pressKeyAction(InputConstants.KEY_TAB))
                         .size(smallButtonWidth, keyHeight)
                         .pos(0, gridStart + keyHeight + keyGap)
                         .usePressTask(false)
@@ -170,7 +170,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("ESC"),
-                        (p) -> pressKeyAction(GLFW.GLFW_KEY_ESCAPE))
+                        (p) -> pressKeyAction(InputConstants.KEY_ESCAPE))
                         .size(smallButtonWidth, keyHeight)
                         .pos(0, gridStart)
                         .usePressTask(false)
@@ -180,7 +180,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("↑"),
-                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_UP))
+                        (p) -> pressNavigationKey(InputConstants.KEY_UP))
                         .size(keyWidth, keyHeight)
                         .pos((maxColumns - 1) * (keyWidth + keyGap) + gridStart, bottomY)
                         .build()
@@ -189,7 +189,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("↓"),
-                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_DOWN))
+                        (p) -> pressNavigationKey(InputConstants.KEY_DOWN))
                         .size(keyWidth, keyHeight)
                         .pos((maxColumns - 1) * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
@@ -198,7 +198,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("←"),
-                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_LEFT))
+                        (p) -> pressNavigationKey(InputConstants.KEY_LEFT))
                         .size(keyWidth, keyHeight)
                         .pos((maxColumns - 2) * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
@@ -207,7 +207,7 @@ public class VRKeyboardScreen extends McScreen {
         this.addRenderableWidget(
                 new KeyboardButton.Builder(this,
                         Component.literal("→"),
-                        (p) -> pressNavigationKey(GLFW.GLFW_KEY_RIGHT))
+                        (p) -> pressNavigationKey(InputConstants.KEY_RIGHT))
                         .size(keyWidth, keyHeight)
                         .pos(maxColumns * (keyWidth + keyGap) + gridStart, bottomY + keyHeight + keyGap)
                         .build()
@@ -218,10 +218,10 @@ public class VRKeyboardScreen extends McScreen {
                         Component.literal("CUT"),
                         (p) ->
                         {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
-                            InputHelper.pressKey(GLFW.GLFW_KEY_X);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_X);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_LCONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_X);
+                            InputHelper.releaseKey(InputConstants.KEY_X);
+                            InputHelper.releaseKey(InputConstants.KEY_LCONTROL);
                         })
                         .size(sideButtonWidth, keyHeight)
                         .pos(gridStart, gridStart - (keyHeight + keyGap))
@@ -234,10 +234,10 @@ public class VRKeyboardScreen extends McScreen {
                         Component.literal("COPY"),
                         (p) ->
                         {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
-                            InputHelper.pressKey(GLFW.GLFW_KEY_C);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_C);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_LCONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_C);
+                            InputHelper.releaseKey(InputConstants.KEY_C);
+                            InputHelper.releaseKey(InputConstants.KEY_LCONTROL);
                         })
                         .size(sideButtonWidth, keyHeight)
                         .pos(sideButtonWidth + keyGap + gridStart, gridStart - (keyHeight + keyGap))
@@ -250,10 +250,10 @@ public class VRKeyboardScreen extends McScreen {
                         Component.literal("PASTE"),
                         (p) ->
                         {
-                            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_CONTROL);
-                            InputHelper.pressKey(GLFW.GLFW_KEY_V);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_V);
-                            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_CONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_LCONTROL);
+                            InputHelper.pressKey(InputConstants.KEY_V);
+                            InputHelper.releaseKey(InputConstants.KEY_V);
+                            InputHelper.releaseKey(InputConstants.KEY_LCONTROL);
                         })
                         .size(sideButtonWidth, keyHeight)
                         .pos(2 * (sideButtonWidth + keyGap) + gridStart, gridStart - (keyHeight + keyGap))
@@ -310,12 +310,12 @@ public class VRKeyboardScreen extends McScreen {
             return;
         }
 
-        pressKey(GLFW.GLFW_KEY_SPACE, 0);
+        pressKey(InputConstants.KEY_SPACE, 0);
     }
 
     private void pressNavigationKey(int key) {
         int modifiers = overlayKeyboard.isShiftPressed()
-                ? GLFW.GLFW_MOD_SHIFT
+                ? InputHelper.MOD_SHIFT
                 : 0;
         pressKeyAction(key, modifiers);
     }
@@ -368,14 +368,14 @@ public class VRKeyboardScreen extends McScreen {
     }
 
     private void pressModifiers(int modifiers) {
-        if ((modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
-            InputHelper.pressKey(GLFW.GLFW_KEY_LEFT_SHIFT);
+        if ((modifiers & InputHelper.MOD_SHIFT) != 0) {
+            InputHelper.pressKey(InputConstants.KEY_LSHIFT);
         }
     }
 
     private void releaseModifiers(int modifiers) {
-        if ((modifiers & GLFW.GLFW_MOD_SHIFT) != 0) {
-            InputHelper.releaseKey(GLFW.GLFW_KEY_LEFT_SHIFT);
+        if ((modifiers & InputHelper.MOD_SHIFT) != 0) {
+            InputHelper.releaseKey(InputConstants.KEY_LSHIFT);
         }
     }
 

@@ -167,8 +167,13 @@ public abstract class WindowMixin implements WindowExtension {
     /* ************** *\
   //--------MISC--------\\
     \* ************** */
+    //? if >=26.3 {
     @Inject(method = "onResize", at = @At("HEAD"))
+    private void visor$onResize(int i, int j, CallbackInfo ci) {
+    //?} else {
+    /*@Inject(method = "onResize", at = @At("HEAD"))
     private void visor$onResize(long l, int i, int j, CallbackInfo ci) {
+    *///?}
         if (VisorState.get().isActive()) {
             ClientContext.renderer.prepareResize(
                     "window resized"

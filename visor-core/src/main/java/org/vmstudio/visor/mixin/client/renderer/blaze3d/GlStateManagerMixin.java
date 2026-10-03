@@ -1,7 +1,7 @@
 // #!MC-VERSION:: 1.21.5+
 package org.vmstudio.visor.mixin.client.renderer.blaze3d;
 
-import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.renderpearl.backend.opengl.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;

@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.overlayoptions;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
@@ -26,7 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegion> {
     private static final int FIELD_HEIGHT = 15;
@@ -406,7 +407,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         //? if >=26.1 {
         gui.blit(target.getColorTextureView(),
                 com.mojang.blaze3d.systems.RenderSystem.getSamplerCache().getClampToEdge(McRenderTarget.isLinearFilter(target)
-                        ? com.mojang.blaze3d.textures.FilterMode.LINEAR : com.mojang.blaze3d.textures.FilterMode.NEAREST),
+                        ? com.mojang.renderpearl.api.textures.FilterMode.LINEAR : com.mojang.renderpearl.api.textures.FilterMode.NEAREST),
                 previewX, previewY, previewX + previewW, previewY + previewH,
                 0.0f, uMax, vMax, 0.0f);
         //?} elif >=1.21.11 {
@@ -433,7 +434,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
 
         Matrix4f pose = gui.pose().last().pose();
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
+        buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         // bottom-left
         buf.vertex(pose, previewX, previewY + previewH, 0).uv(0.0f, 0.0f).endVertex();
         // bottom-right
@@ -598,7 +599,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     @Override
     protected boolean onMouseClicked(double mouseX, double mouseY, int button) {
         boolean base = super.onMouseClicked(mouseX, mouseY, button);
-        if (button != 0) return base;
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) return base;
 
         if (!inPreview((int) mouseX, (int) mouseY)) {
             return base;
@@ -624,7 +625,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
         if (activeHandle == DragHandle.NONE) {
             return super.onMouseDragged(mouseX, mouseY, button, dragDX, dragDY);
         }
-        if (button != 0) {
+        if (button != InputConstants.MOUSE_BUTTON_LEFT) {
             return super.onMouseDragged(mouseX, mouseY, button, dragDX, dragDY);
         }
 
@@ -705,7 +706,7 @@ public class OptionsScreenRegion extends OptionsScreen<OverlayOptionsScreenRegio
     @Override
     protected boolean onMouseReleased(double mouseX, double mouseY, int button) {
         boolean base = super.onMouseReleased(mouseX, mouseY, button);
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             activeHandle = DragHandle.NONE;
         }
         return base;

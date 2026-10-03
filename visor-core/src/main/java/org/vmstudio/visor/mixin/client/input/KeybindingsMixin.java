@@ -1,10 +1,10 @@
 package org.vmstudio.visor.mixin.client.input;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import net.minecraft.client.gui.screens.ChatScreen;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.VisorAPI;
@@ -36,17 +36,17 @@ public class KeybindingsMixin {
                                     int action, KeyEvent event,
                                     CallbackInfo ci) {
         int key = event.key();
-        if (action == GLFW.GLFW_PRESS) {
+        if (action == InputConstants.PRESS) {
     //?} else {
     /*@Inject(method = "keyPress", at = @At(value = "FIELD", target = "Lnet/minecraft/client/KeyboardHandler;debugCrashKeyTime:J", ordinal = 0), cancellable = true)
     private void visor$handleVRHotKeys(long windowPointer,
                                     int key, int scanCode,
                                     int action, int modifiers,
                                     CallbackInfo ci) {
-        if (action == GLFW.GLFW_PRESS) {
+        if (action == InputConstants.PRESS) {
     *///?}
-            if (InputHelper.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL)) {
-                if (key == GLFW.GLFW_KEY_F7
+            if (InputHelper.isKeyDown(InputConstants.KEY_LCONTROL)) {
+                if (key == InputConstants.KEY_F7
                         && VisorAPI.clientState().sceneType() == VRSceneType.MAIN_MENU) {
                     VRPlayMode mode = VisorAPI.clientState().playMode().next();
                     VisorState.setVrPlayMode(mode);

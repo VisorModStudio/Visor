@@ -61,7 +61,7 @@ public abstract class NeoForgeIngameGuiVRMixin {
 
 
     @Inject(method = "pre", at = @At("HEAD"), remap = false, cancellable = true)
-    private void noHudElements(NamedGuiOverlay overlay, GuiGraphicsExtractor guiGraphics,
+    private void noHudElements(NamedGuiOverlay overlay, GuiGraphics guiGraphics,
                                CallbackInfoReturnable<Boolean> info) {
 
         if (VisorState.get().isNotActive()) {

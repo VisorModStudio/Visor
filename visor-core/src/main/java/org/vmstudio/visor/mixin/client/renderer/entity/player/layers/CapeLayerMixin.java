@@ -1,6 +1,7 @@
-// #!MC-VERSION:: 1.21.10+
+// #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -13,7 +14,6 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import org.joml.Vector3f;
@@ -53,10 +53,10 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
         }
     }
 
-    @WrapOperation(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
+    @WrapOperation(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;III)V"))
     private void visor$capeAnchor(
         SubmitNodeCollector collector, Model model, Object renderState, PoseStack poseStack, RenderType renderType,
-        int packedLight, int packedOverlay, int tint, ModelFeatureRenderer.CrumblingOverlay crumbling,
+        int packedLight, int packedOverlay, int tint,
         Operation<Void> original, @Local(argsOnly = true) AvatarRenderState state)
     {
         HumanoidModel<?> capeModel = (HumanoidModel<?>) model;
@@ -64,7 +64,7 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
         VRClientPlayer vrPlayer = player == null ? null : VRClientPlayers.getPlayer(player.getUUID());
         if (vrPlayer == null || !capeModel.body.hasChild("cape")) {
             original.call(collector, model, renderState, poseStack, renderType,
-                    packedLight, packedOverlay, tint, crumbling);
+                    packedLight, packedOverlay, tint);
             return;
         }
 
@@ -85,12 +85,12 @@ public abstract class CapeLayerMixin extends RenderLayer<AvatarRenderState, Play
         float capePitch = state.capeFlap + Math.max(bodyPitch, -Mth.HALF_PI * flatten) * Mth.RAD_TO_DEG;
         float leanFraction = bodyPitch / Mth.HALF_PI;
         float walkLift = leanFraction < 0F ? 0F : state.capeLean * (1F - Math.min(leanFraction, 1F));
-        poseStack.mulPose(Axis.XP.rotationDegrees(6.0F + walkLift / 2.0F + capePitch));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(state.capeLean2 / 2.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.capeLean2 / 2.0F + Mth.RAD_TO_DEG * visor$placement.yaw()));
+        McRenderUtils.rotate(poseStack, Axis.XP.rotationDegrees(6.0F + walkLift / 2.0F + capePitch));
+        McRenderUtils.rotate(poseStack, Axis.ZP.rotationDegrees(state.capeLean2 / 2.0F));
+        McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - state.capeLean2 / 2.0F + Mth.RAD_TO_DEG * visor$placement.yaw()));
 
         original.call(collector, model, renderState, poseStack, renderType,
-                packedLight, packedOverlay, tint, crumbling);
+                packedLight, packedOverlay, tint);
     }
 
     @Unique

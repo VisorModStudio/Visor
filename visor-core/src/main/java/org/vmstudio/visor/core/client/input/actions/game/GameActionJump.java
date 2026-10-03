@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.input.actions.game;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.input.InputHelper;
@@ -7,7 +8,6 @@ import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
@@ -23,12 +23,12 @@ public class GameActionJump extends VRActionButton {
 
     @Override
     protected void onPress() {
-        InputHelper.pressKey(GLFW.GLFW_KEY_SPACE);
+        InputHelper.pressKey(InputConstants.KEY_SPACE);
     }
 
     @Override
     protected void onRelease() {
-        InputHelper.releaseKey(GLFW.GLFW_KEY_SPACE);
+        InputHelper.releaseKey(InputConstants.KEY_SPACE);
     }
 
 

@@ -1,16 +1,16 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 //? if >=1.21.5 {
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 //?}
 //? if >=1.21.6 {
 import com.mojang.blaze3d.pipeline.RenderTarget;
 //?}
 //? if >=1.21.11 {
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuSampler;
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuSampler;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
@@ -52,7 +52,11 @@ record McShaderTexture(GpuTextureView view, GpuSampler sampler) {
     }
 
     void bind(RenderPass pass, String name) {
-        pass.bindTexture(name, view, sampler);
+        //? if >=26.3 {
+        pass.setUniform(name, view, sampler);
+        //?} else {
+        /*pass.bindTexture(name, view, sampler);
+        *///?}
     }
 }
 //?} elif >=1.21.6 {

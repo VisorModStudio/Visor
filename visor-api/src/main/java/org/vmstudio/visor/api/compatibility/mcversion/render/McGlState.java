@@ -8,12 +8,15 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL14;
 //? if >=1.21.5 {
-import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.renderpearl.backend.opengl.GlStateManager;
 //?} else {
 /*import com.mojang.blaze3d.platform.GlStateManager;
 *///?}
-//? if >=26.2 {
-import com.mojang.blaze3d.opengl.GlDevice;
+//? if >=26.1 {
+import com.mojang.renderpearl.backend.opengl.GlDevice;
+//?}
+//? if >=26.3 {
+import com.mojang.renderpearl.frontend.FrontendGpuDevice;
 //?}
 //? if >=1.21.6 {
 import com.mojang.blaze3d.buffers.Std140Builder;
@@ -94,12 +97,24 @@ public class McGlState {
     // ------- BACKEND -------
 
     public static boolean isOpenGl() {
-        //? if >=26.2 {
-        return RenderSystem.getDevice().backend instanceof GlDevice;
-        //?} else {
+        //? if >=26.3 {
+        return "OpenGL".equals(RenderSystem.getDevice().getDeviceInfo().backendName());
+        //?} elif >=26.2 {
+        /*return RenderSystem.getDevice().backend instanceof GlDevice;
+        *///?} else {
         /*return true;
         *///?}
     }
+
+    //? if >=26.1 {
+    public static GlDevice glDevice() {
+        //? if >=26.3 {
+        return (GlDevice) ((FrontendGpuDevice) RenderSystem.getDevice()).backend;
+        //?} else {
+        /*return (GlDevice) RenderSystem.getDevice().backend;
+        *///?}
+    }
+    //?}
 
     // ------- BLEND -------
 
@@ -187,35 +202,35 @@ public class McGlState {
 
     // the engine caches the blend state, reading it back is how a pass restores what it found
     public static int blendSourceRgb() {
-        //? if >=26.2 {
-        return GlStateManager.BLEND[0].srcRgb;
-        //?} else {
-        /*return GlStateManager.BLEND.srcRgb;
-        *///?}
+        //? if >=26.2 && <26.3 {
+        /*return GlStateManager.BLEND[0].srcRgb;
+        *///?} else {
+        return GlStateManager.BLEND.srcRgb;
+        //?}
     }
 
     public static int blendDestinationRgb() {
-        //? if >=26.2 {
-        return GlStateManager.BLEND[0].dstRgb;
-        //?} else {
-        /*return GlStateManager.BLEND.dstRgb;
-        *///?}
+        //? if >=26.2 && <26.3 {
+        /*return GlStateManager.BLEND[0].dstRgb;
+        *///?} else {
+        return GlStateManager.BLEND.dstRgb;
+        //?}
     }
 
     public static int blendSourceAlpha() {
-        //? if >=26.2 {
-        return GlStateManager.BLEND[0].srcAlpha;
-        //?} else {
-        /*return GlStateManager.BLEND.srcAlpha;
-        *///?}
+        //? if >=26.2 && <26.3 {
+        /*return GlStateManager.BLEND[0].srcAlpha;
+        *///?} else {
+        return GlStateManager.BLEND.srcAlpha;
+        //?}
     }
 
     public static int blendDestinationAlpha() {
-        //? if >=26.2 {
-        return GlStateManager.BLEND[0].dstAlpha;
-        //?} else {
-        /*return GlStateManager.BLEND.dstAlpha;
-        *///?}
+        //? if >=26.2 && <26.3 {
+        /*return GlStateManager.BLEND[0].dstAlpha;
+        *///?} else {
+        return GlStateManager.BLEND.dstAlpha;
+        //?}
     }
 
     // ------- DEPTH -------
@@ -317,10 +332,10 @@ public class McGlState {
             return;
         }
         //?}
-        GlStateManager._colorMask((red ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_RED : 0)
-                | (green ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_GREEN : 0)
-                | (blue ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_BLUE : 0)
-                | (alpha ? com.mojang.blaze3d.pipeline.ColorTargetState.WRITE_ALPHA : 0));
+        GlStateManager._colorMask((red ? com.mojang.renderpearl.api.pipeline.ColorTargetState.WRITE_RED : 0)
+                | (green ? com.mojang.renderpearl.api.pipeline.ColorTargetState.WRITE_GREEN : 0)
+                | (blue ? com.mojang.renderpearl.api.pipeline.ColorTargetState.WRITE_BLUE : 0)
+                | (alpha ? com.mojang.renderpearl.api.pipeline.ColorTargetState.WRITE_ALPHA : 0));
         //?} elif >=1.21.5 {
         /*colorWrite = red || green || blue;
         alphaWrite = alpha;
@@ -516,7 +531,7 @@ public class McGlState {
         //? if >=26.1 {
         McShaderTexture.setUnit(2, new McShaderTexture(
                 net.minecraft.client.Minecraft.getInstance().gameRenderer.levelLightmap(),
-                RenderSystem.getSamplerCache().getClampToEdge(com.mojang.blaze3d.textures.FilterMode.LINEAR)));
+                RenderSystem.getSamplerCache().getClampToEdge(com.mojang.renderpearl.api.textures.FilterMode.LINEAR)));
         //?} elif >=1.21.11 {
         /*McShaderTexture.setUnit(2, new McShaderTexture(
                 net.minecraft.client.Minecraft.getInstance().gameRenderer.lightTexture().getTextureView(),

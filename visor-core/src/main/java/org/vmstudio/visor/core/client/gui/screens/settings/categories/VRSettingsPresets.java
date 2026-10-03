@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.settings.categories;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.GuiTexture;
@@ -25,7 +26,6 @@ import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.settings.VROptionWidgetType;
 import org.vmstudio.visor.api.client.gui.settings.VRPresetSettingsType;
 import org.vmstudio.visor.core.client.settings.presets.types.VRSettingsPresetCustom;
-import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -745,7 +745,7 @@ public class VRSettingsPresets extends VROptionsSet {
             var dir = ClientContext.settingsManager.getPresetsCatalog()
                     .getDirectory().toUri();
 
-            Util.getPlatform().openUri(
+            McVersionClientUtils.openUri(
                     dir
             );
         }

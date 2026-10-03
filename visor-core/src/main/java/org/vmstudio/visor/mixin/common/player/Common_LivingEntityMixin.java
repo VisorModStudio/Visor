@@ -1,4 +1,4 @@
-// #!MC-VERSION:: 26.2+
+// #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.common.player;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -28,6 +28,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.server.player.VRServerPlayer;
+import net.minecraft.util.Prediction;
 
 @Mixin(LivingEntity.class)
 public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
@@ -50,7 +51,8 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
 
     // 1.21.5 replaced isDamageSourceBlocked with the blocks_attacks component and this hook
     @Shadow
-    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage);
+    protected abstract void blockUsingItem(ServerLevel level, LivingEntity attacker, DamageSource source, float damage,
+                                           boolean fullyBlocked);
 
     @Inject(method = "applyItemBlocking", at = @At("RETURN"), cancellable = true)
     private void visor$poseShieldBlock(ServerLevel level, DamageSource damageSource, float damageAmount,
@@ -68,7 +70,7 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
             blocksAttacks.onBlocked(level, self);
             if (!damageSource.is(DamageTypeTags.IS_PROJECTILE)
                     && damageSource.getDirectEntity() instanceof LivingEntity attacker) {
-                blockUsingItem(level, attacker, damageSource, damageAmount);
+                blockUsingItem(level, attacker, damageSource, damageAmount, true);
                 float disableSeconds = attacker.getSecondsToDisableBlocking();
                 if (disableSeconds > 0.0F) {
                     blocksAttacks.disable(level, self, disableSeconds, shield);
@@ -138,11 +140,11 @@ public abstract class Common_LivingEntityMixin extends Common_EntityMixin {
     }
 
     // keep @Local without a variable name, to search by type
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZZ)Lnet/minecraft/world/entity/item/ItemEntity;")
-    private void visor$vrItemDrop(ItemStack itemStack, boolean dropAround, boolean includeName,
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z", shift = At.Shift.BEFORE), method = "drop(Lnet/minecraft/world/item/ItemStack;ZLnet/minecraft/util/Prediction;)Lnet/minecraft/world/entity/item/ItemEntity;")
+    private void visor$vrItemDrop(ItemStack itemStack, boolean includeName, Prediction prediction,
                                   CallbackInfoReturnable<ItemEntity> cir,
                                   @Local ItemEntity itemEntity) {
-        if (dropAround || !((Object) this instanceof ServerPlayer serverPlayer)) {
+        if (!((Object) this instanceof ServerPlayer serverPlayer)) {
             return;
         }
         VRServerPlayer vrPlayer = VisorAPI.server().getVRPlayer(serverPlayer);

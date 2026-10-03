@@ -141,6 +141,12 @@ project.ext.mcversionCoreLayout = {
     def core = rootProject.project(":visor-core")
     new org.vmstudio.build.McVersionLayout(core.projectDir, core.subprojects*.name.findAll { it ==~ /\d+(\.\d+)+/ })
 }
+project.ext.mcversionForm = {
+    def branches = rootProject.childProjects.values().collectEntries { b ->
+        [(b.name): b.subprojects*.name.findAll { it ==~ /\d+(\.\d+)+/ }]
+    }
+    new org.vmstudio.build.McVersionForm(rootProject.projectDir, branches.findAll { k, v -> v })
+}
 if (project.parent.name == "visor-core") {
     def mcversion = mcversionCoreLayout()
     afterEvaluate {
@@ -150,10 +156,10 @@ if (project.parent.name == "visor-core") {
         tasks.named("compileJava") { source(parked) }
     }
     tasks.register("checkMcversionLayout") {
-        description = "Verifies the range headers, the parked copies and the Stonecutter gates of the range files"
+        description = "Verifies the range headers, the parked copies, the Stonecutter gates of the range files and the names of every commented branch"
         def active = org.vmstudio.build.McVersionLayout.activeVersion(rootProject.projectDir)
         doLast {
-            def problems = mcversion.check(active)
+            def problems = mcversion.check(active) + mcversionForm().check(active)
             if (problems) {
                 throw new GradleException("mcversion layout of visor-core:\n  " + problems.join("\n  "))
             }

@@ -83,8 +83,10 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Shadow
     protected abstract void updateAutoJump(float f, float g);
 
-    @Shadow
+    //? if <26.3 {
+    /*@Shadow
     public abstract void swing(InteractionHand interactionHand);
+    *///?}
 
 
 

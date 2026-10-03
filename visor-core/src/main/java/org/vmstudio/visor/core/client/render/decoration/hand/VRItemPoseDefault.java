@@ -1,6 +1,7 @@
 package org.vmstudio.visor.core.client.render.decoration.hand;
 
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McUseAnim;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.client.input.HapticFeedback;
@@ -19,6 +20,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+//? if >=26.3 {
+import net.minecraft.tags.ItemTags;
+//?}
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.TorchBlock;
 import org.jetbrains.annotations.NotNull;
@@ -72,9 +76,9 @@ public class VRItemPoseDefault extends VRHandItemPose {
 
         PoseParams params = computeParams(item, player,vrPlayer, mcHand, handDir, equipProgress, partialTicks);
 
-        stack.mulPose(params.preRotation);
+        McRenderUtils.rotate(stack, params.preRotation);
         stack.translate(params.offsetX, params.offsetY, params.offsetZ);
-        stack.mulPose(params.rotation);
+        McRenderUtils.rotate(stack, params.rotation);
         stack.scale(params.scale, params.scale, params.scale);
     }
 
@@ -125,7 +129,11 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 scale = 0.7f;
                 translateY = 0.005f-0.05f;
                 translateZ -= 0.13f;
-                if(itemStack.getItem() instanceof BedItem){
+                //? if >=26.3 {
+                if(itemStack.is(ItemTags.BEDS)){
+                //?} else {
+                /*if(itemStack.getItem() instanceof BedItem){
+                *///?}
                     yaw = -50 + 20;
                 }else if(itemStack.getItem() instanceof BannerItem){
                     scale = 1.4f;
@@ -374,7 +382,14 @@ public class VRItemPoseDefault extends VRHandItemPose {
     }
 
     public static boolean isTool(final Item item) {
+        //? if >=26.3 {
         return ItemClassifier.isDiggerTool(item)
+                || item instanceof FishingRodItem
+                || item instanceof FoodOnAStickItem
+                || item instanceof FlintAndSteelItem
+                || item instanceof BrushItem;
+        //?} else {
+        /*return ItemClassifier.isDiggerTool(item)
                 || item instanceof FishingRodItem
                 || item instanceof FoodOnAStickItem
                 || item instanceof FlintAndSteelItem
@@ -383,6 +398,7 @@ public class VRItemPoseDefault extends VRHandItemPose {
                 || item instanceof AxeItem
                 || ItemClassifier.isPickaxe(item)
                 || item instanceof ShovelItem;
+        *///?}
     }
     public static boolean isStick(final Item item){
         return item instanceof DebugStickItem

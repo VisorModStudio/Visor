@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.input.MouseButtonType;
@@ -333,11 +334,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseClicked(double x, double y, int buttonType) {
-        if (buttonType == 0 && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
+        if (buttonType == InputConstants.MOUSE_BUTTON_LEFT && isCursorOnResizeHandle(getRawMouseX(), getRawMouseY())) {
             startResizing();
             return true;
         }
-        if (buttonType == 0 && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
+        if (buttonType == InputConstants.MOUSE_BUTTON_LEFT && isCursorOnDragHandle(getRawMouseX(), getRawMouseY())) {
             startDragging();
             return true;
         }
@@ -347,11 +348,11 @@ public class VROverlayGameScreen extends VROverlayFrameBuffer {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int buttonType) {
-        if (buttonType == 0 && isBeingResized()) {
+        if (buttonType == InputConstants.MOUSE_BUTTON_LEFT && isBeingResized()) {
             stopResizing();
             return true;
         }
-        if (buttonType == 0 && isBeingDragged()) {
+        if (buttonType == InputConstants.MOUSE_BUTTON_LEFT && isBeingDragged()) {
             stopDragging();
             return true;
         }

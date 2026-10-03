@@ -40,7 +40,7 @@ public abstract class GameRendererGuiPhaseMixin implements GameRendererExtension
     /**
      * Cancels GUI rendering for VRWorld stage and render VR main menu room
      */
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearDepthTexture(Lcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false, ordinal = 0), method = "render", cancellable = true, require = 1)
+    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/renderpearl/api/commands/CommandEncoder;clearDepthTexture(Lcom/mojang/renderpearl/api/textures/GpuTexture;D)V", remap = false, ordinal = 0), method = "render", cancellable = true, require = 1)
     public void visor$onRenderGUI(CallbackInfo info) {
 
         if (VRRenderState.getPhase().isNotVRWorld()) {

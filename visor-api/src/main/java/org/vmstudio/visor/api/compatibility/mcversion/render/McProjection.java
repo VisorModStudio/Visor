@@ -9,7 +9,7 @@ import com.mojang.blaze3d.ProjectionType;
 /*import com.mojang.blaze3d.vertex.VertexSorting;
 *///?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.buffers.Std140Builder;
 import org.lwjgl.system.MemoryStack;
 //?}

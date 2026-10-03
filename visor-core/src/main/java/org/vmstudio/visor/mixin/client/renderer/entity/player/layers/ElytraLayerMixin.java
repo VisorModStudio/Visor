@@ -1,6 +1,7 @@
 // #!MC-VERSION:: 1.21.10+
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -69,7 +70,7 @@ public abstract class ElytraLayerMixin<S extends HumanoidRenderState, M extends 
         visor$placement.place(vrPlayer, model.body, visor$offset, visor$offset);
         original.call(instance, visor$offset.x, -visor$offset.y, -visor$offset.z);
 
-        instance.mulPose(Axis.XP.rotation(visor$placement.pitch()));
-        instance.mulPose(Axis.YP.rotation(visor$placement.yaw()));
+        McRenderUtils.rotate(instance, Axis.XP.rotation(visor$placement.pitch()));
+        McRenderUtils.rotate(instance, Axis.YP.rotation(visor$placement.yaw()));
     }
 }

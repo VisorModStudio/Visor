@@ -2,7 +2,7 @@ package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=1.21.6 {
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.fog.FogRenderer;
 //?} elif >=1.21.2 {

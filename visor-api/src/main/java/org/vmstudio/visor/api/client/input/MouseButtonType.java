@@ -1,11 +1,12 @@
 package org.vmstudio.visor.api.client.input;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 
 public enum MouseButtonType {
-    LEFT(0),
-    RIGHT(1),
-    MIDDLE(2);
+    LEFT(InputConstants.MOUSE_BUTTON_LEFT),
+    RIGHT(InputConstants.MOUSE_BUTTON_RIGHT),
+    MIDDLE(InputConstants.MOUSE_BUTTON_MIDDLE);
 
     @Getter
     private final int id;
@@ -15,10 +16,10 @@ public enum MouseButtonType {
     }
 
     public static MouseButtonType fromId(int id){
-        if(id == 0){
+        if(id == InputConstants.MOUSE_BUTTON_LEFT){
             return LEFT;
         }
-        if(id == 1){
+        if(id == InputConstants.MOUSE_BUTTON_RIGHT){
             return RIGHT;
         }
         return MIDDLE;

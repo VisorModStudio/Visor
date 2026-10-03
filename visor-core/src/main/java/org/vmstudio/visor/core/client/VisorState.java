@@ -22,7 +22,6 @@ import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
@@ -222,7 +221,7 @@ public class VisorState implements VisorClientState {
             );
         }
         InputHelper.grabOrReleaseMouse(
-                GLFW.GLFW_CURSOR_NORMAL,
+                InputHelper.CURSOR_NORMAL,
                 MC.mouseHandler.xpos(),
                 MC.mouseHandler.ypos()
         );
@@ -241,14 +240,14 @@ public class VisorState implements VisorClientState {
         if (McVersionClientUtils.screen() != null || MC.level == null) {
             MC.mouseHandler.releaseMouse();
             InputHelper.grabOrReleaseMouse(
-                    GLFW.GLFW_CURSOR_NORMAL,
+                    InputHelper.CURSOR_NORMAL,
                     MC.mouseHandler.xpos(),
                     MC.mouseHandler.ypos()
             );
         } else {
             MC.mouseHandler.grabMouse();
             InputHelper.grabOrReleaseMouse(
-                    GLFW.GLFW_CURSOR_DISABLED,
+                    InputHelper.CURSOR_DISABLED,
                     MC.mouseHandler.xpos(),
                     MC.mouseHandler.ypos()
             );

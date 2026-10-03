@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.utils;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.util.Mth;
@@ -42,7 +43,7 @@ public class PlayerModelUtils {
     }
 
     public static void controllerToModelOrientation(PoseStack poseStack) {
-        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        McRenderUtils.rotate(poseStack, Axis.XP.rotationDegrees(-90.0F));
+        McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F));
     }
 }

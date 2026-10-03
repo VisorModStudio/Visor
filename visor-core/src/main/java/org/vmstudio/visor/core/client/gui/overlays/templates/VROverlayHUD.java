@@ -206,9 +206,12 @@ public class VROverlayHUD extends VROverlayTemplateFrameBuffer implements VREven
     // Minimal concrete RenderTarget for region copies
     private static final class RegionRenderTarget extends RenderTarget {
         public RegionRenderTarget(boolean useDepth) {
-            //? if >=26.2 {
-            super("visor_hud_region", useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
-            //?} elif >=1.21.5 {
+            //? if >=26.3 {
+            super("visor_hud_region", com.mojang.renderpearl.api.GpuFormat.RGBA8_UNORM,
+                    useDepth ? com.mojang.renderpearl.api.GpuFormat.D32_FLOAT : null);
+            //?} elif >=26.2 {
+            /*super("visor_hud_region", useDepth, com.mojang.blaze3d.GpuFormat.RGBA8_UNORM);
+            *///?} elif >=1.21.5 {
             /*super("visor_hud_region", useDepth);
             *///?} else {
             /*super(useDepth);

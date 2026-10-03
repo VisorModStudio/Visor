@@ -94,7 +94,11 @@ public class TaskRoomConsume extends VisorTask {
             if (!consuming.getOrDefault(hand, false)) {
                 boolean usedItem = MC.gameMode.useItem(player, interactHand).consumesAction();
                 if (usedItem) {
-                    MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
+                    //? if >=26.3 {
+                    player.firstPersonHandsAndItems().itemUsed(interactHand);
+                    //?} else {
+                    /*MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
+                    *///?}
                     consuming.put(hand, true);
                     eatStartMap.put(hand, Util.getMillis());
                 }

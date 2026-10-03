@@ -1,7 +1,16 @@
 #version 330 core
+#ifdef VISOR_SPIRV
+#extension GL_ARB_separate_shader_objects : require
+#extension GL_ARB_explicit_attrib_location : require
+#define VISOR_LOCATION(n) layout(location = n)
+#define VISOR_VERTEX_ID gl_VertexIndex
+#else
+#define VISOR_LOCATION(n)
+#define VISOR_VERTEX_ID gl_VertexID
+#endif
 
 
-in vec3 Position;
+VISOR_LOCATION(0) in vec3 Position;
 
 
 #ifdef VISOR_UBO
@@ -20,17 +29,17 @@ uniform mat4 ModelViewMat;
 uniform mat4 ProjMat;
 #endif
 
-out vec2 texCoord0;
+VISOR_LOCATION(0) out vec2 texCoord0;
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-    if (gl_VertexID == 0)
+    if (VISOR_VERTEX_ID == 0)
     texCoord0 = vec2(0.0, 0.0);
-    else if (gl_VertexID == 1)
+    else if (VISOR_VERTEX_ID == 1)
     texCoord0 = vec2(1.0, 0.0);
-    else if (gl_VertexID == 2)
+    else if (VISOR_VERTEX_ID == 2)
     texCoord0 = vec2(1.0, 1.0);
-    else if (gl_VertexID == 3)
+    else if (VISOR_VERTEX_ID == 3)
     texCoord0 = vec2(0.0, 1.0);
 }

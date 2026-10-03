@@ -30,6 +30,9 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 import org.vmstudio.visor.core.client.ClientContext;
+//? if >=26.3 {
+import net.minecraft.client.DeltaTracker;
+//?}
 //? if >=26.1 {
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 //?}
@@ -67,9 +70,15 @@ public class VRGameCamera extends Camera {
         return CullFrustumHelper.widenCullProjection(passProjection(fov));
     }
 
+    //? if >=26.3 {
     @Override
+    public void extractRenderState(CameraRenderState cameraState, DeltaTracker deltaTracker) {
+        super.extractRenderState(cameraState, deltaTracker);
+    //?} else {
+    /*@Override
     public void extractRenderState(CameraRenderState cameraState, float cameraEntityPartialTicks) {
         super.extractRenderState(cameraState, cameraEntityPartialTicks);
+    *///?}
         if (VisorState.get().isActive()) {
             cameraState.projectionMatrix.set(McProjection.engine(passProjection(this.getFov())));
         }

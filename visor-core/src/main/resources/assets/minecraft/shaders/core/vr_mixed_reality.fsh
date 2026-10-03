@@ -1,4 +1,11 @@
 #version 330 core
+#ifdef VISOR_SPIRV
+#extension GL_ARB_separate_shader_objects : require
+#extension GL_ARB_explicit_attrib_location : require
+#define VISOR_LOCATION(n) layout(location = n)
+#else
+#define VISOR_LOCATION(n)
+#endif
 
 uniform sampler2D SamplerColor;
 uniform sampler2D SamplerDepth;
@@ -27,8 +34,8 @@ uniform vec3 uKeyColor;
 #endif
 
 
-in vec2 texCoord0;
-out vec4 fragColor;
+VISOR_LOCATION(0) in vec2 texCoord0;
+VISOR_LOCATION(0) out vec4 fragColor;
 
 
 vec3 nudgeOffKeyColor(in vec3 color) {

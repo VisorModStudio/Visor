@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.input.mouse;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Setter;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.gui.overlays.VROverlay;
@@ -11,7 +12,6 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -264,8 +264,8 @@ public class MouseClickHandler {
         }
         if (MC.level != null) {
             //clicked outside of overlay screen, close the screen
-            InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
-            InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
+            InputHelper.pressKey(InputConstants.KEY_ESCAPE);
+            InputHelper.releaseKey(InputConstants.KEY_ESCAPE);
         }
     }
 

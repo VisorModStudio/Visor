@@ -1,11 +1,12 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators.winscreen;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import org.joml.Matrix3f;
@@ -14,7 +15,7 @@ import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 
 public final class VREndVoid {
@@ -61,7 +62,7 @@ public final class VREndVoid {
 
         poseStack.pushPose();
         try {
-            poseStack.mulPose(Axis.YP.rotation(driftRad));
+            McRenderUtils.rotate(poseStack, Axis.YP.rotation(driftRad));
 
             Matrix4f pose = poseStack.last().pose();
             McVertexBuilder bufferBuilder = McVertexBuilder.get();

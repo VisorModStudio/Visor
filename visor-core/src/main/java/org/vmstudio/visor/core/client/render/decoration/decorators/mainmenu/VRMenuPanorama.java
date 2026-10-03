@@ -11,7 +11,7 @@ import org.joml.Vector3fc;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 
 public class VRMenuPanorama {

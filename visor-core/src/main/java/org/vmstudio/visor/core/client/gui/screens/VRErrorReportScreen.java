@@ -3,7 +3,6 @@ package org.vmstudio.visor.core.client.gui.screens;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import org.vmstudio.visor.core.client.exceptions.VisorException;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
-import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -64,7 +63,7 @@ public class VRErrorReportScreen extends McScreen {
         // Open Logs folder
         addRenderableWidget(Button.builder(
                         Component.translatable("visor.button.open_logs"),
-                        b -> Util.getPlatform().openUri(logsFolderUrl))
+                        b -> McVersionClientUtils.openUri(logsFolderUrl))
                 .size(btnW, btnH)
                 .pos(startX + (btnW + gap), bottomY)
                 .build()
@@ -73,7 +72,7 @@ public class VRErrorReportScreen extends McScreen {
         // Discord
         addRenderableWidget(Button.builder(
                         Component.translatable("visor.button.discord"),
-                        b -> Util.getPlatform().openUri(discordUrl))
+                        b -> McVersionClientUtils.openUri(discordUrl))
                 .size(btnW, btnH)
                 .pos(startX + (btnW + gap) * 2, bottomY)
                 .build()

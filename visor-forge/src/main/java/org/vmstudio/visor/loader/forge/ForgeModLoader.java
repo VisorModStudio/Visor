@@ -337,12 +337,42 @@ public class ForgeModLoader implements ModLoader {
 
     @Override
     public boolean renderWaterOverlay(Player player, PoseStack mat) {
-        return ForgeHooksClient.renderWaterOverlay(player, mat);
+        //? if >=26.3 {
+        return ClientOverlays.water(player, mat);
+        //?} else {
+        /*return ForgeHooksClient.renderWaterOverlay(player, mat);
+        *///?}
     }
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
-        return ForgeHooksClient.renderFireOverlay(player, mat);
+        //? if >=26.3 {
+        return ClientOverlays.fire(player, mat);
+        //?} else {
+        /*return ForgeHooksClient.renderFireOverlay(player, mat);
+        *///?}
     }
+
+    //? if >=26.3 {
+    // the 26.3 overlay hooks take client-only types: a holder that only a client ever loads
+    private static final class ClientOverlays {
+        static boolean water(Player player, PoseStack mat) {
+            return submit(ForgeHooksClient.renderWaterOverlay(player,
+                    Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.playerRenderState), mat);
+        }
+
+        static boolean fire(Player player, PoseStack mat) {
+            return submit(ForgeHooksClient.renderFireOverlay(player), mat);
+        }
+
+        private static boolean submit(net.minecraftforge.client.IRenderCallback renderer, PoseStack mat) {
+            if (renderer == null) {
+                return false;
+            }
+            renderer.render(mat, org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector());
+            return true;
+        }
+    }
+    //?}
 
     @Override
     public @NotNull LoaderType getType() {
@@ -398,13 +428,16 @@ public class ForgeModLoader implements ModLoader {
         }
     }
     //?} elif >=1.20.2 {
-    /*private static void enqueuePayloadWork(CustomPayloadEvent.Context context, Identifier channelId, Runnable work) {
+    /*private static void enqueuePayloadWork(CustomPayloadEvent.Context context, ResourceLocation channelId, Runnable work) {
         context.enqueueWork(work);
     }
     *///?}
 
     //? if >=1.21.2 {
     // Forge 53 dropped RenderLevelStageEvent, ForgeLevelRendererStageMixin fires the stages from LevelRenderer
+    //? if >=26.3 {
+    @Override
+    //?}
     public void fireLevelStage(RenderPipelineStage stage) {
         fireCallbacks(stage, new PoseStack(), McRenderUtils.partialTick());
     }

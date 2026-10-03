@@ -8,7 +8,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
+//? if >=26.3 {
+import org.lwjgl.sdl.SDLKeyboard;
+//?} else {
+/*import org.lwjgl.glfw.GLFW;
+*///?}
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 //? if >=1.21.9 {
@@ -21,6 +25,14 @@ import java.util.HashMap;
 import java.util.Locale;
 
 public class InputHelper {
+    //? if >=26.3 {
+    public static final int MOD_SHIFT = InputConstants.MOD_SHIFT;
+    //?} else {
+    /*public static final int MOD_SHIFT = GLFW.GLFW_MOD_SHIFT;
+    *///?}
+    public static final int CURSOR_NORMAL = 0x34001;
+    public static final int CURSOR_DISABLED = 0x34003;
+
     private static final BitSet heldKeys = new BitSet();
 
     private static final HashMap<Character, Integer> keyCodes = new HashMap<>();
@@ -35,9 +47,15 @@ public class InputHelper {
 
 
     public static void grabOrReleaseMouse(int cursorMode, double x, double y) {
-        //? if >=1.21.9 {
-        InputConstants.grabOrReleaseMouse(Minecraft.getInstance().getWindow(), cursorMode, x, y);
-        //?} else {
+        //? if >=26.3 {
+        if (cursorMode == CURSOR_DISABLED) {
+            InputConstants.grabMouse(Minecraft.getInstance().getWindow(), x, y);
+        } else {
+            InputConstants.releaseMouse(Minecraft.getInstance().getWindow(), x, y);
+        }
+        //?} elif >=1.21.9 {
+        /*InputConstants.grabOrReleaseMouse(Minecraft.getInstance().getWindow(), cursorMode, x, y);
+        *///?} else {
         /*InputConstants.grabOrReleaseMouse(windowHandle(), cursorMode, x, y);
         *///?}
     }
@@ -48,11 +66,11 @@ public class InputHelper {
     public static void pressMouse(@NotNull MouseButtonType button, int modifiers) {
         //? if >=1.21.9 {
         Minecraft.getInstance().mouseHandler.onButton(
-                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), GLFW.GLFW_PRESS
+                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), InputConstants.PRESS
         );
         //?} else {
         /*Minecraft.getInstance().mouseHandler.onPress(
-                windowHandle(), button.getId(), GLFW.GLFW_PRESS, modifiers
+                windowHandle(), button.getId(), InputConstants.PRESS, modifiers
         );
         *///?}
     }
@@ -64,11 +82,11 @@ public class InputHelper {
     public static void releaseMouse(@NotNull MouseButtonType button, int modifiers) {
         //? if >=1.21.9 {
         Minecraft.getInstance().mouseHandler.onButton(
-                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), GLFW.GLFW_RELEASE
+                windowHandle(), new MouseButtonInfo(button.getId(), modifiers), InputConstants.RELEASE
         );
         //?} else {
         /*Minecraft.getInstance().mouseHandler.onPress(
-                windowHandle(), button.getId(), GLFW.GLFW_RELEASE, modifiers
+                windowHandle(), button.getId(), InputConstants.RELEASE, modifiers
         );
         *///?}
     }
@@ -93,7 +111,12 @@ public class InputHelper {
     }
 
     public static void setMousePos(double x, double y) {
-        Minecraft.getInstance().mouseHandler.onMove(windowHandle(), x, y);
+        //? if >=26.3 {
+        var mouseHandler = Minecraft.getInstance().mouseHandler;
+        mouseHandler.onMove(windowHandle(), x, y, x - mouseHandler.xpos(), y - mouseHandler.ypos());
+        //?} else {
+        /*Minecraft.getInstance().mouseHandler.onMove(windowHandle(), x, y);
+        *///?}
     }
 
 
@@ -108,11 +131,11 @@ public class InputHelper {
         heldKeys.set(key);
         //? if >=1.21.9 {
         Minecraft.getInstance().keyboardHandler.keyPress(
-                windowHandle(), GLFW.GLFW_PRESS, new KeyEvent(key, 0, modifiers)
+                windowHandle(), InputConstants.PRESS, keyEvent(key, modifiers)
         );
         //?} else {
         /*Minecraft.getInstance().keyboardHandler.keyPress(
-                windowHandle(), key, 0, GLFW.GLFW_PRESS, modifiers
+                windowHandle(), key, 0, InputConstants.PRESS, modifiers
         );
         *///?}
     }
@@ -126,11 +149,11 @@ public class InputHelper {
         heldKeys.clear(key);
         //? if >=1.21.9 {
         Minecraft.getInstance().keyboardHandler.keyPress(
-                windowHandle(), GLFW.GLFW_RELEASE, new KeyEvent(key, 0, modifiers)
+                windowHandle(), InputConstants.RELEASE, keyEvent(key, modifiers)
         );
         //?} else {
         /*Minecraft.getInstance().keyboardHandler.keyPress(
-                windowHandle(), key, 0, GLFW.GLFW_RELEASE, modifiers
+                windowHandle(), key, 0, InputConstants.RELEASE, modifiers
         );
         *///?}
     }
@@ -139,15 +162,39 @@ public class InputHelper {
     }
 
 
+    //? if >=1.21.9 {
+    private static KeyEvent keyEvent(int key, int modifiers) {
+        //? if >=26.3 {
+        return new KeyEvent(key, SDLKeyboard.SDL_GetKeyFromScancode(key, (short) modifiers, true), modifiers);
+        //?} else {
+        /*return new KeyEvent(key, 0, modifiers);
+        *///?}
+    }
+    //?}
+
     public static boolean isKeyDown(int key) {
         if (key < 0) return false;
-        return heldKeys.get(key)
+        //? if >=26.3 {
+        return heldKeys.get(key) || InputConstants.isKeyDown(key);
+        //?} else {
+        /*return heldKeys.get(key)
                 || GLFW.glfwGetKey(windowHandle(), key) == GLFW.GLFW_PRESS;
+        *///?}
     }
     public static boolean isKeyDown(InputConstants.Key key) {
-        return key.getType() == InputConstants.Type.KEYSYM
+        //? if >=26.3 {
+        return key.getType() == InputConstants.Type.KEYBOARD
+                && key.getValue() != InputConstants.UNKNOWN.getValue()
+                && isKeyDown(key.getValue());
+        //?} else {
+        /*return key.getType() == InputConstants.Type.KEYSYM
                 && key.getValue() != GLFW.GLFW_KEY_UNKNOWN
                 && isKeyDown(key.getValue());
+        *///?}
+    }
+
+    public static boolean isVirtualKeyDown(int key) {
+        return key >= 0 && heldKeys.get(key);
     }
 
 
@@ -177,9 +224,15 @@ public class InputHelper {
             InputConstants.Key key = InputConstants.getKey(
                     "key.keyboard." + normalized
             );
-            return key.getType() == InputConstants.Type.KEYSYM
+            //? if >=26.3 {
+            return key.getType() == InputConstants.Type.KEYBOARD
                     ? key.getValue()
                     : -1;
+            //?} else {
+            /*return key.getType() == InputConstants.Type.KEYSYM
+                    ? key.getValue()
+                    : -1;
+            *///?}
         } catch (Exception e) {
             return -1;
         }
@@ -241,24 +294,38 @@ public class InputHelper {
 
 
     static {
-        // GLFW digit and letter key codes are their ASCII values
+        // GLFW gives digits and letters their ASCII values, SDL scancodes are ordered as on the keyboard
+        int[] digits = {
+                InputConstants.KEY_0, InputConstants.KEY_1, InputConstants.KEY_2, InputConstants.KEY_3,
+                InputConstants.KEY_4, InputConstants.KEY_5, InputConstants.KEY_6, InputConstants.KEY_7,
+                InputConstants.KEY_8, InputConstants.KEY_9
+        };
         for (char c = '0'; c <= '9'; c++) {
-            keyCodes.put(c, (int) c);
+            keyCodes.put(c, digits[c - '0']);
         }
+        int[] letters = {
+                InputConstants.KEY_A, InputConstants.KEY_B, InputConstants.KEY_C, InputConstants.KEY_D,
+                InputConstants.KEY_E, InputConstants.KEY_F, InputConstants.KEY_G, InputConstants.KEY_H,
+                InputConstants.KEY_I, InputConstants.KEY_J, InputConstants.KEY_K, InputConstants.KEY_L,
+                InputConstants.KEY_M, InputConstants.KEY_N, InputConstants.KEY_O, InputConstants.KEY_P,
+                InputConstants.KEY_Q, InputConstants.KEY_R, InputConstants.KEY_S, InputConstants.KEY_T,
+                InputConstants.KEY_U, InputConstants.KEY_V, InputConstants.KEY_W, InputConstants.KEY_X,
+                InputConstants.KEY_Y, InputConstants.KEY_Z
+        };
         for (char c = 'A'; c <= 'Z'; c++) {
-            keyCodes.put(c, (int) c);
+            keyCodes.put(c, letters[c - 'A']);
         }
-        keyCodes.put('`', GLFW.GLFW_KEY_GRAVE_ACCENT);
-        keyCodes.put('-', GLFW.GLFW_KEY_MINUS);
-        keyCodes.put('=', GLFW.GLFW_KEY_EQUAL);
-        keyCodes.put('[', GLFW.GLFW_KEY_LEFT_BRACKET);
-        keyCodes.put(']', GLFW.GLFW_KEY_RIGHT_BRACKET);
-        keyCodes.put('\\', GLFW.GLFW_KEY_BACKSLASH);
-        keyCodes.put(';', GLFW.GLFW_KEY_SEMICOLON);
-        keyCodes.put('\'', GLFW.GLFW_KEY_APOSTROPHE);
-        keyCodes.put(',', GLFW.GLFW_KEY_COMMA);
-        keyCodes.put('.', GLFW.GLFW_KEY_PERIOD);
-        keyCodes.put('/', GLFW.GLFW_KEY_SLASH);
+        keyCodes.put('`', InputConstants.KEY_GRAVE);
+        keyCodes.put('-', InputConstants.KEY_MINUS);
+        keyCodes.put('=', InputConstants.KEY_EQUALS);
+        keyCodes.put('[', InputConstants.KEY_LBRACKET);
+        keyCodes.put(']', InputConstants.KEY_RBRACKET);
+        keyCodes.put('\\', InputConstants.KEY_BACKSLASH);
+        keyCodes.put(';', InputConstants.KEY_SEMICOLON);
+        keyCodes.put('\'', InputConstants.KEY_APOSTROPHE);
+        keyCodes.put(',', InputConstants.KEY_COMMA);
+        keyCodes.put('.', InputConstants.KEY_PERIOD);
+        keyCodes.put('/', InputConstants.KEY_SLASH);
     }
 
 }

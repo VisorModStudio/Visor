@@ -2,28 +2,28 @@ package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=1.21.5 {
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //? if >=26.1 {
-import com.mojang.blaze3d.pipeline.ColorTargetState;
-import com.mojang.blaze3d.pipeline.DepthStencilState;
-import com.mojang.blaze3d.platform.CompareOp;
+import com.mojang.renderpearl.api.pipeline.ColorTargetState;
+import com.mojang.renderpearl.api.pipeline.DepthStencilState;
+import com.mojang.renderpearl.api.pipeline.CompareOp;
 import java.util.Optional;
 //?} else {
 /*import com.mojang.blaze3d.platform.DepthTestFunction;
 *///?}
 //? if >=26.2 {
-import com.mojang.blaze3d.GpuFormat;
-import com.mojang.blaze3d.platform.BlendFactor;
+import com.mojang.renderpearl.api.GpuFormat;
+import com.mojang.renderpearl.api.pipeline.BlendFactor;
 import net.minecraft.client.renderer.BindGroupLayouts;
 //?} else {
 /*import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 import com.mojang.blaze3d.shaders.UniformType;
 *///?}
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.systems.RenderPass;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import org.lwjgl.opengl.GL11;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
@@ -38,7 +38,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import java.util.function.Supplier;
 *///?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 //?} elif >=1.21.5 {
 /*import com.mojang.blaze3d.textures.GpuTexture;
 *///?}
@@ -121,7 +121,12 @@ public class McShaders {
                 //? if >=26.2 {
                 .withVertexBinding(0, key.format())
                 .withPrimitiveTopology(key.mode())
-                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+                //? if >=26.3 {
+                .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
+                .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+                //?} else {
+                /*.withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
+                *///?}
                 //?} elif >=1.21.6 {
                 /*.withVertexFormat(key.format(), key.mode())
                 // the vanilla core GLSL reads its matrices and colour from the DynamicTransforms / Projection blocks

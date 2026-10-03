@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public enum ItemClassifier {
-    FARMING_TOOL((itemStack) -> itemStack.getItem() instanceof HoeItem),
+    //? if >=26.3 {
+    FARMING_TOOL((itemStack) -> itemStack.is(ItemTags.HOES)),
+    //?} else {
+    /*FARMING_TOOL((itemStack) -> itemStack.getItem() instanceof HoeItem),
+    *///?}
     SHIELD((itemStack) -> itemStack.getItem() instanceof ShieldItem
             || itemStack.is(VisorItemTags.SHIELDS)),
     SWORD(ItemClassifier::isSword),

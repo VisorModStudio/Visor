@@ -9,6 +9,13 @@ import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.FeatureRenderDispatcher;
 //?}
+//? if >=26.3 {
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import java.util.Optional;
+import java.util.OptionalDouble;
+//?}
 
 /**
  * Cross-mc-version drawing of the render nodes Visor submits
@@ -45,11 +52,22 @@ public final class McFeatureRenderer {
     }
 
     public static void render() {
-        //? if >=26.2 {
+        //? if >=26.3 {
         if (dispatcher != null) {
+            RenderTarget target = McRenderTarget.mainTarget();
+            try (FeatureRenderDispatcher.PreparedFrame frame = dispatcher.prepareFrame(storage);
+                 RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                         () -> "visor features", target.getColorTextureView(), Optional.empty(),
+                         target.getDepthTextureView(), OptionalDouble.empty())) {
+                RenderSystem.bindDefaultUniforms(pass);
+                FeatureRenderDispatcher.renderAllFeatures(pass, frame);
+            }
+        }
+        //?} elif >=26.2 {
+        /*if (dispatcher != null) {
             dispatcher.renderAllFeatures(storage);
         }
-        //?} else {
+        *///?} else {
         /*Minecraft minecraft = Minecraft.getInstance();
         minecraft.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
         minecraft.renderBuffers().bufferSource().endBatch();

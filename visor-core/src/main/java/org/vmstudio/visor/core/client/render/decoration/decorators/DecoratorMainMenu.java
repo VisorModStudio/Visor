@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.decorators;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import org.vmstudio.visor.api.VisorAPI;
@@ -63,7 +64,7 @@ public class DecoratorMainMenu extends VRDecorator {
                 origin.z() - eye.z()
         );
 
-        poseStack.mulPose(
+        McRenderUtils.rotate(poseStack,
                 Axis.YN.rotation(
                         -renderPose.getRotationY()
                 )

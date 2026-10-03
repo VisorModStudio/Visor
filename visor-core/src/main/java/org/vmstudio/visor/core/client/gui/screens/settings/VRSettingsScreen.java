@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.settings;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.VisorAPI;
@@ -13,7 +14,6 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
-import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -318,7 +318,7 @@ public class VRSettingsScreen extends McScreen {
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
                         .setText(Component.translatable("visor.options.main.join_community")),
                 (it)->{
-                    Util.getPlatform().openUri(discordUrl);
+                    McVersionClientUtils.openUri(discordUrl);
                 }
         );
 
@@ -609,7 +609,7 @@ public class VRSettingsScreen extends McScreen {
     protected boolean onMouseClicked(double mouseX, double mouseY, int button) {
         boolean success = super.onMouseClicked(mouseX, mouseY, button);
         options.mouseClicked(mouseX, mouseY, button, success);
-        if(!success && button == 0 && maxCategoryScroll() > 0){
+        if(!success && button == InputConstants.MOUSE_BUTTON_LEFT && maxCategoryScroll() > 0){
             return handleCategoryScrollClick(mouseX, mouseY);
         }
         return success;

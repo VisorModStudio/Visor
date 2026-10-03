@@ -184,7 +184,7 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
     protected void setupRotations(AvatarRenderState state, PoseStack poseStack, float bodyRot, float scale) {
         if (VRRenderState.getPhase().isVRGui()) {
             if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+                McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - bodyRot));
                 return;
             }
         } else {
@@ -197,7 +197,7 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
     protected void setupRotations(PlayerRenderState state, PoseStack poseStack, float bodyRot, float scale) {
         if (VRRenderState.getPhase().isVRGui()) {
             if (state.isFallFlying || state.isVisuallySwimming || state.isAutoSpinAttack) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
+                McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - bodyRot));
                 return;
             }
         } else {
@@ -212,7 +212,7 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
     {
         if (VRRenderState.getPhase().isVRGui()) {
             if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
+                McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - rotationYaw));
                 return;
             }
         } else {
@@ -227,7 +227,7 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
     {
         if (VRRenderState.getPhase().isVRGui()) {
             if (player.isFallFlying() || player.isVisuallySwimming() || player.isAutoSpinAttack()) {
-                poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - rotationYaw));
+                McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - rotationYaw));
                 return;
             }
         } else {
@@ -266,12 +266,12 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
     }
     //?} elif >=1.21.2 {
     /*@Override
-    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, Identifier skin, boolean sleeveVisible) {
+    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, sleeveVisible, ControllerType.RIGHT);
     }
 
     @Override
-    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, Identifier skin, boolean sleeveVisible) {
+    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, ResourceLocation skin, boolean sleeveVisible) {
         renderVRHand(poseStack, buffer, combinedLight, skin, sleeveVisible, ControllerType.LEFT);
     }
     *///?} else {
@@ -325,7 +325,11 @@ public class VRPlayerRendererHandsOnly extends AvatarRenderer<AbstractClientPlay
                 sleeve.resetPose();
                 sleeve.visible = sleeveVisible;
             }
-        }, Unit.INSTANCE, poseStack, renderType, combinedLight, OverlayTexture.NO_OVERLAY, 0, null);
+        //? if >=26.3 {
+        }, Unit.INSTANCE, poseStack, renderType, combinedLight, OverlayTexture.NO_OVERLAY, 0);
+        //?} else {
+        /*}, Unit.INSTANCE, poseStack, renderType, combinedLight, OverlayTexture.NO_OVERLAY, 0, null);
+        *///?}
         //?} elif >=1.21.2 {
         /*poseArm(arm, left);
         var consumer = buffer.getBuffer(McRenderUtils.entityTranslucent(skin));

@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.input.actions;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.input.InputHelper;
@@ -10,7 +11,6 @@ import org.vmstudio.visor.core.client.gui.screens.VRPauseMenuScreen;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Map;
 
@@ -28,8 +28,8 @@ public class ActionMenu extends VRActionButton {
     @Override
     protected void onPress() {
         if (McVersionClientUtils.screen() != null) {
-            InputHelper.pressKey(GLFW.GLFW_KEY_ESCAPE);
-            InputHelper.releaseKey(GLFW.GLFW_KEY_ESCAPE);
+            InputHelper.pressKey(InputConstants.KEY_ESCAPE);
+            InputHelper.releaseKey(InputConstants.KEY_ESCAPE);
         } else {
             if(MC.level == null){
                 McVersionClientUtils.setScreen(new TitleScreen());

@@ -1,6 +1,7 @@
 // #!MC-VERSION:: 1.20.1-1.21.5
 package org.vmstudio.visor.mixin.client.renderer;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -147,8 +148,8 @@ public abstract class GameRendererMixin {
         }
         RenderPoseHelper.applyCameraPose(currentCamera, poseStack);
         original.call(poseStack, popScale, popScale, popScale);
-        poseStack.mulPose(Axis.YP.rotation(-cameraPose.getYaw()));
-        poseStack.mulPose(Axis.XP.rotation(-cameraPose.getPitch()));
+        McRenderUtils.rotate(poseStack, Axis.YP.rotation(-cameraPose.getYaw()));
+        McRenderUtils.rotate(poseStack, Axis.XP.rotation(-cameraPose.getPitch()));
     }
 
     @WrapOperation(method = "renderItemActivationAnimation", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))

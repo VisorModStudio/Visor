@@ -135,15 +135,18 @@ public class NeoForgeModLoader implements ModLoader {
                 .add(callback);
 
         if (!levelStageListenerRegistered) {
-            //? if >=1.21.6 {
-            // 21.6 split RenderLevelStageEvent into one event per stage
+            //? if >=26.3 {
+            NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterLevel event) ->
+                    onRenderLevelStage(event, RenderPipelineStage.AFTER_WORLD));
+            //?} elif >=1.21.6 {
+            /*// 21.6 split RenderLevelStageEvent into one event per stage
             NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterOpaqueBlocks event) ->
                     onRenderLevelStage(event, RenderPipelineStage.AFTER_SOLID));
             NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterTranslucentBlocks event) ->
                     onRenderLevelStage(event, RenderPipelineStage.AFTER_TRANSLUCENT));
             NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent.AfterLevel event) ->
                     onRenderLevelStage(event, RenderPipelineStage.AFTER_WORLD));
-            //?} else {
+            *///?} else {
             /*NeoForge.EVENT_BUS.addListener(this::onRenderLevelStage);
             *///?}
             levelStageListenerRegistered = true;
@@ -378,11 +381,14 @@ public class NeoForgeModLoader implements ModLoader {
     // and a MultiBufferSource, so they live in a holder that only a client ever loads
     private static final class ClientOverlays {
         static boolean water(Player player, PoseStack mat) {
-            //? if >=26.2 {
-            return ClientHooks.renderWaterOverlay(player, mat,
+            //? if >=26.3 {
+            return submitExtracted(Minecraft.getInstance().gameRenderer.gameRenderState()
+                    .levelRenderState.playerRenderState.customFluidOverlayRenderer, mat);
+            //?} elif >=26.2 {
+            /*return ClientHooks.renderWaterOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
                     org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector());
-            //?} else {
+            *///?} else {
             /*return ClientHooks.renderWaterOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
                     Minecraft.getInstance().renderBuffers().bufferSource());
@@ -390,16 +396,35 @@ public class NeoForgeModLoader implements ModLoader {
         }
 
         static boolean fire(Player player, PoseStack mat) {
-            //? if >=26.2 {
-            return ClientHooks.renderFireOverlay(player, mat,
+            //? if >=26.3 {
+            return submitExtracted(Minecraft.getInstance().gameRenderer.gameRenderState()
+                    .levelRenderState.playerRenderState.customFireOverlayRenderer, mat);
+            //?} elif >=26.2 {
+            /*return ClientHooks.renderFireOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
                     org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector());
-            //?} else {
+            *///?} else {
             /*return ClientHooks.renderFireOverlay(player, mat,
                     Minecraft.getInstance().getAtlasManager(),
                     Minecraft.getInstance().renderBuffers().bufferSource());
             *///?}
         }
+
+        //? if >=26.3 {
+        private static boolean submitExtracted(net.neoforged.neoforge.client.CustomBlockScreenEffectRenderer renderer,
+                                               PoseStack mat) {
+            if (renderer == null) {
+                return false;
+            }
+            Minecraft minecraft = Minecraft.getInstance();
+            net.minecraft.client.renderer.state.level.LevelRenderState level =
+                    minecraft.gameRenderer.gameRenderState().levelRenderState;
+            return renderer.submit(level.playerRenderState, level.cameraRenderState,
+                    org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer.collector(), mat,
+                    minecraft.getAtlasManager(), minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false),
+                    org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils.isHudHidden());
+        }
+        //?}
     }
     //?}
 
@@ -467,7 +492,7 @@ public class NeoForgeModLoader implements ModLoader {
     //?} elif >=1.20.4 {
     /*void registerPayloads(@NotNull RegisterPayloadHandlerEvent event) {
         for (VisorChannel channel : pendingChannels) {
-            Identifier channelId = channel.getChannelId();
+            ResourceLocation channelId = channel.getChannelId();
             event.registrar(channelId.getNamespace())
                     .optional()
                     .play(channelId,
@@ -496,16 +521,16 @@ public class NeoForgeModLoader implements ModLoader {
     }
 
 
-    private record RawPayload(Identifier id, FriendlyByteBuf buffer)
+    private record RawPayload(ResourceLocation id, FriendlyByteBuf buffer)
             implements CustomPacketPayload {
 
-        private static RawPayload read(Identifier id, FriendlyByteBuf source) {
+        private static RawPayload read(ResourceLocation id, FriendlyByteBuf source) {
             FriendlyByteBuf copy = new FriendlyByteBuf(Unpooled.buffer());
             copy.writeBytes(source, source.readableBytes());
             return new RawPayload(id, copy);
         }
 
-        private static RawPayload of(Identifier id, VisorPayloadToClient payload) {
+        private static RawPayload of(ResourceLocation id, VisorPayloadToClient payload) {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             payload.write(buffer);
             return new RawPayload(id, buffer);
@@ -526,6 +551,20 @@ public class NeoForgeModLoader implements ModLoader {
                                                                           IPayloadHandler<T> handler) {
         registrar.playBidirectional(type, codec, handler, handler);
     }
+
+    //? if >=26.3 {
+    @Override
+    public void fireLevelStage(@NotNull RenderPipelineStage stage) {
+        List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);
+        if (callbacks == null || callbacks.isEmpty()) return;
+
+        PoseStack poseStack = new PoseStack();
+        float partialTicks = McRenderUtils.partialTick();
+        for (RenderPipelineCallback callback : callbacks) {
+            callback.render(poseStack, partialTicks);
+        }
+    }
+    //?}
 
     private void onRenderLevelStage(RenderLevelStageEvent event, RenderPipelineStage stage) {
         List<RenderPipelineCallback> callbacks = pipelineCallbacks.get(stage);

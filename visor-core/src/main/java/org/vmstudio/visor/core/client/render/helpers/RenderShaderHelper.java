@@ -6,9 +6,10 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 public class RenderShaderHelper {
     private RenderShaderHelper() {

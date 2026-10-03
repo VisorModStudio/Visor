@@ -52,6 +52,13 @@ def devNativesJar = tasks.register("devNativesJar", Jar) {
 }
 //------
 
+// Forge's early display needs lwjgl-tinyfd, no game library on 26.3: as a client library it stays off the dev server run
+if (stonecutter.eval(minecraft_version, ">=26.3")) {
+    dependencies {
+        minecraftClientRuntimeLibraries "org.lwjgl:lwjgl-tinyfd:${lwjgl_version}"
+    }
+}
+
 //excluding unnecessary stuff for Dev runtime
 configurations.runtimeClasspath {
     exclude group: "com.github.Phoenix-Ra", module: "AtumConfiguration"

@@ -28,6 +28,17 @@ import net.minecraft.client.gui.screens.GenericMessageScreen;
 //? if >=1.21.2 {
 import net.minecraft.util.profiling.Profiler;
 //?}
+//? if >=26.3 {
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.logging.LogUtils;
+//?} else {
+/*import net.minecraft.util.Util;
+*///?}
+
+import java.net.URI;
+//? if >=26.3 {
+import java.net.URISyntaxException;
+//?}
 
 /**
  * Cross-mc-version Utils for client methods
@@ -193,6 +204,37 @@ public class McVersionClientUtils {
         minecraft.invalidateSurfaceConfiguration();
         //?} else {
         /*minecraft.getWindow().updateVsync(minecraft.options.enableVsync().get());
+        *///?}
+    }
+
+    public static boolean isFullscreen(Minecraft minecraft) {
+        //? if >=26.3 {
+        return minecraft.options.fullscreen().get();
+        //?} else {
+        /*return minecraft.getWindow().isFullscreen();
+        *///?}
+    }
+
+    // ------- LINKS -------
+
+    public static void openUri(URI uri) {
+        //? if >=26.3 {
+        Blaze3D.openUri(uri);
+        //?} else {
+        /*Util.getPlatform().openUri(uri);
+        *///?}
+    }
+
+    public static void openUri(String uri) {
+        //? if >=26.3 {
+        // what Util.OS.openUri(String) did up to 26.2
+        try {
+            Blaze3D.openUri(new URI(uri));
+        } catch (URISyntaxException | IllegalArgumentException e) {
+            LogUtils.getLogger().error("Couldn't open uri '{}'", uri, e);
+        }
+        //?} else {
+        /*Util.getPlatform().openUri(uri);
         *///?}
     }
 

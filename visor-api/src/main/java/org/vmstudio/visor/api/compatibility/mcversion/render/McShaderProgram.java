@@ -1,25 +1,25 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
 //? if >=1.21.6 {
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.pipeline.BlendFunction;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.pipeline.BlendFunction;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 //? if >=26.2 {
-import com.mojang.blaze3d.pipeline.BindGroupLayout;
-import com.mojang.blaze3d.platform.BlendFactor;
+import com.mojang.renderpearl.api.pipeline.BindGroupLayout;
+import com.mojang.renderpearl.api.pipeline.BlendFactor;
 import org.lwjgl.opengl.GL11;
 //?} else {
 /*import com.mojang.blaze3d.platform.DestFactor;
 import com.mojang.blaze3d.platform.SourceFactor;
 *///?}
-import com.mojang.blaze3d.shaders.UniformType;
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.pipeline.UniformType;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.rendertype.RenderType;
 //? if >=1.21.11 {
@@ -60,6 +60,10 @@ public final class McShaderProgram {
             GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO,
             true, GL11.GL_LEQUAL, true, true, true, true);
     private static final Map<RenderPipeline, McShaderProgram> RENDER_TYPE_PROGRAMS = new HashMap<>();
+    //?}
+    //? if >=26.3 {
+    // 26.3 compiles the shaders to SPIR-V: the shaders of Visor give their interface variables locations then
+    private static final String SPIRV = "VISOR_SPIRV";
     //?}
     private static final int RING_SLOTS = 8;
 
@@ -213,7 +217,7 @@ public final class McShaderProgram {
         }
     }
     //?} elif >=1.21.11 {
-    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
+    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
                                  Identifier... textures) {
         RenderSetup.RenderSetupBuilder setupBuilder = RenderSetup.builder(pipeline(mode)).bufferSize(bufferSize);
         for (int i = 0; i < textures.length; i++) {
@@ -246,7 +250,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public PrimitiveTopology mode() {
+            public VertexFormat.Mode mode() {
                 return mode;
             }
 
@@ -257,11 +261,11 @@ public final class McShaderProgram {
         };
     }
     *///?} elif >=1.21.9 {
-    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
-                                 Identifier... textures) {
+    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (Identifier location : textures) {
+        for (ResourceLocation location : textures) {
             texture.add(location, false);
         }
         RenderStateShard.MultiTextureStateShard textureState = texture.build();
@@ -280,7 +284,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public PrimitiveTopology mode() {
+            public VertexFormat.Mode mode() {
                 return mode;
             }
 
@@ -291,11 +295,11 @@ public final class McShaderProgram {
         };
     }
     *///?} else {
-    /*public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
-                                 Identifier... textures) {
+    /*public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (Identifier location : textures) {
+        for (ResourceLocation location : textures) {
             texture.add(location, false);
         }
         RenderStateShard.MultiTextureStateShard textureState = texture.build();
@@ -314,7 +318,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public PrimitiveTopology mode() {
+            public VertexFormat.Mode mode() {
                 return mode;
             }
         };
@@ -452,6 +456,9 @@ public final class McShaderProgram {
                 //?} else {
                 /*.withVertexFormat(vertexFormat, mode)
                 *///?}
+                //? if >=26.3 {
+                .withShaderDefine(SPIRV)
+                //?}
                 .withShaderDefine(MAT3_AS_MAT4)
                 .withShaderDefine(UBO_DEFINE)
                 //? if >=26.1 {
@@ -472,7 +479,11 @@ public final class McShaderProgram {
         if (ring != null) {
             layout.withUniform(BLOCK, UniformType.UNIFORM_BUFFER);
         }
-        samplerNames.forEach(layout::withSampler);
+        //? if >=26.3 {
+        samplerNames.forEach(sampler -> layout.withUniform(sampler, UniformType.COMBINED_IMAGE_SAMPLER));
+        //?} else {
+        /*samplerNames.forEach(layout::withSampler);
+        *///?}
         builder.withBindGroupLayout(layout.build());
         //?} else {
         /*if (usesMatrices) {
@@ -519,8 +530,8 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
@@ -618,11 +629,11 @@ public final class McShaderProgram {
         }
     }
 
-    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
-                                 Identifier... textures) {
+    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (Identifier location : textures) {
+        for (ResourceLocation location : textures) {
             texture.add(location, false, false);
         }
         RenderStateShard.MultiTextureStateShard textureState = texture.build();
@@ -651,7 +662,7 @@ public final class McShaderProgram {
             }
 
             @Override
-            public PrimitiveTopology mode() {
+            public VertexFormat.Mode mode() {
                 return mode;
             }
         };
@@ -667,7 +678,7 @@ public final class McShaderProgram {
 
     void draw(MeshData mesh, RenderTarget target, boolean ownMatrices) {
         if (!ownMatrices) {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
             return;
         }
         McModelViewStack.push();
@@ -675,17 +686,17 @@ public final class McShaderProgram {
         McProjection.State savedProjection = McProjection.save();
         RenderSystem.setProjectionMatrix(projection != null ? projection : IDENTITY, RenderSystem.getProjectionType());
         try {
-            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().primitiveTopology()), this::applyUniforms);
+            McVertexBuilder.drawPass(mesh, target, pipeline(mesh.drawState().mode()), this::applyUniforms);
         } finally {
             McProjection.restore(savedProjection);
             McModelViewStack.pop();
         }
     }
 
-    private record PipelineKey(PrimitiveTopology mode, McGlState.DrawState state, String uniforms) {
+    private record PipelineKey(VertexFormat.Mode mode, McGlState.DrawState state, String uniforms) {
     }
 
-    private RenderPipeline pipeline(PrimitiveTopology mode) {
+    private RenderPipeline pipeline(VertexFormat.Mode mode) {
         String uniforms = matrixUniforms.keySet() + "|" + floatUniforms.keySet() + "|"
                 + intUniforms.keySet() + "|" + samplers.keySet();
         return pipelines.computeIfAbsent(new PipelineKey(mode, McGlState.drawState(), uniforms),
@@ -709,7 +720,7 @@ public final class McShaderProgram {
         });
     }
 
-    private RenderPipeline buildPipeline(PrimitiveTopology mode, McGlState.DrawState state) {
+    private RenderPipeline buildPipeline(VertexFormat.Mode mode, McGlState.DrawState state) {
         RenderPipeline.Builder builder = RenderPipeline.builder()
                 .withLocation(McVersionUtils.newResourceLoc("visor", "pipeline/" + name))
                 .withVertexShader("core/" + name)
@@ -762,10 +773,10 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CompiledShaderProgram;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderDefines;
 import net.minecraft.client.renderer.ShaderProgram;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL14;
@@ -856,11 +867,11 @@ public final class McShaderProgram {
         compiled().clear();
     }
 
-    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
-                                 Identifier... textures) {
+    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (Identifier location : textures) {
+        for (ResourceLocation location : textures) {
             texture.add(location, false, false);
         }
         return RenderType.create(name, vertexFormat, mode, bufferSize, false, false,
@@ -899,9 +910,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
@@ -983,11 +994,11 @@ public final class McShaderProgram {
         instance.clear();
     }
 
-    public RenderType renderType(String name, PrimitiveTopology mode, int bufferSize,
-                                 Identifier... textures) {
+    public RenderType renderType(String name, VertexFormat.Mode mode, int bufferSize,
+                                 ResourceLocation... textures) {
         RenderStateShard.MultiTextureStateShard.Builder texture =
                 RenderStateShard.MultiTextureStateShard.builder();
-        for (Identifier location : textures) {
+        for (ResourceLocation location : textures) {
             texture.add(location, false, false);
         }
         return RenderType.create(name, vertexFormat, mode, bufferSize, false, false,

@@ -6,7 +6,7 @@ import org.joml.*;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -169,7 +169,7 @@ public class HandEffectCrosshair extends VRHandEffect {
                 Quaterniond subLevelOrientation = SableCompatHelper.getSubLevelOrientation(MC.level, hit.getLocation());
                 if (subLevelOrientation != null) {
                     yaw = 0; // otherwise vertical alignment on block would be broken
-                    poseStack.mulPose(
+                    McRenderUtils.rotate(poseStack,
                             new Quaternionf(
                                     (float) subLevelOrientation.x,
                                     (float) subLevelOrientation.y,
@@ -201,7 +201,7 @@ public class HandEffectCrosshair extends VRHandEffect {
     }
 
     private void rotateInDegrees(PoseStack pose, float angle, float x, float y, float z) {
-        pose.mulPose(new Quaternionf(new AxisAngle4f(
+        McRenderUtils.rotate(pose, new Quaternionf(new AxisAngle4f(
                 angle * Mth.DEG_TO_RAD, x, y, z
         )));
     }

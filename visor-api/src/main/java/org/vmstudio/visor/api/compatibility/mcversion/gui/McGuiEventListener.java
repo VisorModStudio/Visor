@@ -78,12 +78,12 @@ public interface McGuiEventListener extends GuiEventListener {
 
     @Override
     default boolean keyPressed(KeyEvent event) {
-        return keyPressed(event.key(), event.scancode(), event.modifiers());
+        return keyPressed(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override
     default boolean keyReleased(KeyEvent event) {
-        return keyReleased(event.key(), event.scancode(), event.modifiers());
+        return keyReleased(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override

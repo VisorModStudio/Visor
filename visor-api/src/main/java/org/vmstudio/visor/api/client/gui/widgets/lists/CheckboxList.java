@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets.lists;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
@@ -286,7 +287,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             this.scrolling = false;
         }
         return super.mouseReleased(mouseX, mouseY, button);
@@ -470,7 +471,7 @@ public class CheckboxList extends McSelectionList<CheckboxList.CheckboxEntry> {
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if(button == 0){
+            if(button == InputConstants.MOUSE_BUTTON_LEFT){
                 CheckboxList.this.playSelectedSound(Minecraft.getInstance().getSoundManager());
                 return true;
             }

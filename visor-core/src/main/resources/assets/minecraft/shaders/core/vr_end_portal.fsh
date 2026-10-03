@@ -1,4 +1,11 @@
 #version 150
+#ifdef VISOR_SPIRV
+#extension GL_ARB_separate_shader_objects : require
+#extension GL_ARB_explicit_attrib_location : require
+#define VISOR_LOCATION(n) layout(location = n)
+#else
+#define VISOR_LOCATION(n)
+#endif
 
 /*
 MIT License
@@ -24,7 +31,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifdef VISOR_SPIRV
+#include <minecraft:matrix.glsl>
+#else
 #moj_import <matrix.glsl>
+#endif
 
 uniform sampler2D Sampler0;
 uniform sampler2D Sampler1;
@@ -41,7 +52,7 @@ uniform float GameTime;
 uniform int EndPortalLayers;
 #endif
 
-in vec3 pos;
+VISOR_LOCATION(0) in vec3 pos;
 
 const float PI = 3.14159265359;
 
@@ -91,7 +102,7 @@ dir.z = 1.0;
 return dir;
 }
 
-out vec4 fragColor;
+VISOR_LOCATION(0) out vec4 fragColor;
 
 void main() {
 vec4 outColor = vec4(1.0);

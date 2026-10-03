@@ -26,7 +26,7 @@ import java.util.List;
 public class ClientUtils {
     public static boolean isFullscreenInVr() {
         return VisorState.get().isActive()
-                && Minecraft.getInstance().getWindow().isFullscreen();
+                && McVersionClientUtils.isFullscreen(Minecraft.getInstance());
     }
 
     public static Vector2f getPlayAreaSize() {

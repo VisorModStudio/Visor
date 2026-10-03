@@ -23,7 +23,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL11C;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.shaders.VRShaderInBlockVignette;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 public class RenderEffectsHelper {
     private RenderEffectsHelper() {

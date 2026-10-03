@@ -23,7 +23,7 @@ public abstract class NeoForgeSelectedItemNameMixin {
     @Inject(method = "extractSelectedItemName(Lnet/minecraft/client/gui/GuiGraphicsExtractor;I)V",
             at = @At("HEAD"), remap = false, cancellable = true)
     //?} else {
-    /*@Inject(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphicsExtractor;I)V",
+    /*@Inject(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V",
             at = @At("HEAD"), remap = false, cancellable = true)
     *///?}
     private void visor$noNeoForgeSelectedItemName(GuiGraphicsExtractor guiGraphics, int yShift, CallbackInfo ci) {

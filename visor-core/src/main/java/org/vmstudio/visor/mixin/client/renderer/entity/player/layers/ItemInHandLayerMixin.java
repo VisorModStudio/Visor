@@ -162,7 +162,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
         InteractionHand mcHand = hand == HandType.MAIN
                 ? InteractionHand.MAIN_HAND
                 : InteractionHand.OFF_HAND;
-        float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
+        float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.firstPersonHandsAndItemsRenderer)
                 .visor$getEquipProgress(mcHand, McRenderUtils.partialTick());
 
         //@TODO rework this since the change is globally applied and might be a problem for addons to work with
@@ -195,7 +195,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
                         float sin = new Vector3f(refUp).cross(ctrlUp).dot(aim);
                         float roll = (float) Math.atan2(sin, cos);
 
-                        poseStack.mulPose(Axis.ZP.rotation(-roll));
+                        McRenderUtils.rotate(poseStack, Axis.ZP.rotation(-roll));
                     }
                 }
             }

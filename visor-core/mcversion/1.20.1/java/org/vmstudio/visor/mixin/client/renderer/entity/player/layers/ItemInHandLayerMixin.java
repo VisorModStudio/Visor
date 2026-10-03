@@ -128,7 +128,7 @@ public abstract class ItemInHandLayerMixin extends RenderLayer {
                         float sin = new Vector3f(refUp).cross(ctrlUp).dot(aim);
                         float roll = (float) Math.atan2(sin, cos);
 
-                        poseStack.mulPose(Axis.ZP.rotation(-roll));
+                        McRenderUtils.rotate(poseStack, Axis.ZP.rotation(-roll));
                     }
                 }
             }

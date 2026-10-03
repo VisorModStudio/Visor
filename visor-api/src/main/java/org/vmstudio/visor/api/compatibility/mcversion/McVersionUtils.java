@@ -7,6 +7,7 @@ import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -34,7 +35,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 //? if >=1.21.2 {
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 //?} else {
-/*import net.minecraft.world.entity.vehicle.boat.Boat;
+/*import net.minecraft.world.entity.vehicle.Boat;
 *///?}
 import net.minecraft.world.entity.Entity;
 //? if >=26.1 {
@@ -56,14 +57,14 @@ public class McVersionUtils {
         //? if >=1.21 {
         return Identifier.fromNamespaceAndPath(namespace, path);
         //?} else {
-        /*return new Identifier(namespace, path);
+        /*return new ResourceLocation(namespace, path);
         *///?}
     }
     public static Identifier newResourceLoc(String location){
         //? if >=1.21 {
         return Identifier.parse(location);
         //?} else {
-        /*return new Identifier(location);
+        /*return new ResourceLocation(location);
         *///?}
     }
 
@@ -118,7 +119,7 @@ public class McVersionUtils {
     public static boolean shouldSwing(InteractionResult result) {
         //? if >=1.21.2 {
         return result instanceof InteractionResult.Success success
-                && success.swingSource() == InteractionResult.SwingSource.CLIENT;
+                && success.swingSource() == InteractionResult.SwingSource.PREDICTED;
         //?} else {
         /*return result.shouldSwing();
         *///?}
@@ -188,6 +189,23 @@ public class McVersionUtils {
         }
         //?} else {
         /*entity.setMaxUpStep(stepHeight);
+        *///?}
+    }
+
+    public static InteractionHand swingingArm(LivingEntity entity) {
+        //? if >=26.3 {
+        LivingEntity.SwingDescription swing = entity.getCurrentSwing();
+        return swing == null ? InteractionHand.MAIN_HAND : swing.hand();
+        //?} else {
+        /*return entity.swingingArm;
+        *///?}
+    }
+
+    public static float attackAnim(LivingEntity entity, float partialTicks) {
+        //? if >=26.3 {
+        return entity.getSwingAnimation(partialTicks);
+        //?} else {
+        /*return entity.getAttackAnim(partialTicks);
         *///?}
     }
 

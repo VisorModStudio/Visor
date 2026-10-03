@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.model.geom.ModelPart;
 //? if >=1.21 && <1.21.6 {
-/*import net.minecraft.client.gui.GuiGraphicsExtractor;
+/*import net.minecraft.client.gui.GuiGraphics;
 *///?}
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -38,6 +38,7 @@ import net.minecraft.world.entity.player.PlayerModelType;
 //?}
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -289,7 +290,11 @@ public class McRenderUtils {
             renderer.extract(deltaTracker, renderLevel);
         }
         try (var renderThreadGizmos = minecraft.levelRenderer.collectPerFrameRenderThreadGizmos()) {
-            renderer.render(deltaTracker, renderLevel);
+            //? if >=26.3 {
+            renderer.render();
+            //?} else {
+            /*renderer.render(deltaTracker, renderLevel);
+            *///?}
         }
         //?} elif >=26.1 {
         /*var deltaTracker = Minecraft.getInstance().getDeltaTracker();
@@ -313,18 +318,24 @@ public class McRenderUtils {
     }
 
     public static void renderItemActivationAnimation(GameRenderer renderer, float partialTicks) {
-        //? if >=1.21.9 {
-        // 1.21.9 only queues it: draw it now, under the caller's matrices and the ITEMS_3D lights it just set
+        //? if >=26.3 {
+        // 26.3 draws it from the render state of the player, which extract filled
+        renderer.screenEffectRenderer.renderItemActivationAnimation(
+                renderer.gameRenderState().levelRenderState.playerRenderState, new PoseStack(), partialTicks,
+                McFeatureRenderer.collector());
+        McFeatureRenderer.render();
+        //?} elif >=1.21.9 {
+        /*// 1.21.9 only queues it: draw it now, under the caller's matrices and the ITEMS_3D lights it just set
         renderer.screenEffectRenderer.renderItemActivationAnimation(
                 new PoseStack(), partialTicks, McFeatureRenderer.collector());
         McFeatureRenderer.render();
-        //?} elif >=1.21.6 {
+        *///?} elif >=1.21.6 {
         /*// 1.21.6 moved the animation onto ScreenEffectRenderer
         renderer.screenEffectRenderer.renderItemActivationAnimation(new PoseStack(), partialTicks);
         *///?} elif >=1.21 {
         /*Minecraft minecraft = Minecraft.getInstance();
         renderer.renderItemActivationAnimation(
-                new GuiGraphicsExtractor(minecraft, minecraft.renderBuffers().bufferSource()),
+                new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource()),
                 partialTicks
         );
         *///?} else {
@@ -333,6 +344,14 @@ public class McRenderUtils {
     }
 
     // ------- MATRICES -------
+
+    public static void rotate(PoseStack poseStack, Quaternionf rotation) {
+        //? if >=26.3 {
+        poseStack.rotate(rotation);
+        //?} else {
+        /*poseStack.mulPose(rotation);
+        *///?}
+    }
 
     // 1.20.5 renamed PoseStack.mulPoseMatrix to mulPose
     public static void mulPose(PoseStack poseStack, Matrix4f matrix) {

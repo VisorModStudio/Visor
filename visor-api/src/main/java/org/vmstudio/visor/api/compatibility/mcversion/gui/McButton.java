@@ -59,7 +59,7 @@ public abstract class McButton extends AbstractButton {
         extractDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         //?} elif >=1.21.11 {
         /*renderDefaultSprite(guiGraphics);
-        renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
+        renderDefaultLabel(guiGraphics.textRendererForWidget(this, GuiGraphics.HoveredTextEffects.NONE));
         *///?} else {
         /*super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
         *///?}
@@ -145,12 +145,12 @@ public abstract class McButton extends AbstractButton {
 
     @Override
     public final boolean keyPressed(KeyEvent event) {
-        return keyPressed(event.key(), event.scancode(), event.modifiers());
+        return keyPressed(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override
     public final boolean keyReleased(KeyEvent event) {
-        return keyReleased(event.key(), event.scancode(), event.modifiers());
+        return keyReleased(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override
@@ -169,7 +169,7 @@ public abstract class McButton extends AbstractButton {
     }
     //?} elif <1.21.11 {
     /*@Override
-    protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}

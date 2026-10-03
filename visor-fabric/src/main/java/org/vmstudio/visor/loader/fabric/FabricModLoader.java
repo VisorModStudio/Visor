@@ -116,6 +116,9 @@ public class FabricModLoader implements ModLoader {
     //? if >=1.21.9 {
     // Fabric API has no world render events on 1.21.9, the stages come from
     // FabricLevelRendererStageMixin / FabricChunkSectionsStageMixin instead
+    //? if >=26.3 {
+    @Override
+    //?}
     public void fireLevelStage(RenderPipelineStage stage) {
         fireCallbacks(stage, new PoseStack(), McRenderUtils.partialTick());
     }

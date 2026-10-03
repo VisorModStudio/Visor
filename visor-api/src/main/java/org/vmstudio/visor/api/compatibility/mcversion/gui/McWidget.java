@@ -143,12 +143,12 @@ public abstract class McWidget extends AbstractWidget {
 
     @Override
     public final boolean keyPressed(KeyEvent event) {
-        return keyPressed(event.key(), event.scancode(), event.modifiers());
+        return keyPressed(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override
     public final boolean keyReleased(KeyEvent event) {
-        return keyReleased(event.key(), event.scancode(), event.modifiers());
+        return keyReleased(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override

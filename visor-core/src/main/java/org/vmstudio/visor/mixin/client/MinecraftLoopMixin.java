@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Util;
 import net.minecraft.client.DeltaTracker;
 //? if >=26.2 {
-import com.mojang.blaze3d.systems.GpuSurface;
+import com.mojang.renderpearl.api.device.GpuSurface;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -178,7 +178,24 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
         original.call(instance, deltaTracker, visor$levelInVanillaFrame);
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "renderFrame", require = 1)
+    //? if >=26.3 {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render()V"), method = "renderFrame", require = 1)
+    public void visor$renderVRGuiPhase(GameRenderer instance, Operation<Void> original) {
+        if (VisorState.get().isNotActive()) {
+            original.call(instance);
+            return;
+        }
+        // keeps visor$matrix's identity() off the model-view base
+        McModelViewStack.push();
+        try {
+            original.call(instance);
+        } finally {
+            McModelViewStack.pop();
+            McModelViewStack.apply();
+        }
+    }
+    //?} else {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"), method = "renderFrame", require = 1)
     public void visor$renderVRGuiPhase(GameRenderer instance, DeltaTracker deltaTracker, boolean renderLevel, Operation<Void> original) {
         if (VisorState.get().isNotActive()) {
             original.call(instance, deltaTracker, visor$levelInVanillaFrame);
@@ -193,15 +210,23 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
             McModelViewStack.apply();
         }
     }
+    *///?}
 
     /**
      * Calls VR rendering after mc rendered
      */
     // must sit between GameRenderer.render and blitToScreen, or the mirror is drawn after the window swap
-    @Inject(at = @At(value = "CONSTANT", args = "stringValue=present"), method = "renderFrame", require = 1)
+    //? if >=26.3 {
+    @Inject(at = @At(value = "CONSTANT", args = "stringValue=swapchainBlit"), method = "renderFrame", require = 1)
     public void visor$renderVR(boolean renderLevel, CallbackInfo ci) {
         visor$renderVRFrame(renderLevel, Util.getNanos());
     }
+    //?} else {
+    /*@Inject(at = @At(value = "CONSTANT", args = "stringValue=present"), method = "renderFrame", require = 1)
+    public void visor$renderVR(boolean renderLevel, CallbackInfo ci) {
+        visor$renderVRFrame(renderLevel, Util.getNanos());
+    }
+    *///?}
 
     @Unique
     private void visor$renderVRFrame(boolean renderLevel, long nanoTime) {
@@ -275,7 +300,7 @@ public abstract class MinecraftLoopMixin implements MinecraftExtension {
     }
 
     //? if >=26.2 {
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/GpuSurface$PresentMode;getSupportedVsyncMode(Ljava/util/Collection;Z)Lcom/mojang/blaze3d/systems/GpuSurface$PresentMode;", remap = false), method = "renderFrame", index = 1, require = 1)
+    @ModifyArg(at = @At(value = "INVOKE", target = "Lcom/mojang/renderpearl/api/device/GpuSurface$PresentMode;getSupportedVsyncMode(Ljava/util/Collection;Z)Lcom/mojang/renderpearl/api/device/GpuSurface$PresentMode;", remap = false), method = "renderFrame", index = 1, require = 1)
     private boolean visor$noVsync(boolean vsync) {
         return vsync && VisorState.get().isNotActive();
     }

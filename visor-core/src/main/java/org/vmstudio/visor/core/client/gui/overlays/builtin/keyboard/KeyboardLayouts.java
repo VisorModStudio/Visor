@@ -1,9 +1,9 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
+import org.vmstudio.visor.api.client.input.InputHelper;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public final class KeyboardLayouts {
 
         for (int row = 0; row < rows.length; row++) {
             normalLayer[row] = buildRow(rows[row], false, 0);
-            shiftLayer[row] = buildRow(rows[row], true, GLFW.GLFW_MOD_SHIFT);
+            shiftLayer[row] = buildRow(rows[row], true, InputHelper.MOD_SHIFT);
         }
 
         return new KeyboardLayoutKeys(layout, normalLayer, shiftLayer);

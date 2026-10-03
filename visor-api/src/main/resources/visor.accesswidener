@@ -40,13 +40,13 @@ accessible field net/minecraft/client/gui/components/ChatComponent trimmedMessag
 
 # Used in: HandEffectCrosshair (via McVersionClientUtils.crosshairTexture)
 #? if <1.20.2 {
-#accessible field net/minecraft/client/gui/Gui GUI_ICONS_LOCATION Lnet/minecraft/resources/Identifier;
+#accessible field net/minecraft/client/gui/Gui GUI_ICONS_LOCATION Lnet/minecraft/resources/ResourceLocation;
 #?}
 
 # Used in: McShaderProgram
 #? if >=1.21.5 && <1.21.11 {
-#accessible method net/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder;
-#accessible method net/minecraft/client/renderer/rendertype/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;
+#accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder setTextureState (Lnet/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard;)Lnet/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder;
+#accessible method net/minecraft/client/renderer/RenderType$CompositeState$CompositeStateBuilder createCompositeState (Z)Lnet/minecraft/client/renderer/RenderType$CompositeState;
 #?}
 
 # Used in: McPlayerInput
@@ -63,7 +63,9 @@ accessible method net/minecraft/client/KeyboardHandler keyPress (JILnet/minecraf
 #?} else {
 #accessible method net/minecraft/client/MouseHandler onPress (JIII)V
 #?}
-accessible method net/minecraft/client/MouseHandler onMove (JDD)V
+#? if <26.3 {
+#accessible method net/minecraft/client/MouseHandler onMove (JDD)V
+#?}
 accessible method net/minecraft/client/MouseHandler onScroll (JDD)V
 #? if >=1.21.9 {
 accessible method net/minecraft/client/KeyboardHandler charTyped (JLnet/minecraft/client/input/CharacterEvent;)V
@@ -113,22 +115,34 @@ accessible field net/minecraft/client/renderer/GameRenderer mainRenderTarget Lco
 #accessible field net/minecraft/client/Minecraft mainRenderTarget Lcom/mojang/blaze3d/pipeline/RenderTarget;
 #?}
 
+# Used in: ItemInHandRendererMixin
+#? if >=26.3 {
+accessible field net/minecraft/client/player/FirstPersonHandsAndItems mainHandHeight F
+accessible field net/minecraft/client/player/FirstPersonHandsAndItems oMainHandHeight F
+accessible field net/minecraft/client/player/FirstPersonHandsAndItems offHandHeight F
+accessible field net/minecraft/client/player/FirstPersonHandsAndItems oOffHandHeight F
+#?}
+
 # Used in: McGlState
-#? if >=26.2 {
-accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND [Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
-accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
-#?} elif >=1.21.5 {
-#accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
+#? if >=26.2 && <26.3 {
+#accessible field com/mojang/blaze3d/opengl/GlStateManager BLEND [Lcom/mojang/blaze3d/opengl/GlStateManager$BlendState;
 #accessible class com/mojang/blaze3d/opengl/GlStateManager$BlendState
+#?} elif >=1.21.5 {
+accessible field com/mojang/renderpearl/backend/opengl/GlStateManager BLEND Lcom/mojang/renderpearl/backend/opengl/GlStateManager$BlendState;
+accessible class com/mojang/renderpearl/backend/opengl/GlStateManager$BlendState
 #?} else {
 #accessible field com/mojang/blaze3d/platform/GlStateManager BLEND Lcom/mojang/blaze3d/platform/GlStateManager$BlendState;
 #accessible class com/mojang/blaze3d/platform/GlStateManager$BlendState
 #?}
 
-# Used in: McRenderTarget
+# Used in: McGlState, McRenderTarget
 #? if >=26.1 {
-accessible class com/mojang/blaze3d/opengl/GlDevice
-accessible field com/mojang/blaze3d/systems/GpuDevice backend Lcom/mojang/blaze3d/systems/GpuDeviceBackend;
+accessible class com/mojang/renderpearl/backend/opengl/GlDevice
+#?}
+#? if >=26.3 {
+accessible field com/mojang/renderpearl/frontend/FrontendGpuDevice backend Lcom/mojang/renderpearl/backend/api/GpuDeviceBackend;
+#?} elif >=26.1 {
+#accessible field com/mojang/blaze3d/systems/GpuDevice backend Lcom/mojang/blaze3d/systems/GpuDeviceBackend;
 #?}
 
 # ------ RENDERING ------------------
@@ -137,28 +151,28 @@ accessible field com/mojang/blaze3d/systems/GpuDevice backend Lcom/mojang/blaze3
 #? if >=1.21.11 {
 accessible method net/minecraft/client/renderer/rendertype/RenderType <init> (Ljava/lang/String;Lnet/minecraft/client/renderer/rendertype/RenderSetup;)V
 #?} elif >=1.21.5 {
-#accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeRenderType;
+#accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;ILcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 #?} else {
-#accessible method net/minecraft/client/renderer/rendertype/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/rendertype/RenderType$CompositeState;)Lnet/minecraft/client/renderer/rendertype/RenderType$CompositeRenderType;
+#accessible method net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 #accessible class net/minecraft/client/renderer/RenderStateShard$ShaderStateShard
 #?}
 #? if <1.21.11 {
-#accessible class net/minecraft/client/renderer/rendertype/RenderType$CompositeState
+#accessible class net/minecraft/client/renderer/RenderType$CompositeState
 #accessible class net/minecraft/client/renderer/RenderStateShard$MultiTextureStateShard
 #?}
 
 # Used in: ItemInHandLayerMixin, PlayerItemInHandLayerMixin
-#? if >=26.2 {
-accessible method net/minecraft/client/renderer/ItemInHandRenderer submitArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
-#?} elif >=1.21.9 {
+#? if >=26.2 && <26.3 {
+#accessible method net/minecraft/client/renderer/ItemInHandRenderer submitArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
+#?} elif >=1.21.9 && <26.2 {
 #accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V
-#?} else {
+#?} elif <1.21.9 {
 #accessible method net/minecraft/client/renderer/ItemInHandRenderer renderArmWithItem (Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V
 #?}
 
 # Used in: GameEffectVanilla, GameRendererMixin
 #? if >=1.21 && <1.21.6 {
-#accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphicsExtractor;F)V
+#accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (Lnet/minecraft/client/gui/GuiGraphics;F)V
 #?} elif <1.21 {
 #accessible method net/minecraft/client/renderer/GameRenderer renderItemActivationAnimation (IIF)V
 #?}
@@ -170,18 +184,20 @@ accessible field net/minecraft/client/renderer/GameRenderer guiRenderer Lnet/min
 #? if >=26.1 {
 accessible field net/minecraft/client/renderer/GameRenderer useUiLightmap Z
 #?} else {
-#accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/renderer/state/gui/GuiRenderState;
+#accessible field net/minecraft/client/renderer/GameRenderer guiRenderState Lnet/minecraft/client/gui/render/state/GuiRenderState;
 #?}
 accessible field net/minecraft/client/renderer/GameRenderer screenEffectRenderer Lnet/minecraft/client/renderer/ScreenEffectRenderer;
-#? if >=1.21.9 {
-accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/SubmitNodeCollector;)V
+#? if >=26.3 {
+accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lnet/minecraft/client/renderer/state/level/PlayerRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/SubmitNodeCollector;)V
+#?} elif >=1.21.9 {
+#accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;FLnet/minecraft/client/renderer/SubmitNodeCollector;)V
 #?} else {
 #accessible method net/minecraft/client/renderer/ScreenEffectRenderer renderItemActivationAnimation (Lcom/mojang/blaze3d/vertex/PoseStack;F)V
 #?}
 #? if >=1.21.11 && <26.1 {
-#accessible method net/minecraft/client/gui/GuiGraphicsExtractor submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;Lcom/mojang/blaze3d/textures/GpuSampler;IIIIFFFFI)V
+#accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;Lcom/mojang/blaze3d/textures/GpuSampler;IIIIFFFFI)V
 #?} elif <1.21.11 {
-#accessible method net/minecraft/client/gui/GuiGraphicsExtractor submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
+#accessible method net/minecraft/client/gui/GuiGraphics submitBlit (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lcom/mojang/blaze3d/textures/GpuTextureView;IIIIFFFFI)V
 #?}
 #?}
 

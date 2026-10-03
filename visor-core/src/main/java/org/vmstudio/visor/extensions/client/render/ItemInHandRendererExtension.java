@@ -9,6 +9,10 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 *///?}
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+//? if >=26.3 {
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+//?}
 
 public interface ItemInHandRendererExtension {
     void visor$renderMap(PoseStack poseStack,
@@ -20,4 +24,9 @@ public interface ItemInHandRendererExtension {
                          int pCombinedLight,
                          ItemStack itemStack);
     float visor$getEquipProgress(InteractionHand hand, float partialTicks);
+
+    //? if >=26.3 {
+    void visor$renderItem(LivingEntity entity, ItemStack itemStack, ItemDisplayContext displayContext,
+                          PoseStack poseStack, SubmitNodeCollector collector, int lightCoords);
+    //?}
 }

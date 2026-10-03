@@ -69,7 +69,7 @@ public abstract class WinScreenMixin extends Screen {
     //?} else {
     /*// 1.20.5 moved the vignette blit into its own method
     @Inject(at = @At("HEAD"), method = "renderVignette", cancellable = true)
-    private void visor$noVignette(GuiGraphicsExtractor guiGraphics, CallbackInfo ci) {
+    private void visor$noVignette(GuiGraphics guiGraphics, CallbackInfo ci) {
         if (VisorState.get().isActive()) {
             ci.cancel();
         }

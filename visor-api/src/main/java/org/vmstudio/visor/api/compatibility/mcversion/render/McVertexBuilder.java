@@ -1,22 +1,22 @@
 package org.vmstudio.visor.api.compatibility.mcversion.render;
 
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 //? if >=26.2 {
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 //?} else {
 /*import com.mojang.blaze3d.vertex.Tesselator;
 *///?}
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import org.joml.Matrix4f;
 //? if >=1.21.9 {
 import org.joml.Vector3f;
 //?}
 //? if >=1.21.5 {
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
 
@@ -31,11 +31,11 @@ import java.util.function.Consumer;
 /*import com.mojang.blaze3d.vertex.BufferUploader;
 *///?}
 //? if >=1.21.6 {
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.ScissorState;
 //?}
 //? if >=26.2 {
-import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.renderpearl.api.commands.CommandEncoder;
 //?}
 
 /**
@@ -208,7 +208,11 @@ public final class McVertexBuilder {
                     () -> "visor immediate draw",
                     target.getColorTextureView(), Optional.empty(),
                     target.getDepthTextureView(), OptionalDouble.empty())) {
-                pass.setPipeline(pipeline);
+                //? if >=26.3 {
+                pass.setPipeline(RenderSystem.getCompiledPipeline(pipeline));
+                //?} else {
+                /*pass.setPipeline(pipeline);
+                *///?}
                 ScissorState scissor = RenderSystem.getScissorStateForRenderTypeDraws();
                 if (scissor.enabled()) {
                     int left = Math.max(0, scissor.x());

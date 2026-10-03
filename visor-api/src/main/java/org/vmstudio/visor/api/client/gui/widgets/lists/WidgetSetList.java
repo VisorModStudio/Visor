@@ -1,6 +1,7 @@
 package org.vmstudio.visor.api.client.gui.widgets.lists;
 
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiEventListener;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McRenderable;
@@ -288,7 +289,7 @@ public class WidgetSetList implements McGuiEventListener, McRenderable, Narratab
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!isMouseOver(mouseX, mouseY)) return false;
 
-        if (button == 0 && getMaxScroll() > 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT && getMaxScroll() > 0) {
             int sbX = getScrollbarX();
             if (mouseX >= sbX && mouseX < sbX + scrollBarWidth + 2) {
                 scrolling = true;
@@ -313,7 +314,7 @@ public class WidgetSetList implements McGuiEventListener, McRenderable, Narratab
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             scrolling = false;
         }
         for (Entry entry : entries) {
@@ -330,7 +331,7 @@ public class WidgetSetList implements McGuiEventListener, McRenderable, Narratab
     @Override
     public boolean mouseDragged(double mouseX, double mouseY,
                                 int button, double dragX, double dragY) {
-        if (scrolling && button == 0) {
+        if (scrolling && button == InputConstants.MOUSE_BUTTON_LEFT) {
             lastDragCall = System.currentTimeMillis();
             int maxScroll = getMaxScroll();
             if (maxScroll <= 0) return true;

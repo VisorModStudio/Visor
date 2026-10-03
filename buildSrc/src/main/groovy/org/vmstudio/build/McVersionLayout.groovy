@@ -130,12 +130,12 @@ class McVersionLayout {
         def moves = moves(version)
         def log = (moves.leaving + moves.entering).collect { File from, File to -> move(from, to) }
         moves.entering.each { File from, File to ->
-            if (normalize(to, version)) {
+            if (normalize(to, version, McVersionRange.fromHeader(to))) {
                 log << "${rel(branch, to)}: rendered for ${version}".toString()
             }
         }
         parkedFiles().each { p ->
-            if (normalize(p.file, p.range.from)) {
+            if (normalize(p.file, p.range.from, p.range)) {
                 log << "${rel(branch, p.file)}: rendered for ${p.range.from}".toString()
             }
         }
@@ -223,11 +223,16 @@ class McVersionLayout {
         McVersionRenames.apply(McVersionGates.render(text, version), version)
     }
 
+    // the stored form of a range copy on its home version: Stonecutter's, the other branches in their own names
+    String canonical(String text, String version, McVersionRange range) {
+        McVersionGates.nativeForm(forVersion(text, version), version, nodesIn(range))
+    }
+
     private List<String> gateProblems(String where, File f, McVersionRange range, String version, String fix) {
         def text = f.getText("UTF-8")
         try {
             def problems = []
-            if (forVersion(text, version) != text) {
+            if (canonical(text, version, range) != text) {
                 problems << "${where}: gates or names not in the form of ${version} - ${fix}".toString()
             }
             McVersionGates.constantChains(text, nodesIn(range)).each { marker ->
@@ -239,9 +244,9 @@ class McVersionLayout {
         }
     }
 
-    private static boolean normalize(File f, String version) {
+    private boolean normalize(File f, String version, McVersionRange range) {
         def text = f.getText("UTF-8")
-        def normalized = forVersion(text, version)
+        def normalized = canonical(text, version, range)
         if (normalized == text) {
             return false
         }

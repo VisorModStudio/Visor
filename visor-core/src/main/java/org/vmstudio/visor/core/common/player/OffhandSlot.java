@@ -43,7 +43,7 @@ public class OffhandSlot extends Slot {
     }
     //?} else {
     /*@Override
-    public Pair<Identifier, Identifier> getNoItemIcon() {
+    public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
         return Pair.of(InventoryMenu.BLOCK_ATLAS, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD);
     }
     *///?}

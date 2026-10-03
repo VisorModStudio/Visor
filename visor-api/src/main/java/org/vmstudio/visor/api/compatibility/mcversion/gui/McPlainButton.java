@@ -37,12 +37,12 @@ public class McPlainButton extends Button {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     //?} elif <1.21.11 {
-    /*protected void renderContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    /*protected void renderContents(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
-    protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderContents(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?}

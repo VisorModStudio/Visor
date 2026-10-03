@@ -5,7 +5,7 @@ plugins {
 // Currently used version
 // Switch with `gradlew "Set active project to <version>"`,
 // go back with `gradlew "Reset active project"`.
-stonecutter.active "26.2" /* [SC] DO NOT EDIT */
+stonecutter.active "26.3" /* [SC] DO NOT EDIT */
 
 // ------ Versioning ------------------------------------------
 def versionPropsFile = rootProject.file("version.properties")
@@ -71,6 +71,10 @@ def mcversionLayout = {
     def core = stonecutter.tree.getBranches().find { it.getId() == "visor-core" }
     new org.vmstudio.build.McVersionLayout(rootProject.file("visor-core"), core.getVersions()*.getVersion())
 }
+def mcversionForm = {
+    new org.vmstudio.build.McVersionForm(rootDir, stonecutter.tree.getBranches()
+            .collectEntries { [(it.getId()): it.getVersions()*.getVersion()] })
+}
 def mcversionMove = tasks.register("mcversionMove") {
     group = "stonecutter"
     description = "Moves the range files covering the version switched to into visor-core/src and parks the others"
@@ -86,12 +90,13 @@ def mcversionMove = tasks.register("mcversionMove") {
 }
 def mcversionSwitch = tasks.register("mcversionSwitch") {
     group = "stonecutter"
-    description = "Resyncs the range files with the active version and keeps the parked ones in the form of their range"
+    description = "Resyncs the range files with the active version, keeps the parked ones in the form of their range and every commented branch in its own names"
     outputs.dirs(file("visor-core/src/main/java"), file("visor-core/mcversion"))
     outputs.upToDateWhen { false }
     doLast {
         def active = org.vmstudio.build.McVersionLayout.activeVersion(rootDir)
         mcversionLayout().switchTo(active).each { logger.lifecycle("mcversion: ${it}") }
+        mcversionForm().normalize(active).each { logger.lifecycle("mcversion: ${it}") }
     }
 }
 tasks.withType(switchTaskType).configureEach { finalizedBy mcversionSwitch }
@@ -110,7 +115,7 @@ gradle.projectsEvaluated {
 stonecutter.parameters {
     swaps.put("mod_version", "\"${mod_version}\";")
     // Pure renames and package moves (ResourceLocation -> Identifier, ...): see McVersionRenames
-    org.vmstudio.build.McVersionRenames.RULES.each { rule ->
+    org.vmstudio.build.McVersionRenames.forVersion(current.version).each { rule ->
         replacements.regex(rule.forward(current.version)) {
             replace(rule.oldPattern, rule.newText, rule.newPattern, rule.oldText)
         }

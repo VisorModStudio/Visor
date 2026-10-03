@@ -378,7 +378,11 @@ public abstract class VRRendererBase implements VRRenderer {
 
     @Override
     public long getWindowHandle() {
-        return McVersionClientUtils.windowHandle();
+        //? if >=26.3 {
+        return 0L;
+        //?} else {
+        /*return McVersionClientUtils.windowHandle();
+        *///?}
     }
 
     @Override

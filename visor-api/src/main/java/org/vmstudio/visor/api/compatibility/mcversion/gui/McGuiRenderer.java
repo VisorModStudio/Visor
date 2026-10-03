@@ -48,13 +48,13 @@ public class McGuiRenderer {
         //?} elif >=1.21.11 {
         /*GameRenderer gameRenderer = minecraft.gameRenderer;
         gameRenderer.guiRenderState.reset();
-        return new GuiGraphicsExtractor(minecraft, gameRenderer.guiRenderState, mouseX, mouseY);
+        return new GuiGraphics(minecraft, gameRenderer.guiRenderState, mouseX, mouseY);
         *///?} elif >=1.21.6 {
         /*GameRenderer gameRenderer = minecraft.gameRenderer;
         gameRenderer.guiRenderState.reset();
-        return new GuiGraphicsExtractor(minecraft, gameRenderer.guiRenderState);
+        return new GuiGraphics(minecraft, gameRenderer.guiRenderState);
         *///?} else {
-        /*return new GuiGraphicsExtractor(minecraft, minecraft.renderBuffers().bufferSource());
+        /*return new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
         *///?}
     }
 

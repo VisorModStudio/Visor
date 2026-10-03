@@ -1,3 +1,4 @@
+// #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.client;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.item.component.SwingAnimation;
 
 // two-handed VR
 @Mixin(Minecraft.class)
@@ -32,17 +34,18 @@ public abstract class MinecraftOffhandMixin {
   //--------MIXINS--------\\
     \* ***************** */
 
-    @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$markAttackSwing(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+    @WrapOperation(method = {"continueAttack", "startAttack"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/component/SwingAnimation;Z)Z"))
+    private boolean visor$markAttackSwing(LocalPlayer instance, InteractionHand hand, SwingAnimation animation,
+                                          boolean sendToSwingingEntity, Operation<Boolean> original) {
         if (VisorState.get().isActive()) {
             ClientContext.handRenderer.setSwingType(HandAction.ATTACK);
-            original.call(instance,
+            return original.call(instance,
                     ClientContext.localPlayer.getActiveHand()
-                            .asInteractionHand()
+                            .asInteractionHand(),
+                    animation, sendToSwingingEntity
             );
-            return;
         }
-        original.call(instance, hand);
+        return original.call(instance, hand, animation, sendToSwingingEntity);
     }
 
 
@@ -105,11 +108,12 @@ public abstract class MinecraftOffhandMixin {
         return original.call();
     }
 
-    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;)V"))
-    private void visor$markUseSwing(LocalPlayer instance, InteractionHand hand, Operation<Void> original) {
+    @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;swing(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/component/SwingAnimation;Z)Z"))
+    private boolean visor$markUseSwing(LocalPlayer instance, InteractionHand hand, SwingAnimation animation,
+                                       boolean sendToSwingingEntity, Operation<Boolean> original) {
         if (VisorState.get().isActive()) {
             ClientContext.handRenderer.setSwingType(HandAction.USE);
         }
-        original.call(instance, hand);
+        return original.call(instance, hand, animation, sendToSwingingEntity);
     }
 }

@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.player.model.simple;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -155,11 +156,11 @@ public class VRPlayerModelSimple extends PlayerModel {
     private static void applyVanillaSwingPose(VRPlayerModelSimple model,
                                               AbstractClientPlayer player,
                                               float partialTicks) {
-        InteractionHand swinging = player.swingingArm;
+        InteractionHand swinging = McVersionUtils.swingingArm(player);
         if (swinging == null) {
             return;
         }
-        float attackTime = player.getAttackAnim(partialTicks);
+        float attackTime = McVersionUtils.attackAnim(player, partialTicks);
         if (attackTime <= 0.0F) {
             return;
         }

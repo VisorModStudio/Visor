@@ -1,68 +1,68 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.keyboard;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.glfw.GLFW;
 
 
 public final class KeyboardRow {
 
     private static final int[] NUMBERS = {
-            GLFW.GLFW_KEY_GRAVE_ACCENT,
-            GLFW.GLFW_KEY_1,
-            GLFW.GLFW_KEY_2,
-            GLFW.GLFW_KEY_3,
-            GLFW.GLFW_KEY_4,
-            GLFW.GLFW_KEY_5,
-            GLFW.GLFW_KEY_6,
-            GLFW.GLFW_KEY_7,
-            GLFW.GLFW_KEY_8,
-            GLFW.GLFW_KEY_9,
-            GLFW.GLFW_KEY_0,
-            GLFW.GLFW_KEY_MINUS,
-            GLFW.GLFW_KEY_EQUAL
+            InputConstants.KEY_GRAVE,
+            InputConstants.KEY_1,
+            InputConstants.KEY_2,
+            InputConstants.KEY_3,
+            InputConstants.KEY_4,
+            InputConstants.KEY_5,
+            InputConstants.KEY_6,
+            InputConstants.KEY_7,
+            InputConstants.KEY_8,
+            InputConstants.KEY_9,
+            InputConstants.KEY_0,
+            InputConstants.KEY_MINUS,
+            InputConstants.KEY_EQUALS
     };
 
     private static final int[] TOP = {
-            GLFW.GLFW_KEY_Q,
-            GLFW.GLFW_KEY_W,
-            GLFW.GLFW_KEY_E,
-            GLFW.GLFW_KEY_R,
-            GLFW.GLFW_KEY_T,
-            GLFW.GLFW_KEY_Y,
-            GLFW.GLFW_KEY_U,
-            GLFW.GLFW_KEY_I,
-            GLFW.GLFW_KEY_O,
-            GLFW.GLFW_KEY_P,
-            GLFW.GLFW_KEY_LEFT_BRACKET,
-            GLFW.GLFW_KEY_RIGHT_BRACKET,
-            GLFW.GLFW_KEY_BACKSLASH
+            InputConstants.KEY_Q,
+            InputConstants.KEY_W,
+            InputConstants.KEY_E,
+            InputConstants.KEY_R,
+            InputConstants.KEY_T,
+            InputConstants.KEY_Y,
+            InputConstants.KEY_U,
+            InputConstants.KEY_I,
+            InputConstants.KEY_O,
+            InputConstants.KEY_P,
+            InputConstants.KEY_LBRACKET,
+            InputConstants.KEY_RBRACKET,
+            InputConstants.KEY_BACKSLASH
     };
 
     private static final int[] HOME = {
-            GLFW.GLFW_KEY_A,
-            GLFW.GLFW_KEY_S,
-            GLFW.GLFW_KEY_D,
-            GLFW.GLFW_KEY_F,
-            GLFW.GLFW_KEY_G,
-            GLFW.GLFW_KEY_H,
-            GLFW.GLFW_KEY_J,
-            GLFW.GLFW_KEY_K,
-            GLFW.GLFW_KEY_L,
-            GLFW.GLFW_KEY_SEMICOLON,
-            GLFW.GLFW_KEY_APOSTROPHE
+            InputConstants.KEY_A,
+            InputConstants.KEY_S,
+            InputConstants.KEY_D,
+            InputConstants.KEY_F,
+            InputConstants.KEY_G,
+            InputConstants.KEY_H,
+            InputConstants.KEY_J,
+            InputConstants.KEY_K,
+            InputConstants.KEY_L,
+            InputConstants.KEY_SEMICOLON,
+            InputConstants.KEY_APOSTROPHE
     };
 
     private static final int[] BOTTOM = {
-            GLFW.GLFW_KEY_Z,
-            GLFW.GLFW_KEY_X,
-            GLFW.GLFW_KEY_C,
-            GLFW.GLFW_KEY_V,
-            GLFW.GLFW_KEY_B,
-            GLFW.GLFW_KEY_N,
-            GLFW.GLFW_KEY_M,
-            GLFW.GLFW_KEY_COMMA,
-            GLFW.GLFW_KEY_PERIOD,
-            GLFW.GLFW_KEY_SLASH
+            InputConstants.KEY_Z,
+            InputConstants.KEY_X,
+            InputConstants.KEY_C,
+            InputConstants.KEY_V,
+            InputConstants.KEY_B,
+            InputConstants.KEY_N,
+            InputConstants.KEY_M,
+            InputConstants.KEY_COMMA,
+            InputConstants.KEY_PERIOD,
+            InputConstants.KEY_SLASH
     };
 
     private final int[] keyCodes;

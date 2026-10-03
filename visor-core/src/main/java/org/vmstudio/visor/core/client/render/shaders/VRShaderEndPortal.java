@@ -1,13 +1,13 @@
 package org.vmstudio.visor.core.client.render.shaders;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import lombok.Getter;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.blockentity.TheEndPortalRenderer;
 import org.joml.Matrix3f;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 
 public class VRShaderEndPortal implements VRShader{
     @Getter

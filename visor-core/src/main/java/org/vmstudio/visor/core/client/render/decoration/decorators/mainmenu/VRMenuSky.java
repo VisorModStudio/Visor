@@ -6,7 +6,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import me.phoenixra.atumvr.api.misc.color.AtumColorImmutable;
 import me.phoenixra.atumvr.api.misc.color.AtumColorMutable;

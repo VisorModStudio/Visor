@@ -1,5 +1,6 @@
 package org.vmstudio.visor.api.client.gui.widgets.lists;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import lombok.Getter;
 import org.vmstudio.visor.api.VisorAPI;
@@ -416,7 +417,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == InputConstants.MOUSE_BUTTON_LEFT) {
             this.scrolling = false;
         }
         return super.mouseReleased(mouseX, mouseY, button);
@@ -562,7 +563,7 @@ public class TexturedSelectionList extends McSelectionList<TexturedSelectionList
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (button == 0) {
+            if (button == InputConstants.MOUSE_BUTTON_LEFT) {
                 int col = getColumnAtX(mouseX);
                 TexturedEntry entry = getEntry(col);
                 if (entry != null) {

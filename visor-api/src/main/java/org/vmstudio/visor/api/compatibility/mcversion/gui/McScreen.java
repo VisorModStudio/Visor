@@ -161,7 +161,7 @@ public abstract class McScreen extends Screen {
     //? if >=26.1 {
     public final void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
     //?} else {
-    /*public final void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    /*public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
     *///?}
         //? if <1.20.2 {
         /*renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
@@ -181,19 +181,19 @@ public abstract class McScreen extends Screen {
 
     //? if <1.20.2 {
     /*@Override
-    public final void renderBackground(GuiGraphicsExtractor guiGraphics) {
+    public final void renderBackground(GuiGraphics guiGraphics) {
         renderScreenBackground(guiGraphics, 0, 0, 0);
     }
     *///?} elif <1.21.9 {
     /*@Override
-    public final void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         if (!contentsPass) {
             renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
     *///?} elif <26.1 {
     /*@Override
-    public final void renderBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public final void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         renderScreenBackground(guiGraphics, mouseX, mouseY, partialTick);
     }
     *///?} else {
@@ -228,12 +228,12 @@ public abstract class McScreen extends Screen {
 
     @Override
     public final boolean keyPressed(KeyEvent event) {
-        return onKeyPressed(event.key(), event.scancode(), event.modifiers());
+        return onKeyPressed(event.key(), event.keycode(), event.modifiers());
     }
 
     @Override
     public final boolean keyReleased(KeyEvent event) {
-        return onKeyReleased(event.key(), event.scancode(), event.modifiers());
+        return onKeyReleased(event.key(), event.keycode(), event.modifiers());
     }
 
     // older vanilla delivered supplementary code points as surrogate pairs

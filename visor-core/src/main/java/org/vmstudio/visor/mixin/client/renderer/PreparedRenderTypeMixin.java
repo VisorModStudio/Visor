@@ -1,17 +1,15 @@
-// #!MC-VERSION:: 26.2+
+// #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.client.renderer;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
-import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+import com.mojang.renderpearl.api.commands.RenderPass;
 import net.minecraft.client.renderer.rendertype.PreparedRenderType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 
 @Mixin(PreparedRenderType.class)
@@ -20,17 +18,12 @@ public abstract class PreparedRenderTypeMixin {
     @Shadow @Final
     private RenderPipeline pipeline;
 
-    @Inject(method = "drawFromBuffer(Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/IndexType;III)V",
-            at = @At("HEAD"))
-    private void visor$writeProgramUniforms(CallbackInfo ci) {
-        McShaderProgram.prepareRenderTypeDraw(this.pipeline);
-    }
-
-    @WrapOperation(method = "drawFromBuffer(Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/buffers/GpuBuffer;Lcom/mojang/blaze3d/IndexType;III)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;bindDefaultUniforms(Lcom/mojang/blaze3d/systems/RenderPass;)V"),
+    @WrapOperation(method = "draw",
+            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;bindDefaultUniforms(Lcom/mojang/renderpearl/api/commands/RenderPass;)V"),
             require = 1)
     private void visor$bindProgramUniforms(RenderPass pass, Operation<Void> original) {
         original.call(pass);
+        McShaderProgram.prepareRenderTypeDraw(this.pipeline);
         McShaderProgram.bindRenderTypeDraw(pass, this.pipeline);
     }
 }

@@ -1,34 +1,21 @@
-// #!MC-VERSION:: 26.1.2+
+// #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.client.renderer;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import com.mojang.blaze3d.systems.CommandEncoder;
-import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.renderpearl.api.commands.CommandEncoder;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import org.joml.Matrix4fc;
-//? if >=26.2 {
 import org.joml.Vector4fc;
-//?}
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import org.vmstudio.visor.api.client.ClientFeature;
-import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
-import org.vmstudio.visor.core.client.player.VRAimPicker;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -39,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.vmstudio.visor.core.client.render.helpers.RenderPoseHelper;
 
 import java.nio.file.Path;
 
@@ -85,12 +71,13 @@ public abstract class GameRendererMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;effectActive:Z"), method = "render")
-    public boolean visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Boolean> original) {
-        return original.call(instance) && VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON;
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;applyPostEffects()V"), method = "render", require = 1)
+    private void visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Void> original) {
+        if (VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON) {
+            original.call(instance);
+        }
     }
 
-    //? if >=26.2 {
     @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;resize(II)V"), method = "render", require = 1)
     private void visor$noVanillaResizeInVR(GameRenderer instance, int width, int height, Operation<Void> original) {
         if (VisorState.get().isNotActive()) {
@@ -98,29 +85,13 @@ public abstract class GameRendererMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearColorAndDepthTextures(Lcom/mojang/blaze3d/textures/GpuTexture;Lorg/joml/Vector4fc;Lcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false), method = "render", require = 1)
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/renderpearl/api/commands/CommandEncoder;clearColorAndDepthTextures(Lcom/mojang/renderpearl/api/textures/GpuTexture;Lorg/joml/Vector4fc;Lcom/mojang/renderpearl/api/textures/GpuTexture;D)V", remap = false), method = "render", require = 1)
     private void visor$noFrameClearInWorldPass(CommandEncoder encoder, GpuTexture color, Vector4fc clearColor,
                                                GpuTexture depth, double clearDepth, Operation<Void> original) {
         if (VRRenderState.getPhase().isNotVRWorld()) {
             original.call(encoder, color, clearColor, depth, clearDepth);
         }
     }
-    //?} else {
-    /*@Inject(at = @At("TAIL"), method = "extractWindow")
-    private void visor$noVanillaResizeInVR(CallbackInfo ci) {
-        if (VisorState.get().isActive()) {
-            ((GameRenderer) (Object) this).getGameRenderState().windowRenderState.isResized = false;
-        }
-    }
-
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/CommandEncoder;clearColorAndDepthTextures(Lcom/mojang/blaze3d/textures/GpuTexture;ILcom/mojang/blaze3d/textures/GpuTexture;D)V", remap = false), method = "render", require = 1)
-    private void visor$noFrameClearInWorldPass(CommandEncoder encoder, GpuTexture color, int clearColor,
-                                               GpuTexture depth, double clearDepth, Operation<Void> original) {
-        if (VRRenderState.getPhase().isNotVRWorld()) {
-            original.call(encoder, color, clearColor, depth, clearDepth);
-        }
-    }
-    *///?}
 
     @Inject(at = @At("HEAD"), method = "takeAutoScreenshot", cancellable = true)
     public void visor$skipAutoScreenshotInMenu(Path path, CallbackInfo ci) {
@@ -147,14 +118,14 @@ public abstract class GameRendererMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(Lnet/minecraft/client/renderer/state/level/CameraRenderState;FLorg/joml/Matrix4fc;)V"), method = "renderLevel")
-    public void visor$noVanillaHands(GameRenderer instance, CameraRenderState cameraState, float partialTick, Matrix4fc modelView,
-                                     Operation<Void> original) {
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lnet/minecraft/client/renderer/state/level/PlayerRenderState;Lcom/mojang/renderpearl/api/textures/GpuTextureView;)V"), method = "render3dHud", require = 1)
+    public void visor$noVanillaHands(GameRenderer instance, CameraRenderState cameraState, PlayerRenderState playerState,
+                                     GpuTextureView depthTexture, Operation<Void> original) {
         if (VRRenderState.isSpectatedVRView(minecraft.getCameraEntity())) {
             return;
         }
         if (VRRenderState.getPhase().isVanilla()) {
-            original.call(instance, cameraState, partialTick, modelView);
+            original.call(instance, cameraState, playerState, depthTexture);
         }
     }
 

@@ -13,8 +13,12 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 public abstract class SkyRendererMixin {
 
     @ModifyExpressionValue(
-            method = {"renderSkyDisc", "renderDarkDisc", "renderSun", "renderMoon", "renderStars",
+            //? if >=26.3 {
+            method = "render",
+            //?} else {
+            /*method = {"renderSkyDisc", "renderDarkDisc", "renderSun", "renderMoon", "renderStars",
                     "renderSunriseAndSunset", "renderEndSky", "renderEndFlash"},
+            *///?}
             at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
                     target = "Lnet/minecraft/client/renderer/SkyRenderer;renderTarget:Lcom/mojang/blaze3d/pipeline/RenderTarget;"),
             require = 1)

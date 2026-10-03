@@ -9,6 +9,7 @@ import java.util.regex.Pattern
 class McVersionGates {
     private static final String SUPERSCRIPTS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
     private static final Pattern MARKER = ~/\/\/\?[^\n]*/
+    static final Pattern HASH_MARKER = ~/(?m)^#\?[^\n]*/
     private static final Pattern TERM = ~/^\s*(>=|<=|!=|==|>|<|=)?\s*([\d.]+)\s*$/
 
     static boolean hasMarkers(String text) {
@@ -48,6 +49,34 @@ class McVersionGates {
         }
         out.append(text, pos, text.length())
         out.toString()
+    }
+
+    // Stonecutter renames commented branches too: each branch goes back to the names of the newest node taking it
+    static String nativeForm(String text, String version, List<String> nodes, Pattern marker = MARKER) {
+        def found = chains(text, marker)
+        List<MatchResult> marks = found.marks
+        def out = new StringBuilder()
+        int pos = 0
+        for (List<Integer> chain : found.chains) {
+            out.append(renamed(text.substring(pos, marks[chain[0]].start()), version))
+            def markers = chain.collect { parseMarker(marks[it].group()) }
+            for (int i = 0; i < chain.size() - 1; i++) {
+                MatchResult head = marks[chain[i]]
+                String scope = text.substring(head.end(), marks[chain[i + 1]].start())
+                List<String> mine = nodes.findAll { pick(markers, it) == i }
+                String own = version in mine ? version : mine.max { a, b -> McVersionRange.compare(a, b) }
+                out.append(head.group()).append(nativeForm(scope, own, mine, marker))
+            }
+            MatchResult end = marks[chain[chain.size() - 1]]
+            out.append(end.group())
+            pos = end.end()
+        }
+        out.append(renamed(text.substring(pos), version))
+        out.toString()
+    }
+
+    private static String renamed(String text, String version) {
+        version == null ? text : McVersionRenames.apply(text, version)
     }
 
     // the markers of every chain whose branch choice is the same on all the given versions
@@ -99,9 +128,9 @@ class McVersionGates {
         }
     }
 
-    private static Map chains(String text) {
+    private static Map chains(String text, Pattern marker = MARKER) {
         List<MatchResult> marks = []
-        def m = MARKER.matcher(text)
+        def m = marker.matcher(text)
         while (m.find()) {
             marks << m.toMatchResult()
         }
@@ -139,7 +168,7 @@ class McVersionGates {
     }
 
     private static Map parseMarker(String marker) {
-        String body = marker.substring(3).trim()
+        String body = marker.substring(marker.startsWith("#") ? 2 : 3).trim()
         if (body == "}") {
             return [kind: "end"]
         }

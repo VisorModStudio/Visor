@@ -1,6 +1,7 @@
 // #!MC-VERSION:: 1.21.3-1.21.8
 package org.vmstudio.visor.mixin.client.renderer.entity.player.layers;
 
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -80,9 +81,9 @@ public abstract class CapeLayerMixin extends RenderLayer<PlayerRenderState, Play
         float capePitch = state.capeFlap + Math.max(bodyPitch, -Mth.HALF_PI * flatten) * Mth.RAD_TO_DEG;
         float leanFraction = bodyPitch / Mth.HALF_PI;
         float walkLift = leanFraction < 0F ? 0F : state.capeLean * (1F - Math.min(leanFraction, 1F));
-        poseStack.mulPose(Axis.XP.rotationDegrees(6.0F + walkLift / 2.0F + capePitch));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(state.capeLean2 / 2.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - state.capeLean2 / 2.0F + Mth.RAD_TO_DEG * visor$placement.yaw()));
+        McRenderUtils.rotate(poseStack, Axis.XP.rotationDegrees(6.0F + walkLift / 2.0F + capePitch));
+        McRenderUtils.rotate(poseStack, Axis.ZP.rotationDegrees(state.capeLean2 / 2.0F));
+        McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F - state.capeLean2 / 2.0F + Mth.RAD_TO_DEG * visor$placement.yaw()));
 
         capeModel.body.resetPose();
         ModelPart cape = capeModel.body.getChild("cape");

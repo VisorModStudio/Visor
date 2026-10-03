@@ -43,7 +43,7 @@ public class EditBoxImaged extends EditBox {
     //? if >=26.1 {
     public void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
     //?} else {
-    /*public void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+    /*public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
     *///?}
         if(texture != null) {
             texture.blit(

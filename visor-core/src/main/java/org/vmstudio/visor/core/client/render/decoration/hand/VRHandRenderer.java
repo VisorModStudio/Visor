@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.render.decoration.hand;
 
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import net.minecraft.world.level.lighting.LightEngine;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
@@ -253,7 +254,7 @@ public class VRHandRenderer {
                     vrPlayer,
                     hand.asInteractionHand(),
                     HandRenderState.WORLD_HAND,
-                    player.getAttackAnim(partialTicks),
+                    McVersionUtils.attackAnim(player, partialTicks),
                     player.getItemInHand(hand.asInteractionHand()),
                     poseStack,
                     buffer,
@@ -451,7 +452,7 @@ public class VRHandRenderer {
                 ClientContext.localPlayer,
                 interactionHand,
                 state,
-                MC.player.getAttackAnim(partialTicks),
+                McVersionUtils.attackAnim(MC.player, partialTicks),
                 item,  poseStack,
                 bufferSource,
                 MC.getEntityRenderDispatcher().getPackedLightCoords(MC.player, partialTicks),
@@ -491,7 +492,7 @@ public class VRHandRenderer {
         HumanoidArm arm = mainHand
                 ? player.getMainArm()
                 : player.getMainArm().getOpposite();
-        float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
+        float equipProgress = ((ItemInHandRendererExtension) MC.gameRenderer.firstPersonHandsAndItemsRenderer)
                 .visor$getEquipProgress(hand, partialTicks);
 
         boolean mixedRealityHands = VRClientSettings.getMirrorMode() == MirrorMode.MIXED_REALITY
@@ -510,7 +511,7 @@ public class VRHandRenderer {
             return;
         }
 
-        if (player.swingingArm == hand) {
+        if (McVersionUtils.swingingArm(player) == hand) {
             applySwingPose(swingType, poseStack, arm, swingProgress);
         }
 
@@ -528,8 +529,8 @@ public class VRHandRenderer {
         poseStack.translate(0.0F, -gripY, 0.0F);
 
         boolean isLeftHand = arm == HumanoidArm.LEFT;
-        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        McRenderUtils.rotate(poseStack, Axis.XP.rotationDegrees(-90.0F));
+        McRenderUtils.rotate(poseStack, Axis.YP.rotationDegrees(180.0F));
         poseStack.translate(0, 0.125F, 0.625F);
 
         HandType handType = mainHand ? HandType.MAIN : HandType.OFFHAND;
@@ -537,23 +538,28 @@ public class VRHandRenderer {
 
         if (itemStack.getItem() instanceof MapItem) {
             McGlState.disableCull();
-            ((ItemInHandRendererExtension) MC.gameRenderer.itemInHandRenderer)
+            ((ItemInHandRendererExtension) MC.gameRenderer.firstPersonHandsAndItemsRenderer)
                     .visor$renderMap(poseStack, buffer, packedLight, itemStack);
         } else {
             ItemDisplayContext displayCtx = isLeftHand
                     ? ItemDisplayContext.THIRD_PERSON_LEFT_HAND
                     : ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-            //? if >=1.21.9 && <26.2 {
+            //? if >=26.3 {
+            ((ItemInHandRendererExtension) MC.gameRenderer.firstPersonHandsAndItemsRenderer).visor$renderItem(
+                    player, itemStack, displayCtx,
+                    poseStack, buffer, packedLight
+            );
+            //?} elif >=1.21.9 && <26.2 {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
                     poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight
             );
             *///?} elif >=1.21.5 {
-            MC.gameRenderer.itemInHandRenderer.renderItem(
+            /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
                     poseStack, buffer, packedLight
             );
-            //?} else {
+            *///?} else {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx, isLeftHand,
                     poseStack, buffer, packedLight
@@ -582,7 +588,7 @@ public class VRHandRenderer {
         poseStack.pushPose();
 
         InteractionHand swingHand = mainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-        if (player.swingingArm == swingHand) {
+        if (McVersionUtils.swingingArm(player) == swingHand) {
             applySwingPose(swingType, poseStack, arm, swingProgress);
         }
 
@@ -643,12 +649,12 @@ public class VRHandRenderer {
         switch (action) {
             case ATTACK -> {
                 poseStack.translate(0.0F, 0.0F, 0.2F);
-                poseStack.mulPose(Axis.XP.rotationDegrees(swingWave(progress) * 30.0F));
+                McRenderUtils.rotate(poseStack, Axis.XP.rotationDegrees(swingWave(progress) * 30.0F));
                 poseStack.translate(0.0F, 0.0F, -0.2F);
             }
             case INTERACT -> {
                 float side = arm == HumanoidArm.RIGHT ? -45.0F : 45.0F;
-                poseStack.mulPose(Axis.ZP.rotationDegrees(side * swingWave(progress)));
+                McRenderUtils.rotate(poseStack, Axis.ZP.rotationDegrees(side * swingWave(progress)));
             }
             case USE -> {
                 float push = progress > 0.25F

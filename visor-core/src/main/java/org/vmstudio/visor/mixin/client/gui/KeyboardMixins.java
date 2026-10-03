@@ -18,7 +18,9 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.client.gui.screens.inventory.BookEditScreen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+//? if <26.3 {
+/*import org.lwjgl.glfw.GLFW;
+*///?}
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,15 +41,22 @@ public class KeyboardMixins {
         /**
          * For keyboard to work
          */
-        //? if >=1.21.9 {
-        @Inject(at = @At("HEAD"), method = "isKeyDown", cancellable = true)
+        //? if >=26.3 {
+        @Inject(at = @At("RETURN"), method = "isKeyDown", cancellable = true)
+        private static void visor$keyDown(int i, CallbackInfoReturnable<Boolean> cir) {
+            if (!cir.getReturnValueZ() && VisorState.get().isActive() && InputHelper.isVirtualKeyDown(i)) {
+                cir.setReturnValue(true);
+            }
+        }
+        //?} elif >=1.21.9 {
+        /*@Inject(at = @At("HEAD"), method = "isKeyDown", cancellable = true)
         private static void visor$keyDown(Window window, int i, CallbackInfoReturnable<Boolean> cir) {
             cir.setReturnValue(
                     GLFW.glfwGetKey(window.handle(), i) == 1
                             || (VisorState.get().isActive() && InputHelper.isKeyDown(i))
             );
         }
-        //?} else {
+        *///?} else {
         /*@Inject(at = @At("HEAD"), method = "isKeyDown", cancellable = true)
         private static void visor$keyDown(long l, int i, CallbackInfoReturnable<Boolean> cir) {
             cir.setReturnValue(
@@ -73,7 +82,7 @@ public class KeyboardMixins {
         //? if >=1.21.9 {
         public void visor$onKeyPressed(long windowHandle, int actionType, KeyEvent event, CallbackInfo ci) {
             int keyCode = event.key();
-            int keyScan = event.scancode();
+            int keyScan = event.keycode();
             int keyModifiers = event.modifiers();
         //?} else {
         /*public void visor$onKeyPressed(long windowHandle, int keyCode, int keyScan, int actionType, int keyModifiers, CallbackInfo ci) {
