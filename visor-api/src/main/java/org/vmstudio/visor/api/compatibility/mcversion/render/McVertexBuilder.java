@@ -8,7 +8,10 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 /*import com.mojang.blaze3d.vertex.Tesselator;
 *///?}
 import com.mojang.renderpearl.api.vertex.VertexFormat;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Matrix4f;
+
+import java.util.function.Supplier;
 //? if >=1.21.9 {
 import org.joml.Vector3f;
 //?}
@@ -45,6 +48,8 @@ public final class McVertexBuilder {
 
     private static final McVertexBuilder INSTANCE = new McVertexBuilder();
 
+    private static volatile BuilderGuard builderGuard = Supplier::get;
+
     private BufferBuilder builder;
 
     //? if >=26.2 {
@@ -68,9 +73,9 @@ public final class McVertexBuilder {
         if (scratch == null) {
             scratch = new ByteBufferBuilder(786432);
         }
-        this.builder = new BufferBuilder(scratch, mode, format);
+        this.builder = builderGuard.create(() -> new BufferBuilder(scratch, mode, format));
         //?} elif >=1.21 {
-        /*this.builder = Tesselator.getInstance().begin(mode, format);
+        /*this.builder = builderGuard.create(() -> Tesselator.getInstance().begin(mode, format));
         *///?} else {
         /*this.builder.begin(mode, format);
         *///?}
@@ -287,5 +292,16 @@ public final class McVertexBuilder {
 
     public BufferBuilder handle() {
         return builder;
+    }
+
+    @ApiStatus.Internal
+    public static void setBuilderGuard(BuilderGuard guard) {
+        builderGuard = guard;
+    }
+
+    @ApiStatus.Internal
+    @FunctionalInterface
+    public interface BuilderGuard {
+        BufferBuilder create(Supplier<BufferBuilder> factory);
     }
 }

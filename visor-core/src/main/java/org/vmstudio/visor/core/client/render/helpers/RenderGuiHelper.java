@@ -4,6 +4,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McFog;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexFormats;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 
@@ -224,7 +225,7 @@ public class RenderGuiHelper {
             McShaders.use(McShaders.Core.RENDERTYPE_TEXT);
             McGlState.setShaderTexture(0, TexturesHelper.getWhiteTexture());
             McGlState.turnOnLightLayer();
-            buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+            buf.begin(PrimitiveTopology.QUADS, McVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
         } else {
             McShaders.use(McShaders.Core.POSITION_COLOR);
             buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);

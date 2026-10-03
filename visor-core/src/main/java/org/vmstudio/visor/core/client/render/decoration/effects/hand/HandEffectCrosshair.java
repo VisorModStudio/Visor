@@ -4,6 +4,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.joml.*;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexFormats;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
@@ -122,7 +123,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         poseStack.scale(scale, scale, scale);
 
         // --- Render ---
-        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+        buf.begin(PrimitiveTopology.QUADS, McVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
         Matrix4f mat = poseStack.last().pose();
 
         buf.vertex(mat, -1f, 1f, 0f)

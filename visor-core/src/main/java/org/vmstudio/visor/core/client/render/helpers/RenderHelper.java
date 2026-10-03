@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaders;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexFormats;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
@@ -219,7 +220,7 @@ public class RenderHelper {
 
         // --- Render ---
         McVertexBuilder buf = McVertexBuilder.get();
-        buf.begin(PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
+        buf.begin(PrimitiveTopology.QUADS, McVertexFormats.POSITION_COLOR_TEX_LIGHTMAP);
 
         for (int i = 0; i < 4; i++) {
             buf.vertex(poseMatrix, pos[i][0], pos[i][1], 0f)

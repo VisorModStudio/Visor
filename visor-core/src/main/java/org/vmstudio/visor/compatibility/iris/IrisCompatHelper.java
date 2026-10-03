@@ -5,6 +5,9 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
+//? if >=1.21.5 {
+import org.vmstudio.visor.api.compatibility.mcversion.render.McVertexBuilder;
+//?}
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.api.common.utils.LoggerUtils;
@@ -189,7 +192,35 @@ public final class IrisCompatHelper {
         } catch (Throwable t) {
             LoggerUtils.getLogger().error("Visor: failed to bind Iris VR bridge; shaders will stay inactive.", t);
         }
+        //? if >=1.21.5 {
+        skipFormatExtension();
+        //?}
     }
+
+    //? if >=1.21.5 {
+    private static void skipFormatExtension() {
+        try {
+            @SuppressWarnings("unchecked")
+            ThreadLocal<Boolean> skipExtension = (ThreadLocal<Boolean>) Class
+                    .forName("net.irisshaders.iris.vertices.ImmediateState")
+                    .getField("skipExtension")
+                    .get(null);
+            McVertexBuilder.setBuilderGuard(factory -> {
+                Boolean previous = skipExtension.get();
+                skipExtension.set(true);
+                try {
+                    return factory.get();
+                } finally {
+                    skipExtension.set(previous);
+                }
+            });
+            LoggerUtils.getLogger().info("Visor: Iris vertex format extension disabled for Visor meshes");
+        } catch (Throwable t) {
+            LoggerUtils.getLogger().warn("Visor: could not map Iris' ImmediateState.skipExtension; "
+                    + "Iris may extend the vertex formats of Visor meshes", t);
+        }
+    }
+    //?}
 
     private static final class ReflectiveIrisBridge implements IrisVRBridge {
         private boolean initialized;
