@@ -3,7 +3,7 @@ mod_id = "visor"
 mod_name = "Visor"
 mod_group = "org.vmstudio"
 mod_authors = "PhoenixRa"
-mod_description = "Next-gen VR core mod for Minecraft. Based on OpenXR. Built as a platform"
+mod_description = "Next-Gen VR core mod for Minecraft. Based on OpenXR. Built as a platform. Supports addons, customizing your VR experience"
 mod_api_description = "The Visor API. Not a mod! Use only in a development as a dependency."
 mod_license = "MPL-2.0"
 
