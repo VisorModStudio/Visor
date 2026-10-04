@@ -3,6 +3,9 @@ package org.vmstudio.visor.api.common.addon.component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.text.Normalizer;
+import java.util.Locale;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 
@@ -39,6 +42,50 @@ public final class ComponentIds {
      * Compiled pattern.
      */
     public static final Pattern PATTERN = Pattern.compile(REGEX);
+
+
+    private static final Pattern DIACRITICS = Pattern.compile("\\p{M}");
+    private static final Pattern NOT_ID_CHARS = Pattern.compile("[^a-z0-9]+");
+    private static final Pattern EDGE_UNDERSCORES = Pattern.compile("^_+|_+$");
+    private static final int ID_BASE_MAX_LENGTH = MAX_LENGTH - 6;
+
+
+    public static String generateId(@NotNull String componentName,
+                                    @Nullable String idPrefix,
+                                    @NotNull Predicate<String> idUsedValidation){
+        if(idPrefix != null) {
+            requireValid(idPrefix);
+        }else{
+            idPrefix = "";
+        }
+        String slug = slugify(componentName);
+        String base;
+        if(slug.isEmpty()){
+            base = idPrefix;
+        }else if(slug.equals(idPrefix) || slug.startsWith(idPrefix + "_")){
+            base = slug;
+        }else{
+            base = idPrefix + "_" + slug;
+        }
+        if(base.length() > ID_BASE_MAX_LENGTH){
+            base = trimUnderscores(base.substring(0, ID_BASE_MAX_LENGTH));
+        }
+
+        String id = base;
+        for(int i = 2; idUsedValidation.test(id); i++){
+            id = base + "_" + i;
+        }
+        return id;
+    }
+
+    private static String slugify(@NotNull String text){
+        String noAccents = DIACRITICS.matcher(Normalizer.normalize(text, Normalizer.Form.NFD)).replaceAll("");
+        return trimUnderscores(NOT_ID_CHARS.matcher(noAccents.toLowerCase(Locale.ROOT)).replaceAll("_"));
+    }
+
+    private static String trimUnderscores(@NotNull String text){
+        return EDGE_UNDERSCORES.matcher(text).replaceAll("");
+    }
 
 
     /**

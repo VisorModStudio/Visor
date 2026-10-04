@@ -99,9 +99,10 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                         }
                 );
 
+        selectedTemplate = null;
         setupIdentity = new SetupIdentityWidgetSet(
                 owner.getMenuBoundsX(), owner.getMenuBoundsY(),
-                true
+                this::previewId
         );
 
         createButton = new ButtonImaged(
@@ -186,7 +187,6 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
                     return Component.translatable(
                             "visor.overlay.options.overlays.create_overlay.template_tooltip",
                             template.getOwner().getAddonName(),
-                            template.id(),
                             template.description()
                     );
                 }),
@@ -291,18 +291,6 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
 
 
     private Component isReadyToCreate(){
-        String id = setupIdentity.getIdWidget().getValue();
-        if(id.isBlank()){
-            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.id");
-        }
-        if(!ComponentIds.isValid(id)){
-            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.pattern");
-        }
-        VROverlayRegistry registry = ClientContext.overlayManager.getOverlaysRegistry();
-        if(registry.getComponent(id) != null) {
-            return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.exists");
-        }
-
         if(setupIdentity.getNameWidget().getValue().isBlank()){
             return Component.translatable("visor.overlay.options.overlays.create_overlay.create.tooltip.name");
         }
@@ -315,8 +303,8 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
     }
 
     private void create(){
-        String id = setupIdentity.getIdWidget().getValue();
         String name = setupIdentity.getNameWidget().getValue();
+        String id = ComponentIds.generateId(name, selectedTemplate.id(), CreateOverlayWidgetSet::isIdTaken);
         String description = setupIdentity.getDescriptionWidget().getValue();
         if(description.isBlank()){
             description = null;
@@ -350,6 +338,23 @@ public class CreateOverlayWidgetSet extends DynamicWidgetSet {
         }catch (Exception e){
             VisorState.destroyVRWithErrorScreen(e);
         }
+    }
+
+    private String previewId(){
+        if(selectedTemplate == null){
+            return "-";
+        }
+        return ComponentIds.generateId(
+                setupIdentity.getNameWidget().getValue(),
+                selectedTemplate.id(),
+                CreateOverlayWidgetSet::isIdTaken
+        );
+    }
+
+
+    private static boolean isIdTaken(@NotNull String id){
+        return ClientContext.overlayManager.getOverlaysRegistry().getComponent(id) != null
+                || ClientContext.overlayManager.getOverlayConfigAccessor().getConfig(id) != null;
     }
 
 

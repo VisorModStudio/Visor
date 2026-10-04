@@ -23,7 +23,7 @@ public class OptionsScreenIdentity extends OptionsScreen<OverlayOptionsIdentity>
         widgetSet = new SetupIdentityWidgetSet(
                 (width - 128) /2,
                 (height - 256) /2 - 20,
-                false
+                null
         );
         widgetSet.initWidgets();
 
