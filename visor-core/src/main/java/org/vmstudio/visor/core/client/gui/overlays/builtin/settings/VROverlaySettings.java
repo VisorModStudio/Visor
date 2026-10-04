@@ -39,6 +39,7 @@ public class VROverlaySettings extends VROverlayScreen
     public static final String ID = "settings";
 
     public static final AtumColor TEXT_COLOR = AtumColor.WHITE.blend(AtumColor.BLACK, 0.2f);
+    public static final AtumColor ID_TEXT_COLOR = TEXT_COLOR.blend(AtumColor.BLACK, 0.3f);
 
     public static final Component TEXT_FIND = Component.translatable("visor.overlay.options.overlays.find");
 

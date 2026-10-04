@@ -1,6 +1,5 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.settings.widgets.identity;
 
-import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import lombok.Getter;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class SetupIdentityWidgetSet implements WidgetSet {
-
-    private static final AtumColor ID_COLOR = VROverlaySettings.TEXT_COLOR.blend(AtumColor.BLACK, 0.3f);
 
     @Getter
     private EditBoxImaged nameWidget;
@@ -109,7 +106,7 @@ public class SetupIdentityWidgetSet implements WidgetSet {
                     guiGraphics,
                     Minecraft.getInstance().font,
                     Component.translatable("visor.overlay.options.overlays.id", idPreview.get()).getString(),
-                    ID_COLOR.asInt(),
+                    VROverlaySettings.ID_TEXT_COLOR.asInt(),
                     startX + 18, startY + 58,
                     84, 5,
                     false

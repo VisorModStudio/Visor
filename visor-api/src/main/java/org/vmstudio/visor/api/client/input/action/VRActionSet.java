@@ -428,8 +428,8 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
         var subsection = config.getSubsection("bindings");
         for(var profile : VRInteractionProfileType.valuesController()){
             String path = profile.name()+".actions."+id;
-            subsection.set(path, null);
-            subsection.set(path, null);
+            subsection.set("left_handed."+path, null);
+            subsection.set("right_handed."+path, null);
         }
 
         try {

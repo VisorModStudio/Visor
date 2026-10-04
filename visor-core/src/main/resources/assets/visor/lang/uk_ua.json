@@ -288,8 +288,7 @@
   "visor.action.options.hand.tooltip": "§bПріоритет рук§r\n\nПеремикання між розкладками для §eшульги§r та\n§eправші§r.",
 
   "visor.action.options.add_key_action": "Додати клавішу",
-  "visor.action.options.add_key_action.type_id": "ID дії...",
-  "visor.action.options.add_key_action.type_id.tooltip": "§bID дії§r\n\n§7Вимоги:§r\n§e•§r Мінімум §e3§r символи\n§e•§r Тільки цифри, латиниця та '_'\n§e•§r Має бути унікальним\n\n§aПорада:§r Використовуйте щось унікальне, щоб уникнути конфліктів.\n§7Приклад: 'my_key_x'",
+  "visor.action.options.add_key_action.id": "ID: %s",
 
   "visor.action.options.add_key_action.type_name": "Назва...",
   "visor.action.options.add_key_action.type_name.tooltip": "§bНазва дії§r\n\nВідображуване ім'я для цієї дії.\n\n§7Вимоги:§r\n§e•§r Мінімум §e3§r символи\n\n§aПорада:§r Вкажіть клавішу в назві для зручності.\n§7Приклад: \"Відкрити карту (Клавіша M)\"§r",

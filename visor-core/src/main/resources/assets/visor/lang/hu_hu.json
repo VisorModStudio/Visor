@@ -312,8 +312,7 @@
   "visor.action.options.hand.tooltip": "§bKézhasználat§r\n\nVálts a §eBalkezes§r és a\n§eJobbkezes§r kiosztás között.",
 
   "visor.action.options.add_key_action": "Billentyűművelet hozzáadása",
-  "visor.action.options.add_key_action.type_id": "Művelet azonosítója...",
-  "visor.action.options.add_key_action.type_id.tooltip": "§bMűvelet azonosítója§r\n\n§7Követelmények:§r\n§e•§r Legalább §e3§r karakter\n§e•§r Csak számok, latin betűk és '_' használható\n§e•§r Egyedinek kell lennie a műveletkészlet összes művelete között\n\n§aTipp:§r Írj be valami egyedit, hogy ne ütközzön a beépített műveletekkel\n§7Például: 'blablabla1', 'my_key_x'",
+  "visor.action.options.add_key_action.id": "Azonosító: %s",
 
   "visor.action.options.add_key_action.type_name": "Művelet neve...",
   "visor.action.options.add_key_action.type_name.tooltip": "§bMűvelet neve§r\n\nA billentyűművelet megjelenő neve.\n\n§7Követelmények:§r\n§e•§r Legalább §e3§r karakter\n\n§aTipp:§r Írd bele a billentyűt is a névbe a könnyebb azonosításhoz.\n§7Például: \"ModMenu megnyitása (H billentyű)\"§r",

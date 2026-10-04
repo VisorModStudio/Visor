@@ -340,8 +340,7 @@
   "visor.action.options.hand.tooltip": "§bHand Preference§r\n\nSwitch between §eLeft-handed§r and\n§eRight-handed§r binding layouts.",
 
   "visor.action.options.add_key_action": "Add Key Action",
-  "visor.action.options.add_key_action.type_id": "Action id...",
-  "visor.action.options.add_key_action.type_id.tooltip": "§bAction ID§r\n\n§7Requirements:§r\n§e•§r Minimum §e3§r characters\n§e•§r Only digits, latin characters and '_' are allowed\n§e•§r Must be unique across all actions in this action set\n\n§aTip:§r Type something to avoid any potential collision with built-in actions\n§7Example: 'blablabla1', 'my_key_x'",
+  "visor.action.options.add_key_action.id": "Id: %s",
 
   "visor.action.options.add_key_action.type_name": "Action name...",
   "visor.action.options.add_key_action.type_name.tooltip": "§bAction Name§r\n\nA display name for this key action.\n\n§7Requirements:§r\n§e•§r Minimum §e3§r characters\n\n§aTip:§r Include the key in the name for easy reference.\n§7Example: \"Open ModMenu (H key)\"§r",

@@ -291,8 +291,7 @@
   "visor.action.options.hand.tooltip": "§bПриоритет рук§r\n\nПереключение между раскладками для §eлевшей§r и\n§eправшей§r.",
 
   "visor.action.options.add_key_action": "Добавить клавишу",
-  "visor.action.options.add_key_action.type_id": "ID действия...",
-  "visor.action.options.add_key_action.type_id.tooltip": "§bID действия§r\n\n§7Требования:§r\n§e•§r Минимум §e3§r символа\n§e•§r Только цифры, латиница и '_'\n§e•§r Должен быть уникальным\n\n§aСовет:§r Используйте что-то уникальное, чтобы избежать конфликтов.\n§7Пример: 'my_key_x'",
+  "visor.action.options.add_key_action.id": "ID: %s",
 
   "visor.action.options.add_key_action.type_name": "Название...",
   "visor.action.options.add_key_action.type_name.tooltip": "§bНазвание действия§r\n\nОтображаемое имя для этого действия.\n\n§7Требования:§r\n§e•§r Минимум §e3§r символа\n\n§aСовет:§r Укажите клавишу в названии для удобства.\n§7Пример: \"Открыть карту (Клавиша M)\"§r",

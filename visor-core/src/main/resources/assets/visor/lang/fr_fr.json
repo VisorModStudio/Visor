@@ -264,8 +264,7 @@
   "visor.action.options.hand.tooltip": "§bPréférence de main§r\n\nBasculez entre les dispositions\n§epour gaucher§r et §epour droitier§r.",
 
   "visor.action.options.add_key_action": "Ajouter une action de touche",
-  "visor.action.options.add_key_action.type_id": "ID de l'action...",
-  "visor.action.options.add_key_action.type_id.tooltip": "§bID de l'action§r\n\n§7Exigences:§r\n§e•§r Minimum §e3§r caractères\n§e•§r Seuls les chiffres, les lettres latines et '_' sont autorisés\n§e•§r Doit être unique parmi toutes les actions de cet ensemble d'actions\n\n§aConseil:§r Ecrivez quelque chose afin d'éviter toute collision potentielle avec les actions intégrées\n§7Exemple: 'blablabla1', 'my_key_x'",
+  "visor.action.options.add_key_action.id": "Id: %s",
 
   "visor.action.options.add_key_action.type_name": "Nom de l'action...",
   "visor.action.options.add_key_action.type_name.tooltip": "§bNom de l'action§r\n\nNom affiché pour cette action de touche.\n\n§7Exigences:§r\n§e•§r Minimum §e3§r caractères\n\n§aConseil:§r Incluez la touche dans le nom pour la retrouver facilement.\n§7Exemple: \"Ouvrir ModMenu (touche H)\"§r",
