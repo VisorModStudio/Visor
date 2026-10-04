@@ -19,6 +19,7 @@ import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorClientImpl;
+import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
 import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
@@ -779,7 +780,6 @@ public class VRSettingsPresets extends VROptionsSet {
         private ButtonImaged customButton;
         private ButtonImaged confirmButton;
 
-        private EditBoxImaged idEditBix;
         private EditBoxImaged nameEditBix;
         private TextBoxEditable descriptionTextBox;
 
@@ -793,7 +793,6 @@ public class VRSettingsPresets extends VROptionsSet {
         public <T extends GuiEventListener
                 & Renderable
                 & NarratableEntry> List<T> initWidgets() {
-            String prevId   = idEditBix == null ? "" : idEditBix.getValue();
             String prevName = nameEditBix == null ? "" : nameEditBix.getValue();
             String prevDesc = descriptionTextBox == null ? "" : descriptionTextBox.getValue();
             List<VRPresetSettingsType> prevTypes =
@@ -875,24 +874,17 @@ public class VRSettingsPresets extends VROptionsSet {
                     }
             );
 
-            idEditBix = new EditBoxImaged(
+            nameEditBix = new EditBoxImaged(
                     new WidgetInfoEditBox()
                             .pos(scaleHelper.scaledX(63), scaleHelper.scaledY(53))
                             .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(7))
                             .setTexture(null)
             );
 
-            nameEditBix = new EditBoxImaged(
-                    new WidgetInfoEditBox()
-                            .pos(scaleHelper.scaledX(63), scaleHelper.scaledY(69))
-                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(7))
-                            .setTexture(null)
-            );
-
             descriptionTextBox = new TextBoxEditable(
                     new WidgetInfoTextBoxEditable()
-                            .pos(scaleHelper.scaledX(63),scaleHelper.scaledY(91))
-                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(23))
+                            .pos(scaleHelper.scaledX(63),scaleHelper.scaledY(75))
+                            .size(scaleHelper.scaledSize(58), scaleHelper.scaledSize(39))
                             .setText(Component.literal(""))
                             .setTextScale(0.8f)
 
@@ -900,7 +892,6 @@ public class VRSettingsPresets extends VROptionsSet {
 
             confirmButton.active = false;
 
-            idEditBix.setValue(prevId);
             nameEditBix.setValue(prevName);
             descriptionTextBox.setValue(prevDesc);
 
@@ -916,7 +907,6 @@ public class VRSettingsPresets extends VROptionsSet {
             list.add((T) builtInButton);
             list.add((T) customButton);
             list.add((T) confirmButton);
-            list.add((T) idEditBix);
             list.add((T) nameEditBix);
             list.add((T) descriptionTextBox);
             return list;
@@ -925,7 +915,6 @@ public class VRSettingsPresets extends VROptionsSet {
         @Override
         public void onTick() {
             updateConfirmState();
-            McGuiUtils.tickEditBox(idEditBix);
             McGuiUtils.tickEditBox(nameEditBix);
             descriptionTextBox.tick();
         }
@@ -966,33 +955,35 @@ public class VRSettingsPresets extends VROptionsSet {
                     scaleHelper.scaledSize(45), scaleHelper.scaledSize(7),
                     true
             );
-            //id
-            GuiHelper.renderScalableText(
-                    guiGraphics,
-                    MC.font,
-                    Component.translatable("visor.options.presets.id").getString(),
-                    AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(76), scaleHelper.scaledY(47),
-                    scaleHelper.scaledSize(32), scaleHelper.scaledSize(5),
-                    true
-            );
             //name
             GuiHelper.renderScalableText(
                     guiGraphics,
                     MC.font,
                     Component.translatable("visor.options.presets.name").getString(),
                     AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(76), scaleHelper.scaledY(63),
+                    scaleHelper.scaledX(76), scaleHelper.scaledY(47),
                     scaleHelper.scaledSize(32), scaleHelper.scaledSize(5),
                     true
             );
+            //id
+            if(confirmButton.active) {
+                GuiHelper.renderScalableText(
+                        guiGraphics,
+                        MC.font,
+                        Component.translatable("visor.options.presets.id").getString() + ": " + generateId(),
+                        VROverlaySettings.ID_TEXT_COLOR.asInt(),
+                        scaleHelper.scaledX(67), scaleHelper.scaledY(62),
+                        scaleHelper.scaledSize(50), scaleHelper.scaledSize(5),
+                        false
+                );
+            }
             //description
             GuiHelper.renderScalableText(
                     guiGraphics,
                     MC.font,
                     Component.translatable("visor.options.presets.description").getString(),
                     AtumColor.WHITE.asInt(),
-                    scaleHelper.scaledX(76), scaleHelper.scaledY(85),
+                    scaleHelper.scaledX(76), scaleHelper.scaledY(69),
                     scaleHelper.scaledSize(32), scaleHelper.scaledSize(5),
                     true
             );
@@ -1017,7 +1008,7 @@ public class VRSettingsPresets extends VROptionsSet {
                 return;
             }
 
-            String id = idEditBix.getValue();
+            String id = generateId();
             String name = nameEditBix.getValue();
             String description = descriptionTextBox.getValue();
 
@@ -1031,14 +1022,21 @@ public class VRSettingsPresets extends VROptionsSet {
                 reinit();
             } catch (Exception e) {
                 VisorClientImpl.LOGGER.error("Failed to create preset '{}'", id, e);
-                idEditBix.setTextColor(AtumColor.RED.asInt());
                 confirmButton.active = false;
             }
         }
 
-        private void updateConfirmState(){
+        private String generateId(){
             var registry = ClientContext.settingsManager.getPresetsRegistry();
-            String id = idEditBix.getValue();
+            var catalog = ClientContext.settingsManager.getPresetsCatalog();
+            return ComponentIds.generateId(
+                    nameEditBix.getValue(),
+                    null,
+                    id -> registry.getComponent(id) != null || catalog.getConfigFile(id).isPresent()
+            );
+        }
+
+        private void updateConfirmState(){
             String name = nameEditBix.getValue();
 
             confirmButton.active = true;
@@ -1047,21 +1045,6 @@ public class VRSettingsPresets extends VROptionsSet {
                 confirmButton.active = false;
             }
 
-            if(id.length() < 3){
-                confirmButton.active = false;
-                if(!id.isEmpty()) {
-                    idEditBix.setTextColor(AtumColor.RED.asInt());
-                }
-            }
-            else if(registry.getComponent(id) != null){
-                confirmButton.active = false;
-                idEditBix.setTextColor(AtumColor.RED.asInt());
-            }else if(!ComponentIds.isValid(id)){
-                confirmButton.active = false;
-                idEditBix.setTextColor(AtumColor.RED.asInt());
-            }else{
-                idEditBix.setTextColor(AtumColor.WHITE.asInt());
-            }
             if(name.length() < 3){
                 confirmButton.active = false;
                 if(!name.isEmpty()) {
