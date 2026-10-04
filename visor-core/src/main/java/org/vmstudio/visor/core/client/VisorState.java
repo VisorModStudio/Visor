@@ -275,10 +275,6 @@ public class VisorState implements VisorClientState {
         McVersionClientUtils.setScreen(new VRInactiveScreen(screen));
     }
 
-    public static boolean isVrFramePaced() {
-        return state.isActive() && ClientContext.visor.isSessionRunning();
-    }
-
     public static void destroyVRWithErrorScreen(Throwable throwable) {
         LoggerUtils.printError(throwable);
         destroyVR();

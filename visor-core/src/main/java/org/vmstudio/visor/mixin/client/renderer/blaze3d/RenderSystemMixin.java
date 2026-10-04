@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 //? if >=26.1 {
 import net.minecraft.client.FramerateLimiter;
 //?}
+import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.helpers.ShaderTextureHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,7 +25,7 @@ public class RenderSystemMixin {
     @Inject(at = @At("HEAD"), method = "limitDisplayFPS",
             cancellable = true, remap = false)
     private static void visor$cancelFPSLimit(CallbackInfo ci) {
-        if (VisorState.isVrFramePaced()) {
+        if (VisorState.get().isActive() && ClientContext.visor.isSessionRunning()) {
             ci.cancel();
         }
     }
