@@ -99,6 +99,7 @@ public abstract class VRRendererBase implements VRRenderer {
 
 
     public void render(RenderContext context) {
+        RenderStateHelper.drainExternalGLErrors("VR render");
         ClientContext.decorationRenderer.updateRenderState();
         try {
             renderFrame(context);
