@@ -7,6 +7,7 @@ import me.phoenixra.atumconfig.core.AtumPlaceholderHandler;
 import me.phoenixra.atumvr.api.AtumVRProvider;
 import me.phoenixra.atumvr.api.AtumVRState;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import me.phoenixra.atumvr.core.enums.XRSessionState;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.VisorClient;
 import org.vmstudio.visor.api.client.ClientFeature;
@@ -351,14 +352,19 @@ public class VisorClientImpl implements VisorClient {
 
 
 
-    public boolean isActive(){
-        AtumVRState state = vrProvider.getState();
-        return state.isActive();
-    }
-
     public boolean isFocused(){
         AtumVRState state = vrProvider.getState();
         return state.isFocused();
+    }
+
+    public boolean isSessionVisible(){
+        XRSessionState sessionState = ((XrProvider) vrProvider).getSessionState();
+        return sessionState == XRSessionState.VISIBLE
+                || sessionState == XRSessionState.FOCUSED;
+    }
+
+    public boolean isSessionRunning(){
+        return ((XrProvider) vrProvider).getState().isReady();
     }
 
 

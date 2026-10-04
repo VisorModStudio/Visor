@@ -1,7 +1,6 @@
 package org.vmstudio.visor.mixin.client.gui.screen;
 
 import org.vmstudio.visor.api.client.VRPlayMode;
-import org.vmstudio.visor.api.client.VRStateMode;
 import org.vmstudio.visor.api.client.gui.widgets.lists.DropDownListWidget;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
@@ -98,41 +97,6 @@ public abstract class TitleScreenMixin extends Screen {
         }
     }
     *///?}
-
-    //? if >=26.1 {
-    @Inject(at = @At("TAIL"), method = "extractRenderState")
-    //?} else {
-    /*@Inject(at = @At("TAIL"), method = "render")
-    *///?}
-    public void visor$renderToolTip(GuiGraphicsExtractor guiGraphics, int i, int j, float f, CallbackInfo ci) {
-        if (VisorState.get() == VRStateMode.INITIALIZED
-                && VRClientSettings.getVrPlayMode().canPlayVR()) {
-            Component text = Component.translatable("visor.messages.vr_auto_switch");
-
-            final int minGuiWidth = 320;
-            final int sideMargin = 20;
-            final int wrapWidth = minGuiWidth - 2 * sideMargin;
-            final int boxOffset = 12;
-            final int topMargin = 5;
-
-            //? if >=1.21.6 {
-            guiGraphics.setTooltipForNextFrame(
-                    font,
-                    font.split(text, wrapWidth),
-                    this.width / 2 - wrapWidth / 2 - boxOffset,
-                    topMargin + boxOffset
-            );
-            //?} else {
-            /*guiGraphics.renderTooltip(
-                    font,
-                    font.split(text, wrapWidth),
-                    this.width / 2 - wrapWidth / 2 - boxOffset,
-                    topMargin + boxOffset
-            );
-            *///?}
-        }
-    }
-
 
     // 1.21.6 dropped the override, ScreenMixin cancels Screen.renderPanorama
     //? if >=1.20.5 && <1.21.6 {

@@ -24,7 +24,7 @@ public class RenderSystemMixin {
     @Inject(at = @At("HEAD"), method = "limitDisplayFPS",
             cancellable = true, remap = false)
     private static void visor$cancelFPSLimit(CallbackInfo ci) {
-        if (VisorState.get().isActive()) {
+        if (VisorState.isVrFramePaced()) {
             ci.cancel();
         }
     }

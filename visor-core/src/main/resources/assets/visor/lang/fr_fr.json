@@ -3,7 +3,7 @@
   "visor.options.common.yes": "OUI",
   "visor.options.common.no": "NON",
   "visor.options.common.vr_play_mode": "RV: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Choisissez le mode de jeu RV. \n\n1) Activé – RV sera activée lorsque le casque est porté \n2) Monde uniquement - RV sera initialisée mais inactive dans le menu principal et active en cours de jeu \n3) Toujours – RV sera toujours active \n4) Désactivé – RV ne sera pas initialisée (NonRV)",
+  "visor.options.common.vr_play_mode.tooltip": "Choisissez le mode de jeu RV. \n\n1) Activé – RV sera active, retirer le casque la met seulement en pause \n2) Monde uniquement - RV sera initialisée mais inactive dans le menu principal et active en cours de jeu \n3) Désactivé – RV ne sera pas initialisée (NonRV)",
 
   "visor.options.main": "Paramètres RV",
   "visor.options.main.button": "Paramètres RV...",
@@ -159,7 +159,6 @@
   "visor.options.enums.VRPlayMode.DISABLED": "Désactivé",
   "visor.options.enums.VRPlayMode.ENABLED": "Activé",
   "visor.options.enums.VRPlayMode.WORLD_ONLY": "Monde uniquement",
-  "visor.options.enums.VRPlayMode.ALWAYS_ACTIVE": "Toujours",
   "visor.options.enums.PoseAnchor.NONE": "Aucun",
   "visor.options.enums.PoseAnchor.HMD": "Casque RV",
   "visor.options.enums.PoseAnchor.MAIN_HAND": "Main principale",
@@ -444,6 +443,9 @@
   "visor.screen.pause_menu.section.time": "HEURE",
   "visor.screen.pause_menu.section.weather": "MÉTÉO",
 
+  "visor.screen.vr_inactive.title": "Votre RV est inactive, veuillez mettre votre casque",
+  "visor.screen.vr_inactive.button.exit_vr": "Quitter le mode RV",
+
   "_comment19": "*--------BOUTONS COMMUNS--------*",
   "visor.button.load_defaults": "Restaurer les paramètres par défaut",
   "visor.button.overlay": "Superposition",
@@ -466,7 +468,6 @@
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Le serveur prend en charge Visor!",
   "visor.messages.height_calibration_failed": "Échec de la calibration de la hauteur: position du casque indisponible. Assurez-vous que votre casque est porté et track correctement, puis réessayez.",
-  "visor.messages.vr_auto_switch": "Mettez votre casque pour jouer en RV",
   "visor.messages.incompatible_settings": "Paramètres incompatibles",
   "visor.messages.server_vr_only": "Serveur réservé aux joueurs RV uniquement!",
   "visor.messages.network_mismatch": "La Version du protocole réseau de Visor n'est pas prise en charge par ce serveur!\n La vôtre: %s Serveur: %s",

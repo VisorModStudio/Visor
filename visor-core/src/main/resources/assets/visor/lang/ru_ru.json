@@ -3,7 +3,7 @@
   "visor.options.common.yes": "ДА",
   "visor.options.common.no": "НЕТ",
   "visor.options.common.vr_play_mode": "Режим VR: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Выберите режим игры в VR. \n\n1) Включено - VR будет активен, пока надет шлем \n2) Только мир - VR инициализируется, но неактивен в главном меню, включается только в самой игре \n3) Всегда - VR активен постоянно \n4) Выключено - VR не будет инициализироваться. (NonVR)",
+  "visor.options.common.vr_play_mode.tooltip": "Выберите режим игры в VR. \n\n1) Включено - VR будет активен, снятие шлема только ставит его на паузу \n2) Только мир - VR инициализируется, но неактивен в главном меню, включается только в самой игре \n3) Выключено - VR не будет инициализироваться. (NonVR)",
 
   "visor.options.main": "Настройки VR",
   "visor.options.main.button": "Настройки VR...",
@@ -185,7 +185,6 @@
   "visor.options.enums.VRPlayMode.DISABLED": "Выключен",
   "visor.options.enums.VRPlayMode.ENABLED": "Включен",
   "visor.options.enums.VRPlayMode.WORLD_ONLY": "Только мир",
-  "visor.options.enums.VRPlayMode.ALWAYS_ACTIVE": "Всегда",
   "visor.options.enums.PoseAnchor.NONE": "Нет",
   "visor.options.enums.PoseAnchor.HMD": "Шлем",
   "visor.options.enums.PoseAnchor.MAIN_HAND": "Осн. рука",
@@ -470,6 +469,9 @@
 
   "visor.screen.win_screen.button.leave": "Выйти",
 
+  "visor.screen.vr_inactive.title": "VR неактивен, пожалуйста, наденьте шлем",
+  "visor.screen.vr_inactive.button.exit_vr": "Выйти из режима VR",
+
   "_comment19": "*--------ОБЩИЕ КНОПКИ--------*",
   "visor.button.load_defaults": "Загрузить по умолчанию",
   "visor.button.overlay": "Оверлей",
@@ -492,7 +494,6 @@
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Сервер поддерживает Visor!",
   "visor.messages.height_calibration_failed": "Не удалось откалибровать рост: поза шлема недоступна. Убедитесь, что шлем надет и отслеживается, затем попробуйте снова.",
-  "visor.messages.vr_auto_switch": "Наденьте шлем, чтобы играть в VR",
   "visor.messages.incompatible_settings": "Несовместимые настройки",
   "visor.messages.server_vr_only": "Сервер только для VR игроков!",
   "visor.messages.network_mismatch": "Версия сети Visor не поддерживается сервером!\n Ваша: %s Сервер: %s",

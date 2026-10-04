@@ -21,7 +21,6 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.render.VRShaders;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.compatibility.ShaderCompatHelper;
-import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 //? if >=26.1 {
 import org.vmstudio.visor.core.client.render.camera.VRCameraEntitySwap;
 import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
@@ -97,16 +96,6 @@ public class VisorScene implements AtumVRScene {
 
 
         ShaderCompatHelper.bridge().endFrame();
-
-        profiler.push("VR mirror");
-        VRRenderState.startVRMirrorPhase();
-        McRenderTarget.bindWrite(McRenderTarget.mainTarget());
-        //? if >=26.1 {
-        McRenderTarget.clear(McRenderTarget.mainTarget());
-        //?}
-        MirrorHelper.drawMirror();
-        profiler.pop();
-        GLUtils.checkGLError("post mirror");
 
 
     }

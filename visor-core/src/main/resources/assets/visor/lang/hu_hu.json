@@ -3,7 +3,7 @@
   "visor.options.common.yes": "IGEN",
   "visor.options.common.no": "NEM",
   "visor.options.common.vr_play_mode": "VR: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Válaszd ki a VR játékmódot. \n\n1) Bekapcsolva - a VR aktív, amíg a headset a fejeden van \n2) Csak világban - a VR elindul, de a főmenüben inaktív, játék közben pedig aktív \n3) Mindig - a VR mindig aktív \n4) Kikapcsolva - a VR el sem indul (nem VR mód)",
+  "visor.options.common.vr_play_mode.tooltip": "Válaszd ki a VR játékmódot. \n\n1) Bekapcsolva - a VR aktív, a headset levétele csak szünetelteti \n2) Csak világban - a VR elindul, de a főmenüben inaktív, játék közben pedig aktív \n3) Kikapcsolva - a VR el sem indul (nem VR mód)",
 
   "visor.options.main": "VR beállítások",
   "visor.options.main.button": "VR beállítások...",
@@ -203,7 +203,6 @@
   "visor.options.enums.VRPlayMode.DISABLED": "Kikapcsolva",
   "visor.options.enums.VRPlayMode.ENABLED": "Bekapcsolva",
   "visor.options.enums.VRPlayMode.WORLD_ONLY": "Csak világban",
-  "visor.options.enums.VRPlayMode.ALWAYS_ACTIVE": "Mindig",
   "visor.options.enums.PoseAnchor.NONE": "Nincs",
   "visor.options.enums.PoseAnchor.HMD": "HMD",
   "visor.options.enums.PoseAnchor.MAIN_HAND": "Fő kéz",
@@ -516,6 +515,9 @@
   "visor.screen.pause_menu.section.time": "IDŐ",
   "visor.screen.pause_menu.section.weather": "IDŐJÁRÁS",
 
+  "visor.screen.vr_inactive.title": "A VR inaktív, kérlek, vedd fel a headsetet",
+  "visor.screen.vr_inactive.button.exit_vr": "Kilépés a VR módból",
+
   "_comment19": "*--------VEZÉRLŐK--------*",
   "visor.widgets.color_picker.hex": "Hex",
   "visor.widgets.color_picker.transparent": "Átlátszó: %s",
@@ -545,7 +547,6 @@
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "A szerver támogatja a Visort!",
   "visor.messages.height_calibration_failed": "A magasság kalibrálása sikertelen: a headset pozíciója nem érhető el. Győződj meg róla, hogy a headset a fejeden van és követi a mozgást, majd próbáld újra.",
-  "visor.messages.vr_auto_switch": "Vedd fel a headsetet a VR-ben játszáshoz",
   "visor.messages.incompatible_settings": "Nem kompatibilis beállítások",
   "visor.messages.server_vr_only": "A szerver csak VR játékosok számára érhető el!",
   "visor.messages.network_mismatch": "A Visor hálózati verziódat nem támogatja ez a szerver!\n Nálad: %s Szerveren: %s",

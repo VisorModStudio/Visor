@@ -25,6 +25,7 @@ public enum VRPlayMode {
      * <p>Behaviour:</p>
      * <ul>
      *   <li>VR session initializes on startup and is playable from the main menu.</li>
+     *   <li>Taking the headset off pauses VR session, it stays active until the session ends.</li>
      *   <li>Requires a VR runtime &amp; hardware.</li>
      * </ul>
      */
@@ -38,16 +39,7 @@ public enum VRPlayMode {
      *   <li>Requires a VR runtime &amp; hardware.</li>
      * </ul>
      */
-    WORLD_ONLY,
-
-    /**
-     * <p>Behaviour:</p>
-     * <ul>
-     *   <li>VR session initializes on startup and is always active</li>
-     *   <li>Requires a VR runtime &amp; hardware.</li>
-     * </ul>
-     */
-    ALWAYS_ACTIVE;
+    WORLD_ONLY;
 
 
     /**
@@ -56,7 +48,7 @@ public enum VRPlayMode {
      * @return true/false
      */
     public boolean canInitVR(){
-        return this == VRPlayMode.WORLD_ONLY || this == VRPlayMode.ENABLED || this == ALWAYS_ACTIVE;
+        return this == VRPlayMode.WORLD_ONLY || this == VRPlayMode.ENABLED;
     }
 
     /**
@@ -69,7 +61,7 @@ public enum VRPlayMode {
             Minecraft mc = Minecraft.getInstance();
             return  mc.level != null;
         }else{
-            return this == ENABLED || this == ALWAYS_ACTIVE;
+            return this == ENABLED;
         }
     }
 
@@ -77,30 +69,28 @@ public enum VRPlayMode {
 
     /**
      * Cycles to the next play mode in the order:
-     * {@link #ENABLED} -> {@link #ALWAYS_ACTIVE} -> {@link #WORLD_ONLY} -> {@link #DISABLED}.
+     * {@link #ENABLED} -> {@link #WORLD_ONLY} -> {@link #DISABLED}.
      *
      * @return the next {@link VRPlayMode}
      */
     public VRPlayMode next(){
         return switch (this){
             case ENABLED -> WORLD_ONLY;
-            case WORLD_ONLY -> ALWAYS_ACTIVE;
-            case ALWAYS_ACTIVE -> DISABLED;
+            case WORLD_ONLY -> DISABLED;
             case DISABLED -> ENABLED;
         };
     }
 
     /**
      * Cycles to the previous play mode in the order:
-     * {@link #ENABLED} <- {@link #ALWAYS_ACTIVE} <- {@link #WORLD_ONLY} <- {@link #DISABLED}.
+     * {@link #ENABLED} -> {@link #DISABLED} -> {@link #WORLD_ONLY}.
      *
      * @return the previous {@link VRPlayMode}
      */
     public VRPlayMode previous(){
         return switch (this){
             case ENABLED -> DISABLED;
-            case DISABLED -> ALWAYS_ACTIVE;
-            case ALWAYS_ACTIVE -> WORLD_ONLY;
+            case DISABLED -> WORLD_ONLY;
             case WORLD_ONLY -> ENABLED;
         };
     }

@@ -3,7 +3,7 @@
   "visor.options.common.yes": "ТАК",
   "visor.options.common.no": "НІ",
   "visor.options.common.vr_play_mode": "Режим VR: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Виберіть режим гри у VR. \n\n1) Увімкнено - VR буде активним, поки одягнений шолом \n2) Тільки світ - VR ініціалізується, але неактивний у головному меню, вмикається лише в самій грі \n3) Завжди - VR активний постійно \n4) Вимкнено - VR не ініціалізуватиметься (NonVR)",
+  "visor.options.common.vr_play_mode.tooltip": "Виберіть режим гри у VR. \n\n1) Увімкнено - VR буде активним, зняття шолома лише ставить його на паузу \n2) Тільки світ - VR ініціалізується, але неактивний у головному меню, вмикається лише в самій грі \n3) Вимкнено - VR не ініціалізуватиметься (NonVR)",
 
   "visor.options.main": "Налаштування VR",
   "visor.options.main.button": "Налаштування VR...",
@@ -182,7 +182,6 @@
   "visor.options.enums.VRPlayMode.DISABLED": "Вимкнено",
   "visor.options.enums.VRPlayMode.ENABLED": "Увімкнено",
   "visor.options.enums.VRPlayMode.WORLD_ONLY": "Тільки світ",
-  "visor.options.enums.VRPlayMode.ALWAYS_ACTIVE": "Завжди",
   "visor.options.enums.PoseAnchor.NONE": "Немає",
   "visor.options.enums.PoseAnchor.HMD": "Шолом",
   "visor.options.enums.PoseAnchor.MAIN_HAND": "Осн. рука",
@@ -468,6 +467,9 @@
   "visor.screen.pause_menu.section.time": "ЧАС",
   "visor.screen.pause_menu.section.weather": "ПОГОДА",
 
+  "visor.screen.vr_inactive.title": "VR неактивний, будь ласка, одягніть шолом",
+  "visor.screen.vr_inactive.button.exit_vr": "Вийти з режиму VR",
+
   "_comment19": "*--------ЗАГАЛЬНІ КНОПКИ--------*",
   "visor.button.load_defaults": "Скинути",
   "visor.button.overlay": "Оверлей",
@@ -490,7 +492,6 @@
   "visor.messages.discord_link": "https://discord.gg/wJX8sTDEdx",
   "visor.messages.server_supports": "Сервер підтримує Visor!",
   "visor.messages.height_calibration_failed": "Не вдалося відкалібрувати зріст: поза шолома недоступна. Переконайтеся, що шолом одягнений і відстежується, потім спробуйте знову.",
-  "visor.messages.vr_auto_switch": "Одягніть шолом, щоб грати у VR",
   "visor.messages.incompatible_settings": "Несумісні налаштування",
   "visor.messages.server_vr_only": "Сервер тільки для VR гравців!",
   "visor.messages.network_mismatch": "Версія мережі Visor не підтримується сервером!\n Ваша: %s Сервер: %s",

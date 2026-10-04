@@ -3,7 +3,7 @@
   "visor.options.common.yes": "YES",
   "visor.options.common.no": "NO",
   "visor.options.common.vr_play_mode": "VR: %s",
-  "visor.options.common.vr_play_mode.tooltip": "Choose VR Play Mode. \n\n1) Enabled - VR will be active while headset is on \n2) World Only - VR will be initialized but inactive in main menu and active while in game \n3) Always - VR will be always active \n4) Disabled - VR won't be initialized (NonVR)",
+  "visor.options.common.vr_play_mode.tooltip": "Choose VR Play Mode. \n\n1) Enabled - VR session will be active, taking off the headset only pauses it \n2) World Only - VR will be initialized but inactive in main menu and active while in game \n3) Disabled - VR won't be initialized (NonVR)",
 
   "visor.options.main": "VR Settings",
   "visor.options.main.button": "VR Settings...",
@@ -222,7 +222,6 @@
   "visor.options.enums.VRPlayMode.DISABLED": "Disabled",
   "visor.options.enums.VRPlayMode.ENABLED": "Enabled",
   "visor.options.enums.VRPlayMode.WORLD_ONLY": "World Only",
-  "visor.options.enums.VRPlayMode.ALWAYS_ACTIVE": "Always",
   "visor.options.enums.PoseAnchor.NONE": "None",
   "visor.options.enums.PoseAnchor.HMD": "HMD",
   "visor.options.enums.PoseAnchor.MAIN_HAND": "Main Hand",
@@ -549,6 +548,9 @@
 
   "visor.screen.win_screen.button.leave": "Leave",
 
+  "visor.screen.vr_inactive.title": "Your VR is inactive, please put on your headset",
+  "visor.screen.vr_inactive.button.exit_vr": "Exit VR mode",
+
   "_comment19": "*--------WIDGETS--------*",
   "visor.widgets.color_picker.hex": "Hex",
   "visor.widgets.color_picker.transparent": "Transparent: %s",
@@ -582,7 +584,6 @@
   "visor.messages.height_measured": "Height measured: %s",
   "visor.messages.height_measure_countdown": "Stand straight… %d",
   "visor.messages.height_calibration_failed": "Height measurement failed: headset pose unavailable. Make sure your headset is on and tracking, then try again.",
-  "visor.messages.vr_auto_switch": "Put on your headset to play VR",
   "visor.messages.incompatible_settings": "Incompatible Settings",
   "visor.messages.server_vr_only": "Server For VR player only!",
   "visor.messages.network_mismatch": "Your Visor network version is not supported by this server!\n Your: %s Server: %s",

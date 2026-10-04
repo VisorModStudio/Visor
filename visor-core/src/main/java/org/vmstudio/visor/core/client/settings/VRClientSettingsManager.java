@@ -201,7 +201,8 @@ public class VRClientSettingsManager {
                     Object result = Objects.requireNonNull(
                             prepareValueForLoad(
                                     value,
-                                    fieldType
+                                    fieldType,
+                                    field.get(null)
                             )
                     );
                     field.set(null, result);
@@ -312,7 +313,8 @@ public class VRClientSettingsManager {
             Object result = Objects.requireNonNull(
                     prepareValueForLoad(
                             value,
-                            fieldType
+                            fieldType,
+                            field.get(null)
                     )
             );
             field.set(null, result);
@@ -497,13 +499,14 @@ public class VRClientSettingsManager {
     }
 
     private Object prepareValueForLoad(Object configValue,
-                                       Class<?> fieldType){
+                                       Class<?> fieldType,
+                                       Object currentValue){
         if(fieldType.isEnum()){
             Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
             try {
                 return Enum.valueOf(enumType, configValue.toString().toUpperCase());
             } catch (IllegalArgumentException e) {
-                return enumType.getEnumConstants()[0];
+                return currentValue;
             }
         }
         if(fieldType.isAssignableFrom(Quaternionf.class)){

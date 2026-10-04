@@ -16,6 +16,7 @@ import org.vmstudio.visor.api.client.render.RenderPhase;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
 import org.vmstudio.visor.api.client.render.VRSceneType;
 
+import org.vmstudio.visor.core.client.gui.screens.VRInactiveScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRPauseMenuScreen;
 import org.vmstudio.visor.core.client.gui.screens.VRErrorReportScreen;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -38,7 +39,6 @@ public class VisorState implements VisorClientState {
 
     public static long FRAME_COUNT;
 
-
     @Setter
     private static boolean minecraftLoaded = false;
 
@@ -48,6 +48,10 @@ public class VisorState implements VisorClientState {
 
     @Getter @Setter
     private static EntityRendererProvider.Context delayedVrBodyInit = null;
+
+
+    private static int sessionHiddenSinceTick = -1;
+
 
     public static VRStateMode get(){
         return state;
@@ -98,12 +102,7 @@ public class VisorState implements VisorClientState {
 
 
         var playMode = VRClientSettings.getVrPlayMode();
-        boolean vrActive = playMode.canPlayVR()
-                && (ClientContext.visor.isActive()
-                || playMode == VRPlayMode.ALWAYS_ACTIVE);
-
-
-        boolean changed = updateActive(vrActive);
+        boolean changed = updateActive(playMode.canPlayVR());
         if(changed && !(playMode == VRPlayMode.WORLD_ONLY && state.isActive())){
             ClientUtils.disconnect("VR state changed");
             return;
@@ -120,6 +119,7 @@ public class VisorState implements VisorClientState {
                 }
                 setState(VRStateMode.ACTIVE);
             }
+            updateInactiveScreen();
         } else {
             ClientContext.visor.idleVRFrame();
         }
@@ -214,6 +214,7 @@ public class VisorState implements VisorClientState {
 
     private static void activate() {
         setState(VRStateMode.ACTIVE);
+        sessionHiddenSinceTick = -1;
 
         if (MC.player != null) {
             ClientContext.localPlayer.recenterOrigin(
@@ -252,6 +253,30 @@ public class VisorState implements VisorClientState {
                     MC.mouseHandler.ypos()
             );
         }
+    }
+
+    private static void updateInactiveScreen() {
+        Screen screen = McVersionClientUtils.screen();
+        if (ClientContext.visor.isSessionVisible()) {
+            sessionHiddenSinceTick = -1;
+            if (screen instanceof VRInactiveScreen inactiveScreen) {
+                inactiveScreen.onClose();
+            }
+            return;
+        }
+        if (sessionHiddenSinceTick < 0) {
+            sessionHiddenSinceTick = TICK_COUNT;
+        }
+        if (TICK_COUNT - sessionHiddenSinceTick < 40 //INACTIVE_SCREEN_DELAY_TICKS
+                || screen instanceof VRInactiveScreen
+                || McVersionClientUtils.isLevelTransitionScreen(screen)) {
+            return;
+        }
+        McVersionClientUtils.setScreen(new VRInactiveScreen(screen));
+    }
+
+    public static boolean isVrFramePaced() {
+        return state.isActive() && ClientContext.visor.isSessionRunning();
     }
 
     public static void destroyVRWithErrorScreen(Throwable throwable) {

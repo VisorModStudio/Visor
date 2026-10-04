@@ -29,7 +29,11 @@ public class MirrorHelper {
     }
 
 
-    public static void drawMirror() {
+    public static void drawMirror(boolean vrFrameRendered) {
+        if (!vrFrameRendered) {
+            drawGuiMirror();
+            return;
+        }
         switch (VRClientSettings.getMirrorMode()){
             case OFF -> drawTextMirror("Mirror is OFF", true);
             case GUI -> drawGuiMirror();

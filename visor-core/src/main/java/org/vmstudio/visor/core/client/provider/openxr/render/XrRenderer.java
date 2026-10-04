@@ -149,26 +149,26 @@ public class XrRenderer extends VRRendererBase {
 
     @Override
     public void renderFrame(@NotNull AtumVRRenderContext context) {
-        if(!frameStarted) return;
+        if (!shouldRenderFrame()) return;
 
+        prepareSwapChains();
 
-        try {
-            if (frameShouldRender) {
-                prepareSwapChains();
-
-                if (isVulkanBridge()) {
-                    vrProvider.getSession().getVulkanBridge().beginFrameGL();
-                }
-                getCurrentScene().render(context);
-            }
-        }finally {
-            frameStarted = false;
-            finishFrame();
+        if (isVulkanBridge()) {
+            vrProvider.getSession().getVulkanBridge().beginFrameGL();
         }
+        getCurrentScene().render(context);
+    }
 
+    @Override
+    protected boolean shouldRenderFrame() {
+        return frameStarted && frameShouldRender;
+    }
 
-
-
+    @Override
+    protected void endFrame() {
+        if (!frameStarted) return;
+        frameStarted = false;
+        finishFrame();
     }
     private void prepareSwapChains(){
         this.projectionLayerViews = XrCompositionLayerProjectionView.calloc(2);

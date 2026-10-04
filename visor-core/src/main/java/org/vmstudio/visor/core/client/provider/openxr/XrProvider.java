@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.provider.openxr;
 
+import lombok.Getter;
 import me.phoenixra.atumvr.api.AtumVRLogger;
 import me.phoenixra.atumvr.api.rendering.AtumVRRenderer;
 import me.phoenixra.atumvr.core.XRProvider;
@@ -16,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class XrProvider extends XRProvider {
+
+    @Getter
+    private XRSessionState sessionState = XRSessionState.UNKNOWN;
 
     public XrProvider(@NotNull String appName, @NotNull AtumVRLogger logger) {
         super(appName, logger);
@@ -69,9 +73,7 @@ public class XrProvider extends XRProvider {
 
     @Override
     public void onStateChanged(XRSessionState state) {
-        if(state == XRSessionState.EXITING){
-            MC.stop();
-        }
+        sessionState = state;
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.vmstudio.visor.api.client.render.VRRenderer;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McGlState;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.core.client.render.context.RenderContext;
+import org.vmstudio.visor.core.client.render.helpers.MirrorHelper;
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
 import org.vmstudio.visor.compatibility.ShaderCompatHelper;
 import org.vmstudio.visor.core.client.VisorState;
@@ -89,6 +90,8 @@ public abstract class VRRendererBase implements VRRenderer {
     protected abstract void setupEyes();
     protected abstract void setupResolution(MemoryStack stack);
     protected abstract void setupHiddenArea(MemoryStack stack);
+    protected abstract boolean shouldRenderFrame();
+    protected abstract void endFrame();
     public abstract Matrix4f getProjectionMatrix(EyeType eyeType, float nearClip, float farClip);
     @Override
     public abstract VisorScene getCurrentScene();
@@ -97,8 +100,24 @@ public abstract class VRRendererBase implements VRRenderer {
 
     public void render(RenderContext context) {
         ClientContext.decorationRenderer.updateRenderState();
-        renderFrame(context);
+        try {
+            renderFrame(context);
+            renderMirror(context);
+        } finally {
+            endFrame();
+        }
+    }
 
+    private void renderMirror(RenderContext context) {
+        context.profiler().push("VR mirror");
+        VRRenderState.startVRMirrorPhase();
+        McRenderTarget.bindWrite(McRenderTarget.mainTarget());
+        //? if >=26.1 {
+        McRenderTarget.clear(McRenderTarget.mainTarget());
+        //?}
+        MirrorHelper.drawMirror(shouldRenderFrame());
+        context.profiler().pop();
+        GLUtils.checkGLError("post mirror");
     }
 
     public void onGameRenderStart(boolean renderLevel) {

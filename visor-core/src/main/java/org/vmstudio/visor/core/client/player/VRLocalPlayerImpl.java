@@ -263,6 +263,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
     private void movePlayerInRoom(LocalPlayer player){
         if(player == null
+                || VisorState.get().isNotFocused()
                 || player.isShiftKeyDown()
                 || player.isSleeping()
                 || !player.isAlive()){
