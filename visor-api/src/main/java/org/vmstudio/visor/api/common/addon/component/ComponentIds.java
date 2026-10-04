@@ -53,12 +53,13 @@ public final class ComponentIds {
     public static String generateId(@NotNull String componentName,
                                     @Nullable String idPrefix,
                                     @NotNull Predicate<String> idUsedValidation){
+        String slug = slugify(componentName);
         if(idPrefix != null) {
             requireValid(idPrefix);
         }else{
-            idPrefix = "";
+            //if slug is a valid id - use it, otherwise add id as a fixed prefix
+            idPrefix = PATTERN.matcher(slug).lookingAt() ? slug : "id";
         }
-        String slug = slugify(componentName);
         String base;
         if(slug.isEmpty()){
             base = idPrefix;
