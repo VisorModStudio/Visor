@@ -66,11 +66,13 @@ public abstract class GameRendererCameraMixin {
         return -180F;
     }
 
+    // reset first: other mods (Figura) fold camera roll, bobbing or nausea into this matrix
     //? if >=1.20.5 {
     /*@ModifyExpressionValue(method = "renderLevel",
             at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotationXYZ(FFF)Lorg/joml/Matrix4f;", remap = false), require = 1)
     public Matrix4f visor$orientCameraToPass(Matrix4f frustumMatrix) {
         if (VRRenderState.getPhase().isNotVanilla()) {
+            frustumMatrix.identity();
             RenderPoseHelper.applyCameraOrientation(
                     VRRenderState.getRenderPass(), frustumMatrix
             );
@@ -82,6 +84,7 @@ public abstract class GameRendererCameraMixin {
             method = "renderLevel", require = 1)
     public void visor$orientCameraToPass(float partialTicks, long nanos, PoseStack poseStack, CallbackInfo ci) {
         if (VRRenderState.getPhase().isNotVanilla()) {
+            poseStack.setIdentity();
             RenderPoseHelper.applyCameraOrientation(
                     VRRenderState.getRenderPass(), poseStack
             );

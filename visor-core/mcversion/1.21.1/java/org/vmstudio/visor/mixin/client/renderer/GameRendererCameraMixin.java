@@ -56,10 +56,12 @@ public abstract class GameRendererCameraMixin {
         return new Quaternionf();
     }
 
+    // reset first: other mods (Figura) fold camera roll, bobbing or nausea into this matrix
     @ModifyExpressionValue(method = "renderLevel",
             at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4f;rotation(Lorg/joml/Quaternionfc;)Lorg/joml/Matrix4f;", remap = false), require = 1)
     public Matrix4f visor$orientCameraToPass(Matrix4f frustumMatrix) {
         if (VRRenderState.getPhase().isNotVanilla()) {
+            frustumMatrix.identity();
             RenderPoseHelper.applyCameraOrientation(
                     VRRenderState.getRenderPass(), frustumMatrix
             );
