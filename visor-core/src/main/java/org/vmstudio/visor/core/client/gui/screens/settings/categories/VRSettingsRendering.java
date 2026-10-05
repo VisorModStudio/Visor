@@ -72,12 +72,31 @@ public class VRSettingsRendering extends VROptionsSet {
             );
         }
 
+        int graphicsApiRow = IrisCompatHelper.isLoaded() ? 2 : 1;
         options.add(
                 new OptionWidgetEntry(
                         this,
                         VROptionWidgetType.GRAPHICS_API,
                         OptionWidgetPosition.RIGHT,
-                        IrisCompatHelper.isLoaded() ? 2 : 1,
+                        graphicsApiRow,
+                        null
+                )
+        );
+        options.add(
+                new OptionWidgetEntry(
+                        this,
+                        VROptionWidgetType.RENDER_SCALE,
+                        OptionWidgetPosition.RIGHT,
+                        graphicsApiRow + 1,
+                        null
+                )
+        );
+        options.add(
+                new OptionWidgetEntry(
+                        this,
+                        VROptionWidgetType.SCALING_FILTER,
+                        OptionWidgetPosition.RIGHT,
+                        graphicsApiRow + 2,
                         null
                 )
         );

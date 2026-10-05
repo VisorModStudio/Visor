@@ -28,7 +28,6 @@ import org.vmstudio.visor.core.client.render.camera.VRCameraOverlaps;
 import org.vmstudio.visor.core.client.render.helpers.RenderStateHelper;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
-import org.joml.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.*;
@@ -211,20 +210,16 @@ public class VisorScene implements AtumVRScene {
         }
 
         if (renderPass.isEye()) {
-            if (renderPass == VRRenderPass.EYE_LEFT) {
-                McRenderTarget.bindWrite(
-                        ClientContext.renderer.getTextureLeftEye().getRenderTarget()
-                );
-            } else {
-                McRenderTarget.bindWrite(
-                        ClientContext.renderer.getTextureRightEye().getRenderTarget()
-                );
-            }
+            RenderTarget eyeTarget = renderPass == VRRenderPass.EYE_LEFT
+                    ? ClientContext.renderer.getTextureLeftEye().getRenderTarget()
+                    : ClientContext.renderer.getTextureRightEye().getRenderTarget();
 
             VRShaders.getPostProcess().finishEye(
                     renderPass == VRRenderPass.EYE_LEFT
                             ? EyeType.LEFT : EyeType.RIGHT,
                     McRenderTarget.mainTarget(),
+                    eyeTarget,
+                    ClientContext.renderer.mainTarget.getScalingTarget(),
                     context.partialTicks()
             );
         }

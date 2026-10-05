@@ -108,7 +108,13 @@ public class VRClientSettings {
     private static boolean eyeFovChanged = false;
 
     @Getter
-    protected static final float renderScaleFactor = 1.0f;
+    @VROptionField(key = "render_scale", category = VROptionCategory.RENDERING)
+    protected static float renderScaleFactor = 1.0f;
+
+    @Getter
+    @VROptionField(key = "scaling_filter", category = VROptionCategory.RENDERING)
+    protected static ScalingFilter scalingFilter = ScalingFilter.LANCZOS;
+
     @Getter
     protected static final float mirrorSmooth = 0.0F;
     @Getter

@@ -5,6 +5,9 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import lombok.Getter;
 import me.phoenixra.atumvr.api.enums.EyeType;
 import me.phoenixra.atumvr.api.utils.GLUtils;
+import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.api.client.settings.enums.ScalingFilter;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderTarget;
 import org.vmstudio.visor.api.compatibility.mcversion.render.McShaderProgram;
 import org.vmstudio.visor.core.client.render.helpers.RenderShaderHelper;
 import org.vmstudio.visor.core.client.utils.ClientUtils;
@@ -16,11 +19,20 @@ import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 
 public class VRShaderPostProcessEye implements VRShader{
+    private static final float AXIS_NONE = 0.0F;
+    private static final float AXIS_HORIZONTAL = 1.0F;
+    private static final float AXIS_VERTICAL = 2.0F;
+
     @Getter
     private McShaderProgram handle;
 
     private float desaturateProgress;
     private long desaturateLastMillis;
+
+    private float tintRed;
+    private float tintBlue;
+    private float tintBlack;
+    private float desaturate;
 
     @Override
     public void init() throws Exception {
@@ -30,20 +42,54 @@ public class VRShaderPostProcessEye implements VRShader{
 
     public void finishEye(EyeType eye,
                           RenderTarget source,
+                          RenderTarget target,
+                          @Nullable RenderTarget resampleTarget,
                           float partialTicks) {
         if (eye == EyeType.LEFT) {
             // update state only for the first rendered eye,
             // to have synchronized effects for both
-            updateUniforms(partialTicks);
+            updateEffects(partialTicks);
         }
 
-        RenderShaderHelper.renderFullscreenQuad(handle, source);
+        if (resampleTarget == null) {
+            McRenderTarget.bindWrite(target);
+            draw(source, target, AXIS_NONE, true);
+        } else {
+            McRenderTarget.bindWrite(resampleTarget);
+            draw(source, resampleTarget, AXIS_HORIZONTAL, false);
+            McRenderTarget.bindWrite(target);
+            draw(resampleTarget, target, AXIS_VERTICAL, true);
+        }
 
         GLUtils.checkGLError("post process eye: "+ eye.name());
     }
 
+    private void draw(RenderTarget source, RenderTarget target, float axis, boolean effects) {
+        handle.setUniform("uTintRed", effects ? tintRed : 0.0F);
+        handle.setUniform("uTintBlue", effects ? tintBlue : 0.0F);
+        handle.setUniform("uTintBlack", effects ? tintBlack : 0.0F);
+        handle.setUniform("uDesaturate", effects ? desaturate : 0.0F);
 
-    private void updateUniforms(float partialTicks){
+        handle.setUniform("uScalingAxis", axis);
+        handle.setUniform("uScalingFilter", filterIndex(VRClientSettings.getScalingFilter()));
+        handle.setUniform("uSourceWidth", (float) McRenderTarget.viewWidth(source));
+        handle.setUniform("uSourceHeight", (float) McRenderTarget.viewHeight(source));
+        handle.setUniform("uTargetWidth", (float) McRenderTarget.viewWidth(target));
+        handle.setUniform("uTargetHeight", (float) McRenderTarget.viewHeight(target));
+
+        RenderShaderHelper.renderFullscreenQuad(handle, source);
+    }
+
+    private static float filterIndex(ScalingFilter filter) {
+        return switch (filter) {
+            case LANCZOS -> 0.0F;
+            case MITCHELL -> 1.0F;
+            case BILINEAR -> 2.0F;
+        };
+    }
+
+
+    private void updateEffects(float partialTicks){
 
         boolean canApplyEffects = MC.level != null
                 && MC.player != null
@@ -100,12 +146,12 @@ public class VRShaderPostProcessEye implements VRShader{
         // --- Finalize ---
 
         //tints
-        handle.setUniform("uTintRed", redTint);
-        handle.setUniform("uTintBlue", blueTint);
-        handle.setUniform("uTintBlack", blackTint);
+        tintRed = redTint;
+        tintBlue = blueTint;
+        tintBlack = blackTint;
 
         //drain the colors while the client in fullscreen
-        handle.setUniform("uDesaturate", updateDesaturation());
+        desaturate = updateDesaturation();
     }
 
     private float updateDesaturation() {

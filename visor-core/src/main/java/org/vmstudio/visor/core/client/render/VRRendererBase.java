@@ -41,6 +41,8 @@ import org.vmstudio.visor.core.client.ClientContext;
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public abstract class VRRendererBase implements VRRenderer {
+    private static final long RENDER_SCALE_SETTLE_MS = 300L;
+
     public RenderTargetMain mainTarget;
 
     public RenderTargetGUI guiTarget;
@@ -63,6 +65,9 @@ public abstract class VRRendererBase implements VRRenderer {
     private int mirrorHeight;
 
     public float renderScale;
+    private float appliedRenderScaleFactor;
+    private float pendingRenderScaleFactor;
+    private long pendingRenderScaleSince;
 
 
     public long lastWindow = 0L;
@@ -154,6 +159,10 @@ public abstract class VRRendererBase implements VRRenderer {
             this.prepareReinit("window recreated");
         }
 
+        if (!this.reinitTargets) {
+            checkRenderScale();
+        }
+
         //-----------------
 
 
@@ -189,9 +198,9 @@ public abstract class VRRendererBase implements VRRenderer {
         int eyeWidth = getResolutionWidth();
         int eyeHeight = getResolutionHeight();
 
-        this.renderScale = (float) Math.sqrt(VRClientSettings.getRenderScaleFactor());
-        int eyeRenderWidth = (int) Math.ceil(eyeWidth * this.renderScale);
-        int eyeRenderHeight = (int) Math.ceil(eyeHeight * this.renderScale);
+        updateRenderScale();
+        int eyeRenderWidth = scaledEyeSize(eyeWidth);
+        int eyeRenderHeight = scaledEyeSize(eyeHeight);
 
         List<VRRenderPass> list = VRRenderState.getActivePasses();
         for (VRRenderPass renderStage : list) {
@@ -204,6 +213,9 @@ public abstract class VRRendererBase implements VRRenderer {
         mainTarget.init(
                 eyeRenderWidth, eyeRenderHeight
         );
+        if (eyeRenderWidth != eyeWidth || eyeRenderHeight != eyeHeight) {
+            mainTarget.initScalingTarget(eyeWidth, eyeRenderHeight);
+        }
 
         firstPersonTarget = new RenderTargetFirst();
         if(list.contains(VRRenderPass.CENTER)
@@ -283,9 +295,8 @@ public abstract class VRRendererBase implements VRRenderer {
     private void resizeTargets() throws Exception {
         resizeTargets = false;
 
-        this.renderScale = (float) Math.sqrt(VRClientSettings.getRenderScaleFactor());
-        int eyeRenderWidth = (int) Math.ceil(getResolutionWidth() * this.renderScale);
-        int eyeRenderHeight = (int) Math.ceil(getResolutionHeight() * this.renderScale);
+        int eyeRenderWidth = scaledEyeSize(getResolutionWidth());
+        int eyeRenderHeight = scaledEyeSize(getResolutionHeight());
 
         updateMirrorSize(eyeRenderWidth, eyeRenderHeight);
         mainTarget.resize(eyeRenderWidth, eyeRenderHeight);
@@ -324,6 +335,33 @@ public abstract class VRRendererBase implements VRRenderer {
             VisorClientImpl.LOGGER.info("Resizing Render Buffers: {}", cause);
         }
         this.resizeTargets = true;
+    }
+
+    // waits for the slider to settle, a reinit rebuilds every target and shader pipeline
+    private void checkRenderScale() {
+        float requested = VRClientSettings.getRenderScaleFactor();
+        if (requested == this.appliedRenderScaleFactor) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (requested != this.pendingRenderScaleFactor) {
+            this.pendingRenderScaleFactor = requested;
+            this.pendingRenderScaleSince = now;
+        } else if (now - this.pendingRenderScaleSince >= RENDER_SCALE_SETTLE_MS) {
+            prepareReinit("render scale changed");
+        }
+    }
+
+    private void updateRenderScale() {
+        this.appliedRenderScaleFactor = VRClientSettings.getRenderScaleFactor();
+        this.pendingRenderScaleFactor = this.appliedRenderScaleFactor;
+        float maxScale = (float) McGlState.maxSupportedTextureSize()
+                / Math.max(getResolutionWidth(), getResolutionHeight());
+        this.renderScale = Math.min((float) Math.sqrt(Math.max(this.appliedRenderScaleFactor, 0.1F)), maxScale);
+    }
+
+    private int scaledEyeSize(int size) {
+        return Math.min(McGlState.maxSupportedTextureSize(), (int) Math.ceil(size * this.renderScale));
     }
 
 

@@ -48,6 +48,42 @@
       "type": "float",
       "count": 1,
       "values": [0.0]
+    },
+    {
+      "name": "uScalingAxis",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
+    {
+      "name": "uScalingFilter",
+      "type": "float",
+      "count": 1,
+      "values": [0.0]
+    },
+    {
+      "name": "uSourceWidth",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    },
+    {
+      "name": "uSourceHeight",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    },
+    {
+      "name": "uTargetWidth",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
+    },
+    {
+      "name": "uTargetHeight",
+      "type": "float",
+      "count": 1,
+      "values": [1.0]
     }
   ]
 }

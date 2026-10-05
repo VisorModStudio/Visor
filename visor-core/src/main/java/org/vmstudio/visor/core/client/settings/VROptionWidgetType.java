@@ -21,8 +21,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
-
 public enum VROptionWidgetType {
 
     EMPTY(
@@ -267,6 +265,35 @@ public enum VROptionWidgetType {
     GRAPHICS_API(
             VROptionCategory.RENDERING,
             "graphics_api",
+            (it) -> null
+    ),
+    RENDER_SCALE(
+            VROptionCategory.RENDERING,
+            "render_scale",
+            (it) -> {
+                List<Float> entries = List.of(
+                        0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f,
+                        1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.25f, 2.5f, 2.75f, 3.0f, 3.5f, 4.0f, 4.5f, 5.0f
+                );
+                return OptionBehaviourFactory.discreteSlider(
+                        it, entries,
+                        () -> {
+                            int initialIndex = entries.indexOf(VRClientSettings.getRenderScaleFactor());
+                            return initialIndex != -1
+                                    ? initialIndex
+                                    : entries.indexOf(1.0f);
+                        }
+                ).setOnUpdateName(
+                        (pair) -> {
+                            String value = String.format("%.0f%%", (float) pair.second() * 100);
+                            return pair.first() + value;
+                        }
+                ).build();
+            }
+    ),
+    SCALING_FILTER(
+            VROptionCategory.RENDERING,
+            "scaling_filter",
             (it) -> null
     ),
     HEIGHT_MODE(

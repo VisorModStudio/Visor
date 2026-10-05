@@ -17,6 +17,8 @@ public class RenderTargetMain implements RenderTargetHolder {
     private RenderTarget target;
     @Getter
     private RenderTarget mirrorTarget;
+    @Getter
+    private RenderTarget scalingTarget;
 
     @Override
     public void init(int width, int height) throws Exception {
@@ -47,6 +49,18 @@ public class RenderTargetMain implements RenderTargetHolder {
 
     }
 
+    public void initScalingTarget(int width, int height) {
+        scalingTarget = new VRRenderTarget(
+                "Scaling",
+                width, height,
+                false,
+                () -> -1,
+                false, false
+        );
+        GLUtils.checkGLError("Scaling VR target setup");
+        VisorClientImpl.LOGGER.info(this.scalingTarget.toString());
+    }
+
     @Override
     public void resize(int width, int height) throws Exception {
         //? if <1.21.2 {
@@ -73,6 +87,10 @@ public class RenderTargetMain implements RenderTargetHolder {
         if(mirrorTarget != null) {
             mirrorTarget.destroyBuffers();
             mirrorTarget = null;
+        }
+        if(scalingTarget != null) {
+            scalingTarget.destroyBuffers();
+            scalingTarget = null;
         }
     }
 }
