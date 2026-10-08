@@ -12,6 +12,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+//? if >=1.20.5 {
+/*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+*///?}
 
 
 @Mixin(MouseHandler.class)
@@ -52,6 +56,13 @@ public abstract class MouseHandlerMixin {
         );
         ci.cancel();
     }
+
+    //? if >=1.20.5 {
+    /*@WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = {"onMove", "handleAccumulatedMovement"})
+    public boolean visor$mouseMoveIfWindowNotFocused(Minecraft instance, Operation<Boolean> original) {
+        return VisorState.get().isActive() || original.call(instance);
+    }
+    *///?}
 
     //here we use ActualScreenWidth, to support mouse usage in GUI mirror mode
     //? if >=1.21.9 {

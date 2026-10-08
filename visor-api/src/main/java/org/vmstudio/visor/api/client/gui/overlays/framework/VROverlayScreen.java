@@ -11,6 +11,7 @@ import org.vmstudio.visor.api.client.gui.overlays.*;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsPose;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsResizing;
 import org.vmstudio.visor.api.client.gui.overlays.options.types.OverlayOptionsVisibility;
+import org.vmstudio.visor.api.client.input.MouseButtonType;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.player.pose.PoseAnchor;
 import org.vmstudio.visor.api.client.gui.overlays.options.OverlayOptionGroup;
@@ -112,7 +113,7 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
 
 
     private static long mouseDragDelay;
-    private final boolean[] pressedDragMouseButtons = new boolean[3];
+    private final EnumSet<MouseButtonType> pressedDragMouseButtons = EnumSet.noneOf(MouseButtonType.class);
 
     private boolean beingDragged = false;
     private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
@@ -534,28 +535,18 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
         return mouseDragDelay < System.currentTimeMillis();
     }
     public boolean isDragMouseButtonPressed(int buttonType){
-        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
-            return false;
-        }
-        return pressedDragMouseButtons[buttonType];
+        return pressedDragMouseButtons.contains(MouseButtonType.fromId(buttonType));
     }
     public void startDragMouse(int buttonType){
-        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
-            return;
-        }
-        pressedDragMouseButtons[buttonType] = true;
+        pressedDragMouseButtons.add(MouseButtonType.fromId(buttonType));
         mouseDragDelay = System.currentTimeMillis();
         mouseDragged(getMouseX(), getMouseY(), buttonType, 0, 0);
     }
     public void finishDragMouse(int buttonType){
-        if (buttonType < 0 || buttonType >= pressedDragMouseButtons.length) {
-            return;
+        pressedDragMouseButtons.remove(MouseButtonType.fromId(buttonType));
+        if (pressedDragMouseButtons.isEmpty()) {
+            mouseDragDelay = Long.MAX_VALUE;
         }
-        pressedDragMouseButtons[buttonType] = false;
-        for (boolean pressed : pressedDragMouseButtons) {
-            if (pressed) return;
-        }
-        mouseDragDelay = Long.MAX_VALUE;
     }
 
     @Override
@@ -602,14 +593,12 @@ public abstract class VROverlayScreen extends McScreen implements VROverlay {
         if (canDragMouse()) {
             int deltaX = cursorData.getCursorX() - oldMouseX;
             int deltaY = cursorData.getCursorY() - oldMouseY;
-            for (int buttonType = 0; buttonType < pressedDragMouseButtons.length; buttonType++) {
-                if (pressedDragMouseButtons[buttonType]) {
-                    mouseDragged(
-                            cursorData.getCursorX(), cursorData.getCursorY(),
-                            buttonType,
-                            deltaX, deltaY
-                    );
-                }
+            for (MouseButtonType type : pressedDragMouseButtons) {
+                mouseDragged(
+                        cursorData.getCursorX(), cursorData.getCursorY(),
+                        type.getId(),
+                        deltaX, deltaY
+                );
             }
         }
 

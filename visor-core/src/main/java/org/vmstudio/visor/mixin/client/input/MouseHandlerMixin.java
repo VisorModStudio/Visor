@@ -1,6 +1,8 @@
 // #!MC-VERSION:: 26.3+
 package org.vmstudio.visor.mixin.client.input;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import org.vmstudio.visor.api.common.utils.Vector3fHistory;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
@@ -52,6 +54,11 @@ public abstract class MouseHandlerMixin {
                 0
         );
         ci.cancel();
+    }
+
+    @WrapOperation(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"), method = {"onMove", "handleAccumulatedMovement"})
+    public boolean visor$mouseMoveIfWindowNotFocused(Minecraft instance, Operation<Boolean> original) {
+        return VisorState.get().isActive() || original.call(instance);
     }
 
     //here we use ActualScreenWidth, to support mouse usage in GUI mirror mode
