@@ -500,7 +500,7 @@ public class TaskSwing extends VisorTask {
         final boolean isFarmableBlock = isFarmItem &&
                 (BlockClassifier.FARMABLE_BLOCK.is(blockState.getBlock()) ||
                         McVersionUtils.shouldSwing(handItem.useOn(new UseOnContext(
-                                player.level(), null, interactionHand,
+                                player.level(), player, interactionHand,
                                 player.getItemInHand(interactionHand).copy(), blockHit
                         ))));
         if (isFarmableBlock) {
