@@ -206,10 +206,25 @@ public class VisorState implements VisorClientState {
             MC.getSoundManager().reload();
         }
 
-        McVersionClientUtils.resizeDisplay(MC);
+        resizeDisplay();
         McVersionClientUtils.updateVsync(MC);
         ClientContext.renderer.prepareReinit("Switched state");
         return true;
+    }
+
+    private static void resizeDisplay() {
+        try {
+            McVersionClientUtils.resizeDisplay(MC);
+        } catch (Throwable e) {
+            Screen screen = McVersionClientUtils.screen();
+            if (screen == null) {
+                throw e;
+            }
+            VisorClientImpl.LOGGER.error("Closing {}, it failed to re-init on the VR state switch",
+                    screen.getClass().getName(), e);
+            McVersionClientUtils.setScreen(null);
+            McVersionClientUtils.resizeDisplay(MC);
+        }
     }
 
     private static void activate() {
