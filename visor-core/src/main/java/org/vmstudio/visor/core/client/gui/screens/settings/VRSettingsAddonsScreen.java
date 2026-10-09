@@ -74,7 +74,7 @@ public class VRSettingsAddonsScreen extends McScreen {
             } else if (rightScreen == null) {
                 continue;
             }
-            this.list.children().add(
+            this.list.addRow(
                     new AddonEntry(
                             leftAddon, leftScreen,
                             rightAddon, rightScreen,
@@ -85,7 +85,7 @@ public class VRSettingsAddonsScreen extends McScreen {
             leftScreen = null;
         }
         if(leftAddon != null && leftScreen != null){
-            this.list.children().add(
+            this.list.addRow(
                     new AddonEntry(
                             leftAddon, leftScreen,
                             null, null,
@@ -130,6 +130,10 @@ public class VRSettingsAddonsScreen extends McScreen {
     private static class AddonList extends McObjectSelectionList<AddonEntry> {
         public AddonList(int width, int height, int top, int itemHeight) {
             super(MC, width, height, 0, top, itemHeight);
+        }
+
+        private void addRow(AddonEntry entry) {
+            addEntry(entry);
         }
 
         @Override

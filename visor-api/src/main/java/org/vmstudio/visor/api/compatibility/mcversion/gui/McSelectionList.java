@@ -147,6 +147,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
                                    int index, int left, int top, int rowWidth, int rowHeight) {
         //? if >=1.21.9 {
         E entry = this.children().get(index);
+        int slotHeight = entry.getHeight();
         entry.setX(left);
         entry.setY(top);
         entry.setWidth(rowWidth);
@@ -156,6 +157,7 @@ public abstract class McSelectionList<E extends McSelectionList.Entry<E>> extend
         //?} else {
         /*renderItem(guiGraphics, mouseX, mouseY, partialTick, entry);
         *///?}
+        entry.setHeight(slotHeight);
         //?} else {
         /*renderItem(guiGraphics, mouseX, mouseY, partialTick, index, left, top, rowWidth, rowHeight);
         *///?}
