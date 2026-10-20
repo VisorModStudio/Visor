@@ -241,16 +241,17 @@ public abstract class ServerPlayerMixin
         );
 
         var handDir = handPose.getDirection();
-        var handPos = handPose.getPosition();
+        // Must use double value to not cause crash on type conversion
+        Vec3 handPos = handPose.getPositionVec3();
 
         float handAngle = (float) Mth.atan2(-handDir.x(), handDir.z());
         double offsetX = -Mth.sin(handAngle);
         double offsetZ = Mth.cos(handAngle);
 
         return original.call(level, particle,
-                handPos.x() + offsetX,
-                handPos.y(),
-                handPos.z() + offsetZ,
+                handPos.x + offsetX,
+                handPos.y,
+                handPos.z + offsetZ,
                 0,
                 offsetX, 0.0D, offsetZ,
                 0.0D);
