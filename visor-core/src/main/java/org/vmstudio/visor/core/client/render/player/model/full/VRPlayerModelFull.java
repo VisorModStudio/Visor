@@ -100,6 +100,9 @@ public class VRPlayerModelFull extends PlayerModel {
     }
 
     public void applyVisibility(AbstractClientPlayer player) {
+        //? if >=1.21.2 {
+        this.head.visible = true;
+        //?}
         if (VRRenderState.isSelfModelRender(player)) {
             this.head.visible = false;
             this.hat.visible = false;
