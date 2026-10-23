@@ -14,8 +14,6 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import net.minecraft.SharedConstants;
-import net.minecraft.util.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
@@ -27,8 +25,7 @@ import org.joml.Vector3fc;
 import java.util.EnumMap;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
-//@TODO Reconsider logic later
-// (I don't like that it might be imbalanced to use both consume and swinging)
+//@TODO Rework later
 @RegisterVisorTask
 public class TaskRoomConsume extends VisorTask {
     private static final String ID = "room_consume";
@@ -36,13 +33,11 @@ public class TaskRoomConsume extends VisorTask {
     @Getter
     private static TaskRoomConsume instance;
 
-    private static final long MILLIS_PER_TICK = 1000L / SharedConstants.TICKS_PER_SECOND;
     private static final float MOUTH_DISTANCE = 0.25F;
     private static final int HAPTIC_DELAY_EAT_DRINK = 2;
     private static final int HAPTIC_DELAY_TOOT_HORN = 1;
 
     private final EnumMap<HandType, Boolean> consuming = new EnumMap<>(HandType.class);
-    private final EnumMap<HandType, Long> eatStartMap = new EnumMap<>(HandType.class);
 
     public TaskRoomConsume(@NotNull VisorAddon owner) {
         super(owner);
@@ -65,6 +60,10 @@ public class TaskRoomConsume extends VisorTask {
                 .add(hmdPos);
 
         for (HandType hand : HandType.values()) {
+            InteractionHand interactHand = hand.asInteractionHand();
+            if (!isUsing(player, interactHand)) {
+                consuming.put(hand, false);
+            }
             if(ClientContext.cursorHandler.isHandFocused(hand)){
                 continue;
             }
@@ -74,10 +73,7 @@ public class TaskRoomConsume extends VisorTask {
                 continue;
             }
 
-            InteractionHand interactHand = (hand == HandType.MAIN)
-                    ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-            ItemStack foodItem = (hand == HandType.MAIN)
-                    ? player.getMainHandItem() : player.getOffhandItem();
+            ItemStack foodItem = player.getItemInHand(interactHand);
 
             if (!isConsumable(foodItem)) {
                 continue;
@@ -91,18 +87,14 @@ public class TaskRoomConsume extends VisorTask {
             if (hapticDelay == -1) continue;
 
             //start consuming
-            if (!consuming.getOrDefault(hand, false)) {
-                boolean usedItem = MC.gameMode.useItem(player, interactHand).consumesAction();
-                if (usedItem) {
-                    //? if >=26.3 {
-                    player.firstPersonHandsAndItems().itemUsed(interactHand);
-                    //?} else {
-                    /*MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
-                    *///?}
-                    consuming.put(hand, true);
-                    eatStartMap.put(hand, Util.getMillis());
-                }
+            if (!player.isUsingItem() && MC.gameMode.useItem(player, interactHand).consumesAction()) {
+                //? if >=26.3 {
+                player.firstPersonHandsAndItems().itemUsed(interactHand);
+                //?} else {
+                /*MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
+                *///?}
             }
+            consuming.put(hand, isUsing(player, interactHand));
 
             //consume feedback
             if (consuming.getOrDefault(hand, false)) {
@@ -111,12 +103,6 @@ public class TaskRoomConsume extends VisorTask {
                     ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HapticFeedback.CONSUME_BITE);
                 }
             }
-
-            // Reset consumption state per hand once the item's own use time has passed
-            long useTimeMs = (long) McVersionUtils.useDuration(foodItem, player) * MILLIS_PER_TICK;
-            if (Util.getMillis() - eatStartMap.getOrDefault(hand, 0L) > useTimeMs) {
-                consuming.put(hand, false);
-            }
         }
 
     }
@@ -124,7 +110,6 @@ public class TaskRoomConsume extends VisorTask {
     @Override
     protected void onClear(LocalPlayer player) {
         consuming.clear();
-        eatStartMap.clear();
     }
 
 
@@ -164,6 +149,10 @@ public class TaskRoomConsume extends VisorTask {
                 .getDirection()
                 .mul(0.1f, new Vector3f());
         return basePos.add(customOffset, new Vector3f()).add(directionOffset);
+    }
+
+    private static boolean isUsing(LocalPlayer player, InteractionHand hand) {
+        return player.isUsingItem() && player.getUsedItemHand() == hand;
     }
 
     private boolean isConsumable(ItemStack item) {
