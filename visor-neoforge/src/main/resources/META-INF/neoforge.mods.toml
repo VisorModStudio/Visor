@@ -35,6 +35,8 @@ config = "${mod_id}.aeronautics.mixins.json"
 [[mixins]]
 config = "${mod_id}.create.mixins.json"
 [[mixins]]
+config = "${mod_id}.xaero.mixins.json"
+[[mixins]]
 config = "${mod_id}.mixins.neoforge.json"
 
 [[dependencies.${mod_id}]]

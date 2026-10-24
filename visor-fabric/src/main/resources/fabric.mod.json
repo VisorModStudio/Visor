@@ -32,7 +32,8 @@
     "visor.nvidium.mixins.json",
     "visor.voxy.mixins.json",
     "visor.blur.mixins.json",
-    "visor.reacharound.mixins.json"
+    "visor.reacharound.mixins.json",
+    "visor.xaero.mixins.json"
   ],
   "depends": {
     "fabricloader": "${fabric_loader_version_range}",
