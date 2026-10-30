@@ -70,7 +70,7 @@ public class RenderTargetGUI implements RenderTargetHolder {
     public void resize(int width, int height) throws Exception {
         McRenderTarget.resize(target, width, height);
         for(var entry : overlayTargets.entrySet()) {
-            if(target==null) continue;
+            if(entry.getValue()==null) continue;
             var overlay = entry.getKey();
             McRenderTarget.resize(
                     entry.getValue(),
