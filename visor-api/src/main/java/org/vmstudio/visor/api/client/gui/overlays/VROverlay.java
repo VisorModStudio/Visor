@@ -12,6 +12,9 @@ import org.vmstudio.visor.api.common.addon.component.VisorComponent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.Collection;
 
@@ -246,6 +249,8 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
     //--------- FORCED ANCHOR && DRAGGING ---------
     //---------------------------------------------
 
+    Vector3fc DEFAULT_FORCED_POSITION_OFFSET = new Vector3f(0, 0, -0.3f);
+
     /**
      * Get the forced anchor
      *
@@ -257,16 +262,33 @@ public interface VROverlay extends VisorComponent, PrioritySupporter {
      */
     @Nullable PoseAnchor getForcedAnchor();
 
+
+    /**
+     * Set the forced anchor with offset from it
+     * <p>
+     *     Overrides {@link #updatePose(float)}
+     * </p>
+     *
+     * @param anchor the anchor or null
+     * @param positionOffset the position offset or null for {@link #DEFAULT_FORCED_POSITION_OFFSET default value}
+     * @param rotationOffset the rotation offset or null for none
+     */
+    void setForcedAnchor(@Nullable PoseAnchor anchor,
+                         @Nullable Vector3fc positionOffset,
+                         @Nullable Matrix4fc rotationOffset);
+
     /**
      * Set the forced anchor
-     *
-     * <p>The anchor that is forced and replaces {@link #updatePose(float)}</p>
-     *
-     * <p>Used in demo overlay</p>
+     * <p>
+     *     Overrides {@link #updatePose(float)}
+     * </p>
      *
      * @param anchor the anchor or null
      */
-    void setForcedAnchor(@Nullable PoseAnchor anchor);
+    default void setForcedAnchor(@Nullable PoseAnchor anchor){
+        setForcedAnchor(anchor, null, null);
+    }
+
 
 
     /**

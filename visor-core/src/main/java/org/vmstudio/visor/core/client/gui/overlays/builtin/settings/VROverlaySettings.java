@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.overlays.builtin.settings;
 
+import org.joml.Matrix4fc;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -367,14 +368,16 @@ public class VROverlaySettings extends VROverlayScreen
     }
 
     @Override
-    public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor) {
+    public void setForcedAnchor(@Nullable PoseAnchor forcedAnchor,
+                                @Nullable Vector3fc positionOffset,
+                                @Nullable Matrix4fc rotationOffset) {
         if(getForcedAnchor() != null && forcedAnchor == null){
             relativePosition = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertPositionFrom(PlayerPoseType.RENDER, getPose().getPosition());
             relativeRotation = ClientContext.localPlayer.getPoseData(PlayerPoseType.ROOM)
                     .convertRotationFrom(PlayerPoseType.RENDER, getPose().getRotation());
         }
-        super.setForcedAnchor(forcedAnchor);
+        super.setForcedAnchor(forcedAnchor, positionOffset, rotationOffset);
     }
 
     private void setDragged(boolean flag) {

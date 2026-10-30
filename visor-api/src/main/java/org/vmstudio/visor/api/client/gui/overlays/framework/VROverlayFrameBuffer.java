@@ -20,9 +20,11 @@ import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.api.common.utils.VRMathUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -43,7 +45,7 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     @Getter
     private final VROverlayPose pose;
 
-    @Getter @Setter
+    @Getter
     private @Nullable PoseAnchor forcedAnchor;
 
 
@@ -76,8 +78,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
     private boolean visible = false;
 
     private boolean beingDragged = false;
-    private Vector3f dragPositionOffset = new Vector3f(0, 0, -0.3f);
-    private Matrix4f dragRotationMatrix = new Matrix4f();
+    private final Vector3f forcedPositionOffset = new Vector3f();
+    private final Matrix4f forcedRotationOffset = new Matrix4f();
 
     private boolean beingResized = false;
     private HandType resizeHand;
@@ -253,6 +255,15 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
 
 
     @Override
+    public void setForcedAnchor(@Nullable PoseAnchor anchor,
+                                @Nullable Vector3fc positionOffset,
+                                @Nullable Matrix4fc rotationOffset) {
+        forcedPositionOffset.set(Objects.requireNonNullElse(positionOffset, DEFAULT_FORCED_POSITION_OFFSET));
+        forcedRotationOffset.set(Objects.requireNonNullElse(rotationOffset, VRMathUtils.EMPTY_MATRIX));
+        forcedAnchor = anchor;
+    }
+
+    @Override
     public void startDragging() {
         var vrClient = VisorAPI.client();
 
@@ -270,10 +281,8 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
                 .invert(new Matrix4f())
                 .mul(getPose().getRotation(), new Matrix4f());
 
-        this.dragPositionOffset.set(dragPositionOffset);
-        this.dragRotationMatrix.set(dragRotation);
         this.beingDragged = true;
-        setForcedAnchor(dragAnchor);
+        setForcedAnchor(dragAnchor, dragPositionOffset, dragRotation);
     }
 
     public void stopDragging() {
@@ -314,12 +323,12 @@ public abstract class VROverlayFrameBuffer implements VROverlay {
         VRPlayerPoseClient renderPose = VisorAPI.client().getVRLocalPlayer().getPoseData(PlayerPoseType.RENDER);
         VRPose anchorPose = forcedAnchor.getSupplier().apply(renderPose);
 
-        Vector3f positionOffset = new Vector3f(dragPositionOffset)
+        Vector3f positionOffset = new Vector3f(forcedPositionOffset)
                 .mul(renderPose.getWorldScale());
         Vector3f newPosition = anchorPose.transformDirection(positionOffset)
                 .add(anchorPose.getPosition());
         Matrix4f newRotation = new Matrix4f(anchorPose.getRotation())
-                .mul(dragRotationMatrix, new Matrix4f());
+                .mul(forcedRotationOffset, new Matrix4f());
 
         getPose().update(
                 newPosition,

@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
+import org.joml.Quaternionf;
 import org.vmstudio.visor.api.client.player.pose.VRPlayerPoseClient;
 import org.vmstudio.visor.api.common.player.VRPose;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
@@ -17,6 +18,7 @@ import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -32,7 +34,7 @@ public class VROverlayDemo extends VROverlayScreen {
 
 
     private final Vector3f movingPosOffset = new Vector3f(0,0,-0.3f);
-    private final Vector3f movingRotationOffset = new Vector3f(0,0,0);
+    private final Quaternionf movingRotationOffset = new Quaternionf();
 
 
     private VROverlay target;
@@ -66,12 +68,16 @@ public class VROverlayDemo extends VROverlayScreen {
         //Screen Edge
         renderOutline(guiGraphics, startX, startY, width, height, AtumColor.RED.asInt());
 
-        //MOUSE bounds outline
-        startX = cursorBoundsX;
-        startY = cursorBoundsY;
+        if(!(target instanceof VROverlayScreen overlayScreen)){
+            return;
+        }
 
-        width = cursorBoundsWidth;
-        height = cursorBoundsHeight;
+        //MOUSE bounds outline
+        startX = overlayScreen.getCursorBoundsX();
+        startY = overlayScreen.getCursorBoundsY();
+
+        width = overlayScreen.getCursorBoundsWidth();
+        height = overlayScreen.getCursorBoundsHeight();
 
         if(startX == -1
                 || startY == -1
@@ -93,19 +99,8 @@ public class VROverlayDemo extends VROverlayScreen {
 
     @Override
     protected void onTick() {
-        if(target == null){
-            return;
-        }
-        if(target instanceof VROverlayScreen overlayScreen){
-            cursorBoundsX = overlayScreen.getCursorBoundsX();
-            cursorBoundsY = overlayScreen.getCursorBoundsY();
-            cursorBoundsWidth = overlayScreen.getCursorBoundsWidth();
-            cursorBoundsHeight = overlayScreen.getCursorBoundsHeight();
-        }else{
-            cursorBoundsX = -1;
-            cursorBoundsY = -1;
-            cursorBoundsWidth = -1;
-            cursorBoundsHeight = -1;
+        if(movingByAnchor != null){
+            ClientContext.cursorHandler.setForceFocused(this);
         }
     }
 
@@ -161,6 +156,9 @@ public class VROverlayDemo extends VROverlayScreen {
 
     @Override
     public void onDisable() {
+        if(movingByAnchor != null){
+            endMovingByAnchor();
+        }
         target = null;
         targetPoseOptions = null;
         appliedPose = false;
@@ -205,12 +203,17 @@ public class VROverlayDemo extends VROverlayScreen {
         movingByAnchor = posAnchor == PoseAnchor.MAIN_HAND
                 ? PoseAnchor.OFFHAND
                 : PoseAnchor.MAIN_HAND;
-        target.setForcedAnchor(movingByAnchor);
+        target.setForcedAnchor(
+                movingByAnchor,
+                movingPosOffset,
+                new Matrix4f().rotation(movingRotationOffset)
+        );
 
         ClientContext.cursorHandler.setCursorHand(
                 movingByAnchor == PoseAnchor.OFFHAND
                 ? HandType.OFFHAND : HandType.MAIN
         );
+        ClientContext.cursorHandler.setForceFocused(this);
     }
 
     public void stopMovingByAnchor(){
@@ -218,9 +221,15 @@ public class VROverlayDemo extends VROverlayScreen {
         if(movingByAnchor == null) return;
 
         applyNewOffset();
+        endMovingByAnchor();
+    }
 
+    private void endMovingByAnchor(){
         movingByAnchor = null;
         target.setForcedAnchor(null);
+        if(ClientContext.cursorHandler.getForceFocused() == this){
+            ClientContext.cursorHandler.setForceFocused(null);
+        }
     }
 
     public void applyNewOffset(){
@@ -328,9 +337,27 @@ public class VROverlayDemo extends VROverlayScreen {
 
 
     @Override
+    public void updateSize() {
+        if(target instanceof VROverlayScreen overlayScreen
+                && overlayScreen.getGuiScaleFactor() > 0){
+            guiScaleFactor = overlayScreen.getGuiScaleFactor();
+            McGuiUtils.initScreen(
+                    this,
+                    getRequestedWidthScaled(),
+                    getRequestedHeightScaled()
+            );
+            return;
+        }
+        super.updateSize();
+    }
+
+    @Override
     public int getRequestedWidth() {
         if(target == null){
             return super.getRequestedWidth();
+        }
+        if(target instanceof VROverlayScreen overlayScreen){
+            return overlayScreen.getRequestedWidth();
         }
         var renderTarget = target.getRenderTarget();
         if(renderTarget == null){
@@ -343,6 +370,9 @@ public class VROverlayDemo extends VROverlayScreen {
     public int getRequestedHeight() {
         if(target == null){
             return super.getRequestedHeight();
+        }
+        if(target instanceof VROverlayScreen overlayScreen){
+            return overlayScreen.getRequestedHeight();
         }
         var renderTarget = target.getRenderTarget();
         if(renderTarget == null){
