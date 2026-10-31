@@ -207,6 +207,7 @@ public class ClientNetworking {
     }
 
 
+    // replaymod only, flashback gets the same data through writeCustomSnapshot
     public static void tickRecording() {
         boolean modRecording = ReplayCompatHelper.isRecording();
         if(modRecording && !recording){
@@ -226,6 +227,7 @@ public class ClientNetworking {
             );
         }
         serverSupportsVisor = true;
+        // recording could've updated these already, the server still has to get them
         resetLastSent();
     }
 

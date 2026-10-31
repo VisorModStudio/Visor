@@ -298,6 +298,7 @@ public class VisorClientImpl implements VisorClient {
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
         } finally {
+            // save VR poses in flashback
             FlashbackCompatHelper.flushDeferredEndTick();
         }
     }

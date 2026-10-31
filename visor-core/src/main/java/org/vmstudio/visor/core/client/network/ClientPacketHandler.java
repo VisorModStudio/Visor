@@ -64,6 +64,7 @@ public class ClientPacketHandler {
                 var payload = (VROtherStartTrackingPayloadToClient) payloadClient;
                 var remotePlayer = VRClientPlayers.getValidPacketReceiverMc(payload.playerUUID());
                 if(remotePlayer == null){
+                    // player may not be spawned yet
                     VRClientPlayers.deferStartTracking(payload);
                     return;
                 }
@@ -76,6 +77,7 @@ public class ClientPacketHandler {
                     );
                     VRClientPlayers.receivedNewPlayer(vrPlayer);
                 }else{
+                    // snapshot can resend this for a player that we know
                     vrPlayer.receivedStartTracking(remotePlayer, payload);
                 }
             }

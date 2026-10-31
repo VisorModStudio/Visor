@@ -79,6 +79,7 @@ public class VRClientPlayers {
         });
     }
 
+    // flashback's export calls these too and this keeps pre/post in pairs
     private static boolean remoteTickOpen;
 
     public static void preTickRemote() {
@@ -98,6 +99,7 @@ public class VRClientPlayers {
     }
 
 
+    // start tracking before the player spawned, wait 100 ticks live, no limit in a replay (костыльность...)
     public static void deferStartTracking(VROtherStartTrackingPayloadToClient payload){
         Level level = Minecraft.getInstance().level;
         if(level == null || level.getPlayerByUUID(payload.playerUUID()) != null) return;

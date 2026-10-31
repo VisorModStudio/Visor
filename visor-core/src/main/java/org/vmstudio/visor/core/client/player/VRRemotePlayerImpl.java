@@ -97,6 +97,7 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     }
 
 
+    // same as the constructor's init, but for a player that already exists
     public void receivedStartTracking(RemotePlayer mcPlayer,
                                       VROtherStartTrackingPayloadToClient data){
         receivedPosePacket(mcPlayer, data.poseBuf().pose());

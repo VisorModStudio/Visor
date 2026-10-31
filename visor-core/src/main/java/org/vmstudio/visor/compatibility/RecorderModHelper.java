@@ -32,6 +32,7 @@ public class RecorderModHelper {
                 || (FlashbackCompatHelper.isLoaded() && FlashbackCompatHelper.isRecording());
     }
 
+    // full VR state of everyone right now
     public static void collectInitPayloads(Consumer<VisorPayloadToClient> consumer){
         var localPlayer = ClientContext.localPlayer;
         if(MC.player != null && VisorState.get().isActive()){

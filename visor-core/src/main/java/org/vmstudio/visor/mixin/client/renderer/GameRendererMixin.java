@@ -4,8 +4,6 @@ package org.vmstudio.visor.mixin.client.renderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 import com.mojang.renderpearl.api.commands.CommandEncoder;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -80,8 +78,9 @@ public abstract class GameRendererMixin {
     }
 
     @Inject(at = @At("TAIL"), method = "render")
-    private void visor$endFeatureFrameInFlat(CallbackInfo ci) {
+    private void visor$endFrameInPCMode(CallbackInfo ci) {
         if (VisorState.get().isNotActive()) {
+            // fixes memory leak after flashback export in PC mode
             McFeatureRenderer.endFrame();
         }
     }
