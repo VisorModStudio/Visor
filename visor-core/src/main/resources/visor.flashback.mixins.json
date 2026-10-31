@@ -5,6 +5,9 @@
   "compatibilityLevel": "JAVA_${mixin_compat_level}",
   "refmap": "${mod_id}.refmap.json",
   "client": [
+    "FlashbackExportMixin",
+    "FlashbackRecorderMixin",
+    "FlashbackRecorderTickMixin",
     "FlashbackScreenMixin"
   ],
   "server": [

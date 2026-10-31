@@ -14,6 +14,7 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -75,6 +76,13 @@ public abstract class GameRendererMixin {
     private void visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Void> original) {
         if (VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON) {
             original.call(instance);
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "render")
+    private void visor$endFeatureFrameInFlat(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            McFeatureRenderer.endFrame();
         }
     }
 

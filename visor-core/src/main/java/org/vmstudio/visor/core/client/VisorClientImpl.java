@@ -19,6 +19,7 @@ import org.vmstudio.visor.api.client.input.VRInputManager;
 import org.vmstudio.visor.api.client.player.body.VRBodyType;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.player.VRPose;
+import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.immediatelyfast.ImmediatelyFastCompatHelper;
 import org.vmstudio.visor.compatibility.immportals.ImmPortalsCompatHelper;
 import org.vmstudio.visor.compatibility.iris.IrisCompatHelper;
@@ -296,6 +297,8 @@ public class VisorClientImpl implements VisorClient {
             VRClientPlayers.postTick();
         } catch (Throwable e) {
             VisorState.destroyVRWithErrorScreen(e);
+        } finally {
+            FlashbackCompatHelper.flushDeferredEndTick();
         }
     }
 

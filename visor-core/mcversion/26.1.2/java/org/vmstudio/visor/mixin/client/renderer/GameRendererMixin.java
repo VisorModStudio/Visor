@@ -24,6 +24,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -88,6 +89,13 @@ public abstract class GameRendererMixin {
     @WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;effectActive:Z"), method = "render")
     public boolean visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Boolean> original) {
         return original.call(instance) && VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON;
+    }
+
+    @Inject(at = @At("TAIL"), method = "render")
+    private void visor$endFeatureFrameInFlat(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            McFeatureRenderer.endFrame();
+        }
     }
 
     //? if >=26.2 {
