@@ -97,6 +97,21 @@ public class VRRemotePlayerImpl implements VRRemotePlayer {
     }
 
 
+    // same as the constructor's init, but for a player that already exists
+    public void receivedStartTracking(RemotePlayer mcPlayer,
+                                      VROtherStartTrackingPayloadToClient data){
+        receivedPosePacket(mcPlayer, data.poseBuf().pose());
+        if(!bodyType.getId().equals(data.bodyTypeBuf().bodyType())){
+            receivedBodyTypePacket(data.bodyTypeBuf().bodyType());
+        }
+        receivedLeftHandedPacket(data.leftHandedBuf().leftHanded());
+        receivedRotationYPacket(data.rotationYBuf().rotationY());
+        receivedWorldScalePacket(data.worldScaleBuf().worldScale());
+        receivedFullHeightPacket(data.fullHeightBuf().fullHeight());
+        receivedGunAngle(data.gunAngleBuf().gunAngle());
+        receivedOverlayFocusedPacket(data.overlayFocusedBuf().overlayFocused());
+    }
+
     public void receivedPosePacket(RemotePlayer mcPlayer,
                                    PoseDataBuffer poseBuffer){
         this.mcPlayer = mcPlayer;

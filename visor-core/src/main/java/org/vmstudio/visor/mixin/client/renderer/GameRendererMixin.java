@@ -4,8 +4,6 @@ package org.vmstudio.visor.mixin.client.renderer;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec3;
 import com.mojang.renderpearl.api.commands.CommandEncoder;
 import com.mojang.renderpearl.api.textures.GpuTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -14,6 +12,7 @@ import com.mojang.renderpearl.api.textures.GpuTextureView;
 import net.minecraft.client.renderer.state.level.PlayerRenderState;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
@@ -75,6 +74,14 @@ public abstract class GameRendererMixin {
     private void visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Void> original) {
         if (VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON) {
             original.call(instance);
+        }
+    }
+
+    @Inject(at = @At("TAIL"), method = "render")
+    private void visor$endFrameInPCMode(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            // fixes memory leak after flashback export in PC mode
+            McFeatureRenderer.endFrame();
         }
     }
 

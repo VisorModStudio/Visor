@@ -13,11 +13,11 @@ import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.compatibility.flashback.FlashbackCompatHelper;
 import org.vmstudio.visor.compatibility.replaymod.ReplayCompatHelper;
 import org.vmstudio.visor.core.client.ClientContext;
-import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
+import org.vmstudio.visor.core.client.VisorState;
+import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.player.VRRemotePlayerImpl;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.function.Consumer;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -28,48 +28,52 @@ public class RecorderModHelper {
     }
 
     public static boolean isRecording(){
-        return ReplayCompatHelper.isRecording() || FlashbackCompatHelper.isRecording();
+        return (ReplayCompatHelper.isLoaded() && ReplayCompatHelper.isRecording())
+                || (FlashbackCompatHelper.isLoaded() && FlashbackCompatHelper.isRecording());
     }
 
-    public static void sendInitPacketsLocal(VisorChannel channel, VRLocalPlayerImpl localPlayer){
-        var uuid = localPlayer.getMcPlayer().getUUID();
-        storePacket(
-                channel,
-                new VROtherStartTrackingPayloadToClient(
-                        uuid,
-                        new VROtherPoseDataPayloadToClient(uuid, PoseDataBuffer.create(localPlayer)),
-                        new VROtherBodyTypePayloadToClient(uuid, localPlayer.getBodyType().getId()),
-                        new VROtherLeftHandedPayloadToClient(uuid, localPlayer.isLeftHanded()),
-                        new VROtherRotationYPayloadToClient(uuid, localPlayer.getRotationY()),
-                        new VROtherWorldScalePayloadToClient(uuid, localPlayer.getPoseData().getWorldScale()),
-                        new VROtherFullHeightPayloadToClient(uuid, localPlayer.getModelHeight()),
-                        new VROtherGunAnglePayloadToClient(uuid, localPlayer.getGunAngle()),
-                        new VROtherOverlayFocusedPayloadToClient(uuid, localPlayer.isOverlayFocused())
-                )
-        );
-    }
-    public static void sendInitPacketsRemote(VisorChannel channel,
-                                             Collection<VRRemotePlayerImpl> remotePlayers){
-        for(var remotePlayer : remotePlayers){
-            var uuid = remotePlayer.getMcPlayer().getUUID();
-            storePacket(
-                    channel,
+    // full VR state of everyone right now
+    public static void collectInitPayloads(Consumer<VisorPayloadToClient> consumer){
+        var localPlayer = ClientContext.localPlayer;
+        if(MC.player != null && VisorState.get().isActive()){
+            var uuid = MC.player.getUUID();
+            consumer.accept(
                     new VROtherStartTrackingPayloadToClient(
                             uuid,
-                            new VROtherPoseDataPayloadToClient(uuid, remotePlayer.getPoseBufferReceived()),
-                            new VROtherBodyTypePayloadToClient(uuid, remotePlayer.getBodyType().getId()),
-                            new VROtherLeftHandedPayloadToClient(uuid, remotePlayer.isLeftHanded()),
-                            new VROtherRotationYPayloadToClient(uuid, remotePlayer.getRotationYReceived()),
-                            new VROtherWorldScalePayloadToClient(uuid, remotePlayer.getPoseData().getWorldScale()),
-                            new VROtherFullHeightPayloadToClient(uuid, remotePlayer.getFullHeight()),
-                            new VROtherGunAnglePayloadToClient(uuid, remotePlayer.getGunAngle()),
-                            new VROtherOverlayFocusedPayloadToClient(uuid, remotePlayer.isOverlayFocused())
+                            new VROtherPoseDataPayloadToClient(uuid, PoseDataBuffer.create(localPlayer)),
+                            new VROtherBodyTypePayloadToClient(uuid, localPlayer.getBodyType().getId()),
+                            new VROtherLeftHandedPayloadToClient(uuid, localPlayer.isLeftHanded()),
+                            new VROtherRotationYPayloadToClient(uuid, localPlayer.getRotationY()),
+                            new VROtherWorldScalePayloadToClient(uuid, localPlayer.getPoseData().getWorldScale()),
+                            new VROtherFullHeightPayloadToClient(uuid, localPlayer.getModelHeight()),
+                            new VROtherGunAnglePayloadToClient(uuid, localPlayer.getGunAngle()),
+                            new VROtherOverlayFocusedPayloadToClient(uuid, localPlayer.isOverlayFocused())
                     )
             );
         }
+        for(var remotePlayer : VRClientPlayers.getRemotePlayers()){
+            if(remotePlayer.getPoseBufferReceived() == null) continue;
+            consumer.accept(startTrackingOf(remotePlayer));
+        }
+    }
+
+    public static VROtherStartTrackingPayloadToClient startTrackingOf(VRRemotePlayerImpl remotePlayer){
+        var uuid = remotePlayer.getMcPlayer().getUUID();
+        return new VROtherStartTrackingPayloadToClient(
+                uuid,
+                new VROtherPoseDataPayloadToClient(uuid, remotePlayer.getPoseBufferReceived()),
+                new VROtherBodyTypePayloadToClient(uuid, remotePlayer.getBodyType().getId()),
+                new VROtherLeftHandedPayloadToClient(uuid, remotePlayer.isLeftHanded()),
+                new VROtherRotationYPayloadToClient(uuid, remotePlayer.getRotationYReceived()),
+                new VROtherWorldScalePayloadToClient(uuid, remotePlayer.getPoseData().getWorldScale()),
+                new VROtherFullHeightPayloadToClient(uuid, remotePlayer.getFullHeight()),
+                new VROtherGunAnglePayloadToClient(uuid, remotePlayer.getGunAngle()),
+                new VROtherOverlayFocusedPayloadToClient(uuid, remotePlayer.isOverlayFocused())
+        );
     }
 
     public static void storeVisorPacketLocal(VisorChannel channel, VisorPayloadToServer payload){
+        if(MC.player == null) return;
         var selfUUID = MC.player.getUUID();
         VisorPayloadToClient storePayload = null;
         switch (VisorCorePayloadID.fromOrdinal(payload.payloadId())){

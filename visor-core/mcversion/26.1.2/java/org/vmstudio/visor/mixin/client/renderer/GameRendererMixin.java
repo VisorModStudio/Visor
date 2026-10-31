@@ -1,18 +1,9 @@
 // #!MC-VERSION:: 26.1.2-26.2
 package org.vmstudio.visor.mixin.client.renderer;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.textures.GpuTexture;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -24,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.vmstudio.visor.api.client.ClientFeature;
 import org.vmstudio.visor.api.client.player.pose.PlayerPoseType;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
 import org.vmstudio.visor.core.client.ClientContext;
@@ -88,6 +80,14 @@ public abstract class GameRendererMixin {
     @WrapOperation(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/GameRenderer;effectActive:Z"), method = "render")
     public boolean visor$noPostEffectOnThirdPerson(GameRenderer instance, Operation<Boolean> original) {
         return original.call(instance) && VRRenderState.getRenderPass() != VRRenderPass.THIRD_PERSON;
+    }
+
+    @Inject(at = @At("TAIL"), method = "render")
+    private void visor$endFrameInPCMode(CallbackInfo ci) {
+        if (VisorState.get().isNotActive()) {
+            // fixes memory leak after flashback export in PC mode
+            McFeatureRenderer.endFrame();
+        }
     }
 
     //? if >=26.2 {
