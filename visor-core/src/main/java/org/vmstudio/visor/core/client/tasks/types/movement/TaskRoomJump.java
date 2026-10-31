@@ -8,9 +8,12 @@ import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.tags.FluidTags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.vmstudio.visor.core.client.utils.RoomTasksUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -53,7 +56,6 @@ public class TaskRoomJump extends VisorTask {
     public boolean isActive(LocalPlayer p) {
 
         if (p == null
-                || !p.isAlive()
                 || MC.gameMode == null) {
             return false;
         }
@@ -61,12 +63,17 @@ public class TaskRoomJump extends VisorTask {
             return false;
         }
         if(!VRClientSettings.isRoomJumpEnabled()) return false;
+        if (McVersionClientUtils.screen() != null) return false;
+        if (!RoomTasksUtils.isBodyFree(p) || ClientContext.localPlayer.isClimbing()) return false;
         // Only allow jump if the player is on solid ground
         // and not performing other actions.
-        if (!p.isInWater() && !p.isInLava() && p.onGround()) {
-            return !p.isShiftKeyDown() && !p.isPassenger();
-        }
-        return false;
+        return p.onGround() && !p.isShiftKeyDown() && !isInFluidTooDeeply(p);
+    }
+
+    private static boolean isInFluidTooDeeply(LocalPlayer p) {
+        double limit = p.getFluidJumpThreshold();
+        return p.getFluidHeight(FluidTags.WATER) > limit
+                || p.getFluidHeight(FluidTags.LAVA) > limit;
     }
 
     @Override

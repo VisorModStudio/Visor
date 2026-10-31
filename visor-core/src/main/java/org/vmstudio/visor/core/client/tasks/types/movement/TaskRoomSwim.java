@@ -17,13 +17,12 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import org.vmstudio.visor.api.compatibility.mcversion.McVersionClientUtils;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Pose;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.vmstudio.visor.core.client.utils.RoomTasksUtils;
 
 import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
@@ -43,7 +42,6 @@ public class TaskRoomSwim extends VisorTask {
     private static final float LAVA_SWIMMING_SPEED_CAP = 0.03f;
     private static final float MIN_SWIM_THRESHOLD = 0.075f;
     private static final float SPRINTING_THRESHOLD = 0.115f;
-    private static final float CHEST_DROP = 0.3f;
 
     private Vector3fc motion = new Vector3f();
     private float lastDist;
@@ -68,7 +66,7 @@ public class TaskRoomSwim extends VisorTask {
                 .sub(mainHandPos, new Vector3f()).mul(0.5f)
                 .add(mainHandPos);
         var headPivotPos = preTickPose.getHeadPivot()
-                .sub(0.0f, CHEST_DROP, 0.0f, new Vector3f());
+                .sub(0.0f, RoomTasksUtils.CHEST_DROP, 0.0f, new Vector3f());
 
         final Vector3fc betweenHandsDir = betweenHandsPos
                 .sub(headPivotPos, new Vector3f())
@@ -122,23 +120,10 @@ public class TaskRoomSwim extends VisorTask {
         if(!VRClientSettings.isRoomSwimEnabled()) return false;
         if (McVersionClientUtils.screen() != null) return false;
         if (MC.gameMode == null) return false;
-        if (p == null || !p.isAlive()) return false;
-        if (p.isPassenger()) return false;
-        if (!p.isInWater() && !p.isInLava()) return false;
+        if (p == null || !RoomTasksUtils.isBodyFree(p)) return false;
+        if (ClientContext.localPlayer.isClimbing()) return false;
         if (p.zza != 0.0F || p.xxa != 0.0F) return false;
-
-        BlockPos playerBlockPos = p.blockPosition();
-        boolean hasFluidAtBody = p.level()
-            .getFluidState(playerBlockPos)
-            .is(FluidTags.WATER)
-            || p.level().getFluidState(playerBlockPos).is(FluidTags.LAVA);
-        boolean hasFluidAboveBody = p.level()
-            .getFluidState(playerBlockPos.above())
-            .is(FluidTags.WATER)
-            || p.level().getFluidState(playerBlockPos.above()).is(FluidTags.LAVA);
-
-        if (!hasFluidAtBody || !hasFluidAboveBody) return false;
-        return true;
+        return RoomTasksUtils.isSubmerged(p);
     }
 
     @Override

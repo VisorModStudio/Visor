@@ -12,6 +12,7 @@ import org.vmstudio.visor.api.client.tasks.TaskType;
 import org.vmstudio.visor.api.client.tasks.VisorTask;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
+import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventHandler;
 import org.vmstudio.visor.api.common.eventbus.listener.VREventListener;
 import org.vmstudio.visor.api.common.network.toserver.ClimbingPayloadToServer;
@@ -19,6 +20,7 @@ import org.vmstudio.visor.api.server.VRServerSettings;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.network.ClientNetworking;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
+import org.vmstudio.visor.core.client.utils.RoomTasksUtils;
 import org.vmstudio.visor.extensions.client.entity.LocalPlayerExtension;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -185,7 +187,10 @@ public class TaskRoomClimb extends VisorTask
             state.isAnchored = false;
         }
         anchoredHand = null;
-        player.setNoGravity(false);
+        if (gravityDisabled) {
+            player.setNoGravity(false);
+            gravityDisabled = false;
+        }
     }
 
 
@@ -196,9 +201,14 @@ public class TaskRoomClimb extends VisorTask
         if(!VRClientSettings.isRoomClimbEnabled()) return false;
         if(!VRServerSettings.isRoomClimbingSupported()) return false;
         if (MC.gameMode == null) return false;
-        if (player == null || !player.isAlive() || player.isPassenger()) return false;
+        if (player == null || !RoomTasksUtils.isBodyFree(player)) return false;
         // Require zero movement input on X and Z axes
         return player.zza == 0 && player.xxa == 0;
+    }
+
+    @Override
+    public @NotNull ComponentPriority getPriority() {
+        return ComponentPriority.HIGHER; //before any other task using climbing task in conditions
     }
 
 
@@ -357,6 +367,7 @@ public class TaskRoomClimb extends VisorTask
             state.isAnchored = true;
 
             ClientContext.inputManager.triggerHapticPulseMicroSec(hand, HapticFeedback.CLIMB_GRAB);
+            return;
         }
     }
 

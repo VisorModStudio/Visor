@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -548,22 +549,39 @@ public abstract class LocalPlayerMixin extends Common_PlayerMixin implements Loc
     @Unique
     private void visor$tickRoomYOffset() {
         double target = 0.0D;
-        if (visor$isPoseModifyCamera()) {
+        var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
+        double eyeAboveFeet = tickPose.getHmd().getPosition().y() - tickPose.getOrigin().y()
+                + ClientContext.localPlayer.getCameraOffsetWorld();
+        if (visor$isPoseModifyCamera(eyeAboveFeet)) {
             final double modifiedEyeHeight = 0.4D;
-            var tickPose = ClientContext.localPlayer.getPoseData(PlayerPoseType.TICK);
-            double eyeAboveOrigin = tickPose.getHmd().getPosition().y() - tickPose.getOrigin().y();
-            target = modifiedEyeHeight - eyeAboveOrigin - ClientContext.localPlayer.getCameraOffsetWorld();
+            target = modifiedEyeHeight - eyeAboveFeet;
         }
         final double yStep = 0.06D;
         visor$roomYOffsetApplied += Mth.clamp(target - visor$roomYOffsetApplied, -yStep, yStep);
     }
 
     @Unique
-    private boolean visor$isPoseModifyCamera() {
+    private boolean visor$isPoseModifyCamera(double eyeAboveFeet) {
         Pose pose = this.getPose();
-        return pose == Pose.SPIN_ATTACK
-                || pose == Pose.FALL_FLYING
-                || pose == Pose.SWIMMING && !ClientContext.localPlayer.isCrawling();
+        if (pose == Pose.SPIN_ATTACK || pose == Pose.FALL_FLYING) {
+            return true;
+        }
+        if (pose != Pose.SWIMMING) {
+            return false;
+        }
+        // real head height, when there is a room for that
+        return !ClientContext.localPlayer.isCrawling() || !visor$hasHeadroom(eyeAboveFeet);
+    }
+
+    @Unique
+    private boolean visor$hasHeadroom(double eyeAboveFeet) {
+        final double aboveEye = 0.1D;
+        var player = visor$getPlayer();
+        AABB body = player.getBoundingBox();
+        return player.level().noCollision(player, new AABB(
+                body.minX, body.minY, body.minZ,
+                body.maxX, body.minY + eyeAboveFeet + aboveEye, body.maxZ
+        ));
     }
 
     @Override

@@ -25,6 +25,9 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
     private static final String COMPONENT_NAME = "VisorTask";
     private static final String ANNOTATION_NAME = "@RegisterVisorTask";
 
+    private static final Comparator<VisorTask> RUN_ORDER =
+            Comparator.<VisorTask>naturalOrder().thenComparing(VisorTask::getId);
+
 
     private final Map<String, VisorTask> componentsMap = new LinkedHashMap<>();
 
@@ -118,13 +121,13 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
             );
             List<VisorTask> oldList = componentsByType.get(previous.getType());
             oldList.remove(previous);
-            Collections.sort(oldList);
+            oldList.sort(RUN_ORDER);
         }
 
 
         List<VisorTask> newList = componentsByType.get(component.getType());
         newList.add(component);
-        Collections.sort(newList);
+        newList.sort(RUN_ORDER);
 
         if(previous == null){
             VisorClientImpl.LOGGER.info("Registered {}: '{}'", COMPONENT_NAME, component.getId());
@@ -137,7 +140,7 @@ public class VisorTaskRegistry implements ComponentRegistry<VisorTask> {
         if (removed != null) {
             List<VisorTask> list = componentsByType.get(removed.getType());
             list.remove(removed);
-            Collections.sort(list);
+            list.sort(RUN_ORDER);
             VisorClientImpl.LOGGER.info("Unregistered {}: '{}'", COMPONENT_NAME, removed.getId());
         }
         return removed;

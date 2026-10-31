@@ -16,7 +16,6 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.player.VRLocalPlayerImpl;
 import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomSneak;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -41,6 +40,8 @@ public class TaskVehicle extends VisorTask {
     private static final double MINECART_MOVEMENT_FLOOR = 0.001d;
     private static final float TURN_RATE_GAIN = 200f;
     private static final float MIN_TURN_RATE_DEG = 10f;
+    private static final double DISMOUNT_LEAN_METERS = 1.0d;
+    private static final int DISMOUNT_SNEAK_TICKS = 5;
 
 
     public Vec3 premountPosRoom = new Vec3(0.0D, 0.0D, 0.0D);
@@ -50,6 +51,7 @@ public class TaskVehicle extends VisorTask {
     public int rotationCooldown = 0;
     private int minecartTimer = 0;
     public int dismountDelay = 0;
+    private int dismountSneakTicks = 0;
 
     public TaskVehicle(@NotNull VisorAddon owner) {
         super(owner);
@@ -87,6 +89,7 @@ public class TaskVehicle extends VisorTask {
     @Override
     protected void onClear(LocalPlayer player) {
         this.minecartTimer = 3;
+        this.dismountSneakTicks = 0;
     }
 
     @Override
@@ -124,7 +127,11 @@ public class TaskVehicle extends VisorTask {
     }
 
     public void onStopRiding() {
-        TaskRoomSneak.getInstance().setSneakTimer(0);
+        this.dismountSneakTicks = 0;
+    }
+
+    public boolean isDismountRequested() {
+        return dismountSneakTicks > 0;
     }
 
     private void handleAutoDismount(LocalPlayer player) {
@@ -132,23 +139,25 @@ public class TaskVehicle extends VisorTask {
         if (!canAutoDismount(player)) return;
 
 
-        Vector3fc mountPos = player.getVehicle().position().toVector3f();
         Vector3fc headPivot = ClientContext.localPlayer
-                .getPoseData(PlayerPoseType.TICK)
+                .getPoseData(PlayerPoseType.ROOM)
                 .getHeadPivot();
 
-        double dx = headPivot.x() - mountPos.x();
-        double dz = headPivot.z() - mountPos.z();
+        double dx = headPivot.x() - premountPosRoom.x;
+        double dz = headPivot.z() - premountPosRoom.z;
         double distance = Math.sqrt(dx * dx + dz * dz);
 
-        if (distance > 1.0 && TaskRoomSneak.getInstance().getSneakTimer() == 0) {
-            TaskRoomSneak.getInstance().setSneakTimer(5);
+        if (distance > DISMOUNT_LEAN_METERS) {
+            this.dismountSneakTicks = DISMOUNT_SNEAK_TICKS;
         }
     }
 
     private void tickTimers() {
         if (dismountDelay > 0) {
             --dismountDelay;
+        }
+        if (dismountSneakTicks > 0) {
+            --dismountSneakTicks;
         }
         if (rotationCooldown > 0) {
             --rotationCooldown;

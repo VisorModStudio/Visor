@@ -9,6 +9,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McPlayerInput;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskRoomSneak;
+import org.vmstudio.visor.core.client.tasks.types.movement.vehicle.TaskVehicle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 import org.spongepowered.asm.mixin.Mixin;
@@ -56,9 +57,10 @@ public class MovementInputMixin {
             McPlayerInput.setJumping(input, false);
         }
 
-        TaskRoomSneak sneak = TaskRoomSneak.getInstance();
         McPlayerInput.setSneaking(input, !screenOpen
-                && (McPlayerInput.isSneaking(input) || sneak.isSneaking() || sneak.getSneakTimer() > 0));
+                && (McPlayerInput.isSneaking(input)
+                || TaskRoomSneak.getInstance().isSneaking()
+                || TaskVehicle.getInstance().isDismountRequested()));
 
         if (ClientContext.localPlayer.isMoving()) {
             var movement = ClientContext.localPlayer.getMovement();

@@ -16,6 +16,7 @@ import org.vmstudio.visor.core.client.player.pose.LocalPlayerPose;
 import org.vmstudio.visor.api.client.settings.VRClientSettings;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +39,7 @@ public class TaskRoomConsume extends VisorTask {
     private static final int HAPTIC_DELAY_TOOT_HORN = 1;
 
     private final EnumMap<HandType, Boolean> consuming = new EnumMap<>(HandType.class);
+    private final EnumMap<HandType, Item> refusedItems = new EnumMap<>(HandType.class);
 
     public TaskRoomConsume(@NotNull VisorAddon owner) {
         super(owner);
@@ -70,6 +72,7 @@ public class TaskRoomConsume extends VisorTask {
             Vector3fc handPos = calculateHandPosition(roomPose, hand);
             if (mouthPos.distance(handPos) >= MOUTH_DISTANCE) {
                 consuming.put(hand, false);
+                refusedItems.remove(hand);
                 continue;
             }
 
@@ -87,12 +90,17 @@ public class TaskRoomConsume extends VisorTask {
             if (hapticDelay == -1) continue;
 
             //start consuming
-            if (!player.isUsingItem() && MC.gameMode.useItem(player, interactHand).consumesAction()) {
-                //? if >=26.3 {
-                player.firstPersonHandsAndItems().itemUsed(interactHand);
-                //?} else {
-                /*MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
-                *///?}
+            if (!player.isUsingItem() && refusedItems.get(hand) != foodItem.getItem()) {
+                if (MC.gameMode.useItem(player, interactHand).consumesAction()) {
+                    //? if >=26.3 {
+                    player.firstPersonHandsAndItems().itemUsed(interactHand);
+                    //?} else {
+                    /*MC.gameRenderer.itemInHandRenderer.itemUsed(interactHand);
+                    *///?}
+                }
+                if (!isUsing(player, interactHand)) {
+                    refusedItems.put(hand, foodItem.getItem());
+                }
             }
             consuming.put(hand, isUsing(player, interactHand));
 
@@ -110,6 +118,7 @@ public class TaskRoomConsume extends VisorTask {
     @Override
     protected void onClear(LocalPlayer player) {
         consuming.clear();
+        refusedItems.clear();
     }
 
 
@@ -155,7 +164,7 @@ public class TaskRoomConsume extends VisorTask {
         return player.isUsingItem() && player.getUsedItemHand() == hand;
     }
 
-    private boolean isConsumable(ItemStack item) {
+    public static boolean isConsumable(ItemStack item) {
         if (item == ItemStack.EMPTY) {
             return false;
         }

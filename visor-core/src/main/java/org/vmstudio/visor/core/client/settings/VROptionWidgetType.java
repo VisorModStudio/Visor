@@ -525,7 +525,7 @@ public enum VROptionWidgetType {
             VROptionCategory.IMMERSION_ADVANCED,
             "room_jump.threshold",
             (it) -> {
-                List<Float> entries = List.of(1.01f,1.02f,1.03f, 1.04f, 1.05f, 1.06f, 1.07f, 1.08f, 1.09f, 1.1f, 1.11f, 1.12f, 1.13f, 1.14f, 1.15f);
+                List<Float> entries = List.of(1.03f, 1.04f, 1.05f, 1.06f, 1.07f, 1.08f, 1.09f, 1.1f, 1.11f, 1.12f, 1.13f, 1.14f, 1.15f);
                 return OptionBehaviourFactory.discreteSlider(
                         it, entries,
                         () -> {

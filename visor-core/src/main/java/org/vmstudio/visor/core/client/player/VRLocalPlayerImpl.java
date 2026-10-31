@@ -266,6 +266,7 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
                 || VisorState.get().isNotFocused()
                 || player.isShiftKeyDown()
                 || player.isSleeping()
+                || player.isPassenger()
                 || !player.isAlive()){
             return;
         }
@@ -300,6 +301,9 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
         // If there is no collision at the destination,
         // update the player's position
         if (MC.level.noCollision(player, collisionBox)) {
+            if (!isRoomPathClear(player, collisionBox)) {
+                return;
+            }
             //avoid using player.setPos() since it is overridden by Visor
             player.setPosRaw(newPos.x, newPos.y, newPos.z);
             player.setBoundingBox(collisionBox);
@@ -371,6 +375,24 @@ public class VRLocalPlayerImpl implements VRLocalPlayer {
 
             }
         }
+    }
+
+    private boolean isRoomPathClear(LocalPlayer player, AABB destination) {
+        AABB current = player.getBoundingBox();
+        double dx = destination.minX - current.minX;
+        double dz = destination.minZ - current.minZ;
+        int stops = (int) (Math.sqrt(dx * dx + dz * dz) / (player.getBbWidth() / 2.0D));
+
+        if (stops == 0 || !MC.level.noCollision(player, current)) {
+            return true;
+        }
+        for (int i = 1; i <= stops; i++) {
+            double progress = i / (stops + 1.0D);
+            if (!MC.level.noCollision(player, current.move(dx * progress, 0.0D, dz * progress))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void updatePlayerLook(LocalPlayer player, PlayerPoseType stage) {
