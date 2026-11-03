@@ -4,6 +4,7 @@ package org.vmstudio.visor.loader.forge;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 //? if >=1.20.2 {
 import net.minecraftforge.event.network.CustomPayloadEvent;
@@ -67,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /*import org.apache.commons.lang3.tuple.ImmutablePair;
 *///?}
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.mixin.client.accessors.KeyMappingAccessor;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -350,6 +352,13 @@ public class ForgeModLoader implements ModLoader {
         //?} else {
         /*return ForgeHooksClient.renderFireOverlay(player, mat);
         *///?}
+    }
+
+    @Override
+    public int getKeyBinding(String id) {
+        KeyMapping mapping = KeyMappingAccessor.ALL().get(id);
+        if (mapping == null) return -1;
+        return mapping.getKey().getValue();
     }
 
     //? if >=26.3 {

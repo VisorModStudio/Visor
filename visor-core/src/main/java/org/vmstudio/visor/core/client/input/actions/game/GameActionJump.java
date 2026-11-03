@@ -8,30 +8,17 @@ import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.jetbrains.annotations.NotNull;
+import org.vmstudio.visor.core.client.input.actions.KeyAction;
 
 import java.util.Map;
 
-public class GameActionJump extends VRActionButton {
+public class GameActionJump extends KeyAction {
     public static final String ID = "jump";
-
-
+    private static final String KEY_ID = "key.jump";
 
     public GameActionJump(VRActionSet actionSet) {
-        super(actionSet, ID);
+        super(actionSet, ID, KEY_ID);
     }
-
-
-    @Override
-    protected void onPress() {
-        InputHelper.pressKey(InputConstants.KEY_SPACE);
-    }
-
-    @Override
-    protected void onRelease() {
-        InputHelper.releaseKey(InputConstants.KEY_SPACE);
-    }
-
-
 
     @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
