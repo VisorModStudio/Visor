@@ -52,7 +52,8 @@ public class GameActionSet extends VRActionSet {
                 new GameActionHotBar(this, HandType.OFFHAND),
 
                 new GameActionInventory(this),
-                new GameActionDrop(this)
+                new GameActionDrop(this),
+                new GameActionOffhand(this)
         );
     }
 
