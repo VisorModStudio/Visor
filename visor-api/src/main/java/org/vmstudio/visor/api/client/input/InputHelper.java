@@ -2,6 +2,8 @@ package org.vmstudio.visor.api.client.input;
 
 
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
+import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.client.gui.overlays.framework.VROverlayScreen;
 import net.minecraft.client.Minecraft;
@@ -143,6 +145,10 @@ public class InputHelper {
         pressKey(key, 0);
     }
 
+    public static void pressKey(String id) {
+        pressKey(ModLoader.get().getKeyBinding(id));
+    }
+
 
     public static void releaseKey(int key, int modifiers) {
         if (key < 0) return;
@@ -159,6 +165,10 @@ public class InputHelper {
     }
     public static void releaseKey(int key) {
         releaseKey(key, 0);
+    }
+
+    public static void releaseKey(String id) {
+        releaseKey(ModLoader.get().getKeyBinding(id));
     }
 
 

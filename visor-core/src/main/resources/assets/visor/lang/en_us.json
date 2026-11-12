@@ -289,6 +289,9 @@
   "visor.action.hotbar_main": "Hotbar (Main)",
   "visor.action.hotbar_offhand": "Hotbar (Offhand)",
   "visor.action.screenshot": "Screenshot",
+  "visor.action.key.inventory": "Inventory",
+  "visor.action.key.drop": "Drop Item",
+  "visor.action.key.swapOffhand": "Swap Offhand",
 
   "_comment111": "*--------ACTION BINDINGS--------*",
   "visor.action.bindings.null": "DISABLED",

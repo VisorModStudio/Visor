@@ -11,6 +11,7 @@
     "client.MinecraftOffhandMixin",
     "client.MinecraftOverlaysMixin",
     "client.accessors.BlockAccessor",
+    "client.accessors.KeyMappingAccessor",
     "client.accessors.RenderSystemAccessor",
     "client.audio.LibraryMixin",
     "client.gui.BossBarMixins$BossBarHideMixin",
