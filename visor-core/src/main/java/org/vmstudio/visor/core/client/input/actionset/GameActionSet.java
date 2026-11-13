@@ -52,9 +52,7 @@ public class GameActionSet extends VRActionSet {
                 new GameActionHotBar(this, HandType.MAIN),
                 new GameActionHotBar(this, HandType.OFFHAND),
 
-                new VRActionKey("open_inventory",this,"key.inventory"),
-                new VRActionKey("drop_item",this,"key.drop"),
-                new VRActionKey("swap_offhand",this,"key.swapOffhand")
+                new VRActionKey("open_inventory",this,"key.inventory")
         );
     }
 

@@ -119,7 +119,7 @@ public class VRSettingsScreen extends McScreen {
             RESOURCE_WIDTH, RESOURCE_HEIGHT
     );
 
-    public static final GuiTexture REMOVE_KEY_ACTION = new GuiTexture(
+    public static final GuiTexture REMOVE_CUSTOM_ACTION = new GuiTexture(
             RESOURCE,
             156, 52,
             50, 55,

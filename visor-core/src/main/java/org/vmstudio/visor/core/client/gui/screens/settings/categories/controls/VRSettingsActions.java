@@ -13,7 +13,7 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoWidgetSetList;
 import org.vmstudio.visor.api.client.gui.widgets.lists.WidgetSetList;
-import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKeyCustom;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -173,7 +173,7 @@ public class VRSettingsActions extends VROptionsSet {
                         .size(scaleHelper.scaledSize(21), scaleHelper.scaledSize(10))
                         .setTexture(VRSettingsScreen.ADD_BUTTON)
                         .setTextScale(VRClientSettings.getSettingsTextScale())
-                        .setTooltip(Tooltip.create(Component.translatable("visor.action.options.add_key_action_tooltip")))
+                        .setTooltip(Tooltip.create(Component.translatable("visor.action.options.add_custom_action_tooltip")))
                         .setHighlightEnabled(true)
                         .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
                         .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT),
@@ -421,16 +421,16 @@ public class VRSettingsActions extends VROptionsSet {
         }
     }
 
-    public void addedKeyAction(@NotNull VRActionKey actionKey){
+    public void addedCustomAction(@NotNull VRActionKeyCustom customAction){
         newBindings.forEach((
                 type,map) ->
-                map.put(actionKey, new ActionBinding(ActionBinding.ID_EMPTY, ActionBinding.ID_EMPTY))
+                map.put(customAction, new ActionBinding(ActionBinding.ID_EMPTY, ActionBinding.ID_EMPTY))
         );
     }
-    public void removedKeyAction(@NotNull VRActionKey actionKey){
+    public void removedCustomAction(@NotNull VRActionKeyCustom customAction){
         newBindings.forEach((
                 type,map) ->
-                map.remove(actionKey)
+                map.remove(customAction)
         );
     }
 
@@ -563,7 +563,7 @@ public class VRSettingsActions extends VROptionsSet {
 
     private void addActionPressed(){
         getScreen().switchOptions(
-                new VRSettingsCreateKeyAction(this, onWidgetsChanged)
+                new VRSettingsCreateCustomAction(this, onWidgetsChanged)
         );
     }
 
@@ -628,14 +628,14 @@ public class VRSettingsActions extends VROptionsSet {
         @Setter
         private String bindingName;
 
-        private boolean keyAction;
+        private boolean customAction;
 
         private int namePosX, namePosY, nameWidth, nameHeight;
 
         private int separatorPosX, separatorPosY, separatorWidth, separatorHeight;
 
         private ButtonImaged bindingButton;
-        private ButtonImaged removeKeyActionButton;
+        private ButtonImaged removeCustomActionButton;
 
         public VRActionEntry(@NotNull String id,
                              @NotNull VRAction action,
@@ -650,7 +650,7 @@ public class VRSettingsActions extends VROptionsSet {
                 & Renderable
                 & NarratableEntry> List<T> initWidgets() {
 
-            keyAction = actionSet.getKeyAction(action.getId()) != null;
+            customAction = actionSet.getCustomAction(action.getId()) != null;
 
             bindingButton = new ButtonImaged(
                     new WidgetInfoButtonImaged()
@@ -667,15 +667,15 @@ public class VRSettingsActions extends VROptionsSet {
                         ));
                     }
             );
-            if(keyAction){
-                removeKeyActionButton = new ButtonImaged(
+            if(customAction){
+                removeCustomActionButton = new ButtonImaged(
                         new WidgetInfoButtonImaged()
-                                .setTexture(VRSettingsScreen.REMOVE_KEY_ACTION)
+                                .setTexture(VRSettingsScreen.REMOVE_CUSTOM_ACTION)
                                 .setHighlightEnabled(true)
                                 .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT),
                         it->{
-                            actionSet.removeKeyAction(action.getId());
-                            removedKeyAction((VRActionKey) action);
+                            actionSet.removeCustomAction(action.getId());
+                            removedCustomAction((VRActionKeyCustom) action);
                             reinit();
                         }
                 );
@@ -691,8 +691,8 @@ public class VRSettingsActions extends VROptionsSet {
             List<T> list = new ArrayList<>();
 
             list.add((T)bindingButton);
-            if(keyAction){
-                list.add((T)removeKeyActionButton);
+            if(customAction){
+                list.add((T)removeCustomActionButton);
             }
 
             return list;
@@ -740,12 +740,12 @@ public class VRSettingsActions extends VROptionsSet {
             bindingButton.setWidth(getWidth() / 2 - 2);
             bindingButton.height = getHeight() - ENTRY_GAP - SEPARATOR_HEIGHT;
 
-            if(keyAction) {
+            if(customAction) {
                 bindingButton.setWidth(getWidth() / 2 - 2 - 17);
 
-                removeKeyActionButton.setPosition(getX() + (getWidth() / 2) + 2 + bindingButton.getWidth() + 2, getY());
-                removeKeyActionButton.setWidth(15);
-                removeKeyActionButton.height = getHeight() - ENTRY_GAP - SEPARATOR_HEIGHT;
+                removeCustomActionButton.setPosition(getX() + (getWidth() / 2) + 2 + bindingButton.getWidth() + 2, getY());
+                removeCustomActionButton.setWidth(15);
+                removeCustomActionButton.height = getHeight() - ENTRY_GAP - SEPARATOR_HEIGHT;
             }
         }
     }

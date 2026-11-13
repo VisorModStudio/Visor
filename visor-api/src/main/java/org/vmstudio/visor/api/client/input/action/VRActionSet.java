@@ -38,7 +38,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     private boolean enabled = true;
 
     protected Map<String, VRAction> actionsMap;
-    protected Map<String, VRActionKeyCustom> keyActionsMap;
+    protected Map<String, VRActionKeyCustom> customActionsMap;
     protected Map<VRInteractionProfileType, Boolean> keyModifiersActiveMap;
 
 
@@ -48,7 +48,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     public VRActionSet(@NotNull VisorAddon owner){
         this.owner = owner;
         this.actionsMap = new LinkedHashMap<>();
-        this.keyActionsMap = new LinkedHashMap<>();
+        this.customActionsMap = new LinkedHashMap<>();
         this.keyModifiersActiveMap = new EnumMap<>(VRInteractionProfileType.class);
 
         for(var action : loadActions()){
@@ -145,15 +145,15 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      */
     public void load(@NotNull Config config){
 
-        keyActionsMap.forEach(
+        customActionsMap.forEach(
                 (key, value)->{
                     actionsMap.remove(key);
                 }
         );
-        keyActionsMap.clear();
+        customActionsMap.clear();
         keyModifiersActiveMap.clear();
 
-        loadKeyActions(config);
+        loadCustomActions(config);
 
         boolean requireSave = false;
         var subsection = config.getSubsection("bindings");
@@ -186,25 +186,31 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     }
 
     /**
-     * Loads key actions from config.
+     * Loads custom actions from config.
      */
-    protected void loadKeyActions(@NotNull Config config){
+    protected void loadCustomActions(@NotNull Config config){
         boolean requireSave = false;
-        var subsection = config.getSubsection("key_actions");
+        var subsection = config.getSubsection("custom_actions");
         for(String key : subsection.getKeys(false)){
             if(getAction(key) != null){
                 requireSave = true;
-                continue; // key actions are lower priority than built-in
+                continue; // custom actions are lower priority than built-in
             }
-            char character = subsection.getString(key+".key").charAt(0);
             String name = subsection.getString(key+".name");
+            String mcKey = subsection.getStringOrNull(key+".mc_key");
+            VRActionKeyCustom action;
+            if(mcKey != null) {
+                action = new VRActionKeyCustom(key,this,  mcKey, name);
+            }else{
+                char character = subsection.getString(key + ".key").charAt(0);
+                action = new VRActionKeyCustom(key,this,  character, name);
+            }
 
-            var action = new VRActionKeyCustom(key,this,  character, name);
             actionsMap.put(key, action);
-            keyActionsMap.put(key, action);
+            customActionsMap.put(key, action);
         }
         if(requireSave){
-            saveKeyActions();
+            saveCustomActions();
         }
     }
 
@@ -343,7 +349,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * Save bindings to config file (both left and right-handed)
      */
     public void save(){
-        saveKeyActions();
+        saveCustomActions();
 
         var subsectionPath = "bindings.";
 
@@ -377,15 +383,22 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     }
 
     /**
-     * Saves key actions to config.
+     * Saves custom actions to config.
      */
-    public void saveKeyActions(){
-        var subsectionPath = "key_actions.";
-        for(var action : keyActionsMap.values()){
-            config.set(
-                    subsectionPath + action.getId() + ".key",
-                    String.valueOf(action.getCharacter())
-            );
+    public void saveCustomActions(){
+        var subsectionPath = "custom_actions.";
+        for(var action : customActionsMap.values()){
+            if(action.isUsingMcKey()){
+                config.set(
+                        subsectionPath + action.getId() + ".mc_key",
+                        action.getMcKey()
+                );
+            }else {
+                config.set(
+                        subsectionPath + action.getId() + ".key",
+                        String.valueOf(action.getCharacter())
+                );
+            }
             config.set(
                     subsectionPath + action.getId() + ".name",
                     action.getLangKeyName()
@@ -402,12 +415,12 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
 
 
     /**
-     * Add key action to this set
+     * Add custom action to this set
      *
-     * @param action the key action
+     * @param action the custom action
      */
-    public void addKeyAction(@NotNull VRActionKeyCustom action){
-        keyActionsMap.put(action.getId(), action);
+    public void addCustomAction(@NotNull VRActionKeyCustom action){
+        customActionsMap.put(action.getId(), action);
         actionsMap.put(action.getId(), action);
         if(loadBinding(action)){
             save();
@@ -415,15 +428,15 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     }
 
     /**
-     * Remove key action from this set
+     * Remove custom action from this set
      *
-     * @param id the key action id
+     * @param id the custom action id
      */
-    public void removeKeyAction(@NotNull String id){
-        keyActionsMap.remove(id);
+    public void removeCustomAction(@NotNull String id){
+        customActionsMap.remove(id);
         actionsMap.remove(id);
 
-        config.set("key_actions."+id, null);
+        config.set("custom_actions." + id, null);
 
         var subsection = config.getSubsection("bindings");
         for(var profile : VRInteractionProfileType.valuesController()){
@@ -440,21 +453,21 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     }
 
     /**
-     * Get key action or null if not found
-     * @param id the key action id
-     * @return key action or null
+     * Get custom action or null if not found
+     * @param id the custom action id
+     * @return custom action or null
      */
-    public @Nullable VRActionKeyCustom getKeyAction(@NotNull String id){
-        return keyActionsMap.get(id);
+    public @Nullable VRActionKeyCustom getCustomAction(@NotNull String id){
+        return customActionsMap.get(id);
     }
 
     /**
-     * Get all key actions of this set
+     * Get all custom actions of this set
      *
-     * @return collection of key actions
+     * @return collection of custom actions
      */
-    public Collection<VRActionKeyCustom> getKeyActions(){
-        return keyActionsMap.values();
+    public Collection<VRActionKeyCustom> getCustomActions(){
+        return customActionsMap.values();
     }
 
 

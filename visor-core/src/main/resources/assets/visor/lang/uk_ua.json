@@ -290,22 +290,22 @@
 
   "visor.action.options.key_modifier_tooltip": "§bМодифікатор клавіш§r\n\nУвімкніть модифікатор для цього профілю.\n\nКоли увімкнено, тригер на кожному контролері\nдіє як клавіша-модифікатор §7(як Shift або Ctrl)§f і більше не\nможе бути використаний як окрема дія.",
 
-  "visor.action.options.add_key_action_tooltip": "§bДодати клавішу§r\n\nСтворити нову дію, що імітує натискання клавіші клавіатури у VR.",
+  "visor.action.options.add_custom_action_tooltip": "§bДодати власну дію§r\n\nСтворити нову дію, що імітує натискання клавіші клавіатури у VR.",
 
   "visor.action.options.hand.left_handed": "Л",
   "visor.action.options.hand.right_handed": "П",
   "visor.action.options.hand.tooltip": "§bПріоритет рук§r\n\nПеремикання між розкладками для §eшульги§r та\n§eправші§r.",
 
-  "visor.action.options.add_key_action": "Додати клавішу",
-  "visor.action.options.add_key_action.id": "ID: %s",
+  "visor.action.options.add_custom_action": "Додати власну дію",
+  "visor.action.options.add_custom_action.id": "ID: %s",
 
-  "visor.action.options.add_key_action.type_name": "Назва...",
-  "visor.action.options.add_key_action.type_name.tooltip": "§bНазва дії§r\n\nВідображуване ім'я для цієї дії.\n\n§7Вимоги:§r\n§e•§r Мінімум §e3§r символи\n\n§aПорада:§r Вкажіть клавішу в назві для зручності.\n§7Приклад: \"Відкрити карту (Клавіша M)\"§r",
+  "visor.action.options.add_custom_action.type_name": "Назва...",
+  "visor.action.options.add_custom_action.type_name.tooltip": "§bНазва дії§r\n\nВідображуване ім'я для цієї дії.\n\n§7Вимоги:§r\n§e•§r Мінімум §e3§r символи\n\n§aПорада:§r Вкажіть клавішу в назві для зручності.\n§7Приклад: \"Відкрити карту (Клавіша M)\"§r",
 
-  "visor.action.options.add_key_action.type_key": "Клавіша...",
-  "visor.action.options.add_key_action.type_key.tooltip": "§bКлавіша§r\n\nКлавіша клавіатури, яка буде натиснута при виконанні дії.\n\n§7Вимоги:§r\n§e•§r Введіть §eодин символ§r\n\n§aПримітка:§r Велика літера означає затиснутий Shift. У більшості випадків використовуйте малі літери.",
+  "visor.action.options.add_custom_action.type_key": "Клавіша...",
+  "visor.action.options.add_custom_action.type_key.tooltip": "§bКлавіша§r\n\nКлавіша клавіатури, яка буде натиснута при виконанні дії.\n\n§7Вимоги:§r\n§e•§r Введіть §eодин символ§r\n\n§aПримітка:§r Велика літера означає затиснутий Shift. У більшості випадків використовуйте малі літери.",
 
-  "visor.action.options.add_key_action.create": "Створити",
+  "visor.action.options.add_custom_action.create": "Створити",
 
   "visor.action.options.bindings.cross.title": "Синхронізувати бинд",
   "visor.action.options.bindings.cross.counter": "%s / %s",

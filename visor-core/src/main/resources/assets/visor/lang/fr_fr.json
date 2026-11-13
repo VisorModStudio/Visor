@@ -266,22 +266,22 @@
 
   "visor.action.options.key_modifier_tooltip": "§bModificateur de touche§r\n\nActive un modificateur de touche pour ce profil.\n\nLorsqu'il est activé, la gâchette de chaque contrôleur\nagit comme une touche modificatrice §7(comme Maj ou Ctrl sur un clavier)§f et ne peut plus être\nattribuée directement.",
 
-  "visor.action.options.add_key_action_tooltip": "§bAjouter une action clavier§r\n\nCréer une nouvelle action qui simule l'appui sur une touche du clavier en RV.",
+  "visor.action.options.add_custom_action_tooltip": "§bAjouter une action personnalisée§r\n\nCréer une nouvelle action qui simule l'appui sur une touche du clavier en RV.",
 
   "visor.action.options.hand.left_handed": "G",
   "visor.action.options.hand.right_handed": "D",
   "visor.action.options.hand.tooltip": "§bPréférence de main§r\n\nBasculez entre les dispositions\n§epour gaucher§r et §epour droitier§r.",
 
-  "visor.action.options.add_key_action": "Ajouter une action de touche",
-  "visor.action.options.add_key_action.id": "Id: %s",
+  "visor.action.options.add_custom_action": "Ajouter une action personnalisée",
+  "visor.action.options.add_custom_action.id": "Id: %s",
 
-  "visor.action.options.add_key_action.type_name": "Nom de l'action...",
-  "visor.action.options.add_key_action.type_name.tooltip": "§bNom de l'action§r\n\nNom affiché pour cette action de touche.\n\n§7Exigences:§r\n§e•§r Minimum §e3§r caractères\n\n§aConseil:§r Incluez la touche dans le nom pour la retrouver facilement.\n§7Exemple: \"Ouvrir ModMenu (touche H)\"§r",
+  "visor.action.options.add_custom_action.type_name": "Nom de l'action...",
+  "visor.action.options.add_custom_action.type_name.tooltip": "§bNom de l'action§r\n\nNom affiché pour cette action personnalisée.\n\n§7Exigences:§r\n§e•§r Minimum §e3§r caractères\n\n§aConseil:§r Incluez la touche dans le nom pour la retrouver facilement.\n§7Exemple: \"Ouvrir ModMenu (touche H)\"§r",
 
-  "visor.action.options.add_key_action.type_key": "Touche...",
-  "visor.action.options.add_key_action.type_key.tooltip": "§bTouche de l'action§r\n\nLa touche du clavier à émuler lorsque cette action est déclenchée.\n\n§7Exigences:§r\n§e•§r Saisissez un §eseul caractère§r\n\n§aRemarque:§r Une lettre majuscule indique que la touche Maj ou Verr Maj est enfoncée; vous n'en aurez généralement pas besoin, utilisez plutôt une lettre minuscule.",
+  "visor.action.options.add_custom_action.type_key": "Touche...",
+  "visor.action.options.add_custom_action.type_key.tooltip": "§bTouche de l'action§r\n\nLa touche du clavier à émuler lorsque cette action est déclenchée.\n\n§7Exigences:§r\n§e•§r Saisissez un §eseul caractère§r\n\n§aRemarque:§r Une lettre majuscule indique que la touche Maj ou Verr Maj est enfoncée; vous n'en aurez généralement pas besoin, utilisez plutôt une lettre minuscule.",
 
-  "visor.action.options.add_key_action.create": "Créer",
+  "visor.action.options.add_custom_action.create": "Créer",
 
   "visor.action.options.bindings.cross.title": "Synchroniser avec les autres ensembles d'actions",
   "visor.action.options.bindings.cross.counter": "%s / %s",

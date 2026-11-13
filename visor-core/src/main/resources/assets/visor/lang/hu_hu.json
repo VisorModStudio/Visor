@@ -314,22 +314,22 @@
 
   "visor.action.options.key_modifier_tooltip": "§bMódosító billentyű§r\n\nMódosító billentyű engedélyezése ehhez a profilhoz.\n\nHa be van kapcsolva, mindkét kontroller triggere\nmódosítóként működik §7(mint a Shift vagy a Ctrl a billentyűzeten)§f, és többé nem lesz\nközvetlenül kioszthatóként elérhető.",
 
-  "visor.action.options.add_key_action_tooltip": "§bBillentyűművelet hozzáadása§r\n\nHozz létre új műveletet, amely billentyűleütést emulál VR-ben.",
+  "visor.action.options.add_custom_action_tooltip": "§bEgyéni művelet hozzáadása§r\n\nHozz létre új műveletet, amely billentyűleütést emulál VR-ben.",
 
   "visor.action.options.hand.left_handed": "B",
   "visor.action.options.hand.right_handed": "J",
   "visor.action.options.hand.tooltip": "§bKézhasználat§r\n\nVálts a §eBalkezes§r és a\n§eJobbkezes§r kiosztás között.",
 
-  "visor.action.options.add_key_action": "Billentyűművelet hozzáadása",
-  "visor.action.options.add_key_action.id": "Azonosító: %s",
+  "visor.action.options.add_custom_action": "Egyéni művelet hozzáadása",
+  "visor.action.options.add_custom_action.id": "Azonosító: %s",
 
-  "visor.action.options.add_key_action.type_name": "Művelet neve...",
-  "visor.action.options.add_key_action.type_name.tooltip": "§bMűvelet neve§r\n\nA billentyűművelet megjelenő neve.\n\n§7Követelmények:§r\n§e•§r Legalább §e3§r karakter\n\n§aTipp:§r Írd bele a billentyűt is a névbe a könnyebb azonosításhoz.\n§7Például: \"ModMenu megnyitása (H billentyű)\"§r",
+  "visor.action.options.add_custom_action.type_name": "Művelet neve...",
+  "visor.action.options.add_custom_action.type_name.tooltip": "§bMűvelet neve§r\n\nAz egyéni művelet megjelenő neve.\n\n§7Követelmények:§r\n§e•§r Legalább §e3§r karakter\n\n§aTipp:§r Írd bele a billentyűt is a névbe a könnyebb azonosításhoz.\n§7Például: \"ModMenu megnyitása (H billentyű)\"§r",
 
-  "visor.action.options.add_key_action.type_key": "Billentyű...",
-  "visor.action.options.add_key_action.type_key.tooltip": "§bMűvelet billentyűje§r\n\nAz a billentyű, amelyet a művelet aktiválásakor emulál.\n\n§7Követelmények:§r\n§e•§r Adj meg §eegyetlen karaktert§r\n\n§aMegjegyzés:§r A nagybetű azt jelenti, hogy a Shift vagy a Caps Lock nyomva van; erre a legtöbb esetben nincs szükség, használj inkább kisbetűt",
+  "visor.action.options.add_custom_action.type_key": "Billentyű...",
+  "visor.action.options.add_custom_action.type_key.tooltip": "§bMűvelet billentyűje§r\n\nAz a billentyű, amelyet a művelet aktiválásakor emulál.\n\n§7Követelmények:§r\n§e•§r Adj meg §eegyetlen karaktert§r\n\n§aMegjegyzés:§r A nagybetű azt jelenti, hogy a Shift vagy a Caps Lock nyomva van; erre a legtöbb esetben nincs szükség, használj inkább kisbetűt",
 
-  "visor.action.options.add_key_action.create": "Létrehozás",
+  "visor.action.options.add_custom_action.create": "Létrehozás",
 
   "visor.action.options.bindings.cross.title": "Szinkronizálás más műveletkészletekkel",
   "visor.action.options.bindings.cross.counter": "%s / %s",

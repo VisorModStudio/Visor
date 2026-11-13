@@ -342,22 +342,32 @@
 
   "visor.action.options.key_modifier_tooltip": "§bKey Modifier§r\n\nEnable a key modifier for this profile.\n\nWhen enabled, the trigger on each controller\nacts as a modifier key §7(like Shift or Ctrl on a keyboard)§f and will no longer be\navailable for direct binding.",
 
-  "visor.action.options.add_key_action_tooltip": "§bAdd Key Action§r\n\nCreate a new action that emulates a keyboard key press in VR.",
+  "visor.action.options.add_custom_action_tooltip": "§bAdd Custom Action",
 
   "visor.action.options.hand.left_handed": "L",
   "visor.action.options.hand.right_handed": "R",
   "visor.action.options.hand.tooltip": "§bHand Preference§r\n\nSwitch between §eLeft-handed§r and\n§eRight-handed§r binding layouts.",
 
-  "visor.action.options.add_key_action": "Add Key Action",
-  "visor.action.options.add_key_action.id": "Id: %s",
+  "visor.action.options.add_custom_action": "Add Custom Action",
+  "visor.action.options.add_custom_action.id": "Id: %s",
 
-  "visor.action.options.add_key_action.type_name": "Action name...",
-  "visor.action.options.add_key_action.type_name.tooltip": "§bAction Name§r\n\nA display name for this key action.\n\n§7Requirements:§r\n§e•§r Minimum §e3§r characters\n\n§aTip:§r Include the key in the name for easy reference.\n§7Example: \"Open ModMenu (H key)\"§r",
+  "visor.action.options.add_custom_action.type_name": "Action name...",
+  "visor.action.options.add_custom_action.type_name.tooltip": "§bAction Name§r\n\nA display name for this custom action.\n\n§7Requirements:§r\n§e•§r Minimum §e3§r characters\n\n§7Example: \"Open ModMenu\"§r",
 
-  "visor.action.options.add_key_action.type_key": "Key...",
-  "visor.action.options.add_key_action.type_key.tooltip": "§bAction Key§r\n\nThe keyboard key to emulate when this action is triggered.\n\n§7Requirements:§r\n§e•§r Enter a §esingle character§r\n\n§aNote:§r Uppercase character means Shift or Caps Lock is held down, you won't need it in most cases, use lowercase instead",
+  "visor.action.options.add_custom_action.type_key": "Key...",
+  "visor.action.options.add_custom_action.type_key.tooltip": "§bAction Key§r\n\nThe keyboard key to emulate when this action is pressed.\n\n§7Requirements:§r\n§e•§r Enter a §esingle character§r\n\n§aNote:§r Uppercase character means Shift or Caps Lock is held down, you won't need it in most cases, use lowercase instead",
 
-  "visor.action.options.add_key_action.create": "Create",
+  "visor.action.options.add_custom_action.type.keyboard": "Keyboard Key",
+  "visor.action.options.add_custom_action.type.keyboard.tooltip": "§bKeyboard Key§r\n\nThe action presses a single keyboard key.",
+  "visor.action.options.add_custom_action.type.minecraft": "Minecraft Keybind",
+  "visor.action.options.add_custom_action.type.minecraft.tooltip": "§bMinecraft Keybind§r\n\nThe action triggers a Minecraft or mod keybind",
+
+  "visor.action.options.add_custom_action.select_keybind": "Select keybind...",
+
+  "visor.action.options.select_keybind": "Select Keybind",
+  "visor.action.options.select_keybind.entry.tooltip": "§b%s§r\n\n§7Category:§r %s\n§7Bound to:§r %s",
+
+  "visor.action.options.add_custom_action.create": "Create",
 
   "visor.action.options.bindings.cross.title": "Sync with other action sets",
   "visor.action.options.bindings.cross.counter": "%s / %s",

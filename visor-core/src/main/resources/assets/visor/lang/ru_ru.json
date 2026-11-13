@@ -293,22 +293,22 @@
 
   "visor.action.options.key_modifier_tooltip": "§bМодификатор клавиш§r\n\nВключите модификатор для этого профиля.\n\nКогда включено, триггер на каждом контроллере\nдействует как клавиша-модификатор §7(как Shift или Ctrl)§f и больше не\nможет быть использован как отдельное действие.",
 
-  "visor.action.options.add_key_action_tooltip": "§bДобавить клавишу§r\n\nСоздать новое действие, имитирующее нажатие клавиши клавиатуры в VR.",
+  "visor.action.options.add_custom_action_tooltip": "§bДобавить своё действие§r\n\nСоздать новое действие, имитирующее нажатие клавиши клавиатуры в VR.",
 
   "visor.action.options.hand.left_handed": "Л",
   "visor.action.options.hand.right_handed": "П",
   "visor.action.options.hand.tooltip": "§bПриоритет рук§r\n\nПереключение между раскладками для §eлевшей§r и\n§eправшей§r.",
 
-  "visor.action.options.add_key_action": "Добавить клавишу",
-  "visor.action.options.add_key_action.id": "ID: %s",
+  "visor.action.options.add_custom_action": "Добавить своё действие",
+  "visor.action.options.add_custom_action.id": "ID: %s",
 
-  "visor.action.options.add_key_action.type_name": "Название...",
-  "visor.action.options.add_key_action.type_name.tooltip": "§bНазвание действия§r\n\nОтображаемое имя для этого действия.\n\n§7Требования:§r\n§e•§r Минимум §e3§r символа\n\n§aСовет:§r Укажите клавишу в названии для удобства.\n§7Пример: \"Открыть карту (Клавиша M)\"§r",
+  "visor.action.options.add_custom_action.type_name": "Название...",
+  "visor.action.options.add_custom_action.type_name.tooltip": "§bНазвание действия§r\n\nОтображаемое имя для этого действия.\n\n§7Требования:§r\n§e•§r Минимум §e3§r символа\n\n§aСовет:§r Укажите клавишу в названии для удобства.\n§7Пример: \"Открыть карту (Клавиша M)\"§r",
 
-  "visor.action.options.add_key_action.type_key": "Клавиша...",
-  "visor.action.options.add_key_action.type_key.tooltip": "§bКлавиша§r\n\nКлавиша клавиатуры, которая будет нажата при выполнении действия.\n\n§7Требования:§r\n§e•§r Введите §eодин символ§r\n\n§aЗаметка:§r Заглавная буква означает зажатый Shift. В большинстве случаев используйте строчные (маленькие) буквы.",
+  "visor.action.options.add_custom_action.type_key": "Клавиша...",
+  "visor.action.options.add_custom_action.type_key.tooltip": "§bКлавиша§r\n\nКлавиша клавиатуры, которая будет нажата при выполнении действия.\n\n§7Требования:§r\n§e•§r Введите §eодин символ§r\n\n§aЗаметка:§r Заглавная буква означает зажатый Shift. В большинстве случаев используйте строчные (маленькие) буквы.",
 
-  "visor.action.options.add_key_action.create": "Создать",
+  "visor.action.options.add_custom_action.create": "Создать",
 
   "visor.action.options.bindings.cross.title": "Синхронизировать бинд",
   "visor.action.options.bindings.cross.counter": "%s / %s",

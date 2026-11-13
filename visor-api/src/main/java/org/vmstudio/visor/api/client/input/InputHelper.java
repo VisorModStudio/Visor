@@ -217,6 +217,15 @@ public class InputHelper {
     }
 
 
+    public static boolean canChangeStateForKey(@NotNull KeyMapping key) {
+        var options = Minecraft.getInstance().options;
+        //vanilla reads these from raw key events
+        return key != options.keyFullscreen
+                && key != options.keyScreenshot
+                && !McVersionClientUtils.isDebugKeyMapping(key);
+    }
+
+
     /* ------- KEYBOARD TEXT ------- */
 
     public static int getKeyCode(char character) {

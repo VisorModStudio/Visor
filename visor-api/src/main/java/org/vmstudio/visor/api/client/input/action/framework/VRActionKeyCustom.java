@@ -20,6 +20,16 @@ public class VRActionKeyCustom extends VRActionKey {
         this.langKeyName = langKeyName;
     }
 
+    public VRActionKeyCustom(@NotNull String id,
+                             @NotNull VRActionSet actionSet,
+                             String mcKey,
+                             @NotNull String langKeyName) {
+        super(id, actionSet, mcKey);
+        this.name = Component.translatable(langKeyName);
+        this.langKeyName = langKeyName;
+    }
+
+
 
     @Override
     public @NotNull Component getName() {

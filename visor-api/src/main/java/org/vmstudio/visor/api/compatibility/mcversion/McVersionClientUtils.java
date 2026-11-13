@@ -3,6 +3,7 @@ package org.vmstudio.visor.api.compatibility.mcversion;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.Camera;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -274,6 +275,24 @@ public class McVersionClientUtils {
         return new ServerboundMovePlayerPacket.Rot(yRot, xRot, player.onGround(), player.horizontalCollision);
         //?} else {
         /*return new ServerboundMovePlayerPacket.Rot(yRot, xRot, player.onGround());
+        *///?}
+    }
+
+    // ------- KEY MAPPINGS -------
+
+    public static Component keyMappingCategory(KeyMapping keyMapping) {
+        //? if >=1.21.9 {
+        return keyMapping.getCategory().label();
+        //?} else {
+        /*return Component.translatable(keyMapping.getCategory());
+        *///?}
+    }
+
+    public static boolean isDebugKeyMapping(KeyMapping keyMapping) {
+        //? if >=1.21.11 {
+        return keyMapping.getCategory() == KeyMapping.Category.DEBUG;
+        //?} else {
+        /*return false;
         *///?}
     }
 
