@@ -27,8 +27,10 @@ import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.player.VRClientPlayers;
 import org.vmstudio.visor.core.client.render.VRRenderState;
+import org.vmstudio.visor.core.client.render.camera.VRCameraEntitySwap;
 import org.vmstudio.visor.extensions.client.entity.EntityRenderDispatcherExtension;
 import org.vmstudio.visor.extensions.client.render.LevelRendererExtension;
+import static org.vmstudio.visor.core.client.VisorClientImpl.MC;
 
 public class PlayerRenderMixins {
     @Mixin(EntityRenderDispatcher.class)
@@ -51,6 +53,27 @@ public class PlayerRenderMixins {
                 visor$useVRBodyRenderer(vrState.player, cir);
             }
         }
+
+        // Player position get's translated for per-eye cameras. To ensure shader details
+        // like player shadow render correctly, reapply the real body position before extracting.
+        
+        //? if >=26.1 {
+        @Inject(method = "extractEntity", at = @At("HEAD"))
+        private void visor$extractAtRealBodyPosition(CallbackInfoReturnable<Object> cir,
+                                                     @Local(argsOnly = true) Entity entity) {
+            if (VRRenderState.getPhase().isNotVanilla() && entity == MC.getCameraEntity()) {
+                VRCameraEntitySwap.applyCachedCameraEntityPosition(entity);
+            }
+        }
+
+        @Inject(method = "extractEntity", at = @At("TAIL"))
+        private void visor$restoreVrCameraPosition(CallbackInfoReturnable<Object> cir,
+                                                   @Local(argsOnly = true) Entity entity) {
+            if (VRRenderState.getPhase().isNotVanilla() && entity == MC.getCameraEntity()) {
+                VRCameraEntitySwap.setupCameraEntityAsVRCamera();
+            }
+        }
+        //?}
 
         @Unique
         private static void visor$useVRBodyRenderer(Entity entity, CallbackInfoReturnable<Object> cir) {
