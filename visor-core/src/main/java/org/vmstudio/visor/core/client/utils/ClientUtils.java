@@ -5,7 +5,6 @@ import org.vmstudio.visor.api.compatibility.mcversion.render.McRenderUtils;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.realmsclient.RealmsMainScreen;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -41,16 +40,6 @@ public class ClientUtils {
             return packed;
         }
         return (packed & ~0xFF) | (minBlockLight << 4);
-    }
-
-    public static void updateKeyMappingState(KeyMapping keyMapping,
-                                             boolean pressed) {
-        if (keyMapping != null) {
-            keyMapping.setDown(pressed);
-            if(pressed) {
-                keyMapping.clickCount += 1;
-            }
-        }
     }
 
 

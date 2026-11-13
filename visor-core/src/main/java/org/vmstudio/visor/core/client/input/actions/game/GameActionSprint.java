@@ -1,10 +1,10 @@
 package org.vmstudio.visor.core.client.input.actions.game;
 
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
+import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
-import org.vmstudio.visor.core.client.utils.ClientUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -23,12 +23,12 @@ public class GameActionSprint extends VRActionButton {
 
     @Override
     protected void onPress() {
-        ClientUtils.updateKeyMappingState(MC.options.keySprint, true);
+        InputHelper.updateKeyMapping(MC.options.keySprint, true);
     }
 
     @Override
     protected void onRelease() {
-        ClientUtils.updateKeyMappingState(MC.options.keySprint, false);
+        InputHelper.updateKeyMapping(MC.options.keySprint, false);
     }
 
 

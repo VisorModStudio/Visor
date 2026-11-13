@@ -155,8 +155,6 @@ public interface ModLoader {
     boolean renderWaterOverlay(Player player, PoseStack mat);
     @ApiStatus.Internal
     boolean renderFireOverlay(Player player, PoseStack mat);
-    @ApiStatus.Internal
-    int getKeyBinding(String id);
 
 
 

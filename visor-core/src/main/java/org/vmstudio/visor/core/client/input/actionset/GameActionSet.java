@@ -5,6 +5,7 @@ import org.vmstudio.visor.api.client.input.action.RegisterActionSet;
 import org.vmstudio.visor.api.client.input.action.VRAction;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.VRActions;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 import org.vmstudio.visor.api.common.HandType;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
 import org.jetbrains.annotations.NotNull;
@@ -51,9 +52,9 @@ public class GameActionSet extends VRActionSet {
                 new GameActionHotBar(this, HandType.MAIN),
                 new GameActionHotBar(this, HandType.OFFHAND),
 
-                new GameActionInventory(this),
-                new GameActionDrop(this),
-                new GameActionOffhand(this)
+                new VRActionKey("open_inventory",this,"key.inventory"),
+                new VRActionKey("drop_item",this,"key.drop"),
+                new VRActionKey("swap_offhand",this,"key.swapOffhand")
         );
     }
 

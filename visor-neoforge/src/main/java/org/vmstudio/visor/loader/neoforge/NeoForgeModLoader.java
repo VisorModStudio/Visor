@@ -10,7 +10,6 @@ import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuDevice;
 import net.neoforged.neoforge.client.blaze3d.validation.ValidationGpuTexture;
 *///?}
 import io.netty.buffer.Unpooled;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
 //? if <1.20.4 {
 /*import net.neoforged.neoforge.network.NetworkRegistry;
@@ -70,7 +69,6 @@ import net.neoforged.neoforge.network.handling.PlayPayloadContext;
 import net.neoforged.neoforge.network.PlayNetworkDirection;
 *///?}
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.mixin.client.accessors.KeyMappingAccessor;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -375,13 +373,6 @@ public class NeoForgeModLoader implements ModLoader {
         //?} else {
         /*return ClientHooks.renderFireOverlay(player, mat);
         *///?}
-    }
-
-    @Override
-    public int getKeyBinding(String id) {
-        KeyMapping mapping = KeyMappingAccessor.ALL().get(id);
-        if (mapping == null) return -1;
-        return mapping.getKey().getValue();
     }
 
     //? if >=1.21.9 {

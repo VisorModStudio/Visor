@@ -4,6 +4,7 @@ import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.*;
 import org.vmstudio.visor.api.client.ClientFeature;
+import org.vmstudio.visor.api.client.input.InputHelper;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
 import org.vmstudio.visor.api.client.input.action.framework.VRActionVec2;
@@ -14,7 +15,6 @@ import org.vmstudio.visor.api.client.settings.enums.MovementMode;
 import org.vmstudio.visor.core.client.input.TreadmillInput;
 import org.vmstudio.visor.core.client.input.redirect.VRInputRedirectHandler;
 import org.vmstudio.visor.core.client.tasks.types.movement.TaskTeleport;
-import org.vmstudio.visor.core.client.utils.ClientUtils;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector2f;
@@ -97,10 +97,10 @@ public class GameActionMovement extends VRActionVec2 {
 
 
             if (moving) {
-                ClientUtils.updateKeyMappingState(MC.options.keyUp, digital.y > 0);
-                ClientUtils.updateKeyMappingState(MC.options.keyDown, digital.y < 0);
-                ClientUtils.updateKeyMappingState(MC.options.keyRight, digital.x > 0);
-                ClientUtils.updateKeyMappingState(MC.options.keyLeft, digital.x < 0);
+                InputHelper.updateKeyMapping(MC.options.keyUp, digital.y > 0);
+                InputHelper.updateKeyMapping(MC.options.keyDown, digital.y < 0);
+                InputHelper.updateKeyMapping(MC.options.keyRight, digital.x > 0);
+                InputHelper.updateKeyMapping(MC.options.keyLeft, digital.x < 0);
 
                 if (VRClientSettings.isAutoSprint() && !MC.player.isMovingSlowly()) {
                     if (forward >= VRClientSettings.getSprintThreshold()) {
@@ -119,10 +119,10 @@ public class GameActionMovement extends VRActionVec2 {
         }
 
         if (!moving && this.wasMovement) {
-            ClientUtils.updateKeyMappingState(MC.options.keyUp, false);
-            ClientUtils.updateKeyMappingState(MC.options.keyDown, false);
-            ClientUtils.updateKeyMappingState(MC.options.keyLeft, false);
-            ClientUtils.updateKeyMappingState(MC.options.keyRight, false);
+            InputHelper.updateKeyMapping(MC.options.keyUp, false);
+            InputHelper.updateKeyMapping(MC.options.keyDown, false);
+            InputHelper.updateKeyMapping(MC.options.keyLeft, false);
+            InputHelper.updateKeyMapping(MC.options.keyRight, false);
         }
         this.wasMovement = moving;
         ClientContext.localPlayer.setMoving(moving);
@@ -225,10 +225,10 @@ public class GameActionMovement extends VRActionVec2 {
     }
 
     private void resetMovementState() {
-        ClientUtils.updateKeyMappingState(MC.options.keyUp, false);
-        ClientUtils.updateKeyMappingState(MC.options.keyDown, false);
-        ClientUtils.updateKeyMappingState(MC.options.keyLeft, false);
-        ClientUtils.updateKeyMappingState(MC.options.keyRight, false);
+        InputHelper.updateKeyMapping(MC.options.keyUp, false);
+        InputHelper.updateKeyMapping(MC.options.keyDown, false);
+        InputHelper.updateKeyMapping(MC.options.keyLeft, false);
+        InputHelper.updateKeyMapping(MC.options.keyRight, false);
 
         this.wasMovement = false;
 

@@ -1,23 +1,27 @@
 package org.vmstudio.visor.core.client.input.actions.game;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import me.phoenixra.atumvr.api.input.profile.types.*;
-import org.vmstudio.visor.api.client.input.InputHelper;
+import net.minecraft.network.chat.Component;
 import org.vmstudio.visor.api.client.input.action.ActionBinding;
 import org.vmstudio.visor.api.client.input.action.VRActionSet;
-import org.vmstudio.visor.api.client.input.action.framework.VRActionButton;
 import org.jetbrains.annotations.NotNull;
-import org.vmstudio.visor.core.client.input.actions.KeyAction;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 
 import java.util.Map;
 
-public class GameActionJump extends KeyAction {
+public class GameActionJump extends VRActionKey {
     public static final String ID = "jump";
     private static final String KEY_ID = "key.jump";
 
     public GameActionJump(VRActionSet actionSet) {
-        super(actionSet, ID, KEY_ID);
+        super(ID, actionSet, KEY_ID);
+    }
+
+    // keeps Visor's translated label instead of vanilla's key.jump
+    @Override
+    public @NotNull Component getName() {
+        return Component.translatable("visor.action." + ID);
     }
 
     @Override

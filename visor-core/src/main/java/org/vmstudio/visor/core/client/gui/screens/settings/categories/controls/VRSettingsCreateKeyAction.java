@@ -1,5 +1,6 @@
 package org.vmstudio.visor.core.client.gui.screens.settings.categories.controls;
 
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKeyCustom;
 import org.vmstudio.visor.api.compatibility.mcversion.gui.McGuiUtils;
 import me.phoenixra.atumvr.api.misc.color.AtumColor;
 import org.vmstudio.visor.api.client.gui.helpers.GuiHelper;
@@ -8,7 +9,6 @@ import org.vmstudio.visor.api.client.gui.widgets.ButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.EditBoxImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoButtonImaged;
 import org.vmstudio.visor.api.client.gui.widgets.info.WidgetInfoEditBox;
-import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
 import org.vmstudio.visor.api.common.addon.component.ComponentIds;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
@@ -162,7 +162,7 @@ public class VRSettingsCreateKeyAction extends VROptionsSet {
         var id = generateId();
         var name = actionNameEdit.getValue();
         var key = actionKeyEdit.getValue();
-        var keyAction = new VRActionKey(
+        var keyAction = new VRActionKeyCustom(
                 id,
                 parent.getActionSet(),
                 key.charAt(0), name

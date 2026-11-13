@@ -9,7 +9,7 @@ import me.phoenixra.atumvr.api.input.action.VRActionIdentifier;
 import me.phoenixra.atumvr.core.input.profile.XRInteractionProfile;
 import me.phoenixra.atumvr.api.input.profile.VRInteractionProfileType;
 import org.vmstudio.visor.api.VisorAPI;
-import org.vmstudio.visor.api.client.input.action.framework.VRActionKey;
+import org.vmstudio.visor.api.client.input.action.framework.VRActionKeyCustom;
 import org.vmstudio.visor.api.common.VRException;
 import org.vmstudio.visor.api.common.addon.component.ComponentPriority;
 import org.vmstudio.visor.api.common.addon.component.PrioritySupporter;
@@ -38,7 +38,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
     private boolean enabled = true;
 
     protected Map<String, VRAction> actionsMap;
-    protected Map<String, VRActionKey> keyActionsMap;
+    protected Map<String, VRActionKeyCustom> keyActionsMap;
     protected Map<VRInteractionProfileType, Boolean> keyModifiersActiveMap;
 
 
@@ -199,7 +199,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
             char character = subsection.getString(key+".key").charAt(0);
             String name = subsection.getString(key+".name");
 
-            var action = new VRActionKey(key,this,  character, name);
+            var action = new VRActionKeyCustom(key,this,  character, name);
             actionsMap.put(key, action);
             keyActionsMap.put(key, action);
         }
@@ -388,7 +388,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
             );
             config.set(
                     subsectionPath + action.getId() + ".name",
-                    action.getNameKey()
+                    action.getLangKeyName()
             );
         }
         try {
@@ -406,7 +406,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      *
      * @param action the key action
      */
-    public void addKeyAction(@NotNull VRActionKey action){
+    public void addKeyAction(@NotNull VRActionKeyCustom action){
         keyActionsMap.put(action.getId(), action);
         actionsMap.put(action.getId(), action);
         if(loadBinding(action)){
@@ -444,7 +444,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      * @param id the key action id
      * @return key action or null
      */
-    public @Nullable VRActionKey getKeyAction(@NotNull String id){
+    public @Nullable VRActionKeyCustom getKeyAction(@NotNull String id){
         return keyActionsMap.get(id);
     }
 
@@ -453,7 +453,7 @@ public abstract class VRActionSet implements VisorComponent, PrioritySupporter {
      *
      * @return collection of key actions
      */
-    public Collection<VRActionKey> getKeyActions(){
+    public Collection<VRActionKeyCustom> getKeyActions(){
         return keyActionsMap.values();
     }
 

@@ -37,15 +37,6 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
 
-import org.vmstudio.visor.mixin.client.accessors.KeyMappingAccessor;
-import net.minecraft.client.KeyMapping;
-
-//? if >=26.1 {
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-//?} else {
-/*import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-*///?}
-
 
 import java.io.File;
 import java.io.IOException;
@@ -346,17 +337,6 @@ public class FabricModLoader implements ModLoader {
     @Override
     public boolean renderFireOverlay(Player player, PoseStack mat) {
         return false;
-    }
-
-    @Override
-    public int getKeyBinding(String id) {
-        KeyMapping mapping = KeyMappingAccessor.ALL().get(id);
-        if (mapping == null) return -1;
-        //? if >=26.1 {
-        return KeyMappingHelper.getBoundKeyOf(mapping).getValue();
-        //?} else {
-        /*return KeyBindingHelper.getBoundKeyOf(mapping).getValue();
-        *///?}
     }
 
     @Override

@@ -73,8 +73,9 @@ accessible method net/minecraft/client/KeyboardHandler charTyped (JLnet/minecraf
 #accessible method net/minecraft/client/KeyboardHandler charTyped (JII)V
 #?}
 
-# Used in: ClientUtils
+# Used in: InputHelper
 accessible field net/minecraft/client/KeyMapping clickCount I
+accessible field net/minecraft/client/KeyMapping ALL Ljava/util/Map;
 
 # ------ CAMERA AND RENDER TARGETS ------------------
 

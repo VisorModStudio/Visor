@@ -10,55 +10,60 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-/**
- * VR action that types a single character.
- * <p>
- *     Users can create custom actions in settings based on this.
- * </p>
- */
 public class VRActionKey extends VRActionButton {
 
 
     @Getter
-    private final boolean required = false;
-
-    @Getter
     private final char character;
 
-    private final Component name;
     @Getter
-    private final String nameKey;
+    private final String mcKey;
 
+    // KEY
     public VRActionKey(@NotNull String id,
                        @NotNull VRActionSet actionSet,
-                       char character,
-                       @NotNull String nameKey) {
+                       char character) {
         super(actionSet, id);
         this.character = character;
-        this.name = Component.translatable(nameKey);
-        this.nameKey = nameKey;
+        this.mcKey = null;
+    }
+
+    // MC KEY
+    public VRActionKey(@NotNull String id,
+                       @NotNull VRActionSet actionSet,
+                       @NotNull String mcKey) {
+        super(actionSet, id);
+        this.character = (char) -1;
+        this.mcKey = mcKey;
     }
 
 
     @Override
     protected void onPress() {
-        InputHelper.pressChar(character);
+        if(isUsingMcKey()) InputHelper.updateKeyMapping(this.mcKey, true);
+        else InputHelper.pressChar(character);
     }
 
     @Override
     protected void onRelease() {
-        InputHelper.releaseChar(character);
+        if(isUsingMcKey()) InputHelper.updateKeyMapping(this.mcKey, false);
+        else InputHelper.releaseChar(character);
+    }
+
+
+    public boolean isUsingMcKey(){
+        return mcKey != null;
     }
 
     @Override
     public @NotNull Component getName() {
-        return name;
+        return isUsingMcKey() ? Component.translatable(mcKey) : super.getName();
     }
 
+    // Optional, to allow creating object without implementation
     @Override
     public @NotNull Map<VRInteractionProfileType, ActionBinding> getDefaultBindings() {
         //empty
         return Map.of();
     }
-
 }
