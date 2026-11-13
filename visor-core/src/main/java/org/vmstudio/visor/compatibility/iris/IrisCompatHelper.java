@@ -170,7 +170,7 @@ public final class IrisCompatHelper {
     }
 
     public static boolean syncFrameCounter() {
-        return !perEyePipelines();
+        return true;
     }
 
     private IrisCompatHelper() {
